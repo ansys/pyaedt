@@ -1,7 +1,8 @@
 """
-This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
+This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
 """
 
+from abc import abstractmethod
 from collections import OrderedDict
 import copy
 import re
@@ -94,9 +95,7 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-        for el in self._app.boundaries[:]:
-            if el.name == self.name:
-                del self._app._boundaries[el.name]
+        self._app.boundaries
         return True
 
     def _get_boundary_data(self, ds):
@@ -111,7 +110,7 @@ class BoundaryCommon(PropsManager):
                             "MaxwellParameterType"
                         ],
                     ]
-        except:
+        except Exception:
             pass
         try:
             if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
@@ -123,7 +122,7 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
                     ]
-        except:
+        except Exception:
             pass
         try:
             if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
@@ -137,7 +136,7 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["BoundarySetup"]["Boundaries"][ds],
                         self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
                     ]
-        except:
+        except Exception:
             return []
 
 
@@ -273,7 +272,7 @@ class NativeComponentObject(BoundaryCommon, object):
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
-        except Exception as e:
+        except Exception:
             self.excitation_name = self.name
         return True
 
@@ -353,7 +352,7 @@ class BoundaryObject(BoundaryCommon, object):
     >>> origin = hfss.modeler.Position(0, 0, 0)
     >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
     >>> inner_id = hfss.modeler.get_obj_id("inner")
-    >>> coat = hfss.assign_coating([inner_id], "copper", usethickness=True, thickness="0.2mm")
+    >>> coat = hfss.assign_coating([inner_id],"copper",use_thickness=True,thickness="0.2mm")
     """
 
     def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):
@@ -829,10 +828,10 @@ class BoundaryObject(BoundaryCommon, object):
         if "Faces" in self.props:
             faces = self.props["Faces"]
             faces_out = []
-            if type(faces) is not list:
+            if not isinstance(faces, list):
                 faces = [faces]
             for f in faces:
-                if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
+                if isinstance(f, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
                     faces_out.append(f.id)
                 else:
                     faces_out.append(f)
@@ -1018,7 +1017,7 @@ class MaxwellParameters(BoundaryCommon, object):
                 ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
             )
             return matrix_name, join_name
-        except:
+        except Exception:
             self._app.logger.error("Failed to create Matrix Reduction")
             return False, False
 
@@ -1939,14 +1938,14 @@ class Sources(object):
                 original_name = self._name
                 self._name = source_name
                 for port in self._app.excitations:
-                    if original_name in self._app.excitations[port].props["EnabledPorts"]:
-                        self._app.excitations[port].props["EnabledPorts"] = [
+                    if original_name in self._app.excitation_objects[port].props["EnabledPorts"]:
+                        self._app.excitation_objects[port].props["EnabledPorts"] = [
                             w.replace(original_name, source_name)
-                            for w in self._app.excitations[port].props["EnabledPorts"]
+                            for w in self._app.excitation_objects[port].props["EnabledPorts"]
                         ]
-                    if original_name in self._app.excitations[port].props["EnabledAnalyses"]:
-                        self._app.excitations[port].props["EnabledAnalyses"][source_name] = (
-                            self._app.excitations[port].props["EnabledAnalyses"].pop(original_name)
+                    if original_name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
+                        self._app.excitation_objects[port].props["EnabledAnalyses"][source_name] = (
+                            self._app.excitation_objects[port].props["EnabledAnalyses"].pop(original_name)
                         )
                 self.update(original_name)
         else:
@@ -1967,11 +1966,11 @@ class Sources(object):
                     source_prop_dict[el] = None
                 elif el == "FreqDependentSourceData":
                     data = self._app.design_properties["NexximSources"]["Data"][source]["FDSFileName"]
-                    freqs = re.findall("freqs=\[(.*?)\]", data)
-                    magnitude = re.findall("magnitude=\[(.*?)\]", data)
-                    angle = re.findall("angle=\[(.*?)\]", data)
-                    vreal = re.findall("vreal=\[(.*?)\]", data)
-                    vimag = re.findall("vimag=\[(.*?)\]", data)
+                    freqs = re.findall(r"freqs=\[(.*?)\]", data)
+                    magnitude = re.findall(r"magnitude=\[(.*?)\]", data)
+                    angle = re.findall(r"angle=\[(.*?)\]", data)
+                    vreal = re.findall(r"vreal=\[(.*?)\]", data)
+                    vimag = re.findall(r"vimag=\[(.*?)\]", data)
                     source_file = re.findall("voltage_source_file=", data)
                     source_prop_dict["frequencies"] = None
                     source_prop_dict["vmag"] = None
@@ -2123,7 +2122,7 @@ class Sources(object):
         for source_name in self._app.sources:
             excitation_source = []
             for port in self._app.excitations:
-                if source_name in self._app.excitations[port]._props["EnabledPorts"]:
+                if source_name in self._app.excitation_objects[port]._props["EnabledPorts"]:
                     excitation_source.append(port)
             arg3.append(source_name + ":=")
             arg3.append(excitation_source)
@@ -2145,9 +2144,9 @@ class Sources(object):
         for source_name in self._app.sources:
             arg6 = ["NAME:" + source_name]
             for port in self._app.excitations:
-                if source_name in self._app.excitations[port]._props["EnabledAnalyses"]:
+                if source_name in self._app.excitation_objects[port]._props["EnabledAnalyses"]:
                     arg6.append(port + ":=")
-                    arg6.append(self._app.excitations[port]._props["EnabledAnalyses"][source_name])
+                    arg6.append(self._app.excitation_objects[port]._props["EnabledAnalyses"][source_name])
                 else:
                     arg6.append(port + ":=")
                     arg6.append([])
@@ -2178,10 +2177,10 @@ class Sources(object):
         """
         self._app.modeler._odesign.DeleteSource(self.name)
         for port in self._app.excitations:
-            if self.name in self._app.excitations[port].props["EnabledPorts"]:
-                self._app.excitations[port].props["EnabledPorts"].remove(self.name)
-            if self.name in self._app.excitations[port].props["EnabledAnalyses"]:
-                del self._app.excitations[port].props["EnabledAnalyses"][self.name]
+            if self.name in self._app.excitation_objects[port].props["EnabledPorts"]:
+                self._app.excitation_objects[port].props["EnabledPorts"].remove(self.name)
+            if self.name in self._app.excitation_objects[port].props["EnabledAnalyses"]:
+                del self._app.excitation_objects[port].props["EnabledAnalyses"][self.name]
         return True
 
     @pyaedt_function_handler()
@@ -3204,7 +3203,7 @@ class Excitations(object):
 
     @name.setter
     def name(self, port_name):
-        if port_name not in self._app.excitation_names:
+        if port_name not in self._app.excitations:
             if port_name != self._name:
                 # Take previous properties
                 self._app.odesign.RenamePort(self._name, port_name)
@@ -3630,6 +3629,16 @@ class NetworkObject(BoundaryObject):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
             self.props["SchematicData"] = OrderedDict({})
+
+        if self.props.get("Links", None):
+            self.props["Links"] = {link_name: link_values.props for link_name, link_values in self.links.items()}
+        else:  # pragma : no cover
+            raise KeyError("Links information is missing.")
+        if self.props.get("Nodes", None):
+            self.props["Nodes"] = {node_name: node_values.props for node_name, node_values in self.nodes.items()}
+        else:  # pragma : no cover
+            raise KeyError("Nodes information is missing.")
+
         args = self._get_args()
 
         clean_args = self._clean_list(args)
@@ -4308,7 +4317,7 @@ class NetworkObject(BoundaryObject):
             self.delete()
             try:
                 self.create()
-                self._app.boundaries.append(self)
+                self._app._boundaries[self.name] = self
                 return True
             except Exception:  # pragma : no cover
                 self._app.odesign.Undo()
@@ -4520,3 +4529,232 @@ def _create_boundary(bound):
             raise Exception
     except Exception:  # pragma: no cover
         return None
+
+
+class BoundaryDictionary:
+    """
+    Handles Icepak transient and temperature-dependent boundary condition assignments.
+
+    Parameters
+    ----------
+    assignment_type : str
+        Type of assignment represented by the class. Options are `"Temp Dep"``
+        and ``"Transient"``.
+    function_type : str
+        Variation function to assign. If ``assignment_type=="Temp Dep"``,
+        the function can only be ``"Piecewise Linear"``. Otherwise, the function can be
+        ``"Exponential"``, ``"Linear"``, ``"Piecewise Linear"``, ``"Power Law"``,
+        ``"Sinusoidal"``, and ``"Square Wave"``.
+    """
+
+    def __init__(self, assignment_type, function_type):
+        if assignment_type not in ["Temp Dep", "Transient"]:  # pragma : no cover
+            raise AttributeError("The argument {} for ``assignment_type`` is not valid.".format(assignment_type))
+        if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
+            raise AttributeError(
+                "Temperature dependent assignments only support"
+                ' ``"Piecewise Linear"`` as ``function_type`` argument.'.format(assignment_type)
+            )
+        self.assignment_type = assignment_type
+        self.function_type = function_type
+
+    @property
+    def props(self):
+        return {
+            "Type": self.assignment_type,
+            "Function": self.function_type,
+            "Values": self._parse_value(),
+        }
+
+    @abstractmethod
+    def _parse_value(self):
+        pass  # pragma : no cover
+
+    @pyaedt_function_handler
+    def __getitem__(self, k):
+        return self.props.get(k)
+
+
+class LinearDictionary(BoundaryDictionary):
+    """
+    Manages linear conditions assignments, which are children of the ``BoundaryDictionary`` class.
+
+    This class applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*t``
+
+    Parameters
+    ----------
+    intercept : str
+        Value of the assignment condition at the initial time, which
+        corresponds to the coefficient ``a`` in the formula.
+    slope : str
+        Slope of the assignment condition, which
+        corresponds to the coefficient ``b`` in the formula.
+    """
+
+    def __init__(self, intercept, slope):
+        super().__init__("Transient", "Linear")
+        self.intercept = intercept
+        self.slope = slope
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.slope, self.intercept]
+
+
+class PowerLawDictionary(BoundaryDictionary):
+    """
+    Manages power law condition assignments, which are children of the ``BoundaryDictionary`` class.
+
+     This class applies a condition ``y`` dependent on the time ``t``:
+         ``y=a+b*t^c``
+
+     Parameters
+     ----------
+     intercept : str
+         Value of the assignment condition at the initial time, which
+         corresponds to the coefficient ``a`` in the formula.
+     coefficient : str
+         Coefficient that multiplies the power term, which
+         corresponds to the coefficient ``b`` in the formula.
+     scaling_exponent : str
+         Exponent of the power term, which
+         corresponds to the coefficient ``c`` in the formula.
+    """
+
+    def __init__(self, intercept, coefficient, scaling_exponent):
+        super().__init__("Transient", "Power Law")
+        self.intercept = intercept
+        self.coefficient = coefficient
+        self.scaling_exponent = scaling_exponent
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.intercept, self.coefficient, self.scaling_exponent]
+
+
+class ExponentialDictionary(BoundaryDictionary):
+    """
+    Manages exponential condition assignments, which are children of the ``BoundaryDictionary`` class.
+
+    This class applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*exp(c*t)``
+
+    Parameters
+    ----------
+    vertical_offset : str
+        Vertical offset summed to the exponential law, which
+        corresponds to the coefficient ``a`` in the formula.
+    coefficient : str
+        Coefficient that multiplies the exponential term, which
+        corresponds to the coefficient ``b`` in the formula.
+    exponent_coefficient : str
+        Coefficient in the exponential term, which
+        corresponds to the coefficient ``c`` in the formula.
+    """
+
+    def __init__(self, vertical_offset, coefficient, exponent_coefficient):
+        super().__init__("Transient", "Exponential")
+        self.vertical_offset = vertical_offset
+        self.coefficient = coefficient
+        self.exponent_coefficient = exponent_coefficient
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.vertical_offset, self.coefficient, self.exponent_coefficient]
+
+
+class SinusoidalDictionary(BoundaryDictionary):
+    """
+    Manages sinusoidal condition assignments, which are children of the ``BoundaryDictionary`` class.
+
+    This class applies a condition ``y`` dependent on the time ``t``:
+        ``y=a+b*sin(2*pi(t-t0)/T)``
+
+    Parameters
+    ----------
+    vertical_offset : str
+        Vertical offset summed to the sinusoidal law, which
+        corresponds to the coefficient ``a`` in the formula.
+    vertical_scaling : str
+        Coefficient that multiplies the sinusoidal term, which
+        corresponds to the coefficient ``b`` in the formula.
+    period : str
+        Period of the sinusoid, which
+        corresponds to the coefficient ``T`` in the formula.
+    period_offset : str
+        Offset of the sinusoid, which
+        corresponds to the coefficient ``t0`` in the formula.
+    """
+
+    def __init__(self, vertical_offset, vertical_scaling, period, period_offset):
+        super().__init__("Transient", "Sinusoidal")
+        self.vertical_offset = vertical_offset
+        self.vertical_scaling = vertical_scaling
+        self.period = period
+        self.period_offset = period_offset
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.vertical_offset, self.vertical_scaling, self.period, self.period_offset]
+
+
+class SquareWaveDictionary(BoundaryDictionary):
+    """
+    Manages square wave condition assignments, which are children of the ``BoundaryDictionary`` class.
+
+    Parameters
+    ----------
+    on_value : str
+        Maximum value of the square wave.
+    initial_time_off : str
+        Time after which the square wave assignment starts.
+    on_time : str
+        Time for which the square wave keeps the maximum value during one period.
+    off_time : str
+        Time for which the square wave keeps the minimum value during one period.
+    off_value : str
+        Minimum value of the square wave.
+    """
+
+    def __init__(self, on_value, initial_time_off, on_time, off_time, off_value):
+        super().__init__("Transient", "Square Wave")
+        self.on_value = on_value
+        self.initial_time_off = initial_time_off
+        self.on_time = on_time
+        self.off_time = off_time
+        self.off_value = off_value
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.on_value, self.initial_time_off, self.on_time, self.off_time, self.off_value]
+
+
+class PieceWiseLinearDictionary(BoundaryDictionary):
+    """
+    Manages dataset condition assignments, which are children of the ``BoundaryDictionary`` class.
+
+    Parameters
+    ----------
+    assignment_type : str
+        Type of assignment represented by the class.
+        Options are ``"Temp Dep"`` and ``"Transient"``.
+    ds : str
+        Dataset name to assign.
+    scale : str
+        Scaling factor for the y values of the dataset.
+    """
+
+    def __init__(self, assignment_type, ds, scale):
+        super().__init__(assignment_type, "Piecewise Linear")
+        self.scale = scale
+        self._assignment_type = assignment_type
+        self.dataset = ds
+
+    @pyaedt_function_handler
+    def _parse_value(self):
+        return [self.scale, self.dataset.name]
+
+    @property
+    def dataset_name(self):
+        return self.dataset.name

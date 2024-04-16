@@ -15,7 +15,7 @@ from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Objec3DLayout(object):
+class Object3DLayout(object):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
@@ -431,13 +431,14 @@ class ModelInfoRlc(object):
             return self.rlc_model_type[6]
 
 
-class Components3DLayout(Objec3DLayout, object):
+class Components3DLayout(Object3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
+        self._pins = {}
 
     @property
     def part(self):
@@ -629,7 +630,13 @@ class Components3DLayout(Objec3DLayout, object):
 
     @pyaedt_function_handler()
     def set_solderball(
-        self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
+        self,
+        solderball_type="Cyl",
+        diameter="0.1mm",
+        mid_diameter="0.1mm",
+        height="0.2mm",
+        material="solder",
+        reference_offset=None,
     ):
         """Set solderball on the active component.
 
@@ -648,6 +655,8 @@ class Components3DLayout(Objec3DLayout, object):
             Ball height. The default is height="0.2mm".
         material : str, optional
             Ball material. The default is ``"solder"``.
+        reference_offset : str, optional.
+            Reference offset for port creation.  The default is ``"0mm"``
 
         Returns
         -------
@@ -656,28 +665,30 @@ class Components3DLayout(Objec3DLayout, object):
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
+        props = self._oeditor.GetComponentInfo(self.name)
+        model = ""
+        for p in props:
+            if "PortProp(" in p:
+                model = p
+                break
+        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
+        m = re.search(s, model)
+        rsx = "0"
+        rsy = "0"
+        rsa = True
+        rh = "0"
+        if m:
+            rh = m.group(1)
+            rsx = m.group(3)
+            rsy = m.group(4)
+            if m.group(2) == "false":
+                rsa = False
+        if reference_offset:
+            rh = reference_offset
         if self._part_type_id == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            props = self._oeditor.GetComponentInfo(self.name)
-            model = ""
-            for p in props:
-                if "PortProp(" in p:
-                    model = p
-                    break
-            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
-            m = re.search(s, model)
-            rh = "0"
-            rsx = "0"
-            rsy = "0"
-            rsa = True
-            if m:
-                rh = m.group(1)
-                rsx = m.group(3)
-                rsy = m.group(4)
-                if m.group(2) == "false":
-                    rsa = False
             s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
             m = re.search(s, model)
             dt = 0
@@ -739,6 +750,8 @@ class Components3DLayout(Objec3DLayout, object):
                             "sbn:=",
                             material,
                         ],
+                        "PortProp:=",
+                        ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy],
                     ],
                 ],
             ]
@@ -750,9 +763,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        List of str
+        dict
+            Dictionary of pins.
         """
-        return list(self._oeditor.GetComponentPins(self.name))
+        if self._pins:
+            return self._pins
+        self._pins = {i: Pins3DLayout(self._primitives, i) for i in list(self._oeditor.GetComponentPins(self.name))}
+        return self._pins
 
     @property
     def model(self):
@@ -789,11 +806,11 @@ class Nets3DLayout(object):
         return comps
 
 
-class Pins3DLayout(Objec3DLayout, object):
+class Pins3DLayout(Object3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", component_name=None, is_pin=True):
-        Objec3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
+        Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
         self.is_pin = is_pin
@@ -847,11 +864,11 @@ class Pins3DLayout(Objec3DLayout, object):
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
 
-class Geometries3DLayout(Objec3DLayout, object):
+class Geometries3DLayout(Object3DLayout, object):
     """Contains geometries in HFSS 3D Layout."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
-        Objec3DLayout.__init__(self, primitives, prim_type)
+        Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
 
@@ -884,7 +901,7 @@ class Geometries3DLayout(Objec3DLayout, object):
             self.change_property(vMaterial)
             self._name = value
             self._primitives._lines[self._name] = self
-        except:
+        except Exception:
             pass
 
     @property
@@ -1655,7 +1672,7 @@ class Points3dLayout(object):
             return True
 
 
-class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
+class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     """Contains 3d Components in HFSS 3D Layout.
 
     Parameters
@@ -1668,7 +1685,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     """
 
     def __init__(self, primitives, name=""):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
 
     @property

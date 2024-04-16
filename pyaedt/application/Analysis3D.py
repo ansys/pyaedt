@@ -95,6 +95,10 @@ class FieldAnalysis3D(Analysis, object):
         self._modeler = None
         self._mesh = None
         self._configurations = Configurations(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
@@ -116,11 +120,13 @@ class FieldAnalysis3D(Analysis, object):
             Modeler object.
         """
         if self._modeler is None:
+            self.logger.reset_timer()
+
             from pyaedt.modeler.modeler2d import Modeler2D
             from pyaedt.modeler.modeler3d import Modeler3D
 
             self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
-
+            self.logger.info_timer("Modeler class has been initialized!")
         return self._modeler
 
     @property
@@ -133,10 +139,14 @@ class FieldAnalysis3D(Analysis, object):
             Mesh object.
         """
         if self._mesh is None:
+            self.logger.reset_timer()
+
             from pyaedt.modules.Mesh import Mesh
             from pyaedt.modules.MeshIcepak import IcepakMesh
 
             self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self.logger.info_timer("Mesh class has been initialized!")
+
         return self._mesh
 
     @property
@@ -149,11 +159,16 @@ class FieldAnalysis3D(Analysis, object):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
+            elif self.design_type == "Icepak":
+                from pyaedt.modules.AdvancedPostProcessing import IcepakPostProcessor as PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -265,13 +280,13 @@ class FieldAnalysis3D(Analysis, object):
                 show_grid=show_grid,
             )
 
-    @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup")
+    def export_mesh_stats(self, setup, variation_string="", mesh_path=None):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -290,7 +305,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        self.odesign.ExportMeshStats(setup, variation_string, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
@@ -323,7 +338,12 @@ class FieldAnalysis3D(Analysis, object):
                 for line in _all_lines:
                     if "VariableProp(" in line:
                         line_list = line.split("'")
-                        vars[line_list[1]] = line_list[len(line_list) - 2]
+                        if not [
+                            c for c in line_list[len(line_list) - 2] if c in ["+", "-", "*", "'" "," "/", "(", ")"]
+                        ]:
+                            self[line_list[1]] = line_list[len(line_list) - 2]
+                        else:
+                            vars[line_list[1]] = line_list[len(line_list) - 2]
                 aedt_fh.close()
                 return vars
             else:
@@ -557,6 +577,12 @@ class FieldAnalysis3D(Analysis, object):
         if removed_objects is None:
             removed_objects = []
 
+        sub_regions = []
+        if self.settings.aedt_version > "2023.2":
+            sub_regions = [
+                o for o in self.modeler.non_model_objects if self.modeler[o].history().command == "CreateSubRegion"
+            ]
+
         if not object_list:
             allObjects = self.modeler.object_names
             if removed_objects:
@@ -565,6 +591,8 @@ class FieldAnalysis3D(Analysis, object):
             else:
                 if "Region" in allObjects:
                     allObjects.remove("Region")
+            for o in sub_regions:
+                allObjects.remove(o)
         else:
             allObjects = object_list[:]
 
@@ -700,6 +728,10 @@ class FieldAnalysis3D(Analysis, object):
         if matobj:
             if self.design_type == "HFSS":
                 solve_inside = matobj.is_dielectric()
+            elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+                solve_inside = True
+                if mat in ["pec", "perfect conductor"]:
+                    solve_inside = False
             else:
                 solve_inside = True
             slice_sel = min(50, len(selections))
@@ -1309,7 +1341,7 @@ class FieldAnalysis3D(Analysis, object):
         --------
         Import a GDS file in an HFSS 3D project.
 
-        >>> gds_path = r"C:\temp\gds1.gds"
+        >>> gds_path = r"C:\\temp\\gds1.gds"
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}

@@ -131,27 +131,33 @@ class Mechanical(FieldAnalysis3D, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        designname="design",
+        setupname="setup",
+        sweepname="sweep",
+        paramlist="parameters",
+        object_list="assignment",
+    )
     def assign_em_losses(
         self,
-        designname="HFSSDesign1",
-        setupname="Setup1",
-        sweepname="LastAdaptive",
+        design="HFSSDesign1",
+        setup="Setup1",
+        sweep="LastAdaptive",
         map_frequency=None,
         surface_objects=None,
         source_project_name=None,
-        paramlist=None,
-        object_list=None,
+        parameters=None,
+        assignment=None,
     ):
         """Map EM losses to a Mechanical design.
 
         Parameters
         ----------
-        designname : str, optional
+        design : str, optional
             Name of the design of the source mapping. The default is ``"HFSSDesign1"``.
-        setupname : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweepname : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             Frequency to map. The default is ``None``. The value must be ``None`` for
@@ -161,9 +167,9 @@ class Mechanical(FieldAnalysis3D, object):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case
             the source from the same project is used.
-        paramlist : list, optional
+        parameters : list, optional
             List of all parameters in the EM to map. The default is ``None``.
-        object_list : list, optional
+        assignment : list, optional
              The default is ``None``.
 
         Returns
@@ -177,14 +183,14 @@ class Mechanical(FieldAnalysis3D, object):
         """
         if surface_objects is None:
             surface_objects = []
-        if paramlist is None:
-            paramlist = []
-        if object_list is None:
-            object_list = []
+        if parameters is None:
+            parameters = []
+        if assignment is None:
+            assignment = []
 
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -193,10 +199,10 @@ class Mechanical(FieldAnalysis3D, object):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak.
         #
-        if not object_list:
+        if not assignment:
             allObjects = self.modeler.object_names
         else:
-            allObjects = object_list[:]
+            allObjects = assignment[:]
         surfaces = surface_objects
         if map_frequency:
             intr = [map_frequency]
@@ -207,7 +213,7 @@ class Mechanical(FieldAnalysis3D, object):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
+        for el in parameters:
             argparam[el] = el
 
         props = OrderedDict(
@@ -216,8 +222,8 @@ class Mechanical(FieldAnalysis3D, object):
                 "allObjects": False,
                 "Project": projname,
                 "projname": "ElectronicsDesktop",
-                "Design": designname,
-                "Soln": setupname + " : " + sweepname,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -232,19 +238,25 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design %s.", designname)
+            self.logger.info("EM losses mapped from design %s.", design)
             return bound
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        designname="design",
+        setupname="setup",
+        sweepname="sweep",
+        paramlist="parameters",
+        object_list="assignment",
+    )
     def assign_thermal_map(
         self,
         object_list,
-        designname="IcepakDesign1",
-        setupname="Setup1",
-        sweepname="SteadyState",
+        design="IcepakDesign1",
+        setup="Setup1",
+        sweep="SteadyState",
         source_project_name=None,
-        paramlist=None,
+        parameters=None,
     ):
         """Map thermal losses to a Mechanical design.
 
@@ -255,16 +267,16 @@ class Mechanical(FieldAnalysis3D, object):
         ----------
         object_list : list
 
-        designname : str, optional
+        design : str, optional
             Name of the design with the source mapping. The default is ``"IcepakDesign1"``.
-        setupname : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweepname : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"SteadyState"``.
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist : list, optional
+        parameters : list, optional
             List of all parameters in the EM to map. The default is ``None``.
 
         Returns
@@ -277,12 +289,12 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignThermalCondition
         """
-        if paramlist is None:
-            paramlist = []
+        if parameters is None:
+            parameters = []
 
         assert self.solution_type == "Structural", "This method works only in a Mechanical Structural analysis."
 
-        self.logger.info("Mapping HFSS EM Lossess")
+        self.logger.info("Mapping HFSS EM Loss")
         oName = self.project_name
         if oName == source_project_name or source_project_name is None:
             projname = "This Project*"
@@ -300,7 +312,7 @@ class Mechanical(FieldAnalysis3D, object):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        for el in paramlist:
+        for el in parameters:
             argparam[el] = el
 
         props = OrderedDict(
@@ -309,8 +321,8 @@ class Mechanical(FieldAnalysis3D, object):
                 "Uniform": False,
                 "Project": projname,
                 "Product": "ElectronicsDesktop",
-                "Design": designname,
-                "Soln": setupname + " : " + sweepname,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -322,7 +334,7 @@ class Mechanical(FieldAnalysis3D, object):
         bound = BoundaryObject(self, name, props, "ThermalCondition")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("Thermal conditions are mapped from design %s.", designname)
+            self.logger.info("Thermal conditions are mapped from design %s.", design)
             return bound
 
         return True
@@ -367,8 +379,8 @@ class Mechanical(FieldAnalysis3D, object):
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
+        if isinstance(objects_list, list):
+            if isinstance(objects_list[0], str):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
@@ -416,8 +428,8 @@ class Mechanical(FieldAnalysis3D, object):
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
+        if isinstance(objects_list, list):
+            if isinstance(objects_list[0], str):
                 props["Objects"] = objects_list
             else:
                 props["Faces"] = objects_list
@@ -632,23 +644,21 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Mechanical.
 
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
+        Optional arguments are passed along with ``setup_type`` and ``name``. Keyword
+        names correspond to the ``setup_type`` corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
-
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : int, str, optional
             Type of the setup. Options are  ``"IcepakSteadyState"`` and
             ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
             For more information, see :doc:`../SetupTemplatesMechanical`.
@@ -668,17 +678,17 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> from pyaedt import Mechanical
         >>> app = Mechanical()
-        >>> app.create_setup(setupname="Setup1", MaxModes=6))
+        >>> app.create_setup(name="Setup1",MaxModes=6)
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:

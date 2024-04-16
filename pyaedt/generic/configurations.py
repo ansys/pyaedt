@@ -3,9 +3,9 @@ import copy
 from datetime import datetime
 import json
 import os
-import pkgutil
 import tempfile
 
+import pyaedt
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
@@ -14,7 +14,9 @@ from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -28,6 +30,8 @@ from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+from pyaedt.modules.MeshIcepak import MeshRegion
+from pyaedt.modules.MeshIcepak import SubRegion
 
 if not is_ironpython:
     from jsonschema import exceptions
@@ -639,8 +643,9 @@ class ConfigurationsOptions(object):
 
 
 class ImportResults(object):
-    """Import Results Class.
-    Contains the results of the import operations. Each reusult can be ``True`` or ``False``.
+    """Contains the results of the import operations.
+
+    Each result can be ``True`` or ``False``.
     """
 
     def __init__(self):
@@ -687,10 +692,23 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
-        # Read the default configuration schema from pyaedt
-        schema_bytes = pkgutil.get_data(__name__, "../misc/config.schema.json")
-        schema_string = schema_bytes.decode("utf-8")
-        self._schema = json.loads(schema_string)
+        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
+
+        schema_bytes = None
+
+        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+
+        if os.path.exists(config_schema_path):
+            with open(config_schema_path, "rb") as schema:
+                schema_bytes = schema.read()
+
+        if schema_bytes:
+            # Read the default configuration schema from pyaedt
+            schema_string = schema_bytes.decode("utf-8")
+            self._schema = json.loads(schema_string)
+        else:  # pragma: no cover
+            self._app.logger.error("Failed to load configuration schema.")
+            self._schema = None
 
     @staticmethod
     @pyaedt_function_handler()
@@ -889,7 +907,7 @@ class Configurations(object):
             bound.props["Modes"] = BoundaryProps(bound, modes)
             bound.auto_update = True
         if bound.create():
-            self._app.boundaries.append(bound)
+            self._app._boundaries[bound.name] = bound
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
                 winding_name = ""
                 for b in self._app.boundaries:
@@ -916,7 +934,7 @@ class Configurations(object):
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
             return True
         else:
             self._app.logger.warning("Failed to add Mesh {} ".format(name))
@@ -933,7 +951,7 @@ class Configurations(object):
         if self._app.design_type == "Q3D Extractor":
             setup = self._app.create_setup(name, props=props)
         else:
-            setup = self._app.create_setup(name, setuptype=props["SetupType"], props=props)
+            setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
         if setup:
             self._app.logger.info("Setup {} added.".format(name))
             return True
@@ -1113,6 +1131,7 @@ class Configurations(object):
                 else:
                     newname = el
                 newmat = Material(self._app, el, val, material_update=True)
+                newmat._update_material()
                 if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
@@ -1140,6 +1159,14 @@ class Configurations(object):
             "Circuit Design",
         ]:
             self._app.modeler.set_working_coordinate_system("Global")
+
+        if self.options.import_mesh_operations and dict_in.get("mesh", None):
+            self.results.import_mesh_operations = True
+            for name, props in dict_in["mesh"].items():
+                self._convert_objects(props, dict_in["general"]["object_mapping"])
+                if not self._update_mesh_operations(name, props):
+                    self.results.import_mesh_operations = False
+
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1165,13 +1192,6 @@ class Configurations(object):
                 self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
                 if not self._update_boundaries(name, dict_in["boundaries"][name]):
                     self.results.import_boundaries = False
-
-        if self.options.import_mesh_operations and dict_in.get("mesh", None):
-            self.results.import_mesh_operations = True
-            for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["general"]["object_mapping"])
-                if not self._update_mesh_operations(name, props):
-                    self.results.import_mesh_operations = False
 
         if self.options.import_setups and dict_in.get("setups", None):
             self.results.import_setup = True
@@ -1213,7 +1233,7 @@ class Configurations(object):
         if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
-            with open(oo_out, "r") as f:
+            with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")
@@ -1610,19 +1630,23 @@ class ConfigurationsIcepak(Configurations):
                         if el in mesh_el.__dict__:
                             mesh_el.__dict__[el] = props[el]
                     return mesh_el.update()
-
-        bound = self._app.mesh.MeshRegion(
-            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
-        )
-        bound.name = name
-        for el in props:
-            if el in bound.__dict__:
-                bound.__dict__[el] = props[el]
-        if bound.create():
+        try:
+            if self._app.settings.aedt_version < "2024.1":
+                objs = props.get("Objects", []) + props.get("Submodels", [])
+            else:
+                subregion = SubRegion(self._app, props["_subregion_information"]["parts"])
+                subregion.padding_values = props["_subregion_information"]["pad_vals"]
+                subregion.padding_types = props["_subregion_information"]["pad_types"]
+                objs = subregion.name
+            bound = MeshRegion(app=self._app, name=name, objects=objs)
+            bound.manual_settings = props["UserSpecifiedSettings"]
+            for el in props:
+                if el in bound.settings:
+                    bound.settings[el] = props[el]
             self._app.mesh.meshregions.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
-        else:
-            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
+        except GrpcApiError:
+            self._app.logger.warning("Failed to add mesh {} ".format(name))
         return True
 
     @pyaedt_function_handler()
@@ -1633,7 +1657,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.modeler.refresh_all_ids()
             udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
-            if val.id in udc_parts_id:
+            if val.id in udc_parts_id or val.history().command == "CreateSubRegion":
                 continue
             dict_out["objects"][val.name] = {}
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
@@ -1649,10 +1673,7 @@ class ConfigurationsIcepak(Configurations):
     def _export_mesh_operations(self, dict_out):
         dict_out["mesh"] = {}
         args = ["NAME:Settings"]
-        if self._app.mesh.global_mesh_region.UserSpecifiedSettings:
-            args += self._app.mesh.global_mesh_region.manualsettings
-        else:
-            args += self._app.mesh.global_mesh_region.autosettings
+        args += self._app.mesh.global_mesh_region.settings.parse_settings()
         mop = OrderedDict({})
         _arg2dict(args, mop)
         dict_out["mesh"]["Settings"] = mop["Settings"]
@@ -1662,15 +1683,19 @@ class ConfigurationsIcepak(Configurations):
                     args = ["NAME:Settings"]
                 else:
                     args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
-                if mesh.UserSpecifiedSettings:
-                    args += mesh.manualsettings
-                else:
-                    args += mesh.autosettings
+                args += mesh.settings.parse_settings()
+                args += getattr(mesh, "_parse_assignment_value")()
+                args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = OrderedDict({})
                 _arg2dict(args, mop)
+                if self._app.modeler[args[-3][0]].history().command == "CreateSubRegion":
+                    mop[mesh.name]["_subregion_information"] = {
+                        "pad_vals": mesh.assignment.padding_values,
+                        "pad_types": mesh.assignment.padding_types,
+                        "parts": list(mesh.assignment.parts.keys()),
+                    }
                 dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
-        pass
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):

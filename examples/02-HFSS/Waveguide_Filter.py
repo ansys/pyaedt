@@ -19,11 +19,17 @@ import tempfile
 import pyaedt
 from pyaedt import general_methods
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Launch Ansys Electronics Desktop (AEDT)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-
 
 ###############################################################################
 # Define parameters and values for waveguide iris filter
@@ -56,7 +62,7 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2023.2",
+                   specified_version=aedt_version,
                    designname="filter",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
@@ -185,9 +191,9 @@ setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
 
 setup.create_frequency_sweep(
     unit="GHz",
-    sweepname="Sweep1",
-    freqstart=9.5,
-    freqstop=10.5,
+    name="Sweep1",
+    start_frequency=9.5,
+    stop_frequency=10.5,
     sweep_type="Interpolating",
 )
 
@@ -218,13 +224,9 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 #  The following command generates a field plot in HFSS and uses PyVista
 #  to plot the field in Jupyter.
 
-plot = hfss.post.plot_field(quantity="Mag_E",
-                            object_list=["Global:XZ"],
-                            plot_type="CutPlane",
-                            setup_name=hfss.nominal_adaptive,
-                            intrinsics={"Freq": "9.8GHz", "Phase": "0deg"},
-                            export_path=hfss.working_directory,
-                            show=False)
+plot = hfss.post.plot_field(quantity="Mag_E", assignment=["Global:XZ"], plot_type="CutPlane",
+                            setup=hfss.nominal_adaptive, intrinsics={"Freq": "9.8GHz", "Phase": "0deg"}, show=False,
+                            export_path=hfss.working_directory)
 
 ###############################################################################
 # Save and close the desktop

@@ -64,7 +64,6 @@ class CircuitComponents(object):
         self.current_position = [0, 0]
         self.increment_mils = [1000, 1000]
         self.limits_mils = 20000
-        pass
 
     @property
     def o_definition_manager(self):
@@ -234,7 +233,7 @@ class CircuitComponents(object):
         return True
 
     @pyaedt_function_handler()
-    def create_interface_port(self, name, location=[], angle=0):
+    def create_interface_port(self, name, location=None, angle=0):
         """Create an interface port.
 
         Parameters
@@ -256,7 +255,10 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateIPort
         """
-        if name in self._app.excitation_names:
+        if location is None:
+            location = []
+
+        if name in self._app.excitations:
             self.logger.warning("Port name already assigned.")
             return False
 
@@ -271,7 +273,7 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
-                return self._app.excitations[name]
+                return self._app.excitation_objects[name]
         return False
 
     @pyaedt_function_handler()
@@ -310,7 +312,7 @@ class CircuitComponents(object):
         return self.components[id]
 
     @pyaedt_function_handler()
-    def create_gnd(self, location=[], angle=0):
+    def create_gnd(self, location=None, angle=0):
         """Create a ground.
 
         Parameters
@@ -329,6 +331,9 @@ class CircuitComponents(object):
         ----------
         >>> oEditor.CreateGround
         """
+        if location is None:
+            location = []
+
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
 
@@ -631,7 +636,7 @@ class CircuitComponents(object):
     def create_touchstone_component(
         self,
         model_name,
-        location=[],
+        location=None,
         angle=0,
         show_bitmap=True,
     ):
@@ -671,6 +676,8 @@ class CircuitComponents(object):
         >>> s_parameter_path = os.path.join("your_path", "s_param_file_name.s4p")
         >>> circuit_comp = comps.create_touchstone_component(s_parameter_path, location=[0.0, 0.0], show_bitmap=False)
         """
+        if location is None:
+            location = []
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         if os.path.exists(model_name):
@@ -688,10 +695,10 @@ class CircuitComponents(object):
         inst_name=None,
         component_library="Resistors",
         component_name="RES_",
-        location=[],
+        location=None,
         angle=0,
         use_instance_id_netlist=False,
-        global_netlist_list=[],
+        global_netlist_list=None,
     ):
         """Create a component from a library.
 
@@ -705,13 +712,14 @@ class CircuitComponents(object):
             Name of component in the library. The default is ``"RES"``.
         location : list of float, optional
             Position on the X axis and Y axis.
+            The default is ``None``, in which case the component is placed in [0, 0].
         angle : optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
             Whether to enable the instance ID in the net list.
             The default is ``False``.
         global_netlist_list : list, optional
-            The default is``[]``.
+            The default is ``None``, in which case an empty list is passed.
 
         Returns
         -------
@@ -722,6 +730,15 @@ class CircuitComponents(object):
         ----------
 
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+
+        >>> from pyaedt import TwinBuilder
+        >>> aedtapp = TwinBuilder()
+        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
+        >>> cmp.set_property("ShowPin", True)
+        >>> aedtapp.release_desktop(True, True)
         """
         id = self.create_unique_id()
         if component_library:
@@ -730,7 +747,7 @@ class CircuitComponents(object):
             name = component_name
         arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
-
+        angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         id = self.oeditor.CreateComponent(arg1, arg2)
         id = int(id.split(";")[1])
@@ -1200,7 +1217,7 @@ class CircuitComponents(object):
             w.id = int(wire_id)
             self.wires[w.id] = w
             return w
-        except:
+        except Exception:
             return False
 
 
@@ -1222,7 +1239,7 @@ class ComponentInfo(object):
         return self._props
 
     @pyaedt_function_handler()
-    def place(self, inst_name, location=[], angle=0, use_instance_id_netlist=False):
+    def place(self, inst_name, location=None, angle=0, use_instance_id_netlist=False):
         """Create a component from a library.
 
         Parameters
@@ -1247,6 +1264,8 @@ class ComponentInfo(object):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         return self._component_manager.create_component(
             inst_name=inst_name,
             component_library=self.component_library,

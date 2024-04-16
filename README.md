@@ -17,7 +17,9 @@
 [![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
-[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+
+
 [![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## What is PyAEDT?
@@ -43,7 +45,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 ```sh
-  pip install pyaedt[full]
+  pip install pyaedt[all]
 ```
 
 You can also install PyAEDT from Conda-Forge with this command:
@@ -91,6 +93,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
   - Nexxim
   - EDB
   - Twin Builder
+  - EMIT
 
 ## Documentation and issues
 

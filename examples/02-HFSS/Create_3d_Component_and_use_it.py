@@ -18,12 +18,19 @@ from pyaedt import Hfss
 from pyaedt.generic.general_methods import generate_unique_name
 
 ##########################################################
-# Launch HFSS 2023.2
-# ~~~~~~~~~~~~~~~~~~
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+##########################################################
+# Launch HFSS
+# ~~~~~~~~~~~
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one. 
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(specified_version=aedt_version, new_desktop_session=True, close_on_exit=True)
 
 ##########################################################
 # Variables
@@ -73,7 +80,7 @@ hfss.assign_perfecte_to_sheets(substrate.bottom_face_z)
 # ~~~~~~~~~~~~~~~~
 # Wave port can be assigned to a sheet or to a face of an object.
 
-hfss.wave_port(via_outer.bottom_face_z, name="P1", )
+hfss.wave_port(via_outer.bottom_face_z, name="P1")
 
 ##########################################################
 # Create 3D Component

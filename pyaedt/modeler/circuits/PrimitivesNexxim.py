@@ -54,7 +54,7 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
@@ -73,9 +73,58 @@ class NexximComponents(CircuitComponents):
         self._currentId = 0
         self._components_catalog = None
 
+    @pyaedt_function_handler()
+    def get_component(self, name):
+        """Get a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Name of the component.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+             Circuit Component Object.
+        """
+        if name in self.components:
+            return self.components[name]
+        else:
+            for comp in self.components.values():
+                if (
+                    comp.name == name
+                    or comp.name.split("@")[-1] == name
+                    or comp.composed_name == name
+                    or comp.schematic_id == name
+                    or comp.id == name
+                ):
+                    return comp
+        self.logger.error("Component not found : %s", name)
+        return False
+
+    @pyaedt_function_handler()
+    def delete_component(self, name):
+        """Get and delete a component.
+
+        Parameters
+        ----------
+        name : str, int
+            Name of the component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        cmp = self.get_component(name)
+        if cmp:
+            cmp.delete()
+            return True
+        return False
+
     @property
     def components_catalog(self):
-        """Return the syslib component catalog with all info.
+        """System library component catalog with all information.
 
         Returns
         -------
@@ -552,7 +601,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -579,6 +628,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
@@ -587,7 +638,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -614,6 +665,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Inductors",
@@ -758,7 +811,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_current_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a current pulse.
 
         Parameters
@@ -785,6 +840,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -812,7 +871,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a voltage pulse.
 
         Parameters
@@ -839,6 +900,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -866,7 +931,62 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_pwl(
+        self, compname=None, time_list=None, voltage_list=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
+        """Create a pwl voltage source.
+
+        Parameters
+        ----------
+        compname : str, optional
+            Name of the voltage pulse. The default is ``None``.
+        time_list : list, optional
+            List of time points for the pwl voltage source. The default is ``[0]``.
+        voltage_list : list, optional
+            List of voltages for the pwl voltage source. The default is ``[0]``.
+        location : list of float, optional
+            Position on the x-axis and y-xis.
+        angle : float, optional
+            Angle rotation in degrees. The default is ``0``.
+        use_instance_id_netlist : bool, optional
+            Whether to use the instance ID in the net list.
+            The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+            Circuit Component Object.
+
+        References
+        ----------
+        >>> oEditor.CreateComponent
+        """
+        if location is None:
+            location = []
+
+        cmpid = self.create_component(
+            compname,
+            component_library="Independent Sources",
+            component_name="V_PWL",
+            location=location,
+            angle=angle,
+            use_instance_id_netlist=use_instance_id_netlist,
+        )
+
+        if (time_list is not None) and (voltage_list is not None):
+
+            if len(time_list) != len(voltage_list):
+                self.logger.error("The number of time points is different than the number of voltages.")
+                return False
+            else:
+                for nr, pair in enumerate(zip(time_list, voltage_list)):
+                    cmpid.set_property(property_name="time" + str(nr + 1), property_value=pair[0])
+                    cmpid.set_property(property_name="val" + str(nr + 1), property_value=pair[1])
+
+        return cmpid
+
+    @pyaedt_function_handler()
+    def create_current_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -893,6 +1013,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -956,7 +1078,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -983,6 +1105,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Diodes",
@@ -996,7 +1120,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -1023,6 +1147,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",
@@ -1036,7 +1162,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -1063,6 +1189,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",

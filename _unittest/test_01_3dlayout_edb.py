@@ -192,7 +192,10 @@ class TestClass:
         assert setup2
         setup1.props["RestrictElem"] = False
         assert setup1.update()
-        assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+        assert self.aedtapp.mesh.delete_mesh_operations(
+            "HFSS",
+            setup1.name,
+        )
 
     def test_05_change_property(self):
         ports = self.aedtapp.create_ports_on_component_by_nets(
@@ -307,7 +310,7 @@ class TestClass:
 
     def test_16_differential_ports(self):
         self.aedtapp.set_active_design(self.design_name)
-        pins = self.aedtapp.modeler.components["R3"].pins
+        pins = list(self.aedtapp.modeler.components["R3"].pins.keys())
         assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
         assert "test_differential" in self.aedtapp.port_list
 
@@ -351,7 +354,6 @@ class TestClass:
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
             self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
-            setup_sweep_name="SIwaveDCIR1",
             domain="DCIR",
             context="RL",
         )
@@ -376,3 +378,15 @@ class TestClass:
         assert (
             self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Advanced"
         )
+
+    def test_23_dissolve_element(self):
+        comp = self.aedtapp.modeler.components["D1"]
+        pins = {name: pin for name, pin in comp.pins.items() if name in ["D1-1", "D1-2", "D1-7"]}
+        self.aedtapp.dissolve_component("D1")
+        comp = self.aedtapp.modeler.create_component_on_pins(list(pins.keys()))
+        nets = [
+            list(pins.values())[0].net_name,
+            list(pins.values())[1].net_name,
+        ]
+        assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
+        assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")

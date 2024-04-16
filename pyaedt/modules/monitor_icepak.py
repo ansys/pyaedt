@@ -306,7 +306,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(point_names))
                 for i, mn in enumerate(monitor_names):
                     self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -354,7 +354,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
                 for i, mn in enumerate(monitor_names):
                     self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -410,7 +410,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
                 for i, mn in enumerate(monitor_names):
                     self._face_monitors[mn] = FaceMonitor(mn, "Surface", surface_name[i], monitor_quantity, self._app)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -457,7 +457,7 @@ class Monitor:
                 monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
                 for i, mn in enumerate(monitor_names):
                     self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -524,7 +524,7 @@ class Monitor:
                     self._point_monitors[mn] = PointMonitor(
                         mn, "Object", existing_names[i], monitor_quantity, self._app
                     )
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 return False
             if len(monitor_names) == 1:
                 return monitor_names[0]
@@ -560,7 +560,7 @@ class Monitor:
             except KeyError:
                 del self._point_monitors[monitor_name]
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -747,8 +747,8 @@ class ObjectMonitor:
         """
         return self._type
 
-    @pyaedt_function_handler
-    def value(self, quantity=None, setup_name=None, design_variation_dict=None, si_out=True):
+    @pyaedt_function_handler(setup_name="setup")
+    def value(self, quantity=None, setup=None, design_variation_dict=None, si_out=True):
         """
         Get a list of values obtained from the monitor object. If the simulation is steady state,
         the list will contain just one element.
@@ -760,10 +760,10 @@ class ObjectMonitor:
             all monitored quantity will be considered.
         design_variation_dict : dict, optional
             Dictionary containing the project and design variables and values. If this parameter
-            is not provided, all variations will be considered.
-        setup_name : str, optional
-            String that specifies the name of the setup from which to extract the monitor value.
-            If this parameter is not provided, the first one of the design will be selected.
+            is not provided, all variations are considered.
+        setup : str, optional
+            Name of the setup to extract the monitor value from.
+            If this parameter is not provided, the first setup of the design is used.
         si_out : bool, optional
             Whether to return the values of th monitor object in SI units. Default is ``True``.
 
@@ -773,8 +773,8 @@ class ObjectMonitor:
             Dictionary containing the variables names and values and the monitor values for each
             variation.
         """
-        if not setup_name:
-            setup_name = self._app.existing_analysis_sweeps[0]
+        if not setup:
+            setup = self._app.existing_analysis_sweeps[0]
         design_variation = []
         if not design_variation_dict:
             design_variation_dict = {k: ["All"] for k in self._app.variable_manager.variables.keys()}
@@ -787,7 +787,7 @@ class ObjectMonitor:
         for q in quantity:
             for i, monitor_result_obj in enumerate(
                 self._app.oreportsetup.GetSolutionDataPerVariation(
-                    "Monitor", setup_name, [], design_variation, "{}.{}".format(self.name, q)
+                    "Monitor", setup, [], design_variation, "{}.{}".format(self.name, q)
                 )
             ):
                 variation_a = {

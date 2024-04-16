@@ -9,31 +9,38 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Setup project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download of needed project file and setup of temporary project directory.
-project_dir =  pyaedt.generate_unique_folder_name()
+
+project_dir = pyaedt.generate_unique_folder_name()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
 
 project_name = pyaedt.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
-
 ###############################################################################
 # Open EDB
 # ~~~~~~~~
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
-edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
+
+edb = pyaedt.Edb(aedb_project, edbversion=aedt_version)
 edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
-
 
 ###############################################################################
 # Identify pins position
@@ -45,7 +52,6 @@ pin_u13_scl = [i for i in edb.components["U13"].pins.values() if i.net_name == "
 pin_u1_scl = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SCL"]
 pin_u13_sda = [i for i in edb.components["U13"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
 pin_u1_sda = [i for i in edb.components["U1"].pins.values() if i.net_name == "CLOCK_I2C_SDA"]
-
 
 ###############################################################################
 # Append Z Positions
@@ -72,18 +78,17 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=True, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, specified_version=aedt_version, non_graphical=True, new_desktop_session=True)
 
 ###############################################################################
 # Export to Q3D
 # ~~~~~~~~~~~~~
 # Create a dummy setup and export the layout in Q3D.
 # keep_net_name will reassign Q3D nets names from Hfss 3D Layout.
+
 setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
-
-
 
 ###############################################################################
 # Open Q3D
@@ -99,8 +104,6 @@ q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
-
-
 
 f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")
 q3d.source(f1, net_name="CLOCK_I2C_SCL")
@@ -147,4 +150,5 @@ solution2.plot()
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
+
 q3d.release_desktop()

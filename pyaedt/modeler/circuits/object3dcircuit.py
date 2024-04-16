@@ -132,7 +132,9 @@ class CircuitPins(object):
         return deltax, deltay
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1):
+    def connect_to_component(
+        self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
+    ):
         """Connect schematic components.
 
         Parameters
@@ -147,9 +149,12 @@ class CircuitPins(object):
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
         wire_name : str, optional
-            Wire name used only when user_wire is ``True``. Default value is ``""``.
+            Wire name used only when ``user_wire=True``. The default is ``""``.
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
+        page_port_angle : int, optional
+            Page port angle on the source pin. The default is ``None``, in which case
+            the angle is automatically computed.
 
         Returns
         -------
@@ -256,7 +261,7 @@ class CircuitPins(object):
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
-            except:
+            except Exception:
                 pass
         else:
             for cmp in component_pin:
@@ -264,15 +269,17 @@ class CircuitPins(object):
                     try:
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
                         break
-                    except:
+                    except Exception:
                         continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0]
             )
-        except:
+        except Exception:
             x_loc = float(self._circuit_comp.location[0])
-        if self.location[0] < x_loc:
+        if page_port_angle is not None:
+            angle = page_port_angle * math.pi / 180
+        elif self.location[0] < x_loc:
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
@@ -282,7 +289,7 @@ class CircuitPins(object):
                 x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
                 )
-            except:
+            except Exception:
                 x_loc = float(cmp._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
             if len(cmp._circuit_comp.pins) == 2:
@@ -295,7 +302,7 @@ class CircuitPins(object):
                 page_name, location=cmp.location, angle=angle
             )
         if ret1 and ret2:
-            return True
+            return True, ret1, ret2
         else:
             return False
 
@@ -304,10 +311,7 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            dict.__setitem__(self, key, value)
-        except:
+        if not isinstance(value, (int, float)):
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -315,12 +319,36 @@ class ComponentParameters(dict):
                         [
                             "NAME:" + self._tab,
                             ["NAME:PropServers", self._component.composed_name],
-                            ["NAME:ChangedProps", ["NAME:" + key, "ButtonText:=", str(value)]],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                            ],
                         ],
                     ]
                 )
+                if (
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                    != value
+                ):
+                    try:
+                        self._component._oeditor.SetPropertyValue(
+                            self._tab, self._component.composed_name, key, str(value)
+                        )
+                        dict.__setitem__(self, key, value)
+                    except Exception:
+                        self._component._circuit_components.logger.warning(
+                            "Property %s has not been edited.Check if readonly", key
+                        )
                 dict.__setitem__(self, key, value)
-            except:
+            except Exception:
+                self._component._circuit_components.logger.warning(
+                    "Property %s has not been edited. Check if read-only.", key
+                )
+        else:
+            try:
+                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
+                dict.__setitem__(self, key, value)
+            except Exception:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
@@ -348,7 +376,7 @@ class ModelParameters(object):
             _dict2arg(self.props, arg)
             self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
             return True
-        except:
+        except Exception:
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
             return False
 
@@ -393,12 +421,27 @@ class CircuitComponent(object):
         self._component_info = {}
         self._model_data = {}
 
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the component.
+
+        Returns
+        -------
+        bool
+        """
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
+        for k, v in self._circuit_components.components.items():
+            if v.name == self.name:
+                del self._circuit_components.components[k]
+                break
+        return True
+
     @property
     def refdes(self):
         """Reference designator."""
         try:
             return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
-        except:
+        except Exception:
             return ""
 
     @property
@@ -411,7 +454,7 @@ class CircuitComponent(object):
         """Property Data List."""
         try:
             return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
-        except:
+        except Exception:
             return []
 
     @property
@@ -433,8 +476,6 @@ class CircuitComponent(object):
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.ModelParameters`
-        """
-        """Return the model data if the component has one.
         """
         if self._model_data:
             return self._model_data
@@ -465,7 +506,7 @@ class CircuitComponent(object):
             tab = "Quantities"
         try:
             proparray = self._oeditor.GetProperties(tab, self.composed_name)
-        except:
+        except Exception:
             proparray = []
 
         for j in proparray:
@@ -571,7 +612,7 @@ class CircuitComponent(object):
             self._location = [
                 round(i[0] * AEDT_UNITS["Length"][i[1]] / AEDT_UNITS["Length"][self.units], 10) for i in loc
             ]
-        except:
+        except Exception:
             self._location = []
         return self._location
 
@@ -654,7 +695,7 @@ class CircuitComponent(object):
             self._mirror = (
                 self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Mirror") == "true"
             )
-        except:
+        except Exception:
             self._mirror = False
         return self._mirror
 
@@ -747,7 +788,7 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if type(property_name) is list:
+        if isinstance(property_name, list):
             for p, v in zip(property_name, property_value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)

@@ -13,12 +13,12 @@ and run a Nexxim time-domain simulation.
 
 import pyaedt
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
-desktop_version = "2023.2"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -37,7 +37,7 @@ new_thread = True
 # Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
 # starts the specified version in the specified mode.
 
-desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
 aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
 aedt_app.modeler.schematic.schematic_units = "mil"
 ###############################################################################
@@ -87,9 +87,9 @@ capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0], use_wire=True)
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient setup.
 
-setup2 = aedt_app.create_setup(setupname="MyTransient", setuptype=aedt_app.SETUPS.NexximTransient)
+setup2 = aedt_app.create_setup(name="MyTransient", setup_type=aedt_app.SETUPS.NexximTransient)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
-setup3 = aedt_app.create_setup(setupname="MyDC", setuptype=aedt_app.SETUPS.NexximDC)
+setup3 = aedt_app.create_setup(name="MyDC", setup_type=aedt_app.SETUPS.NexximDC)
 
 ###############################################################################
 # Solve transient setup
@@ -104,9 +104,7 @@ aedt_app.export_fullwave_spice()
 # ~~~~~~~~~~~~~
 # Create a report that plots solution data.
 
-solutions = aedt_app.post.get_solution_data(
-    expressions=aedt_app.get_traces_for_plot(category="S"),
-)
+solutions = aedt_app.post.get_solution_data(expressions=aedt_app.get_traces_for_plot(category="S"))
 solutions.enable_pandas_output = True
 real, imag = solutions.full_matrix_real_imag
 print(real)

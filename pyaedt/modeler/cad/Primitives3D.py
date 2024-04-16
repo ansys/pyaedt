@@ -287,7 +287,6 @@ class Primitives3D(GeometryModeler):
         ...                                             start_position=[0,5,0], height=0.5,
         ...                                              num_sides=8, name="mybox", matname="copper")
         """
-        test = cs_axis
         cs_axis = GeometryOperators.cs_axis_str(cs_axis)
         if len(center_position) != 3:
             self.logger.error("The ``center_position`` argument must be a valid three-element list.")
@@ -552,8 +551,8 @@ class Primitives3D(GeometryModeler):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_bondwire(self,  start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025,  facets=6, name=None,  matname=None, cs_axis="Z", **kwargs):  # fmt: on
+    def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
+                        diameter=0.025, facets=6, name=None, matname=None, cs_axis="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
@@ -1148,8 +1147,8 @@ class Primitives3D(GeometryModeler):
         vArg2.append(self._arg_with_dim(thread))
 
         self.oeditor.CreateHelix(vArg1, vArg2)
-        if polyline_name in self._object_names_to_ids:
-            del self.objects[self._object_names_to_ids[polyline_name]]
+        if polyline_name in self.objects_by_name:
+            del self.objects[self.objects_by_name[polyline_name].id]
         return self._create_object(polyline_name, **kwargs)
 
     @pyaedt_function_handler()
@@ -1416,8 +1415,7 @@ class Primitives3D(GeometryModeler):
                 if "IsEncrypted" in line:
                     line_list = line.split("=")
                     if line_list[1] in ["true", "True", True] and password == "":
-                        self.logger.error("Password can't be an empty string.")
-                        return False
+                        self.logger.warning("Encrypted model.")
             aedt_fh.close()
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
@@ -1517,7 +1515,7 @@ class Primitives3D(GeometryModeler):
                 self._app.configurations.options.import_native_components = True
                 self._app.configurations.options.import_monitor = True
                 temp_dict_file = os.path.join(self._app.toolkit_directory, generate_unique_name("tempdict_"))
-                with open(temp_dict_file, "w") as f:
+                with open_file(temp_dict_file, "w") as f:
                     json.dump(temp_dict, f)
                 exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
                 old_udm = set(list(self._app.modeler.user_defined_components))
@@ -2474,7 +2472,7 @@ class Primitives3D(GeometryModeler):
             )
             self.logger.info("Creating single winding")
         list_duplicated_object = []
-        if type(list_object[0]) == list:
+        if isinstance(list_object[0], list):
             for i in range(len(list_object)):
                 success = list_object[i][0].set_crosssection_properties(
                     type=section, width=w_dia, num_seg=segment_number
@@ -2489,7 +2487,7 @@ class Primitives3D(GeometryModeler):
                 number_duplication = int(key)
         if number_duplication >= 2:
             if values["Mode"]["Common"] and number_duplication == 2:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for i in range(len(list_object)):
                         duplication = self.create_polyline(
                             position_list=list_object[i][1], name=name_wind, matname=material_wind
@@ -2510,7 +2508,7 @@ class Primitives3D(GeometryModeler):
                     success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
                     list_duplicated_object.append([duplication, duplication_points])
             else:
-                if type(list_object[0]) == list:
+                if isinstance(list_object[0], list):
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
                             duplication = self.create_polyline(
@@ -2559,7 +2557,6 @@ class Primitives3D(GeometryModeler):
         ]
 
         positions = [i for i in points[:]]
-        import math
 
         angle = -2 * teta * math.pi / 180
         for i in range(1, turns):
@@ -2938,7 +2935,7 @@ class Primitives3D(GeometryModeler):
                 or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
-                    if type(values[f_key][s_key]) == bool:
+                    if isinstance(values[f_key][s_key],  bool):
                         if count_true:
                             values[f_key][s_key] = False
                         if values[f_key][s_key]:
@@ -2954,7 +2951,7 @@ class Primitives3D(GeometryModeler):
             core_name = str(values["Core"]["Name"])
             if len(core_name) > 0:
                 values["Core"]["Name"] = core_name
-        except:
+        except Exception:
             self.logger.warning("Core Name must be a non-null string. A default name Core has been set.")
             values["Core"]["Name"] = "Core"
 
@@ -2969,7 +2966,7 @@ class Primitives3D(GeometryModeler):
                         " It can be add using the method add_material" % core_material
                     )
                     values["Core"]["Material"] = "ferrite"
-        except:
+        except Exception:
             self.logger.warning("Core Material must be a non-null string. A default material Core has been set.")
             values["Core"]["Material"] = "ferrite"
 
@@ -2977,7 +2974,7 @@ class Primitives3D(GeometryModeler):
             winding_name = str(values["Outer Winding"]["Name"])
             if len(winding_name) > 0:
                 values["Outer Winding"]["Name"] = winding_name
-        except:
+        except Exception:
             self.logger.warning("Outer Winding Name must be a non-null string. A default name Winding has been set.")
             values["Outer Winding"]["Name"] = "Winding"
 
@@ -2992,7 +2989,7 @@ class Primitives3D(GeometryModeler):
                         " It can be add using the method add_material" % winding_material
                     )
                     values["Outer Winding"]["Material"] = "copper"
-        except:
+        except Exception:
             self.logger.warning(
                 "Outer Winding Material must be a non-null string." " A default material Winding has been set."
             )
@@ -3024,7 +3021,7 @@ class Primitives3D(GeometryModeler):
                     "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
                 )
                 are_inequations_checkable = False
-        except:
+        except Exception:
             self.logger.error(
                 "The character entered is invalid. Chamfer must be a positive float." " It must be changed"
             )
@@ -3309,7 +3306,7 @@ class Primitives3D(GeometryModeler):
                         + ".  It must be changed"
                     )
                     are_inequations_checkable = False
-            except:
+            except Exception:
                 receiving_variable = None
                 self.logger.error(
                     "The character entered is invalid. "
@@ -3331,7 +3328,7 @@ class Primitives3D(GeometryModeler):
                         + ".  It must be changed"
                     )
                     are_inequations_checkable = False
-            except:
+            except Exception:
                 receiving_variable = None
                 self.logger.error(
                     "The character entered is invalid. "

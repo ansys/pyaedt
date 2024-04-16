@@ -3,7 +3,7 @@ import pytest
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(project_name="Test_16")
+    app = add_app(project_name="Test_16", solution_type="Modal")
     return app
 
 

@@ -2,11 +2,11 @@ import os
 import re
 from warnings import warn
 
-from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -92,7 +92,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     @property
     def edb(self):
-        """EBD.
+        """EBD. Supported only in IronPython.
 
         Returns
         -------
@@ -100,9 +100,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
              EDB.
 
         """
+        if is_ironpython:
+            self.logger.warning("EDB is supported only in CPython.")
+            return self._edb
+
         if settings.remote_api or settings.remote_rpc_session:
             return self._edb
         if not self._edb:
+            from pyedb import Edb
+
             self._edb = None
             if os.path.exists(self._edb_file) or inside_desktop:
                 self._edb = Edb(
@@ -117,6 +123,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()
+                from pyedb import Edb
+
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -144,12 +152,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         try:
             self._desktop.RestoreWindow()
             self.oeditor.ZoomToFit()
-        except:
+        except Exception:
             self._desktop.RestoreWindow()
 
     @property
     def model_units(self):
-        """Model units.
+        """Model units as a string (for example, "mm").
 
         References
         ----------
@@ -162,7 +170,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
-        """Set the model units as a string (for example, "mm")."""
         self.oeditor.SetActiveUnits(units)
 
     @property
@@ -206,11 +213,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -341,7 +348,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
-            except:
+            except Exception:
                 continue
         if not comp_name:
             return False
@@ -827,7 +834,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)
-        except:
+        except Exception:
             self.logger.error("Failed to enable the temperature dependence.")
             return False
         else:
@@ -907,7 +914,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = self.components[component_name].pins
+        componentPins = list(self.components[component_name].pins.keys())
         componentPins.reverse()
         if not pin_map:
             pin_map = []
@@ -1015,6 +1022,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             )
             self.logger.info("Geometry check succeed")
             return True
-        except:
+        except Exception:
             self.logger.error("Geometry check Failed.")
             return False

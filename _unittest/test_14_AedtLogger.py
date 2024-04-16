@@ -6,12 +6,15 @@ import sys
 import tempfile
 import unittest.mock
 
+from _unittest.conftest import config
 import pytest
 
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
+
+desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture(scope="class")
@@ -223,11 +226,14 @@ class TestLogMessages:
     """Class used to test log messages."""
 
     def test_log_when_accessing_non_existing_object(self, caplog):
-        """Check that accessing non existing object log an error message."""
+        """Check that accessing a non-existent object logs an error message."""
         from pyaedt import Hfss
 
         app = Hfss(
-            projectname="log_project", designname="log_design", specified_version="2023.2", new_desktop_session=True
+            projectname="log_project",
+            designname="log_design",
+            specified_version=desktop_version,
+            new_desktop_session=True,
         )
         with pytest.raises(AttributeError):
             app.get_object_material_properties("MS1", "conductivity")

@@ -150,7 +150,7 @@ class TestClass:
         num_clones = 3
         status, mirror = self.aedtapp.modeler.duplicate_around_axis("outer", udp, 45, num_clones)
         assert status
-        assert type(mirror) is list
+        assert isinstance(mirror, list)
         assert len(mirror) == num_clones - 1
 
     def test_08_duplicate_along_line(self):
@@ -158,7 +158,7 @@ class TestClass:
         num_clones = 5
         status, mirror = self.aedtapp.modeler.duplicate_along_line("outer", udp, num_clones)
         assert status
-        assert type(mirror) is list
+        assert isinstance(mirror, list)
         assert len(mirror) == num_clones - 1
 
     def test_09_thicken_sheet(self):
@@ -272,7 +272,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_air_region(20, 20, 30, 50, 50, 100, False)
         self.aedtapp.modeler["Region"].delete()
         self.aedtapp["region_param"] = "20mm"
-        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30mm", "50", 50, 100, False)
+        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30", "50", 50, 100, False)
         assert self.aedtapp.modeler.edit_region_dimensions(["40mm", "30mm", 30, 50, 50, 100])
         self.aedtapp.modeler["Region"].delete()
         assert self.aedtapp.modeler.create_air_region("20", 20, 30, 50, 50, 100)
@@ -326,7 +326,6 @@ class TestClass:
             position, self.aedtapp.AXIS.Z, wgmodel="MYMODEL", wg_length=2000, parametrize_h=True
         )
         assert not wgfail
-        pass
 
     def test_31_set_objects_unmodel(self):
         assert self.aedtapp.modeler.set_object_model_state("Second_airbox", False)
@@ -359,7 +358,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_36_activate_variable_for_optimization(self):
@@ -663,12 +662,19 @@ class TestClass:
     def test_46_section_object(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
         assert self.aedtapp.modeler.section(box1, 0, create_new=True, section_cross_object=False)
-        pass
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
         assert rect1.sweep_along_vector(sweep_vector)
+        rect2 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 40, 0], [20, 20], "rectangle_to_vector2"
+        )
+        rect3 = self.aedtapp.modeler.create_rectangle(
+            self.aedtapp.PLANE.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3"
+        )
+        rect_list = [rect2, rect3]
+        assert self.aedtapp.modeler.sweep_along_vector(objid=rect_list, sweep_vector=sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"
@@ -792,7 +798,7 @@ class TestClass:
     def test_52_objects_in_bounding_box(self):
         bounding_box = [-100, -300, -200, 100, 200, 100]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
-        assert type(objects_in_bounding_box) is list
+        assert isinstance(objects_in_bounding_box, list)
 
         bounding_box = [0, 0, 0, 0, 0, 0]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)

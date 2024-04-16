@@ -92,14 +92,18 @@ class TestClass:
         assert mat1.get_curve_coreloss_type() == "Power Ferrite"
         assert isinstance(mat1.material_appearance, list)
 
-        mat1.material_appearance = [11, 22, 0]
-        assert mat1.material_appearance == [11, 22, 0]
-        mat1.material_appearance = ["11", "22", "10"]
-        assert mat1.material_appearance == [11, 22, 10]
+        mat1.material_appearance = [11, 22, 0, 0.5]
+        assert mat1.material_appearance == [11, 22, 0, 0.5]
+        mat1.material_appearance = ["11", "22", "10", "0.5"]
+        assert mat1.material_appearance == [11, 22, 10, 0.5]
         with pytest.raises(ValueError):
-            mat1.material_appearance = [11, 22, 300]
+            mat1.material_appearance = [11, 22, 300, 0.5]
         with pytest.raises(ValueError):
-            mat1.material_appearance = [11, -22, 0]
+            mat1.material_appearance = [11, 22, 100, 1.5]
+        with pytest.raises(ValueError):
+            mat1.material_appearance = [11, -22, 0, 0.5]
+        with pytest.raises(ValueError):
+            mat1.material_appearance = [11, 22, 0, -1]
         with pytest.raises(ValueError):
             mat1.material_appearance = [11, 22]
 
@@ -187,6 +191,20 @@ class TestClass:
         assert "copper_5540" in self.aedtapp.materials.material_keys.keys()
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
+
+        assert not self.aedtapp.materials.import_materials_from_file()
+        assert not self.aedtapp.materials.import_materials_from_file("mat.invented")
+        assert not self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "mats.csv")
+        )
+
+        assert self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
+        )
+        assert self.aedtapp.materials.import_materials_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "iron_pyaedt.amat")
+        )
+        x = 1
 
     def test_08B_import_materials_from_excel(self):
         mats = self.aedtapp.materials.import_materials_from_excel(

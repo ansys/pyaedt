@@ -14,6 +14,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,7 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
 cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version="2023.2",
+                     specified_version=aedt_version,
                      new_desktop_session=True,
                      non_graphical=non_graphical
                      )
@@ -84,7 +91,7 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
+trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
@@ -165,7 +172,7 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-plt.plot(cellst.T,  cellsv.T, zorder=0)
+plt.plot(cellst.T, cellsv.T, zorder=0)
 plt.show()
 
 ###############################################################################

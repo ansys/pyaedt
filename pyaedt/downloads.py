@@ -130,7 +130,7 @@ def _retrieve_folder(url, directory, destination=None, local_paths=None):
             else:
                 dir_folder = os.path.split(item["path"])
                 _download_file(dir_folder[0], dir_folder[1], destination, local_paths)
-    except:
+    except Exception:
         return False
 
 

@@ -226,6 +226,8 @@ class TestClass:
         assert len(new_object.faces) == 6
         assert len(new_object.edges) == 12
         assert new_object.display_wireframe == initial_object.display_wireframe
+        new_object.name = "Properties_Box"
+        assert not new_object.name == "Properties_Box"
 
     def test_08_set_model(self):
         o = self.create_copper_box()
@@ -536,6 +538,12 @@ class TestClass:
 
         self.aedtapp.modeler.oeditor.Intersect(vArg1, vArg2)
         assert box1 in self.aedtapp.modeler.unclassified_objects
+
+    def test_26a_delete_unclassified_object(self):
+        unclassified = self.aedtapp.modeler.unclassified_objects
+        assert self.aedtapp.modeler.delete(unclassified)
+        assert len(self.aedtapp.modeler.unclassified_objects) != unclassified
+        assert len(self.aedtapp.modeler.unclassified_objects) == 0
 
     def test_27_get_object_history_properties(self):
         box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")

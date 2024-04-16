@@ -10,7 +10,7 @@ solutions_defaults = {
     "Maxwell Circuit": "",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
-    "HFSS": "HFSS Modal Network",
+    "HFSS": "HFSS Terminal Network",
     "Icepak": "SteadyState",
     "RMxprtSolution": "GRM",
     "ModelCreation": "GRM",
@@ -567,7 +567,7 @@ class DesignSolution(object):
         elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
@@ -587,7 +587,7 @@ class DesignSolution(object):
             elif self._odesign:
                 try:
                     self._solution_type = self._odesign.GetSolutionType()
-                except:
+                except Exception:
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
@@ -601,7 +601,7 @@ class DesignSolution(object):
                 else:
                     try:
                         self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                    except:
+                    except Exception:
                         self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
@@ -653,7 +653,7 @@ class HFSSDesignSolution(DesignSolution, object):
                     self._solution_type = "Modal"
                 elif "Terminal" in self._solution_type:
                     self._solution_type = "Terminal"
-            except:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         elif self._solution_type is None:
             self._solution_type = solutions_defaults[self._design_type]
@@ -674,7 +674,7 @@ class HFSSDesignSolution(DesignSolution, object):
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except:
+                except Exception:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
         elif value is None:
             if self._odesign:
@@ -684,7 +684,7 @@ class HFSSDesignSolution(DesignSolution, object):
                         self._solution_type = "Modal"
                     elif "Terminal" in self._solution_type:
                         self._solution_type = "Terminal"
-                except:
+                except Exception:
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
@@ -710,7 +710,7 @@ class HFSSDesignSolution(DesignSolution, object):
             else:
                 try:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except:
+                except Exception:
                     self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
@@ -761,16 +761,16 @@ class HFSSDesignSolution(DesignSolution, object):
         self._composite = val
         self.solution_type = self.solution_type
 
-    @pyaedt_function_handler()
-    def set_auto_open(self, enable=True, boundary_type="Radiation"):
-        """Set Hfss auto open type.
+    @pyaedt_function_handler(boundary_type="opening_type")
+    def set_auto_open(self, enable=True, opening_type="Radiation"):
+        """Set HFSS auto open type.
 
         Parameters
         ----------
         enable : bool, optional
-            Either to enable or not auto open. The default is ``True``.
-        boundary_type : str, optional
-            Boundary Type to be used with auto open. Default is `"Radiation"`.
+            Whether to enable auto open. The default is ``True``.
+        opening_type : str, optional
+            Boundary type to use with auto open. The default is `"Radiation"`.
 
         Returns
         -------
@@ -781,7 +781,7 @@ class HFSSDesignSolution(DesignSolution, object):
         options = ["NAME:Options", "EnableAutoOpen:=", enable]
         if enable:
             options.append("BoundaryType:=")
-            options.append(boundary_type)
+            options.append(opening_type)
         self._solution_options[self.solution_type]["options"] = options
         self.solution_type = self.solution_type
         return True
@@ -812,7 +812,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
         if self._odesign and "GetSolutionType":
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
@@ -843,7 +843,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                 else:
                     opts = ""
                 self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
-            except:
+            except Exception:
                 pass
 
 
@@ -894,7 +894,7 @@ class IcepakDesignSolution(DesignSolution, object):
         if self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
-            except:
+            except Exception:
                 self._solution_type = solutions_defaults[self._design_type]
         return self._solution_type
 
@@ -921,7 +921,7 @@ class IcepakDesignSolution(DesignSolution, object):
                 ]
                 try:
                     self._odesign.SetSolutionType(options)
-                except:
+                except Exception:
                     pass
 
 
@@ -942,7 +942,7 @@ class RmXprtDesignSolution(DesignSolution, object):
             try:
                 self._odesign.SetDesignFlow(self._design_type, solution_type)
                 self._solution_type = solution_type
-            except:
+            except Exception:
                 pass
 
     @property

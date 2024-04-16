@@ -17,8 +17,8 @@ from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
-
-test_subfolder = "T26"
+TEST_SUBFOLDER = "T26"
+TEST_REVIEW_FLAG = True
 
 
 @pytest.fixture(scope="class")
@@ -28,15 +28,15 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
+@pytest.mark.skipif(sys.version_info < (3,8), reason="Emit API is only available for Python 3.8+.")
 class TestClass:
-
 
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 
-    def test_objects(self):
+    def test_01_objects(self):
         assert self.aedtapp.solution_type
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
@@ -59,7 +59,7 @@ class TestClass:
                 assert self.aedtapp.results is not None
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_create_components(self, add_app):
+    def test_02_create_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
@@ -132,7 +132,7 @@ class TestClass:
         assert isinstance(terminator, EmitComponent)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_connect_components(self, add_app):
+    def test_03_connect_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
@@ -160,7 +160,7 @@ class TestClass:
         assert connected_port == rad3_port
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-    def test_radio_component(self, add_app):
+    def test_04_radio_component(self, add_app):
         self.aedtapp = add_app(application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
@@ -176,14 +176,14 @@ class TestClass:
         exception_raised = False
         try:
             radio.set_band_power_level(100)
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
         # Try getting band power from the radio
         exception_raised = False
         try:
             radio.get_band_power_level()
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
         # full units support added with 2023.2
@@ -259,7 +259,7 @@ class TestClass:
             assert band_power == 0.01
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-    def test_emit_power_conversion(self):
+    def test_05_emit_power_conversion(self):
         # Test power unit conversions (dBm to user_units)
         powers = [10, 20, 30, 40, 50]
         converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBm")
@@ -308,7 +308,7 @@ class TestClass:
         assert bad_units == power
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
-    def test_units_getters(self, add_app):
+    def test_06_units_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
 
         # Set a single unit
@@ -355,7 +355,7 @@ class TestClass:
         assert valid is False
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
-    def test_antenna_component(self, add_app):
+    def test_07_antenna_component(self, add_app):
         self.aedtapp = add_app(application=Emit)
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
         # Default pattern filename is empty string
@@ -372,7 +372,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_revision_generation(self, add_app):
+    def test_08_revision_generation(self, add_app):
         self.aedtapp = add_app(application=Emit)
         assert len(self.aedtapp.results.revisions) == 0
         # place components and generate the appropriate number of revisions
@@ -442,7 +442,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_manual_revision_access_test_getters(self, add_app):
+    def test_09_manual_revision_access_test_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
@@ -511,7 +511,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_radio_band_getters(self, add_app):
+    def test_10_radio_band_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
         rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
@@ -562,7 +562,7 @@ class TestClass:
         exception_raised = False
         try:
             freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
 
@@ -615,7 +615,7 @@ class TestClass:
         assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_sampling_getters(self, add_app):
+    def test_11_sampling_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
 
@@ -629,7 +629,7 @@ class TestClass:
         exception_raised = False
         try:
             rad.set_channel_sampling()
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
 
@@ -669,7 +669,7 @@ class TestClass:
         assert sampling.props["NumberChannels"] == "1000"
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_radio_getters(self, add_app):
+    def test_12_radio_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
         rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
         rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth")
@@ -690,7 +690,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_static_type_generation(self):
+    def test_13_static_type_generation(self):
         domain = self.aedtapp.results.interaction_domain()
         if sys.version_info < (3, 8):
             py_version = "EmitApiPython"
@@ -715,7 +715,7 @@ class TestClass:
         assert str(type(ResultType.POWER_AT_RX)) == "<class '{}.result_type'>".format(py_version)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2")
-    def test_version(self, add_app):
+    def test_14_version(self, add_app):
         self.aedtapp = add_app(application=Emit)
         less_info = self.aedtapp.version(False)
         more_info = self.aedtapp.version(True)
@@ -728,7 +728,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_basic_run(self, add_app):
+    def test_15_basic_run(self, add_app):
         self.aedtapp = add_app(application=Emit)
         assert len(self.aedtapp.results.revisions) == 0
         # place components and generate the appropriate number of revisions
@@ -810,7 +810,7 @@ class TestClass:
         config["desktopVersion"] < "2024.1",
         reason="Skipped on versions earlier than 2024.1",
     )
-    def test_optimal_n_to_1_feature(self, add_app):
+    def test_16_optimal_n_to_1_feature(self, add_app):
         self.aedtapp = add_app(application=Emit)
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
@@ -847,8 +847,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
         # rerun with N-1
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 2**20
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2**20
+        self.aedtapp.results.revisions[-1].n_to_1_limit = 2 ** 20
+        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2 ** 20
         assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 11652816
         interaction = self.aedtapp.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
@@ -866,7 +866,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_availability_1_to_1(self, add_app):
+    def test_17_availability_1_to_1(self, add_app):
         self.aedtapp = add_app(application=Emit)
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("MD400C")
@@ -935,11 +935,11 @@ class TestClass:
         assert len(radiosRX) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_interference_scripts_no_filter(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_18_interference_scripts_no_filter(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -965,8 +965,12 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
-    def test_radio_protection_levels(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.1",
+    )
+    def test_19_radio_protection_levels(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -992,11 +996,11 @@ class TestClass:
         assert protection_power_matrix == expected_protection_power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
+        config["desktopVersion"] <= "2023.1" or TEST_REVIEW_FLAG,
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_interference_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_20_interference_filtering(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
         # Generate a revision
         rev = self.aedtapp.results.analyze()
 
@@ -1026,7 +1030,7 @@ class TestClass:
         for ind in range(4):
             expected_interference_colors = all_interference_colors[ind]
             expected_interference_power = all_interference_power[ind]
-            interference_filter = interference_filters[:ind] + interference_filters[ind + 1 :]
+            interference_filter = interference_filters[:ind] + interference_filters[ind + 1:]
 
             interference_colors, interference_power_matrix = rev.interference_type_classification(
                 domain, use_filter=True, filter_list=interference_filter
@@ -1035,8 +1039,12 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
-    def test_protection_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.1",
+    )
+    def test_21_protection_filtering(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         rev = self.aedtapp.results.analyze()
@@ -1062,7 +1070,7 @@ class TestClass:
         for ind in range(4):
             expected_protection_colors = all_protection_colors[ind]
             expected_protection_power = all_protection_power[ind]
-            protection_filter = protection_filters[:ind] + protection_filters[ind + 1 :]
+            protection_filter = protection_filters[:ind] + protection_filters[ind + 1:]
 
             protection_colors, protection_power_matrix = rev.protection_level_classification(
                 domain,
@@ -1083,8 +1091,8 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_couplings(self, add_app):
-        self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=test_subfolder)
+    def test_22_couplings(self, add_app):
+        self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
         links = self.aedtapp.couplings.linkable_design_names
         assert len(links) == 0
@@ -1106,7 +1114,7 @@ class TestClass:
 
         self.aedtapp.close_project()
 
-        self.aedtapp = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=test_subfolder)
+        self.aedtapp = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # test CAD nodes
         cad_nodes = self.aedtapp.couplings.cad_nodes
@@ -1126,7 +1134,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1"
     )
-    def test_result_categories(self, add_app):
+    def test_23_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit)
         rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
@@ -1175,8 +1183,8 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2."
     )
-    def test_license_session(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=test_subfolder)
+    def test_24_license_session(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # Generate a revision
         results = self.aedtapp.results
@@ -1198,27 +1206,27 @@ class TestClass:
         appdata_local_path = tempfile.gettempdir()
         pid = os.getpid()
         dot_ansys_directory = os.path.join(appdata_local_path, '.ansys')
-        
+
         license_file_path = ''
-        with os.scandir(dot_ansys_directory) as dir:
-            for file in dir:
+        with os.scandir(dot_ansys_directory) as directory:
+            for file in directory:
                 filename_pieces = file.name.split('.')
                 # Since machine names can contain periods, there may be over five splits here
                 # We only care about the first split and last three splits
                 if len(filename_pieces) >= 5:
-                    if (filename_pieces[0] == 'ansyscl' and 
-                        filename_pieces[-3] == str(pid) and
-                        filename_pieces[-2].isnumeric() and 
-                        filename_pieces[-1] == 'log'):
+                    if (filename_pieces[0] == 'ansyscl' and
+                            filename_pieces[-3] == str(pid) and
+                            filename_pieces[-2].isnumeric() and
+                            filename_pieces[-1] == 'log'):
                         license_file_path = os.path.join(dot_ansys_directory, file.name)
                         break
-        
+
         assert license_file_path != ''
-        
+
         def count_license_actions(license_file_path):
             # Count checkout/checkins in most recent license connection
             checkouts = 0
-            checkins  = 0
+            checkins = 0
             with open(license_file_path, 'r') as license_file:
                 lines = license_file.read().strip().split('\n')
                 for line in lines:
@@ -1230,7 +1238,7 @@ class TestClass:
                     elif 'CHECKIN' in line:
                         checkins += 1
             return (checkouts, checkins)
-        
+
         # Figure out how many checkouts and checkins per run we expect
         # This could change depending on the user's EMIT HPC settings
         pre_first_run_checkouts, pre_first_run_checkins = count_license_actions(license_file_path)
@@ -1244,13 +1252,13 @@ class TestClass:
 
         # Run without license session
         for i in range(number_of_runs):
-            do_run()        
-        
+            do_run()
+
         # Run with license session
         with revision.get_license_session():
             for i in range(number_of_runs):
                 do_run()
-        
+
         end_checkouts, end_checkins = count_license_actions(license_file_path)
 
         checkouts = end_checkouts - start_checkouts

@@ -54,12 +54,12 @@ def _conv_number(number, typen=float):
     if typen is float:
         try:
             return float(number)
-        except:
+        except Exception:
             return number
     elif typen is int:
         try:
             return int(number)
-        except:
+        except Exception:
             return number
 
 
@@ -908,11 +908,11 @@ class Layer(object):
         """
         if units is None:
             units = self.LengthUnit
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)

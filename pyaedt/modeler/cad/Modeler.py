@@ -280,7 +280,7 @@ class BaseCoordinateSystem(PropsManager, object):
                                                     props = iop["ObjectCSParameters"]
                                                     self._props = CsProps(self, props)
                                                     break
-                except:
+                except Exception:
                     pass
 
     @pyaedt_function_handler()
@@ -383,7 +383,7 @@ class BaseCoordinateSystem(PropsManager, object):
                 if cs.name not in coordinate_systems:
                     self._modeler.coordinate_systems.pop(self._modeler.coordinate_systems.index(cs))
             self._modeler.cleanup_objects()
-        except:
+        except Exception:
             self._modeler._app.logger.warning("Coordinate system does not exist")
         return True
 
@@ -413,7 +413,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             try:  # pragma: no cover
                 if "KernelVersion" in self.props:
                     del self.props["KernelVersion"]
-            except:
+            except Exception:
                 pass
 
     @property
@@ -614,13 +614,13 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     @pyaedt_function_handler()
     def _get_type_from_object(self, obj):
         """Get the entity type from the object."""
-        if type(obj) is FacePrimitive:
+        if isinstance(obj, FacePrimitive):
             return "Face"
-        elif type(obj) is EdgePrimitive:
+        elif isinstance(obj, EdgePrimitive):
             return "Edge"
-        elif type(obj) is VertexPrimitive:
+        elif isinstance(obj, VertexPrimitive):
             return "Vertex"
-        elif type(obj) is Object3d:
+        elif isinstance(obj, Object3d):
             return "3dObject"
         else:  # pragma: no cover
             raise ValueError("Cannot detect the entity type.")
@@ -639,7 +639,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Z Rotation angle", "Value:=", self.props["ZRotationAngle"]]]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("'Z Rotation angle' parameter must be a string in the format '10deg'")
 
         try:
@@ -650,12 +650,12 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
                     ["NAME:Position Offset XY", "X:=", self.props["XOffset"], "Y:=", self.props["YOffset"]],
                 ],
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("'XOffset' and 'YOffset' parameters must be a string in the format '1.3mm'")
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Axis", "Value:=", self.props["WhichAxis"]]])
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("'WhichAxis' parameter must be either 'X' or 'Y'")
 
         return True
@@ -684,7 +684,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             try:  # pragma: no cover
                 if "KernelVersion" in self.props:
                     del self.props["KernelVersion"]
-            except:
+            except Exception:
                 pass
         self._ref_cs = None
         self._quaternion = None
@@ -702,7 +702,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self._mode = "zxz"
             elif "ZYZ" in self.props["Mode"]:
                 self._mode = "zyz"
-        except:
+        except Exception:
             pass
         return self._mode
 
@@ -746,7 +746,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         try:
             obj1.SetPropValue("Reference CS", value)
             self._ref_cs = value
-        except:
+        except Exception:
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @pyaedt_function_handler()
@@ -763,7 +763,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         try:
             self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Mode", "Value:=", self.props["Mode"]]])
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError(
                 "Mode must be 'Axis/Position', 'Euler Angle ZYZ' or 'Euler Angle ZXZ', not {}.".format(
                     self.props["Mode"]
@@ -1218,7 +1218,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             try:  # pragma: no cover
                 if "KernelVersion" in self.props:
                     del self.props["KernelVersion"]
-            except:
+            except Exception:
                 pass
         self._ref_cs = None
 
@@ -1245,7 +1245,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         try:
             obj1.SetPropValue("Reference CS", value)
             self._ref_cs = value
-        except:
+        except Exception:
             self._modeler.logger.error("Failed to set Coordinate CS Reference.")
 
     @property
@@ -1543,28 +1543,28 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                     ["NAME:Reference CS", "Value:=", self.ref_cs],
                 ],
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Update of property reference coordinate system failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Always Move CS To End", "Value:=", self.props["MoveToEnd"]]]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Update of property move to end failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Reverse X Axis", "Value:=", self.props["ReverseXAxis"]]]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Update of property reverse x axis failed.")
 
         try:
             self._change_property(
                 self.name, ["NAME:ChangedProps", ["NAME:Reverse Y Axis", "Value:=", self.props["ReverseYAxis"]]]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Update of property reverse y axis failed.")
 
         if self.props["Origin"]["PositionType"] == "AbsolutePosition":
@@ -1587,7 +1587,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                         ],
                     ],
                 )
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 raise ValueError("Update origin properties failed.")
 
         if "xAxis" in self.props:
@@ -1610,7 +1610,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                         ],
                     ],
                 )
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 raise ValueError("Update x axis properties failed.")
 
         if "yAxis" in self.props:
@@ -1633,7 +1633,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                         ],
                     ],
                 )
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 raise ValueError("Update y axis properties failed.")
 
         return True
@@ -1658,7 +1658,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
     def _position_parser(self, pos):
         try:
             return self._dim_arg(float(pos), self.model_units)
-        except:
+        except Exception:
             return pos
 
 
@@ -1706,7 +1706,7 @@ class Lists(PropsManager, object):
         ]
         try:
             self._modeler.oeditor.EditEntityList(argument1, argument2)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Input List not correct for the type " + self.props["Type"])
 
         return True
@@ -1823,7 +1823,7 @@ class Lists(PropsManager, object):
                         object_list_new.append(int(element))
                     else:
                         if element in self._modeler.object_names:
-                            obj_id = self._modeler._object_names_to_ids[element]
+                            obj_id = self._modeler.objects[element].id
                             for sel in self._modeler.object_list:
                                 if sel.id == obj_id:
                                     for f in sel.faces:

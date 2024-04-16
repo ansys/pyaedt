@@ -17,6 +17,13 @@ This example shows how you can use PyAEDT to perform these tasks:
 import pyaedt
 import math
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #################################################################################
 # Initialize core strand dimensions and positions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,13 +85,12 @@ armour_params = {
 # Initialize Q2D, providing the version, path to the project, and the design
 # name and type.
 
-desktop_version = "2023.2"
 project_name = 'Q2D_ArmouredCableExample'
 q2d_design_name = '2D_Extractor_Cable'
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
 tb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=desktop_version)
+q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=aedt_version)
 
 ##########################################################
 # Define variables from dictionaries
@@ -193,7 +199,7 @@ arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 # Create region
 # ~~~~~~~~~~~~~
 
-region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region = q2d.modeler.create_region([500, 500, 500, 500])
 region.material_name = "vacuum"
 
 ##########################################################
@@ -220,14 +226,8 @@ q2d.change_design_settings(q2d_des_settings)
 # Insert setup and frequency sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-q2d_setup = q2d.create_setup(setupname=setup_name)
-q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
-q2d_sweep.props["RangeType"] = "LogScale"
-q2d_sweep.props["RangeStart"] = "0Hz"
-q2d_sweep.props["RangeEnd"] = "3MHz"
-q2d_sweep.props["RangeCount"] = 10
-q2d_sweep.props["RangeSamples"] = 1
-q2d_sweep.update()
+q2d_setup = q2d.create_setup(name=setup_name)
+q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 
 ##########################################################
 # Analyze setup
@@ -245,12 +245,8 @@ tb = pyaedt.TwinBuilder(designname=tb_design_name)
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb.add_q3d_dynamic_component(project_name,
-                             q2d_design_name,
-                             setup_name,
-                             sweep_name,
-                             model_depth=lumped_length,
-                             coupling_matrix_name="Original")
+tb.add_q3d_dynamic_component(project_name, q2d_design_name, setup_name, sweep_name, coupling_matrix_name="Original",
+                             model_depth=lumped_length)
 
 ##########################################################
 # Save project and release desktop

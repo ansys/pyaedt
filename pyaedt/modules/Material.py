@@ -284,8 +284,12 @@ class MatProperty(object):
                 elif e == "IsTemperatureDependent":
                     self.is_temperature_dependent = v
                 elif e in ["BHCoordinates", "DECoordinates", "JECoordinates"]:
-                    self.value = v["Point"]
                     self._unit = v["DimUnits"]
+                    if "Point" in v:
+                        self.value = v["Point"]
+                    elif "Points" in v:
+                        pair_list = [v["Points"][i : i + 2] for i in range(0, len(v["Points"]), 2)]
+                        self.value = pair_list
                 elif e == "Temperatures":
                     self.temperatures = v
         elif val is not None and isinstance(val, OrderedDict) and "Magnitude" in val.keys():
@@ -1170,29 +1174,28 @@ class CommonMaterial(object):
         _dict2arg(props, arg)
         return arg
 
-    def _update_props(self, propname, provpavlue, update_aedt=True):
+    def _update_props(self, propname, propvalue, update_aedt=True):
         """Update properties.
 
         Parameters
         ----------
         propname : str
             Name of the property.
-        provpavlue :
+        propvalue :
             Value of the property.
         update_aedt : bool, optional
             Whether to update the property in AEDT. The default is ``True``.
-
         """
 
         try:
             material_props = getattr(self, propname)
             material_props_type = material_props.type
-        except:
+        except Exception:
             material_props_type = None
 
-        if isinstance(provpavlue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
+        if isinstance(propvalue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
             i = 1
-            for val in provpavlue:
+            for val in propvalue:
                 if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
                     if material_props_type == "tensor":
                         self._props[propname] = OrderedDict({"property_type": "TensorProperty"})
@@ -1204,18 +1207,18 @@ class CommonMaterial(object):
                 i += 1
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, (str, float, int)):
-            self._props[propname] = str(provpavlue)
+        elif isinstance(propvalue, (str, float, int)):
+            self._props[propname] = str(propvalue)
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, OrderedDict):
-            self._props[propname] = provpavlue
+        elif isinstance(propvalue, OrderedDict):
+            self._props[propname] = propvalue
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "nonlinear":
+        elif isinstance(propvalue, list) and material_props_type and material_props_type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
-                for point in provpavlue:
+                for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
                     else:
@@ -1228,11 +1231,11 @@ class CommonMaterial(object):
                 self._props[propname]["BHCoordinates"] = bh
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
-                except:
+                except Exception:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
-                for point in provpavlue:
+                for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
                     else:
@@ -1244,9 +1247,9 @@ class CommonMaterial(object):
                 self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
             if update_aedt:
                 return self.update()
-        elif isinstance(provpavlue, list) and material_props_type and material_props_type == "vector":
+        elif isinstance(propvalue, list) and material_props_type and material_props_type == "vector":
             if propname == "magnetic_coercivity":
-                return self.set_magnetic_coercivity(provpavlue[0], provpavlue[1], provpavlue[2], provpavlue[3])
+                return self.set_magnetic_coercivity(propvalue[0], propvalue[1], propvalue[2], propvalue[3])
         return False
 
 
@@ -1275,6 +1278,17 @@ class Material(CommonMaterial, object):
         CommonMaterial.__init__(self, materiallib, name, props)
         self.thermal_material_type = "Solid"
         self._material_update = material_update
+        self._wire_type = None
+        self._wire_width = None
+        self._wire_diameter = None
+        self._wire_width_direction = None
+        self._wire_thickness_direction = None
+        self._wire_thickness = None
+        self._stacking_type = None
+        self._stacking_direction = None
+        self._stacking_factor = None
+        self._strand_number = None
+
         if "thermal_material_type" in self._props:
             self.thermal_material_type = self._props["thermal_material_type"]["Choice"]
         if "PhysicsTypes" in self._props:
@@ -1287,6 +1301,7 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"].get("Transparency", 0.0))
         else:
             vals = list(CSS4_COLORS.values())
             if (materiallib._color_id) >= len(vals):
@@ -1294,6 +1309,7 @@ class Material(CommonMaterial, object):
             h = vals[materiallib._color_id].lstrip("#")
             self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
+            self._material_appearance.append(0)
             self._props["AttachedData"] = OrderedDict(
                 {
                     "MatAppearanceData": OrderedDict(
@@ -1302,6 +1318,7 @@ class Material(CommonMaterial, object):
                             "Red": self._material_appearance[0],
                             "Green": self._material_appearance[1],
                             "Blue": self._material_appearance[2],
+                            "Transparency": self._material_appearance[3],
                         }
                     )
                 }
@@ -1312,6 +1329,7 @@ class Material(CommonMaterial, object):
         if "wire_type" in self._props:
             self.wire_type = self._props["wire_type"]["Choice"]
 
+    def _update_material(self):
         for property in MatProperties.aedtname:
             tmods = None
             smods = None
@@ -1344,55 +1362,68 @@ class Material(CommonMaterial, object):
                         else:
                             if modifiers[mod]["Property:"] == property:
                                 smods = modifiers[mod]
-
             property_value = (
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
-        pass
 
     @property
     def material_appearance(self):
-        """Material Appearance specified as an RGB list.
+        """Material appearance specified as a list where the first three items are
+        RGB color and the fourth one is transparency.
 
         Returns
         -------
         list
-            Color of the material in RGB.  Values are in the range ``[0, 255]``.
+            Color of the material in RGB and transparency.
+            Color values are in the range ``[0, 255]``.
+            Transparency is a float in the range ``[0,1]``.
 
         Examples
         --------
-        Create a new material with color ``[0, 153, 153]`` (darker cyan).
+        Create a material with color ``[0, 153, 153]`` (darker cyan) and transparency ``0.5``.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
-        >>> rgbcolor = mat1.material_appearance
-        >>> mat1.material_appearance = [0, 153, 153]
+        >>> appearance_props = mat1.material_appearance
+        >>> mat1.material_appearance = [0, 153, 153, 0.5]
         """
         return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, rgb):
-        if not isinstance(rgb, (list, tuple)):
-            raise TypeError("`material_apperance` must be a list or tuple")
-        if len(rgb) != 3:
-            raise ValueError("`material_appearance` must be three items (RGB)")
-        value_int = []
-        for rgb_item in rgb:
-            rgb_int = int(rgb_item)
-            if rgb_int < 0 or rgb_int > 255:
-                raise ValueError("RGB value must be between 0 and 255")
-            value_int.append(rgb_int)
-        self._material_appearance = value_int
+    def material_appearance(self, appearance_props):
+        if not isinstance(appearance_props, (list, tuple)):
+            raise TypeError("`material_appearance` must be a list or tuple.")
+        if len(appearance_props) != 3 and len(appearance_props) != 4:
+            raise ValueError("`material_appearance` must be four items (R, G, B, transparency).")
+        elif len(appearance_props) == 3:
+            transparency_value = self.material_appearance[3]
+            msg = "Only RGB specified. Transparency is set to " + str(transparency_value)
+            self.logger.info(msg)
+            appearance_props.append(transparency_value)
+        value = []
+        for i in range(len(appearance_props)):
+            if i < 3:
+                rgb_int = int(appearance_props[i])
+                if rgb_int < 0 or rgb_int > 255:
+                    raise ValueError("RGB value must be between 0 and 255.")
+                value.append(rgb_int)
+            else:
+                transparency = float(appearance_props[i])
+                if transparency < 0 or transparency > 1:
+                    raise ValueError("Transparency value must be between 0 and 1.")
+                value.append(transparency)
+        self._material_appearance = value
         self._props["AttachedData"] = OrderedDict(
             {
                 "MatAppearanceData": OrderedDict(
                     {
                         "property_data": "appearance_data",
-                        "Red": value_int[0],
-                        "Green": value_int[1],
-                        "Blue": value_int[2],
+                        "Red": value[0],
+                        "Green": value[1],
+                        "Blue": value[2],
+                        "Transparency": value[3],
                     }
                 )
             }
@@ -2542,7 +2573,7 @@ class Material(CommonMaterial, object):
         try:
             if float(cond) >= threshold:
                 return True
-        except:
+        except Exception:
             return False
         return False
 
@@ -2690,7 +2721,6 @@ class SurfaceMaterial(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(
                     self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
                 )
-        pass
 
     @property
     def emissivity(self):

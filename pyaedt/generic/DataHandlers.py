@@ -117,7 +117,7 @@ def _dict2arg(d, arg_out):
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
             for el in v:
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
@@ -312,12 +312,12 @@ def unique_string_list(element_list, only_string=True):
             error_message = "Invalid list data"
             try:
                 error_message += " {}".format(element_list)
-            except:
+            except Exception:
                 pass
             raise Exception(error_message)
 
         if only_string:
-            non_string_entries = [x for x in element_list if type(x) is not str]
+            non_string_entries = [x for x in element_list if not isinstance(x, str)]
             assert not non_string_entries, "Invalid list entries {} are not a string!".format(non_string_entries)
 
     return element_list
@@ -532,14 +532,14 @@ def str_to_bool(s):
          - Otherwise, the input value is passed through the method unchanged.
 
     """
-    if type(s) == str:
+    if isinstance(s, str):
         if s.lower() in ["true", "yes", "y", "1"]:
             return True
         elif s.lower() in ["false", "no", "n", "0"]:
             return False
         else:
             return s
-    elif type(s) == int:
+    elif isinstance(s, int):
         return False if s == 0 else True
 
 
@@ -627,7 +627,7 @@ def float_units(val_str, units=""):
         b = loc.span()[0]
         var = [float(val_str[0:b]), val_str[b:]]
         val = var[0] * unit_val[var[1]]
-    except:
+    except Exception:
         val = float(val_str)
 
     val = val / unit_val[units]

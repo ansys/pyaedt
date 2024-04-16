@@ -6,6 +6,7 @@ on:
     - cron:  '0 4 * * *'
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
@@ -34,30 +35,52 @@ jobs:
         run: |
            pip install .[doc]
 
-      - name: Full Documentation Build
+      - name: Install doc build requirements
         run: |
-          make -C doc phtml
+          sudo apt update
+          sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
+
+      - name: Documentation Build (HTML)
+        run: |
+          make -C doc clean
+          mkdir doc/source/examples -p
+          echo $'Examples\n========' > doc/source/examples/index.rst
+          make -C doc phtml-no-examples SPHINXOPTS="-j auto -w build_errors.txt -N"
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
 
       - name: Upload documentation HTML artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: documentation-html
+          name: Documentation
           path: doc/_build/html
           retention-days: 7
 
-      - name: Upload HTML documentation artifact
-        uses: actions/upload-artifact@v4
+      - name: Documentation Build (PDF)
+        run: |
+          make -C doc pdf-no-examples
+
+      - name: Add assets to HTML docs
+        run: |
+          zip -r documentation-html.zip ./doc/_build/html
+          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+
+      - name: Upload documentation PDF artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: documentation-html-edb
-          path: doc/_build/html/EDBAPI
+          name: Documentation-pdf
+          path: doc/_build/latex/*.pdf
           retention-days: 7
 
   docs_upload:
     needs: docs_build
     runs-on: ubuntu-latest
     steps:
-
-      - name: Deploy development documentation
+      - name: Upload development documentation
         uses: ansys/actions/doc-deploy-dev@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
@@ -82,17 +105,6 @@ jobs:
           index-name: pyaedt-vdev
           host-url: ${{ vars.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
-          pymeilisearchopts: --stop_urls \"EDBAPI\" # Add EDB API as another index to show it in dropdown button
-
-      - name: "Deploy the dev documentation index for EDB API"
-        uses: ansys/actions/doc-deploy-index@v4
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev/EDBAPI/
-          index-name: pyedb-vdev
-          host-url: ${{ vars.MEILISEARCH_HOST_URL }}
-          api-key: ${{ env.MEILISEARCH_API_KEY }}
-          doc-artifact-name: documentation-html-edb # Add only EDB API as page in this index.
-          pymeilisearchopts: --port 8001 # serve in another port as 8000 is deafult
 
   # docstring_testing:
   #   runs-on: Windows

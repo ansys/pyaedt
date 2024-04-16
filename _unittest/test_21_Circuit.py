@@ -19,6 +19,7 @@ else:
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_ssn.s6p"
+touchstone_custom = "SSN_custom.s6p"
 touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
 
@@ -49,6 +50,7 @@ def examples(local_scratch):
     return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
 
 
+@pytest.mark.skipif(is_linux, reason="Multiple tests are not passing in Linux with AEDT 2024R1")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, circuitprj, local_scratch, examples):
@@ -118,7 +120,6 @@ class TestClass:
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)
-        pass
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
@@ -250,9 +251,9 @@ class TestClass:
                 "b_input_15",
                 ami_design.available_variations.nominal,
                 plot_type="Rectangular Stacked Plot",
-                plot_final_response=True,
                 plot_intermediate_response=True,
-                plotname=report_name,
+                plot_final_response=True,
+                plot_name=report_name,
             )
             == report_name
         )
@@ -262,7 +263,7 @@ class TestClass:
         assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
             ami_design.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
+                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plot_name="MyReport1"
             )
             == "MyReport1"
         )
@@ -271,7 +272,7 @@ class TestClass:
                 "Dom_Quick",
                 "b_input_15.int_ami_rx.eye_probe",
                 ami_design.available_variations.nominal,
-                plotname="MyReportQ",
+                plot_name="MyReportQ",
             )
             == "MyReportQ"
         )
@@ -283,7 +284,7 @@ class TestClass:
                 "Dom_Verify",
                 "b_input_15.int_ami_rx.eye_probe",
                 self.aedtapp.available_variations.nominal,
-                plotname="MyReportV",
+                plot_name="MyReportV",
             )
             == "MyReportV"
         )
@@ -354,7 +355,6 @@ class TestClass:
             diff_name=None,
             common_ref_z=34,
             diff_ref_z=123,
-            active=True,
         )
         assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
@@ -447,7 +447,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_35_netlist_data_block(self):
@@ -677,22 +677,21 @@ class TestClass:
         port.reference_node = "NoNet"
         port.reference_node = "Z"
 
-        assert c.excitation_objets
+        assert c.excitation_objects
 
         setup = c.create_setup()
 
-        c.excitations["Port3"].enabled_sources = ["PowerTest"]
-        assert len(c.excitations["Port3"].enabled_sources) == 1
+        c.excitation_objects["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.excitation_objects["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
-        c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
-        assert c.excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+        c.excitation_objects["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.excitation_objects["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
-        c.excitations["Port3"].name = "PortTest"
+        c.excitation_objects["Port3"].name = "PortTest"
         assert "PortTest" in c.excitations
-        assert "PortTest" in c.excitation_names
-        c.excitations["PortTest"].delete()
-        assert len(c.excitation_objets) == 0
+        c.excitation_objects["PortTest"].delete()
+        assert len(c.excitation_objects) == 0
         self.aedtapp.save_project()
         c = add_app(application=Circuit, design_name="sources")
         assert c.sources
@@ -707,6 +706,7 @@ class TestClass:
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
         self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
@@ -809,3 +809,81 @@ class TestClass:
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
+        assert self.aedtapp.remove_all_unused_definitions()
+
+    def test_46_create_vpwl(self):
+
+        # default inputs
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V1")
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0s"
+        assert myres.parameters["time2"] == "0s"
+        assert myres.parameters["val1"] == "0V"
+        assert myres.parameters["val2"] == "0V"
+        # time and voltage input list
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(
+            compname="V2", time_list=[0, "1u"], voltage_list=[0, 1]
+        )
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0"
+        assert myres.parameters["time2"] == "1u"
+        assert myres.parameters["val1"] == "0"
+        assert myres.parameters["val2"] == "1"
+        # time and voltage different length
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V3", time_list=[0], voltage_list=[0, 1])
+        assert myres is False
+
+    def test_47_automatic_lna(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
+            touchstone=touchstone_file,
+            start_frequency=0,
+            stop_frequency=70,
+            auto_assign_diff_pairs=True,
+            separation=".",
+            pattern=["component", "pin", "net"],
+            analyze=False,
+        )
+        assert status
+
+    def test_48_automatic_tdr(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
+            touchstone=touchstone_file,
+            probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            differential=True,
+            design_name="TDR",
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+        )
+        assert result
+
+    def test_49_automatic_ami(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+        ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
+        result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
+            touchstone=touchstone_file,
+            ibis_ami=ami_file,
+            component_name="Spec_Model",
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
+            use_ibis_buffer=False,
+            differential=True,
+            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result

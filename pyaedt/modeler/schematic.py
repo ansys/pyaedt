@@ -150,7 +150,7 @@ class ModelerCircuit(Modeler):
         try:
             self.schematic.create_wire([pos1, pos2])
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -323,7 +323,7 @@ class ModelerCircuit(Modeler):
                 self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
                 self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
             return text_out
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler
@@ -446,11 +446,11 @@ class ModelerCircuit(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.schematic_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -563,8 +563,8 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
+        """Set the model units as a string e.g. "mm"."""
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}".format(units)
-        """ Set the model units as a string e.g. "mm" """
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler()

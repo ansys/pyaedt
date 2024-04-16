@@ -488,7 +488,7 @@ class CommonReport(object):
         try:
             oo = self._post.oreportsetup.GetChildObject(self.plot_name)
             oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
-        except:
+        except Exception:
             return _traces
         for el in oo_names:
             if el in ["Legend", "Grid", "AxisX", "AxisY1", "Header", "General", "CartesianDisplayTypeProperty"]:
@@ -498,7 +498,7 @@ class CommonReport(object):
 
                 for i in oo1:
                     _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self.plot_name, el, i)))
-            except:
+            except Exception:
                 pass
         return _traces
 
@@ -833,7 +833,7 @@ class CommonReport(object):
         _notes = []
         try:
             oo_names = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildNames()
-        except:
+        except Exception:
             return _notes
         for el in oo_names:
             if "Note" in el:
@@ -1058,7 +1058,7 @@ class CommonReport(object):
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
             sweep_list.append(el + ":=")
-            if type(sweeps[el]) is list:
+            if isinstance(sweeps[el], list):
                 sweep_list.append(sweeps[el])
             else:
                 sweep_list.append([sweeps[el]])
@@ -1559,7 +1559,7 @@ class CommonReport(object):
             legend.SetPropValue("Font/Height", font_height)
             legend.SetPropValue("Header Row Font/Height", font_height)
             return True
-        except:
+        except Exception:
             self._post._app.logger.error("Failed to hide legend.")
             return False
 
@@ -1894,7 +1894,7 @@ class CommonReport(object):
             else:
                 self._post.oreportsetup.ImportIntoReport(self.plot_name, file_path)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler
@@ -1921,7 +1921,7 @@ class CommonReport(object):
         try:
             self._post.oreportsetup.DeleteTraces(props)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler
@@ -1953,7 +1953,7 @@ class CommonReport(object):
                 self._trace_info,
             )
             return True
-        except:
+        except Exception:
             return False
         finally:
             self.expressions = expr
@@ -1986,7 +1986,7 @@ class CommonReport(object):
                 self._trace_info,
             )
             return True
-        except:
+        except Exception:
             return False
         finally:
             self.expressions = expr

@@ -14,6 +14,13 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +35,8 @@ non_graphical = False
 # Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", non_graphical=non_graphical, designname="A1", new_desktop_session=True)
+hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1",
+                   new_desktop_session=True)
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -46,6 +54,7 @@ Np = 8
 Nr = 10
 gap = 3
 hfss["Tsub"] = "6" + hfss.modeler.model_units
+
 
 #############################################################
 # Standardize polyline
@@ -74,7 +83,6 @@ ind = hfss.modeler.create_spiral(
     name="Inductor1",
 )
 
-
 ################################################################
 # Center return path
 # ~~~~~~~~~~~~~~~~~~
@@ -97,7 +105,7 @@ p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
                    dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
-hfss.lumped_port(signal="port1", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create port 2
@@ -108,7 +116,7 @@ create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 p.create_rectangle(pyaedt.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2],
                    [width, "-Tsub"],
                    name="port2")
-hfss.lumped_port(signal="port2", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port2", integration_line=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create silicon substrate and ground plane
@@ -157,10 +165,10 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # ~~~~~~~~~~~~
 # Create the setup and define a frequency sweep to solve the project.
 
-setup1 = hfss.create_setup(setupname="setup1")
+setup1 = hfss.create_setup(name="setup1")
 setup1.props["Frequency"] = "10GHz"
-hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
-                               sweep_type="Interpolating")
+hfss.create_linear_count_sweep(setup="setup1", units="GHz", start_frequency=1e-3, stop_frequency=50,
+                               num_of_freq_points=451, sweep_type="Interpolating")
 hfss.save_project()
 hfss.analyze()
 
@@ -185,13 +193,13 @@ hfss.create_output_variable("L", L_formula, solution="setup1 : LastAdaptive")
 # Plot the calculated values in Matplotlib.
 
 data = hfss.post.get_solution_data([L_formula, Q_formula])
-data.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
+data.plot(curves=[L_formula, Q_formula], formula="re", x_label="Freq", y_label="L and Q")
 
 ################################################################
 # Export results to csv file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export results to csv file
-data.export_data_to_csv(os.path.join(hfss.toolkit_directory,"output.csv"))
+data.export_data_to_csv(os.path.join(hfss.toolkit_directory, "output.csv"))
 
 ################################################################
 # Save project and close AEDT

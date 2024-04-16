@@ -747,12 +747,12 @@ class Primitives3DLayout(object):
                 try:
                     if p[0] == "NAME:psd":
                         props = p
-                except:
+                except Exception:
                     pass
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
-                if type(prop) is str:
+                if isinstance(prop, str):
                     if prop == "mat:=":
                         self._padstacks[name].mat = props[props.index(prop) + 1]
                     elif prop == "plt:=":
@@ -799,7 +799,7 @@ class Primitives3DLayout(object):
                             self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
                         pass
-                except:
+                except Exception:
                     pass
 
         return self._padstacks
@@ -863,7 +863,7 @@ class Primitives3DLayout(object):
                 args.append(nets_dictionary[key])
             self.oeditor.SetNetVisible(args)
             return True
-        except:
+        except Exception:
             self.logger.error("Couldn't change nets visibility.")
             return False
 
@@ -1381,14 +1381,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-
-        """
-        """
-
-        :param component_path:
-        :param number_of_terminals:
-        :param placement_layer:
-        :return:
+            :class:`pyaedt.modeler.pcb.object3dlayout.ComponentsSubCircuit3DLayout`
         """
         if not component_name:
             component_name = os.path.basename(component_path).split(".")[0]
@@ -1488,6 +1481,60 @@ class Primitives3DLayout(object):
         if create_ports:
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
+
+    @pyaedt_function_handler()
+    def create_component_on_pins(
+        self,
+        pins,
+        definition_name=None,
+        component_type="Other",
+        ref_des="U100",
+    ):
+        """Create a component based on a pin list.
+
+        Parameters
+        ----------
+        pins : list
+            Pins to include in the new component.
+        definition_name : str, optional
+            Name of the component definition. If no name is provided, a
+            name is automatically assigned.
+        component_type : str, optional
+            Component type. The default is ``"Other"``.
+        ref_des : str, optional
+            Reference designator. The default is ``"U100"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
+
+        """
+        if not definition_name:
+            definition_name = generate_unique_name("COMP")
+        placement_layer = list(self.layers.signals.keys())[0]
+        for pin in self.pins.items():
+            if pin[0] == pins[0]:
+                placement_layer = pin[1].start_layer
+                break
+        comp_name = self.modeler.oeditor.CreateComponent(
+            [
+                "NAME:Contents",
+                "isRCS:=",
+                True,
+                "definition_name:=",
+                definition_name,
+                "type:=",
+                component_type,
+                "ref_des:=",
+                ref_des,
+                "placement_layer:=",
+                placement_layer,
+                "elements:=",
+                pins,
+            ]
+        )
+        comp = Components3DLayout(self, comp_name.split(";")[-1])
+        return comp
 
     def create_text(self, text, position, placement_layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.

@@ -1,6 +1,7 @@
 name: CI
 
 env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
   python.version: '3.10'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,
@@ -30,7 +31,7 @@ jobs:
   # This workflow contains a single job called "build"
   build_solvers:
     # The type of runner that the job will run on
-    runs-on: [ windows-latest, pyaedt ]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: [ '3.10' ]
@@ -68,7 +69,7 @@ jobs:
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
         with:
-          max_attempts: 3
+          max_attempts: 1
           retry_on: error
           timeout_minutes: 40
           command: |
@@ -93,7 +94,7 @@ jobs:
 
   build:
     # The type of runner that the job will run on
-    runs-on: [windows-latest, pyaedt]
+    runs-on: [Windows, self-hosted, pyaedt]
     strategy:
       matrix:
         python-version: ['3.10']
@@ -131,13 +132,13 @@ jobs:
       - name: 'Unit testing'
         uses: nick-fields/retry@v3
         with:
-          max_attempts: 3
+          max_attempts: 2
           retry_on: error
           timeout_minutes: 50
           command: |
             testenv\Scripts\Activate.ps1
             Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-            pytest -n 6 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         env:

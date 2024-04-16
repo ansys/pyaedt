@@ -14,18 +14,24 @@ import math
 import matplotlib.pyplot as plt
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder 2023 R2 in graphical mode.
+# launches Twin Builder in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
 non_graphical = False
 new_thread = True
 
@@ -36,7 +42,7 @@ new_thread = True
 # a default setup.
 
 tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=desktop_version,
+                        specified_version=aedt_version,
                         non_graphical=non_graphical,
                         new_desktop_session=new_thread
                         )
@@ -56,10 +62,10 @@ source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, [-
 
 # Create the four diodes of the bridge rectifier.
 
-diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=3 * math.pi / 2)
-diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=3 * math.pi / 2)
-diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=3 * math.pi / 2)
-diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=3 * math.pi / 2)
+diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=270)
+diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=270)
+diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=270)
+diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=270)
 
 # Create a capacitor filter.
 
