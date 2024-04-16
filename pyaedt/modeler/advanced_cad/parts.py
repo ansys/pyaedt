@@ -385,13 +385,13 @@ class Part(object):
         )
         if self.rot_axis[0]:
             app[self.yaw_name] = self.yaw
-            app.modeler.rotate(aedt_object, "Z", angle=self.yaw_name)
+            app.modeler.rotate(aedt_object, "Z")
         if self.rot_axis[1]:
             app[self.pitch_name] = self.pitch
-            app.modeler.rotate(aedt_object, "Y", angle=self.pitch_name)
+            app.modeler.rotate(aedt_object, "Y")
         if self.rot_axis[2]:
             app[self.roll_name] = self.roll
-            app.modeler.rotate(aedt_object, "X", angle=self.roll_name)
+            app.modeler.rotate(aedt_object, "X")
 
         return True
 
@@ -412,10 +412,10 @@ class Part(object):
         # TODO: Why the inconsistent syntax for cs commands?
         if self._do_offset:
             self.set_relative_cs(app)  # Create coordinate system, if needed.
-            comp_obj = app.modeler.insert_3d_component(self.file_name, targetCS=self.cs_name)
+            comp_obj = app.modeler.insert_3d_component(self.file_name, coordinate_system=self.cs_name)
             aedt_objects.append(comp_obj.name)
         else:
-            comp_obj = app.modeler.insert_3d_component(self.file_name, targetCS=self._multiparts.cs_name)
+            comp_obj = app.modeler.insert_3d_component(self.file_name, coordinate_system=self._multiparts.cs_name)
             aedt_objects.append(comp_obj.name)
         if self._do_rotate:
             self.do_rotate(app, aedt_objects[0])

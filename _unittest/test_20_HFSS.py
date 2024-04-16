@@ -66,7 +66,7 @@ class TestClass:
         inner_1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, coax1_origin, r1, coax1_len, 0, "inner_1")
         assert isinstance(inner_1.id, int)
         inner_2 = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.AXIS.Z, coax2_origin, r1, coax2_len, 0, "inner_2", matname="copper"
+            self.aedtapp.AXIS.Z, coax2_origin, r1, coax2_len, 0, "inner_2", material="copper"
         )
         assert len(inner_2.faces) == 3  # Cylinder has 3 faces.
         # Check area of circular face.
@@ -182,8 +182,8 @@ class TestClass:
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is True
 
-        id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], matname="Copper", name="My_Box")
-        id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], matname="Copper")
+        id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
+        id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         port3 = self.aedtapp.wave_port(
             assignment=rect,
@@ -565,10 +565,10 @@ class TestClass:
     def test_09a_create_waveport_on_true_surface_objects(self):
         cs = self.aedtapp.PLANE.XY
         o1 = self.aedtapp.modeler.create_cylinder(
-            cs, [0, 0, 0], radius=5, height=100, numSides=0, name="inner", matname="Copper"
+            cs, [0, 0, 0], radius=5, height=100, num_sides=0, name="inner", material="Copper"
         )
         o3 = self.aedtapp.modeler.create_cylinder(
-            cs, [0, 0, 0], radius=10, height=100, numSides=0, name="outer", matname="Copper"
+            cs, [0, 0, 0], radius=10, height=100, num_sides=0, name="outer", material="Copper"
         )
         port1 = self.aedtapp.wave_port(
             assignment=o1.name,
@@ -887,9 +887,9 @@ class TestClass:
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")
         self.aedtapp.solution_type = "Modal"
-        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", matname="copper")
-        sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", matname="FR4_epoxy")
-        gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", matname="FR4_epoxy")
+        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
+        sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", material="FR4_epoxy")
+        gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", material="FR4_epoxy")
         port = self.aedtapp.wave_port(
             assignment=gnd.name,
             reference=ms.name,
@@ -943,7 +943,7 @@ class TestClass:
     def test_34_object_material_properties(self):
         self.aedtapp.insert_design("ObjMat")
         self.aedtapp.solution_type = "Modal"
-        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", matname="copper")
+        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
         props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
         assert props
 
@@ -1027,7 +1027,7 @@ class TestClass:
 
     def test_44_create_infinite_sphere(self):
         self.aedtapp.insert_design("InfSphere")
-        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
+        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)
         bound = self.aedtapp.insert_infinite_sphere(
             definition="El Over Az",
@@ -1071,8 +1071,8 @@ class TestClass:
     def test_45_terminal_port(self):
         self.aedtapp.insert_design("Design_Terminal")
         self.aedtapp.solution_type = "Terminal"
-        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", matname="copper")
+        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", material="copper")
+        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", material="copper")
         sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
         port = self.aedtapp.lumped_port(
             assignment=box1,
@@ -1111,10 +1111,10 @@ class TestClass:
     def test_45B_terminal_port(self):
         self.aedtapp.insert_design("Design_Terminal_2")
         self.aedtapp.solution_type = "Terminal"
-        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", matname="copper")
-        box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
-        box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", matname="copper")
+        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", material="copper")
+        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", material="copper")
+        box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", material="copper")
+        box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", material="copper")
         box1.display_wireframe = True
         box2.display_wireframe = True
         box3.display_wireframe = True
@@ -1126,8 +1126,8 @@ class TestClass:
         n_boundaries = len(self.aedtapp.boundaries)
         assert n_boundaries == 4
 
-        box5 = self.aedtapp.modeler.create_box([-50, -15, 200], [150, -10, 200], name="gnd2y", matname="copper")
-        box6 = self.aedtapp.modeler.create_box([-50, 10, 200], [150, 15, 200], name="sig2y", matname="copper")
+        box5 = self.aedtapp.modeler.create_box([-50, -15, 200], [150, -10, 200], name="gnd2y", material="copper")
+        box6 = self.aedtapp.modeler.create_box([-50, 10, 200], [150, 15, 200], name="sig2y", material="copper")
         box5.display_wireframe = True
         box6.display_wireframe = True
         self.aedtapp.modeler.fit_all()
@@ -1137,8 +1137,8 @@ class TestClass:
         n_boundaries = len(self.aedtapp.boundaries)
         assert n_boundaries == 8
 
-        box7 = self.aedtapp.modeler.create_box([-15, 300, 0], [-10, 200, 100], name="gnd2x", matname="copper")
-        box8 = self.aedtapp.modeler.create_box([15, 300, 0], [10, 200, 100], name="sig2x", matname="copper")
+        box7 = self.aedtapp.modeler.create_box([-15, 300, 0], [-10, 200, 100], name="gnd2x", material="copper")
+        box8 = self.aedtapp.modeler.create_box([15, 300, 0], [10, 200, 100], name="sig2x", material="copper")
         box7.display_wireframe = True
         box8.display_wireframe = True
         self.aedtapp.modeler.fit_all()
@@ -1155,16 +1155,16 @@ class TestClass:
 
         # Rotate box3 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
-        box3.rotate(cs_axis="X", angle=90)
+        box3.rotate(axis="X", angle=90)
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
             assert execinfo.args[0] == "The two objects must have parallel adjacent faces."
 
         # Rotate back box3
         # rotate them slightly so that they are still parallel, but not aligned anymore with main planes.
-        box3.rotate(cs_axis="X", angle=-90)
-        box3.rotate(cs_axis="Y", angle=5)
-        box4.rotate(cs_axis="Y", angle=5)
+        box3.rotate(axis="X", angle=-90)
+        box3.rotate(axis="Y", angle=5)
+        box4.rotate(axis="Y", angle=5)
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
             assert (
@@ -1186,8 +1186,8 @@ class TestClass:
         assert len(self.aedtapp.get_traces_for_plot()) > 0
 
     def test_49_port_creation_exception(self):
-        box1 = self.aedtapp.modeler.create_box([-400, -40, -20], [80, 80, 10], name="gnd49", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-400, -40, 10], [80, 80, 10], name="sig49", matname="copper")
+        box1 = self.aedtapp.modeler.create_box([-400, -40, -20], [80, 80, 10], name="gnd49", material="copper")
+        box2 = self.aedtapp.modeler.create_box([-400, -40, 10], [80, 80, 10], name="sig49", material="copper")
 
         self.aedtapp.solution_type = "Modal"
         # Spiral lumped port can only be created in a 'Terminal' solution.
@@ -1325,7 +1325,7 @@ class TestClass:
         aedtapp.close_project(save_project=False)
 
     def test_55_create_near_field_sphere(self):
-        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
+        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
         self.aedtapp.assign_radiation_boundary_to_objects(air)
         bound = self.aedtapp.insert_near_field_sphere(
             radius=20,

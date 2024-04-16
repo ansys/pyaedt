@@ -110,8 +110,8 @@ def place_iris(zpos, dz, n):
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a', dz],
-                                        name=this_name, matname="silver"))
+    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a', dz], name=this_name,
+                                        material="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
 
@@ -150,8 +150,7 @@ wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
-hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
-                        name="waveguide", matname="vacuum")
+hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"], name="waveguide", material="vacuum")
 
 ###############################################################################
 # Draw the whole waveguide.

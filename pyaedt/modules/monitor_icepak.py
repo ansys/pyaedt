@@ -163,12 +163,7 @@ class Monitor:
                     self._app,
                 )
             elif "Points" in monitor_prop.keys():
-                point_name = self._find_point(
-                    self._app.odesign.GetChildObject("Monitor")
-                    .GetChildObject(monitor_name)
-                    .GetPropValue("Location")
-                    .split(", ")
-                )
+                point_name = self._find_point(self._app.odesign.GetChildObject("Monitor"))
                 self._point_monitors[monitor_name] = PointMonitor(
                     monitor_name,
                     "Point",
@@ -495,7 +490,7 @@ class Monitor:
 
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
-        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
@@ -834,13 +829,7 @@ class PointMonitor(ObjectMonitor):
         list
             List of floats containing [x, y, z] position.
         """
-        return [
-            float(i.strip(self._app.modeler.model_units))
-            for i in self._app.odesign.GetChildObject("Monitor")
-            .GetChildObject(self._name)
-            .GetPropValue("Location")
-            .split(", ")
-        ]
+        return [float(i.strip(self._app.modeler.model_units)) for i in self._app.odesign.GetChildObject("Monitor")]
 
 
 class FaceMonitor(ObjectMonitor):

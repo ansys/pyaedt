@@ -59,7 +59,8 @@ h3d.modeler.layers.add_layer(layername="TOP", layertype="signal", thickness="0.0
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a signal net and ground planes.
 
-h3d.modeler.create_line(layername="TOP", center_line_list=[[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
+h3d.modeler.create_line(layer="TOP", center_line_coordinates=[[0, 0], ["len", 0]], lw="w1", name="microstrip",
+                        netname="microstrip")
 h3d.modeler.create_rectangle(layername="TOP", origin=[0, "-w1/2-sp"], dimensions=["len", "-w1/2-sp-20mm"])
 h3d.modeler.create_rectangle(layername="TOP", origin=[0, "w1/2+sp"], dimensions=["len", "w1/2+sp+20mm"])
 

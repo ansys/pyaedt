@@ -424,8 +424,8 @@ class Icepak(FieldAnalysis3D):
 
         Create block boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
-        >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
+        >>> box1 = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
+        >>> box2 = icepak.modeler.create_box([2, 2, 2],[4, 4, 4],"BlockBox2","copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
         PyAEDT INFO: Block on ...
         >>> blocks[1].props
@@ -488,7 +488,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> box = icepak.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
         PyAEDT INFO: Block on ...
         >>> block.props
@@ -688,7 +688,7 @@ class Icepak(FieldAnalysis3D):
 
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
-        >>> box = icepak.modeler.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
+        >>> box = icepak.modeler.create_box([0, 0, 0],[20, 20, 20],name="SourceBox")
         >>> source1 = icepak.create_source_power(box.top_face_z.id, input_power="2W")
         >>> source1.props["Total Power"]
         '2W'
@@ -781,7 +781,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+        >>> box = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox1","copper")
         >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2 , 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
@@ -881,8 +881,8 @@ class Icepak(FieldAnalysis3D):
 
         Create network boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
-        >>> box2 = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
+        >>> box1 = icepak.modeler.create_box([1, 2, 3],[10, 10, 10],"NetworkBox2","copper")
+        >>> box2 = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox3","copper")
         >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
         ...                                        2, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
@@ -1018,7 +1018,7 @@ class Icepak(FieldAnalysis3D):
 
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
-        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
@@ -1353,7 +1353,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([0,0,0], [1,2,3])
+        >>> box = ipk.modeler.create_box([0,0,0],[1,2,3])
         >>> top_face=box.top_face_z
         >>> ipk.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
         """
@@ -3423,8 +3423,8 @@ class Icepak(FieldAnalysis3D):
 
         Examples
         --------
-        >>> board = icepak.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
-        >>> box = icepak.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
+        >>> board = icepak.modeler.create_box([0, 0, 0],[50, 100, 2],"board","copper")
+        >>> box = icepak.modeler.create_box([20, 20, 2],[10, 10, 3],"network_box1","copper")
         >>> network_block = icepak.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
         >>> network_block.props["Nodes"]["Internal"][0]
         '5W'
@@ -3445,7 +3445,7 @@ class Icepak(FieldAnalysis3D):
             part_names = sorted(
                 [
                     pcb_layer
-                    for pcb_layer in self.modeler.get_3d_component_object_list(componentname=pcb)
+                    for pcb_layer in self.modeler.get_3d_component_object_list(name=pcb)
                     if re.search(self.modeler.user_defined_components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
                 ]
             )
@@ -4185,7 +4185,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> box = app.modeler.create_box([0, 0, 0],[20, 20, 20],name="box")
         >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> app.solution_type = "Transient"
         >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
@@ -4330,7 +4330,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> box = app.modeler.create_box([0, 0, 0],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]
         >>> matrix = [[0, 0, 0, 0],
@@ -4413,7 +4413,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
 
@@ -4523,7 +4523,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox5","copper")
         >>> box.solve_inside = False
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
@@ -5105,7 +5105,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"Box","copper")
         >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
 
         """
@@ -5559,7 +5559,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
         >>> box.solve_inside = False
         >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
         >>>                                          flow_assignment="10kg_per_s_m2")
@@ -5700,7 +5700,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0,0,0], radius=10, height=1)
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(orientation="X",origin=[0,0,0],radius=10,height=1)
         >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
         >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
         >>> cylinder.solve_inside=False
@@ -5765,7 +5765,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
         >>> box.solve_inside=False
         >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
         >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])

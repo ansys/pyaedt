@@ -87,7 +87,7 @@ class TestClass:
 
     def test_01A_litz_wire(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[50, 0, 0], radius=0.8, height=20, name="Wire", matname="magnesium"
+            orientation="X", origin=[50, 0, 0], radius=0.8, height=20, name="Wire", material="magnesium"
         )
         self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
         self.aedtapp.materials["magnesium"].wire_type = "Round"
@@ -116,7 +116,7 @@ class TestClass:
 
     def test_01B_lamination(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", matname="titanium"
+            orientation="X", origin=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", material="titanium"
         )
         self.aedtapp.materials["titanium"].stacking_type = "Lamination"
         self.aedtapp.materials["titanium"].stacking_factor = "0.99"
@@ -413,7 +413,7 @@ class TestClass:
         my_udmPairs.append(mypair)
 
         assert self.aedtapp.modeler.create_udm(
-            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+            udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
         )
 
     def test_28_assign_torque(self):
@@ -458,10 +458,10 @@ class TestClass:
     def test_32_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
 
         rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
@@ -491,10 +491,10 @@ class TestClass:
     def test_32B_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix2")
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
 
         rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
@@ -683,9 +683,9 @@ class TestClass:
     @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
     def test_41_conduction_paths(self):
         self.aedtapp.insert_design("conduction")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], matname="copper")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], matname="copper")
-        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
+        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], material="copper")
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
     def test_43_eddy_effect_transient(self, m3dtransient):
@@ -915,8 +915,8 @@ class TestClass:
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
         rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
-        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], matname="aluminum")
-        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], matname="aluminum")
+        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
+        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
         bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
         assert bound
         bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")

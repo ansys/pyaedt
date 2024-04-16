@@ -324,7 +324,7 @@ class Mesh(object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
-    >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+    >>> cylinder = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
     >>> model_resolution = hfss.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
     """
 
@@ -359,7 +359,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> cylinder = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> cylinder = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> mr1 = hfss.mesh.assign_model_resolution(cylinder,1e-4,"ModelRes1")
         >>> mr2 = hfss.mesh[mr1.name]
         """
@@ -385,7 +385,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> mr1 = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         >>> mesh_operations_list = hfss.mesh.meshoperations
         """
@@ -415,7 +415,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> mr1 = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         >>> mr2 = hfss.mesh.assign_model_resolution(o,1e-2,"ModelRes2")
         >>> mesh_operations_names = hfss.mesh.meshoperation_names
@@ -565,7 +565,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.id,3,"Surface")
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -630,7 +630,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -707,7 +707,7 @@ class Mesh(object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> o = hfss.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         """
         assignment = self.modeler.convert_to_selections(assignment, True)

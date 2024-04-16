@@ -696,12 +696,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(
-        ...     hfss.PLANE.XY, origin, 3, 200, 0, "inner"
-        ... )
-        >>> outer = hfss.modeler.create_cylinder(
-        ...     hfss.PLANE.XY, origin, 4, 200, 0, "outer"
-        ... )
+        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
+        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
         >>> coat = hfss.assign_coating(["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm")
 
         """
@@ -1676,8 +1672,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> aedtapp = Hfss()
         >>> aedtapp.insert_design("Design_Terminal_2")
         >>> aedtapp.solution_type = "Terminal"
-        >>> box1 = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", matname="copper")
-        >>> box2 = aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", matname="copper")
+        >>> box1 = aedtapp.modeler.create_box([-100, -100, 0],[200, 200, 5],name="gnd2z",material="copper")
+        >>> box2 = aedtapp.modeler.create_box([-100, -100, 20],[200, 200, 25],name="sig2z",material="copper")
         >>> aedtapp.modeler.fit_all()
         >>> portz = aedtapp.create_spiral_lumped_port(box1,box2)
         """
@@ -1751,7 +1747,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
         spiral.name = name
-        spiral.move(move_vector_mid)
+        spiral.move(
+            move_vector_mid,
+        )
         spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
         # get the polyline center point (before width operation). They need to be moved as well.
@@ -1866,10 +1864,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating a voltage source named ``'VoltageSource'``.
 
-        >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5],
-        ...                                "BoxVolt1", "copper")
-        >>> box2 = hfss.modeler.create_box([30, 0, 10], [40, 10, 5],
-        ...                                "BoxVolt2", "copper")
+        >>> box1 = hfss.modeler.create_box([30, 0, 0],[40, 10, 5],"BoxVolt1","copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 10],[40, 10, 5],"BoxVolt2","copper")
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1","BoxVolt2",hfss.AxisDir.XNeg,"VoltageSource")
         PyAEDT INFO: Connection Correctly created
         """
@@ -1924,10 +1920,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating a current source named ``'CurrentSource'``.
 
-        >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5],
-        ...                                "BoxCurrent1", "copper")
-        >>> box2 = hfss.modeler.create_box([30, 0, 30], [40, 10, 5],
-        ...                                "BoxCurrent2", "copper")
+        >>> box1 = hfss.modeler.create_box([30, 0, 20],[40, 10, 5],"BoxCurrent1","copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 30],[40, 10, 5],"BoxCurrent2","copper")
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1","BoxCurrent2",hfss.AxisDir.XPos,"CurrentSource")
         PyAEDT INFO: Connection created 'CurrentSource' correctly.
         """
@@ -2411,10 +2405,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating a Perfect E named ``'PerfectE'``.
 
-        >>> box1 = hfss.modeler.create_box([0,0,0], [10,10,5],
-        ...                                "perfect1", "Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5],
-        ...                                "perfect2", "copper")
+        >>> box1 = hfss.modeler.create_box([0,0,0],[10,10,5],"perfect1","Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 10],[10, 10, 5],"perfect2","copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
@@ -2481,10 +2473,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating a Perfect H named ``'PerfectH'``.
 
-        >>> box1 = hfss.modeler.create_box([0,0,20], [10,10,5],
-        ...                                "perfect1", "Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5],
-        ...                                "perfect2", "copper")
+        >>> box1 = hfss.modeler.create_box([0,0,20],[10,10,5],"perfect1","Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 30],[10, 10, 5],"perfect2","copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
@@ -2658,10 +2648,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating a lumped RLC named ``'LumpedRLC'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
-        ...                                           "rlc1", "copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
-        ...                                           "rlc2", "copper")
+        >>> box1 = hfss.modeler.create_box([0, 0, 50],[10, 10, 5],"rlc1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60],[10, 10, 5],"rlc2","copper")
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1","rlc2",hfss.AxisDir.XPos,"Lumped RLC",resistance=50,
         ...                                              inductance=1e-9, capacitance=1e-6)
         PyAEDT INFO: Connection Correctly created
@@ -2761,10 +2749,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create two boxes for creating an impedance named ``'ImpedanceExample'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5],
-        ...                                           "box1", "copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5],
-        ...                                           "box2", "copper")
+        >>> box1 = hfss.modeler.create_box([0, 0, 70],[10, 10, 5],"box1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 80],[10, 10, 5],"box2","copper")
         >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
         ...                                                   "ImpedanceExample", 100, 50)
         PyAEDT INFO: Connection Correctly created
@@ -2932,9 +2918,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a sheet and assign to it some voltage.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
-        ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
-        ...                                                  matname="copper")
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -70],[10, 2],
+        ...                                       name="VoltageSheet",matname="copper")
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"VoltageSheetExample")
         >>> v2 = hfss.assign_voltage_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
         ...                                     sheet.bottom_edge_y.midpoint],50)
@@ -2985,8 +2970,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a sheet and assign some current to it.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -50],
-        ...                                                  [5, 1], name="CurrentSheet", matname="copper")
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -50],[5, 1],name="CurrentSheet",matname="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"CurrentSheetExample")
         'CurrentSheetExample'
         >>> c1 = hfss.assign_current_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
@@ -4150,8 +4134,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a box and assign a radiation boundary to it.
 
-        >>> radiation_box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
-        ...                                         name="Radiation_box")
+        >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
         >>> type(radiation)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -4194,8 +4177,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a box and assign a hybrid boundary to it.
 
-        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
-        ...                                         name="Radiation_box")
+        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
         >>> type(sbr_box)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -4238,8 +4220,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a box and assign an FE-BI boundary to it.
 
-        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
-        ...                                         name="Radiation_box")
+        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> febi_box = hfss.assign_febi("Radiation_box")
         >>> type(febi_box)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -4282,8 +4263,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Create a box. Select the faces of this box and assign a radiation
         boundary to them.
 
-        >>> radiation_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
-        ...                                         name="RadiationForFaces")
+        >>> radiation_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="RadiationForFaces")
         >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
         >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
         >>> type(radiation)
@@ -5543,8 +5523,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a box. Select the faces of this box and assign a symmetry.
 
-        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
-        ...                                         name="SymmetryForFaces")
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="SymmetryForFaces")
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> type(symmetry)
@@ -5595,8 +5574,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a box. Select the faces of this box and assign a symmetry.
 
-        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
-        ...                                         name="SymmetryForFaces")
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="SymmetryForFaces")
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> hfss.set_impedance_multiplier(2.0)
@@ -5860,10 +5838,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Create two boxes that will be used to create a lumped port
         named ``'LumpedPort'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5],
-        ...                                "BoxLumped1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5],
-        ...                                "BoxLumped2", "copper")
+        >>> box1 = hfss.modeler.create_box([0, 0, 50],[10, 10, 5],"BoxLumped1","copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60],[10, 10, 5],"BoxLumped2","copper")
         >>> hfss.lumped_port("BoxLumped1","BoxLumped2",hfss.AxisDir.XNeg,50,"LumpedPort",True,False)
         PyAEDT INFO: Connection Correctly created
         'LumpedPort'
@@ -5998,12 +5974,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a wave port supported by a microstrip line.
 
-        >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2],
-        ...                               name="MS1", matname="copper")
-        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],
-        ...                               name="SUB1", matname="FR4_epoxy")
-        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],
-        ...                               name="GND1", matname="FR4_epoxy")
+        >>> ms = hfss.modeler.create_box([4, 5, 0],[1, 100, 0.2],name="MS1",material="copper")
+        >>> sub = hfss.modeler.create_box([0, 5, -2],[20, 100, 2],name="SUB1",material="FR4_epoxy")
+        >>> gnd = hfss.modeler.create_box([0, 5, -2.2],[20, 100, 0.2],name="GND1",material="FR4_epoxy")
         >>> port = hfss.wave_port("GND1","MS1",integration_line=1,name="MS1")
         PyAEDT INFO: Connection correctly created.
 

@@ -415,8 +415,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> from pyaedt import Hfss3dLayout
         >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> l1=h3d.modeler.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
-        >>> l2=h3d.modeler.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
+        >>> l1=h3d.modeler.create_line("TOP",[[0,0],[100,0]],0.5,name="poly_1")
+        >>> l2=h3d.modeler.create_line("TOP",[[100,0],[120,-35]],0.5,name="poly_2")
         >>> h3d.modeler.unite([l1,l2])
         >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
@@ -471,7 +471,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> h3d=Hfss3dLayout(specified_version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> h3d.modeler.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
-        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]], name="line_3")
+        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]],name="line_3")
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4

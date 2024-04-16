@@ -171,10 +171,9 @@ mat.conductivity = 3.526e7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = m3d.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
-                               matname="team7_aluminium")
+plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[294, 294, 19], name="Plate", material="team7_aluminium")
 m3d.modeler.fit_all()
-m3d.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
+m3d.modeler.create_box(origin=[18, 18, 0], sizes=[108, 108, 19], name="Hole")
 m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
 
 ###########################################################################################

@@ -117,7 +117,7 @@ solutions.plot("V(Vout)")
 
 new_report = cir.post.reports_by_category.standard("V(Vout)")
 new_report.domain = "Time"
-new_report.create()
+new_report.create(),,
 if not non_graphical:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
@@ -129,7 +129,7 @@ if not non_graphical:
                            color=(0, 0, 255))
 new_report.time_start = "20ns"
 new_report.time_stop = "100ns"
-new_report.create()
+new_report.create(),,
 sol = new_report.get_solution_data()
 sol.plot()
 
@@ -141,7 +141,7 @@ sol.plot()
 new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
 new_eye.unit_interval = "1e-9s"
 new_eye.time_stop = "100ns"
-new_eye.create()
+new_eye.create(),,
 
 ###############################################################################
 # Create eye diagram outside AEDT

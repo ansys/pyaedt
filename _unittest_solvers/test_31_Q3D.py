@@ -49,9 +49,8 @@ class TestClass:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, matname="brass", name="MyCylinder"
-        )
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder",
+                                                 material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self):

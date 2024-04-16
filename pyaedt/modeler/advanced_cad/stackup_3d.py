@@ -366,7 +366,7 @@ class Layer3D(object):
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
-                matname=self.material_name,
+                material=self.material_name,
             )
         elif self._layer_type == "ground":
             if thickness:
@@ -374,7 +374,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self.material_name,
+                    material=self.material_name,
                 )
 
             else:
@@ -391,7 +391,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._fill_material.name,
+                    material=self._fill_material.name,
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
@@ -1176,9 +1176,9 @@ class Padstack(object):
                             [position_x, position_y, v._layer_elevation.name],
                             v._pad_radius,
                             v._layer_thickness.name,
-                            matname=self._padstacks_material,
+                            num_sides=self._num_sides,
                             name=instance_name,
-                            numSides=self._num_sides,
+                            material=self._padstacks_material,
                         )
                     )
                     if self.plating_ratio < 1:
@@ -1187,9 +1187,9 @@ class Padstack(object):
                             [position_x, position_y, v._layer_elevation.name],
                             "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
                             v._layer_thickness.name,
-                            matname=self._padstacks_material,
+                            num_sides=self._num_sides,
                             name=instance_name,
-                            numSides=self._num_sides,
+                            material=self._padstacks_material,
                         )
                         cyls[-1].subtract(hole, False)
                 if v._antipad_radius > 0:
@@ -1198,9 +1198,9 @@ class Padstack(object):
                         [position_x, position_y, v._layer_elevation.name],
                         v._antipad_radius,
                         v._layer_thickness.name,
-                        matname="air",
+                        num_sides=self._num_sides,
                         name=instance_name + "_antipad",
-                        numSides=self._num_sides,
+                        material="air",
                     )
                     self._app.modeler.subtract(
                         self._stackup._signal_list + self._stackup._ground_list + self._stackup._dielectric_list,
@@ -1995,7 +1995,7 @@ class Patch(CommonObject, object):
     >>> patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch")
     >>> stackup.resize_around_element(patch)
     >>> pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
-    >>> region = hfss.modeler.create_region(pad_length, is_percentage=False)
+    >>> region = hfss.modeler.create_region(pad_length,is_percentage=False)
     >>> hfss.assign_radiation_boundary_to_objects(region)
     >>> patch.create_probe_port(gnd, rel_x_offset=0.485)
 
@@ -2095,14 +2095,14 @@ class Patch(CommonObject, object):
             self._reference_system = patch_name + "_CS"
         if signal_layer.thickness:
             self._aedt_object = application.modeler.create_box(
-                position=start_point,
-                dimensions_list=[
+                origin=start_point,
+                sizes=[
                     "{}_length".format(patch_name),
                     "{}_width".format(patch_name),
                     signal_layer.thickness.name,
                 ],
                 name=patch_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(
@@ -2426,18 +2426,23 @@ class Patch(CommonObject, object):
         z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
         probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
         probe_wire = self.application.modeler.create_cylinder(
-            cs_axis="Z", position=probe_pos, radius=r, height=probe_height, name=name, matname="copper"
+            orientation="Z", origin=probe_pos, radius=r, height=probe_height, name=name, material="copper"
         )
         probe_feed_wire = self.application.modeler.create_cylinder(
-            cs_axis="Z", position=probe_pos, radius=r, height=-feed_length, name=name + "_feed_wire", matname="copper"
+            orientation="Z",
+            origin=probe_pos,
+            radius=r,
+            height=-feed_length,
+            name=name + "_feed_wire",
+            material="copper",
         )
         probe_feed_outer = self.application.modeler.create_cylinder(
-            cs_axis="Z",
-            position=probe_pos,
+            orientation="Z",
+            origin=probe_pos,
             radius=probe_or,
             height=-feed_length,
             name=name + "_feed_outer",
-            matname="vacuum",
+            material="vacuum",
         )
 
         # Probe extends through the ground plane.
@@ -2764,14 +2769,14 @@ class Trace(CommonObject, object):
             self._reference_system = line_name + "_CS"
         if signal_layer.thickness:
             self._aedt_object = application.modeler.create_box(
-                position=start_point,
-                dimensions_list=[
+                origin=start_point,
+                sizes=[
                     "{}_length".format(self._name),
                     self.width.name,
                     signal_layer.thickness.name,
                 ],
                 name=line_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(

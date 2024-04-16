@@ -107,7 +107,7 @@ class TestClass:
             name = "Mysphere"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius="1mm", name=name, matname="Copper")
+        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius="1mm", name=name, material="Copper")
 
     def create_copper_cylinder(self, name=None):
         if not name:
@@ -115,7 +115,7 @@ class TestClass:
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         return self.aedtapp.modeler.create_cylinder(
-            cs_axis="Y", position=[20, 20, 0], radius=5, height=20, numSides=8, name=name, matname="Copper"
+            orientation="Y", origin=[20, 20, 0], radius=5, height=20, num_sides=8, name=name, material="Copper"
         )
 
     def create_rectangle(self, name=None):
@@ -132,7 +132,7 @@ class TestClass:
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         return self.aedtapp.modeler.create_torus(
-            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material_name="Copper"
+            [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material="Copper"
         )
 
     def create_polylines(self, name=None):
@@ -192,13 +192,13 @@ class TestClass:
         assert o1.solve_inside
 
         o2 = self.aedtapp.modeler.create_polyhedron(
-            cs_axis=AXIS.Z,
-            center_position=[0, 0, 0],
-            start_position=[0, 1, 0],
+            orientation=AXIS.Z,
+            center=[0, 0, 0],
+            origin=[0, 1, 0],
             height=2.0,
             num_sides=5,
             name="MyPolyhedron",
-            matname="Aluminum",
+            material="Aluminum",
         )
         assert o2.id > 0
         assert o2.object_type == "Solid"
@@ -211,33 +211,33 @@ class TestClass:
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            cs_axis=AXIS.Z,
-            center_position=[0, 0],
-            start_position=[0, 1, 0],
+            orientation=AXIS.Z,
+            center=[0, 0],
+            origin=[0, 1, 0],
             height=2.0,
             num_sides=5,
             name="MyPolyhedron",
-            matname="Aluminum",
+            material="Aluminum",
         )
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            cs_axis=AXIS.Z,
-            center_position=[0, 0, 0],
-            start_position=[0, 1],
+            orientation=AXIS.Z,
+            center=[0, 0, 0],
+            origin=[0, 1],
             height=2.0,
             num_sides=5,
             name="MyPolyhedron",
-            matname="Aluminum",
+            material="Aluminum",
         )
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            cs_axis=AXIS.Z,
-            center_position=[0, 0, 0],
-            start_position=[0, 0, 0],
+            orientation=AXIS.Z,
+            center=[0, 0, 0],
+            origin=[0, 0, 0],
             height=2.0,
             num_sides=5,
             name="MyPolyhedron",
-            matname="Aluminum",
+            material="Aluminum",
         )
 
     def test_05_center_and_centroid(self):
@@ -460,16 +460,16 @@ class TestClass:
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         axis = self.aedtapp.AXIS.Z
-        o = self.aedtapp.modeler.create_cone(axis, udp, 20, 10, 5, name="MyCone", matname="Copper")
+        o = self.aedtapp.modeler.create_cone(axis, udp, 20, 10, 5, name="MyCone", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCone")
         assert o.object_type == "Solid"
         assert o.is3d is True
-        assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", matname="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, 5, name="MyCone", matname="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", matname="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", matname="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", matname="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", material="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, 5, name="MyCone", material="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", material="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", material="Copper")
+        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", material="Copper")
 
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -599,7 +599,7 @@ class TestClass:
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get2")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
-        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
+        cylinder = self.aedtapp.modeler.create_cylinder(orientation=1, origin=[0, 0, 0], radius=10, height=10)
         if config["desktopVersion"] >= "2023.1":
             centers = [[0, 10, 0], [0, 0, 0], [0, 5, 10]]
         else:
@@ -1074,23 +1074,23 @@ class TestClass:
         self.aedtapp["$bondHeight1"] = "0.15mm"
         self.aedtapp["$bondHeight2"] = "0mm"
         b0 = self.aedtapp.modeler.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
         )
         assert b0
         b1 = self.aedtapp.modeler.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, bond_type=1, diameter=0.034, name="jedec41", material="copper"
         )
         assert b1
         b2 = self.aedtapp.modeler.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=2, matname="copper", name="low"
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, bond_type=2, diameter=0.034, name="low", material="copper"
         )
         assert b2
         b3 = self.aedtapp.modeler.create_bondwire(
-            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, bond_type=3, matname="copper", name="jedec41"
+            [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, bond_type=3, diameter=0.034, name="jedec41", material="copper"
         )
         assert not b3
         b4 = self.aedtapp.modeler.create_bondwire(
-            (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, diameter=0.034, bond_type=1, matname="copper", name="jedec41"
+            (2, 2, 0), (0, 0, 0), h1=0.15, h2=0, bond_type=1, diameter=0.034, name="jedec41", material="copper"
         )
         assert b4
         b5 = self.aedtapp.modeler.create_bondwire(
@@ -1098,10 +1098,10 @@ class TestClass:
             ("$Endx", "$Endy", "$Endz"),
             h1=0.15,
             h2=0,
-            diameter=0.034,
             bond_type=1,
-            matname="copper",
+            diameter=0.034,
             name="jedec41",
+            material="copper",
         )
         assert b5
         b6 = self.aedtapp.modeler.create_bondwire(
@@ -1109,17 +1109,17 @@ class TestClass:
             [10, 10, 2],
             h1="$bondHeight1",
             h2="$bondHeight2",
-            diameter=0.034,
             bond_type=2,
-            matname="copper",
+            diameter=0.034,
             name="low",
+            material="copper",
         )
         assert b6
         assert not self.aedtapp.modeler.create_bondwire(
-            [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+            [0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
         )
         assert not self.aedtapp.modeler.create_bondwire(
-            [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
+            [0, 0, 0], [10, 10], h1=0.15, h2=0, diameter=0.034, facets=8, name="jedec51", material="copper"
         )
 
     def test_56_create_group(self):
@@ -1277,9 +1277,9 @@ class TestClass:
         mypair = ["Port_Gap_Width", "8.1mm"]
         my_udmPairs.append(mypair)
         self.aedtapp.modeler.create_udm(
-            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-            udm_params_list=my_udmPairs,
-            udm_library="syslib",
+            udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            parameters=my_udmPairs,
+            library="syslib",
             name="test_udm_83",
         )
         assert (
@@ -1305,8 +1305,8 @@ class TestClass:
     def test_67_assign_material(self):
         box1 = self.aedtapp.modeler.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
-        cyl1 = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[50, 0, 0], radius=1, height=20)
-        cyl2 = self.aedtapp.modeler.create_cylinder(cs_axis="Z", position=[0, 0, 50], radius=1, height=10)
+        cyl1 = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[50, 0, 0], radius=1, height=20)
+        cyl2 = self.aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 50], radius=1, height=10)
 
         objects_list = [box1, box2, cyl1, cyl2]
         self.aedtapp.assign_material(objects_list, "copper")
@@ -1335,10 +1335,10 @@ class TestClass:
 
     def test_70_create_torus_exceptions(self):
         assert self.aedtapp.modeler.create_torus(
-            [30, 30, 0], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+            [30, 30, 0], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material="Copper"
         )
         assert not self.aedtapp.modeler.create_torus(
-            [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
+            [30, 30], major_radius=1.3, minor_radius=0.5, axis="Z", name="torus", material="Copper"
         )
 
     def test_71_create_point(self):
@@ -1552,12 +1552,12 @@ class TestClass:
         )
 
         helix_right_turn = self.aedtapp.modeler.create_helix(
-            polyline_name=polyline.name,
-            position=[0, 0, 0],
+            assignment=polyline.name,
+            origin=[0, 0, 0],
             x_start_dir=0,
             y_start_dir=1.0,
             z_start_dir=1.0,
-            num_thread=1,
+            turns=1,
             right_hand=True,
             radius_increment=0.0,
             thread=1.0,
@@ -1575,8 +1575,8 @@ class TestClass:
         )
 
         assert self.aedtapp.modeler.create_helix(
-            polyline_name=polyline_left.name,
-            position=[0, 0, 0],
+            assignment=polyline_left.name,
+            origin=[0, 0, 0],
             x_start_dir=1.0,
             y_start_dir=1.0,
             z_start_dir=1.0,
@@ -1584,16 +1584,12 @@ class TestClass:
         )
 
         assert not self.aedtapp.modeler.create_helix(
-            polyline_name="",
-            position=[0, 0, 0],
-            x_start_dir=1.0,
-            y_start_dir=1.0,
-            z_start_dir=1.0,
+            assignment="", origin=[0, 0, 0], x_start_dir=1.0, y_start_dir=1.0, z_start_dir=1.0
         )
 
         assert not self.aedtapp.modeler.create_helix(
-            polyline_name=polyline_left.name,
-            position=[0, 0],
+            assignment=polyline_left.name,
+            origin=[0, 0],
             x_start_dir=1.0,
             y_start_dir=1.0,
             z_start_dir=1.0,
@@ -1601,8 +1597,8 @@ class TestClass:
         )
 
     def test_78_get_touching_objects(self):
-        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2], matname="copper")
+        box1 = self.aedtapp.modeler.create_box([-20, -20, -20], [1, 1, 1], material="copper")
+        box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2], material="copper")
         assert box2.name in box1.touching_objects
         assert box2.name in box1.touching_conductors()
         assert box1.name in box2.touching_objects
@@ -1653,7 +1649,7 @@ class TestClass:
         self.aedtapp.modeler.set_working_coordinate_system("Global")
         obj_3dcomp = self.aedtapp.modeler["Dipole_Antenna2"]
         assert obj_3dcomp.mirror(udp, udp2)
-        assert obj_3dcomp.rotate(cs_axis="Y", angle=180)
+        assert obj_3dcomp.rotate(axis="Y", angle=180)
         assert obj_3dcomp.move(udp2)
 
         new_comps = obj_3dcomp.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
@@ -1686,9 +1682,9 @@ class TestClass:
         mypair = ["Port_Gap_Width", "8.1mm"]
         my_udmPairs.append(mypair)
         obj_udm = self.aedtapp.modeler.create_udm(
-            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-            udm_params_list=my_udmPairs,
-            udm_library="syslib",
+            udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            parameters=my_udmPairs,
+            library="syslib",
             name="test_udm",
         )
         assert isinstance(obj_udm, UserDefinedComponent)
@@ -1721,13 +1717,13 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         obj_udm = self.aedtapp.modeler.create_udm(
-            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-            udm_params_list=my_udmPairs,
-            udm_library="syslib",
+            udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            parameters=my_udmPairs,
+            library="syslib",
             name="test_udm",
         )
         assert obj_udm.mirror(udp, udp2)
-        assert obj_udm.rotate(cs_axis="Y", angle=180)
+        assert obj_udm.rotate(axis="Y", angle=180)
         assert obj_udm.move(udp2)
         assert not obj_udm.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
         udp = self.aedtapp.modeler.Position(5, 5, 5)
@@ -1751,13 +1747,13 @@ class TestClass:
         mypair = ["Port_Gap_Width", "8.1mm"]
         my_udmPairs.append(mypair)
         obj_udm = self.aedtapp.modeler.create_udm(
-            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-            udm_params_list=my_udmPairs,
-            udm_library="syslib",
+            udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            parameters=my_udmPairs,
+            library="syslib",
             name="test_udm2",
         )
         assert self.aedtapp.modeler.duplicate_and_mirror(
-            self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
+            self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0]
         )
 
     def test_82_flatten_3d_components(self):

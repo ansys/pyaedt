@@ -222,9 +222,9 @@ class TestClass:
         poly1 = self.aedtapp.modeler.create_polyline(
             position_list=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc"
         )
-        assert not self.aedtapp.modeler.split(objects=rect1)
-        split = self.aedtapp.modeler.split(objects=rect1, plane=self.aedtapp.PLANE.ZX)
+        assert not self.aedtapp.modeler.split(assignment=rect1)
+        split = self.aedtapp.modeler.split(assignment=rect1, plane=self.aedtapp.PLANE.ZX)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
-        assert not self.aedtapp.modeler.split(objects=obj_split, tool=poly1.edges[0])
+        assert not self.aedtapp.modeler.split(assignment=obj_split, tool=poly1.edges[0])

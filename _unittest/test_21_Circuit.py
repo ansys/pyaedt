@@ -155,7 +155,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
+        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
         # create_interface_port
@@ -182,14 +182,13 @@ class TestClass:
         assert self.aedtapp.modeler.move("L14", [0, -0.00508])
         assert myind.location == [0.01016, 0.00508]
         self.aedtapp.modeler.schematic_units = "mil"
-        assert self.aedtapp.modeler.move(
-            "L14",
-            [0, 200],
-        )
+        assert self.aedtapp.modeler.move("L14", [0, 200])
         assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("IPort@Port1")
+        assert self.aedtapp.modeler.rotate(
+            "IPort@Port1",
+        )
 
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
@@ -469,7 +468,9 @@ class TestClass:
         assert type(myprobe.id) is int
 
     def test_37_draw_graphical_primitives(self):
-        line = self.aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
+        line = self.aedtapp.modeler.components.create_line(
+            [[0, 0], [1, 1]],
+        )
         assert line
 
     def test_38_browse_log_file(self):
@@ -767,19 +768,7 @@ class TestClass:
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
         self.aedtapp.modeler.schematic_units = "mil"
-        text = self.aedtapp.modeler.create_text(
-            "text test",
-            100,
-            300,
-            text_size=14,
-            text_angle=45,
-            text_color=[255, 0, 0],
-            show_rect=True,
-            rect_line_width=3,
-            rect_border_color=[0, 255, 0],
-            rect_fill=1,
-            rect_color=[0, 0, 255],
-        )
+        text = self.aedtapp.modeler.create_text("text test", 100, 300)
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")

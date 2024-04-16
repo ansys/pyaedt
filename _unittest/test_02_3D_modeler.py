@@ -34,17 +34,17 @@ class TestClass:
         for name in self.aedtapp.modeler.get_matched_object_name("outer*"):
             self.aedtapp.modeler.delete(name)
         outer = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[0, 0, 0], radius=1, height=20, name="outer", matname="Aluminum"
+            orientation="X", origin=[0, 0, 0], radius=1, height=20, name="outer", material="Aluminum"
         )
         for name in self.aedtapp.modeler.get_matched_object_name("Core*"):
             self.aedtapp.modeler.delete(name)
         core = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[0, 0, 0], radius=0.8, height=20, name="Core", matname="teflon_based"
+            orientation="X", origin=[0, 0, 0], radius=0.8, height=20, name="Core", material="teflon_based"
         )
         for name in self.aedtapp.modeler.get_matched_object_name("inner*"):
             self.aedtapp.modeler.delete(name)
         inner = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[0, 0, 0], radius=0.3, height=20, name="inner", matname="Aluminum"
+            orientation="X", origin=[0, 0, 0], radius=0.3, height=20, name="inner", material="Aluminum"
         )
 
         for name in self.aedtapp.modeler.get_matched_object_name("Poly1*"):
@@ -84,7 +84,9 @@ class TestClass:
         split = self.aedtapp.modeler.split(box1.name, 2)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
-        split2 = box2.split(1)
+        split2 = box2.split(
+            1,
+        )
         assert isinstance(split2, list)
         assert box2.name in split2[0]
         box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3", display_wireframe=True)
@@ -95,40 +97,40 @@ class TestClass:
         assert rect1.transparency == 0.5
         assert rect1.display_wireframe
         assert rect1.name == "rect1"
-        split = self.aedtapp.modeler.split(objects=box3, sides="Both", tool=rect1.id)
+        split = self.aedtapp.modeler.split(assignment=box3, sides="Both", tool=rect1.id)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 14], [20, 30], name="rect2")
-        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=rect2.faces[0])
+        split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=rect2.faces[0])
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 12], [20, 30], name="rect3")
-        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool="rect3")
+        split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool="rect3")
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
-        assert not self.aedtapp.modeler.split(objects=obj_split)
+        assert not self.aedtapp.modeler.split(assignment=obj_split)
         box4 = self.aedtapp.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
         poly2 = self.aedtapp.modeler.create_polyline(
             position_list=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc"
         )
-        split = self.aedtapp.modeler.split(objects=box4, sides="Both", tool=poly2.name)
+        split = self.aedtapp.modeler.split(assignment=box4, sides="Both", tool=poly2.name)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         poly3 = self.aedtapp.modeler.create_polyline(
             position_list=[[35, 16, 35], [30, 25, 35], [30, 45, 35]], segment_type="Arc"
         )
-        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly3)
+        split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=poly3)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         poly4 = self.aedtapp.modeler.create_polyline(
             position_list=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
         )
-        split = self.aedtapp.modeler.split(objects=obj_split, sides="Both", tool=poly4.edges[0])
+        split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=poly4.edges[0])
         assert isinstance(split, list)
         assert isinstance(split[0], str)
 
@@ -177,17 +179,14 @@ class TestClass:
 
     def test_11_split(self):
         self.restore_model()
-        assert self.aedtapp.modeler.split(
-            "Poly1",
-            self.aedtapp.PLANE.XY,
-        )
+        assert self.aedtapp.modeler.split("Poly1", self.aedtapp.PLANE.XY)
 
     def test_12_separate_bodies(self):
         self.aedtapp.modeler.create_cylinder(
-            cs_axis="Z", position=[0, -20, 15], radius=40, height=20, name="SearchCoil", matname="copper"
+            orientation="Z", origin=[0, -20, 15], radius=40, height=20, name="SearchCoil", material="copper"
         )
         self.aedtapp.modeler.create_cylinder(
-            cs_axis="Z", position=[0, -20, 15], radius=20, height=20, name="Bore", matname="copper"
+            orientation="Z", origin=[0, -20, 15], radius=20, height=20, name="Bore", material="copper"
         )
         self.aedtapp.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
         self.aedtapp.modeler.section("SearchCoil", "YZ")
@@ -408,7 +407,7 @@ class TestClass:
         assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
-        box = self.aedtapp.modeler.create_box(position=[0, 0, 0], dimensions_list=[2, 2, 2], name="box_cs")
+        box = self.aedtapp.modeler.create_box(origin=[0, 0, 0], sizes=[2, 2, 2], name="box_cs")
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
         assert fcs
@@ -471,7 +470,7 @@ class TestClass:
     def test_40b_create_object_coordinate_system(self):
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+            assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
         )
         assert cs
         assert cs.name == "obj_cs"
@@ -485,7 +484,7 @@ class TestClass:
         assert cs.update()
         cs.delete()
         cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+            assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
         )
         assert cs
         assert cs.name == "obj_cs"
@@ -502,7 +501,7 @@ class TestClass:
         assert cs.update()
         cs.delete()
         cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+            assignment=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
         )
         cs.props["Origin"]["XPosition"] = 1
         cs.props["Origin"]["XPosition"] = "1"
@@ -514,7 +513,7 @@ class TestClass:
         assert cs.update()
         cs.delete()
         cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
+            assignment=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
         )
         cs.props["Origin"]["XPosition"] = 1
         cs.props["Origin"]["XPosition"] = "1"
@@ -545,7 +544,7 @@ class TestClass:
     def test_41b_rename_object_coordinate(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+            assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
         )
         assert cs.name == "obj_cs"
         assert cs.rename("new_obj_cs")
@@ -622,10 +621,10 @@ class TestClass:
             cs.delete()
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+            assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
         )
         obj_cs_1 = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
+            assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs_1"
         )
         assert obj_cs.set_as_working_cs()
         assert obj_cs_1.set_as_working_cs()
@@ -674,7 +673,7 @@ class TestClass:
             self.aedtapp.PLANE.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3"
         )
         rect_list = [rect2, rect3]
-        assert self.aedtapp.modeler.sweep_along_vector(objid=rect_list, sweep_vector=sweep_vector)
+        assert self.aedtapp.modeler.sweep_along_vector(assignment=rect_list, sweep_vector=sweep_vector)
 
     def test_48_coordinate_systems_parametric(self):
         self.aedtapp["var1"] = "5mm"
@@ -946,28 +945,28 @@ class TestClass:
         assert new_fcs.props["YOffset"] == fcs.props["YOffset"]
         assert new_fcs.props["AutoAxis"] == fcs.props["AutoAxis"]
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
+            assignment=box, origin=box.faces[0], x_axis=box.edges[0], y_axis=[0, 0, 0], name="obj_cs"
         )
         new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
         assert new_obj_cs.props == obj_cs.props
         assert new_obj_cs.entity_id == obj_cs.entity_id
         obj_cs.delete()
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+            assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
         )
         new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
         assert new_obj_cs.props == obj_cs.props
         assert new_obj_cs.entity_id == obj_cs.entity_id
         obj_cs.delete()
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
+            assignment=box.name, origin=[0, 0.8, 0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
         )
         new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
         assert new_obj_cs.props == obj_cs.props
         assert new_obj_cs.entity_id == obj_cs.entity_id
         obj_cs.delete()
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
-            obj=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
+            assignment=box.name, origin=box.vertices[1], x_axis=box.faces[2], y_axis=box.faces[4], name="obj_cs"
         )
         new_obj_cs = self.aedtapp.modeler.duplicate_coordinate_system_to_global(obj_cs)
         assert new_obj_cs.props == obj_cs.props
@@ -1083,7 +1082,7 @@ class TestClass:
         my_udmPairs.append(mypair)
 
         obj_udm = self.aedtapp.modeler.create_udm(
-            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+            udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
         )
         assert len(obj_udm.parts) == 5
         names = [p.name for p in obj_udm.parts.values()]

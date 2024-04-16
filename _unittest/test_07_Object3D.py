@@ -66,7 +66,7 @@ class TestClass:
             name = "Mysphere"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius=4, name=name, matname="Copper")
+        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius=4, name=name, material="Copper")
 
     def create_copper_cylinder(self, name=None):
         if not name:
@@ -74,7 +74,7 @@ class TestClass:
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         return self.aedtapp.modeler.create_cylinder(
-            cs_axis="Y", position=[0, 0, 0], radius=1, height=20, numSides=8, name=name, matname="Copper"
+            orientation="Y", origin=[0, 0, 0], radius=1, height=20, num_sides=8, name=name, material="Copper"
         )
 
     def test_00_uname(self):
@@ -183,7 +183,7 @@ class TestClass:
         self.aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
         box = self.aedtapp.modeler["MyBox"]
         box.material_name = "mat_sweep_test[0]"
-        assert self.aedtapp.modeler.get_objects_by_material(materialname="myMat")[0].name == "MyBox"
+        assert self.aedtapp.modeler.get_objects_by_material(material="myMat")[0].name == "MyBox"
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")
@@ -413,10 +413,10 @@ class TestClass:
 
     def test_22_mass(self):
         self.aedtapp.modeler.model_units = "meter"
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], matname="Copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
         assert box1.mass == 893300.0
         new_material = self.aedtapp.materials.add_material("MyMaterial")
-        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], matname="MyMaterial")
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], material="MyMaterial")
         assert box2.mass == 0.0
         new_material.mass_density = 1
         assert isclose(box2.mass, 1000.0)
@@ -426,7 +426,7 @@ class TestClass:
         assert rec.mass == 0.0
 
     def test_23_volume(self):
-        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], matname="Copper")
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], material="Copper")
         assert isclose(box3.volume, 100)
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
@@ -546,20 +546,20 @@ class TestClass:
         assert len(self.aedtapp.modeler.unclassified_objects) == 0
 
     def test_27_get_object_history_properties(self):
-        box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
+        box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", material="Copper")
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="Y",
-            position=[10, 10, 10],
+            orientation="Y",
+            origin=[10, 10, 10],
             radius=5,
             height=20,
-            numSides=4,
+            num_sides=4,
             name="cylinder_history",
-            matname="Copper",
+            material="Copper",
         )
 
         box_clone = box.clone()
         box_subtract = box_clone.subtract(cylinder)
-        box_subtract.rotate(cs_axis="Y", angle=180)
+        box_subtract.rotate(),
         box_subtract.split("XY")
         box_history = box.history()
         box_clone_history = box_clone.history()
@@ -632,9 +632,9 @@ class TestClass:
 
     def test_29_test_nets(self):
         self.aedtapp.insert_design("nets")
-        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")
-        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], matname="copper")
-        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], matname="vacuum")
+        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], material="copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], material="copper")
+        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], material="vacuum")
         nets = self.aedtapp.identify_touching_conductors()
         assert len(nets) == 2
 

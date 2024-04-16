@@ -74,12 +74,12 @@ aedtapp["inner"] = "3mm"
 # Optionally, you can assign a material using the :func:`assign_material` method.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
-                                     numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
-                                     numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=10, height="$coax_dimension",
-                                     numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius="inner", height="$coax_dimension",
+                                     num_sides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius=8, height="$coax_dimension",
+                                     num_sides=0, material="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius=10, height="$coax_dimension",
+                                     num_sides=0, name="outer")
 
 ###############################################################################
 # Assign colors

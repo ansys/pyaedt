@@ -123,7 +123,7 @@ hfss.post.create_report("db(GainTotal)", hfss.nominal_adaptive, variations, prim
 new_report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
-new_report.create("Realized2D")
+new_report.create("Realized2D"),,
 
 ###############################################################################
 # Generate multiple plots
@@ -133,7 +133,7 @@ new_report.create("Realized2D")
 
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
-new_report.create("Realized3D")
+new_report.create("Realized3D"),,
 
 ###############################################################################
 # Get solution data

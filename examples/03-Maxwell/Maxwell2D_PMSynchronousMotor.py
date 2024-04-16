@@ -343,7 +343,7 @@ create_cs_magnets(OPM1_id, 'CS_' + OPM1_id.name, 'outer')
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Duplicate and mirror the PMs along with the local coordinate system.
 
-mod2D.duplicate_and_mirror([IPM1_id, OPM1_id], position=[0, 0, 0],
+mod2D.duplicate_and_mirror([IPM1_id, OPM1_id], origin=[0, 0, 0],
                            vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 
@@ -356,7 +356,7 @@ coil_id = mod2D.create_rectangle(position=['DiaRotorLam/2+Airgap+Coil_SetBack', 
                                  dimension_list=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
                                  name='Coil', matname="Copper (Annealed)_65C")
 coil_id.color = (255, 128, 0)
-M2D.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
+M2D.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")
 coil_id.duplicate_around_axis(cs_axis="Z", angle="360deg/SlotNumber", nclones='CoilPitch+1',
                               create_new_objects=True)
 id_coils = mod2D.get_objects_w_string("Coil", case_sensitive=True)
@@ -427,7 +427,7 @@ slot_IM_id = mod2D.create_polyline(position_list=slot_IM1_points, cover_surface=
 slot_OM_id = mod2D.create_polyline(position_list=slot_OM1_points, cover_surface=True, name="slot_OM1",
                                    matname="vacuum")
 
-M2D.modeler.duplicate_and_mirror(objid=[slot_IM_id, slot_OM_id], position=[0, 0, 0],
+M2D.modeler.duplicate_and_mirror(assignment=[slot_IM_id, slot_OM_id], origin=[0, 0, 0],
                                  vector=["cos((360deg/SymmetryFactor/2)+90deg)",
                                          "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 

@@ -1074,13 +1074,13 @@ class GeometryModeler(Modeler):
 
         return len(self.objects)
 
-    @pyaedt_function_handler()
-    def get_objects_by_material(self, materialname=None):
+    @pyaedt_function_handler(materialname="material")
+    def get_objects_by_material(self, material=None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
         ----------
-        materialname : str
+        material : str
             Name of the material. The default is ``None``.
 
         Returns
@@ -1100,7 +1100,7 @@ class GeometryModeler(Modeler):
 
         """
         obj_lst = []
-        if materialname is not None:
+        if material is not None:
             for obj in self.object_list:
                 if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
                     material = (
@@ -1109,9 +1109,9 @@ class GeometryModeler(Modeler):
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if materialname.lower() == material:
+                    if material.lower() == material:
                         obj_lst.append(obj)
-                elif obj and (obj.material_name == materialname or obj.material_name == materialname.lower()):
+                elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -1345,13 +1345,13 @@ class GeometryModeler(Modeler):
             return False, (origin, a_end, b_end)
         return True, (origin, a_end, b_end)
 
-    @pyaedt_function_handler()
-    def cover_lines(self, selection):
+    @pyaedt_function_handler(selection="assignment")
+    def cover_lines(self, assignment):
         """Cover closed lines and transform them to a sheet.
 
         Parameters
         ----------
-        selection : str, int
+        assignment : str, int
             Polyline object to cover.
 
         Returns
@@ -1364,17 +1364,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CoverLines
         """
-        obj_to_cover = self.convert_to_selections(selection, False)
+        obj_to_cover = self.convert_to_selections(assignment, False)
         self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
-    @pyaedt_function_handler()
-    def cover_faces(self, selection):
+    @pyaedt_function_handler(selection="assignment")
+    def cover_faces(self, assignment):
         """Cover a face.
 
         Parameters
         ----------
-        selection : str, int
+        assignment : str, int
             Sheet object to cover.
         Returns
         -------
@@ -1386,7 +1386,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CoverLines
         """
-        obj_to_cover = self.convert_to_selections(selection, False)
+        obj_to_cover = self.convert_to_selections(assignment, False)
         self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
@@ -1561,7 +1561,7 @@ class GeometryModeler(Modeler):
         cs = FaceCoordinateSystem(self)
         if cs:
             result = cs.create(
-                face=face,
+                assignment=face,
                 origin=origin,
                 axis_position=axis_position,
                 axis=axis,
@@ -1575,15 +1575,23 @@ class GeometryModeler(Modeler):
                 return cs
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(obj="assignment")
     def create_object_coordinate_system(
-        self, obj, origin, x_axis, y_axis, move_to_end=True, reverse_x_axis=False, reverse_y_axis=False, name=None
+        self,
+        assignment,
+        origin,
+        x_axis,
+        y_axis,
+        move_to_end=True,
+        reverse_x_axis=False,
+        reverse_y_axis=False,
+        name=None,
     ):
         """Create an object coordinate system.
 
         Parameters
         ----------
-        obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Refer to the origin where the object coordinate system is anchored.
@@ -1635,7 +1643,7 @@ class GeometryModeler(Modeler):
         cs = ObjectCoordinateSystem(self, name=name)
         if cs:
             result = cs.create(
-                obj=obj,
+                assignment=assignment,
                 origin=origin,
                 x_axis=x_axis,
                 y_axis=y_axis,
@@ -1648,15 +1656,15 @@ class GeometryModeler(Modeler):
                 return cs
         return False
 
-    @pyaedt_function_handler()
-    def global_to_cs(self, point, ref_cs):
+    @pyaedt_function_handler(ref_cs="coordinate_system")
+    def global_to_cs(self, point, coordinate_system):
         """Transform a point from the global coordinate system to another coordinate system.
 
         Parameters
         ----------
         point : list
             List of the ``[x, y, z]`` coordinates to transform.
-        ref_cs : str, CoordinateSystem
+        coordinate_system : str, CoordinateSystem
             Name of the destination reference system. The ``CoordinateSystem`` object can also be
             used.
 
@@ -1672,10 +1680,10 @@ class GeometryModeler(Modeler):
             point = [float(i) for i in point]
         except Exception:
             raise AttributeError("Point must be in format [x, y, z].")
-        if isinstance(ref_cs, BaseCoordinateSystem):
-            ref_cs_name = ref_cs.name
-        elif isinstance(ref_cs, str):
-            ref_cs_name = ref_cs
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            ref_cs_name = coordinate_system.name
+        elif isinstance(coordinate_system, str):
+            ref_cs_name = coordinate_system
         else:
             raise AttributeError("ref_cs must be either a string or a CoordinateSystem object.")
         if ref_cs_name == "Global":
@@ -1905,7 +1913,7 @@ class GeometryModeler(Modeler):
                 axis_position = [v for v in edge.vertices if v.id == face_cs.props["AxisPosn"]["EntityID"]][0]
             if face_cs:
                 result = face_cs.create(
-                    face=face,
+                    assignment=face,
                     origin=origin,
                     axis_position=axis_position,
                     axis=face_cs.props["WhichAxis"],
@@ -1977,7 +1985,7 @@ class GeometryModeler(Modeler):
                 ]
             if obj_cs:
                 result = obj_cs.create(
-                    obj=obj,
+                    assignment=obj,
                     origin=origin,
                     x_axis=x_axis,
                     y_axis=y_axis,
@@ -1989,13 +1997,13 @@ class GeometryModeler(Modeler):
                     return obj_cs
         return False
 
-    @pyaedt_function_handler()
-    def set_objects_deformation(self, objects):
+    @pyaedt_function_handler(objects="assignment")
+    def set_objects_deformation(self, assignment):
         """Assign deformation objects to a Workbench link.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of the deformation objects to assign to the Workbench link.
 
         Returns
@@ -2010,7 +2018,7 @@ class GeometryModeler(Modeler):
         """
         self.logger.info("Enabling deformation feedback")
         try:
-            self._odesign.SetObjectDeformation(["EnabledObjects:=", objects])
+            self._odesign.SetObjectDeformation(["EnabledObjects:=", assignment])
         except Exception:
             self.logger.error("Failed to enable the deformation dependence")
             return False
@@ -2018,17 +2026,17 @@ class GeometryModeler(Modeler):
             self.logger.info("Successfully enabled deformation feedback")
             return True
 
-    @pyaedt_function_handler()
-    def set_objects_temperature(self, objects, ambient_temp=22, create_project_var=False):
+    @pyaedt_function_handler(objects="assignment", ambient_temp="ambient_temperature")
+    def set_objects_temperature(self, assignment, ambient_temperature=22, create_project_var=False):
         """Assign temperatures to objects.
 
         The materials assigned to the objects must have a thermal modifier.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects.
-        ambient_temp : float, optional
+        ambient_temperature : float, optional
             Ambient temperature. The default is ``22``.
         create_project_var : bool, optional
             Whether to create a project variable for the ambient temperature.
@@ -2046,10 +2054,10 @@ class GeometryModeler(Modeler):
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
-            self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            self._app.variable_manager["$AmbientTemp"] = str(ambient_temperature) + "cel"
             var = "$AmbientTemp"
         else:
-            var = str(ambient_temp) + "cel"
+            var = str(ambient_temperature) + "cel"
         vargs1 = [
             "NAME:TemperatureSettings",
             "IncludeTemperatureDependence:=",
@@ -2059,7 +2067,7 @@ class GeometryModeler(Modeler):
             "Temperatures:=",
         ]
         vargs2 = []
-        for obj in objects:
+        for obj in assignment:
             mat = self[obj].material_name
             th = self._app.materials.check_thermal_modifier(mat)
             if th:
@@ -2121,15 +2129,18 @@ class GeometryModeler(Modeler):
         self.connect(port_edges)
         return sheet_name, point0, point1
 
-    @pyaedt_function_handler()
-    def find_point_around(self, objectname, startposition, offset, plane):
+    @pyaedt_function_handler(
+        objectname="assignment",
+        startposition="origin",
+    )
+    def find_point_around(self, assignment, origin, offset, plane):
         """Find the point around an object.
 
         Parameters
         ----------
-        objectname : str
+        assignment : str
             Name of the object.
-        startposition : list
+        origin : list
             List of the ``[x, y, z]`` coordinates for the starting
             position of the object.
         offset :
@@ -2149,32 +2160,32 @@ class GeometryModeler(Modeler):
         angle = 0
         if plane == 0:
             while angle <= 360:
-                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
-                position[1] = startposition[1] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[0] = origin[0] + offset * math.cos(math.pi * angle / 180)
+                position[1] = origin[1] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 1:
             while angle <= 360:
-                position[1] = startposition[1] + offset * math.cos(math.pi * angle / 180)
-                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[1] = origin[1] + offset * math.cos(math.pi * angle / 180)
+                position[2] = origin[2] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 2:
             while angle <= 360:
-                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
-                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[0] = origin[0] + offset * math.cos(math.pi * angle / 180)
+                position[2] = origin[2] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         return position
 
-    @pyaedt_function_handler()
-    def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
+    @pyaedt_function_handler(objectname="assignment", groundname="ground_name", axisdir="orientation")
+    def create_sheet_to_ground(self, assignment, ground_name=None, orientation=0, sheet_dim=1):
         """Create a sheet between an object and a ground plane.
 
         The ground plane must be bigger than the object and perpendicular
@@ -2182,12 +2193,12 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objectname : str
+        assignment : str
             Name of the object.
-        groundname : str, optional
+        ground_name : str, optional
             Name of the ground. The default is ``None``, in which case the
             bounding box is used.
-        axisdir : int, optional
+        orientation : int, optional
             Axis direction. Options are ``0`` through ``5``. The default is ``0``.
         sheet_dim : optional
             Sheet dimension in millimeters. The default is ``1``.
@@ -2202,36 +2213,36 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreatePolyline
         """
-        if axisdir > 2:
+        if orientation > 2:
             obj_cent = [-1e6, -1e6, -1e6]
         else:
             obj_cent = [1e6, 1e6, 1e6]
         face_ob = None
-        for face in self[objectname].faces:
+        for face in self[assignment].faces:
             center = face.center
             if not center:
                 continue
-            if axisdir > 2 and center[axisdir - 3] > obj_cent[axisdir - 3]:
+            if orientation > 2 and center[orientation - 3] > obj_cent[orientation - 3]:
                 obj_cent = center
                 face_ob = face
-            elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
+            elif orientation <= 2 and center[orientation] < obj_cent[orientation]:
                 obj_cent = center
                 face_ob = face
         vertex = face_ob.vertices
         start = vertex[0].position
 
-        if not groundname:
+        if not ground_name:
             gnd_cent = []
             bounding = self.get_model_bounding_box()
-            if axisdir < 3:
+            if orientation < 3:
                 for i in bounding[0:3]:
                     gnd_cent.append(float(i))
             else:
                 for i in bounding[3:]:
                     gnd_cent.append(float(i))
         else:
-            ground_plate = self[groundname]
-            if axisdir > 2:
+            ground_plate = self[ground_name]
+            if orientation > 2:
                 gnd_cent = [1e6, 1e6, 1e6]
             else:
                 gnd_cent = [-1e6, -1e6, -1e6]
@@ -2240,28 +2251,30 @@ class GeometryModeler(Modeler):
                 center = face.center
                 if not center:
                     continue
-                if axisdir > 2 and center[axisdir - 3] < gnd_cent[axisdir - 3]:
+                if orientation > 2 and center[orientation - 3] < gnd_cent[orientation - 3]:
                     gnd_cent = center
-                elif axisdir <= 2 and center[axisdir] > gnd_cent[axisdir]:
+                elif orientation <= 2 and center[orientation] > gnd_cent[orientation]:
                     gnd_cent = center
 
-        axisdist = obj_cent[divmod(axisdir, 3)[1]] - gnd_cent[divmod(axisdir, 3)[1]]
-        if axisdir < 3:
+        axisdist = obj_cent[divmod(orientation, 3)[1]] - gnd_cent[divmod(orientation, 3)[1]]
+        if orientation < 3:
             axisdist = -axisdist
 
-        if divmod(axisdir, 3)[1] == 0:
+        if divmod(orientation, 3)[1] == 0:
             cs = self._app.PLANE.YZ
             vector = [axisdist, 0, 0]
-        elif divmod(axisdir, 3)[1] == 1:
+        elif divmod(orientation, 3)[1] == 1:
             cs = self._app.PLANE.ZX
             vector = [0, axisdist, 0]
-        elif divmod(axisdir, 3)[1] == 2:
+        elif divmod(orientation, 3)[1] == 2:
             cs = self._app.PLANE.XY
             vector = [0, 0, axisdist]
 
-        offset = self.find_point_around(objectname, start, sheet_dim, cs)
+        offset = self.find_point_around(assignment, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
-        p2 = p1.clone().move(vector)
+        p2 = p1.clone().move(
+            vector,
+        )
         self.connect([p1, p2])
 
         return p1
@@ -2370,13 +2383,13 @@ class GeometryModeler(Modeler):
         else:
             return list(self._app.odesign.GetChildObject("Boundaries").GetChildNames())
 
-    @pyaedt_function_handler()
-    def set_object_model_state(self, obj_list, model=True):
+    @pyaedt_function_handler(obj_list="assignment")
+    def set_object_model_state(self, assignment, model=True):
         """Set a list of objects to either models or non-models.
 
         Parameters
         ----------
-        obj_list : list
+        assignment : list
             List of objects IDs or names.
         model : bool, optional
             Whether to set the objects as models. The default is ``True``.
@@ -2392,7 +2405,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ChangeProperty
         """
-        selections = self.convert_to_selections(obj_list, True)
+        selections = self.convert_to_selections(assignment, True)
         arguments = [
             "NAME:AllTabs",
             [
@@ -2467,15 +2480,15 @@ class GeometryModeler(Modeler):
             bounding = self.get_model_bounding_box()
         return bounding
 
-    @pyaedt_function_handler()
-    def convert_to_selections(self, object_id, return_list=False):
+    @pyaedt_function_handler(object_id="assignment")
+    def convert_to_selections(self, assignment, return_list=False):
         """Convert modeler objects.
 
         This method converts modeler object or IDs to the corresponding
         output according to the following scheme:
 
         ====================  ===========================
-          ``object_id``          Return value
+          ``assignment``          Return value
         ====================  ===========================
 
          ``int``                 object name (str)
@@ -2495,7 +2508,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        object_id : str, int, list
+        assignment : str, int, list
             One or more object IDs whose name will be returned. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -2509,10 +2522,10 @@ class GeometryModeler(Modeler):
            Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if not isinstance(object_id, list):
-            object_id = [object_id]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
         objnames = []
-        for el in object_id:
+        for el in assignment:
             if isinstance(el, int) and el in self.objects:
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
@@ -2528,15 +2541,17 @@ class GeometryModeler(Modeler):
         else:
             return ",".join([str(i) for i in objnames])
 
-    @pyaedt_function_handler()
-    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
+    @pyaedt_function_handler(objects="assignment")
+    def split(
+        self, assignment, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True
+    ):
         """Split a list of objects.
         In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
         In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
-        objects : str, int, or list
+        assignment : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str, optional
@@ -2574,7 +2589,7 @@ class GeometryModeler(Modeler):
         if plane is None and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
-        objects = self.convert_to_selections(objects)
+        assignment = self.convert_to_selections(assignment)
         all_objs = [i for i in self.object_names]
         selections = []
         planes = "Dummy"
@@ -2587,7 +2602,7 @@ class GeometryModeler(Modeler):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model"]
             elif tool and plane is None:
                 if isinstance(tool, str):
                     obj = [f for f in self.object_list if f.name == tool][0]
@@ -2647,7 +2662,7 @@ class GeometryModeler(Modeler):
                 selections = [
                     "NAME:Selections",
                     "Selections:=",
-                    objects,
+                    assignment,
                     "NewPartsModelFlag:=",
                     "Model",
                     "ToolPart:=",
@@ -2661,7 +2676,7 @@ class GeometryModeler(Modeler):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model"]
         self.oeditor.Split(
             selections,
             [
@@ -2681,13 +2696,13 @@ class GeometryModeler(Modeler):
             ],
         )
         self.refresh_all_ids()
-        return [objects] + [i for i in self.object_names if i not in all_objs]
+        return [assignment] + [i for i in self.object_names if i not in all_objs]
 
-    @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
+    @pyaedt_function_handler(objid="assignment", position="origin")
     def duplicate_and_mirror(
         self,
-        objid,
-        position,
+        assignment,
+        origin,
         vector,
         is_3d_comp=False,
         duplicate_assignment=True,
@@ -2696,9 +2711,9 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : str, int, or  Object3d
+        assignment : str, int, or  Object3d
             Name or ID of the object.
-        position : float
+        origin : float
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
         vector : float
@@ -2720,11 +2735,11 @@ class GeometryModeler(Modeler):
         >>> oEditor.DuplicateMirror
         """
         return self.mirror(
-            objid, position, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
+            assignment, origin, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
         )
         # selections = self.convert_to_selections(objid)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment", position="origin")
     def mirror(self, objid, position, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
         """Mirror a selection.
 
@@ -2793,13 +2808,13 @@ class GeometryModeler(Modeler):
             self.oeditor.Mirror(vArg1, vArg2)
             return True
 
-    @pyaedt_function_handler()
-    def move(self, objid, vector):
+    @pyaedt_function_handler(objid="assignment")
+    def move(self, assignment, vector):
         """Move objects from a list.
 
         Parameters
         ----------
-        objid : list, Position object
+        assignment : list, Position object
             List of object IDs.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
@@ -2816,7 +2831,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Move
         """
         Xvec, Yvec, Zvec = self._pos_with_arg(vector)
-        szSelections = self.convert_to_selections(objid)
+        szSelections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:TranslateParameters"]
@@ -2828,13 +2843,13 @@ class GeometryModeler(Modeler):
             self.oeditor.Move(vArg1, vArg2)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment", cs_axis="coordinate_system", nclones="clones")
     def duplicate_around_axis(
         self,
-        objid,
-        cs_axis,
+        assignment,
+        coordinate_system,
         angle=90,
-        nclones=2,
+        clones=2,
         create_new_objects=True,
         is_3d_comp=False,
         duplicate_assignment=True,
@@ -2903,13 +2918,13 @@ class GeometryModeler(Modeler):
         else:
             return False, []
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment", nclones="clones", attachObject="attach")
     def duplicate_along_line(
         self,
-        objid,
+        assignment,
         vector,
-        nclones=2,
-        attachObject=False,
+        clones=2,
+        attach=False,
         is_3d_comp=False,
         duplicate_assignment=True,
     ):
@@ -2958,17 +2973,17 @@ class GeometryModeler(Modeler):
             return True, []
         return self._duplicate_added_objects_tuple()
 
-    @pyaedt_function_handler()
-    def thicken_sheet(self, objid, thickness, bBothSides=False):
+    @pyaedt_function_handler(objid="assignment", bBothSides="both_sides")
+    def thicken_sheet(self, assignment, thickness, both_sides=False):
         """Thicken the sheet of the selection.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
-        bBothSides : bool, optional
+        both_sides : bool, optional
             Whether to thicken the sheet on both side. The default is ``False``.
 
         Returns
@@ -2980,31 +2995,31 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ThickenSheet
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:SheetThickenParameters"]
         vArg2.append("Thickness:="), vArg2.append(self._arg_with_dim(thickness))
-        vArg2.append("BothSides:="), vArg2.append(bBothSides)
+        vArg2.append("BothSides:="), vArg2.append(both_sides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
 
-        if isinstance(objid, list):
+        if isinstance(assignment, list):
             obj_list = []
-            for objl in objid:
+            for objl in assignment:
                 obj_list.append(self.update_object(objl))
             return obj_list
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
+    @pyaedt_function_handler(obj_name="assignment", face_id="faces")
+    def sweep_along_normal(self, assignment, faces, sweep_value=0.1):
         """Sweep the selection along the vector.
 
         Parameters
         ----------
-        obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        face_id : int or list
+        faces : int or list
             Face or list of faces to sweep.
         sweep_value : float, optional
             Sweep value. The default is ``0.1``.
@@ -3018,16 +3033,16 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepFacesAlongNormal
         """
-        if not isinstance(face_id, list):
-            face_id = [face_id]
-        selections = self.convert_to_selections(obj_name)
+        if not isinstance(faces, list):
+            faces = [faces]
+        selections = self.convert_to_selections(assignment)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
         vArg2.append(
             [
                 "NAME:SweepFaceAlongNormalToParameters",
                 "FacesToDetach:=",
-                face_id,
+                faces,
                 "LengthOfSweep:=",
                 self._arg_with_dim(sweep_value),
             ]
@@ -3047,13 +3062,13 @@ class GeometryModeler(Modeler):
                 return self.update_object(self[obj[0]])
         return False
 
-    @pyaedt_function_handler()
-    def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
+    @pyaedt_function_handler(objid="assignment")
+    def sweep_along_vector(self, assignment, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep the selection along a vector.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -3074,7 +3089,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAlongVector
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         vectorx, vectory, vectorz = self._pos_with_arg(sweep_vector)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:VectorSweepParameters"]
@@ -3086,23 +3101,29 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        if isinstance(objid, list):
+        if isinstance(assignment, list):
             updated_obj = []
-            for sel_obj in objid:
+            for sel_obj in assignment:
                 updated_obj.append(self.update_object(sel_obj))
             return updated_obj
         else:
-            return self.update_object(objid)
+            return self.update_object(assignment)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment")
     def sweep_along_path(
-        self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+        self,
+        assignment,
+        sweep_object,
+        draft_angle=0,
+        draft_type="Round",
+        is_check_face_intersection=False,
+        twist_angle=0,
     ):
         """Sweep the selection along a path.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -3126,7 +3147,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAlongPath
         """
-        selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
+        selections = self.convert_to_selections(assignment) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:PathSweepParameters"]
         vArg2.append("DraftAngle:="), vArg2.append(self._arg_with_dim(draft_angle, "deg"))
@@ -3136,17 +3157,17 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
+    @pyaedt_function_handler(objid="assignment", cs_axis="axis")
+    def sweep_around_axis(self, assignment, axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
         """Sweep the selection around the axis.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        cs_axis :
+        axis :
             Coordinate system axis or the Application.AXIS object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
@@ -3165,7 +3186,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAroundAxis
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = [
@@ -3177,7 +3198,7 @@ class GeometryModeler(Modeler):
             "CheckFaceFaceIntersection:=",
             False,
             "SweepAxis:=",
-            GeometryOperators.cs_axis_str(cs_axis),
+            GeometryOperators.cs_axis_str(axis),
             "SweepAngle:=",
             self._arg_with_dim(sweep_angle, "deg"),
             "NumOfSegments:=",
@@ -3186,15 +3207,15 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def section(self, object_list, plane, create_new=True, section_cross_object=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def section(self, assignment, plane, create_new=True, section_cross_object=False):
         """Section the selection.
 
         Parameters
         ----------
-        object_list : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -3216,7 +3237,7 @@ class GeometryModeler(Modeler):
         """
         section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
 
-        selections = self.convert_to_selections(object_list)
+        selections = self.convert_to_selections(assignment)
 
         self.oeditor.Section(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
@@ -3233,13 +3254,13 @@ class GeometryModeler(Modeler):
         self.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler()
-    def separate_bodies(self, object_list, create_group=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def separate_bodies(self, assignment, create_group=False):
         """Separate bodies of the selection.
 
         Parameters
         ----------
-        object_list : list, str
+        assignment : list, str
             List of objects to separate.
         create_group : bool, optional
             Whether to create a group. The default is ``False``.
@@ -3256,7 +3277,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.SeparateBody
         """
         try:
-            selections = self.convert_to_selections(object_list)
+            selections = self.convert_to_selections(assignment)
             all_objs = [i for i in self.object_names]
             self.oeditor.SeparateBody(
                 ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
@@ -3273,15 +3294,18 @@ class GeometryModeler(Modeler):
         except Exception:
             return False
 
-    @pyaedt_function_handler()
-    def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(
+        objid="assignment",
+        cs_axis="axis",
+    )
+    def rotate(self, assignment, axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
-        cs_axis
+        axis
             Coordinate system axis or the Application.AXIS object.
         angle : float
             Angle of rotation. The units, defined by ``unit``, can be either
@@ -3300,10 +3324,10 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Rotate
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:RotateParameters"]
-        vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(cs_axis))
+        vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(axis))
         vArg2.append("RotateAngle:="), vArg2.append(self._arg_with_dim(angle, unit))
 
         if self.oeditor is not None:
@@ -3414,17 +3438,17 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(tool_list="assignment")
     def imprint_normal_projection(
         self,
-        tool_list,
+        assignment,
         keep_originals=True,
     ):
         """Imprint the normal projection of objects over a sheet.
 
         Parameters
         ----------
-        tool_list : list
+        assignment : list
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
         keep_originals : bool, optional
@@ -3440,12 +3464,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ImprintProjection
         """
-        return self._imprint_projection(tool_list, keep_originals, True)
+        return self._imprint_projection(assignment, keep_originals, True)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(tool_list="assignment")
     def imprint_vector_projection(
         self,
-        tool_list,
+        assignment,
         vector_points,
         distance,
         keep_originals=True,
@@ -3454,7 +3478,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        tool_list : list
+        assignment : list
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
         vector_points : list
@@ -3474,15 +3498,15 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ImprintProjection
         """
-        return self._imprint_projection(tool_list, keep_originals, False, vector_points, distance)
+        return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
 
-    @pyaedt_function_handler()
-    def purge_history(self, theList):
+    @pyaedt_function_handler(theList="assignment")
+    def purge_history(self, assignment):
         """Purge history objects from object names.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of object names to purge.
 
         Returns
@@ -3495,7 +3519,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.PurgeHistory
         """
-        szList = self.convert_to_selections(theList)
+        szList = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
@@ -3522,13 +3546,13 @@ class GeometryModeler(Modeler):
         bound = [float(b) for b in bb]
         return bound
 
-    @pyaedt_function_handler()
-    def unite(self, unite_list, purge=False, keep_originals=False):
+    @pyaedt_function_handler(unite_list="assignment")
+    def unite(self, assignment, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        unite_list : list, str
+        assignment : list, str
             List of objects to unite.
         purge : bool, optional
             Purge history after unite. Default is False.
@@ -3545,12 +3569,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(unite_list))
-        num_objects = len(unite_list)
+        slice = min(100, len(assignment))
+        num_objects = len(assignment)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = unite_list[:slice]
+            objs = assignment[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
@@ -3568,22 +3592,22 @@ class GeometryModeler(Modeler):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                unite_list = unite_list[slice:]
+                assignment = assignment[slice:]
         if remaining > 0:
-            objs_groups.extend(unite_list)
+            objs_groups.extend(assignment)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(unite_list[0], False)
+        return self.convert_to_selections(assignment[0], False)
 
-    @pyaedt_function_handler()
-    def clone(self, objid):
+    @pyaedt_function_handler(objid="assignment")
+    def clone(self, assignment):
         """Clone objects from a list of object IDs.
 
         Parameters
         ----------
-        objid : list
+        assignment : list
             List of object IDs.
 
         Returns
@@ -3599,7 +3623,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        self.copy(objid)
+        self.copy(assignment)
         new_objects = self.paste()
         return True, new_objects
 
@@ -4070,11 +4094,7 @@ class GeometryModeler(Modeler):
         user_list = Lists(self)
         list_type = "Face"
         if user_list:
-            result = user_list.create(
-                object_list=face_list,
-                name=name,
-                type=list_type,
-            )
+            result = user_list.create(assignment=face_list, name=name, entity_type=list_type)
             if result:
                 return user_list
             else:
@@ -4114,11 +4134,7 @@ class GeometryModeler(Modeler):
         user_list = Lists(self)
         list_type = "Object"
         if user_list:
-            result = user_list.create(
-                object_list=object_list,
-                name=name,
-                type=list_type,
-            )
+            result = user_list.create(assignment=object_list, name=name, entity_type=list_type)
             if result:
                 return user_list
             else:
@@ -8573,7 +8589,7 @@ class PrimitivesBuilder(object):
     >>> aedtapp = Hfss()
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
-    >>> primitives_builder.create()
+    >>> primitives_builder.create(),,
     >>> aedtapp.release_desktop()
     """
 
@@ -8752,11 +8768,11 @@ class PrimitivesBuilder(object):
         self._app.modeler.set_working_coordinate_system(cs)
 
         cyl1 = self._app.modeler.create_cylinder(
-            cs_axis=data.get("Plane"),
-            position=origin,
+            orientation=data.get("Plane"),
+            origin=origin,
             radius=data.get("Radius"),
             height=data.get("Height"),
-            numSides=int(data.get("Number of Segments")),
+            num_sides=int(data.get("Number of Segments")),
             name=name,
         )
 
@@ -8768,11 +8784,11 @@ class PrimitivesBuilder(object):
                 self.logger.warning("Internal radius is larger than external radius.")
             elif internal_radius != 0:
                 cyl2 = self._app.modeler.create_cylinder(
-                    cs_axis=data.get("Plane"),
-                    position=origin,
+                    orientation=data.get("Plane"),
+                    origin=origin,
                     radius=internal_radius,
                     height=data.get("Height"),
-                    numSides=data.get("Number of Segments"),
+                    num_sides=data.get("Number of Segments"),
                     name=name,
                 )
                 self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
@@ -8808,9 +8824,7 @@ class PrimitivesBuilder(object):
         self._app.modeler.set_working_coordinate_system(cs)
 
         box1 = self._app.modeler.create_box(
-            position=origin,
-            dimensions_list=[data["X Length"], data["Y Length"], data["Z Length"]],
-            name=name,
+            origin=origin, sizes=[data["X Length"], data["Y Length"], data["Z Length"]], name=name
         )
         return box1
 

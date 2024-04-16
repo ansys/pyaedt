@@ -1547,7 +1547,7 @@ class Line3dLayout(Geometries3DLayout, object):
             lw=self.width,
             start_style=self.start_cap_type,
             end_style=self.end_cap_type,
-            net_name=self.net_name,
+            net=self.net_name,
         )
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])
@@ -1582,7 +1582,7 @@ class Line3dLayout(Geometries3DLayout, object):
             lw=self.width,
             start_style=self.start_cap_type,
             end_style=self.end_cap_type,
-            net_name=self.net_name,
+            net=self.net_name,
         )
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])

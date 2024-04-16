@@ -484,13 +484,13 @@ class UserDefinedComponent(object):
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
-    @pyaedt_function_handler()
-    def duplicate_and_mirror(self, position, vector):
+    @pyaedt_function_handler(position="origin")
+    def duplicate_and_mirror(self, origin, vector):
         """Duplicate and mirror a selection.
 
         Parameters
         ----------
-        position : float
+        origin : float
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
         vector : float
@@ -507,9 +507,7 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.duplicate_and_mirror(
-            self.name, position, vector, is_3d_comp=True, duplicate_assignment=True
-        )
+        return self._primitives.duplicate_and_mirror(self.name, origin)
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -543,13 +541,13 @@ class UserDefinedComponent(object):
             return self
         return False
 
-    @pyaedt_function_handler()
-    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis")
+    def rotate(self, axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        cs_axis
+        axis
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
@@ -569,11 +567,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
-            if self._primitives.rotate(self.name, cs_axis=cs_axis, angle=angle, unit=unit):
+            if self._primitives.rotate(self.name):
                 return self
         else:
             for part in self.parts:
-                self._primitives.rotate(part, cs_axis=cs_axis, angle=angle, unit=unit)
+                self._primitives.rotate(part)
             return self
         return False
 
@@ -597,11 +595,15 @@ class UserDefinedComponent(object):
         >>> oEditor.Move
         """
         if self.is3dcomponent:
-            if self._primitives.move(self.name, vector=vector):
+            if self._primitives.move(
+                self.name,
+            ):
                 return self
         else:
             for part in self.parts:
-                self._primitives.move(part, vector=vector)
+                self._primitives.move(
+                    part,
+                )
             return self
 
         return False

@@ -150,7 +150,7 @@ class Reports(object):
         >>> from pyaedt import Circuit
         >>> cir = Circuit(my_project)
         >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
 
@@ -191,7 +191,7 @@ class Reports(object):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak(my_project)
         >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
-        >>> report = report.create()
+        >>> report = report.create(,,,
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
@@ -231,7 +231,7 @@ class Reports(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -273,7 +273,7 @@ class Reports(object):
         >>> from pyaedt import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.cg_fields("SmoothQ", "Setup : LastAdaptive", "Polyline1")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -315,7 +315,7 @@ class Reports(object):
         >>> from pyaedt import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.dc_fields("Mag_VolumeJdc", "Setup : LastAdaptive", "Polyline1")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -357,7 +357,7 @@ class Reports(object):
         >>> from pyaedt import Q3d
         >>> q3d = Q3d(my_project)
         >>> report = q3d.post.reports_by_category.rl_fields("Mag_SurfaceJac", "Setup : LastAdaptive", "Polyline1")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -403,7 +403,7 @@ class Reports(object):
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
         >>> report.primary_sweep = "Phi"
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -444,7 +444,7 @@ class Reports(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -482,7 +482,7 @@ class Reports(object):
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
         >>> report.primary_sweep = "Phi"
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -519,7 +519,7 @@ class Reports(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -556,7 +556,7 @@ class Reports(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -593,7 +593,7 @@ class Reports(object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
-        >>> report.create()
+        >>> report.create(),,
         >>> solutions = report.get_solution_data()
         """
         if not setup:
@@ -639,7 +639,7 @@ class Reports(object):
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create()
+        >>> new_eye.create(),,
 
         """
         if not setup:
@@ -697,7 +697,7 @@ class Reports(object):
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create()
+        >>> new_eye.create(),,
 
         """
         if not setup:
@@ -748,7 +748,7 @@ class Reports(object):
         >>> from pyaedt import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
-        >>> new_eye.create()
+        >>> new_eye.create(),,
 
         """
         if not setup:

@@ -84,7 +84,7 @@ q.modeler.create_polyline(
 )
 q.modeler["Bar3"].color = (0, 0, 255)
 
-q.modeler.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
+q.modeler.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", material="FR4_epoxy")
 q.modeler["substrate"].color = (128, 128, 128)
 q.modeler["substrate"].transparency = 0.8
 

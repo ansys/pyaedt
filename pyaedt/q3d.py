@@ -887,7 +887,7 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
         >>> net = aedtapp.assign_net(box, "my_net")
         >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
         ...     source_name="Source1", net_name=net.name)
@@ -1486,7 +1486,7 @@ class Q3d(QExtractor, object):
         --------
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
         >>> net_name = "my_net"
         >>> net = q3d.assign_net(box, net_name)
         """

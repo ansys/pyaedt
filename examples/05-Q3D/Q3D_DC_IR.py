@@ -120,13 +120,13 @@ q3d.delete_all_nets()
 # Create new coordinate systems and place 3D component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
-comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
+comp = q3d.modeler.insert_3d_component(coil, coordinate_system="L2")
 comp.rotate(q3d.AXIS.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
-comp2 = q3d.modeler.insert_3d_component(coil, targetCS="L4",)
+comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system="L4")
 comp2.rotate(q3d.AXIS.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
@@ -134,7 +134,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3 = q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
+comp3 = q3d.modeler.insert_3d_component(res, geometry_parameters={'$Resistance': 2000}, coordinate_system="R106")
 comp3.rotate(q3d.AXIS.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")

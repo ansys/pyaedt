@@ -1995,11 +1995,11 @@ class ConfigurationsIcepak(Configurations):
             old_objs = list(self._app.modeler.user_defined_components.keys())
             if operation_dict["Props"]["Command"] == "Move":
                 obj.move(
-                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)]
+                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)],
                 )
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
-                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], unit=rotation[1])
+                obj.rotate(operation_dict["Props"]["Axis"])
             elif operation_dict["Props"]["Command"] == "Mirror":
                 obj.mirror(
                     [
@@ -2024,7 +2024,7 @@ class ConfigurationsIcepak(Configurations):
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateMirror":
                 new_objs = obj.duplicate_and_mirror(
-                    position=[
+                    origin=[
                         decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
                         for i in range(3)
                     ],

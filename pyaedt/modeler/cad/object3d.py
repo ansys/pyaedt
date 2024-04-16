@@ -48,7 +48,7 @@ class Object3d(object):
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
-    >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+    >>> id = prim.create_box([0, 0, 0],[10, 10, 5],"Mybox","Copper")
     >>> part = prim[id]
     """
 
@@ -1478,13 +1478,13 @@ class Object3d(object):
             return self
         return False
 
-    @pyaedt_function_handler()
-    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis")
+    def rotate(self, axis, angle=90.0, unit="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        cs_axis : int
+        axis : int
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
@@ -1503,7 +1503,7 @@ class Object3d(object):
 
         >>> oEditor.Rotate
         """
-        if self._primitives.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+        if self._primitives.rotate(self.id):
             return self
         return False
 
@@ -1529,7 +1529,9 @@ class Object3d(object):
         ----------
         >>> oEditor.Move
         """
-        if self._primitives.move(self.id, vector=vector):
+        if self._primitives.move(
+            self.id,
+        ):
             return self
         return False
 

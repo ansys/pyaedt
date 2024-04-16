@@ -98,7 +98,7 @@ class FileManagement(object):
             else:
                 logger.error("File already exists on the server. Skipping it")
                 return False
-        new_file = self.client.root.create(remote_file)
+        new_file = self.client.root.create(remote_file),,
         local = open(local_file, "rb")
         shutil.copyfileobj(local, new_file)
         new_file.close()
@@ -151,7 +151,7 @@ class FileManagement(object):
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
     def create_file(self, remote_file, create_options="w", encoding=None, override=True):
-        return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
+        return self.client.root.create(remote_file),,
 
     def makedirs(self, remotepath):
         if self.client.root.pathexists(remotepath):
