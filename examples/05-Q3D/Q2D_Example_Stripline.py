@@ -136,13 +136,13 @@ q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w,
 # Create a dielectric.
 
 q.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", matname="FR4_epoxy"
+    position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", matname="FR4_epoxy"
+    position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_lh, 0], dimension_list=[model_w, cond_h], name="Filling", matname="FR4_epoxy"
+    position=[0, layer_2_lh, 0], dimension_list=[model_w, cond_h], name="Filling", material="FR4_epoxy"
 )
 
 ###############################################################################

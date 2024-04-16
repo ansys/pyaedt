@@ -2505,11 +2505,11 @@ class Patch(CommonObject, object):
             + reference_layer.elevation.name
         )
         rect = self.application.modeler.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, string_position_z],
-            dimension_list=[string_width, string_length],
+            orientation=constants.PLANE.YZ,
+            origin=[string_position_x, string_position_y, string_position_z],
+            sizes=[string_width, string_length],
             name=self.name + "_port",
-            matname=None,
+            material=None,
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:
@@ -2778,10 +2778,10 @@ class Trace(CommonObject, object):
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(
-                position=start_point,
-                dimension_list=["{}_length".format(self._name), self.width.name],
+                oring=start_point,
+                sizes=["{}_length".format(self._name), self.width.name],
                 name=line_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[line_name], keep_originals=True)
@@ -3245,11 +3245,11 @@ class Trace(CommonObject, object):
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, string_position_z],
-            dimension_list=[string_width, string_length],
+            orientation=constants.PLANE.YZ,
+            origin=[string_position_x, string_position_y, string_position_z],
+            sizes=[string_width, string_length],
             name=self.name + "_port",
-            matname=None,
+            material=None,
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:

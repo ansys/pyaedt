@@ -397,7 +397,7 @@ class TestClass:
 
     def test_19_rotate(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "RotateBox", "Copper")
-        assert o.rotate(cs_axis="Y", angle=180)
+        assert o.rotate(axis="Y", angle=180)
 
     def test_20_mirror(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "MirrorBox", "Copper")

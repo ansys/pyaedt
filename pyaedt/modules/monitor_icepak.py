@@ -386,8 +386,7 @@ class Monitor:
 
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,
-        ...                                           [0, 0, 0], [10, 20], name="Surface1")
+        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """

@@ -687,7 +687,7 @@ class TestClass:
 
     def test_15_create_perfects_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", material="Copper"
         )
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name)
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
@@ -704,7 +704,7 @@ class TestClass:
 
     def test_16_create_impedance_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="ImpBound", material="Copper"
         )
         imp1 = self.aedtapp.assign_impedance_to_sheet(rect.name, "TL2", 50, 25)
         assert imp1.name in self.aedtapp.modeler.get_boundaries_name()
@@ -717,7 +717,7 @@ class TestClass:
         assert imp2.name in self.aedtapp.modeler.get_boundaries_name()
 
         rect2 = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="AniImpBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="AniImpBound", material="Copper"
         )
         assert not self.aedtapp.assign_impedance_to_sheet(rect2.name, "TL3", [50, 20, 0, 0], [25, 0, 5])
         imp2 = self.aedtapp.assign_impedance_to_sheet(rect2.name, "TL3", [50, 20, 0, 0], [25, 0, 5, 0])
@@ -727,7 +727,7 @@ class TestClass:
 
     def test_17_create_lumpedrlc_on_sheets(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="rlcBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="rlcBound", material="Copper"
         )
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(
             rect.name, self.aedtapp.AxisDir.XPos, resistance=50, inductance=1e-9
@@ -736,7 +736,7 @@ class TestClass:
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
 
         rect2 = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 10], [10, 2], name="rlcBound2", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 10], [10, 2], name="rlcBound2", material="Copper"
         )
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(
             rect.name, self.aedtapp.AxisDir.XPos, rlc_type="Serial", resistance=50, inductance=1e-9
@@ -766,7 +766,7 @@ class TestClass:
 
     def test_19_create_lumped_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_port", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_port", material="Copper"
         )
         port = self.aedtapp.lumped_port(
             assignment=rect.name,
@@ -812,7 +812,7 @@ class TestClass:
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_volt", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="lump_volt", material="Copper"
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.excitations
@@ -928,7 +928,7 @@ class TestClass:
 
     def test_32_get_property_value(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectProp", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectProp", material="Copper"
         )
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
         setup = self.aedtapp.create_setup("MySetup2")
@@ -974,7 +974,7 @@ class TestClass:
 
     def test_40_assign_current_source_to_sheet(self):
         sheet = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [5, 1], name="RectangleForSource", material="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
         assert self.aedtapp.assign_current_source_to_sheet(
@@ -1000,7 +1000,7 @@ class TestClass:
             box1.faces[1], modes=7, deembed_distance=1, reporter_filter=[False, True, False, False, False, False, False]
         )
         sheet = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [-100, -100, -100], [200, 200], name="RectangleForSource", matname="Copper"
+            self.aedtapp.PLANE.XY, [-100, -100, -100], [200, 200], name="RectangleForSource", material="Copper"
         )
         bound = self.aedtapp.create_floquet_port(sheet, modes=4, deembed_distance=1, reporter_filter=False)
         assert bound

@@ -904,8 +904,8 @@ class TestClass:
     def test_57_radiation(self):
         self.aedtapp.insert_design("Radiation")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
-        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
         box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
         box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
         bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])

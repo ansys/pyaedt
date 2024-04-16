@@ -2917,7 +2917,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Create a sheet and assign to it some voltage.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -70],[10, 2],
-        ...                                       name="VoltageSheet",matname="copper")
+        ...                                       name="VoltageSheet",material="copper")
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"VoltageSheetExample")
         >>> v2 = hfss.assign_voltage_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
         ...                                     sheet.bottom_edge_y.midpoint],50)
@@ -2968,7 +2968,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Create a sheet and assign some current to it.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -50],[5, 1],name="CurrentSheet",matname="copper")
+        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -50],[5, 1],
+        ...                                       name="CurrentSheet",material="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"CurrentSheetExample")
         'CurrentSheetExample'
         >>> c1 = hfss.assign_current_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
@@ -3018,7 +3019,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Create a sheet and use it to create a Perfect E.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectESheet", matname="Copper")
+        ...                                       [10, 2], name="PerfectESheet", material="Copper")
         >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -3060,7 +3061,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Create a sheet and use it to create a Perfect H.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectHSheet", matname="Copper")
+        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
         >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -3136,7 +3137,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                       [0, 0, -90], [10, 2], name="RLCSheet",
-        ...                                        matname="Copper")
+        ...                                        material="Copper")
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,hfss.AxisDir.XPos,resistance=50,
         ...                                                       inductance=1e-9,capacitance=1e-6)
         >>> type(lumped_rlc_to_sheet)
@@ -3217,7 +3218,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
-        ...                                        matname="Copper")
+        ...                                        material="Copper")
         >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,"ImpedanceFromSheet",100,50)
         >>> type(impedance_to_sheet)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
@@ -3301,14 +3302,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
-        ...                                        matname="Copper")
+        ...                                        material="Copper")
         >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,"ImpedanceFromSheet",100,50)
 
         Create a sheet and use it to create an anisotropic impedance.
 
         >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
         ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
-        ...                                        matname="Copper")
+        ...                                        material="Copper")
         >>> anistropic_impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,
         ...                                                                "ImpedanceFromSheet",
         ...                                                                [377, 0, 0, 377],

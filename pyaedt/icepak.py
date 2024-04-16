@@ -947,8 +947,7 @@ class Icepak(FieldAnalysis3D):
 
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,
-        ...                                           [0, 0, 0], [10, 20], name="Surface1")
+        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
@@ -1185,7 +1184,7 @@ class Icepak(FieldAnalysis3D):
         symmetric_separation=20,
         numcolumn_perside=2,
         vertical_separation=10,
-        matname="Al-Extruded",
+        material="Al-Extruded",
         center=[0, 0, 0],
         plane_enum=0,
         rotation=0,
@@ -1250,7 +1249,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak = Icepak()
         >>> icepak.insert_design("Heat_Sink_Example")
         >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
-        ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
+        ...                                        vertical_separation=5.5, material="Steel", center=[10, 0, 0],
         ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
@@ -1295,7 +1294,7 @@ class Icepak(FieldAnalysis3D):
         symmetric=True,
         symmetric_separation=0.05,
         numcolumn_perside=2,
-        matname="Al-Extruded",
+        material="Al-Extruded",
     ):
         """Create a parametric heat sink.
 
@@ -1355,7 +1354,7 @@ class Icepak(FieldAnalysis3D):
         >>> ipk = Icepak()
         >>> box = ipk.modeler.create_box([0,0,0],[1,2,3])
         >>> top_face=box.top_face_z
-        >>> ipk.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        >>> ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         """
         all_obj = self.modeler.object_names
         center = top_face.center

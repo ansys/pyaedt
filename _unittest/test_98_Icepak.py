@@ -493,7 +493,7 @@ class TestClass:
             patternangle=8,
             numcolumn_perside=3,
             vertical_separation=5.5,
-            matname="Copper",
+            material="Copper",
             center=[10, 0, 0],
             plane_enum=self.aedtapp.PLANE.XY,
             rotation=45,
@@ -501,7 +501,7 @@ class TestClass:
         )
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 3])
         top_face = box.top_face_z
-        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         assert hs
         hs.delete()
         box.rotate(0, 52)
@@ -513,7 +513,7 @@ class TestClass:
             fin_length=0.95,
             hs_basethick=0.2,
             separation=0.2,
-            matname="Al-Extruded",
+            material="Al-Extruded",
         )
         assert hs
         hs.delete()

@@ -2140,20 +2140,20 @@ class Q2d(QExtractor, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_rectangle(self, position, dimension_list, name="", matname=""):
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", material="material")
+    def create_rectangle(self, origin, sizes, name="", material=""):
         """Create a rectangle.
 
         Parameters
         ----------
-        position : list
+        origin : list
             List of ``[x, y]`` coordinates for the starting point of the rectangle.
-        dimension_list : list
+        sizes : list
             List of ``[width, height]`` dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is used.
 
@@ -2167,7 +2167,7 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
+        return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
 
     @pyaedt_function_handler()
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):

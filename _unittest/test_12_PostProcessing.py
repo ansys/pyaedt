@@ -788,7 +788,7 @@ class TestClass:
     def test_75_plot_field_line_traces(self, m2dtest):
         m2dtest.modeler.model_units = "mm"
         rect = m2dtest.modeler.create_rectangle(
-            position=["1mm", "5mm", "0mm"], dimension_list=["-1mm", "-10mm", 0], name="Ground", matname="copper"
+            origin=["1mm", "5mm", "0mm"], sizes=["-1mm", "-10mm", 0], name="Ground", material="copper"
         )
         rect.solve_inside = False
         circle = m2dtest.modeler.create_circle(
@@ -797,7 +797,7 @@ class TestClass:
             num_sides="0",
             is_covered=True,
             name="Electrode",
-            matname="copper",
+            material="copper",
         )
         circle.solve_inside = False
         m2dtest.modeler.create_region([20, 100, 20, 100])

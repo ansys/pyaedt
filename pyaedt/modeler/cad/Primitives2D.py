@@ -30,7 +30,7 @@ class Primitives2D(GeometryModeler, object):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler(position="origin", material="material")
     def create_circle(
         self, origin, radius, num_sides=0, is_covered=True, name=None, material=None, non_model=False, **kwargs
     ):
@@ -95,7 +95,7 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler(position="origin", material="material")
     def create_ellipse(
         self, origin, major_radius, ratio, is_covered=True, name=None, material=None, non_model=False, **kwargs
     ):
@@ -156,17 +156,15 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", matname="material")
-    def create_rectangle(
-        self, origin, dimension_list, is_covered=True, name=None, material=None, non_model=False, **kwargs
-    ):
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", material="material")
+    def create_rectangle(self, origin, sizes, is_covered=True, name=None, material=None, non_model=False, **kwargs):
         """Create a rectangle.
 
         Parameters
         ----------
         origin : list of float
             Position of the lower-left corner of the rectangle
-        dimension_list : list of float
+        sizes : list of float
             List of rectangle sizes: [X size, Y size] for XY planes or [Z size, R size] for RZ planes
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
@@ -191,16 +189,15 @@ class Primitives2D(GeometryModeler, object):
         Examples
         --------
 
-        >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2], [3, 4])
-        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2], dimension_list=[3, 4],
-        ...                                          name="MyCircle", material="Copper")
+        >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2],[3, 4])
+        >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],name="MyCircle",material="Copper")
 
         """
         # TODO: Primitives in Maxwell 2D must have Z=0, otherwise the transparency cannot be changed. (issue 4071)
         axis = self.plane2d
         x_start, y_start, z_start = self._pos_with_arg(origin)
-        width = self._arg_with_dim(dimension_list[0])
-        height = self._arg_with_dim(dimension_list[1])
+        width = self._arg_with_dim(sizes[0])
+        height = self._arg_with_dim(sizes[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
@@ -215,7 +212,7 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler(position="origin", material="material")
     def create_regular_polygon(
         self, origin, start_point, num_sides=6, name=None, material=None, non_model=False, **kwargs
     ):

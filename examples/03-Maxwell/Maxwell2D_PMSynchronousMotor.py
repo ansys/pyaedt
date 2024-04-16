@@ -353,10 +353,10 @@ id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 
 coil_id = mod2D.create_rectangle(position=['DiaRotorLam/2+Airgap+Coil_SetBack', '-Coil_Edge_Short/2', 0],
                                  dimension_list=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
-                                 name='Coil', matname="Copper (Annealed)_65C")
+                                 name='Coil', material="Copper (Annealed)_65C")
 coil_id.color = (255, 128, 0)
 M2D.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")
-coil_id.duplicate_around_axis(cs_axis="Z", angle="360deg/SlotNumber", nclones='CoilPitch+1',
+coil_id.duplicate_around_axis(axis="Z", angle="360deg/SlotNumber", nclones='CoilPitch+1',
                               create_new_objects=True)
 id_coils = mod2D.get_objects_w_string("Coil", case_sensitive=True)
 
@@ -406,15 +406,15 @@ for item in vacuum_obj_id:
 # Allocated PMs are created.
 
 rotor_id = mod2D.create_circle(position=[0, 0, 0], radius='DiaRotorLam/2',
-                               num_sides=0, name="Rotor", matname="30DH_20C_smooth")
+                               num_sides=0, name="Rotor", material="30DH_20C_smooth")
 rotor_id.color = (0, 128, 255)
 mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(position=[62, 0, 0], radius="2.55mm",
-                                      num_sides=0, name="void1", matname="vacuum")
-M2D.modeler.duplicate_around_axis(void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
-                                  nclones=2, create_new_objects=False)
+                                      num_sides=0, name="void1", material="vacuum")
+M2D.modeler.duplicate_around_axis(void_small_1_id, axis="Z", angle="360deg/SymmetryFactor",
+                                  clones=2, create_new_objects=False)
 void_big_1_id = mod2D.create_circle(position=[29.5643, 12.234389332712, 0], radius='9.88mm/2',
-                                    num_sides=0, name="void_big", matname="vacuum")
+                                    num_sides=0, name="void_big", material="vacuum")
 mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
 
 slot_IM1_points = [[37.5302872, 15.54555396, 0], [55.05576774, 1.098662669, 0], [57.33637589, 1.25, 0],

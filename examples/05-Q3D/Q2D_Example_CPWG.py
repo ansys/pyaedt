@@ -118,7 +118,7 @@ q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w,
 # Create a dielectric.
 
 q.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", matname="FR4_epoxy"
+    position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", material="FR4_epoxy"
 )
 
 ###############################################################################

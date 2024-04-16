@@ -82,7 +82,7 @@ class Primitives3D(GeometryModeler):
         GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 
-    @pyaedt_function_handler(position="origin", dimensions_list="sizes", matname="material")
+    @pyaedt_function_handler(position="origin", dimensions_list="sizes", material="material")
     def create_box(self, origin, sizes, name=None, material=None, **kwargs):
         """Create a box.
 
@@ -148,7 +148,7 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(cs_axis="orientation", position="origin", numSides="num_sides", matname="material")
+    @pyaedt_function_handler(cs_axis="orientation", position="origin", numSides="num_sides", material="material")
     def create_cylinder(self, orientation, origin, radius, height, num_sides=0, name=None, material=None, **kwargs):
         """Create a cylinder.
 
@@ -231,7 +231,7 @@ class Primitives3D(GeometryModeler):
 
     # fmt: off
     @pyaedt_function_handler(cs_axis="orientation", center_position="center",
-                             start_position="origin", matname="material")
+                             start_position="origin", material="material")
     def create_polyhedron(self, orientation=None, center=(0.0, 0.0, 0.0), origin=(0.0, 1.0, 0.0),
                           height=1.0, num_sides=12, name=None, material=None, **kwargs):  # fmt: on
         """Create a regular polyhedron.
@@ -314,7 +314,7 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(cs_axis="orientation", position="origin", matname="material")
+    @pyaedt_function_handler(cs_axis="orientation", position="origin", material="material")
     def create_cone(self, orientation, origin, bottom_radius, top_radius, height, name=None, material=None, **kwargs):
         """Create a cone.
 
@@ -405,7 +405,7 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", matname="material")
+    @pyaedt_function_handler(position="origin", material="material")
     def create_sphere(self, origin, radius, name=None, material=None, **kwargs):
         """Create a sphere.
 
@@ -546,7 +546,7 @@ class Primitives3D(GeometryModeler):
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler(start_position="start", end_position="end", matname="material", cs_axis="orientation")
+    @pyaedt_function_handler(start_position="start", end_position="end", material="material", cs_axis="orientation")
     def create_bondwire(self, start, end, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
                         diameter=0.025, facets=6, name=None, material=None, orientation="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
@@ -694,7 +694,7 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(csPlane="orientation", position="origin", dimension_list="sizes", matname="material")
+    @pyaedt_function_handler(csPlane="orientation", position="origin", dimension_list="sizes", material="material")
     def create_rectangle(self, orientation, origin, sizes, name=None, material=None, is_covered=True, **kwargs):
         """Create a rectangle.
 
@@ -752,7 +752,7 @@ class Primitives3D(GeometryModeler):
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler(cs_plane="orientation", position="origin", numSides="num_sides", matname="material")
+    @pyaedt_function_handler(cs_plane="orientation", position="origin", numSides="num_sides", material="material")
     def create_circle(self, orientation, origin, radius, num_sides=0, is_covered=True, name=None,
                       material=None, non_model=False, **kwargs):  # fmt: on
         """Create a circle.
@@ -830,7 +830,7 @@ class Primitives3D(GeometryModeler):
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(cs_plane="orientation", position="origin", matname="material")
+    @pyaedt_function_handler(cs_plane="orientation", position="origin", material="material")
     def create_ellipse(
         self, orientation, origin, major_radius, ratio, is_covered=True, name=None, material=None, **kwargs
     ):

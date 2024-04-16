@@ -2709,12 +2709,12 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : str, int, or  Object3d
+        assignment : str, int, or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name or ID of the object.
-        origin : float
+        origin : list
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
-        vector : float
+        vector : float, str
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
         is_3d_comp : bool, optional
@@ -2841,11 +2841,11 @@ class GeometryModeler(Modeler):
             self.oeditor.Move(vArg1, vArg2)
         return True
 
-    @pyaedt_function_handler(objid="assignment", cs_axis="coordinate_system", nclones="clones")
+    @pyaedt_function_handler(objid="assignment", cs_axis="axis", nclones="clones")
     def duplicate_around_axis(
         self,
         assignment,
-        coordinate_system,
+        axis,
         angle=90,
         clones=2,
         create_new_objects=True,
@@ -3304,9 +3304,9 @@ class GeometryModeler(Modeler):
         ----------
         assignment :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
-        axis
+        axis : str
             Coordinate system axis or the Application.AXIS object.
-        angle : float
+        angle : float, str
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
         units : text, optional
@@ -6404,7 +6404,7 @@ class GeometryModeler(Modeler):
             arc_plane=arc_plane,
         )
 
-    @pyaedt_function_handler(position_list="points", matname="material")
+    @pyaedt_function_handler(position_list="points", material="material")
     def create_polyline(
         self,
         points,

@@ -125,7 +125,7 @@ test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_h
 # Duplicate and unit the polyline to create a full coil.
 
 m3d.modeler.duplicate_around_axis(
-    "Coil", cs_axis="Global", angle=90, nclones=4, create_new_objects=True, is_3d_comp=False
+    "Coil", axis="Global", angle=90, clones=4, create_new_objects=True, is_3d_comp=False
 )
 m3d.modeler.unite("Coil, Coil_1, Coil_2")
 m3d.modeler.unite("Coil, Coil_3")

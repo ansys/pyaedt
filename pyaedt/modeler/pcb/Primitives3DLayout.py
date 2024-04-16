@@ -1018,8 +1018,8 @@ class Primitives3DLayout(object):
 
         return primitive
 
-    @pyaedt_function_handler(layername="layer", net_name="net", netname="net")
-    def create_rectangle(self, layer, origin, dimensions, corner_radius=0, angle=0, name=None, net=None, **kwargs):
+    @pyaedt_function_handler(layername="layer", dimensions="sizes", net_name="net", netname="net")
+    def create_rectangle(self, layer, origin, sizes, corner_radius=0, angle=0, name=None, net=None, **kwargs):
         """Create a rectangle on a layer.
 
         Parameters
@@ -1028,7 +1028,7 @@ class Primitives3DLayout(object):
             Name of the layer.
         origin : list
             Origin of the coordinate system in a list of ``[x, y]`` coordinates.
-        dimensions : list
+        sizes : list
             Dimensions for the box in a list of ``[x, y]`` coordinates.
         corner_radius : float, optional
         angle : float, optional
@@ -1064,12 +1064,8 @@ class Primitives3DLayout(object):
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self.number_with_units(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self.number_with_units(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(
-            self.number_with_units(origin[0]) + "+" + self.number_with_units(dimensions[0])
-        )
-        vArg2.append("By:="), vArg2.append(
-            self.number_with_units(origin[1]) + "+" + self.number_with_units(dimensions[1])
-        )
+        vArg2.append("Bx:="), vArg2.append(self.number_with_units(origin[0]) + "+" + self.number_with_units(sizes[0]))
+        vArg2.append("By:="), vArg2.append(self.number_with_units(origin[1]) + "+" + self.number_with_units(sizes[1]))
         vArg2.append("cr:="), vArg2.append(self.number_with_units(corner_radius))
         vArg2.append("ang:=")
         vArg2.append(self.number_with_units(angle, "deg"))

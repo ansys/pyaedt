@@ -41,20 +41,20 @@ class TestClass:
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1", matname="copper")
+        o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1", material="copper")
         assert isinstance(o.id, int)
         assert o.solve_inside
 
     def test_03_create_circle(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o1 = self.aedtapp.modeler.create_circle(udp, 3, 0, name="Circle1", matname="copper")
+        o1 = self.aedtapp.modeler.create_circle(udp, 3, 0, name="Circle1", material="copper")
         assert isinstance(o1.id, int)
-        o2 = self.aedtapp.modeler.create_circle(udp, 3, 8, name="Circle2", matname="copper")
+        o2 = self.aedtapp.modeler.create_circle(udp, 3, 8, name="Circle2", material="copper")
         assert isinstance(o2.id, int)
 
     def test_04_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        o = self.aedtapp.modeler.create_ellipse(udp, 3, 2, name="Ellipse1", matname="copper")
+        o = self.aedtapp.modeler.create_ellipse(udp, 3, 2, name="Ellipse1", material="copper")
         assert isinstance(o.id, int)
 
     def test_05_create_poly(self):

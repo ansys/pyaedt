@@ -133,7 +133,7 @@ class Modeler2D(Primitives2D):
             ``True`` when successful, ``False`` when failed.
         """
 
-        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
+        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", material="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
         objects = [i for i in self.object_names]
         self.oeditor.Paste()

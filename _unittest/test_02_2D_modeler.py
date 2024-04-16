@@ -69,7 +69,7 @@ class TestClass:
         self.aedtapp.solution_type = "MagnetostaticZ"
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", matname="Copper"
+            position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", material="Copper"
         )
         list_of_pos = [ver.position for ver in rect1.vertices]
         assert sorted(list_of_pos) == [[1.0, 0.0, -2.0], [1.0, 0.0, 6.0], [4.0, 0.0, -2.0], [4.0, 0.0, 6.0]]
@@ -86,7 +86,7 @@ class TestClass:
             radius=3,
             num_sides=6,
             name="MyCircle",
-            matname="Copper",
+            material="Copper",
             display_wireframe=True,
         )
         assert circle1.solve_inside
@@ -130,7 +130,7 @@ class TestClass:
     def test_07_create_ellipse(self):
         ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 3)
         ellipse2 = self.aedtapp.modeler.create_ellipse(
-            position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", matname="Copper"
+            position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
         )
         assert ellipse1.solve_inside
         assert ellipse1.model
@@ -145,7 +145,7 @@ class TestClass:
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         pg2 = self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
         )
         assert pg1.solve_inside
         assert pg1.model
@@ -164,7 +164,7 @@ class TestClass:
         self.aedtapp.solution_type = "MagnetostaticZ"
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
         )
         obj = self.aedtapp.plot(
             show=False,

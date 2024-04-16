@@ -301,7 +301,7 @@ class TestClass:
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
-        o = self.aedtapp.modeler.create_circle(plane, udp, 2, name="MyCircle", matname="Copper")
+        o = self.aedtapp.modeler.create_circle(plane, udp, 2, name="MyCircle", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCircle")
         assert o.object_type == "Sheet"
@@ -335,14 +335,14 @@ class TestClass:
     def test_16_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
-        o1 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Copper")
+        o1 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", material="Copper")
         assert o1.id > 0
         assert o1.name.startswith("MyEllpise01")
         assert o1.object_type == "Sheet"
         assert o1.is3d is False
         assert not o1.solve_inside
 
-        o2 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", matname="Vacuum")
+        o2 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", material="Vacuum")
         assert o2.id > 0
         assert o2.name.startswith("MyEllpise01")
         assert o2.object_type == "Sheet"
@@ -450,12 +450,12 @@ class TestClass:
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
         plane = self.aedtapp.PLANE.XY
-        o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle", matname="Copper")
+        o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyRectangle")
         assert o.object_type == "Sheet"
         assert o.is3d is False
-        assert not self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5, 10], name="MyRectangle", matname="Copper")
+        assert not self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5, 10], name="MyRectangle", material="Copper")
 
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
@@ -673,7 +673,7 @@ class TestClass:
     def test_41c_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
         plane = self.aedtapp.PLANE.XY
-        o = self.aedtapp.modeler.create_rectangle(plane, udp, [3, 10], name="MyGND", matname="Copper")
+        o = self.aedtapp.modeler.create_rectangle(plane, udp, [3, 10], name="MyGND", material="Copper")
         face_id = o.faces[0].id
         edges1 = self.aedtapp.modeler.get_edges_for_circuit_port(
             face_id, xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
