@@ -580,7 +580,7 @@ class AedtLogger(object):
             level = "Design"
 
         if level not in message_levels:
-            raise Exception("Message level must be 'Design', 'Project' or 'Global'.")
+            raise ValueError("Message level must be 'Design', 'Project' or 'Global'.")
 
         if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
