@@ -66,6 +66,7 @@ All objects support executing any modeler operation, such as union or subtractio
     if you are reading the PDF version of this documentation.
 
 .. only:: html
+
   .. image:: ../Resources/objects_operations.gif
     :width: 800
     :alt: Object Modeler Operations
