@@ -917,8 +917,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableDisplayTypes(report_category))
-        else:  # pragma: no cover
-            return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_quantities_categories(
