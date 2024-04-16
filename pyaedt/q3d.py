@@ -2140,7 +2140,7 @@ class Q2d(QExtractor, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler(position="origin", dimension_list="sizes", material="material")
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
     def create_rectangle(self, origin, sizes, name="", material=""):
         """Create a rectangle.
 

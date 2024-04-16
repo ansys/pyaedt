@@ -2858,7 +2858,7 @@ class GeometryModeler(Modeler):
         ----------
         assignment : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
-        coordinate_system :
+        axis : str
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
@@ -2889,7 +2889,7 @@ class GeometryModeler(Modeler):
             "CreateNewObjects:=",
             create_new_objects,
             "WhichAxis:=",
-            GeometryOperators.cs_axis_str(coordinate_system),
+            GeometryOperators.cs_axis_str(axis),
             "AngleStr:=",
             self._arg_with_dim(angle, "deg"),
             "Numclones:=",
@@ -6404,7 +6404,7 @@ class GeometryModeler(Modeler):
             arc_plane=arc_plane,
         )
 
-    @pyaedt_function_handler(position_list="points", material="material")
+    @pyaedt_function_handler(position_list="points", matname="material")
     def create_polyline(
         self,
         points,

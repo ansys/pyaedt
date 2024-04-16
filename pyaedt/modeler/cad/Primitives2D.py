@@ -30,7 +30,7 @@ class Primitives2D(GeometryModeler, object):
     def __init__(self, application):
         GeometryModeler.__init__(self, application, is3d=False)
 
-    @pyaedt_function_handler(position="origin", material="material")
+    @pyaedt_function_handler(position="origin", matname="material")
     def create_circle(
         self, origin, radius, num_sides=0, is_covered=True, name=None, material=None, non_model=False, **kwargs
     ):
@@ -95,7 +95,7 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", material="material")
+    @pyaedt_function_handler(position="origin", matname="material")
     def create_ellipse(
         self, origin, major_radius, ratio, is_covered=True, name=None, material=None, non_model=False, **kwargs
     ):
@@ -156,7 +156,7 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", dimension_list="sizes", material="material")
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
     def create_rectangle(self, origin, sizes, is_covered=True, name=None, material=None, non_model=False, **kwargs):
         """Create a rectangle.
 
@@ -212,7 +212,7 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler(position="origin", material="material")
+    @pyaedt_function_handler(position="origin", matname="material")
     def create_regular_polygon(
         self, origin, start_point, num_sides=6, name=None, material=None, non_model=False, **kwargs
     ):
