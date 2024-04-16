@@ -6,8 +6,7 @@ import random
 import re
 import warnings
 
-from pyedb.dotnet.edb import Edb
-
+from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
