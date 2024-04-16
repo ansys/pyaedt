@@ -169,6 +169,7 @@ class UserDefinedComponent(object):
             self.auto_update = True
 
         self._layout_component = None
+        self._edb_path = None
 
     @property
     def layout_component(self):
@@ -910,6 +911,7 @@ class LayoutComponent(object):
     """
 
     def __init__(self, component):
+        self._edb_path = component._edb_path
         self._primitives = component._primitives
         self._name = component.name
         self._component = component
@@ -936,21 +938,15 @@ class LayoutComponent(object):
 
         """
         if not self._edb_object:
-            aedb_component_path = os.path.abspath(
-                os.path.join(
-                    self._primitives._app.project_file[:-1] + "b",
-                    "LayoutComponents",
-                    self._edb_definition,
-                    self._edb_definition + ".aedb",
-                )
-            )
+
+            aedb_component_path = self._edb_path
 
             if not os.path.exists(aedb_component_path):  # pragma: no cover
                 return False
 
             app = Edb(
                 edbpath=aedb_component_path,
-                isreadonly=True,
+                isreadonly=False,
                 edbversion=self._primitives._app._aedt_version,
                 student_version=self._primitives._app.student_version,
             )
