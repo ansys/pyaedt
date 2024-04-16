@@ -10,7 +10,6 @@ from math import sin
 from math import sqrt
 from math import tan
 import os
-import shutil
 
 from pyaedt import Edb
 from pyaedt import Icepak
@@ -1727,33 +1726,40 @@ class Primitives3D(GeometryModeler):
             )
             aedb_component_path = normalize_path(aedb_component_path)
 
+        is_edb_open = False
+        parameters = {}
+        component_cs = []
         for edb_object in self._app.desktop_class.edb_objects:
             if edb_object.edbpath == aedb_component_path:
-                root_name = os.path.dirname(aedb_component_path)
-                new_dir = generate_unique_project_name(rootname=root_name,
-                                                       project_name=aedt_component_name,
-                                                       project_format="aedb")
-                aedb_component_path = shutil.copytree(aedb_component_path, new_dir)
+                is_edb_open = True
+                # Extract and map parameters
+                for param in edb_object.design_variables:
+                    parameters[param] = [param + "_" + name, edb_object.design_variables[param].value_string]
+                    if parameter_mapping:
+                        self._app[param + "_" + name] = edb_object.design_variables[param].value_string
+                # Get coordinate systems
+                component_cs = list(edb_object.components.instances.keys())
                 break
 
-        component_obj = Edb(
-            edbpath=aedb_component_path,
-            isreadonly=True,
-            edbversion=self._app._aedt_version,
-            student_version=self._app.student_version,
-        )
+        if not is_edb_open:
+            component_obj = Edb(
+                edbpath=aedb_component_path,
+                isreadonly=True,
+                edbversion=self._app._aedt_version,
+                student_version=self._app.student_version,
+            )
 
-        # Extract and map parameters
-        parameters = {}
-        for param in component_obj.design_variables:
-            parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
-            if parameter_mapping:
-                self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+            # Extract and map parameters
+            parameters = {}
+            for param in component_obj.design_variables:
+                parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+                if parameter_mapping:
+                    self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
-        # Get coordinate systems
-        component_cs = list(component_obj.components.instances.keys())
+            # Get coordinate systems
+            component_cs = list(component_obj.components.instances.keys())
 
-        component_obj.close()
+            component_obj.close()
 
         vArg1 = ["NAME:InsertNativeComponentData"]
         vArg1.append("TargetCS:=")
@@ -1889,10 +1895,10 @@ class Primitives3D(GeometryModeler):
                     self._create_object(new_name)
 
                 udm_obj = self._create_user_defined_component(new_object_name)
-                udm_obj._edb_path = aedb_component_path
-
+                _ = udm_obj.layout_component.edb_object
                 if name:
                     udm_obj.name = name
+                    udm_obj.layout_component._name = name
 
         except Exception:  # pragma: no cover
             udm_obj = False
@@ -2263,7 +2269,7 @@ class Primitives3D(GeometryModeler):
             self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None,
             environment_name=None
     ):
-        """Add an Environment Multipart Component from Json file.
+        """Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
 

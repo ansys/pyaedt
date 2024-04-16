@@ -169,7 +169,6 @@ class UserDefinedComponent(object):
             self.auto_update = True
 
         self._layout_component = None
-        self._edb_path = None
 
     @property
     def layout_component(self):
@@ -911,7 +910,6 @@ class LayoutComponent(object):
     """
 
     def __init__(self, component):
-        self._edb_path = component._edb_path
         self._primitives = component._primitives
         self._name = component.name
         self._component = component
@@ -924,24 +922,41 @@ class LayoutComponent(object):
         self.nets = {}
         self.objects = {}
         self._edb_object = None
-        if self.edb_definition:
+        self._edb_path = None
+        if self.edb_definition and self.edb_path:
             self._get_edb_info()
 
     @property
-    def edb_object(self):
-        """Edb object.
+    def edb_path(self):
+        """EDB path.
 
         Returns
         -------
         str
-           EDB definition.
+           EDB file path.
+
+        """
+        return self._edb_path
+
+    @property
+    def edb_object(self):
+        """EDB object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb.Edb`
+           EDB object.
 
         """
         if not self._edb_object:
-
             aedb_component_path = self._edb_path
 
-            if not os.path.exists(aedb_component_path):  # pragma: no cover
+            for edb_object in self._primitives._app.desktop_class.edb_objects:
+                if edb_object.edbpath == aedb_component_path:
+                    self._edb_object = edb_object
+                    return self._edb_object
+
+            if not aedb_component_path or not os.path.exists(aedb_component_path):  # pragma: no cover
                 return False
 
             app = Edb(
@@ -973,6 +988,20 @@ class LayoutComponent(object):
                 self._primitives.oeditor, self._component.definition_name, key
             )
             self._edb_definition = edb_definition
+            aedb_folder = os.path.abspath(
+                os.path.join(
+                    self._primitives._app.project_path,
+                    self._primitives._app.project_name + ".aedb",
+                    "LayoutComponents",
+                    edb_definition,
+                )
+            )
+            if os.path.exists(aedb_folder):
+                subdirs = next(os.walk(aedb_folder))[1]
+                for subdir in subdirs:
+                    if subdir.endswith(".aedb"):
+                        self._edb_path = os.path.abspath(os.path.join(aedb_folder, subdir))
+                        break
             return edb_definition
         else:
             return None
@@ -1092,7 +1121,7 @@ class LayoutComponent(object):
 
     @pyaedt_function_handler()
     def close_edb_object(self):
-        """Close Edb object."""
+        """Close EDB object."""
         if self.edb_object:
             try:
                 self.edb_object.close()
@@ -1101,12 +1130,12 @@ class LayoutComponent(object):
                 self._logger.error("Edb object can not be closed.")
                 return False
         else:  # pragma: no cover
-            self._logger.warning("Edb object not created.")
+            self._logger.warning("EDB object was not created.")
             return False
 
     @pyaedt_function_handler()
     def _get_edb_info(self):
-        """Get Edb information."""
+        """Get EDB information."""
         if self.edb_object:
             self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
             self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.stackup_layers.keys())}
