@@ -55,7 +55,7 @@ jobs:
       - name: Upload documentation HTML artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Documentation
+          name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
