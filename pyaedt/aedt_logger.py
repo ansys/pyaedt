@@ -579,7 +579,8 @@ class AedtLogger(object):
         if not level:
             level = "Design"
 
-        assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
+        if level not in message_levels:
+            raise Exception("Message level must be 'Design', 'Project' or 'Global'.")
 
         if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
@@ -590,9 +591,8 @@ class AedtLogger(object):
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
-
             except Exception:  # pragma: no cover
-                pass
+                self._global.info("Failed in adding desktop message")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
@@ -660,7 +660,7 @@ class AedtLogger(object):
         try:
             self._desktop.ClearMessages(proj_name, des_name, level)
         except Exception:  # pragma: no cover
-            pass
+            self._global.info("Failed in clearing desktop messages")
 
     @property
     def non_graphical(self):
