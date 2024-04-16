@@ -1641,7 +1641,7 @@ class Primitives3D(GeometryModeler):
         coordinate_system="Global",
         name=None,
         parameter_mapping=False,
-        layout_coordinate_systems=[],
+        layout_coordinate_systems=None,
         reference_coordinate_system="Global"
     ):
         """Insert a new layout component.
@@ -1679,6 +1679,8 @@ class Primitives3D(GeometryModeler):
         >>> comp = app.modeler.insert_layout_component(layout_component)
 
         """
+        if layout_coordinate_systems is None:
+            layout_coordinate_systems = []
         if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
@@ -1740,7 +1742,7 @@ class Primitives3D(GeometryModeler):
         # Get coordinate systems
         component_cs = list(component_obj.components.instances.keys())
 
-        component_obj.close_edb()
+        component_obj.close()
 
         vArg1 = ["NAME:InsertNativeComponentData"]
         vArg1.append("TargetCS:=")

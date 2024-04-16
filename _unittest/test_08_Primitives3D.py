@@ -1796,6 +1796,8 @@ class TestClass:
         assert comp.name in self.aedtapp.modeler.layout_component_names
         assert isinstance(comp, UserDefinedComponent)
         assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
+        assert comp.layout_component.edb_object
+        assert comp.layout_component.close_edb_object()
         comp2 = self.aedtapp.modeler.insert_layout_component(
             self.layout_component, name="new_layout", parameter_mapping=True
         )
