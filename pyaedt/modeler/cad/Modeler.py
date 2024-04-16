@@ -614,13 +614,13 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
     @pyaedt_function_handler()
     def _get_type_from_object(self, obj):
         """Get the entity type from the object."""
-        if type(obj) is FacePrimitive:
+        if isinstance(obj, FacePrimitive):
             return "Face"
-        elif type(obj) is EdgePrimitive:
+        elif isinstance(obj, EdgePrimitive):
             return "Edge"
-        elif type(obj) is VertexPrimitive:
+        elif isinstance(obj, VertexPrimitive):
             return "Vertex"
-        elif type(obj) is Object3d:
+        elif isinstance(obj, Object3d):
             return "3dObject"
         else:  # pragma: no cover
             raise ValueError("Cannot detect the entity type.")

@@ -69,13 +69,13 @@ class FieldAnalysisCircuit(Analysis):
             self._modeler = self.modeler
             self._post = self.post
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -88,10 +88,10 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> oModule.RemoveSimSetup
         """
-        if setupname in self.existing_analysis_setups:
-            self.oanalysis.RemoveSimSetup([setupname])
+        if name in self.existing_analysis_setups:
+            self.oanalysis.RemoveSimSetup([name])
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False
@@ -287,7 +287,7 @@ class FieldAnalysisCircuit(Analysis):
         return props
 
     @property
-    def excitation_names(self):
+    def excitations(self):
         """List of port names.
 
         Returns
@@ -304,36 +304,24 @@ class FieldAnalysisCircuit(Analysis):
         return ports
 
     @property
-    def excitation_objets(self):
+    def excitation_objects(self):
         """List of port objects.
 
         Returns
         -------
-        list
+        dict
             List of port objects.
-        """
-        return [self.excitations[name] for name in self.excitations]
-
-    @property
-    def excitations(self):
-        """Get all ports.
-
-        Returns
-        -------
-        list
-            List of ports.
-
         """
         props = {}
         if not self._internal_excitations:
-            for port in self.excitation_names:
+            for port in self.excitations:
                 props[port] = Excitations(self, port)
             self._internal_excitations = props
         else:
             props = self._internal_excitations
-            if not sorted(list(props.keys())) == sorted(self.excitation_names):
+            if not sorted(list(props.keys())) == sorted(self.excitations):
                 a = set(str(x) for x in props.keys())
-                b = set(str(x) for x in self.excitation_names)
+                b = set(str(x) for x in self.excitations)
                 if len(a) == len(b):
                     unmatched_new_name = list(b - a)[0]
                     unmatched_old_name = list(a - b)[0]
@@ -342,208 +330,22 @@ class FieldAnalysisCircuit(Analysis):
                 else:
                     if len(a) > len(b):
                         for old_port in props.keys():
-                            if old_port not in self.excitation_names:
+                            if old_port not in self.excitations:
                                 del props[old_port]
                                 return props
                     else:
-                        for new_port in self.excitation_names:
+                        for new_port in self.excitations:
                             if new_port not in props.keys():
                                 props[new_port] = Excitations(self, new_port)
         return props
 
-    @property
-    def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default value is ``[]``, in which case
-            the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-
-        Returns
-        -------
-        list of str
-            List of strings representing the S parameters of the excitations.
-            For example, ``"S(1,1)", "S(1,2)", "S(2,2)"``.
-
-        """
-        if not excitation_names:
-            excitation_names = list(self.excitations.keys())
-        spar = []
-        k = 0
-        for i in excitation_names:
-            k = excitation_names.index(i)
-            while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
-                k += 1
-        return spar
-
-    @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=None, excitation_name_prefix=""):
-        """Retrieve a list of all return losses for a list of exctitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``None``, in which case
-            the return losses for all excitations are to be provided.
-            For example ``["1", "2"]``.
-        excitation_name_prefix : string, optional
-             Prefix to add to the excitation names. The default is ``""``,
-
-        Returns
-        -------
-        list of str
-            List of strings representing the return losses of the excitations.
-            For example ``["S(1, 1)", S(2, 2)]``.
-
-        References
-        ----------
-
-        >>> oEditor.GetAllPorts
-        """
-        if excitation_names == None:
-            excitation_names = []
-
-        if not excitation_names:
-            excitation_names = list(self.excitations.keys())
-        if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
-        spar = []
-        for i in excitation_names:
-            spar.append("S({},{})".format(i, i))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix=""):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1"]``.
-        reclist : list, optional
-            List of receivers. The default is ``[]``. The number of drivers equals
-            the number of receivers. For example, ``["2"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
-        rx_prefix : str, optional
-            Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
-
-        Returns
-        -------
-        list of str
-            List of strings representing insertion losses of the excitations.
-            For example, ``["S(1,2)"]``.
-
-        References
-        ----------
-
-        >>> oEditor.GetAllPorts
-        """
-        if trlist == None:
-            trlist = []
-        if reclist == None:
-            reclist = []
-
-        spar = []
-        if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if not reclist:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
-        if len(trlist) != len(reclist):
-            self.logger.error("The TX and RX lists should be the same length.")
-            return False
-        for i, j in zip(trlist, reclist):
-            spar.append("S({},{})".format(i, j))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example,
-            ``["1", "2", "3"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
-
-        Returns
-        -------
-        list of str
-            List of strings representing near end XTalks of the excitations.
-            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oEditor.GetAllPorts
-        """
-        next_xtalks = []
-        if not trlist:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        for i in trlist:
-            k = trlist.index(i) + 1
-            while k < len(trlist):
-                next_xtalks.append("S({},{})".format(i, trlist[k]))
-                k += 1
-        return next_xtalks
-
-    @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", skip_same_index_couples=True):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example,
-            ``["1", "2"]``.
-        reclist : list, optional
-            List of receiver. The default is ``[]``. For example,
-            ``["3", "4"]``.
-        tx_prefix : str, optional
-            Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
-        rx_prefix : str, optional
-            Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
-        skip_same_index_couples : bool, optional
-            Whether to skip driver and receiver couples with the same index position.
-            The default is ``True``, in which case the drivers and receivers
-            with the same index position are considered insertion losses and
-            excluded from the list.
-
-        Returns
-        -------
-        list of str
-            List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1, 4)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oEditor.GetAllPorts
-        """
-        fext = []
-        if trlist is None:
-            trlist = [i for i in list(self.excitations.keys()) if tx_prefix in i]
-        if reclist is None:
-            reclist = [i for i in list(self.excitations.keys()) if rx_prefix in i]
-        for i in trlist:
-            for k in reclist:
-                if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
-                    fext.append("S({},{})".format(i, k))
-        return fext
-
-    @pyaedt_function_handler()
-    def get_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def get_setup(self, name):
         """Retrieve the setup from the current design.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -552,20 +354,20 @@ class FieldAnalysisCircuit(Analysis):
             Setup object.
 
         """
-        setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
+        setup = SetupCircuit(self, self.solution_type, name, is_new_setup=False)
         if setup.props:
-            self.active_setup = setupname
+            self.active_setup = name
         return setup
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setuptype : str, optional
+        setup_type : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -596,14 +398,14 @@ class FieldAnalysisCircuit(Analysis):
 
         >>> from pyaedt import Circuit
         >>> app = Circuit()
-        >>> app.create_setup(setupname="Setup1", setuptype=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
+        >>> app.create_setup(name="Setup1",setup_type=app.SETUPS.NexximLNA,Data="LINC 0GHz 4GHz 501")
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        name = self.generate_unique_setup_name(setupname)
-        setup = SetupCircuit(self, setuptype, name)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
+        setup = SetupCircuit(self, setup_type, name)
         tmp_setups = self.setups
         setup.create()
         setup.auto_update = False

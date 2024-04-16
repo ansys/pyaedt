@@ -119,7 +119,7 @@ t1 = s1.add_trace(trace_width, trace_length)
 rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
                                                  position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
                                                  dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
-p1 = hfss.wave_port(signal=rect1, reference="G1", name="P1")
+p1 = hfss.wave_port(assignment=rect1, reference="G1", name="P1")
 
 ###############################################################################
 # Set Simulation Boundaries
@@ -156,7 +156,7 @@ hfss.analyze()
 
 traces = hfss.get_traces_for_plot(category="S")
 solutions = hfss.post.get_solution_data(traces)
-solutions.plot(traces, math_formula="db20")
+solutions.plot(traces, formula="db20")
 
 ###############################################################################
 # Hfss 3D Layout Example
@@ -232,7 +232,7 @@ h3d.analyze()
 
 traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
-solutions.plot(traces, math_formula="db20")
+solutions.plot(traces, formula="db20")
 
 h3d.save_project()
 h3d.release_desktop()

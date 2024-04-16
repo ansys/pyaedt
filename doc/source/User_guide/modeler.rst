@@ -59,7 +59,15 @@ All objects support executing any modeler operation, such as union or subtractio
      box.subract(cyl)
 
 
-.. image:: ../Resources/objects_operations.gif
-  :width: 800
-  :alt: Object Modeler Operations
+.. only:: latex
+
+    The following demo is presented as an animated GIF.
+    `View online <https://aedt.docs.pyansys.com/version/stable/_images/objects_operations.gif>`_
+    if you are reading the PDF version of this documentation.
+
+.. only:: html
+
+  .. image:: ../Resources/objects_operations.gif
+    :width: 800
+    :alt: Object Modeler Operations
 

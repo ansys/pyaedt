@@ -108,13 +108,13 @@ hfss3dl.save_project()
 # ~~~~~~~~~~~~~~~~~~~
 # Get current source
 
-current_source = hfss3dl.get_dcir_element_data_current_source(setup_name="my_setup")
+current_source = hfss3dl.get_dcir_element_data_current_source(setup="my_setup")
 print(current_source)
 
 # ~~~~~~~~~~~~~~~~~~~
 # Get via information
 
-via = hfss3dl.get_dcir_element_data_via(setup_name="my_setup")
+via = hfss3dl.get_dcir_element_data_via(setup="my_setup")
 print(via)
 
 
@@ -122,10 +122,7 @@ print(via)
 # Get voltage
 # ~~~~~~~~~~~
 # Get voltage from dcir solution data
-voltage = hfss3dl.get_dcir_solution_data(
-    setup_name="my_setup",
-    show="Sources",
-    category="Voltage")
+voltage = hfss3dl.get_dcir_solution_data(setup="my_setup", show="Sources", category="Voltage")
 print({expression: voltage.data_magnitude(expression) for expression in voltage.expressions})
 
 ###############################################################################

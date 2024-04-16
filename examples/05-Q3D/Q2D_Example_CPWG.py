@@ -190,9 +190,9 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup, analyze it, and plot solution data.
 
-setup = q.create_setup(setupname="new_setup")
+setup = q.create_setup(name="new_setup")
 
-sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
+sweep = setup.add_sweep(name="sweep1", sweep_type="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
 sweep.props["RangeStep"] = "100MHz"

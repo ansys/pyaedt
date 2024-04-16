@@ -55,7 +55,7 @@ source = pyaedt.Hfss(projectname=target.project_name,
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
-target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
+target.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
 ###############################################################################
 # Assign boundaries
@@ -96,14 +96,8 @@ variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-target.post.create_report(
-    "db(GainTotal)",
-    target.nominal_adaptive,
-    variations=variations,
-    primary_sweep_variable="Theta",
-    context="ATK_3D",
-    report_category="Far Fields",
-)
+target.post.create_report("db(GainTotal)", target.nominal_adaptive, variations=variations,
+                          primary_sweep_variable="Theta", report_category="Far Fields", context="ATK_3D")
 
 ###############################################################################
 # Plot results outside AEDT

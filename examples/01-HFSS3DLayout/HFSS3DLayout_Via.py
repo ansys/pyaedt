@@ -89,19 +89,9 @@ h3d.create_edge_port("microstrip", 2)
 # Create a setup and a sweep.
 
 setup = h3d.create_setup()
-h3d.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=3,
-    freqstop=7,
-    num_of_freq_points=1001,
-    sweepname="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol_percent=1,
-    interpolation_max_solutions=255,
-    save_fields=False,
-    use_q3d_for_dc=False,
-)
+h3d.create_linear_count_sweep(setup=setup.name, unit="GHz", start_frequency=3, stop_frequency=7,
+                              num_of_freq_points=1001, save_fields=False, sweep_type="Interpolating",
+                              interpolation_tol_percent=1, interpolation_max_solutions=255, use_q3d_for_dc=False)
 
 ###############################################################################
 # Solve and plot results
@@ -120,7 +110,7 @@ h3d.post.create_report(traces, variations=h3d.available_variations.nominal_w_val
 traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
 
 solutions = h3d.post.get_solution_data(expressions=traces)
-solutions.plot(math_formula="db20")
+solutions.plot(formula="db20")
 
 ###############################################################################
 # Close AEDT

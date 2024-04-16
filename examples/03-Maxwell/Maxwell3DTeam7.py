@@ -70,7 +70,7 @@ m3d.modeler.model_units = "mm"
 dc_freq = 0.1
 stop_freq = 50
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "200Hz"
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
@@ -155,7 +155,7 @@ m3d.modeler.delete("Coil_Section1_Separate1")
 
 Coil_Excitation = 2742
 m3d["Coil_Excitation"] = str(Coil_Excitation) + "A"
-m3d.assign_current(object_list="Coil_Section1", amplitude="Coil_Excitation", solid=False)
+m3d.assign_current(assignment="Coil_Section1", amplitude="Coil_Excitation", solid=False)
 m3d.modeler.set_working_coordinate_system("Global")
 
 ###########################################################################################
@@ -191,10 +191,9 @@ m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # for all parts. The setting for eddy effect is ignored for the stranded conductor type
 # used in the coil.
 
-m3d.eddy_effects_on(object_list="Plate")
-m3d.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
-                    activate_eddy_effects=False,
-                    activate_displacement_current=False)
+m3d.eddy_effects_on(assignment="Plate")
+m3d.eddy_effects_on(assignment=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"], enable_eddy_effects=False,
+                    enable_displacement_current=False)
 
 ################################################################################
 # Create expression for Z component of B in Gauss
@@ -398,14 +397,8 @@ for item in range(len(dataset)):
                 "Phase": ["0deg", "90deg"],
                 "Coil_Excitation": ["All"],
             }
-        report = m3d.post.create_report(
-            plotname=plot_name,
-            report_category="Fields",
-            context="Line_" + t[3:8],
-            primary_sweep_variable="Distance",
-            variations=variations,
-            expressions=t[0:2],
-        )
+        report = m3d.post.create_report(expressions=t[0:2], variations=variations, primary_sweep_variable="Distance",
+                                        report_category="Fields", context="Line_" + t[3:8], plot_name=plot_name)
         file_path = os.path.join(temp_dir.name, str(dataset[i]) + ".csv")
         report.import_traces(file_path, plot_name)
 
@@ -424,9 +417,9 @@ m3d.analyze()
 
 surf_list = m3d.modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
-m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
-m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsincDict=intrinsic_dict, plot_name="Mesh")
+m3d.post.create_fieldplot_surface(surf_list, "Mag_J", intrinsics=intrinsic_dict, plot_name="Mag_J")
+m3d.post.create_fieldplot_surface(surf_list, "Mag_B", intrinsics=intrinsic_dict, plot_name="Mag_B")
+m3d.post.create_fieldplot_surface(surf_list, "Mesh", intrinsics=intrinsic_dict, plot_name="Mesh")
 
 ####################################################################################################
 # Release AEDT and clean up temporary directory

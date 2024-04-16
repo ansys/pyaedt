@@ -223,7 +223,6 @@ class Icepak(FieldAnalysis3D):
         air_faces,
         free_loss_coeff=True,
         free_area_ratio=0.8,
-        resistance_type=0,
         external_temp="AmbientTemp",
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
@@ -241,14 +240,6 @@ class Icepak(FieldAnalysis3D):
             the free loss coefficient is not used.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
-        resistance_type : int, optional
-            Type of the resistance. Options are:
-
-            - ``0`` for ``"Perforated Thin Vent"``
-            - ``1`` for ``"Circular Metal Wire Screen"``
-            - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
-
-            The default is ``0`` for ``"Perforated Thin Vent"``.
         external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
         expternal_pressure : str, optional
@@ -346,15 +337,15 @@ class Icepak(FieldAnalysis3D):
             return bound
         return None
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup")
     def assign_2way_coupling(
-        self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
+        self, setup=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
     ):
         """Assign two-way coupling to a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup. The default is ``None``, in which case the active setup is used.
         number_of_iterations : int, optional
             Number of iterations. The default is ``2``.
@@ -376,18 +367,18 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
+        >>> icepak.assign_2way_coupling("Setup1",1,True,10)
         True
 
         """
-        if not setup_name:
+        if not setup:
             if self.setups:
-                setup_name = self.setups[0].name
+                setup = self.setups[0].name
             else:
                 self.logger.error("No setup is defined.")
                 return False
         self.oanalysis.AddTwoWayCoupling(
-            setup_name,
+            setup,
             [
                 "NAME:Options",
                 "NumCouplingIters:=",
@@ -1426,8 +1417,7 @@ class Icepak(FieldAnalysis3D):
             else:
                 self[name_map[var_name]] = self.modeler._arg_with_dim(var)
 
-        if numcolumn_perside > 1:
-            self[name_map["NumColumnsPerSide"]] = numcolumn_perside
+        self[name_map["NumColumnsPerSide"]] = numcolumn_perside
         if symmetric:
             if relative:
                 self[name_map["SymSeparation_Factor"]] = symmetric_separation
@@ -1552,17 +1542,16 @@ class Icepak(FieldAnalysis3D):
             name_map["_num"] + "*2",
             True,
         )
-        if numcolumn_perside > 0:
-            self.modeler.duplicate_along_line(
-                fin_base.name,
-                self.Position(
-                    name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
-                    name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
-                    0,
-                ),
-                name_map["NumColumnsPerSide"],
-                True,
-            )
+        self.modeler.duplicate_along_line(
+            fin_base.name,
+            self.Position(
+                name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
+                name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                0,
+            ),
+            name_map["NumColumnsPerSide"],
+            True,
+        )
         cs = self.modeler.oeditor.GetActiveCoordinateSystem()
         cs_ymax = self.modeler.create_coordinate_system(
             self.Position(0, name_map["HSHeight"] + "/2", 0),
@@ -1743,27 +1732,31 @@ class Icepak(FieldAnalysis3D):
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design",
+                             setupname="setup",
+                             sweepname="sweep",
+                             paramlist="parameters",
+                             object_list="assignment")
     def assign_em_losses(
             self,
-            designname="HFSSDesign1",
-            setupname="Setup1",
-            sweepname="LastAdaptive",
+            design="HFSSDesign1",
+            setup="Setup1",
+            sweep="LastAdaptive",
             map_frequency=None,
             surface_objects=None,
             source_project_name=None,
-            paramlist=None,
-            object_list=None,
+            parameters=None,
+            assignment=None,
     ):
         """Map EM losses to an Icepak design.
 
         Parameters
         ----------
-        designname : string, optional
+        design : string, optional
             Name of the design with the source mapping. The default is ``"HFSSDesign1"``.
-        setupname : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweepname : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
@@ -1773,14 +1766,15 @@ class Icepak(FieldAnalysis3D):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist : list, dict, optional
-            List of all parameters to map from source and Icepak design. The default is ``None``.
+        parameters : list, dict, optional
+            List of all parameters to map from source and Icepak design.
+            The default is ``None``, in which case the variables are set to their values (no mapping).
             If ``None`` the variables are set to their values (no mapping).
-            If it is a list, the specified variables in the icepak design are mapped to variables
+            If a list is provided, the specified variables in the Icepak design are mapped to variables
             in the source design having the same name.
-            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            If a dictionary is provided, it is possible to map variables to the source design having a different name.
             The dictionary structure is {"source_design_variable": "icepak_variable"}.
-        object_list : list, optional
+        assignment : list, optional
             List of objects. The default is ``None``.
 
         Returns
@@ -1795,8 +1789,8 @@ class Icepak(FieldAnalysis3D):
         """
         if surface_objects is None:
             surface_objects = []
-        if object_list is None:
-            object_list = []
+        if assignment is None:
+            assignment = []
 
         self.logger.info("Mapping EM losses.")
 
@@ -1807,12 +1801,12 @@ class Icepak(FieldAnalysis3D):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
         #
-        if not object_list:
-            all_objects = self.modeler.object_names
-            if "Region" in all_objects:
-                all_objects.remove("Region")
+        if not assignment:
+            assignment = self.modeler.object_names
+            if "Region" in assignment:
+                assignment.remove("Region")
         else:
-            all_objects = object_list[:]
+            assignment = assignment[:]
 
         surfaces = surface_objects
         if map_frequency:
@@ -1824,20 +1818,20 @@ class Icepak(FieldAnalysis3D):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        if paramlist and isinstance(paramlist, list):
-            for el in paramlist:
+        if parameters and isinstance(parameters, list):
+            for el in parameters:
                 argparam[el] = el
-        elif paramlist and isinstance(paramlist, dict):
-            for el in paramlist:
-                argparam[el] = paramlist[el]
+        elif parameters and isinstance(parameters, dict):
+            for el in parameters:
+                argparam[el] = parameters[el]
 
         props = OrderedDict(
             {
-                "Objects": all_objects,
+                "Objects": assignment,
                 "Project": project_name,
                 "Product": "ElectronicsDesktop",
-                "Design": designname,
-                "Soln": setupname + " : " + sweepname,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -1851,7 +1845,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", designname)
+            self.logger.info("EM losses mapped from design: %s.", design)
             return bound
         return False
 
@@ -4057,11 +4051,11 @@ class Icepak(FieldAnalysis3D):
                 shell_conduction=shell_conduction,
             )
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
+        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
+        names correspond to the ``setup_type``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
@@ -4070,11 +4064,11 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : int, str, optional
             Type of the setup. Options are ``"IcepakSteadyState"``
             and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on setup chosen.
             For more information, see
@@ -4095,17 +4089,17 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setupname="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
+        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -4603,8 +4597,8 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         return _create_boundary(bound)
 
-    @pyaedt_function_handler()
-    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+    @pyaedt_function_handler(timestep="time_step")
+    def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
         """
         Get operating point of the fans in the design.
 
@@ -4616,7 +4610,7 @@ class Icepak(FieldAnalysis3D):
         setup_name : str, optional
             Setup name from which to determine the fans' operating point. The default is
             ``None``, in which case the first available setup is used.
-        timestep : str, optional
+        time_step : str, optional
             Time, with units, at which to determine the fans' operating point. The default
             is ``None``, in which case the first available timestep is used. This argument is
             only relevant in transient simulations.
@@ -4646,7 +4640,7 @@ class Icepak(FieldAnalysis3D):
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
+        return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(

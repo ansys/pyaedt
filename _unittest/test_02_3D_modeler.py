@@ -150,7 +150,7 @@ class TestClass:
         num_clones = 3
         status, mirror = self.aedtapp.modeler.duplicate_around_axis("outer", udp, 45, num_clones)
         assert status
-        assert type(mirror) is list
+        assert isinstance(mirror, list)
         assert len(mirror) == num_clones - 1
 
     def test_08_duplicate_along_line(self):
@@ -158,7 +158,7 @@ class TestClass:
         num_clones = 5
         status, mirror = self.aedtapp.modeler.duplicate_along_line("outer", udp, num_clones)
         assert status
-        assert type(mirror) is list
+        assert isinstance(mirror, list)
         assert len(mirror) == num_clones - 1
 
     def test_09_thicken_sheet(self):
@@ -798,7 +798,7 @@ class TestClass:
     def test_52_objects_in_bounding_box(self):
         bounding_box = [-100, -300, -200, 100, 200, 100]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
-        assert type(objects_in_bounding_box) is list
+        assert isinstance(objects_in_bounding_box, list)
 
         bounding_box = [0, 0, 0, 0, 0, 0]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)

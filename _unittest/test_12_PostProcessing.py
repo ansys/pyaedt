@@ -33,6 +33,7 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+test_emi_name = "EMI_RCV_241"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 ipk_post_proj = "for_icepak_post"
@@ -49,6 +50,12 @@ def field_test(add_app):
 @pytest.fixture(scope="class")
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def emi_receiver_test(add_app):
+    app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
     return app
 
 
@@ -96,7 +103,7 @@ def ami_test(add_app, q3dtest):
 
 @pytest.fixture(scope="class")
 def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder)
+    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
     return app
 
 
@@ -124,9 +131,9 @@ class TestClass:
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
+            report_category="Far Fields",
             plot_type="3D Polar Plot",
             context=context,
-            report_category="Far Fields",
         )
         assert field_test.post.create_report(
             "db(GainTotal)",
@@ -134,9 +141,9 @@ class TestClass:
             variations=variations,
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
+            report_category="Far Fields",
             plot_type="3D Polar Plot",
             context="3D",
-            report_category="Far Fields",
         )
         report = AnsysReport()
         report.create()
@@ -165,6 +172,11 @@ class TestClass:
         )
         new_report3.report_type = "Data Table"
         assert new_report3.create()
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        assert new_report4.create()
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -177,8 +189,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context="3D",
             report_category="Far Fields",
+            context="3D",
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -195,8 +207,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context=context,
             report_category="Far Fields",
+            context=context,
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -205,10 +217,7 @@ class TestClass:
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
         assert field_test.post.create_report(
-            "S(1,1)",
-            field_test.nominal_sweep,
-            variations=variations,
-            plot_type="Smith Chart",
+            "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
         )
 
     def test_09_manipulate_report_E(self, field_test):
@@ -216,12 +225,13 @@ class TestClass:
         variations2 = field_test.available_variations.nominal_w_values_dict
 
         assert field_test.setups[0].create_report(
-            "Mag_E",
-            primary_sweep_variable="Distance",
-            context="Poly1",
-            report_category="Fields",
+            "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
         )
         new_report = field_test.post.reports_by_category.fields("Mag_H", field_test.nominal_adaptive)
+        new_report.variations = variations2
+        new_report.polyline = "Poly1"
+        assert new_report.create()
+        new_report = field_test.post.reports_by_category.fields("Mag_H")
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
@@ -229,23 +239,25 @@ class TestClass:
         new_report.report_type = "Smith Chart"
         assert new_report.create()
         data = field_test.setups[0].get_solution_data(
-            "Mag_E",
-            variations=variations2,
-            primary_sweep_variable="Theta",
-            context="Poly1",
-            report_category="Fields",
+            "Mag_E", variations=variations2, primary_sweep_variable="Theta", report_category="Fields", context="Poly1"
         )
         assert data.units_sweeps["Phase"] == "deg"
 
         assert field_test.post.get_far_field_data(
-            setup_sweep_name=field_test.nominal_adaptive, expression="RealizedGainTotal", domain="3D"
+            expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
         data_farfield2 = field_test.post.get_far_field_data(
+            expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
-            expression="RealizedGainTotal",
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(math_formula="db20", is_polar=True)
+        assert data_farfield2.plot(formula="db20", is_polar=True)
+
+        assert field_test.post.reports_by_category.terminal_solution()
+
+        assert not field_test.post.get_solution_data_per_variation(
+            solution_type="Far Fields", expressions="RealizedGainTotal"
+        )
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -300,6 +312,8 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
+        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
+        assert new_report.create()
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
         new_report.adjust_coherent_gain = False
@@ -310,9 +324,7 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum", setup_sweep_name="Transient"
-        )
+        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -361,18 +373,18 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(math_formula="db20")
+        data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp1.jpg"))
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot("S(Diff1, Diff1)")
-        assert data1.plot(math_formula="db20")
-        assert data1.plot(math_formula="db10")
-        assert data1.plot(math_formula="mag")
-        assert data1.plot(math_formula="re")
-        assert data1.plot(math_formula="im")
-        assert data1.plot(math_formula="phasedeg")
-        assert data1.plot(math_formula="phaserad")
+        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"))
+        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"))
+        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"))
+        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"))
+        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"))
+        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"))
+        assert data1.plot(formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"))
+        assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
 
         assert diff_test.create_touchstone_report(
             plot_name="Diff_plot",
@@ -392,10 +404,7 @@ class TestClass:
         sbr_test.analyze(sbr_test.active_setup, use_auto_settings=False)
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
-            expressions=["NearEX", "NearEY", "NearEZ"],
-            # variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
-            context="Near_Field",
-            report_category="Near Fields",
+            expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
         )
         assert solution_data
         assert len(solution_data.primary_sweep_values) > 0
@@ -405,15 +414,11 @@ class TestClass:
         t_matrix = solution_data.ifft("NearE", window=True)
         assert t_matrix.any()
         frames_list = solution_data.ifft_to_file(
-            coord_system_center=[-0.15, 0, 0], db_val=True, csv_dir=os.path.join(sbr_test.working_directory, "csv")
+            coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
         sbr_test.post.plot_scene(
-            frames_list,
-            os.path.join(sbr_test.working_directory, "animation.gif"),
-            norm_index=5,
-            dy_rng=35,
-            show=False,
+            frames_list, os.path.join(sbr_test.working_directory, "animation.gif"), norm_index=5, dy_rng=35, show=False
         )
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation.gif"))
         sbr_test.post.plot_scene(
@@ -595,13 +600,13 @@ class TestClass:
         assert ffdata.origin == [0, 0, 1]
 
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value="all", primary_sweep="Theta", export_image_path=img1)
+        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1)
         assert os.path.exists(img1)
         img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], export_image_path=img2)
+        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2)
         assert os.path.exists(img2)
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(export_image_path=img3)
+        ffdata.plot_2d_cut(image_path=img3)
         assert os.path.exists(img3)
         curve_2d = ffdata.plot_2d_cut(show=False)
         assert len(curve_2d[0]) == 3
@@ -610,127 +615,119 @@ class TestClass:
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=img4,
             show=False,
-            export_image_path=img4,
             background=[255, 0, 0],
             show_geometry=False,
+            convert_to_db=True,
         )
         assert os.path.exists(img4)
         data_pyvista = ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            show=False,
-            background=[255, 0, 0],
-            show_geometry=False,
+            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False, convert_to_db=True
         )
         assert data_pyvista
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
         ffdata.phase_offset = [0, 90]
         assert ffdata.phase_offset == [0, 90]
         ffdata.phase_offset = [0]
         assert ffdata.phase_offset != [0.0]
         assert ffdata.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
             show=False,
-            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
         try:
-            p = ffdata.polar_plot_3d_pyvista(farfield_quantity="RealizedGain", convert_to_db=True, show=False)
+            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", show=False, convert_to_db=True)
             assert isinstance(p, object)
         except Exception:
             assert True
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
+            quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            farfield_quantity="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
-            export_image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
         ffdata.polar_plot_3d_pyvista(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
             show=False,
-            export_image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
-            farfield_quantity="RealizedGain",
-            convert_to_db=True,
+            quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata1.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+            image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
+            convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 
@@ -738,35 +735,30 @@ class TestClass:
         ami_test.solution_type = "NexximAMI"
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="InitialWave<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="ClockTics<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Clock Times",
             variations=ami_test.available_variations.nominal,
         )
@@ -841,7 +833,7 @@ class TestClass:
         m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
         m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
         setup_name = "test"
-        m2dtest.create_setup(setupname=setup_name)
+        m2dtest.create_setup(name=setup_name)
         m2dtest.analyze_setup(setup_name)
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert plot
@@ -863,26 +855,44 @@ class TestClass:
         el_id = [obj.id for obj in m2dtest.modeler.object_list if obj.name == "Electrode"]
         plot.seeding_faces.append(el_id[0])
         assert plot.update()
-        plot.volume_indexes.append(el_id[0])
+        plot.volumes.append(el_id[0])
         plot.update()
-        plot.surfaces_indexes.append(el_id[0])
+        plot.surfaces.append(el_id[0])
         plot.update()
         plot.seeding_faces.append(8)
         assert not plot.update()
-        plot.volume_indexes.append(8)
+        plot.volumes.append(8)
         assert not plot.update()
-        plot.surfaces_indexes.append(8)
+        plot.surfaces.append(8)
         assert not plot.update()
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+    def test_76_emi_receiver(self, emi_receiver_test):
+        emi_receiver_test.analyze()
+        new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
+        new_report.band = "2"
+        new_report.emission = "RE"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "2us"
+        new_report.net = "net_invented"
+        assert new_report.net != "net_invented"
+        assert new_report.create()
+        new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
+            ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
+        )
+        assert new_report2.net == "net_6"
+        new_report2.time_stop = "2.5us"
+        assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
         assert vars
         variations = field_test.available_variations.variations()
-        assert type(variations) is list
-        assert type(variations[0]) is list
+        assert isinstance(variations, list)
+        assert isinstance(variations[0], list)
         vars_dict = field_test.available_variations.variations(output_as_dict=True)
-        assert type(vars_dict) is list
-        assert type(vars_dict[0]) is dict
+        assert isinstance(vars_dict, list)
+        assert isinstance(vars_dict[0], dict)
 
     def test_z99_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()
@@ -897,8 +907,8 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict={"power_block": "0.25W", "power_source": "0.075W"},
-            isvector=False,
+            variations={"power_block": "0.25W", "power_source": "0.075W"},
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -909,8 +919,8 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            variations={"power_block": "0.6W", "power_source": "0.15W"},
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -921,8 +931,8 @@ class TestClass:
             "Heat_Flow_Rate",
             scalar_function="Integrate",
             solution=None,
-            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            variations={"power_block": "0.6W", "power_source": "0.15W"},
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -933,8 +943,8 @@ class TestClass:
             "Temperature",
             scalar_function="Maximum",
             solution=None,
-            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            variations={"power_block": "0.6W", "power_source": "0.15W"},
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube1",
@@ -945,8 +955,8 @@ class TestClass:
             "Temperature",
             scalar_function="Maximum",
             solution=None,
-            variation_dict={"power_block": "0.6W", "power_source": "0.15W"},
-            isvector=False,
+            variations={"power_block": "0.6W", "power_source": "0.15W"},
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="cube2",
@@ -957,8 +967,8 @@ class TestClass:
             "Temperature",
             scalar_function="Value",
             solution=None,
-            variation_dict=None,
-            isvector=False,
+            variations=None,
+            is_vector=False,
             intrinsics=None,
             phase=None,
             object_name="Point1",

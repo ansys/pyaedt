@@ -402,7 +402,6 @@ def Emit(
     projectname=None,
     designname=None,
     solution_type=None,
-    setup_name=None,
     specified_version=None,
     non_graphical=False,
     new_desktop_session=False,
@@ -428,10 +427,6 @@ def Emit(
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
     specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
@@ -511,7 +506,6 @@ def Emit(
         projectname=projectname,
         designname=designname,
         solution_type=solution_type,
-        setup_name=setup_name,
         specified_version=specified_version,
         non_graphical=non_graphical,
         new_desktop_session=new_desktop_session,
@@ -1770,8 +1764,10 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     from pyaedt.generic.desktop_sessions import _desktop_sessions
 
     odesktop = None
+    process_id = None
     if desktop:
         odesktop = desktop.odesktop
+        process_id = desktop.aedt_process_id
     elif _desktop_sessions and project_name:
         for desktop in list(_desktop_sessions.values()):
             if project_name in list(desktop.project_list()):
@@ -1783,6 +1779,8 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         odesktop = sys.modules["__main__"].oDesktop  # ironpython
     else:
         raise AttributeError("No Desktop Present.")
+    if not process_id:
+        process_id = odesktop.GetProcessID()
     if project_name and project_name not in odesktop.GetProjectList():
         raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
     if not project_name:
@@ -1808,5 +1806,5 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if design_type in list(app_map.keys()):
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
-        return app_map[design_type](project_name, design_name, specified_version=v)
+        return app_map[design_type](project_name, design_name, specified_version=v, aedt_process_id=process_id)
     return None

@@ -80,7 +80,7 @@ hfss.assign_perfecte_to_sheets(substrate.bottom_face_z)
 # ~~~~~~~~~~~~~~~~
 # Wave port can be assigned to a sheet or to a face of an object.
 
-hfss.wave_port(via_outer.bottom_face_z, name="P1", )
+hfss.wave_port(via_outer.bottom_face_z, name="P1")
 
 ##########################################################
 # Create 3D Component

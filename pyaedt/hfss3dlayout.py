@@ -10,6 +10,7 @@ import re
 
 from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
@@ -20,7 +21,7 @@ from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
-class Hfss3dLayout(FieldAnalysis3DLayout):
+class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     """Provides the HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
@@ -144,6 +145,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port,
             aedt_process_id,
         )
+        ScatteringMethods.__init__(self, self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -354,14 +356,33 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if len(a) > 0:
                 bound = self._update_port_info(a[0])
                 if bound:
-                    self.boundaries.append(bound)
-                    return self.boundaries[-1]
+                    self._boundaries[bound.name] = bound
+                    return bound
                 else:
                     return False
             else:
                 return False
         else:
             return False
+
+    @pyaedt_function_handler()
+    def dissolve_component(self, component_name):
+        """Dissolve a component and remove it from 3D Layout.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+
+        """
+        self.oeditor.DissolveComponents(["NAME:elements", component_name])
+        return True
 
     @pyaedt_function_handler()
     def create_ports_on_component_by_nets(
@@ -408,8 +429,42 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return ports
 
     @pyaedt_function_handler()
+    def create_pec_on_component_by_nets(
+        self,
+        component_name,
+        nets,
+    ):
+        """Create a PEC connection on a component for a list of nets.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        nets : str, list
+            Nets to include.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        if isinstance(nets, list):
+            pass
+        else:
+            nets = [nets]
+        net_array = ["NAME:Nets"] + nets
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component_name], net_array, "PEC", "0", "0", "0")
+        return True
+
+    @pyaedt_function_handler()
     def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):
-        """Create a new differential port.
+        """Create a differential port.
 
         Parameters
         ----------
@@ -449,8 +504,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 )
             bound = self._update_port_info(port_name)
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
@@ -769,68 +824,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port_excited = port_names
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
         return self.post.create_report(
-            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
-        )
-
-    @pyaedt_function_handler()
-    def export_touchstone(
-        self,
-        setup_name=None,
-        sweep_name=None,
-        file_name=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
-    ):
-        """Export a Touchstone file.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the Touchstone file is exported to
-            the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-        renormalization : bool, optional
-            Perform renormalization before export.
-            The default is ``False``.
-        impedance : float, optional
-            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
-            The default is ``None``.
-        gamma_impedance_comments : bool, optional
-            Include Gamma and Impedance values in comments.
-            The default is ``False``.
-
-        Returns
-        -------
-        str
-            Filename when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ExportNetworkData
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-            renormalization=renormalization,
-            impedance=impedance,
-            comments=gamma_impedance_comments,
+            traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot_name
         )
 
     @pyaedt_function_handler()
@@ -903,15 +897,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign.DesignOptions(settings, 0)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+    )
     def create_linear_count_sweep(
         self,
-        setupname,
+        setup,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         num_of_freq_points,
-        sweepname=None,
+        name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -923,18 +919,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.
@@ -968,8 +965,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if name is None:
+            sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = name
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -982,39 +981,41 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
-                if not sweep:
+                name = setupdata.add_sweep(name=sweep_name)
+                if not name:
                     return False
-                sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
-                sweep.props["GenerateSurfaceCurrent"] = save_fields
-                sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
-                sweep.props["FastSweep"] = interpolation
-                sweep.props["SAbsError"] = interpolation_tol
-                sweep.props["EnforcePassivity"] = interpolation
-                sweep.props["UseQ3DForDC"] = use_q3d_for_dc
-                sweep.props["MaxSolutions"] = interpolation_max_solutions
-                sweep.update()
-                self.logger.info("Linear count sweep %s has been correctly created.", sweepname)
-                return sweep
+                name.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
+                name.props["GenerateSurfaceCurrent"] = save_fields
+                name.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                name.props["FastSweep"] = interpolation
+                name.props["SAbsError"] = interpolation_tol
+                name.props["EnforcePassivity"] = interpolation
+                name.props["UseQ3DForDC"] = use_q3d_for_dc
+                name.props["MaxSolutions"] = interpolation_max_solutions
+                name.update()
+                self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
+                return name
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+    )
     def create_linear_step_sweep(
         self,
-        setupname,
+        setup,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         step_size,
-        sweepname=None,
+        name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -1026,18 +1027,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.
@@ -1071,8 +1073,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if name is None:
+            sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = name
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -1085,18 +1089,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname, sweeptype=sweep_type)
+                sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
                 if not sweep:
                     return False
-                sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
+                sweep.change_range("LinearStep", start_frequency, stop_frequency, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweep.props["FastSweep"] = interpolation
@@ -1105,17 +1109,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear step sweep %s has been correctly created.", sweepname)
+                self.logger.info("Linear step sweep %s has been correctly created.", sweep_name)
                 return sweep
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setupname="setup", sweepname="name")
     def create_single_point_sweep(
         self,
-        setupname,
+        setup,
         unit,
         freq,
-        sweepname=None,
+        name=None,
         save_fields=False,
         save_rad_fields_only=False,
     ):
@@ -1123,14 +1127,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
         save_rad_fields_only : bool, optional
@@ -1146,8 +1151,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.AddSweep
         """
-        if sweepname is None:
-            sweepname = generate_unique_name("SinglePoint")
+        if name is None:
+            sweep_name = generate_unique_name("SinglePoint")
+        else:
+            sweep_name = name
 
         add_subranges = False
         if isinstance(freq, list):
@@ -1159,26 +1166,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             freq0 = freq
 
-        if setupname not in self.setup_names:
+        if setup not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata = setupdata.add_sweep(sweep_name, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
                 sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweepdata.update()
                 if add_subranges:
                     for f in freq:
-                        sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.info("Single point sweep %s has been correctly created.", sweepname)
+                        sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
+                self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
         return False
 
@@ -2032,8 +2039,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
-    @pyaedt_function_handler()
-    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2043,7 +2050,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         show : str, optional
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
@@ -2065,57 +2072,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             context=show, is_siwave_dc=True, quantities_category=category
         )
 
-        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
-    @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : list
-            Name of the setup.
-        sweep_name : str, optional
-            Name of the sweep. The default value is ``None``.
-        variations : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.setups[0].name
-
-        if not sweep_name:
-            for setup in self.setups:
-                if setup.name == setup_name:
-                    sweep_name = setup.sweeps[0].name
-        s_parameters = []
-        solution = "{} : {}".format(setup_name, sweep_name)
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
-
-    @pyaedt_function_handler()
-    def get_dcir_element_data_loop_resistance(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_loop_resistance(self, setup):
         """Get dcir element data loop resistance.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2126,7 +2091,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="RL", category="Loop Resistance")
 
         terms = []
         pattern = r"LoopRes\((.*?)\)"
@@ -2151,13 +2116,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    @pyaedt_function_handler()
-    def get_dcir_element_data_current_source(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_current_source(self, setup):
         """Get dcir element data current source.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2168,7 +2133,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="Sources", category="Voltage")
         terms = []
         pattern = r"^V\((.*?)\)"
         for t_name in solution_data.expressions:
@@ -2187,13 +2152,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    @pyaedt_function_handler()
-    def get_dcir_element_data_via(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_via(self, setup):
         """Get dcir element data via.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2208,7 +2173,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df = None
         for cat in cates:
             data = {cat: []}
-            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            solution_data = self.get_dcir_solution_data(setup=setup, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
             for t_name in solution_data.expressions:

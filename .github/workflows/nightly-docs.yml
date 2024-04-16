@@ -35,9 +35,32 @@ jobs:
         run: |
            pip install .[doc]
 
-      - name: Full Documentation Build
+      - name: Install doc build requirements
         run: |
-          make -C doc phtml
+          sudo apt update
+          sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
+
+      - name: Documentation Build (HTML)
+        run: |
+          make -C doc clean
+          mkdir doc/source/examples -p
+          echo $'Examples\n========' > doc/source/examples/index.rst
+          make -C doc phtml-no-examples SPHINXOPTS="-j auto -w build_errors.txt -N"
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
+
+      - name: Documentation Build (PDF)
+        run: |
+          make -C doc pdf-no-examples
+
+      - name: Add assets to HTML docs
+        run: |
+          zip -r documentation-html.zip ./doc/_build/html
+          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
 
       - name: Upload documentation HTML artifact
         uses: actions/upload-artifact@v3
@@ -46,13 +69,18 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      - name: Upload documentation PDF artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation-pdf
+          path: doc/_build/latex/*.pdf
+          retention-days: 7
 
   docs_upload:
     needs: docs_build
     runs-on: ubuntu-latest
     steps:
-
-      - name: Deploy development documentation
+      - name: Upload development documentation
         uses: ansys/actions/doc-deploy-dev@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}

@@ -198,10 +198,10 @@ matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, sou
 # Create a setup, analyze, and plot solution data.
 
 # Create a setup.
-setup = q.create_setup(setupname="new_setup")
+setup = q.create_setup(name="new_setup")
 
 # Add a sweep.
-sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
+sweep = setup.add_sweep(name="sweep1", sweep_type="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
 sweep.props["RangeStep"] = "100MHz"
@@ -215,7 +215,7 @@ sweep.update()
 q.analyze()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
-a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg
+a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg"))  # Save plot as jpg
 
 # Add a parametric sweep and analyze.
 parametric = q.parametrics.add(sweep_var="sig_bot_w", start_point=75, end_point=100, step=5,
