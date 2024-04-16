@@ -1368,7 +1368,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from a file.
 
-        You can use the the ``save_diff_pairs_to_file`` method to obtain the file format.
+        You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
         New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
