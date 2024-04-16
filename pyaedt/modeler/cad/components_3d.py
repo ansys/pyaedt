@@ -1127,7 +1127,7 @@ class LayoutComponent(object):
                 self.edb_object.close()
                 return True
             except Exception:  # pragma: no cover
-                self._logger.error("Edb object can not be closed.")
+                self._logger.error("EDB object cannot be closed.")
                 return False
         else:  # pragma: no cover
             self._logger.warning("EDB object was not created.")
