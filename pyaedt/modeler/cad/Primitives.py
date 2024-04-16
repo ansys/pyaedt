@@ -5767,7 +5767,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        id : int
+        assignment : int
             ID of the face to retrieve.
 
         Returns
@@ -5776,9 +5776,9 @@ class GeometryModeler(Modeler):
             Face object.
 
         """
-        obj = [o for o in self.object_list for face in o.faces if face.id == id]
+        obj = [o for o in self.object_list for face in o.faces if face.id == assignment]
         if obj:
-            face_obj = [face for face in obj[0].faces if face.id == id][0]
+            face_obj = [face for face in obj[0].faces if face.id == assignment][0]
             return face_obj
         else:
             return False
