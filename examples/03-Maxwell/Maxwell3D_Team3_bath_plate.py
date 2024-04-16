@@ -122,8 +122,8 @@ m3d.assign_current(assignment=["SearchCoil_Section1"], amplitude=1260, solid=Fal
 # mesh locally around the line.
 
 line_points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
-m3d.modeler.create_polyline(position_list=line_points, name="Line_AB")
-poly = m3d.modeler.create_polyline(position_list=line_points, name="Line_AB_MeshRefinement")
+m3d.modeler.create_polyline(points=line_points, name="Line_AB")
+poly = m3d.modeler.create_polyline(points=line_points, name="Line_AB_MeshRefinement")
 poly.set_crosssection_properties(type="Circle", width="0.5mm")
 
 ###############################################################################

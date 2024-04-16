@@ -312,10 +312,7 @@ class TestClass:
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
         udp = self.aedtapp.modeler.create_udp(
-            udp_dll_name="RMxprt/ClawPoleCore",
-            udp_parameters_list=my_udpPairs,
-            upd_library="syslib",
-            name=my_udpName,
+            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib", name=my_udpName
         )
 
         assert udp
@@ -325,9 +322,7 @@ class TestClass:
 
         # Modify one of the 'MyClawPoleCore' udp properties.
         assert self.aedtapp.modeler.update_udp(
-            object_name="MyClawPoleCore",
-            operation_name="CreateUserDefinedPart",
-            udp_parameters_list=[["Length", "110mm"]],
+            assignment="MyClawPoleCore", operation="CreateUserDefinedPart", parameters=[["Length", "110mm"]]
         )
 
         assert int(udp.bounding_dimension[0]) == 102
@@ -336,9 +331,7 @@ class TestClass:
 
         # Test udp with default name -None-.
         second_udp = self.aedtapp.modeler.create_udp(
-            udp_dll_name="RMxprt/ClawPoleCore",
-            udp_parameters_list=my_udpPairs,
-            upd_library="syslib",
+            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib"
         )
 
         assert second_udp
@@ -347,9 +340,9 @@ class TestClass:
 
         # Modify two of the 'MyClawPoleCore' udp properties.
         assert self.aedtapp.modeler.update_udp(
-            object_name="ClawPoleCore",
-            operation_name="CreateUserDefinedPart",
-            udp_parameters_list=[["Length", "110mm"], ["DiaGap", "125mm"]],
+            assignment="ClawPoleCore",
+            operation="CreateUserDefinedPart",
+            parameters=[["Length", "110mm"], ["DiaGap", "125mm"]],
         )
 
         assert int(second_udp.bounding_dimension[0]) == 125
@@ -374,9 +367,7 @@ class TestClass:
         python_udp_parameters.append(mypair)
 
         udp_from_python = self.aedtapp.modeler.create_udp(
-            udp_dll_name="Examples/RectangularSpiral.py",
-            udp_parameters_list=python_udp_parameters,
-            name="PythonSpiral",
+            dll="Examples/RectangularSpiral.py", parameters=python_udp_parameters, name="PythonSpiral"
         )
 
         assert udp_from_python

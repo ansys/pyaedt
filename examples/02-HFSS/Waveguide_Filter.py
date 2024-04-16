@@ -170,7 +170,7 @@ wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_val
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
-    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
+    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], assignment="waveguide")
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 

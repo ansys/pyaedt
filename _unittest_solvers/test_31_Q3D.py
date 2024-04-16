@@ -186,9 +186,8 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
-        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
-        )
+        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example", self.aedtapp.AXIS.Z,
+                                                                              min_size=0.2, number_of_segments=8)
         assert test
 
     def test_11_assign_net(self):

@@ -83,8 +83,8 @@ layer_2_uh = layer_2_lh + "+" + cond_h
 # ~~~~~~~~~~~~~
 # Create a signal.
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_bot_w, layer_2_lh, 0]], name="signal")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
 q.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move(assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clearance), 0, 0])
@@ -94,15 +94,13 @@ q.modeler.move(assignment=[base_line_obj], vector=["{}+{}".format(co_gnd_w, clea
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a coplanar ground.
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_left")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_right")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 q.modeler.move(assignment=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w, clearance, sig_bot_w), 0, 0])

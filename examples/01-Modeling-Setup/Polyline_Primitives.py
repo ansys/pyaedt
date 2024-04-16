@@ -66,7 +66,7 @@ test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "
 # segments. The supported segment types are ``Line``, ``Arc`` (3 points),
 # ``AngularArc`` (center-point + angle), and ``Spline``.
 
-P = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
+P = prim3D.create_polyline(points=test_points[0:2], name="PL01_line")
 
 print("Created Polyline with name: {}".format(prim3D.objects[P.id].name))
 print("Segment types : {}".format([s.type for s in P.segment_types]))
@@ -78,7 +78,7 @@ print("primitive id = {}".format(P.id))
 # Create an arc primitive. The parameter ``position_list`` must contain at
 # least three position values. The first three position values are used.
 
-P = prim3D.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
+P = prim3D.create_polyline(points=test_points[0:3], segment_type="Arc", name="PL02_arc")
 
 print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id].name))
 
@@ -90,9 +90,8 @@ print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id]
 # as the number of points (in this case 4). The parameter ``position_list``
 # must contain at least four position values.
 
-P = prim3D.create_polyline(
-    position_list=test_points, segment_type=prim3D.polyline_segment("Spline", num_points=4), name="PL03_spline_4pt"
-)
+P = prim3D.create_polyline(points=test_points, segment_type=prim3D.polyline_segment("Spline", num_points=4),
+                           name="PL03_spline_4pt")
 
 ###############################################################################
 # Create center-point arc primitive
@@ -108,11 +107,9 @@ P = prim3D.create_polyline(
 
 start_point = [100, 100, 0]
 center_point = [0, 0, 0]
-P = prim3D.create_polyline(
-    position_list=[start_point],
-    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
-    name="PL04_center_point_arc",
-)
+P = prim3D.create_polyline(points=[start_point],
+                           segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point,
+                                                                arc_angle="30deg"), name="PL04_center_point_arc")
 
 ###############################################################################
 # Here ``start_point`` and ``center_point`` have the same values for the Y and
@@ -122,16 +119,14 @@ P = prim3D.create_polyline(
 
 start_point = [100, 0, 0]
 center_point = [0, 0, 0]
-P = prim3D.create_polyline(
-    position_list=[start_point],
-    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
-    name="PL04_center_point_arc_rot_XY",
-)
-P = prim3D.create_polyline(
-    position_list=[start_point],
-    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
-    name="PL04_center_point_arc_rot_ZX",
-)
+P = prim3D.create_polyline(points=[start_point],
+                           segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point,
+                                                                arc_angle="30deg", arc_plane="XY"),
+                           name="PL04_center_point_arc_rot_XY")
+P = prim3D.create_polyline(points=[start_point],
+                           segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point,
+                                                                arc_angle="30deg", arc_plane="ZX"),
+                           name="PL04_center_point_arc_rot_ZX")
 
 ###############################################################################
 # Compound polylines
@@ -142,28 +137,28 @@ P = prim3D.create_polyline(
 # By default, if no specification of the type of segments is given, all points
 # are connected by line segments.
 
-P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compound_line")
+P = prim3D.create_polyline(points=test_points, name="PL06_segmented_compound_line")
 
 ###############################################################################
 # You can specify the segment type with the parameter ``segment_type``.
 # In this case, you must specify that the four input points in ``position_list``
 # are to be connected as a line segment followed by a 3-point arc segment.
 
-P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
+P = prim3D.create_polyline(points=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
 ###############################################################################
 # The parameter ``close_surface`` ensures that the polyline starting point and
 # ending point are the same. If necessary, you can add an additional line
 # segment to achieve this.
 
-P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="PL07_segmented_compound_line_closed")
+P = prim3D.create_polyline(points=test_points, close_surface=True, name="PL07_segmented_compound_line_closed")
 
 ###############################################################################
 # The parameter ``cover_surface=True`` also performs the modeler command
 # ``cover_surface``. Note that specifying ``cover_surface=True`` automatically
 # results in the polyline being closed.
 
-P = prim3D.create_polyline(position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
+P = prim3D.create_polyline(points=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
 
 ###############################################################################
 # Compound lines
@@ -178,7 +173,7 @@ P = prim3D.create_polyline(position_list=test_points, cover_surface=True, name="
 # original polyline object, it is determined automatically that the segment is
 # inserted after the first segment of the original polyline.
 
-P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment")
+P = prim3D.create_polyline(points=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment")
 
 p2 = P.points[1]
 insert_point = ["-100mm", "20mm", "0mm"]
@@ -193,7 +188,7 @@ P.insert_segment(position_list=[insert_point, p2])
 # By numerical comparison of the starting point, it is determined automatically
 # that the segment is inserted after the first segment of the original polyline.
 
-P = prim3D.create_polyline(position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc")
+P = prim3D.create_polyline(points=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc")
 
 start_point = P.vertex_positions[1]
 insert_point1 = ["90mm", "20mm", "0mm"]
@@ -213,11 +208,9 @@ start_point = [2200.0, 0.0, 1200.0]
 arc_center_1 = [1400, 0, 800]
 arc_angle_1 = "43.47deg"
 
-P = prim3D.create_polyline(
-    name="First_Arc",
-    position_list=[start_point],
-    segment_type=prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
-)
+P = prim3D.create_polyline(points=[start_point],
+                           segment_type=prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_1,
+                                                                arc_center=arc_center_1), name="First_Arc")
 
 ###############################################################################
 # Step 2: Insert a line segment at the end of the arc with a specified end point.
@@ -242,15 +235,11 @@ P.insert_segment(
 # You can use the compound polyline definition to complete all three steps in
 # a single step.
 
-prim3D.create_polyline(
-    position_list=[start_point, end_of_line_segment],
-    segment_type=[
-        prim3D.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
-        prim3D.polyline_segment(type="Line"),
-        prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
-    ],
-    name="Compound_Polyline_One_Command",
-)
+prim3D.create_polyline(points=[start_point, end_of_line_segment], segment_type=[
+    prim3D.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
+    prim3D.polyline_segment(type="Line"),
+    prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
+], name="Compound_Polyline_One_Command")
 
 #########################################################################
 # Insert two 3-point arcs forming a circle and covered
@@ -260,13 +249,8 @@ prim3D.create_polyline(
 # the position list.
 
 P = prim3D.create_polyline(
-    position_list=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0], [31.4269, 7.6704, 0]],
-    segment_type=["Arc", "Arc"],
-    cover_surface=True,
-    close_surface=True,
-    name="Rotor_Subtract_25_0",
-    matname="vacuum",
-)
+    points=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0], [31.4269, 7.6704, 0]],
+    segment_type=["Arc", "Arc"], cover_surface=True, close_surface=True, name="Rotor_Subtract_25_0", material="vacuum")
 
 ###############################################################################
 # Here is an example of a complex polyline where the number of points is

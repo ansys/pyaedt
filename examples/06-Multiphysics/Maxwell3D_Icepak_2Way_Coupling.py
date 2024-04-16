@@ -182,7 +182,7 @@ ipk.copy_solid_bodies_from(m3d, no_pec=False)
 ipk.modeler["Region"].delete()
 coil_dim = coil.bounding_dimension[0]
 ipk.modeler.create_region(0, False)
-ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim/2, coil_dim*2, coil_dim])
+ipk.modeler.edit_region_dimensions([coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim])
 
 ###############################################################################
 # Map coil losses

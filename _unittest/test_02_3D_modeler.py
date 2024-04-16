@@ -114,21 +114,21 @@ class TestClass:
         assert not self.aedtapp.modeler.split(assignment=obj_split)
         box4 = self.aedtapp.modeler.create_box([20, 20, 20], [20, 20, 20], "box_to_split4")
         poly2 = self.aedtapp.modeler.create_polyline(
-            position_list=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc"
+            points=[[35, 16, 30], [30, 25, 30], [30, 45, 30]], segment_type="Arc"
         )
         split = self.aedtapp.modeler.split(assignment=box4, sides="Both", tool=poly2.name)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         poly3 = self.aedtapp.modeler.create_polyline(
-            position_list=[[35, 16, 35], [30, 25, 35], [30, 45, 35]], segment_type="Arc"
+            points=[[35, 16, 35], [30, 25, 35], [30, 45, 35]], segment_type="Arc"
         )
         split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=poly3)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
         poly4 = self.aedtapp.modeler.create_polyline(
-            position_list=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
+            points=[[35, 16, 37], [30, 25, 37], [30, 45, 37]], segment_type="Arc"
         )
         split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=poly4.edges[0])
         assert isinstance(split, list)

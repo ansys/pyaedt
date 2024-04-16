@@ -1792,10 +1792,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         poly1 = self.modeler.create_polyline(
             p1_down,
+            name=assignment + "_sheet",
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
-            name=assignment + "_sheet",
         )
 
         # create second polyline to join spiral with conductor face
@@ -1810,10 +1810,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             orient = "X" if (dx < dy) else "Y"
         poly2 = self.modeler.create_polyline(
             p2_up,
+            name=reference + "_sheet",
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
-            name=reference + "_sheet",
         )
 
         # assign pec to created polylines

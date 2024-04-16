@@ -476,7 +476,7 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        id_list = self._primitives.get_object_vertices(partID=self.id)
+        id_list = self._primitives.get_object_vertices(assignment=self.id)
         position_list = [self._primitives.get_vertex_position(id) for id in id_list]
         return position_list
 

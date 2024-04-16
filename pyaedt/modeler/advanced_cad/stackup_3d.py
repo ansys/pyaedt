@@ -3347,7 +3347,7 @@ class Polygon(CommonObject, object):
 
             self._reference_system = poly_name + "_CS"
         self._aedt_object = application.modeler.create_polyline(
-            position_list=pts, name=poly_name, matname=mat_name, cover_surface=True
+            points=pts, cover_surface=True, name=poly_name, material=mat_name
         )
         if self._thickness:
             application.modeler.sweep_along_vector(

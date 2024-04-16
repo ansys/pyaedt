@@ -219,9 +219,7 @@ class TestClass:
     def test_14_split(self):
         self.aedtapp.insert_design("split_test")
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, 0], [3, 8])
-        poly1 = self.aedtapp.modeler.create_polyline(
-            position_list=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc"
-        )
+        poly1 = self.aedtapp.modeler.create_polyline(points=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc")
         assert not self.aedtapp.modeler.split(assignment=rect1)
         split = self.aedtapp.modeler.split(assignment=rect1, plane=self.aedtapp.PLANE.ZX)
         assert isinstance(split, list)

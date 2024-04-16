@@ -59,7 +59,7 @@ class TestClass:
 
     def test_05_create_poly(self):
         udp = [self.aedtapp.modeler.Position(0, 0, 0), self.aedtapp.modeler.Position(10, 5, 0)]
-        o = self.aedtapp.modeler.create_polyline(udp, name="Ellipse1", matname="copper")
+        o = self.aedtapp.modeler.create_polyline(udp, name="Ellipse1", material="copper")
         assert isinstance(o, Polyline)
 
     def test_chamfer_vertex(self):

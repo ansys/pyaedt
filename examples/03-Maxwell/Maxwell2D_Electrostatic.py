@@ -119,8 +119,8 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0],[8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod2D.create_polyline(position_list=poly1_points,segment_type='Spline', name='Poly1')
-poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
+poly1_id = mod2D.create_polyline(points=poly1_points, segment_type='Spline', name='Poly1')
+poly2_id = mod2D.create_polyline(points=poly2_points, name='Poly2')
 mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
 mod2D.create_region([20, 100, 20, 100])
 

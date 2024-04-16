@@ -236,8 +236,7 @@ udp_par_list_stator = [["DiaGap", "DiaGap"], ["DiaYoke", "DiaStatorYoke"], ["Len
                        ["DuctPitch", "0mm"],
                        ["SegAngle", "0deg"], ["LenRegion", "Model_Length"], ["InfoCore", "0"]]
 
-stator_id = mod2D.create_udp(udp_dll_name="RMxprt/VentSlotCore.dll",
-                             udp_parameters_list=udp_par_list_stator, upd_library='syslib',
+stator_id = mod2D.create_udp(dll="RMxprt/VentSlotCore.dll", parameters=udp_par_list_stator, library='syslib',
                              name='my_stator')  # name not taken
 
 ##########################################################
@@ -323,11 +322,11 @@ IM1_points = [[56.70957112, 3.104886585, 0], [40.25081875, 16.67243502, 0], [38.
               [55.05576774, 1.098662669, 0]]
 OM1_points = [[54.37758185, 22.52393189, 0], [59.69688156, 9.68200639, 0], [63.26490432, 11.15992981, 0],
               [57.94560461, 24.00185531, 0]]
-IPM1_id = mod2D.create_polyline(position_list=IM1_points, cover_surface=True, name="PM_I1",
-                                matname="Arnold_Magnetics_N30UH_80C_new")
+IPM1_id = mod2D.create_polyline(points=IM1_points, cover_surface=True, name="PM_I1",
+                                material="Arnold_Magnetics_N30UH_80C_new")
 IPM1_id.color = (0, 128, 64)
-OPM1_id = mod2D.create_polyline(position_list=OM1_points, cover_surface=True, name="PM_O1",
-                                matname="Arnold_Magnetics_N30UH_80C_new")
+OPM1_id = mod2D.create_polyline(points=OM1_points, cover_surface=True, name="PM_O1",
+                                material="Arnold_Magnetics_N30UH_80C_new")
 OPM1_id.color = (0, 128, 64)
 
 #####################################################################################
@@ -422,10 +421,8 @@ slot_IM1_points = [[37.5302872, 15.54555396, 0], [55.05576774, 1.098662669, 0], 
                    [57.28982158, 2.626565019, 0], [40.25081875, 16.67243502, 0]]
 slot_OM1_points = [[54.37758185, 22.52393189, 0], [59.69688156, 9.68200639, 0], [63.53825619, 10.5, 0],
                    [57.94560461, 24.00185531, 0]]
-slot_IM_id = mod2D.create_polyline(position_list=slot_IM1_points, cover_surface=True, name="slot_IM1",
-                                   matname="vacuum")
-slot_OM_id = mod2D.create_polyline(position_list=slot_OM1_points, cover_surface=True, name="slot_OM1",
-                                   matname="vacuum")
+slot_IM_id = mod2D.create_polyline(points=slot_IM1_points, cover_surface=True, name="slot_IM1", material="vacuum")
+slot_OM_id = mod2D.create_polyline(points=slot_OM1_points, cover_surface=True, name="slot_OM1", material="vacuum")
 
 M2D.modeler.duplicate_and_mirror(assignment=[slot_IM_id, slot_OM_id], origin=[0, 0, 0],
                                  vector=["cos((360deg/SymmetryFactor/2)+90deg)",
@@ -461,10 +458,9 @@ mod2D.split(object_list, "ZX", sides="PositiveOnly")
 # The points for edge picking are in the airgap.
 
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
-id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name='Region')
+id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], assignment='Region')
 id_bc_2 = mod2D.get_edgeid_from_position(
-    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
-    obj_name='Region')
+    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0], assignment='Region')
 M2D.assign_master_slave(independent=id_bc_1, dependent=id_bc_2, reverse_master=False, reverse_slave=True,
                         same_as_master=False, boundary="Matching")
 
@@ -476,7 +472,7 @@ M2D.assign_master_slave(independent=id_bc_1, dependent=id_bc_2, reverse_master=F
 pos_2 = "(DiaOuter/2)"
 id_bc_az = mod2D.get_edgeid_from_position(
     position=[pos_2 + "*cos((360deg/SymmetryFactor/2))", pos_2 + "*sin((360deg/SymmetryFactor)/2)", 0],
-    obj_name='Region')
+    assignment='Region')
 M2D.assign_vector_potential(id_bc_az, vector_value=0, boundary="VectorPotentialZero")
 
 ##########################################################

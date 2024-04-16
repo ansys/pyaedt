@@ -63,7 +63,8 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 # the width, thickness, and material.
 
 def create_line(pts):
-    p.create_polyline(pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname="copper")
+    p.create_polyline(pts, material="copper", xsection_type="Rectangle", xsection_width=width,
+                      xsection_height=thickness)
 
 
 ################################################################
