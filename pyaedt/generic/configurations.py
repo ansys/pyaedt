@@ -1999,7 +1999,7 @@ class ConfigurationsIcepak(Configurations):
                 )
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
-                obj.rotate(operation_dict["Props"]["Axis"])
+                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], units=rotation[1])
             elif operation_dict["Props"]["Command"] == "Mirror":
                 obj.mirror(
                     [

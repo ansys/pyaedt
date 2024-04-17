@@ -2738,14 +2738,14 @@ class GeometryModeler(Modeler):
         # selections = self.convert_to_selections(objid)
 
     @pyaedt_function_handler(objid="assignment", position="origin")
-    def mirror(self, objid, position, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
+    def mirror(self, assignment, origin, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
         """Mirror a selection.
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        assignment : str, int, or Object3d
             Name or ID of the object.
-        position : int or float
+        origin : int or float
             List of the ``[x, y, z]`` coordinates or the
             ``Application.Position`` object for the selection.
         duplicate : bool, optional
@@ -2753,7 +2753,7 @@ class GeometryModeler(Modeler):
         is_3d_comp : bool, optional
             Whether the component is 3D. The default is ``False``. If ``True``, the method
             tries to return the duplicated list of 3D components.
-        vector : float
+        vector : list
             List of the ``[x1, y1, z1]`` coordinates or
             the ``Application.Position`` object for the vector.
         duplicate_assignment : bool, optional
@@ -2770,8 +2770,8 @@ class GeometryModeler(Modeler):
         >>> oEditor.Mirror
         >>> oEditor.DuplicateMirror
         """
-        selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self._pos_with_arg(position)
+        selections = self.convert_to_selections(assignment)
+        Xpos, Ypos, Zpos = self._pos_with_arg(origin)
         Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
         if duplicate:
             vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]

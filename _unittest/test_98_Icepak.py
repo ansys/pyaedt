@@ -207,7 +207,7 @@ class TestClass:
         setup_name = "DomSetup"
         my_setup = self.aedtapp.create_setup(setup_name)
         my_setup.props["Convergence Criteria - Max Iterations"] = 10
-        assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup")
+        assert self.aedtapp.get_property_value("AnalysisSetup:DomSetup", "Iterations", "Setup")
         assert my_setup.update()
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
         templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
@@ -344,7 +344,7 @@ class TestClass:
         assert network_block_result[1].props["Nodes"]["Internal"][0] == "3W"
 
     def test_24_get_boundary_property_value(self):
-        assert self.aedtapp.get_property_value("BoundarySetup:box2") == "2W"
+        assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
     def test_25_copy_solid_bodies(self, add_app):
         project_name = "IcepakCopiedProject"

@@ -1530,7 +1530,7 @@ class Object3d(object):
         ----------
         >>> oEditor.Move
         """
-        if self._primitives.move(self.id):
+        if self._primitives.move(self.id, vector):
             return self
         return False
 

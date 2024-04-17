@@ -507,7 +507,7 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector)
+        return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -595,11 +595,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Move
         """
         if self.is3dcomponent:
-            if self._primitives.move(self.name):
+            if self._primitives.move(self.name, vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.move(part)
+                self._primitives.move(part, vector)
             return self
 
         return False
@@ -632,7 +632,7 @@ class UserDefinedComponent(object):
         """
         if self.is3dcomponent:
             ret, added_objects = self._primitives.duplicate_around_axis(
-                self.name, axis, angle, clones, create_new_objects=create_new_objects
+                self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
             return added_objects
         self._logger.warning("User-defined models do not support this operation.")
@@ -671,7 +671,9 @@ class UserDefinedComponent(object):
 
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
-            _, added_objects = self._primitives.duplicate_along_line(self.name, vector, clones, attach=attach)
+            _, added_objects = self._primitives.duplicate_along_line(
+                self.name, vector, clones, attach=attach, is_3d_comp=True
+            )
             return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False

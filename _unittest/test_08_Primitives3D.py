@@ -889,7 +889,7 @@ class TestClass:
         p1, p2, test_points = self.create_polylines("Poly_remove_")
 
         P = self.aedtapp.modeler["Poly_remove_segmented"]
-        P.remove_vertex(test_points[2])
+        P.remove_point(test_points[2])
         time.sleep(0.1)
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P1.remove_point([0, 1, 2])

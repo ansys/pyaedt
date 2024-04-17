@@ -741,10 +741,10 @@ class CircuitComponents(object):
         """
         id = self.create_unique_id()
         if component_library:
-            name = self.design_libray + "\\" + component_library + ":" + component_name
+            inst_name = self.design_libray + "\\" + component_library + ":" + component_name
         else:
-            name = component_name
-        arg1 = ["NAME:ComponentProps", "Name:=", name, "Id:=", str(id)]
+            inst_name = component_name
+        arg1 = ["NAME:ComponentProps", "Name:=", inst_name, "Id:=", str(id)]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]

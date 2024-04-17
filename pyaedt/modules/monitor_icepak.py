@@ -828,7 +828,13 @@ class PointMonitor(ObjectMonitor):
         list
             List of floats containing [x, y, z] position.
         """
-        return [float(i.strip(self._app.modeler.model_units)) for i in self._app.odesign.GetChildObject("Monitor")]
+        return [
+            float(i.strip(self._app.modeler.model_units))
+            for i in self._app.odesign.GetChildObject("Monitor")
+            .GetChildObject(self._name)
+            .GetPropValue("Location")
+            .split(", ")
+        ]
 
 
 class FaceMonitor(ObjectMonitor):

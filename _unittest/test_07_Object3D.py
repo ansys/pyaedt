@@ -565,7 +565,7 @@ class TestClass:
 
         box_clone = box.clone()
         box_subtract = box_clone.subtract(cylinder)
-        box_subtract.rotate(),
+        box_subtract.rotate(axis="Y", angle=180)
         box_subtract.split("XY")
         box_history = box.history()
         box_clone_history = box_clone.history()

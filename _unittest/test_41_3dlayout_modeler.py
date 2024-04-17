@@ -60,7 +60,9 @@ class TestClass:
         assert len(self.aedtapp.materials.material_keys) == 3
 
     def test_02_stackup(self):
-        s1 = self.aedtapp.modeler.layers.add_layer(layer="Bottom")
+        s1 = self.aedtapp.modeler.layers.add_layer(
+            layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="iron"
+        )
         s1.color = [220, 10, 10]
         s1.is_visible = False
         assert not s1._is_visible
@@ -156,7 +158,9 @@ class TestClass:
         assert s1._NR == 0.2
         assert s1._BNR == 0.1
 
-        d1 = self.aedtapp.modeler.layers.add_layer(layer="Diel3")
+        d1 = self.aedtapp.modeler.layers.add_layer(
+            layer="Diel3", layer_type="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
+        )
         assert d1.material == "plexiglass"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 60
@@ -165,7 +169,14 @@ class TestClass:
 
         assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
-        s2 = self.aedtapp.modeler.layers.add_layer(layer="Top")
+        s2 = self.aedtapp.modeler.layers.add_layer(
+            layer="Top",
+            layer_type="signal",
+            thickness=3.5e-5,
+            elevation="1.035mm",
+            material="copper",
+            isnegative=True,
+        )
         assert s2.name == "Top"
         assert s2.type == "signal"
         assert s2.material == "copper"
@@ -279,7 +290,7 @@ class TestClass:
         assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]])
+        line = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net="VCC")
         assert line.name == "line2"
         line.name = "line1"
         assert isinstance(line.center_line, dict)
@@ -527,7 +538,7 @@ class TestClass:
 
     def test_30_expand(self):
         self.aedtapp.modeler.create_rectangle("Bottom", [20, 20], [50, 50], name="rect_1")
-        self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]])
+        self.aedtapp.modeler.create_line("Bottom", [[25, 25], [40, 40]], name="line_3")
         out1 = self.aedtapp.modeler.expand("line_3", size=1, expand_type="ROUND", replace_original=False)
         assert isinstance(out1, str)
 
@@ -621,7 +632,7 @@ class TestClass:
         self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
-        assert self.aedtapp.import_ipc2581(dxf_file)
+        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self, add_app):

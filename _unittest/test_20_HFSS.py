@@ -816,7 +816,7 @@ class TestClass:
         )
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.excitations
-        assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1") == "1V"
+        assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
         port = self.aedtapp.assign_voltage_source_to_sheet(
             rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], "LumpVolt2"
         )
@@ -933,8 +933,8 @@ class TestClass:
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
         setup = self.aedtapp.create_setup("MySetup2")
         setup.props["Frequency"] = "1GHz"
-        assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1") == "false"
-        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2") == "1GHz"
+        assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
+        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
     def test_33_copy_solid_bodies(self, add_app):
         project_name = "HfssCopiedProject"

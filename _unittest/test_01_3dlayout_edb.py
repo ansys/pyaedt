@@ -203,14 +203,13 @@ class TestClass:
             "DDR4_DQS0_P",
         )
         assert self.aedtapp.modeler.change_property(
-            "Excitations:{}".format(ports[0].name),
-            "Impedance",
+            "Excitations:{}".format(ports[0].name), "Impedance", "49ohm", "EM Design"
         )
 
     def test_06_assign_spice_model(self):
         model_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")
         assert self.aedtapp.modeler.set_spice_model(
-            assignment="C1", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+            assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
 
     def test_07_nets(self):

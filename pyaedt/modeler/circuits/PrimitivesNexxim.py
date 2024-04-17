@@ -1999,9 +1999,9 @@ class NexximComponents(CircuitComponents):
         assert os.path.exists(input_file), "Project file doesn't exist"
         comp_name = os.path.splitext(os.path.basename(input_file))[0]
         results_path = input_file + "averesults"
-        solution = os.path.join(results_path, comp_name + ".asol")
+        solution_path = os.path.join(results_path, comp_name + ".asol")
         # out = load_entire_aedt_file(solution)
-        out = load_keyword_in_aedt_file(solution, "Solutions")
+        out = load_keyword_in_aedt_file(solution_path, "Solutions")
         if not solution:
             solution = list(out["Solutions"]["SYZSolutions"].keys())[0]
         results_folder = os.path.join(

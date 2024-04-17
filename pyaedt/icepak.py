@@ -1167,7 +1167,7 @@ class Icepak(FieldAnalysis3D):
         else:
             return oBoundingBox[gravityDir - 3]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(matname="material")
     def create_parametric_fin_heat_sink(
         self,
         hs_height=100,
@@ -1222,7 +1222,7 @@ class Icepak(FieldAnalysis3D):
             Number of columns per side. The default is ``2``.
         vertical_separation : optional
             The default is ``10``.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``Al-Extruded``.
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
@@ -1273,12 +1273,12 @@ class Icepak(FieldAnalysis3D):
             symmetric=symmetric,
             symmetric_separation=symmetric_separation,
             numcolumn_perside=numcolumn_perside,
-            matname=matname,
+            matname=material,
         )
         rect.delete()
         return bool(hs)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(matname="material")
     def create_parametric_heatsink_on_face(
         self,
         top_face,
@@ -1336,7 +1336,7 @@ class Icepak(FieldAnalysis3D):
             fraction of the ``top_face`` height. The default is ``0.01``.
         numcolumn_perside : int, optional
             Number of columns per side. The default is ``2``.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``Al-Extruded``.
 
         Returns
@@ -1428,7 +1428,7 @@ class Icepak(FieldAnalysis3D):
             ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
             [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
             generate_unique_name("HSBase"),
-            matname,
+            material,
         )
         fin_line = []
         fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
@@ -1506,7 +1506,7 @@ class Icepak(FieldAnalysis3D):
         )
         fin_top = self.modeler.create_polyline(fin_line2, cover_surface=True, name=generate_unique_name("Fin_top"))
         self.modeler.connect([fin_base.name, fin_top.name])
-        self.modeler[fin_base.name].material_name = matname
+        self.modeler[fin_base.name].material_name = material
         self[name_map["_num"]] = (
             "nint(("
             + name_map["HSWidth"]

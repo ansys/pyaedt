@@ -840,16 +840,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return True
 
     @pyaedt_function_handler(component_name="assignment", model_path="input_file")
-    def set_spice_model(self, assignment, model_path, input_file=None, subcircuit_name=None, pin_map=None):
+    def set_spice_model(self, assignment, input_file, model_name=None, subcircuit_name=None, pin_map=None):
         """Assign a Spice model to a component.
 
         Parameters
         ----------
         assignment : str
             Name of the component.
-        model_path : str, optional
-            Full path to the model file. The default is ``None``.
         input_file : str, optional
+            Full path to the model file. The default is ``None``.
+        model_name : str, optional
             Name of the model. The default is ``None``, in which case the model name is the file name without an
             extension.
         subcircuit_name : str, optional
@@ -868,16 +868,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
-        >>> h3d.modeler.set_spice_model(assignment="A1",model_path=,subcircuit_name="SUBCK1")
+        >>> h3d.modeler.set_spice_model(assignment="A1",input_file=,subcircuit_name="SUBCK1")
 
         """
-        if not input_file:
-            input_file = get_filename_without_extension(model_path)
-        if input_file not in list(self.o_model_manager.GetNames()):
+        if not model_name:
+            model_name = get_filename_without_extension(input_file)
+        if model_name not in list(self.o_model_manager.GetNames()):
             args = [
-                "NAME:" + input_file,
+                "NAME:" + model_name,
                 "Name:=",
-                input_file,
+                model_name,
                 "ModTime:=",
                 1643711258,
                 "Library:=",
@@ -895,14 +895,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ["NAME:PortInfoBlk"],
                 ["NAME:PortOrderBlk"],
                 "filename:=",
-                model_path,
-                "modelname:=",
                 input_file,
+                "modelname:=",
+                model_name,
             ]
             self.o_model_manager.Add(args)
         if not subcircuit_name:
-            subcircuit_name = input_file
-        with open_file(model_path, "r") as f:
+            subcircuit_name = model_name
+        with open_file(input_file, "r") as f:
             for line in f:
                 if "subckt" in line.lower():
                     pinNames = [i.strip() for i in re.split(" |\t", line) if i]
@@ -933,9 +933,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "RLCModelType:=",
                 4,
                 "SPICE_file_path:=",
-                model_path,
-                "SPICE_model_name:=",
                 input_file,
+                "SPICE_model_name:=",
+                model_name,
                 "SPICE_subckt:=",
                 subcircuit_name,
                 "terminal_pin_map:=",
