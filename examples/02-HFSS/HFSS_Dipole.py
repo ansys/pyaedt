@@ -133,7 +133,7 @@ new_report.create("Realized2D")
 
 new_report.report_type = "3D Polar Plot"
 new_report.secondary_sweep = "Phi"
-new_report.create("Realized3D"),,
+new_report.create("Realized3D")
 
 ###############################################################################
 # Get solution data
