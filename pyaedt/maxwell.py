@@ -2019,7 +2019,6 @@ class Maxwell(object):
         return setup
 
 
-
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 3D app interface.
 
