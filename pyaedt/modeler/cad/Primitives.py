@@ -1230,7 +1230,7 @@ class GeometryModeler(Modeler):
                                                     props = iop["FaceCSParameters"]
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
-                except Exception:
+                except Exception as e:
                     self.logger.error(e)
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
