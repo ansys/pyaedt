@@ -1190,7 +1190,9 @@ class Primitives3DLayout(object):
 
         return primitive
 
-    @pyaedt_function_handler(layername="layer", center_line_list="center_line_coordinates", net_name="net")
+    @pyaedt_function_handler(
+        layername="layer", center_line_list="center_line_coordinates", net_name="net", netname="net"
+    )
     def create_line(
         self, layer, center_line_coordinates, lw=1, start_style=0, end_style=0, name=None, net=None, **kwargs
     ):
