@@ -105,6 +105,8 @@ class Design(AedtObjects):
     aedt_process_id : int, optional
         Only used when ``new_desktop_session = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``. Applicable only to ``Hfss3dLayout``.
 
     """
 
@@ -199,6 +201,7 @@ class Design(AedtObjects):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
 
         self.__t = None
@@ -211,6 +214,7 @@ class Design(AedtObjects):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
         self._init_variables()
+        self._ic_mode = ic_mode
         self._design_type = design_type
         self.last_run_log = ""
         self.last_run_job = ""
@@ -1066,6 +1070,8 @@ class Design(AedtObjects):
                 self.design_solutions._odesign = self.odesign
                 if self._temp_solution_type:
                     self.design_solutions.solution_type = self._temp_solution_type
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design" and self._ic_mode:
+            self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", True)
 
     @property
     def oproject(self):
@@ -1297,16 +1303,44 @@ class Design(AedtObjects):
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
             Path to the object list. Example ``"DesignName\\Boundaries"``.
+        prop_name : str
+            Property name.
 
         Returns
         -------
         str, float, bool
-            Values returned by method if any.
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except Exception:
             return None
+
+    @pyaedt_function_handler()
+    def set_oo_property_value(self, aedt_object, object_name, prop_name, value):
+        """Change the Object Oriented AEDT Object property value.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+        object_name : str
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
+        prop_name : str
+            Property name.
+        value : str
+            Property value.
+
+        Returns
+        -------
+        bool
+            Values returned by method if any.
+        """
+        try:
+            aedt_object.GetChildObject(object_name).SetPropValue(prop_name, value)
+            return True
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):
