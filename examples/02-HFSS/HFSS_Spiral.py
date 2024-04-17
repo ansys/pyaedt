@@ -100,8 +100,8 @@ p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2], [width, wid
 # Create port 1.
 
 p.create_rectangle(orientation=pyaedt.constants.PLANE.YZ,
-                   position=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-                   dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+                   origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
+                   sizes=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
 hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)

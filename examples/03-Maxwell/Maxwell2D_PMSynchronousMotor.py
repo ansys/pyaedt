@@ -351,8 +351,8 @@ id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 # ~~~~~~~~~~~~
 # Create the coils.
 
-coil_id = mod2D.create_rectangle(position=['DiaRotorLam/2+Airgap+Coil_SetBack', '-Coil_Edge_Short/2', 0],
-                                 dimension_list=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
+coil_id = mod2D.create_rectangle(origin=['DiaRotorLam/2+Airgap+Coil_SetBack', '-Coil_Edge_Short/2', 0],
+                                 sizes=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
                                  name='Coil', material="Copper (Annealed)_65C")
 coil_id.color = (255, 128, 0)
 M2D.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")

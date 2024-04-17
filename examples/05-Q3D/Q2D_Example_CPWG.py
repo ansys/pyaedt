@@ -110,7 +110,7 @@ q.modeler.move(assignment=[base_line_obj], vector=["{}+{}*2+{}".format(co_gnd_w,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a reference ground plane.
 
-q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd")
+q.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd")
 
 ###############################################################################
 # Create dielectric
@@ -118,7 +118,7 @@ q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w,
 # Create a dielectric.
 
 q.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, d_h], name="Dielectric", material="FR4_epoxy"
+    origin=[0, layer_1_uh, 0], sizes=[model_w, d_h], name="Dielectric", material="FR4_epoxy"
 )
 
 ###############################################################################
@@ -142,10 +142,10 @@ for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
     new_obj = q.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
     sm_obj_list.append(e_obj_1)
 
-new_obj = q.modeler.create_rectangle(position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h])
+new_obj = q.modeler.create_rectangle(origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h])
 sm_obj_list.append(new_obj)
 
-new_obj = q.modeler.create_rectangle(position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h])
+new_obj = q.modeler.create_rectangle(origin=[co_gnd_w, layer_2_lh, 0], sizes=[clearance, sm_h])
 q.modeler.move([new_obj], [sig_bot_w + "+" + clearance, 0, 0])
 sm_obj_list.append(new_obj)
 

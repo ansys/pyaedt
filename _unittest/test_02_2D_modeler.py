@@ -42,10 +42,10 @@ class TestClass:
         test_color = (220, 90, 0)
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, -2, -2],
-            dimension_list=[3, 10],
+            origin=[10, -2, -2],
+            sizes=[3, 10],
             name="MyRectangle",
-            material_name="Copper",
+            material="Copper",
             color=test_color,
         )
         assert rect1.solve_inside
@@ -69,7 +69,7 @@ class TestClass:
         self.aedtapp.solution_type = "MagnetostaticZ"
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", material="Copper"
+            origin=[10, 0, -2], sizes=[10, 3], name="MyRectangle", material="Copper"
         )
         list_of_pos = [ver.position for ver in rect1.vertices]
         assert sorted(list_of_pos) == [[1.0, 0.0, -2.0], [1.0, 0.0, 6.0], [4.0, 0.0, -2.0], [4.0, 0.0, 6.0]]

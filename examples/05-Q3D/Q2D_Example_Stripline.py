@@ -127,8 +127,8 @@ q.modeler.move(assignment=[base_line_obj], vector=["{}+{}*2+{}*2+{}".format(co_g
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a reference ground plane.
 
-q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u")
-q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l")
+q.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_u")
+q.modeler.create_rectangle(origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_l")
 
 ###############################################################################
 # Create dielectric
@@ -136,13 +136,13 @@ q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w,
 # Create a dielectric.
 
 q.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", material="FR4_epoxy"
+    origin=[0, layer_1_uh, 0], sizes=[model_w, core_h], name="Core", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", material="FR4_epoxy"
+    origin=[0, layer_2_uh, 0], sizes=[model_w, pp_h], name="Prepreg", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_lh, 0], dimension_list=[model_w, cond_h], name="Filling", material="FR4_epoxy"
+    origin=[0, layer_2_lh, 0], sizes=[model_w, cond_h], name="Filling", material="FR4_epoxy"
 )
 
 ###############################################################################

@@ -2104,10 +2104,10 @@ class Patch(CommonObject, object):
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(
-                position=start_point,
-                dimension_list=[self.length.name, self.width.name],
+                origin=start_point,
+                sizes=[self.length.name, self.width.name],
                 name=patch_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
             application.assign_coating(self._aedt_object.name, signal_layer.material)
         application.modeler.set_working_coordinate_system("Global")

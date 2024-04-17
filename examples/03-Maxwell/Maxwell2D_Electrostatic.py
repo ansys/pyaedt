@@ -106,8 +106,8 @@ mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 # Create rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
-rect = mod2D.create_rectangle(position=['r_x0', 'r_y0', 'r_z0'],
-                              dimension_list=['r_dx', 'r_dy', 0],
+rect = mod2D.create_rectangle(origin=['r_x0', 'r_y0', 'r_z0'],
+                              sizes=['r_dx', 'r_dy', 0],
                               name='Ground', matname=mats[0])
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False

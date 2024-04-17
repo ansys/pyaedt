@@ -162,9 +162,9 @@ class Primitives2D(GeometryModeler, object):
 
         Parameters
         ----------
-        origin : list of float
+        origin : list
             Position of the lower-left corner of the rectangle
-        sizes : list of float
+        sizes : list
             List of rectangle sizes: [X size, Y size] for XY planes or [Z size, R size] for RZ planes
         is_covered : bool
             Specify whether the ellipse is a sheet (covered) or a line object
