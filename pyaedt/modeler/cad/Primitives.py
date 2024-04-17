@@ -851,7 +851,7 @@ class GeometryModeler(Modeler):
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:
                         pid = operations["Operation"][0]["ParentPartID"]
-                    except Exception:
+                    except Exception as e:
                         self.logger.error(e)
 
                 is_polyline = False
