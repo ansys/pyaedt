@@ -237,7 +237,7 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
         except GrpcApiError as e:
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
             raise_exception(e)
-        except BaseException as e:
+        except (BaseException, ValueError, KeyError, RuntimeError) as e:
             _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
             raise_exception(e)
 
