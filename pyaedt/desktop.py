@@ -40,6 +40,7 @@ else:
 from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.desktop_sessions import _desktop_sessions
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import get_string_version
@@ -1472,6 +1473,13 @@ class Desktop(object):
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             close_projects = True
             close_on_exit = True
+
+        for edb_object in _edb_sessions:
+            try:
+                edb_object.close()
+            except Exception:
+                self.logger.warning("Failed to close Edb object.")
+
         if close_projects:
             projects = self.odesktop.GetProjectList()
             for project in projects:
