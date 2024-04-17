@@ -14,7 +14,9 @@ import os
 from pyaedt import Edb
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_project_name
 from pyaedt.generic.general_methods import normalize_path
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -667,19 +669,19 @@ class Primitives3D(GeometryModeler):
         first_argument.append("YDir:="), first_argument.append(y_length)
         first_argument.append("ZDir:="), first_argument.append(z_length)
         distance = (
-            "sqrt(("
-            + str(x_position_end)
-            + "-("
-            + str(x_position)
-            + ")) ** 2 + ("
-            + str(y_position_end)
-            + "-("
-            + str(y_position)
-            + ")) ** 2 + ( "
-            + str(z_position_end)
-            + "-("
-            + str(z_position)
-            + ")) ** 2) meter"
+                "sqrt(("
+                + str(x_position_end)
+                + "-("
+                + str(x_position)
+                + ")) ** 2 + ("
+                + str(y_position_end)
+                + "-("
+                + str(y_position)
+                + ")) ** 2 + ( "
+                + str(z_position_end)
+                + "-("
+                + str(z_position)
+                + ")) ** 2) meter"
         )
 
         first_argument.append("Distance:="), first_argument.append(distance)
@@ -832,7 +834,7 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(cs_plane="orientation", position="origin", matname="material")
     def create_ellipse(
-        self, orientation, origin, major_radius, ratio, is_covered=True, name=None, material=None, **kwargs
+            self, orientation, origin, major_radius, ratio, is_covered=True, name=None, material=None, **kwargs
     ):
         """Create an ellipse.
 
@@ -1139,11 +1141,11 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(udmfullname="udm_full_name", udm_params_list="parameters", udm_library="library")
     def create_udm(
-        self,
-        udm_full_name,
-        parameters,
-        library="syslib",
-        name=None,
+            self,
+            udm_full_name,
+            parameters,
+            library="syslib",
+            name=None,
     ):
         """Create a user-defined model.
 
@@ -1348,15 +1350,15 @@ class Primitives3D(GeometryModeler):
                              sz_design_params="design_parameters",
                              targetCS="coordinate_system", auxiliary_dict="auxiliary_parameters")
     def insert_3d_component(
-        self,
-        input_file,
-        geometry_parameters=None,
-        material_parameters="",
-        design_parameters="",
-        coordinate_system="Global",
-        name=None,
-        password="",
-        auxiliary_parameters=False,
+            self,
+            input_file,
+            geometry_parameters=None,
+            material_parameters="",
+            design_parameters="",
+            coordinate_system="Global",
+            name=None,
+            password="",
+            auxiliary_parameters=False,
     ):
         """Insert a new 3D component.
 
@@ -1479,9 +1481,9 @@ class Primitives3D(GeometryModeler):
                         aux_dict["coordinatesystems"].pop(cs)
                         if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] != "Global":
                             aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = (
-                                udm_obj.name
-                                + "_"
-                                + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
+                                    udm_obj.name
+                                    + "_"
+                                    + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
                             )
                 for _, ncdict in aux_dict["native components"].items():
                     for _, inst_dict in ncdict["Instances"].items():
@@ -1519,7 +1521,7 @@ class Primitives3D(GeometryModeler):
                     if cs.ref_cs == "Global":
                         cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
-                temp_proj_name = self._app._generate_unique_project_name()
+                temp_proj_name = generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
                 ipkapp_temp.delete_design(ipkapp_temp.design_name)
                 self._app.oproject.CopyDesign(self._app.design_name)
@@ -1547,20 +1549,20 @@ class Primitives3D(GeometryModeler):
                         for i in ["FaceKeyIDMap", "EdgeKeyIDMap", "VertexKeyIDMap", "BodyKeyIDMap"]:
                             try:
                                 dict_str = (
-                                    "{"
-                                    + ",".join(part["Operations"]["Operation"]["OperationIdentity"][i])
-                                    .replace("'", '"')
-                                    .replace("=", ":")
-                                    + "}"
+                                        "{"
+                                        + ",".join(part["Operations"]["Operation"]["OperationIdentity"][i])
+                                        .replace("'", '"')
+                                        .replace("=", ":")
+                                        + "}"
                                 )
                             except KeyError:  # TODO: fix reading AEDT
                                 for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
                                     if i in key:
                                         keyarr = key.split("(")
                                         dict_str = (
-                                            "{"
-                                            + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
-                                            + "}"
+                                                "{"
+                                                + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                                + "}"
                                         )
                                         break
                             mapping_dict[i].update(json.loads(dict_str))
@@ -1624,13 +1626,13 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(comp_file="input_file")
     def insert_layout_component(
-        self,
-        input_file,
-        coordinate_system="Global",
-        name=None,
-        parameter_mapping=False,
-        layout_coordinate_systems=[],
-        reference_coordinate_system="Global"
+            self,
+            input_file,
+            coordinate_system="Global",
+            name=None,
+            parameter_mapping=False,
+            layout_coordinate_systems=None,
+            reference_coordinate_system="Global"
     ):
         """Insert a new layout component.
 
@@ -1667,6 +1669,8 @@ class Primitives3D(GeometryModeler):
         >>> comp = app.modeler.insert_layout_component(layout_component)
 
         """
+        if layout_coordinate_systems is None:
+            layout_coordinate_systems = []
         if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
@@ -1711,24 +1715,40 @@ class Primitives3D(GeometryModeler):
             )
             aedb_component_path = normalize_path(aedb_component_path)
 
-        component_obj = Edb(
-            edbpath=aedb_component_path,
-            isreadonly=True,
-            edbversion=self._app._aedt_version,
-            student_version=self._app.student_version,
-        )
-
-        # Extract and map parameters
+        is_edb_open = False
         parameters = {}
-        for param in component_obj.design_variables:
-            parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
-            if parameter_mapping:
-                self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+        component_cs = []
+        for edb_object in _edb_sessions:
+            if edb_object.edbpath == aedb_component_path:
+                is_edb_open = True
+                # Extract and map parameters
+                for param in edb_object.design_variables:
+                    parameters[param] = [param + "_" + name, edb_object.design_variables[param].value_string]
+                    if parameter_mapping:
+                        self._app[param + "_" + name] = edb_object.design_variables[param].value_string
+                # Get coordinate systems
+                component_cs = list(edb_object.components.instances.keys())
+                break
 
-        # Get coordinate systems
-        component_cs = list(component_obj.components.instances.keys())
+        if not is_edb_open:
+            component_obj = Edb(
+                edbpath=aedb_component_path,
+                isreadonly=True,
+                edbversion=self._app._aedt_version,
+                student_version=self._app.student_version,
+            )
 
-        component_obj.close_edb()
+            # Extract and map parameters
+            parameters = {}
+            for param in component_obj.design_variables:
+                parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+                if parameter_mapping:
+                    self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+
+            # Get coordinate systems
+            component_cs = list(component_obj.components.instances.keys())
+
+            component_obj.close()
 
         vArg1 = ["NAME:InsertNativeComponentData"]
         vArg1.append("TargetCS:=")
@@ -1864,9 +1884,10 @@ class Primitives3D(GeometryModeler):
                     self._create_object(new_name)
 
                 udm_obj = self._create_user_defined_component(new_object_name)
-
+                _ = udm_obj.layout_component.edb_object
                 if name:
                     udm_obj.name = name
+                    udm_obj.layout_component._name = name
 
         except Exception:  # pragma: no cover
             udm_obj = False
@@ -1905,7 +1926,7 @@ class Primitives3D(GeometryModeler):
             self.logger.error("Folder {} does not exist.".format(actor_folder))
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
-            fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
+                fname.endswith(".a3dcomp") for fname in os.listdir(actor_folder)
         ):
             self.logger.error("At least one json and one a3dcomp file is needed.")
             return False
@@ -1920,15 +1941,15 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_person(
-        self,
-        input_dir,
-        speed=0.0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        coordinate_system=None,
-        name=None,
+            self,
+            input_dir,
+            speed=0.0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Walking Person Multipart from 3D Components.
 
@@ -2028,15 +2049,15 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_vehicle(
-        self,
-        input_dir,
-        speed=0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        coordinate_system=None,
-        name=None,
+            self,
+            input_dir,
+            speed=0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
@@ -2118,16 +2139,16 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_bird(
-        self,
-        input_dir,
-        speed=0,
-        global_offset=[0, 0, 0],
-        yaw=0,
-        pitch=0,
-        roll=0,
-        flapping_rate=50,
-        coordinate_system=None,
-        name=None,
+            self,
+            input_dir,
+            speed=0,
+            global_offset=[0, 0, 0],
+            yaw=0,
+            pitch=0,
+            roll=0,
+            flapping_rate=50,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Bird Multipart from 3D Components.
 
@@ -2234,9 +2255,10 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(env_folder="input_dir", relative_cs_name="coordinate_system", environment_name="name")
     def add_environment(
-        self, input_dir, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, coordinate_system=None, name=None
+            self, input_dir, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, coordinate_system=None,
+            name=None
     ):
-        """Add an Environment Multipart Component from Json file.
+        """Add an Environment Multipart Component from JSON file.
 
          .. code-block:: json
 
@@ -2583,20 +2605,20 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _make_double_linked_winding(
-        self,
-        name,
-        material,
-        in_rad,
-        out_rad,
-        height,
-        w_dia,
-        teta,
-        teta_in_wind,
-        turns,
-        turns_in_wind,
-        chamfer,
-        chamf_in_wind,
-        sr,
+            self,
+            name,
+            material,
+            in_rad,
+            out_rad,
+            height,
+            w_dia,
+            teta,
+            teta_in_wind,
+            turns,
+            turns_in_wind,
+            chamfer,
+            chamf_in_wind,
+            sr,
     ):
         list_object = self._make_double_winding(
             name,
@@ -2642,22 +2664,22 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _make_triple_linked_winding(
-        self,
-        name,
-        material,
-        in_rad,
-        out_rad,
-        height,
-        w_dia,
-        teta,
-        teta_mid_wind,
-        teta_in_wind,
-        turns,
-        turns_mid_wind,
-        turns_in_wind,
-        chamfer,
-        chamf_in_wind,
-        sr,
+            self,
+            name,
+            material,
+            in_rad,
+            out_rad,
+            height,
+            w_dia,
+            teta,
+            teta_mid_wind,
+            teta_in_wind,
+            turns,
+            turns_mid_wind,
+            turns_in_wind,
+            chamfer,
+            chamf_in_wind,
+            sr,
     ):
         list_object = self._make_triple_winding(
             name,
@@ -2717,21 +2739,21 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _make_double_winding(
-        self,
-        name,
-        material,
-        in_rad,
-        out_rad,
-        height,
-        w_dia,
-        teta,
-        teta_in_wind,
-        turns,
-        turns_in_wind,
-        chamfer,
-        chamf_in_wind,
-        sr,
-        sep_layer,
+            self,
+            name,
+            material,
+            in_rad,
+            out_rad,
+            height,
+            w_dia,
+            teta,
+            teta_in_wind,
+            turns,
+            turns_in_wind,
+            chamfer,
+            chamf_in_wind,
+            sr,
+            sep_layer,
     ):
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + sr * w_dia
@@ -2755,23 +2777,23 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _make_triple_winding(
-        self,
-        name,
-        material,
-        in_rad,
-        out_rad,
-        height,
-        w_dia,
-        teta,
-        teta_mid_wind,
-        teta_in_wind,
-        turns,
-        turns_mid_wind,
-        turns_in_wind,
-        chamfer,
-        chamf_in_wind,
-        sr,
-        sep_layer,
+            self,
+            name,
+            material,
+            in_rad,
+            out_rad,
+            height,
+            w_dia,
+            teta,
+            teta_mid_wind,
+            teta_in_wind,
+            turns,
+            turns_mid_wind,
+            turns_in_wind,
+            chamfer,
+            chamf_in_wind,
+            sr,
+            sep_layer,
     ):
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
         chamf_mid_wind = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
@@ -2909,15 +2931,15 @@ class Primitives3D(GeometryModeler):
         for f_key in values.keys():
             count_true = False
             if (
-                f_key == "Number of Windings"
-                or f_key == "Layer"
-                or f_key == "Layer Type"
-                or f_key == "Similar Layer"
-                or f_key == "Mode"
-                or f_key == "Wire Section"
+                    f_key == "Number of Windings"
+                    or f_key == "Layer"
+                    or f_key == "Layer Type"
+                    or f_key == "Similar Layer"
+                    or f_key == "Mode"
+                    or f_key == "Wire Section"
             ):
                 for s_key in values[f_key].keys():
-                    if isinstance(values[f_key][s_key],  bool):
+                    if isinstance(values[f_key][s_key], bool):
                         if count_true:
                             values[f_key][s_key] = False
                         if values[f_key][s_key]:
@@ -3270,7 +3292,7 @@ class Primitives3D(GeometryModeler):
     @pyaedt_function_handler()
     def _make_winding_follow_chamfer(self, chamfer, sr, wire_diameter, layer_number):
         w_rad_inc = layer_number * sr * wire_diameter / 2
-        distance = sqrt(2 * w_rad_inc**2) - w_rad_inc + sqrt(2 * chamfer**2) / 2
+        distance = sqrt(2 * w_rad_inc ** 2) - w_rad_inc + sqrt(2 * chamfer ** 2) / 2
         return sqrt(2) * distance
 
     @pyaedt_function_handler()

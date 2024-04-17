@@ -13,6 +13,7 @@ from collections import defaultdict
 import csv
 import os
 import random
+import re
 import string
 import tempfile
 
@@ -37,10 +38,10 @@ if not is_ironpython:
         from enum import Enum
 
         import pandas as pd
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pd = None
         Enum = None
-else:
+else:  # pragma: no cover
     Enum = object
 
 TEMPLATES_BY_DESIGN = {
@@ -76,7 +77,7 @@ TEMPLATES_BY_DESIGN = {
         "Spectrum",
     ],
     "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum"],
+    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"],
     "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
     "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
     "Mechanical": ["Standard", "Fields"],
@@ -101,6 +102,7 @@ TEMPLATES_BY_NAME = {
     "AMI Contour": rt.AMIConturEyeDiagram,
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
+    "EMIReceiver": rt.EMIReceiver,
 }
 
 
@@ -119,7 +121,9 @@ class Reports(object):
         setup_only_name = setup_sweep_name.split(":")[0].strip()
         get_setup = self._post_app._app.get_setup(setup_only_name)
         is_siwave_dc = False
-        if "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR":
+        if (
+            "SolveSetupType" in get_setup.props and get_setup.props["SolveSetupType"] == "SiwaveDCIR"
+        ):  # pragma: no cover
             is_siwave_dc = True
         return self._post_app.available_report_quantities(
             solution=setup_sweep_name, context=report._context, is_siwave_dc=is_siwave_dc
@@ -195,12 +199,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Monitor" in self._templates:
             rep = rt.Standard(self._post_app, "Monitor", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def fields(self, expressions=None, setup=None, polyline=None):
@@ -236,13 +239,12 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Fields" in self._templates:
             rep = rt.Fields(self._post_app, "Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def cg_fields(self, expressions=None, setup=None, polyline=None):
@@ -278,13 +280,12 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "CG Fields" in self._templates:
             rep = rt.Fields(self._post_app, "CG Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def dc_fields(self, expressions=None, setup=None, polyline=None):
@@ -320,13 +321,12 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "DC R/L Fields" in self._templates:
             rep = rt.Fields(self._post_app, "DC R/L Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def rl_fields(self, expressions=None, setup=None, polyline=None):
@@ -362,6 +362,7 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
             if self._post_app._app.design_type == "Q3D Extractor":
                 rep = rt.Fields(self._post_app, "AC R/L Fields", setup)
@@ -369,9 +370,7 @@ class Reports(object):
                 rep = rt.Fields(self._post_app, "RL Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None):
@@ -408,14 +407,13 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Far Fields" in self._templates:
             rep = rt.FarField(self._post_app, "Far Fields", setup)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")
     def antenna_parameters(self, expressions=None, setup=None, infinite_sphere=None):
@@ -449,12 +447,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Antenna Parameters" in self._templates:
             rep = rt.AntennaParameters(self._post_app, "Antenna Parameters", setup, infinite_sphere)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def near_field(self, expressions=None, setup=None):
@@ -487,12 +484,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Near Fields" in self._templates:
             rep = rt.NearField(self._post_app, "Near Fields", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def modal_solution(self, expressions=None, setup=None):
@@ -524,12 +520,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Modal Solution Data" in self._templates:
             rep = rt.Standard(self._post_app, "Modal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def terminal_solution(self, expressions=None, setup=None):
@@ -561,12 +556,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Terminal Solution Data" in self._templates:
             rep = rt.Standard(self._post_app, "Terminal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def eigenmode(self, expressions=None, setup=None):
@@ -598,12 +592,11 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Eigenmode Parameters" in self._templates:
             rep = rt.Standard(self._post_app, "Eigenmode Parameters", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
+        return rep
 
     @pyaedt_function_handler(setup_name="setup")
     def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
@@ -753,11 +746,59 @@ class Reports(object):
         """
         if not setup:
             setup = self._post_app._app.nominal_sweep
+        rep = None
         if "Spectrum" in self._templates:
             rep = rt.Spectral(self._post_app, "Spectrum", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-            return rep
-        return
+        return rep
+
+    @pyaedt_function_handler()
+    def emi_receiver(self, expressions=None, setup_name=None):
+        """Create an EMI receiver report.
+
+        Parameters
+        ----------
+        expressions : str or list, optional
+            One or more expressions to add into the report. An expression can be any of the formulas that
+            can be entered into the Electronics Desktop Report Editor.
+        setup_name : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep name
+            to use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.report_templates.EMIReceiver`
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir= Circuit()
+        >>> new_eye = cir.post.emi_receiver()
+        >>> new_eye.create()
+
+        """
+        if not setup_name:
+            setup_name = self._post_app._app.nominal_sweep
+        rep = None
+        if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
+            rep = rt.EMIReceiver(self._post_app, setup_name)
+            if not expressions:
+                expressions = "Average[{}]".format(rep.net)
+            else:
+                if not isinstance(expressions, list):
+                    expressions = [expressions]
+                pattern = r"\w+\[(.*?)\]"
+                for expression in expressions:
+                    match = re.search(pattern, expression)
+                    if match:
+                        net_name = match.group(1)
+                        rep.net = net_name
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
+
+        return rep
 
 
 orientation_to_view = {
@@ -849,7 +890,7 @@ class PostProcessorCommon(object):
             self._app.odesktop.SetRegistryInt(
                 "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 1
             )
-        else:
+        else:  # pragma: no cover
             self._app.odesktop.SetRegistryInt(
                 "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 0
             )
@@ -876,7 +917,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableDisplayTypes(report_category))
-        return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_quantities_categories(
@@ -935,7 +976,7 @@ class PostProcessorCommon(object):
 
         if solution and report_category and display_type:
             return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
-        return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_report_quantities(
@@ -1011,7 +1052,7 @@ class PostProcessorCommon(object):
                     report_category, display_type, solution, context, quantities_category
                 )
             )
-        return []
+        return []  # pragma: no cover
 
     @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
@@ -1036,7 +1077,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if report_category:
             return list(self.oreportsetup.GetAvailableSolutions(report_category))
-        return None
+        return None  # pragma: no cover
 
     @pyaedt_function_handler()
     def _get_plot_inputs(self):
@@ -1174,12 +1215,12 @@ class PostProcessorCommon(object):
                         self.plots.remove(plot)
             else:
                 self.oreportsetup.DeleteAllReports()
-                if is_ironpython:
+                if is_ironpython:  # pragma: no cover
                     del self.plots[:]
                 else:
                     self.plots.clear()
             return True
-        except Exception:
+        except Exception:  # pragma: no cover
             return False
 
     @pyaedt_function_handler()
@@ -1357,16 +1398,16 @@ class PostProcessorCommon(object):
         """
         npath = output_dir
 
-        if "." not in extension:
+        if "." not in extension:  # pragma: no cover
             extension = "." + extension
 
         supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat", ".rdat"]
-        if extension not in supported_ext:
+        if extension not in supported_ext:  # pragma: no cover
             msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
             raise ValueError(msg)
 
         file_path = os.path.join(npath, plot_name + extension)
-        if unique_file:
+        if unique_file:  # pragma: no cover
             while os.path.exists(file_path):
                 file_name = generate_unique_name(plot_name)
                 file_path = os.path.join(npath, file_name + extension)
@@ -2183,7 +2224,7 @@ class PostProcessor(PostProcessorCommon, object):
         else:
             sim_data = self._app.design_properties["SolutionManager"]
         if "SimSetup" in sim_data:
-            if isinstance(sim_data["SimSetup"], list):
+            if isinstance(sim_data["SimSetup"], list):  # pragma: no cover
                 for solution in sim_data["SimSetup"]:
                     base_name = solution["Name"]
                     if isinstance(solution["Solution"], (dict, OrderedDict)):
@@ -2206,7 +2247,7 @@ class PostProcessor(PostProcessorCommon, object):
                     if sol["ID"] == setups_data[setup]["SolutionId"]:
                         base_name += " : " + sol["Name"]
                         return base_name
-        return ""
+        return ""  # pragma: no cover
 
     @pyaedt_function_handler()
     def _get_intrinsic(self, setup):
@@ -2217,7 +2258,7 @@ class PostProcessor(PostProcessorCommon, object):
             for intr in intrinsics:
                 if isinstance(intr, list) and len(intr) == 2:
                     intr_dict[intr[0]] = intr[1].replace("\\", "").replace("'", "")
-        return intr_dict
+        return intr_dict  # pragma: no cover
 
     @pyaedt_function_handler(list_objs="assignment")
     def _get_volume_objects(self, assignment):
@@ -2247,7 +2288,7 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler()
     def _get_cs_plane_ids(self):
         name2refid = {-4: "Global:XY", -3: "Global:YZ", -2: "Global:XZ"}
-        if self._app.design_properties and "ModelSetup" in self._app.design_properties:
+        if self._app.design_properties and "ModelSetup" in self._app.design_properties:  # pragma: no cover
             cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
@@ -2490,14 +2531,14 @@ class PostProcessor(PostProcessorCommon, object):
             variation.append(value)
 
         if intrinsics:
-            if "Transient" in solution:
+            if "Transient" in solution:  # pragma: no cover
                 variation.append("Time:=")
                 variation.append(intrinsics)
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
                 variation.append("Phase:=")
-                if phase:
+                if phase:  # pragma: no cover
                     variation.append(phase)
                 else:
                     variation.append("0deg")

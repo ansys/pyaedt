@@ -88,7 +88,7 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(setup_name=setup_name, probe_name=probe_name, source_name=source_name,
+sample_waveform = cir.post.sample_ami_waveform(setup=setup_name, probe=probe_name, source=source_name,
                                                variation_list_w_value=cir.available_variations.nominal,
                                                unit_interval=unit_interval, ignore_bits=ignore_bits,
                                                plot_type=plot_type)
@@ -170,7 +170,9 @@ plt.show()
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 cir.solution_type = "NexximTransient"
-original_data = cir.post.get_solution_data(expressions=plot_name, domain="Time",
+original_data = cir.post.get_solution_data(expressions=plot_name,
+                                           domain="Time",
+                                           setup_sweep_name="NexximTransient",
                                            variations=cir.available_variations.nominal)
 
 ###############################################################################

@@ -37,6 +37,7 @@ non_graphical = False
 
 hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1",
                    new_desktop_session=True)
+hfss.solution_type = "Modal"
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -101,7 +102,7 @@ p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2], [width, wid
 
 p.create_rectangle(orientation=pyaedt.constants.PLANE.YZ,
                    origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-                   sizes=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+                   sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
 hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)

@@ -400,6 +400,9 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
     object
         Opened file.
     """
+    if is_ironpython:
+        return open(file_path, file_options)
+
     file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
 
