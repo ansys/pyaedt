@@ -1700,18 +1700,18 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     p1.pins[0].connect_to_component(pin, use_wire=True)
 
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
-            self.modeler.move(first, [0, 100])
+            self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0])
+                self.modeler.move(second, [1000, 0], "mil")
             else:
-                self.modeler.move(second, [-1000, 0])
+                self.modeler.move(second, [-1000, 0], "mil")
             if differential:
                 _, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
-                self.modeler.move(first, [0, -100])
+                self.modeler.move(first, [0, -100], "mil")
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0])
+                    self.modeler.move(second, [1000, 0], "mil")
                 else:
-                    self.modeler.move(second, [-1000, 0])
+                    self.modeler.move(second, [-1000, 0], "mil")
             new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
             new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
             if differential:
@@ -1968,30 +1968,30 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             tx_eye_names.append(tx.parameters["probe_name"])
             rx_eye_names.append(rx.parameters["source_name"])
             _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
-            self.modeler.move(first, [0, 100])
+            self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0])
+                self.modeler.move(second, [1000, 0], "mil")
             else:
-                self.modeler.move(second, [-1000, 0])
+                self.modeler.move(second, [-1000, 0], "mil")
             _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
-            self.modeler.move(first, [0, -100])
+            self.modeler.move(first, [0, -100], "mil")
             if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0])
+                self.modeler.move(second, [1000, 0], "mil")
             else:
-                self.modeler.move(second, [-1000, 0])
+                self.modeler.move(second, [-1000, 0], "mil")
             if differential:
                 _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
-                self.modeler.move(first, [0, -100])
+                self.modeler.move(first, [0, -100], "mil")
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0])
+                    self.modeler.move(second, [1000, 0], "mil")
                 else:
-                    self.modeler.move(second, [-1000, 0])
+                    self.modeler.move(second, [-1000, 0], "mil")
                 _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
-                self.modeler.move(first, [0, 100])
+                self.modeler.move(first, [0, 100], "mil")
                 if second.pins[0].location[0] > center_x:
-                    self.modeler.move(second, [1000, 0])
+                    self.modeler.move(second, [1000, 0], "mil")
                 else:
-                    self.modeler.move(second, [-1000, 0])
+                    self.modeler.move(second, [-1000, 0], "mil")
             if unit_interval:
                 tx.parameters["UIorBPSValue"] = unit_interval
             if bit_pattern:
