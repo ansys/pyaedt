@@ -3784,7 +3784,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + min(aedt_bounding_dim) / 2
+                    thickness = thickness + min(aedt_bounding_dim) / 2
         for el in assignment:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             maxarea = 0
