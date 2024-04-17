@@ -672,6 +672,18 @@ class TestClass:
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers3",
         )
+        assert test_post1.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers31",
+        )
+        assert test_post1.post.create_fieldplot_layers(
+            ["UNNAMED_006"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers32",
+        )
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
@@ -686,12 +698,32 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers31",
+        )
+
+        assert test.post.create_fieldplot_layers(
+            ["UNNAMED_002"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers32",
+        )
+        assert not test.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers33",
+        )
         pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)

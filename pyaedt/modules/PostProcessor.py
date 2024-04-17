@@ -3294,6 +3294,89 @@ class PostProcessor(PostProcessorCommon, object):
             field_type=field_type,
         )
 
+    @pyaedt_function_handler()
+    def create_fieldplot_layers(self, layers, quantity, setup=None, intrinsics=None, name=None):  # pragma: no cover
+        # type: (list, str, str, dict, str) -> FieldPlot
+        """Create a field plot of stacked layer plot.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
+        and any modeler where a layout component is used. HFSS 3D Layout will plot only dielectrics layer.
+        In order to plot on signal layers use the method  ``create_fieldplot_layers_nets``
+
+        Parameters
+        ----------
+        layers : list
+            List of layers to plot. For example:
+            ``["Layer1","Layer2"]``. If empty list is provided
+            all layers will be considered.
+        quantity : str
+            Name of the quantity to plot.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Make sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+        intrinsics : dict, optional
+            Dictionary containing all intrinsic variables.
+            The default is ``None``.
+        name : str, optional
+            Name of the field plot to create.
+
+        Returns
+        -------
+        :class:``pyaedt.modules.solutions.FieldPlot``
+            Plot object.
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
+        """
+        new_layers = []
+        if self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+            if not layers:
+                new_layers.extend(["{}".format(i) for i in self._app.modeler.edb.stackup.dielectric_layers.keys()])
+            else:
+                for layer in layers:
+                    if layer in self._app.modeler.edb.stackup.dielectric_layers:
+                        new_layers.append("{}".format(layer))
+        else:
+            for k, v in self._app.modeler.user_defined_components.items():
+                if v.layout_component:
+                    if not layers:
+                        new_layers.extend(
+                            [
+                                "{}:{}#t=fill".format(k, i)
+                                for i in v.layout_component.edb_object.stackup.signal_layers.keys()
+                            ]
+                        )
+                        new_layers.extend(
+                            [
+                                "{}:{}".format(k, i)
+                                for i in v.layout_component.edb_object.stackup.dielectric_layers.keys()
+                            ]
+                        )
+                    else:
+                        for layer in layers:
+                            if layer in v.layout_component.edb_object.stackup.signal_layers:
+                                new_layers.append("{}:{}#t=fill".format(k, layer))
+                            elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
+                                new_layers.append("{}:{}".format(k, layer))
+
+        if not (
+            "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
+        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+            self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
+            return False
+        if intrinsics is None:
+            intrinsics = {}
+        if name and name in list(self.field_plots.keys()):
+            self.logger.info("Plot {} exists. returning the object.".format(name))
+            return self.field_plots[name]
+        plot_type = "ObjList"
+        if new_layers:
+            return self._create_fieldplot(new_layers, quantity, setup, intrinsics, plot_type, name)
+        return False
+
     @pyaedt_function_handler(quantity_name="quantity", setup_name="setup")
     def create_fieldplot_layers_nets(
         self, layers_nets, quantity, setup=None, intrinsics=None, plot_on_surface=True, plot_name=None
