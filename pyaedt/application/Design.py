@@ -3898,11 +3898,10 @@ class Design(AedtObjects):
         if des_name in self.design_list:
             self._odesign = self._oproject.SetActiveDesign(des_name)
             dtype = self._odesign.GetDesignType()
-            if (
-                dtype != "RMxprt"
-                and dtype != self._design_type
-                or self._design_type not in {"RMxprtSolution", "ModelCreation"}
-            ):
+            if dtype != "RMxprt":
+                if dtype != self._design_type:
+                    raise ValueError("Specified design is not of type {}.".format(self._design_type))
+            elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
                 raise ValueError("Specified design is not of type {}.".format(self._design_type))
             return True
         elif ":" in des_name:
