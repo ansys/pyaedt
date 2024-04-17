@@ -123,7 +123,7 @@ hfss.post.create_report("db(GainTotal)", hfss.nominal_adaptive, variations, prim
 new_report = hfss.post.reports_by_category.far_field("db(RealizedGainTotal)", hfss.nominal_adaptive, "3D")
 new_report.variations = variations
 new_report.primary_sweep = "Theta"
-new_report.create("Realized2D"),,
+new_report.create("Realized2D")
 
 ###############################################################################
 # Generate multiple plots
