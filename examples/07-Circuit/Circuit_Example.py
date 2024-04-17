@@ -53,9 +53,9 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # ~~~~~~~~~~~~~~~~~
 # Create components, such as an inductor, resistor, and capacitor.
 
-inductor = aedt_app.modeler.schematic.create_inductor(value=1e-9, location=[0, 0])
-resistor = aedt_app.modeler.schematic.create_resistor(value=50, location=[500, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 0])
+inductor = aedt_app.modeler.schematic.create_inductor(name="L1", value=1e-9, location=[0, 0])
+resistor = aedt_app.modeler.schematic.create_resistor(name="R1", value=50, location=[500, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitorname="C1", (value=1e-12, location=[1000, 0])
 
 ###############################################################################
 # Get all pins
