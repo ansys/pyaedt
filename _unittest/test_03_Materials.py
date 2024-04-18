@@ -341,27 +341,27 @@ class TestClass:
         mat = self.aedtapp.materials["mat_test"]
         # Test points_list_at_freq
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+                points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]]
             )
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={
+            points_at_frequency={
                 60: [[0, 0], [1, 3.5], [2, 7.4]],
                 100: [[0, 0], [1, 8], [2, 9]],
                 150: [[0, 0], [1, 10], [2, 19]],
             }
         )
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={
+            points_at_frequency={
                 60: [[0, 0], [1, 3.5], [2, 7.4]],
                 100: [[0, 0], [1, 8], [2, 9]],
                 150: [[0, 0], [1, 10], [2, 19]],
@@ -370,17 +370,17 @@ class TestClass:
         )
         with pytest.raises(ValueError):
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
+                points_at_frequency={80: [[0, 0], [1, 3.5], [2, 7.4]]}, core_loss_model_type="Power Ferrite"
             )
         # Test thickness
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
         )
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
+                points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
             )
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
+                points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
             )

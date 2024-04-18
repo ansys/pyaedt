@@ -2158,7 +2158,7 @@ class Material(CommonMaterial, object):
 
         Parameters
         ----------
-        points_list_at_freq : dict
+        points_at_frequency : dict
             Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
             If the core loss model is calculated at one frequency, this parameter must be provided as a
             dictionary with one key (single frequency in Hz) and values are lists of points at
@@ -2204,7 +2204,7 @@ class Material(CommonMaterial, object):
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
-                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]]}
+                                                    ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
@@ -2215,25 +2215,25 @@ class Material(CommonMaterial, object):
         >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
-                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]],
+                                                    ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]],
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
         """
-        if not isinstance(points_list_at_freq, dict):
+        if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
-        if len(points_list_at_freq) <= 1 and core_loss_model_type == "Power Ferrite":
+        if len(points_at_frequency) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
-        freq_keys = list(points_list_at_freq.keys())
+        freq_keys = list(points_at_frequency.keys())
         for i in range(0, len(freq_keys)):
             if isinstance(freq_keys[i], str):
                 value, unit = decompose_variable_value(freq_keys[i])
                 if unit != "Hz":
                     value = unit_converter(values=value, unit_system="Freq", input_units=unit, output_units="Hz")
-                points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
-                del points_list_at_freq[freq_keys[i]]
+                points_at_frequency[value] = points_at_frequency[freq_keys[i]]
+                del points_at_frequency[freq_keys[i]]
         if "core_loss_type" not in self._props:
             choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else "Power Ferrite"
             self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": choice})
@@ -2246,27 +2246,27 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = core_loss_model_type
-        if len(points_list_at_freq) == 1:
+        if len(points_at_frequency) == 1:
             self._props["AttachedData"]["CoefficientSetupData"] = OrderedDict({})
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
             self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
-            frequency = list(points_list_at_freq.keys())[0]
+            frequency = list(points_at_frequency.keys())[0]
             self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
-            points = [i for p in points_list_at_freq[frequency] for i in p]
+            points = [i for p in points_at_frequency[frequency] for i in p]
             self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict(
                 {"DimUnits": ["", ""], "Points": points}
             )
-        elif len(points_list_at_freq) > 1:
+        elif len(points_at_frequency) > 1:
             self._props["AttachedData"]["CoreLossMultiCurveData"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             self._props["AttachedData"]["CoreLossMultiCurveData"]["coreloss_unit"] = coefficient_setup
 
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
-            for freq in points_list_at_freq.keys():
-                points = [i for p in points_list_at_freq[freq] for i in p]
+            for freq in points_at_frequency.keys():
+                points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = OrderedDict(
                     {
                         "Frequency": "{}Hz".format(freq),
@@ -2276,7 +2276,7 @@ class Material(CommonMaterial, object):
                 self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
         coefficients = self.get_core_loss_coefficients(
-            points_list_at_freq, thickness=thickness, conductivity=conductivity
+            points_at_frequency, thickness=thickness, conductivity=conductivity
         )
         if core_loss_model_type == "Electrical Steel":
             self._props["core_loss_kh"] = str(coefficients[0])
