@@ -3,7 +3,7 @@ name: Nightly Documentation Build
 on:
   workflow_dispatch:
   schedule:  # UTC at 0400
-    - cron:  '0 4 * * *'
+    - cron:  '0 3 * * *'
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
