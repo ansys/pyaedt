@@ -3370,7 +3370,7 @@ class PostProcessor(PostProcessorCommon, object):
         """Create a field plot of stacked layer plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
         It will also work when a layout components in 3d modeler is used.
-        In order to plot on signal layers use the method ``create_fieldplot_layers_nets``
+        In order to plot on signal layers use the method ``create_fieldplot_layers_nets``.
 
         Parameters
         ----------
