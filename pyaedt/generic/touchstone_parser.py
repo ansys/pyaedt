@@ -547,7 +547,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
                         is_causal = False
                 except Exception:
                     is_causal = False
-                    raise Exception("Failed evaluating causality value")
+                    raise Exception("Failed evaluating causality value.")
                 out[snpf].append(["causality", is_causal, msg_log])
             if "Causality check is inconclusive" in line and causality:
                 is_causal = False
