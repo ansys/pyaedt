@@ -349,14 +349,14 @@ class TestClass:
 
     def test_27_set_differential_pairs(self):
         assert self.circuitprj.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            assignment="Port3",
+            reference="Port4",
+            common_mode=None,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
         )
-        assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert self.circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
@@ -839,7 +839,7 @@ class TestClass:
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
 
         status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
-            touchstone=touchstone_file,
+            input_file=touchstone_file,
             start_frequency=0,
             stop_frequency=70,
             auto_assign_diff_pairs=True,
@@ -853,15 +853,15 @@ class TestClass:
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
-            touchstone=touchstone_file,
+            input_file=touchstone_file,
             probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
             probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
             termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
             differential=True,
-            design_name="TDR",
             rise_time=35,
             use_convolution=True,
             analyze=False,
+            design_name="TDR",
         )
         assert result
 
@@ -869,17 +869,17 @@ class TestClass:
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
         ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
-            touchstone=touchstone_file,
+            input_file=touchstone_file,
             ibis_ami=ami_file,
             component_name="Spec_Model",
             tx_buffer_name="1p",
             rx_buffer_name="2p",
-            use_ibis_buffer=False,
-            differential=True,
             tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
             tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
             rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
             rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            use_ibis_buffer=False,
+            differential=True,
             bit_pattern="random_bit_count=2.5e3 random_seed=1",
             unit_interval="31.25ps",
             use_convolution=True,

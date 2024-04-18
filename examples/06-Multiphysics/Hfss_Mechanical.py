@@ -111,7 +111,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # correct value of losses.
 
 circuit.analyze()
-circuit.push_excitations(instance_name="S1", setup_name=setup_name)
+circuit.push_excitations(instance="S1", setup=setup_name)
 
 
 ###############################################################################
