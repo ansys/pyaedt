@@ -341,7 +341,7 @@ class SubRegion(CommonRegion):
          Returns
         -------
         bool
-            True if successful, else False
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             if (
@@ -355,7 +355,7 @@ class SubRegion(CommonRegion):
                     objects = [o.name for o in objects]
             self._app.modeler.create_subregion(padding_values, padding_types, parts, region_name)
             return True
-        except:
+        except Exception:
             return False
 
     def delete(self):
@@ -365,7 +365,7 @@ class SubRegion(CommonRegion):
          Returns
         -------
         bool
-            True if successful, else False
+           ``True`` when successful, ``False`` when failed.
         """
         try:
             self.object.delete()
@@ -540,9 +540,9 @@ class MeshRegionCommon(object):
         name : str
             Name of the mesh region.
         manual_settings : bool
-            Whether to use manual settings or automatic ones.
-        settings : ::class::modules.MeshIcepak.MeshSettings
-            Dictionary-like object to handle settings
+            Whether to use manual settings. If ``False``, automatic settings are used.
+        settings : :class:`modules.MeshIcepak.MeshSettings`
+            Dictionary-like object to handle settings.
     """
 
     def __init__(self, units, app, name):

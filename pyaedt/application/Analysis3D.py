@@ -1035,7 +1035,8 @@ class FieldAnalysis3D(Analysis, object):
             if isinstance(component_name, str):
                 component_name = [component_name]
             for cmp in component_name:
-                assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+                if cmp not in self.modeler.user_defined_component_names:
+                    raise ValueError("Component definition was not found for '{}'.".format(cmp))
 
         for cmp in component_name:
             comp = self.modeler.user_defined_components[cmp]
