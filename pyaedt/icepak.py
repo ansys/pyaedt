@@ -1273,7 +1273,7 @@ class Icepak(FieldAnalysis3D):
             symmetric=symmetric,
             symmetric_separation=symmetric_separation,
             numcolumn_perside=numcolumn_perside,
-            matname=material,
+            material=material,
         )
         rect.delete()
         return bool(hs)
