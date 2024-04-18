@@ -2,7 +2,7 @@ name: Nightly Documentation Build
 
 on:
   workflow_dispatch:
-  schedule:  # UTC at 0400
+  schedule:  # UTC at 0300
     - cron:  '0 3 * * *'
 
 env:
