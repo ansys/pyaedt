@@ -592,7 +592,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        reference_id : int
+        reference_id : list
             Reference ID.
 
         Returns
