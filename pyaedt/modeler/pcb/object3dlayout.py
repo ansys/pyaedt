@@ -2111,7 +2111,7 @@ class Padstack(object):
             return True
 
     @pyaedt_function_handler(holetype="hole_type", xpos="x", ypos="y", rot="rotation")
-    def add_hole(self, hole_type="Cir", sizes=[1], x=0, y=0, rotation=0):
+    def add_hole(self, hole_type="Cir", sizes=None, x=0, y=0, rotation=0):
         """Add a hole.
 
         Parameters
@@ -2148,6 +2148,8 @@ class Padstack(object):
             Hole object to be passed to padstack or layer.
 
         """
+        if sizes is None:
+            sizes = [1]
         hole = self.PDSHole()
         hole.shape = hole_type
         sizes = [_dim_arg(i, self.units) for i in sizes if type(i) is int or float]
