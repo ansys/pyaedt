@@ -156,7 +156,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     @property
     def ic_mode(self):
-        """Get/Set the ic mode of current design.
+        """IC mode of current design.
 
         Returns
         -------

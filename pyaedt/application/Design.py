@@ -1302,7 +1302,7 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\\Boundaries"``.
+            Path to the object list. For example, ``"DesignName\\Boundaries"``.
         prop_name : str
             Property name.
 
@@ -1318,12 +1318,12 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def set_oo_property_value(self, aedt_object, object_name, prop_name, value):
-        """Change the Object Oriented AEDT Object property value.
+        """Change the property value of the object-oriented AEDT object.
 
         Parameters
         ----------
         aedt_object : object
-            AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
+            AEDT object to search for the property on. It can be any oProperty. For example, oDesign.
         object_name : str
             Path to the object list. Example ``"DesignName\\Boundaries"``.
         prop_name : str
