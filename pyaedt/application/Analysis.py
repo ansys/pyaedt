@@ -87,6 +87,9 @@ class Analysis(Design, object):
     aedt_process_id : int, optional
         Only used when ``new_desktop_session = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode. The default is ``False``.
+        This parameter applies only to HFSS 3D Layout.
 
     """
 
@@ -105,6 +108,7 @@ class Analysis(Design, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
         Design.__init__(
             self,
@@ -120,6 +124,7 @@ class Analysis(Design, object):
             machine,
             port,
             aedt_process_id,
+            ic_mode,
         )
         self._excitation_objects = {}
         self._setup = None
