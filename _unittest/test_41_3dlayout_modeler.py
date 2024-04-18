@@ -700,14 +700,14 @@ class TestClass:
     def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
         assert hfss3dl.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            assignment="Port3",
+            reference="Port4",
+            common_mode=None,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
         )
-        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
         assert hfss3dl.get_differential_pairs()
         assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 

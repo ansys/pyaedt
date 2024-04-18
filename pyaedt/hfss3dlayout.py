@@ -340,7 +340,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
 
     @pyaedt_function_handler(primivitivenames="assignment", edgenumbers="edge_numbers")
-    def create_wave_port_from_two_conductors(self, assignment=[""], edge_numbers=[""]):
+    def create_wave_port_from_two_conductors(self, assignment=None, edge_numbers=None):
         """Create a wave port.
 
         Parameters
@@ -365,6 +365,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         >>> oEditor.CreateEdgePort
         """
+        if edge_numbers is None:
+            edge_numbers = [""]
+        if assignment is None:
+            assignment = [""]
         if len(assignment) == 2 and len(edge_numbers) == 2:
             listp = self.port_list
             self.modeler.oeditor.CreateEdgePort(
@@ -1605,15 +1609,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self.odesign.EditCoSimulationOptions(arg)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        positive_terminal="assignment",
+        negative_terminal="reference",
+        common_name="common_mode",
+        diff_name="differential_mode",
+        common_ref="common_reference",
+        diff_ref_z="differential_reference",
+    )
     def set_differential_pair(
         self,
-        positive_terminal,
-        negative_terminal,
-        common_name=None,
-        diff_name=None,
-        common_ref_z=25,
-        diff_ref_z=100,
+        assignment,
+        reference,
+        common_mode=None,
+        differential_mode=None,
+        common_reference=25,
+        differential_reference=100,
         active=True,
         matched=False,
     ):
@@ -1621,17 +1632,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        positive_terminal : str
+        assignment : str
             Name of the terminal to use as the positive terminal.
-        negative_terminal : str
+        reference : str
             Name of the terminal to use as the negative terminal.
-        common_name : str, optional
+        common_mode : str, optional
             Name for the common mode. The default is ``None``, in which case a unique name is assigned.
-        diff_name : str, optional
+        differential_mode : str, optional
             Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
-        common_ref_z : float, optional
+        common_reference : float, optional
             Reference impedance for the common mode in ohms. The default is ``25``.
-        diff_ref_z : float, optional
+        differential_reference : float, optional
             Reference impedance for the differential mode in ohms. The default is ``100``.
         active : bool, optional
             Whether to set the differential pair as active. The default is ``True``.
@@ -1647,28 +1658,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oModule.SetDiffPairs
         """
-        if not diff_name:
-            diff_name = generate_unique_name("Diff")
-        if not common_name:
-            common_name = generate_unique_name("Comm")
+        if not differential_mode:
+            differential_mode = generate_unique_name("Diff")
+        if not common_mode:
+            common_mode = generate_unique_name("Comm")
 
         arg1 = [
             "Pos:=",
-            positive_terminal,
+            assignment,
             "Neg:=",
-            negative_terminal,
+            reference,
             "On:=",
             active,
             "matched:=",
             matched,
             "Dif:=",
-            diff_name,
+            differential_mode,
             "DfZ:=",
-            [float(diff_ref_z), 0],
+            [float(differential_reference), 0],
             "Com:=",
-            common_name,
+            common_mode,
             "CmZ:=",
-            [float(common_ref_z), 0],
+            [float(common_reference), 0],
         ]
 
         arg = ["NAME:DiffPairs"]
