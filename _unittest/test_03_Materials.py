@@ -238,7 +238,7 @@ class TestClass:
         assert app.materials["myMat"].permeability.bunit == "tesla"
         mat2 = app.materials.add_material("myMat2")
         assert not mat2.is_used
-        assert app.modeler.create_box([0, 0, 0], [10, 10, 10], matname="myMat2")
+        assert app.modeler.create_box([0, 0, 0], [10, 10, 10], material="myMat2")
         assert app.materials.material_keys["mymat2"].is_used
 
     def test_10_add_material_sweep(self):

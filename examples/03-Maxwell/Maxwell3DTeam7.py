@@ -116,7 +116,7 @@ m3d.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY",
 # ~~~~~~~~~~~~~~~
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
 
-test = m3d.modeler.create_polyline(position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
+test = m3d.modeler.create_polyline(points=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
 ###########################################################################################
@@ -125,7 +125,7 @@ test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_h
 # Duplicate and unit the polyline to create a full coil.
 
 m3d.modeler.duplicate_around_axis(
-    "Coil", cs_axis="Global", angle=90, nclones=4, create_new_objects=True, is_3d_comp=False
+    "Coil", axis="Global", angle=90, clones=4, create_new_objects=True, is_3d_comp=False
 )
 m3d.modeler.unite("Coil, Coil_1, Coil_2")
 m3d.modeler.unite("Coil, Coil_3")
@@ -171,10 +171,9 @@ mat.conductivity = 3.526e7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = m3d.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
-                               matname="team7_aluminium")
+plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[294, 294, 19], name="Plate", material="team7_aluminium")
 m3d.modeler.fit_all()
-m3d.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
+m3d.modeler.create_box(origin=[18, 18, 0], sizes=[108, 108, 19], name="Hole")
 m3d.modeler.subtract(blank_list="Plate", tool_list=["Hole"], keep_originals=False)
 
 ###########################################################################################
@@ -221,13 +220,13 @@ lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-polyline = m3d.modeler.create_polyline(position_list=line_points_1, name=lines[0])
-l1_mesh = m3d.modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
+polyline = m3d.modeler.create_polyline(points=line_points_1, name=lines[0])
+l1_mesh = m3d.modeler.create_polyline(points=line_points_1, name=lines[0] + "mesh")
 l1_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-polyline2 = m3d.modeler.create_polyline(position_list=line_points_2, name=lines[1])
-l2_mesh = m3d.modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
+polyline2 = m3d.modeler.create_polyline(points=line_points_2, name=lines[1])
+l2_mesh = m3d.modeler.create_polyline(points=line_points_2, name=lines[1] + "mesh")
 l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################

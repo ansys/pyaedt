@@ -43,7 +43,7 @@ class ComponentArray(object):
 
         # Leverage csv file if possible (aedt version > 2023.2)
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
             self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
         else:
             self.__app.save_project()
@@ -96,7 +96,7 @@ class ComponentArray(object):
             return self.__cells
 
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
 
@@ -320,7 +320,7 @@ class ComponentArray(object):
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
         new_properties = self.properties
@@ -345,8 +345,8 @@ class ComponentArray(object):
         del self.__app.component_array[self.name]
         self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
-    @pyaedt_function_handler()
-    def export_array_info(self, array_path=None):  # pragma: no cover
+    @pyaedt_function_handler(array_path="output_file")
+    def export_array_info(self, output_file=None):  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -364,18 +364,18 @@ class ComponentArray(object):
             self.logger.warning("This feature is not available in {}.".format(str(self.__app.settings.aedt_version)))
             return False
 
-        if not array_path:  # pragma: no cover
-            array_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
-        self.__app.omodelsetup.ExportArray(self.name, array_path)
-        return array_path
+        if not output_file:  # pragma: no cover
+            output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
+        self.__app.omodelsetup.ExportArray(self.name, output_file)
+        return output_file
 
-    @pyaedt_function_handler()
-    def parse_array_info_from_csv(self, csv_file):  # pragma: no cover
+    @pyaedt_function_handler(csv_file="input_file")
+    def parse_array_info_from_csv(self, input_file):  # pragma: no cover
         """Parse component array information from the CSV file.
 
         Parameters
         ----------
-        csv_file : str
+        input_file : str
              Name of the CSV file.
 
         Returns
@@ -393,7 +393,7 @@ class ComponentArray(object):
         >>> array_info = array.array_info_parser(array_csv)
         """
 
-        info = read_csv(csv_file)
+        info = read_csv(input_file)
         if not info:
             self.logger.error("Data from CSV file is not loaded.")
             return False

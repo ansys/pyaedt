@@ -9,8 +9,10 @@ The following code creates a box and changes the color to red:
 
      from pyaedt.hfss import Hfss
      hfss = Hfss()
-     box = hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                   "mybox", "aluminum")
+     box = hfss.modeler.create_box(origin=[0, 0, 0],
+                                   sizes=[10, "dim", 10],
+                                   name="mybox",
+                                   material="aluminum")
      print(box.faces)
      box.color = "Red"
 

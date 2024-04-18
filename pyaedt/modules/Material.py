@@ -2072,7 +2072,7 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> coefficients = m3d.materials["magnesium"].get_core_loss_coefficients(
         ...                                                         points_at_frequency={60 : [[0, 0], [1, 3], [2, 7]]},
@@ -2201,7 +2201,7 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
@@ -2212,7 +2212,7 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]],

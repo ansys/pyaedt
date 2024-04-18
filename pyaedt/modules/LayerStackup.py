@@ -1385,17 +1385,17 @@ class Layers(object):
             layers[o.id] = o
         return layers
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(layername="layer", layertype="layer_type")
     def add_layer(
-        self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
+        self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
     ):
         """Add a layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
-        layertype : str, optional
+        layer_type : str, optional
             Type of the layer. The default is ``"signal"``.
         thickness : str, optional
             Thickness with units. The default is ``"0mm"``.
@@ -1411,8 +1411,8 @@ class Layers(object):
         :class:`pyaedt.modules.LayerStackup.Layer`
             Layer object.
         """
-        newlayer = Layer(self, layertype, isnegative)
-        newlayer.name = layername
+        newlayer = Layer(self, layer_type, isnegative)
+        newlayer.name = layer
         newlayer._thickness = thickness
 
         if elevation == "0mm":

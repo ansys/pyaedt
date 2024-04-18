@@ -73,9 +73,8 @@ class Primitives3D(GeometryModeler):
 
     >>> from pyaedt import Hfss
     >>> app = Hfss()
-    >>> box = app.modeler.create_box(position=[0,0,0], dimensions_list=[10,5,3], name="my_box",
-    ...                              matname="copper", color=(240, 120, 0),
-    ...                              transparency=0.5)
+    >>> box = app.modeler.create_box(origin=[0,0,0],sizes=[10,5,3],
+    ...                              name="my_box",material="copper",color=(240, 120, 0),transparency=0.5)
 
     In this example, ``color`` and ``transparency`` are the variable named arguments that
     can be passed to any method that creates a primitive.
@@ -85,20 +84,20 @@ class Primitives3D(GeometryModeler):
         GeometryModeler.__init__(self, application, is3d=True)
         self.multiparts = []
 
-    @pyaedt_function_handler()
-    def create_box(self, position, dimensions_list, name=None, matname=None, **kwargs):
+    @pyaedt_function_handler(position="origin", dimensions_list="sizes", matname="material")
+    def create_box(self, origin, sizes, name=None, material=None, **kwargs):
         """Create a box.
 
         Parameters
         ----------
-        position : list
+        origin : list
             Anchor point for the box in Cartesian``[x, y, z]`` coordinates.
-        dimensions_list : list
+        sizes : list
            Length of the box edges in Cartesian``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. The default is ``None``, in which case the
             default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material.  The default is ``None``, in which case the
             default material is assigned. If the material name supplied is
             invalid, the default material is assigned.
@@ -128,21 +127,18 @@ class Primitives3D(GeometryModeler):
         >>> hfss = Hfss()
         >>> origin = [0,0,0]
         >>> dimensions = [10,5,20]
-        >>> box_object = hfss.modeler.create_box(position=origin,
-        ...                                      dimensions_list=dimensions,
-        ...                                      name="mybox",
-        ...                                      matname="copper")
+        >>> box_object = hfss.modeler.create_box(origin=origin,sizes=dimensions,name="mybox",material="copper")
 
         """
-        if len(position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
-        if len(dimensions_list) != 3:
+        if len(sizes) != 3:
             self.logger.error("The ``dimension_list`` argument must be a valid three-element list.")
             return False
 
-        XPosition, YPosition, ZPosition = self._pos_with_arg(position)
-        XSize, YSize, ZSize = self._pos_with_arg(dimensions_list)
+        XPosition, YPosition, ZPosition = self._pos_with_arg(origin)
+        XSize, YSize, ZSize = self._pos_with_arg(sizes)
         vArg1 = ["NAME:BoxParameters"]
         vArg1.append("XPosition:="), vArg1.append(XPosition)
         vArg1.append("YPosition:="), vArg1.append(YPosition)
@@ -150,32 +146,32 @@ class Primitives3D(GeometryModeler):
         vArg1.append("XSize:="), vArg1.append(XSize)
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_cylinder(self, cs_axis, position, radius, height, numSides=0, name=None, matname=None, **kwargs):
+    @pyaedt_function_handler(cs_axis="orientation", position="origin", numSides="num_sides", matname="material")
+    def create_cylinder(self, orientation, origin, radius, height, num_sides=0, name=None, material=None, **kwargs):
         """Create a cylinder.
 
         Parameters
         ----------
-        cs_axis : int or str
+        orientation : int or str
             Axis of rotation of the starting point around the center point.
             :class:`pyaedt.constants.AXIS` Enumerator can be used as input.
-        position : list
+        origin : list
             Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
             Radius of the cylinder.
         height : float
             Height of the cylinder.
-        numSides : int, optional
+        num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for
             a cylinder.
         name : str, optional
             Name of the cylinder. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
 
@@ -205,20 +201,20 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler.create_cylinder(cs_axis='Z', position=[0,0,0],
-        ...                                                   radius=2, height=3, name="mycyl",
-        ...                                                   matname="vacuum")
+        >>> cylinder_object = aedtapp.modeler.create_cylinder(orientation='Z',
+        ...                                                   origin=[0,0,0],radius=2,
+        ...                                                   height=3,name="mycyl",material="vacuum")
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
             self.logger.error("The ``radius`` argument must be greater than 0.")
             return False
-        if len(position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
 
-        szAxis = GeometryOperators.cs_axis_str(cs_axis)
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position)
+        szAxis = GeometryOperators.cs_axis_str(orientation)
+        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
 
         Radius = self._arg_with_dim(radius)
         Height = self._arg_with_dim(height)
@@ -230,26 +226,27 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSides:="), vArg1.append("{}".format(numSides))
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg1.append("NumSides:="), vArg1.append("{}".format(num_sides))
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler()
-    def create_polyhedron(self, cs_axis=None, center_position=(0.0, 0.0, 0.0), start_position=(0.0, 1.0, 0.0),
-                          height=1.0, num_sides=12, name=None, matname=None, **kwargs):  # fmt: on
+    @pyaedt_function_handler(cs_axis="orientation", center_position="center",
+                             start_position="origin", matname="material")
+    def create_polyhedron(self, orientation=None, center=(0.0, 0.0, 0.0), origin=(0.0, 1.0, 0.0),
+                          height=1.0, num_sides=12, name=None, material=None, **kwargs):  # fmt: on
         """Create a regular polyhedron.
 
         Parameters
         ----------
-        cs_axis : optional
+        orientation : optional
             Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
-        center_position : list, optional
+        center : list, optional
             List of ``[x, y, z]`` coordinates for the center position.
             The default is ``(0.0, 0.0, 0.0)``.
-        start_position : list, optional
+        origin : list, optional
             List of ``[x, y, z]`` coordinates for the starting position.
             The default is ``(0.0, 0.0, 0.0)``.
         height : float, optional
@@ -259,7 +256,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the polyhedron. The default is ``None``, in which the
             default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which the
             default material is assigned.
 
@@ -285,23 +282,23 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_obj = aedtapp.modeler.create_polyhedron(cs_axis='X', center_position=[0, 0, 0],
-        ...                                             start_position=[0,5,0], height=0.5,
-        ...                                              num_sides=8, name="mybox", matname="copper")
+        >>> ret_obj = aedtapp.modeler.create_polyhedron(orientation='X',center=[0, 0, 0],
+        ...                                             origin=[0,5,0],height=0.5,num_sides=8,
+        ...                                             name="mybox",material="copper")
         """
-        cs_axis = GeometryOperators.cs_axis_str(cs_axis)
-        if len(center_position) != 3:
+        orientation = GeometryOperators.cs_axis_str(orientation)
+        if len(center) != 3:
             self.logger.error("The ``center_position`` argument must be a valid three-element list.")
             return False
-        if len(start_position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``start_position`` argument must be a valid three-element list.")
             return False
-        if center_position == start_position:
+        if center == origin:
             self.logger.error("The ``center_position`` and ``start_position`` arguments must be different.")
             return False
 
-        x_center, y_center, z_center = self._pos_with_arg(center_position)
-        x_start, y_start, z_start = self._pos_with_arg(start_position)
+        x_center, y_center, z_center = self._pos_with_arg(center)
+        x_start, y_start, z_start = self._pos_with_arg(origin)
 
         height = self._arg_with_dim(height)
 
@@ -314,21 +311,21 @@ class Primitives3D(GeometryModeler):
         vArg1.append("ZStart:="), vArg1.append(z_start)
         vArg1.append("Height:="), vArg1.append(height)
         vArg1.append("NumSides:="), vArg1.append(int(num_sides))
-        vArg1.append("WhichAxis:="), vArg1.append(cs_axis)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg1.append("WhichAxis:="), vArg1.append(orientation)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_cone(self, cs_axis, position, bottom_radius, top_radius, height, name=None, matname=None, **kwargs):
+    @pyaedt_function_handler(cs_axis="orientation", position="origin", matname="material")
+    def create_cone(self, orientation, origin, bottom_radius, top_radius, height, name=None, material=None, **kwargs):
         """Create a cone.
 
         Parameters
         ----------
-        cs_axis : str
+        orientation : str
             Axis of rotation of the starting point around the center point.
             The default is ``None``, in which case the Z axis is used.
-        position : list, optional
+        origin : list, optional
             List of ``[x, y, z]`` coordinates for the center position
             of the bottom of the cone.
         bottom_radius : float
@@ -340,7 +337,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the cone. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
 
@@ -371,9 +368,9 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> cone_object = aedtapp.modeler.create_cone(cs_axis='Z', position=[0, 0, 0],
-        ...                                           bottom_radius=2, top_radius=3, height=4,
-        ...                                           name="mybox", matname="copper")
+        >>> cone_object = aedtapp.modeler.create_cone(orientation='Z',origin=[0, 0, 0],
+        ...                                           bottom_radius=2,top_radius=3,height=4,
+        ...                                           name="mybox",material="copper")
 
         """
         if bottom_radius == top_radius:
@@ -388,12 +385,12 @@ class Primitives3D(GeometryModeler):
         if isinstance(height, (int, float)) and height <= 0:
             self.logger.error("The ``height`` argument must be greater than 0.")
             return False
-        if len(position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
 
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position)
-        szAxis = GeometryOperators.cs_axis_str(cs_axis)
+        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
+        szAxis = GeometryOperators.cs_axis_str(orientation)
         Height = self._arg_with_dim(height)
         RadiusBt = self._arg_with_dim(bottom_radius)
         RadiusUp = self._arg_with_dim(top_radius)
@@ -406,17 +403,17 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("BottomRadius:="), vArg1.append(RadiusBt)
         vArg1.append("TopRadius:="), vArg1.append(RadiusUp)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_sphere(self, position, radius, name=None, matname=None, **kwargs):
+    @pyaedt_function_handler(position="origin", matname="material")
+    def create_sphere(self, origin, radius, name=None, material=None, **kwargs):
         """Create a sphere.
 
         Parameters
         ----------
-        position : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the center position
             of the sphere.
         radius : float
@@ -424,7 +421,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the sphere. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
 
@@ -451,17 +448,16 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ret_object = aedtapp.modeler.create_sphere(position=[0,0,0], radius=2,
-        ...                                            name="mysphere", matname="copper")
+        >>> ret_object = aedtapp.modeler.create_sphere(origin=[0,0,0],radius=2,name="mysphere",material="copper")
         """
-        if len(position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
         if isinstance(radius, (int, float)) and radius < 0:
             self.logger.error("The ``radius`` argument must be greater than 0.")
             return False
 
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position)
+        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
 
         Radius = self._arg_with_dim(radius)
 
@@ -470,17 +466,17 @@ class Primitives3D(GeometryModeler):
         vArg1.append("YCenter:="), vArg1.append(YCenter)
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateSphere(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_torus(self, center, major_radius, minor_radius, axis=None, name=None, material_name=None, **kwargs):
+    @pyaedt_function_handler(center="origin", material_name="material")
+    def create_torus(self, origin, major_radius, minor_radius, axis=None, name=None, material=None, **kwargs):
         """Create a torus.
 
         Parameters
         ----------
-        center : list
+        origin : list
             Center point for the torus in a list of ``[x, y, z]`` coordinates.
         major_radius : float
            Major radius of the torus.
@@ -492,7 +488,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the torus. The default is ``None``, in which case the
             default name is assigned.
-        material_name : str, optional
+        material : str, optional
             Name of the material.  The default is ``None``, in which case the
             default material is assigned. If the material name supplied is
             invalid, the default material is assigned.
@@ -523,11 +519,11 @@ class Primitives3D(GeometryModeler):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> origin = [0, 0, 0]
-        >>> torus = hfss.modeler.create_torus(center=origin, major_radius=1,
-        ...                                   minor_radius=0.5, axis="Z",
-        ...                                    name="mytorus", material_name="copper")
+        >>> torus = hfss.modeler.create_torus(origin=origin,major_radius=1,minor_radius=0.5,
+        ...                                   axis="Z",name="mytorus",material="copper")
+
         """
-        if len(center) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``center`` argument must be a valid three-element list.")
             return False
         # if major_radius <= 0 or minor_radius <= 0:
@@ -535,7 +531,7 @@ class Primitives3D(GeometryModeler):
         # if minor_radius >= major_radius:
         #     raise ValueError("Major radius must be greater than minor radius.")
 
-        x_center, y_center, z_center = self._pos_with_arg(center)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
         axis = GeometryOperators.cs_axis_str(axis)
         major_radius = self._arg_with_dim(major_radius)
         minor_radius = self._arg_with_dim(minor_radius)
@@ -547,24 +543,24 @@ class Primitives3D(GeometryModeler):
         first_argument.append("MajorRadius:="), first_argument.append(major_radius)
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
-        second_argument = self._default_object_attributes(name=name, matname=material_name)
+        second_argument = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler()
-    def create_bondwire(self, start_position, end_position, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
-                        diameter=0.025, facets=6, name=None, matname=None, cs_axis="Z", **kwargs):  # fmt: on
+    @pyaedt_function_handler(start_position="start", end_position="end", matname="material", cs_axis="orientation")
+    def create_bondwire(self, start, end, h1=0.2, h2=0, alpha=80, beta=5, bond_type=0,
+                        diameter=0.025, facets=6, name=None, material=None, orientation="Z", **kwargs):  # fmt: on
         # type : (list, list, float|str=0.2, float|str=0, float=80, float=5, int=0, float|str=0.025, int=6, str=None,
         # str=None) -> Object3d
         """Create a bondwire.
 
         Parameters
         ----------
-        start_position : list
+        start : list
             List of ``[x, y, z]`` coordinates for the starting
             position of the bond pad.
-        end_position :  list
+        end :  list
             List of ``[x, y, z]`` coordinates for the ending position
             of the bond pad.
         h1 : float|str optional
@@ -597,10 +593,10 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the bondwire. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
-        cs_axis : str, optional
+        orientation : str, optional
             Coordinate system axis. The default is ``"Z"``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
@@ -623,24 +619,24 @@ class Primitives3D(GeometryModeler):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
-        ...                                          bond_type=0, name="mybox", matname="copper")
+        >>> object_id = hfss.modeler.create_bondwire(origin,endpos,h1=0.5,h2=0.1,alpha=75,
+        ...                                          beta=4,bond_type=0,name="mybox",material="copper")
         """
-        if len(start_position) != 3:
+        if len(start) != 3:
             self.logger.error("The ``start_position`` argument must be a valid three-Element List")
             return False
-        x_position, y_position, z_position = self._pos_with_arg(start_position)
-        if len(end_position) != 3:
+        x_position, y_position, z_position = self._pos_with_arg(start)
+        if len(end) != 3:
             self.logger.error("The ``end_position`` argument must be a valid three-Element List")
             return False
-        x_position_end, y_position_end, z_position_end = self._pos_with_arg(end_position)
+        x_position_end, y_position_end, z_position_end = self._pos_with_arg(end)
 
         cont = 0
         x_length = None
         y_length = None
         z_length = None
 
-        for m, n in zip(start_position, end_position):
+        for m, n in zip(start, end):
             if not isinstance(m, str):
                 m = self._arg_with_dim(m)
             if not isinstance(n, str):
@@ -694,30 +690,30 @@ class Primitives3D(GeometryModeler):
         first_argument.append("h2:="), first_argument.append(self._arg_with_dim(h2))
         first_argument.append("alpha:="), first_argument.append(self._arg_with_dim(alpha, "deg"))
         first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
-        first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(cs_axis))
+        first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(orientation))
         first_argument.append("ReverseDirection:="), first_argument.append(False)
-        second_argument = self._default_object_attributes(name=name, matname=matname)
+        second_argument = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_rectangle(self, csPlane, position, dimension_list, name=None, matname=None, is_covered=True, **kwargs):
+    @pyaedt_function_handler(csPlane="orientation", position="origin", dimension_list="sizes", matname="material")
+    def create_rectangle(self, orientation, origin, sizes, name=None, material=None, is_covered=True, **kwargs):
         """Create a rectangle.
 
         Parameters
         ----------
-        csPlane : str or int
+        orientation : str or int
             Coordinate system plane for orienting the rectangle.
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
-        position : list or Position
+        origin : list or Position
             List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
             the position ApplicationName.modeler.Position(x,y,z) object.
-        dimension_list : list
+        sizes : list
             List of ``[width, height]`` dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is assigned.
         is_covered : bool, optional
@@ -736,14 +732,14 @@ class Primitives3D(GeometryModeler):
 
         >>> oEditor.CreateRectangle
         """
-        if len(dimension_list) != 2:
-            self.logger.error("The ``dimension_list`` argument must be a valid two-element list.")
+        if len(sizes) != 2:
+            self.logger.error("The ``sizes`` argument must be a valid two-element list.")
             return False
-        szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
-        XStart, YStart, ZStart = self._pos_with_arg(position)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        XStart, YStart, ZStart = self._pos_with_arg(origin)
 
-        Width = self._arg_with_dim(dimension_list[0])
-        Height = self._arg_with_dim(dimension_list[1])
+        Width = self._arg_with_dim(sizes[0])
+        Height = self._arg_with_dim(sizes[1])
 
         vArg1 = ["NAME:RectangleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
@@ -753,31 +749,31 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Width:="), vArg1.append(Width)
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler()
-    def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None,
-                      matname=None, non_model=False, **kwargs):  # fmt: on
+    @pyaedt_function_handler(cs_plane="orientation", position="origin", numSides="num_sides", matname="material")
+    def create_circle(self, orientation, origin, radius, num_sides=0, is_covered=True, name=None,
+                      material=None, non_model=False, **kwargs):  # fmt: on
         """Create a circle.
 
         Parameters
         ----------
-        cs_plane : str or int
+        orientation : str or int
             Coordinate system plane for orienting the circle.
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
-        position : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float
             Radius of the circle.
-        numSides : int, optional
+        num_sides : int, optional
             Number of sides. The default is ``0``, which is correct for a circle.
         name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
         non_model : bool, optional
@@ -814,15 +810,15 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> circle_object = aedtapp.modeler.create_circle(cs_plane='Z', position=[0,0,0],
+        >>> circle_object = aedtapp.modeler.create_circle(orientation='Z', origin=[0,0,0],
         ...                                                   radius=2, num_sides=8, name="mycyl",
-        ...                                                   matname="vacuum")
+        ...                                                   material="vacuum")
         """
         non_model_flag = ""
         if non_model:
             non_model_flag = "NonModel#"
-        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
-        XCenter, YCenter, ZCenter = self._pos_with_arg(position)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        XCenter, YCenter, ZCenter = self._pos_with_arg(origin)
         Radius = self._arg_with_dim(radius)
         vArg1 = ["NAME:CircleParameters"]
         vArg1.append("IsCovered:="), vArg1.append(is_covered)
@@ -831,23 +827,23 @@ class Primitives3D(GeometryModeler):
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg1.append("NumSegments:="), vArg1.append("{}".format(numSides))
-        vArg2 = self._default_object_attributes(name=name, matname=matname, flags=non_model_flag)
+        vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
+        vArg2 = self._default_object_attributes(name=name, matname=material, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(cs_plane="orientation", position="origin", matname="material")
     def create_ellipse(
-            self, cs_plane, position, major_radius, ratio, is_covered=True, name=None, matname=None, **kwargs
+            self, orientation, origin, major_radius, ratio, is_covered=True, name=None, material=None, **kwargs
     ):
         """Create an ellipse.
 
         Parameters
         ----------
-        cs_plane : str or int
+        orientation : str or int
             Coordinate system plane for orienting the ellipse.
             :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
-        position : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_radius : float
             Base radius of the ellipse.
@@ -860,7 +856,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             Name of the ellipse. The default is ``None``, in which case the
             default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
         **kwargs : optional
@@ -897,14 +893,14 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> ellipse = aedtapp.modeler.create_ellipse(cs_plane='Z', position=[0,0,0],
+        >>> ellipse = aedtapp.modeler.create_ellipse(orientation='Z', origin=[0,0,0],
         ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
-        ...                                          matname="vacuum")
+        ...                                          material="vacuum")
 
 
         """
-        szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
-        XStart, YStart, ZStart = self._pos_with_arg(position)
+        szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
+        XStart, YStart, ZStart = self._pos_with_arg(origin)
 
         MajorRadius = self._arg_with_dim(major_radius)
 
@@ -916,7 +912,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("MajRadius:="), vArg1.append(MajorRadius)
         vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -1047,16 +1043,16 @@ class Primitives3D(GeometryModeler):
         return self._create_object(new_name, **kwargs)
 
     # fmt: off
-    @pyaedt_function_handler()
-    def create_helix(self, polyline_name, position, x_start_dir, y_start_dir, z_start_dir, num_thread=1,
+    @pyaedt_function_handler(polyline_name="assignment", position="origin", num_thread="turns")
+    def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
                      right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
         """Create an helix from a polyline.
 
         Parameters
         ----------
-        polyline_name : str
+        assignment : str
             Name of the polyline used as the base for the helix.
-        position : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         x_start_dir : float
             Distance along x axis from the polyline.
@@ -1064,7 +1060,7 @@ class Primitives3D(GeometryModeler):
             Distance along y axis from the polyline.
         z_start_dir : float
             Distance along z axis from the polyline.
-        num_thread : int, optional
+        turns : int, optional
             Number of turns. The default value is ``1``.
         right_hand : bool, optional
             Whether the helix turning direction is right hand. The default value is ``True``.
@@ -1097,33 +1093,23 @@ class Primitives3D(GeometryModeler):
         >>> udp2 = [5, 0, 0]
         >>> udp3 = [10, 5, 0]
         >>> udp4 = [15, 3, 0]
-        >>> polyline = aedtapp.modeler.create_polyline(
-        ...     [udp1, udp2, udp3, udp4], cover_surface=False, name="helix_polyline"
-        ... )
-
-        >>> helix_right_turn = aedtapp.modeler.create_helix(
-        ...     polyline_name=polyline.name,
-        ...     position=[0, 0, 0],
-        ...     x_start_dir=0,
-        ...     y_start_dir=1.0,
-        ...     z_start_dir=1.0,
-        ...     num_thread=1,
-        ...     right_hand=True,
-        ...     radius_increment=0.0,
-        ...     thread=1.0,
-        ... )
+        >>> polyline = aedtapp.modeler.create_polyline([udp1, udp2, udp3, udp4],cover_surface=False,
+        ...                                            name="helix_polyline")
+        >>> helix_right_turn = aedtapp.modeler.create_helix(assignment=polyline.name,origin=[0, 0, 0],
+        ...                                                 x_start_dir=0,y_start_dir=1.0,z_start_dir=1.0,
+        ...                                                 turns=1,right_hand=True,radius_increment=0.0,thread=1.0)
         """
-        if not polyline_name or polyline_name == "":
+        if not assignment or assignment == "":
             self.logger.error("The name of the polyline cannot be an empty string.")
             return False
 
-        if len(position) != 3:
+        if len(origin) != 3:
             self.logger.error("The ``position`` argument must be a valid three-element list.")
             return False
-        x_center, y_center, z_center = self._pos_with_arg(position)
+        x_center, y_center, z_center = self._pos_with_arg(origin)
 
         vArg1 = ["NAME:Selections"]
-        vArg1.append("Selections:="), vArg1.append(polyline_name)
+        vArg1.append("Selections:="), vArg1.append(assignment)
         vArg1.append("NewPartsModelFlag:="), vArg1.append("Model")
 
         vArg2 = ["NAME:HelixParameters"]
@@ -1140,7 +1126,7 @@ class Primitives3D(GeometryModeler):
         vArg2.append("ZStartDir:=")
         vArg2.append(self._arg_with_dim(z_start_dir))
         vArg2.append("NumThread:=")
-        vArg2.append(num_thread)
+        vArg2.append(turns)
         vArg2.append("RightHand:=")
         vArg2.append(right_hand)
         vArg2.append("RadiusIncrement:=")
@@ -1149,27 +1135,27 @@ class Primitives3D(GeometryModeler):
         vArg2.append(self._arg_with_dim(thread))
 
         self.oeditor.CreateHelix(vArg1, vArg2)
-        if polyline_name in self.objects_by_name:
-            del self.objects[self.objects_by_name[polyline_name].id]
-        return self._create_object(polyline_name, **kwargs)
+        if assignment in self.objects_by_name:
+            del self.objects[self.objects_by_name[assignment].id]
+        return self._create_object(assignment, **kwargs)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(udmfullname="udm_full_name", udm_params_list="parameters", udm_library="library")
     def create_udm(
             self,
-            udmfullname,
-            udm_params_list,
-            udm_library="syslib",
+            udm_full_name,
+            parameters,
+            library="syslib",
             name=None,
     ):
         """Create a user-defined model.
 
         Parameters
         ----------
-        udmfullname : str
+        udm_full_name : str
             Full name for the user-defined model, including the folder name.
-        udm_params_list :
+        parameters :
             List of user-defined object pairs for the model.
-        udm_library : str, optional
+        library : str, optional
             Name of the library for the user-defined model. The default is ``"syslib"``.
         name : str, optional
             Name of the user-defined model. The default is ``None```.
@@ -1188,7 +1174,7 @@ class Primitives3D(GeometryModeler):
         vArg1 = ["NAME:UserDefinedModelParameters", ["NAME:Definition"], ["NAME:Options"]]
         vArgParamVector = ["NAME:GeometryParams"]
 
-        for pair in udm_params_list:
+        for pair in parameters:
             if isinstance(pair, list):
                 name_param = pair[0]
                 val = pair[1]
@@ -1226,9 +1212,9 @@ class Primitives3D(GeometryModeler):
 
         vArg1.append(vArgParamVector)
         vArg1.append("DllName:=")
-        vArg1.append(udmfullname)
+        vArg1.append(udm_full_name)
         vArg1.append("Library:=")
-        vArg1.append(udm_library)
+        vArg1.append(library)
         vArg1.append("Version:=")
         vArg1.append("2.0")
         vArg1.append("ConnectionID:=")
@@ -1306,16 +1292,15 @@ class Primitives3D(GeometryModeler):
             pts.append((x1, y1, elevation))
 
         pts.append((x1, 0, elevation))
-        p1 = self.create_polyline(
-            pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname=material
-        )
+        p1 = self.create_polyline(pts, material=material, xsection_type="Rectangle", xsection_width=width,
+                                  xsection_height=thickness)
         if name:
             p1.name = name
             self._create_object(name, **kwargs)
         return p1
 
-    @pyaedt_function_handler()
-    def _create_reference_cs_from_3dcomp(self, udm_obj, password):
+    @pyaedt_function_handler(udm_obj="assignment")
+    def _create_reference_cs_from_3dcomp(self, assignment, password):
         """Create a new coordinate system from the 3d component reference one.
 
         Returns
@@ -1324,7 +1309,7 @@ class Primitives3D(GeometryModeler):
             Name of the created coordinate system that mirrors the reference one of the
             3d component.
         """
-        app = udm_obj.edit_definition(password=password)
+        app = assignment.edit_definition(password=password)
         wcs = app.modeler.oeditor.GetActiveCoordinateSystem()
         if wcs != "Global":
             temp_folder = os.path.join(
@@ -1344,13 +1329,13 @@ class Primitives3D(GeometryModeler):
                     os.rmdir(os.path.join(root, name))
             os.rmdir(temp_folder)
             phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
-            cs_name = udm_obj.name + "_" + wcs + "_ref"
+            cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
                 self.create_coordinate_system(
                     mode="zxz",
                     origin=o,
                     name=cs_name,
-                    reference_cs=udm_obj.target_coordinate_system,
+                    reference_cs=assignment.target_coordinate_system,
                     psi=psi,
                     theta=theta,
                     phi=phi,
@@ -1358,39 +1343,42 @@ class Primitives3D(GeometryModeler):
             return cs_name
         else:
             app.oproject.Close()
-            return udm_obj.target_coordinate_system
+            return assignment.target_coordinate_system
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(comp_file="input_file", geo_params="geometry_parameters",
+                             sz_mat_params="material_parameters",
+                             sz_design_params="design_parameters",
+                             targetCS="coordinate_system", auxiliary_dict="auxiliary_parameters")
     def insert_3d_component(
             self,
-            comp_file,
-            geo_params=None,
-            sz_mat_params="",
-            sz_design_params="",
-            targetCS="Global",
+            input_file,
+            geometry_parameters=None,
+            material_parameters="",
+            design_parameters="",
+            coordinate_system="Global",
             name=None,
             password="",
-            auxiliary_dict=False,
+            auxiliary_parameters=False,
     ):
         """Insert a new 3D component.
 
         Parameters
         ----------
-        comp_file : str
+        input_file : str
             Name of the component file.
-        geo_params : dict, optional
+        geometry_parameters : dict, optional
             Geometrical parameters.
-        sz_mat_params : str, optional
+        material_parameters : str, optional
             Material parameters. The default is ``""``.
-        sz_design_params : str, optional
+        design_parameters : str, optional
             Design parameters. The default is ``""``.
-        targetCS : str, optional
+        coordinate_system : str, optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
         password : str, optional
             Password for encrypted components. The default is an empty string.
-        auxiliary_dict : bool or str, optional
+        auxiliary_parameters : bool or str, optional
             Enable the advanced 3d component import. It is possible to set explicitly the json file.
             The default is ``False``.
 
@@ -1404,7 +1392,7 @@ class Primitives3D(GeometryModeler):
 
         >>> oEditor.Insert3DComponent
         """
-        aedt_fh = open_file(comp_file, "rb")
+        aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
             _all_lines = []
@@ -1421,17 +1409,17 @@ class Primitives3D(GeometryModeler):
             aedt_fh.close()
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
-        if not geo_params:
-            geometryparams = self._app.get_components3d_vars(comp_file)
+        if not geometry_parameters:
+            geometryparams = self._app.get_components3d_vars(input_file)
             if geometryparams:
-                geo_params = geometryparams
+                geometry_parameters = geometryparams
 
-        if geo_params:
-            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geo_params.items()])
+        if geometry_parameters:
+            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geometry_parameters.items()])
         vArg1.append("TargetCS:=")
-        vArg1.append(targetCS)
+        vArg1.append(coordinate_system)
         vArg1.append("ComponentFile:=")
-        vArg1.append(comp_file)
+        vArg1.append(input_file)
         vArg1.append("IsLocal:=")
         vArg1.append(False)
         vArg1.append("UniqueIdentifier:=")
@@ -1441,9 +1429,9 @@ class Primitives3D(GeometryModeler):
             "GeometryParameters:=",
             sz_geo_params,
             "MaterialParameters:=",
-            sz_mat_params,
+            material_parameters,
             "DesignParameters:=",
-            sz_design_params,
+            design_parameters,
         ]
         vArg1.append(varg2)
         vArg1.append("Password:=")
@@ -1454,10 +1442,10 @@ class Primitives3D(GeometryModeler):
                 obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
                 for new_name in obj_list:
                     self._create_object(new_name)
-                if auxiliary_dict:
-                    if isinstance(auxiliary_dict, bool):
-                        auxiliary_dict = comp_file + ".json"
-                    aux_dict = json.load(open(auxiliary_dict, "r"))
+                if auxiliary_parameters:
+                    if isinstance(auxiliary_parameters, bool):
+                        auxiliary_parameters = input_file + ".json"
+                    aux_dict = json.load(open(auxiliary_parameters, "r"))
                     if aux_dict.get("datasets", None):
                         for dat in aux_dict["datasets"]:
                             key = dat["Name"]
@@ -1480,11 +1468,11 @@ class Primitives3D(GeometryModeler):
                                 dat["vunit"],
                             )
                 udm_obj = self._create_user_defined_component(new_object_name)
-                if name and not auxiliary_dict:
+                if name and not auxiliary_parameters:
                     udm_obj.name = name
         except Exception:  # pragma: no cover
             udm_obj = False
-        if auxiliary_dict and udm_obj:
+        if auxiliary_parameters and udm_obj:
             mapping_dict = {}
             if aux_dict.get("native components", None):
                 if aux_dict.get("coordinatesystems", None):
@@ -1523,15 +1511,15 @@ class Primitives3D(GeometryModeler):
                 old_udm = set(list(self._app.modeler.user_defined_components))
                 old_cs = set(self._app.modeler.coordinate_systems)
                 self._app.configurations.import_config(temp_dict_file, exclude_set)
-                targetCS = self._create_reference_cs_from_3dcomp(udm_obj, password)
-                if targetCS != "Global":
+                coordinate_system = self._create_reference_cs_from_3dcomp(udm_obj, password)
+                if coordinate_system != "Global":
                     self._app.modeler.refresh_all_ids()
                     for udm in set(list(self._app.modeler.user_defined_components)) - old_udm:
                         if self._app.modeler.user_defined_components[udm].target_coordinate_system == "Global":
-                            self._app.modeler.user_defined_components[udm].target_coordinate_system = targetCS
+                            self._app.modeler.user_defined_components[udm].target_coordinate_system = coordinate_system
                 for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
-                        cs.ref_cs = targetCS
+                        cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
                 temp_proj_name = generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
@@ -1600,7 +1588,7 @@ class Primitives3D(GeometryModeler):
                     m_case = mon["Type"]
                     if m_case == "Point":
                         cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
-                        self._app.modeler.set_working_coordinate_system(targetCS)
+                        self._app.modeler.set_working_coordinate_system(coordinate_system)
                         self._app.monitor.assign_point_monitor(
                             mon["Location"], monitor_quantity=mon["Quantity"], monitor_name=key
                         )
@@ -1636,10 +1624,10 @@ class Primitives3D(GeometryModeler):
         else:
             return udm_obj
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(comp_file="input_file")
     def insert_layout_component(
             self,
-            comp_file,
+            input_file,
             coordinate_system="Global",
             name=None,
             parameter_mapping=False,
@@ -1650,7 +1638,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        comp_file : str
+        input_file : str
             Path of the component file. Either ``".aedb"`` and ``".aedbcomp"`` are allowed.
         coordinate_system : str, optional
             Target coordinate system. The default is ``"Global"``.
@@ -1687,7 +1675,7 @@ class Primitives3D(GeometryModeler):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
-        component_name = os.path.splitext(os.path.basename(comp_file))[0]
+        component_name = os.path.splitext(os.path.basename(input_file))[0]
         aedt_component_name = component_name
         if component_name not in self._app.o_component_manager.GetNames():
             compInfo = ["NAME:" + str(component_name), "Info:=", []]
@@ -1707,7 +1695,7 @@ class Primitives3D(GeometryModeler):
                     "CompExtID:=",
                     9,
                     "ModelEDBFilePath:=",
-                    comp_file,
+                    input_file,
                     "EDBCompPassword:=",
                     "",
                 ]
@@ -1719,8 +1707,8 @@ class Primitives3D(GeometryModeler):
             name = generate_unique_name("LC")
 
         # Open Layout component and get information
-        aedb_component_path = comp_file
-        if os.path.splitext(os.path.basename(comp_file))[1] == ".aedbcomp":
+        aedb_component_path = input_file
+        if os.path.splitext(os.path.basename(input_file))[1] == ".aedbcomp":
             aedb_project_path = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
             aedb_component_path = os.path.join(
                 aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
@@ -1905,13 +1893,13 @@ class Primitives3D(GeometryModeler):
             udm_obj = False
         return udm_obj
 
-    @pyaedt_function_handler()
-    def get_3d_component_object_list(self, componentname):
+    @pyaedt_function_handler(componentname="name")
+    def get_3d_component_object_list(self, name):
         """Retrieve all objects belonging to a 3D component.
 
         Parameters
         ----------
-        componentname : str
+        name : str
             Name of the 3D component.
 
         Returns
@@ -1925,7 +1913,7 @@ class Primitives3D(GeometryModeler):
         >>> oeditor.GetChildObject
         """
         if self._app._is_object_oriented_enabled():
-            compobj = self.oeditor.GetChildObject(componentname)
+            compobj = self.oeditor.GetChildObject(name)
             if compobj:
                 return list(compobj.GetChildNames())
         else:
@@ -1951,17 +1939,17 @@ class Primitives3D(GeometryModeler):
         else:
             return MultiPartComponent.start(self._app)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_person(
             self,
-            actor_folder,
+            input_dir,
             speed=0.0,
             global_offset=[0, 0, 0],
             yaw=0,
             pitch=0,
             roll=0,
-            relative_cs_name=None,
-            actor_name=None,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Walking Person Multipart from 3D Components.
 
@@ -2018,7 +2006,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        actor_folder : str
+        input_dir : str
             Path to the actor folder. It must contain a json settings
             file and a 3dcomponent (.a3dcomp).
         speed :  float, optional
@@ -2031,9 +2019,9 @@ class Primitives3D(GeometryModeler):
             Pitch Rotation from Global Coordinate System in deg.
         roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
-        relative_cs_name : str
+        coordinate_system : str
             Relative CS Name of the actor. ``None`` for Global CS.
-        actor_name : str
+        name : str
             If provided, it overrides the actor name in the JSON.
 
         Returns
@@ -2046,11 +2034,11 @@ class Primitives3D(GeometryModeler):
         >>> oEditor.Insert3DComponent
         """
         self._initialize_multipart()
-        if not self._check_actor_folder(actor_folder):
+        if not self._check_actor_folder(input_dir):
             return False
-        person1 = Person(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
-        if actor_name:
-            person1._name = actor_name
+        person1 = Person(input_dir, speed=speed, relative_cs_name=coordinate_system)
+        if name:
+            person1._name = name
         person1.offset = global_offset
         person1.yaw = self._arg_with_dim(yaw, "deg")
         person1.pitch = self._arg_with_dim(pitch, "deg")
@@ -2059,17 +2047,17 @@ class Primitives3D(GeometryModeler):
         self.multiparts.append(person1)
         return person1
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_vehicle(
             self,
-            actor_folder,
+            input_dir,
             speed=0,
             global_offset=[0, 0, 0],
             yaw=0,
             pitch=0,
             roll=0,
-            relative_cs_name=None,
-            actor_name=None,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Moving Vehicle Multipart from 3D Components.
 
@@ -2109,7 +2097,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        actor_folder : str
+        input_dir : str
             Path to the actor directory. It must contain a json settings file
             and a 3dcomponent (``.a3dcomp`` file).
         speed :  float, optional
@@ -2122,7 +2110,7 @@ class Primitives3D(GeometryModeler):
             Pitch Rotation from Global Coordinate System in deg.
         roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
-        relative_cs_name : str
+        coordinate_system : str
             Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
@@ -2136,11 +2124,11 @@ class Primitives3D(GeometryModeler):
         """
         self._initialize_multipart()
 
-        if not self._check_actor_folder(actor_folder):
+        if not self._check_actor_folder(input_dir):
             return False
-        vehicle = Vehicle(actor_folder, speed=speed, relative_cs_name=relative_cs_name)
-        if actor_name:
-            vehicle._name = actor_name
+        vehicle = Vehicle(input_dir, speed=speed, relative_cs_name=coordinate_system)
+        if name:
+            vehicle._name = name
         vehicle.offset = global_offset
         vehicle.yaw = self._arg_with_dim(yaw, "deg")
         vehicle.pitch = self._arg_with_dim(pitch, "deg")
@@ -2149,18 +2137,18 @@ class Primitives3D(GeometryModeler):
         self.multiparts.append(vehicle)
         return vehicle
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(actor_folder="input_dir", relative_cs_name="coordinate_system", actor_name="name")
     def add_bird(
             self,
-            actor_folder,
+            input_dir,
             speed=0,
             global_offset=[0, 0, 0],
             yaw=0,
             pitch=0,
             roll=0,
             flapping_rate=50,
-            relative_cs_name=None,
-            actor_name=None,
+            coordinate_system=None,
+            name=None,
     ):
         """Add a Bird Multipart from 3D Components.
 
@@ -2210,7 +2198,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        actor_folder : str
+        input_dir : str
             Path to the actor directory. It must contain a json settings file and a
             3dcomponent (``.a3dcomp`` file)
         speed :  float, optional
@@ -2225,7 +2213,7 @@ class Primitives3D(GeometryModeler):
             Roll Rotation from Global Coordinate System in deg.
         flapping_rate : float, optional
             Motion flapping rate in Hz.
-        relative_cs_name : str
+        coordinate_system : str
             Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
@@ -2242,21 +2230,21 @@ class Primitives3D(GeometryModeler):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> bird_dir = "path/to/bird/directory"
-        >>> bird1 = app.modeler.add_bird(bird_dir, 1.0, [19, 4, 3], 120, -5, flapping_rate=30)
+        >>> bird1 = app.modeler.add_bird(bird_dir,1.0,[19, 4, 3],120,-5,flapping_rate=30)
 
         """
         self._initialize_multipart()
 
-        if not self._check_actor_folder(actor_folder):
+        if not self._check_actor_folder(input_dir):
             return False
         bird = Bird(
-            actor_folder,
+            input_dir,
             speed=speed,
             flapping_rate=self._arg_with_dim(flapping_rate, "Hz"),
-            relative_cs_name=relative_cs_name,
+            relative_cs_name=coordinate_system,
         )
-        if actor_name:
-            bird._name = actor_name
+        if name:
+            bird._name = name
         bird.offset = global_offset
         bird.yaw = self._arg_with_dim(yaw, "deg")
         bird.pitch = self._arg_with_dim(pitch, "deg")
@@ -2265,10 +2253,10 @@ class Primitives3D(GeometryModeler):
         self.multiparts.append(bird)
         return bird
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(env_folder="input_dir", relative_cs_name="coordinate_system", environment_name="name")
     def add_environment(
-            self, env_folder, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, relative_cs_name=None,
-            environment_name=None
+            self, input_dir, global_offset=[0, 0, 0], yaw=0, pitch=0, roll=0, coordinate_system=None,
+            name=None
     ):
         """Add an Environment Multipart Component from JSON file.
 
@@ -2295,7 +2283,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        env_folder : str
+        input_dir : str
             Path to the actor directory. It must contain a json
             settings file and a 3dcomponent (``.a3dcomp`` file).
         global_offset : list, optional
@@ -2306,7 +2294,7 @@ class Primitives3D(GeometryModeler):
             Pitch Rotation from Global Coordinate System in deg.
         roll : float, optional
             Roll Rotation from Global Coordinate System in deg.
-        relative_cs_name : str
+        coordinate_system : str
             Relative CS Name of the actor. ``None`` for Global CS.
 
         Returns
@@ -2320,11 +2308,11 @@ class Primitives3D(GeometryModeler):
 
         """
         self._initialize_multipart()
-        if not self._check_actor_folder(env_folder):
+        if not self._check_actor_folder(input_dir):
             return False
-        environment = Environment(env_folder, relative_cs_name=relative_cs_name)
-        if environment_name:
-            environment._name = environment_name
+        environment = Environment(input_dir, relative_cs_name=coordinate_system)
+        if name:
+            environment._name = name
         environment.offset = global_offset
         environment.yaw = self._arg_with_dim(yaw, "deg")
         environment.pitch = self._arg_with_dim(pitch, "deg")
@@ -2333,13 +2321,13 @@ class Primitives3D(GeometryModeler):
         self.multiparts.append(environment)
         return environment
 
-    @pyaedt_function_handler()
-    def create_choke(self, json_file):
+    @pyaedt_function_handler(json_file="input_file")
+    def create_choke(self, input_file):
         """Create a choke from a JSON setting file.
 
         Parameters
         ----------
-        json_file : str
+        input_file : str
             Full path of the JSON file with the choke settings.
 
         Returns
@@ -2368,7 +2356,7 @@ class Primitives3D(GeometryModeler):
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
 
-        with open_file(json_file, "r") as read_file:
+        with open_file(input_file, "r") as read_file:
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
 
@@ -2511,9 +2499,8 @@ class Primitives3D(GeometryModeler):
             if values["Mode"]["Common"] and number_duplication == 2:
                 if isinstance(list_object[0], list):
                     for i in range(len(list_object)):
-                        duplication = self.create_polyline(
-                            position_list=list_object[i][1], name=name_wind, matname=material_wind
-                        )
+                        duplication = self.create_polyline(points=list_object[i][1], name=name_wind,
+                                                           material=material_wind)
                         duplication.mirror([0, 0, 0], [-1, 0, 0])
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -2522,9 +2509,7 @@ class Primitives3D(GeometryModeler):
                         list_duplicated_object.append([duplication, duplication_points])
 
                 else:
-                    duplication = self.create_polyline(
-                        position_list=list_object[1], name=name_wind, matname=material_wind
-                    )
+                    duplication = self.create_polyline(points=list_object[1], name=name_wind, material=material_wind)
                     duplication.mirror([0, 0, 0], [-1, 0, 0])
                     duplication_points = self.get_vertices_of_line(duplication.name)
                     success = duplication.set_crosssection_properties(type=section, width=w_dia, num_seg=segment_number)
@@ -2533,9 +2518,8 @@ class Primitives3D(GeometryModeler):
                 if isinstance(list_object[0], list):
                     for j in range(number_duplication - 1):
                         for i in range(len(list_object)):
-                            duplication = self.create_polyline(
-                                position_list=list_object[i][1], name=name_wind, matname=material_wind
-                            )
+                            duplication = self.create_polyline(points=list_object[i][1], name=name_wind,
+                                                               material=material_wind)
                             duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                             duplication_points = self.get_vertices_of_line(duplication.name)
                             success = duplication.set_crosssection_properties(
@@ -2544,9 +2528,8 @@ class Primitives3D(GeometryModeler):
                             list_duplicated_object.append([duplication, duplication_points])
                 else:
                     for j in range(number_duplication - 1):
-                        duplication = self.create_polyline(
-                            position_list=list_object[1], name=name_wind, matname=material_wind
-                        )
+                        duplication = self.create_polyline(points=list_object[1], name=name_wind,
+                                                           material=material_wind)
                         duplication.rotate("Z", (j + 1) * 360 / number_duplication)
                         duplication_points = self.get_vertices_of_line(duplication.name)
                         success = duplication.set_crosssection_properties(
@@ -2591,12 +2574,11 @@ class Primitives3D(GeometryModeler):
                     ]
                 )
 
-        polyline = self.create_polyline(position_list=points, name=name, matname=material)
+        polyline = self.create_polyline(points=points, name=name, material=material)
         union_polyline1 = [polyline.name]
         if turns > 1:
-            union_polyline2 = polyline.duplicate_around_axis(
-                cs_axis="Z", angle=2 * teta, nclones=turns, create_new_objects=True
-            )
+            union_polyline2 = polyline.duplicate_around_axis(axis="Z", angle=2 * teta, clones=turns,
+                                                             create_new_objects=True)
         else:
             union_polyline2 = []
         union_polyline = union_polyline1 + union_polyline2
@@ -2614,7 +2596,7 @@ class Primitives3D(GeometryModeler):
                 positions.pop()
             positions.insert(0, [positions[0][0], positions[0][1], -height])
             positions.append([positions[-1][0], positions[-1][1], -height])
-            true_polyline = self.create_polyline(position_list=positions, name=name, matname=material)
+            true_polyline = self.create_polyline(points=positions, name=name, material=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             positions = self.get_vertices_of_line(true_polyline.name)
             return [true_polyline, positions]
@@ -2665,9 +2647,9 @@ class Primitives3D(GeometryModeler):
         points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_out_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_out_wind[0][2]])
 
-        outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
+        outer_polyline = self.create_polyline(points=points_out_wind, name=name, material=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
+        inner_polyline = self.create_polyline(points=points_in_wind, name=name, material=material)
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         outer_polyline.mirror([0, 0, 0], [0, -1, 0])
         outer_polyline.rotate("Z", turns_in_wind * teta_in_wind - turns * teta)
@@ -2677,7 +2659,7 @@ class Primitives3D(GeometryModeler):
         for i in range(len(list_polyline)):
             list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.delete(list_polyline)
-        true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
+        true_polyline = self.create_polyline(points=list_positions, name=name, material=material)
         return [true_polyline, list_positions]
 
     @pyaedt_function_handler()
@@ -2735,11 +2717,11 @@ class Primitives3D(GeometryModeler):
         points_in_wind[-1] = [points_in_wind[-2][0], points_in_wind[-2][1], points_mid_wind[1][2]]
         points_in_wind.append([points_in_wind[-3][0], points_in_wind[-3][1], points_mid_wind[0][2]])
 
-        outer_polyline = self.create_polyline(position_list=points_out_wind, name=name, matname=material)
+        outer_polyline = self.create_polyline(points=points_out_wind, name=name, material=material)
         outer_polyline.rotate("Z", 180 - (turns - 1) * teta)
-        mid_polyline = self.create_polyline(position_list=points_mid_wind, name=name, matname=material)
+        mid_polyline = self.create_polyline(points=points_mid_wind, name=name, material=material)
         mid_polyline.rotate("Z", 180 - (turns_mid_wind - 1) * teta_mid_wind)
-        inner_polyline = self.create_polyline(position_list=points_in_wind, name=name, matname=material)
+        inner_polyline = self.create_polyline(points=points_in_wind, name=name, material=material)
 
         inner_polyline.rotate("Z", 180 - (turns_in_wind - 1) * teta_in_wind)
         mid_polyline.mirror([0, 0, 0], [0, -1, 0])
@@ -2752,7 +2734,7 @@ class Primitives3D(GeometryModeler):
         for i in range(len(list_polyline)):
             list_positions = list_positions + self.get_vertices_of_line(list_polyline[i])
         self.delete(list_polyline)
-        true_polyline = self.create_polyline(position_list=list_positions, name=name, matname=material)
+        true_polyline = self.create_polyline(points=list_positions, name=name, material=material)
         return [true_polyline, list_positions]
 
     @pyaedt_function_handler()
@@ -2850,20 +2832,20 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _make_core(self, name, material, in_rad, out_rad, height, chamfer):
-        tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool", matname=material)
-        core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name=name, matname=material)
+        tool = self.create_cylinder("Z", [0, 0, -height / 2], in_rad, height, 0, "Tool", material=material)
+        core = self.create_cylinder("Z", [0, 0, -height / 2], out_rad, height, 0, name=name, material=material)
         core.subtract(tool, False)
         for n in core.edges:
             n.chamfer(chamfer)
         return core
 
-    @pyaedt_function_handler()
-    def check_choke_values(self, json_file, create_another_file=True):
+    @pyaedt_function_handler(json_file="input_dir", )
+    def check_choke_values(self, input_dir, create_another_file=True):
         """Verify the values in the json file and create another one with corrected values next to the first one.
 
         Parameters
         ----------
-        json_file : str
+        input_dir : str
             Full path to json file;
             Specific json file containing all the parameters to design your on choke.
         create_another_file : bool
@@ -2933,7 +2915,7 @@ class Primitives3D(GeometryModeler):
         }
         are_inequations_checkable = True
         sr = 1.1  # Security factor
-        with open_file(json_file, "r") as read_file:
+        with open_file(input_dir, "r") as read_file:
             values = json.load(read_file)
 
         for key, value in dictionary_model.items():
@@ -3297,12 +3279,12 @@ class Primitives3D(GeometryModeler):
                 values["Inner Winding"]["Occupation(%)"] = occ
 
             if create_another_file:
-                root_path, extension_path = os.path.splitext(json_file)
+                root_path, extension_path = os.path.splitext(input_dir)
                 new_path = root_path + "_Corrected" + extension_path
                 with open_file(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:
-                with open_file(json_file, "w") as outfile:
+                with open_file(input_dir, "w") as outfile:
                     json.dump(values, outfile)
 
         return [are_inequations_checkable, values]

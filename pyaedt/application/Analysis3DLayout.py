@@ -51,8 +51,10 @@ class FieldAnalysis3DLayout(Analysis):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Specifies by process ID the instance of AEDT to point PyAEDT at.
+        This parameter is only used when ``new_desktop_session=False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode. The default is ``False``.
 
     """
 
@@ -71,6 +73,7 @@ class FieldAnalysis3DLayout(Analysis):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
         Analysis.__init__(
             self,
@@ -87,6 +90,7 @@ class FieldAnalysis3DLayout(Analysis):
             machine,
             port,
             aedt_process_id,
+            ic_mode,
         )
         self._modeler = None
         self._mesh = None

@@ -73,6 +73,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``.
 
     Examples
     --------
@@ -128,6 +130,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -144,11 +147,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             machine,
             port,
             aedt_process_id,
+            ic_mode,
         )
         ScatteringMethods.__init__(self, self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
+
+    @property
+    def ic_mode(self):
+        """IC mode of current design.
+
+        Returns
+        -------
+        bool
+        """
+        return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
+
+    @ic_mode.setter
+    def ic_mode(self, value):
+        self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
     @pyaedt_function_handler()
     def create_edge_port(
@@ -225,31 +243,31 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         if len(a) > 0:
             if iswave:
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="HFSS Type",
-                    property_value="Wave",
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="HFSS Type",
+                    value="Wave",
+                    aedt_tab="EM Design",
                 )
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="Horizontal Extent Factor",
-                    property_value=str(wave_horizontal_extension),
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="Horizontal Extent Factor",
+                    value=str(wave_horizontal_extension),
+                    aedt_tab="EM Design",
                 )
                 if "Vertical Extent Factor" in list(
                     self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
                 ):
                     self.modeler.change_property(
-                        property_object="Excitations:{}".format(a[0]),
-                        property_name="Vertical Extent Factor",
-                        property_value=str(wave_vertical_extension),
-                        property_tab="EM Design",
+                        assignment="Excitations:{}".format(a[0]),
+                        name="Vertical Extent Factor",
+                        value=str(wave_vertical_extension),
+                        aedt_tab="EM Design",
                     )
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="PEC Launch Width",
-                    property_value=str(wave_launcher),
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="PEC Launch Width",
+                    value=str(wave_launcher),
+                    aedt_tab="EM Design",
                 )
             bound = self._update_port_info(a[0])
             if bound:
@@ -550,11 +568,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             )
             self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
             if layer:
-                self.modeler.change_property(
-                    a[0],
-                    "Pad Port Layer",
-                    layer,
-                )
+                self.modeler.change_property(a[0], "Pad Port Layer", layer)
             bound = self._update_port_info(a[0])
             if bound:
                 self._boundaries[bound.name] = bound

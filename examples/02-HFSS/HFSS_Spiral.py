@@ -64,7 +64,8 @@ hfss["Tsub"] = "6" + hfss.modeler.model_units
 # the width, thickness, and material.
 
 def create_line(pts):
-    p.create_polyline(pts, xsection_type="Rectangle", xsection_width=width, xsection_height=thickness, matname="copper")
+    p.create_polyline(pts, material="copper", xsection_type="Rectangle", xsection_width=width,
+                      xsection_height=thickness)
 
 
 ################################################################
@@ -92,18 +93,16 @@ ind = hfss.modeler.create_spiral(
 x0, y0, z0 = ind.points[0]
 x1, y1, z1 = ind.points[-1]
 create_line([(x0 - width / 2, y0, -gap), (abs(x1) + 5, y0, -gap)])
-p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2],
-             [width, width, gap + thickness],
-             matname="copper")
+p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2], [width, width, gap + thickness], material="copper")
 
 ################################################################
 # Create port 1
 # ~~~~~~~~~~~~~
 # Create port 1.
 
-p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
-                   position=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
-                   dimension_list=[width, "Tsub+{}{}".format(gap, hfss.modeler.model_units)],
+p.create_rectangle(orientation=pyaedt.constants.PLANE.YZ,
+                   origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
+                   sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
 hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
@@ -125,12 +124,10 @@ hfss.lumped_port(assignment="port2", integration_line=pyaedt.constants.AXIS.Z)
 # Create the silicon substrate and the ground plane.
 
 p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
-             [-2 * x1 + 40, -2 * x1 + 40, "Tsub"],
-             matname="silicon")
+             [-2 * x1 + 40, -2 * x1 + 40, "Tsub"], material="silicon")
 
 p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.model_units)],
-             [-2 * x1 + 40, -2 * x1 + 40, -0.1],
-             matname="PEC")
+             [-2 * x1 + 40, -2 * x1 + 40, -0.1], material="PEC")
 
 ################################################################
 # Assign airbox and radiation
@@ -139,10 +136,7 @@ p.create_box([x1 - 20, x1 - 20, "-Tsub-{}{}/2".format(thickness, hfss.modeler.mo
 
 box = p.create_box(
     [x1 - 20, x1 - 20, "-Tsub-{}{}/2 - 0.1{}".format(thickness, hfss.modeler.model_units, hfss.modeler.model_units)],
-    [-2 * x1 + 40, -2 * x1 + 40, 100],
-    name="airbox",
-    matname="air"
-)
+    [-2 * x1 + 40, -2 * x1 + 40, 100], name="airbox", material="air")
 
 hfss.assign_radiation_boundary_to_objects("airbox")
 

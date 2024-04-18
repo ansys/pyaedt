@@ -86,10 +86,9 @@ m3d.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a ladder plate and assign it the newly created material ``team3_aluminium``.
 
-m3d.modeler.create_box(position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate",
-                       matname="team3_aluminium")
-m3d.modeler.create_box(position=[-20, -35, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool1")
-m3d.modeler.create_box(position=[-20, 5, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool2")
+m3d.modeler.create_box(origin=[-30, -55, 0], sizes=[60, 110, -6.35], name="LadderPlate", material="team3_aluminium")
+m3d.modeler.create_box(origin=[-20, -35, 0], sizes=[40, 30, -6.35], name="CutoutTool1")
+m3d.modeler.create_box(origin=[-20, 5, 0], sizes=[40, 30, -6.35], name="CutoutTool2")
 m3d.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
 
 ################################################################################
@@ -105,12 +104,10 @@ m3d.mesh.assign_length_mesh("LadderPlate", maximum_length=3, maximum_elements=No
 # Draw a search coil and assign it a ``stranded`` current excitation. 
 # The stranded type forces the current density to be constant in the coil.
 
-m3d.modeler.create_cylinder(
-    cs_axis="Z", position=[0, "Coil_Position", 15], radius=40, height=20, name="SearchCoil", matname="copper"
-)
-m3d.modeler.create_cylinder(
-    cs_axis="Z", position=[0, "Coil_Position", 15], radius=20, height=20, name="Bore", matname="copper"
-)
+m3d.modeler.create_cylinder(orientation="Z", origin=[0, "Coil_Position", 15], radius=40, height=20, name="SearchCoil",
+                            material="copper")
+m3d.modeler.create_cylinder(orientation="Z", origin=[0, "Coil_Position", 15], radius=20, height=20, name="Bore",
+                            material="copper")
 m3d.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
 m3d.modeler.section("SearchCoil", "YZ")
 m3d.modeler.separate_bodies("SearchCoil_Section1")
@@ -125,8 +122,8 @@ m3d.assign_current(assignment=["SearchCoil_Section1"], amplitude=1260, solid=Fal
 # mesh locally around the line.
 
 line_points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
-m3d.modeler.create_polyline(position_list=line_points, name="Line_AB")
-poly = m3d.modeler.create_polyline(position_list=line_points, name="Line_AB_MeshRefinement")
+m3d.modeler.create_polyline(points=line_points, name="Line_AB")
+poly = m3d.modeler.create_polyline(points=line_points, name="Line_AB_MeshRefinement")
 poly.set_crosssection_properties(type="Circle", width="0.5mm")
 
 ###############################################################################
