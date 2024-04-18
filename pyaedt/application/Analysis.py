@@ -286,10 +286,10 @@ class Analysis(Design, object):
         setup_list = self.existing_analysis_setups
         if setup_list:
             if setup_name not in setup_list:
-                raise ValueError("Invalid setup name {}".format(setup_name))
+                raise ValueError("Setup name {} is invalid.".format(setup_name))
             self._setup = setup_name
         else:
-            raise AttributeError("No setup defined")
+            raise AttributeError("No setup is defined.")
 
     @property
     def existing_analysis_sweeps(self):
@@ -707,7 +707,7 @@ class Analysis(Design, object):
                 self.post.oreportsetup.ExportToFile(str(report_name), export_path)
                 self.logger.info("Export Data: {}".format(export_path))
             except Exception:
-                self.logger.info("Failed in exporting to file.")
+                self.logger.info("Failed to export to file.")
             exported_files.append(export_path)
 
         if touchstone_format == "MagPhase":
@@ -953,11 +953,11 @@ class Analysis(Design, object):
                         native_component_object = NativeComponentObject(self, component_type, component_name, ds)
                         boundaries.append(native_component_object)
                 except Exception:
-                    msg = "Failed in adding native component object"
+                    msg = "Failed to add native component object."
                     msg_end = "." if component_name == "undefined" else "(named {}).".format(component_name)
                     self.logger.debug(msg + msg_end)
         except Exception:
-            self.logger.debug("Failed in adding native component object.")
+            self.logger.debug("Failed to add native component object.")
         return boundaries
 
     class AvailableVariations(object):
@@ -1770,10 +1770,10 @@ class Analysis(Design, object):
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
                     set_custom_dso = True
                 except Exception:
-                    self.logger.info("Failed in setting registry from file {}".format(target_name))
+                    self.logger.info("Failed to set registry from file {}.".format(target_name))
         if not name:
             try:
-                self.logger.info("Solving all design setups")
+                self.logger.info("Solving all design setups.")
                 if self.desktop_class.aedt_version_id > "2023.1":
                     self.odesign.AnalyzeAll(blocking)
                 else:

@@ -396,7 +396,7 @@ class Design(AedtObjects):
                 if k not in self._boundaries:
                     self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
-            self.logger.info("Failing in designing boundary object.")
+            self.logger.info("Failed to design boundary object.")
         return list(self._boundaries.values())
 
     @property
@@ -516,9 +516,9 @@ class Design(AedtObjects):
             try:
                 settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
             except Exception:
-                self._logger.info("Failing in loading AEDT file.")
+                self._logger.info("Failed to load AEDT file.")
             else:
-                self._logger.info("aedt file load time {}".format(time.time() - start))
+                self._logger.info("Time to load AEDT file: {}.".format(time.time() - start))
         if os.path.normpath(self.project_file) in settings._project_properties:
             return settings._project_properties[os.path.normpath(self.project_file)]
         return {}
@@ -2212,7 +2212,7 @@ class Design(AedtObjects):
                                 )
                             )
                 except Exception:
-                    self.logger.debug("Failing to retrieve boundary data from BoundarySetup.")
+                    self.logger.debug("Failed to retrieve boundary data from 'BoundarySetup'.")
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
             for ds in self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
                 try:
@@ -2230,7 +2230,7 @@ class Design(AedtObjects):
                             )
                         )
                 except Exception:
-                    self.logger.debug("Failing to retrieve boundary data from MaxwellParameterSetup.")
+                    self.logger.debug("Failed to retrieve boundary data from 'MaxwellParameterSetup'.")
         if self.design_properties and "ModelSetup" in self.design_properties:
             if "MotionSetupList" in self.design_properties["ModelSetup"]:
                 for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
@@ -2248,7 +2248,7 @@ class Design(AedtObjects):
                                 )
                             )
                     except Exception:
-                        self.logger.debug("Failing to retrieve boundary data from ModelSetup.")
+                        self.logger.debug("Failed to retrieve boundary data from 'ModelSetup'.")
         if self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
                 bound = self._update_port_info(port)
@@ -2327,7 +2327,7 @@ class Design(AedtObjects):
                 ]
                 datasets[ds] = self._get_ds_data(ds, data)
         except Exception:
-            self.logger.debug("Failing to retrieve project data sets.")
+            self.logger.debug("Failed to retrieve project data sets.")
         return datasets
 
     @pyaedt_function_handler()
@@ -2339,7 +2339,7 @@ class Design(AedtObjects):
                 data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, data)
         except Exception:
-            self.logger.debug("Failing to retrieve design data sets.")
+            self.logger.debug("Failed to retrieve design data sets.")
         return datasets
 
     @pyaedt_function_handler()
@@ -3265,7 +3265,7 @@ class Design(AedtObjects):
 
     def _insert_design(self, design_type, design_name=None):
         if design_type not in self.design_solutions.design_types:
-            raise ValueError("Invalid design type for insert: {}".format(design_type))
+            raise ValueError("Design type of insert '{}' is invalid.".format(design_type))
 
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
