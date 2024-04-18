@@ -948,7 +948,7 @@ class Desktop(object):
                     except Exception:
                         messages = desktop.GetMessages("", "", 0)
                         for message in messages:
-                            if " GRPC server running on port: " in message and str(port) in message:
+                            if "gRPC server running on port: " in message and str(port) in message:
                                 self.isoutsideDesktop = True
                                 self.odesktop = desktop
                                 self.aedt_process_id = self.odesktop.GetProcessID()
