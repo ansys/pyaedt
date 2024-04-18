@@ -313,7 +313,7 @@ class TestClass:
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze_setup(q3d.active_setup, cores=6)
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
@@ -375,7 +375,7 @@ class TestClass:
         assert q3d.matrices[1].name == "JointTest"
         q3d["d"] = "10mm"
         q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze_setup(q3d.active_setup, cores=6)
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
@@ -435,11 +435,11 @@ class TestClass:
         exported_files = q3d.export_results()
         assert len(exported_files) == 0
         for setup_name in q3d.setup_names:
-            q3d.analyze_setup(setup_name, num_cores=6)
+            q3d.analyze_setup(setup_name, cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze(num_cores=6)
+        q3d.analyze(cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

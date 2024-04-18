@@ -107,7 +107,6 @@ surflist += [i.id for i in ipk.modeler["ALPHA_MAIN_PCB"].faces]
 
 plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
-
 ipk.analyze()
 
 ###############################################################################

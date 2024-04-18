@@ -202,7 +202,7 @@ setup.create_frequency_sweep(
 #  Each frequency point is solved simultaneously.
 
 
-setup.analyze(num_tasks=2)
+setup.analyze(tasks=2)
 
 ###############################################################################
 # Generate S-Parameter Plots
