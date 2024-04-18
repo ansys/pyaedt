@@ -2176,10 +2176,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """
 
         if self.solution_type in [
+            "Magnetostatic",
             "EddyCurrent",
             "Transient",
             "TransientAPhiFormulation",
             "DCConduction",
+            "ACConduction",
             "ElectroDCConduction",
         ]:
             if not insulation:
