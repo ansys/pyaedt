@@ -3113,6 +3113,14 @@ class FieldPlot:
                 self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
             else:
                 self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            if (
+                "Maxwell" in self._postprocessor._app.design_type
+                and "Transient" in self._postprocessor.post_solution_type
+            ):
+                self._postprocessor.ofieldsreporter.SetPlotsViewSolutionContext(
+                    [self.name], self.solution, "Time:" + self.intrinsics["Time"]
+                )
+            self._postprocessor.field_plots[self.name] = self
             return True
         except Exception:
             return False
