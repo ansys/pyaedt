@@ -385,13 +385,13 @@ class Part(object):
         )
         if self.rot_axis[0]:
             app[self.yaw_name] = self.yaw
-            app.modeler.rotate(aedt_object, "Z")
+            app.modeler.rotate(aedt_object, "Z", angle=self.yaw_name)
         if self.rot_axis[1]:
             app[self.pitch_name] = self.pitch
-            app.modeler.rotate(aedt_object, "Y")
+            app.modeler.rotate(aedt_object, "Y", angle=self.pitch_name)
         if self.rot_axis[2]:
             app[self.roll_name] = self.roll
-            app.modeler.rotate(aedt_object, "X")
+            app.modeler.rotate(aedt_object, "X", angle=self.roll_name)
 
         return True
 
