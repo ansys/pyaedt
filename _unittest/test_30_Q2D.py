@@ -67,14 +67,14 @@ class TestClass:
         assert self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
 
     def test_08_assign_huray_finitecond_to_edges(self):
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
         self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
         assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
 
     def test_09_auto_assign(self):
         self.aedtapp.insert_design("test_auto")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
-        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", matname="Copper")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
         assert self.aedtapp.auto_assign_conductors()
         assert self.aedtapp.boundaries[0].object_properties
         assert len(self.aedtapp.boundaries) == 2
@@ -123,9 +123,9 @@ class TestClass:
 
     def test_13_get_all_conductors(self):
         self.aedtapp.insert_design("condcutors")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
-        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", matname="aluminum")
-        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", matname="air")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
+        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
         conductors = self.aedtapp.get_all_conductors_names()
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]

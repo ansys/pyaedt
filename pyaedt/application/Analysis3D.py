@@ -703,10 +703,10 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> box1 = hfss.modeler.create_box([10, 10, 10], [4, 5, 5])
-        >>> box2 = hfss.modeler.create_box([0, 0, 0], [2, 3, 4])
-        >>> cylinder1 = hfss.modeler.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
-        >>> cylinder2 = hfss.modeler.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
+        >>> box1 = hfss.modeler.create_box([10, 10, 10],[4, 5, 5])
+        >>> box2 = hfss.modeler.create_box([0, 0, 0],[2, 3, 4])
+        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X",origin=[5, 0, 0],radius=1,height=20)
+        >>> cylinder2 = hfss.modeler.create_cylinder(orientation="Z",origin=[0, 0, 5],radius=1,height=10)
 
         Assign the material ``"copper"`` to all the objects.
 

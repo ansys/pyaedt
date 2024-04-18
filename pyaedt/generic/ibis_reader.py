@@ -275,10 +275,7 @@ class Pin:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.buffer_name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
         )
 
 
@@ -439,10 +436,7 @@ class DifferentialPin:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.buffer_name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
         )
 
 
@@ -503,10 +497,7 @@ class Buffer:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.name, location=[x, y], angle=angle
         )
 
 

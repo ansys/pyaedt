@@ -350,8 +350,8 @@ class BoundaryObject(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss =Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-    >>> inner_id = hfss.modeler.get_obj_id("inner")
+    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
+    >>> inner_id = hfss.modeler.get_obj_id("inner",)
     >>> coat = hfss.assign_coating([inner_id],"copper",use_thickness=True,thickness="0.2mm")
     """
 
@@ -875,8 +875,8 @@ class MaxwellParameters(BoundaryCommon, object):
 
     >>> from pyaedt import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_1", "vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_2", "vacuum")
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_1","vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_2","vacuum")
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
@@ -3615,7 +3615,7 @@ class NetworkObject(BoundaryObject):
                 new_list.append(item)
         return new_list
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def create(self):
         """
         Create network in AEDT.
@@ -3645,7 +3645,7 @@ class NetworkObject(BoundaryObject):
         self._app.oboundary.AssignNetworkBoundary(clean_args)
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _update_from_props(self):
         nodes = self.props.get("Nodes", None)
         if nodes is not None:
@@ -4010,16 +4010,16 @@ class NetworkObject(BoundaryObject):
         except KeyError:
             self.props[type_dict] = {new_node.name: new_node.props}
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(face_id="assignment")
     def add_face_node(
-        self, face_id, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
+        self, assignment, name=None, thermal_resistance="NoResistance", material=None, thickness=None, resistance=None
     ):
         """
         Create a face node in the network.
 
         Parameters
         ----------
-        face_id : int
+        assignment : int
             Face ID.
         name : str, optional
             Name of the node. Default is ``None``.
@@ -4046,15 +4046,15 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
-        >>> network.add_face_node(faces_ids[1], name="TestNode", thermal_resistance="Compute",
-        >>>                       material="Al-Extruded", thickness="2mm")
-        >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
+        >>> network.add_face_node(faces_ids[1],name="TestNode",thermal_resistance="Compute",
+        ...                       material="Al-Extruded",thickness="2mm")
+        >>> network.add_face_node(faces_ids[2],name="TestNode",thermal_resistance="Specified",resistance=2)
         """
         props_dict = OrderedDict({})
-        props_dict["FaceID"] = face_id
+        props_dict["FaceID"] = assignment
         if thermal_resistance is not None:
             if thermal_resistance == "Compute":
                 if resistance is not None:
@@ -4090,20 +4090,20 @@ class NetworkObject(BoundaryObject):
                     )
 
         if name is None:
-            name = "FaceID" + str(face_id)
+            name = "FaceID" + str(assignment)
         new_node = self._Node(name, self._app, node_type="FaceNode", props=props_dict, network=self)
         self._nodes.append(new_node)
         self._add_to_props(new_node)
         return new_node
 
-    @pyaedt_function_handler()
-    def add_nodes_from_dictionaries(self, nodes_dict):
+    @pyaedt_function_handler(nodes_dict="nodes")
+    def add_nodes_from_dictionaries(self, nodes):
         """
         Add nodes to the network from dictionary.
 
         Parameters
         ----------
-        nodes_dict : list or dict
+        nodes : list or dict
             A dictionary or list of dictionaries containing nodes to add to the network. Different
             node types require different key and value pairs:
 
@@ -4166,7 +4166,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
         >>>         {"FaceID": faces_ids[0]},
@@ -4177,12 +4177,12 @@ class NetworkObject(BoundaryObject):
         >>> network.add_nodes_from_dictionaries(nodes_dict)
 
         """
-        if isinstance(nodes_dict, dict):
-            nodes_dict = [nodes_dict]
-        for node_dict in nodes_dict:
+        if isinstance(nodes, dict):
+            nodes = [nodes]
+        for node_dict in nodes:
             if "FaceID" in node_dict.keys():
                 self.add_face_node(
-                    face_id=node_dict["FaceID"],
+                    assignment=node_dict["FaceID"],
                     name=node_dict.get("Name", None),
                     thermal_resistance=node_dict.get("ThermalResistance", None),
                     material=node_dict.get("Material", None),
@@ -4236,7 +4236,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
@@ -4281,7 +4281,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}
@@ -4384,7 +4384,7 @@ class NetworkObject(BoundaryObject):
             """
             return [self.node_1, self.node_2] + self._link_type + [self.value]
 
-        @pyaedt_function_handler
+        @pyaedt_function_handler()
         def delete_link(self):
             """
             Delete link from network.
@@ -4401,7 +4401,7 @@ class NetworkObject(BoundaryObject):
             self._node_props()
             self._network = network
 
-        @pyaedt_function_handler
+        @pyaedt_function_handler()
         def delete_node(self):
             """
             Delete node from network.
@@ -4570,7 +4570,7 @@ class BoundaryDictionary:
     def _parse_value(self):
         pass  # pragma : no cover
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def __getitem__(self, k):
         return self.props.get(k)
 
@@ -4597,7 +4597,7 @@ class LinearDictionary(BoundaryDictionary):
         self.intercept = intercept
         self.slope = slope
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.slope, self.intercept]
 
@@ -4628,7 +4628,7 @@ class PowerLawDictionary(BoundaryDictionary):
         self.coefficient = coefficient
         self.scaling_exponent = scaling_exponent
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.intercept, self.coefficient, self.scaling_exponent]
 
@@ -4659,7 +4659,7 @@ class ExponentialDictionary(BoundaryDictionary):
         self.coefficient = coefficient
         self.exponent_coefficient = exponent_coefficient
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.vertical_offset, self.coefficient, self.exponent_coefficient]
 
@@ -4694,7 +4694,7 @@ class SinusoidalDictionary(BoundaryDictionary):
         self.period = period
         self.period_offset = period_offset
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.vertical_offset, self.vertical_scaling, self.period, self.period_offset]
 
@@ -4725,7 +4725,7 @@ class SquareWaveDictionary(BoundaryDictionary):
         self.off_time = off_time
         self.off_value = off_value
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.on_value, self.initial_time_off, self.on_time, self.off_time, self.off_value]
 
@@ -4751,7 +4751,7 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
         self._assignment_type = assignment_type
         self.dataset = ds
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _parse_value(self):
         return [self.scale, self.dataset.name]
 
