@@ -267,7 +267,7 @@ class TouchstoneData(rf.Network):
         Returns
         -------
         list
-            list of index couples representing Return Losses of excitations.
+            List of index couples representing return losses of excitations.
 
         """
         values = []
