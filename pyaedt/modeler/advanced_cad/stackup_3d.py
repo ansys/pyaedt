@@ -597,7 +597,7 @@ class Layer3D(object):
             if duplicated_material.name == cloned_material_name:  # return that material.
                 return duplicated_material
         duplicated_material = self._app.materials.duplicate_material(
-            material_name, cloned_material_name, props=list_of_properties
+            material_name, cloned_material_name, properties=list_of_properties
         )
         #        duplicated_material = DuplicatedParametrizedMaterial(
         #            application, material_name, cloned_material_name, list_of_properties
