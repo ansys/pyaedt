@@ -654,6 +654,19 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+
+        assert test_post1.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            nets=["GND", "V3P3_S5"],
+        )
+
+        assert test_post1.post.create_fieldplot_layers(
+            ["UNNAMED_006"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
@@ -679,6 +692,12 @@ class TestClass:
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
             plot_name="Test_Layers4",
         )
+        assert test_post2.post.create_fieldplot_layers(
+            ["TOP", "UNNAMED_004"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            nets=["GND", "V3P3_S5"],
+        )
         self.aedtapp.close_project(test_post2.project_name)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
@@ -686,12 +705,41 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+
+        assert test.post.create_fieldplot_layers(
+            ["UNNAMED_002", "TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP", "PWR"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
         pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)
