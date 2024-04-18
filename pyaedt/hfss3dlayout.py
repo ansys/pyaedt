@@ -345,12 +345,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : list(str)
+        assignment : list, optional
             List of the primitive names to create the wave port on.
             The list must have two entries, one entry for each of the two conductors,
             or the method is not executed.
 
-        edge_numbers :
+        edge_numbers : list, optional
             List of the edge number to create the wave port on.
             The list must have two entries, one entry for each of the two edges,
             or the method is not executed.
