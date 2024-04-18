@@ -847,12 +847,12 @@ class GeometryModeler(Modeler):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
                     except Exception as e:  # pragma: no cover
-                        self.logger.error(e)
+                        self.logger.debug(e)
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:
                         pid = operations["Operation"][0]["ParentPartID"]
                     except Exception as e:
-                        self.logger.error(e)
+                        self.logger.debug(e)
 
                 is_polyline = False
                 if operations and "PolylineParameters" in operations.get("Operation", {}):
@@ -1231,13 +1231,13 @@ class GeometryModeler(Modeler):
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
                 except Exception as e:
-                    self.logger.error(e)
+                    self.logger.debug(e)
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs._ref_cs = id2name[name2refid[cs.name]]
                     except Exception as e:
-                        self.logger.error(e)
+                        self.logger.debug(e)
         coord.reverse()
         return coord
 
@@ -8275,7 +8275,7 @@ class GeometryModeler(Modeler):
                     except Exception:
                         self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
                 else:
-                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive.")
+                    self.logger.debug("'" + str(k) + "' is not a valid property of the primitive.")
         return o
 
     @pyaedt_function_handler()

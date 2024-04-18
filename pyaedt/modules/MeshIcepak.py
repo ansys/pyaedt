@@ -540,7 +540,7 @@ class MeshRegionCommon(object):
         name : str
             Name of the mesh region.
         manual_settings : bool
-            Whether to use manual settings or automatic ones.
+            Whether to use manual settings. If ``False``, automatic settings are used.
         settings : :class:`modules.MeshIcepak.MeshSettings`
             Dictionary-like object to handle settings.
     """
