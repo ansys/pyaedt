@@ -163,7 +163,12 @@ class Monitor:
                     self._app,
                 )
             elif "Points" in monitor_prop.keys():
-                point_name = self._find_point(self._app.odesign.GetChildObject("Monitor"))
+                point_name = self._find_point(
+                    self._app.odesign.GetChildObject("Monitor")
+                    .GetChildObject(monitor_name)
+                    .GetPropValue("Location")
+                    .split(", ")
+                )
                 self._point_monitors[monitor_name] = PointMonitor(
                     monitor_name,
                     "Point",
