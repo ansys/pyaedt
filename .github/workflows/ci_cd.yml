@@ -30,11 +30,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check commit name
-        uses: ansys/actions/commit-style@v5
+        uses: ansys/actions/commit-style@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
 
+  # TODO: Update to ansys/actions/doc-style@v6
   doc-style:
     name: Documentation style check
     runs-on: ubuntu-latest
@@ -67,6 +68,7 @@ jobs:
         run: |
           python -c "import pyaedt; from pyaedt import __version__"
 
+  # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
   doc-build:
     name: Documentation build without examples
     runs-on: ubuntu-latest
@@ -86,7 +88,7 @@ jobs:
 
       - name: Install pyaedt and documentation dependencies
         run: |
-          pip install .[doc-noexamples]
+          pip install .[doc-no-examples]
 
       - name: Retrieve PyAEDT version
         id: version
@@ -94,11 +96,16 @@ jobs:
           echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
+      - name: Install doc build requirements
+        run: |
+          sudo apt update
+          sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
+
       # TODO: Update this step once pyaedt-examples is ready
-      - name: Build documentation without examples
+      - name: Build HTML documentation without examples
         run: |
           make -C doc clean
-          make -C doc html-noexamples
+          make -C doc html-no-examples
 
       # Verify that sphinx generates no warnings
       - name: Check for warnings
@@ -112,93 +119,101 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+      - name: Build PDF documentation without examples
+        run: |
+          make -C doc pdf-no-examples
+
+      - name: Upload PDF documentation without examples artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-no-examples-pdf
+          path: doc/_build/latex/PyAEDT-Documentation-*.pdf
+          retention-days: 7
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  # doc-build-with-examples:
-  #   name: Documentation build with examples
-  #   # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-  #   runs-on: [ self-hosted, Windows, pyaedt ]
-  #   needs: [doc-style]
-  #   timeout-minutes: 720
-  #   steps:
-  #     - name: Install Git and checkout project
-  #       uses: actions/checkout@v4
+  doc-build-with-examples:
+    name: Documentation build with examples
+    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    needs: [doc-style]
+    timeout-minutes: 720
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
 
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-  #     - name: Create virtual environment
-  #       run: |
-  #         python -m venv .venv
-  #         .venv\Scripts\Activate.ps1
-  #         python -m pip install pip -U
-  #         python -m pip install wheel setuptools -U
-  #         python -c "import sys; print(sys.executable)"
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
 
-  #     - name: Install pyaedt and documentation dependencies
-  #       run: |
-  #         .venv\Scripts\Activate.ps1
-  #         pip install .[doc]
+      - name: Install pyaedt and documentation dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[doc]
 
-  #     - name: Retrieve PyAEDT version
-  #       id: version
-  #       run: |
-  #         .venv\Scripts\Activate.ps1
-  #         echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-  #         echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+      - name: Retrieve PyAEDT version
+        id: version
+        run: |
+          .venv\Scripts\Activate.ps1
+          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-  #     - name: Uninstall conflicting CI packages
-  #       run: |
-  #         .venv\Scripts\Activate.ps1
-  #         pip uninstall vtk -y
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          .venv\Scripts\Activate.ps1
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
-  #     - name: Install CI related dependencies
-  #       run: |
-  #         .venv\Scripts\Activate.ps1
-  #         pip install --extra-index-url https://wheels.vtk.org .[ci]
+      # TODO: Update this step once pyaedt-examples is ready
+      # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
+      - name: Build HTML documentation with examples
+        env:
+          SPHINXBUILD_KEEP_DOCTREEDIR: "1"
+        run: |
+          .venv\Scripts\Activate.ps1
+          .\doc\make.bat clean
+          .\doc\make.bat html
 
-  #     # TODO: Update this step once pyaedt-examples is ready
-  #     # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
-  #     - name: Build HTML documentation with examples
-  #       env:
-  #         SPHINXBUILD_KEEP_DOCTREEDIR: "1"
-  #       run: |
-  #         .venv\Scripts\Activate.ps1
-  #         .\doc\make.bat clean
-  #         .\doc\make.bat html
+      - name: Upload HTML documentation with examples artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-examples-html
+          path: doc/_build/html
+          retention-days: 7
 
-  #     - name: Upload HTML documentation with examples artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: documentation-examples-html
-  #         path: doc/_build/html
-  #         retention-days: 7
+      # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
+      # # Verify that sphinx generates no warnings
+      # - name: Check for warnings
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     python doc/print_errors.py
 
-  #     # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
-  #     # # Verify that sphinx generates no warnings
-  #     # - name: Check for warnings
-  #     #   run: |
-  #     #     .venv\Scripts\Activate.ps1
-  #     #     python doc/print_errors.py
+      # # Use environment variable to remove the doctree after the build of PDF pages
+      # - name: Build PDF documentation with examples
+      #   env:
+      #     SPHINXBUILD_KEEP_DOCTREEDIR: "0"
+      #   run: |
+      #     .venv\Scripts\Activate.ps1
+      #     .\doc\make.bat pdf
 
-  #     # # Use environment variable to remove the doctree after the build of PDF pages
-  #     # - name: Build PDF documentation with examples
-  #     #   env:
-  #     #     SPHINXBUILD_KEEP_DOCTREEDIR: "0"
-  #     #   run: |
-  #     #     .venv\Scripts\Activate.ps1
-  #     #     .\doc\make.bat pdf
-
-  #     # - name: Upload PDF documentation with examples artifact
-  #     #   uses: actions/upload-artifact@v3
-  #     #   with:
-  #     #     name: documentation-pdf
-  #     #     path: doc/_build/latex/*.pdf
-  #     #     retention-days: 7
+      # - name: Upload PDF documentation with examples artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: documentation-pdf
+      #     path: doc/_build/latex/*.pdf
+      #     retention-days: 7
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -229,6 +244,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
+          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -237,17 +253,12 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
-      - name: 'Unit testing'
-        uses: nick-fields/retry@v3
+      - name: Run tests on _unittest_solvers
         env:
           PYTHONMALLOC: malloc
-        with:
-          max_attempts: 3
-          retry_on: error
-          timeout_minutes: 40
-          command: |
-            .venv\Scripts\Activate.ps1
-            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+        run: |
+          .venv\Scripts\Activate.ps1
+          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -267,6 +278,7 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
+  # TODO: Si if we can use ansys/actions
   test-solvers-linux:
     name: Testing and coverage (Linux)
     needs: [smoke-tests]
@@ -297,39 +309,12 @@ jobs:
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
+          pip install pytest-azurepipelines
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
+      - name: Run tests on _unittest_solvers
         run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-
-      - name: 'Unit testing'
-        uses: nick-fields/retry@v3
-        # env:
-        #   PYTHONMALLOC: malloc
-        with:
-          max_attempts: 3
-          retry_on: error
-          timeout_minutes: 60
-          command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
-            source .venv/bin/activate
-            pytest -n auto --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
-
-      - name: 'Unit testing solvers'
-        uses: nick-fields/retry@v3
-        # env:
-        #   PYTHONMALLOC: malloc
-        with:
-          max_attempts: 3
-          retry_on: error
-          timeout_minutes: 60
-          command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
-            source .venv/bin/activate
-            pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          .venv\Scripts\Activate.ps1
+          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -374,6 +359,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
+          pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -382,17 +368,17 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
 
-      - name: 'Unit testing'
+      - name: Run tests on _unittest
         uses: nick-fields/retry@v3
         env:
           PYTHONMALLOC: malloc
         with:
-          max_attempts: 3
+          max_attempts: 2
           retry_on: error
-          timeout_minutes: 40
+          timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n auto --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         with:
@@ -405,6 +391,75 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pytest-results
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  # TODO: Si if we can use ansys/actions
+  test-linux:
+    name: Testing and coverage (Linux)
+    needs: [smoke-tests]
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    env:
+      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pip install .[tests]
+          pip install pytest-azurepipelines
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+
+      - name: Run tests on _unittest
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 50
+          command: |
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+            source .venv/bin/activate
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+
+      - uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: codecov-system-solver-tests
+          file: ./coverage.xml
+          flags: system,solver
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-solver-results
           path: junit/test-results.xml
         if: ${{ always() }}
 
@@ -448,11 +503,11 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-
+  # TODO: Si if we can fix the PDF issue and leverage classic ansys/release-github
   release:
     name: Release project
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [package]
+    needs: [package, doc-build-with-examples]
     runs-on: ubuntu-latest
     steps:
       - name: Release to the public PyPI repository
@@ -480,7 +535,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist/documentation
-          mv /tmp/artifacts/documentation-html dist/documentation/documentation-html
+          mv /tmp/artifacts/documentation-examples-html dist/documentation/documentation-html
 
       - name: "Compressing HTML documentation"
         uses: vimtor/action-zip@v1.2
@@ -519,33 +574,34 @@ jobs:
             # Include HTML documentation artifacts
             dist/documentation/documentation-html.zip
 
-  upload-dev-doc:
-    name: Upload dev documentation
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: [package]
-    steps:
-      - name: Deploy the latest documentation
-        uses: ansys/actions/doc-deploy-dev@v4
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          doc-artifact-name: 'documentation-no-examples-html'
+  # FIXME: Dev doc is upload nightly as it takes too long to upload
+  # upload-dev-doc:
+  #   name: Upload dev documentation
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   needs: [package]
+  #   steps:
+  #     - name: Deploy the latest documentation
+  #       uses: ansys/actions/doc-deploy-dev@v4
+  #       with:
+  #         cname: ${{ env.DOCUMENTATION_CNAME }}
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         doc-artifact-name: 'documentation-no-examples-html'
 
-  doc-index-dev:
-    name: "Deploy dev index docs"
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: upload-dev-doc
-    steps:
-      - name: "Deploy the latest documentation index"
-        uses: ansys/actions/doc-deploy-index@v4
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev
-          index-name: pyaedt-vdev
-          host-url: ${{ env.MEILISEARCH_HOST_URL }}
-          api-key: ${{ env.MEILISEARCH_API_KEY }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+  # doc-index-dev:
+  #   name: "Deploy dev index docs"
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   needs: upload-dev-doc
+  #   steps:
+  #     - name: "Deploy the latest documentation index"
+  #       uses: ansys/actions/doc-deploy-index@v4
+  #       with:
+  #         cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev
+  #         index-name: pyaedt-vdev
+  #         host-url: ${{ env.MEILISEARCH_HOST_URL }}
+  #         api-key: ${{ env.MEILISEARCH_API_KEY }}
+  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
   upload-release-doc:
     name: Upload release documentation
@@ -562,16 +618,17 @@ jobs:
 
   doc-index-stable:
     name: Deploy stable docs index
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: ubuntu-latest
     needs: upload-release-doc
     steps:
-      - name: "Install Git and clone project"
+      - name: Install Git and clone project
         uses: actions/checkout@v4
 
-      - name: "Install the package requirements"
+      - name: Install the package requirements
         run: pip install -e .
 
-      - name: "Get the version to PyMeilisearch"
+      - name: Get the version to PyMeilisearch
         run: |
           VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
           VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
@@ -580,7 +637,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
 
-      - name: "Deploy the latest documentation index"
+      - name: Deploy the latest documentation index
         uses: ansys/actions/doc-deploy-index@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}/version/${{ env.VERSION }}
@@ -588,4 +645,3 @@ jobs:
           host-url: ${{ env.MEILISEARCH_HOST_URL }}
           api-key: ${{ env.MEILISEARCH_API_KEY }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
