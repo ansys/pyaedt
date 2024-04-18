@@ -3294,6 +3294,7 @@ class PostProcessor(PostProcessorCommon, object):
             field_type=field_type,
         )
 
+    @pyaedt_function_handler()
     def _get_3dl_layers_nets(self, layers, nets, setup):
         lst_faces = []
         new_layers = []
@@ -3326,7 +3327,8 @@ class PostProcessor(PostProcessorCommon, object):
                             lst_faces.extend([int(i) for i in get_ids[2:]])
         return lst_faces, new_layers
 
-    def get_3d_layers_nets(self, layers, nets):
+    @pyaedt_function_handler()
+    def _get_3d_layers_nets(self, layers, nets):
         dielectrics = []
         new_layers = []
         for k, v in self._app.modeler.user_defined_components.items():
@@ -3366,8 +3368,8 @@ class PostProcessor(PostProcessorCommon, object):
     ):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
-        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
-        and any modeler where a layout component is used. HFSS 3D Layout will plot only dielectrics layer.
+        This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout and
+        any modeler where a layout component is used. HFSS 3D Layout will plot only dielectrics layer.
         In order to plot on signal layers use the method  ``create_fieldplot_layers_nets``
 
         Parameters
@@ -3430,7 +3432,7 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 return self._create_fieldplot(lst_faces, quantity, setup, intrinsics, "FacesList", name)
         else:
-            dielectrics, new_layers = self.get_3d_layers_nets(layers, nets)
+            dielectrics, new_layers = self._get_3d_layers_nets(layers, nets)
             if nets and plot_on_surface:
                 plot_type = "LayerNetsExtFace"
             elif nets:
