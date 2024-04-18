@@ -290,29 +290,29 @@ class TestClass:
         mat = self.aedtapp.materials.add_material("mat_test")
         # Test points_list_at_freq
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={"60Hz": [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
+            points_at_frequency={"0.06kHz": [[0, 0], [1, 3.5], [2, 7.4]]}
         )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-                points_list_at_freq=[[0, 0], [1, 3.5], [2, 7.4]]
+                points_at_frequency=[[0, 0], [1, 3.5], [2, 7.4]]
             )
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={
+            points_at_frequency={
                 60: [[0, 0], [1, 3.5], [2, 7.4]],
                 100: [[0, 0], [1, 8], [2, 9]],
                 150: [[0, 0], [1, 10], [2, 19]],
@@ -323,18 +323,18 @@ class TestClass:
         assert all(isinstance(c, float) for c in coeff)
         # Test thickness
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-            points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
+            points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="0.6mm"
         )
         assert isinstance(coeff, list)
         assert len(coeff) == 3
         assert all(isinstance(c, float) for c in coeff)
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
+                points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness="invalid"
             )
         with pytest.raises(TypeError):
             self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
-                points_list_at_freq={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
+                points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
             )
 
     def test_14_set_core_loss(self):
