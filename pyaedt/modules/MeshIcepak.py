@@ -365,7 +365,7 @@ class SubRegion(CommonRegion):
          Returns
         -------
         bool
-            ``True`` if successful, else ``False``.
+           ``True`` when successful, ``False`` when failed.
         """
         try:
             self.object.delete()
