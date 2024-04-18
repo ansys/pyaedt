@@ -255,8 +255,8 @@ class TouchstoneData(rf.Network):
 
         If no excitation is provided it will provide a full list of return losses.
 
-        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
-        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
+        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)", S(2,2)]
+        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)", S(2,2)]
 
         Parameters
         ----------

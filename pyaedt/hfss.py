@@ -885,7 +885,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(,,,
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(setup="LinearCountSetup",
+        ...                                                     sweep="LinearCountSweep",
+        ...                                                     units="MHz", start_frequency=1.1e3,
+        ...                                                     stop_frequency=1200.1, num_of_freq_points=1658)
         >>> type(linear_count_sweep)
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 

@@ -829,13 +829,13 @@ class CircuitComponent(object):
         return True
 
     @pyaedt_function_handler(vPropChange="property", names_list="names")
-    def change_property(self, property, names=None):
+    def change_property(self, property_name, names=None):
         """Modify a property.
 
         Parameters
         ----------
-        property :
-
+        property_name : list
+            Property value in AEDT syntax.
         names : list, optional
              The default is ``None``.
 
@@ -849,7 +849,7 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        vChangedProps = ["NAME:ChangedProps", property]
+        vChangedProps = ["NAME:ChangedProps", property_name]
         if names:
             vPropServers = ["NAME:PropServers"]
             for el in names:
@@ -857,11 +857,11 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if property[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
+        if property_name[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
             tabname = self.tabname
-        elif property[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
             tabname = "PassedParameterTab"
-        elif property[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
