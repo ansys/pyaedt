@@ -1793,29 +1793,35 @@ class TestClass:
         )
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert comp.layout_component.edb_object
+        comp2 = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        assert comp2.layout_component.edb_object
+        assert comp.layout_component.edb_object
         assert comp.name in self.aedtapp.modeler.layout_component_names
         assert isinstance(comp, UserDefinedComponent)
         assert len(self.aedtapp.modeler.user_defined_components[comp.name].parts) == 3
-        comp2 = self.aedtapp.modeler.insert_layout_component(
+        assert comp.layout_component.edb_object
+        comp3 = self.aedtapp.modeler.insert_layout_component(
             self.layout_component, name="new_layout", parameter_mapping=True
         )
-        assert isinstance(comp2, UserDefinedComponent)
-        assert len(comp2.parameters) == 2
-        assert comp2.layout_component.show_layout
-        comp2.layout_component.show_layout = False
-        assert not comp2.layout_component.show_layout
-        comp2.layout_component.show_layout = True
-        comp2.layout_component.fast_transformation = True
-        assert comp2.layout_component.fast_transformation
-        comp2.layout_component.fast_transformation = False
-        assert comp2.layout_component.show_dielectric
-        comp2.layout_component.show_dielectric = False
-        assert not comp2.layout_component.show_dielectric
-        assert comp2.layout_component.display_mode == 0
-        comp2.layout_component.display_mode = 1
-        assert comp2.layout_component.display_mode == 1
-        comp2.layout_component.layers["Trace"] = [True, True, 90]
-        assert comp2.layout_component.update_visibility()
+        assert isinstance(comp3, UserDefinedComponent)
+        assert len(comp3.parameters) == 2
+        assert comp3.layout_component.show_layout
+        comp3.layout_component.show_layout = False
+        assert not comp3.layout_component.show_layout
+        comp3.layout_component.show_layout = True
+        comp3.layout_component.fast_transformation = True
+        assert comp3.layout_component.fast_transformation
+        comp3.layout_component.fast_transformation = False
+        assert comp3.layout_component.show_dielectric
+        comp3.layout_component.show_dielectric = False
+        assert not comp3.layout_component.show_dielectric
+        assert comp3.layout_component.display_mode == 0
+        comp3.layout_component.display_mode = 1
+        assert comp3.layout_component.display_mode == 1
+        comp3.layout_component.layers["Trace"] = [True, True, 90]
+        assert comp3.layout_component.update_visibility()
+        assert comp.layout_component.close_edb_object()
 
     def test_87_set_mesh_fusion_settings(self):
         self.aedtapp.insert_design("MeshFusionSettings")
