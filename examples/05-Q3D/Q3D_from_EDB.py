@@ -105,13 +105,13 @@ q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
 # Use previously calculated position to identify faces and
 # assign sources and sinks on nets.
 
-f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, obj_name="CLOCK_I2C_SCL")
+f1 = q3d.modeler.get_faceid_from_position(location_u13_scl, assignment="CLOCK_I2C_SCL")
 q3d.source(f1, net_name="CLOCK_I2C_SCL")
-f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, obj_name="CLOCK_I2C_SDA")
+f1 = q3d.modeler.get_faceid_from_position(location_u13_sda, assignment="CLOCK_I2C_SDA")
 q3d.source(f1, net_name="CLOCK_I2C_SDA")
-f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, obj_name="CLOCK_I2C_SCL")
+f1 = q3d.modeler.get_faceid_from_position(location_u1_scl, assignment="CLOCK_I2C_SCL")
 q3d.sink(f1, net_name="CLOCK_I2C_SCL")
-f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, obj_name="CLOCK_I2C_SDA")
+f1 = q3d.modeler.get_faceid_from_position(location_u1_sda, assignment="CLOCK_I2C_SDA")
 q3d.sink(f1, net_name="CLOCK_I2C_SDA")
 
 ###############################################################################

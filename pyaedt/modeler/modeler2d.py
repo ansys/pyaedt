@@ -73,13 +73,13 @@ class Modeler2D(Primitives2D):
         warn(mess, DeprecationWarning)
         return self._primitives
 
-    @pyaedt_function_handler()
-    def calculate_radius_2D(self, object_name, inner=False):
+    @pyaedt_function_handler(object_name="assignment")
+    def calculate_radius_2D(self, assignment, inner=False):
         """Calculate the extremity of an object in the radial direction.
 
         Parameters
         ----------
-        object_name : str
+        assignment : str
             name of the object from which to calculate the radius.
         inner : bool, optional
             The default is ``False``.
@@ -95,7 +95,7 @@ class Modeler2D(Primitives2D):
 
         """
         radius = 0
-        oVertexIDs = self[object_name].vertices
+        oVertexIDs = self[assignment].vertices
         if oVertexIDs:
             if inner:
                 radius = 0
@@ -111,8 +111,8 @@ class Modeler2D(Primitives2D):
                 else:
                     if vertex_radius < radius:
                         radius = vertex_radius
-        elif self[object_name].edges:
-            radius = self[object_name].edges[0].length / (2 * math.pi)
+        elif self[assignment].edges:
+            radius = self[assignment].edges[0].length / (2 * math.pi)
 
         return radius
 
@@ -133,7 +133,7 @@ class Modeler2D(Primitives2D):
             ``True`` when successful, ``False`` when failed.
         """
 
-        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
+        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", material="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
         objects = [i for i in self.object_names]
         self.oeditor.Paste()

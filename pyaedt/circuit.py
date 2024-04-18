@@ -227,7 +227,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 location=[xpos, 0],
                 global_netlist_list=model,
             )
-            self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
+            self.modeler.schematic.disable_data_netlist(assignment="Models_Netlist")
             xpos += 0.0254
         counter = 0
         with open_file(file_to_import, "rb") as f:
@@ -307,11 +307,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter,
-                                pins,
-                                refbase=fields[0][0],
-                                parameter_list=parameter_list,
-                                parameter_value=parameter_value,
+                                parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -342,11 +338,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter,
-                            pins,
-                            refbase=fields[0][0],
-                            parameter_list=parameter_list,
-                            parameter_value=parameter_value,
+                            parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],
@@ -1823,7 +1815,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 new_loc = [loc[0] + delta, loc[1]]
                 right += 1
             port = self.modeler.components.create_interface_port(name=pin.name, location=new_loc)
-            port.pins[0].connect_to_component(component_pin=pin, use_wire=True)
+            port.pins[0].connect_to_component(assignment=pin, use_wire=True)
             ports.append(port)
         diff_pairs = []
         comm_pairs = []

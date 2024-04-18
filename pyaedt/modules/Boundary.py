@@ -350,8 +350,8 @@ class BoundaryObject(BoundaryCommon, object):
     >>> from pyaedt import Hfss
     >>> hfss =Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-    >>> inner_id = hfss.modeler.get_obj_id("inner")
+    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
+    >>> inner_id = hfss.modeler.get_obj_id("inner",)
     >>> coat = hfss.assign_coating([inner_id],"copper",use_thickness=True,thickness="0.2mm")
     """
 
@@ -875,8 +875,8 @@ class MaxwellParameters(BoundaryCommon, object):
 
     >>> from pyaedt import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_1", "vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0], [8, 3], True, "Coil_2", "vacuum")
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_1","vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_2","vacuum")
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
@@ -4046,7 +4046,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
         >>> network.add_face_node(faces_ids[1],name="TestNode",thermal_resistance="Compute",
@@ -4166,7 +4166,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
         >>>         {"FaceID": faces_ids[0]},
@@ -4236,7 +4236,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
@@ -4281,7 +4281,7 @@ class NetworkObject(BoundaryObject):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}

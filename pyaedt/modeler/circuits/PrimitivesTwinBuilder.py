@@ -79,13 +79,13 @@ class TwinBuilderComponents(CircuitComponents):
             self._components_catalog = ComponentCatalog(self)
         return self._components_catalog
 
-    @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_resistor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the resistor. The default value is ``None``.
         value : float, optional
             Value for the resistor. The default value is ``50``.
@@ -110,7 +110,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="R",
             location=location,
@@ -122,13 +122,13 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_inductor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the inductor. The default is ``None``.
         value : float, optional
             Value for the inductor. The default is ``50``.
@@ -153,7 +153,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="L",
             location=location,
@@ -164,13 +164,13 @@ class TwinBuilderComponents(CircuitComponents):
         id.set_property("L", value)
         return id
 
-    @pyaedt_function_handler()
-    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the capacitor. The default value is ``None``.
         value : float, optional
             Value for the capacitor. The default value is ``50``.
@@ -195,7 +195,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Passive Elements",
             component_name="C",
             location=location,
@@ -207,15 +207,15 @@ class TwinBuilderComponents(CircuitComponents):
         id.set_property("UseInitialConditions", True)
         return id
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(compname="name")
     def create_voltage_source(
-        self, compname=None, type="E", amplitude=326, freq=50, location=None, angle=0, use_instance_id_netlist=False
+        self, name=None, type="E", amplitude=326, freq=50, location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage source (conservative electrical output).
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the voltage source. The default is ``None``.
         type  : str, optional
             Type of the source. The default is ``E``.
@@ -244,7 +244,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Sources",
             component_name="E",
             location=location,
@@ -264,13 +264,13 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @pyaedt_function_handler()
-    def create_diode(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_diode(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the diode. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default value is ``None``.
@@ -293,7 +293,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="D",
             location=location,
@@ -302,13 +302,13 @@ class TwinBuilderComponents(CircuitComponents):
         )
         return id
 
-    @pyaedt_function_handler()
-    def create_npn(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_npn(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the NPN transistor. The default value is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default value is ``None``.
@@ -331,7 +331,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
             location=location,
@@ -340,13 +340,13 @@ class TwinBuilderComponents(CircuitComponents):
         )
         return id
 
-    @pyaedt_function_handler()
-    def create_pnp(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
+    @pyaedt_function_handler(compname="name")
+    def create_pnp(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the PNP transistor. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis. The default value is ``None``.
@@ -369,7 +369,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
             component_name="BJT",
             location=location,
@@ -379,10 +379,10 @@ class TwinBuilderComponents(CircuitComponents):
 
         return id
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(compname="name")
     def create_periodic_waveform_source(
         self,
-        compname=None,
+        name=None,
         type="SINE",
         amplitude=100,
         freq=50,
@@ -398,7 +398,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Parameters
         ----------
-        compname : str, optional
+        name : str, optional
             Name of the voltage source. The default is ``None``.
         type  : str, optional
             Type of the source [SINE, PULSE, TRAING, SAWTOOTH]. The default is ``SINE``.
@@ -433,7 +433,7 @@ class TwinBuilderComponents(CircuitComponents):
             location = []
 
         id = self.create_component(
-            compname,
+            name,
             component_library="Basic Elements\\Tools\\Time Functions",
             component_name=type,
             location=location,

@@ -147,7 +147,7 @@ second_winding_list = list_object[3]
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
+ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
 coat = hfss.assign_coating(ground, is_infinite_ground=True)
 
 ###############################################################################
@@ -175,9 +175,8 @@ for position in port_position_list:
 
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
-mesh_operation_cylinder = hfss.modeler.create_cylinder(
-    "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
-)
+mesh_operation_cylinder = hfss.modeler.create_cylinder("XY", cylinder_position, ground_radius, cylinder_height,
+                                                       num_sides=36, name="mesh_cylinder")
 hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maximum_length=15, maximum_elements=None, name="choke_mesh")
 
 

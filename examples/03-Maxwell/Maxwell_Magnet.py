@@ -58,7 +58,7 @@ m3d.solution_type = m3d.SOLUTIONS.Maxwell3d.ElectroDCConduction
 # ~~~~~~~~~~~~~
 # Create a magnet.
 
-magnet = m3d.modeler.create_box(position=[7, 4, 22], dimensions_list=[10, 5, 30], name="Magnet", matname="copper")
+magnet = m3d.modeler.create_box(origin=[7, 4, 22], sizes=[10, 5, 30], name="Magnet", material="copper")
 
 ###############################################################################
 # Create setup and assign voltage

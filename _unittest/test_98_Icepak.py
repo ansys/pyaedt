@@ -493,7 +493,7 @@ class TestClass:
             patternangle=8,
             numcolumn_perside=3,
             vertical_separation=5.5,
-            matname="Copper",
+            material="Copper",
             center=[10, 0, 0],
             plane_enum=self.aedtapp.PLANE.XY,
             rotation=45,
@@ -501,7 +501,7 @@ class TestClass:
         )
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 3])
         top_face = box.top_face_z
-        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         assert hs
         hs.delete()
         box.rotate(0, 52)
@@ -513,7 +513,7 @@ class TestClass:
             fin_length=0.95,
             hs_basethick=0.2,
             separation=0.2,
-            matname="Al-Extruded",
+            material="Al-Extruded",
         )
         assert hs
         hs.delete()
@@ -848,7 +848,7 @@ class TestClass:
         cs2.props["OriginZ"] = 20
         file_path = self.local_scratch.path
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
 
         assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
@@ -867,7 +867,10 @@ class TestClass:
         self.aedtapp.delete_design()
         self.aedtapp.insert_design("test_51_2")
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
+            input_file=os.path.join(file_path, file_name),
+            coordinate_system="Global",
+            name="test",
+            auxiliary_parameters=False,
         )
         self.aedtapp.delete_design()
 
@@ -882,7 +885,7 @@ class TestClass:
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
         mon_name = self.aedtapp.monitor.assign_face_monitor(
             list(self.aedtapp.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
@@ -1329,7 +1332,7 @@ class TestClass:
         self.aedtapp.insert_design("test_66")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_3dcomponent(os.path.join(file_path, file_name))
-        self.aedtapp.modeler.insert_3d_component(comp_file=os.path.join(file_path, file_name), name="test")
+        self.aedtapp.modeler.insert_3d_component(input_file=os.path.join(file_path, file_name), name="test")
         component_filepath = self.aedtapp.modeler.user_defined_components["test"].get_component_filepath()
         assert component_filepath
         comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
@@ -1422,7 +1425,7 @@ class TestClass:
         )
 
     def test_70_blower_boundary(self):
-        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
+        cylinder = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
         planar_faces = [f for f in cylinder.faces if f.is_planar]
         assert not self.aedtapp.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])
