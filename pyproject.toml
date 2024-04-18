@@ -101,7 +101,7 @@ doc = [
     "utm",
     "vtk==9.2.6",
 ]
-doc-noexamples = [
+doc-no-examples = [
     "ansys-sphinx-theme>=0.10.0,<0.16",
     "imageio>=2.30.0,<2.35",
     #"imageio-ffmpeg",
