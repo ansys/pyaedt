@@ -73,6 +73,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``.
 
     Examples
     --------
@@ -128,6 +130,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -144,11 +147,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             machine,
             port,
             aedt_process_id,
+            ic_mode,
         )
         ScatteringMethods.__init__(self, self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
+
+    @property
+    def ic_mode(self):
+        """IC mode of current design.
+
+        Returns
+        -------
+        bool
+        """
+        return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
+
+    @ic_mode.setter
+    def ic_mode(self, value):
+        self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
 
     @pyaedt_function_handler()
     def create_edge_port(

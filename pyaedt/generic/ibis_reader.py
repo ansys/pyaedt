@@ -412,7 +412,7 @@ class DifferentialPin:
                     [],
                 ],
             )
-        except:
+        except Exception:
             logger.error("Error adding {} pin component.".format(self.short_name))
             return False
 

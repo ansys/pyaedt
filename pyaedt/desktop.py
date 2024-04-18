@@ -945,10 +945,10 @@ class Desktop(object):
                             self.is_grpc_api = True
                             last_session.parent_desktop_id.append(self.aedt_process_id)
                             return True
-                    except:
+                    except Exception:
                         messages = desktop.GetMessages("", "", 0)
                         for message in messages:
-                            if " GRPC server running on port: " in message and str(port) in message:
+                            if "gRPC server running on port: " in message and str(port) in message:
                                 self.isoutsideDesktop = True
                                 self.odesktop = desktop
                                 self.aedt_process_id = self.odesktop.GetProcessID()
@@ -1491,6 +1491,9 @@ class Desktop(object):
         if not result:
             self.logger.error("Error releasing desktop.")
             return False
+        self.logger._desktop_class = None
+        self.logger._oproject = None
+        self.logger._odesign = None
         if close_on_exit:
             self.logger.info("Desktop has been released and closed.")
         else:

@@ -3743,34 +3743,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         directions = {}
         for el in assignment:
             objID = self.modeler.oeditor.GetFaceIDs(el)
-            faceCenter = self.modeler.oeditor.GetFaceCenter(int(objID[0]))
-            directionfound = False
-            l = min(aedt_bounding_dim) / 2
-            while not directionfound:
+            face_center = self.modeler.oeditor.GetFaceCenter(int(objID[0]))
+            direction_found = False
+            thickness = min(aedt_bounding_dim) / 2
+            while not direction_found:
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(thickness) + "mm", "BothSides:=", False],
                 )
-                # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
+
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
                 self._odesign.Undo()
                 if aedt_bounding_box != aedt_bounding_box2:
                     directions[el] = "External"
-                    directionfound = True
+                    direction_found = True
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(thickness) + "mm", "BothSides:=", False],
                 )
-                # aedt_bounding_box2 = self.oeditor.GetModelBoundingBox()
+
                 aedt_bounding_box2 = self.modeler.get_model_bounding_box()
 
                 self._odesign.Undo()
 
                 if aedt_bounding_box != aedt_bounding_box2:
                     directions[el] = "Internal"
-                    directionfound = True
+                    direction_found = True
                 else:
-                    l = l + min(aedt_bounding_dim) / 2
+                    thickness = thickness + min(aedt_bounding_dim) / 2
         for el in assignment:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             maxarea = 0
@@ -3778,7 +3778,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 faceArea = self.modeler.get_face_area(int(f))
                 if faceArea > maxarea:
                     maxarea = faceArea
-                    faceCenter = self.modeler.oeditor.GetFaceCenter(int(f))
+                    face_center = self.modeler.oeditor.GetFaceCenter(int(f))
             if directions[el] == "Internal":
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
@@ -3796,8 +3796,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         fc2 = self.modeler.oeditor.GetFaceCenter(f)
                         fc2 = [float(i) for i in fc2]
                         fa2 = self.modeler.get_face_area(int(f))
-                        faceoriginal = [float(i) for i in faceCenter]
-                        # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(faceCenter, fc2)]))
+                        faceoriginal = [float(i) for i in face_center]
+                        # dist = mat.sqrt(sum([(a*a-b*b) for a,b in zip(face_center, fc2)]))
                         if abs(fa2 - maxarea) < tol**2 and (
                             abs(faceoriginal[2] - fc2[2]) > tol
                             or abs(faceoriginal[1] - fc2[1]) > tol
@@ -3818,8 +3818,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 objID2 = self.modeler.oeditor.GetFaceIDs(el)
                 for fid in objID2:
                     try:
-                        faceCenter2 = self.modeler.oeditor.GetFaceCenter(int(fid))
-                        if faceCenter2 == faceCenter:
+                        face_center2 = self.modeler.oeditor.GetFaceCenter(int(fid))
+                        if face_center2 == face_center:
                             self.modeler.oeditor.MoveFaces(
                                 ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                                 [
@@ -3843,7 +3843,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                             )
                     except Exception:
                         self.logger.info("done")
-                        # self.modeler_oproject.ClearMessages()
         return ports_ID
 
     @pyaedt_function_handler(dname="design", ouputdir="ouput_dir")

@@ -660,12 +660,24 @@ class TestClass:
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers2",
+        )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["no-layer", "GND"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers3",
+        )
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
-            plot_name="Test_Layers",
+            plot_name="Test_Layers4",
         )
         self.aedtapp.close_project(test_post2.project_name)
 

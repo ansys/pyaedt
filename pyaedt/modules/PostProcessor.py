@@ -3307,7 +3307,9 @@ class PostProcessor(PostProcessorCommon, object):
         ----------
         layers_nets : list
             List of layers and nets to plot. For example:
-            ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``.
+            ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``. If ``"no-layer"`` is provided as first argument,
+            all layers will be considered. If ``"no-net"`` is provided or the list contains only layer name, all the
+            nets will be automatically considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3333,6 +3335,21 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
+        new_list = []
+        for layer in layers_nets:
+            if "no-layer" in layer[0]:
+                for v in self._app.modeler.user_defined_components.values():
+                    new_list.extend(
+                        [[i] + layer[1:] for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                    )
+            else:
+                new_list.append(layer)
+        layers_nets = new_list
+        for layer in layers_nets:
+            if len(layer) == 1 or "no-net" in layer[1]:
+                for v in self._app.modeler.user_defined_components.values():
+                    if layer[0] in v.layout_component.edb_object.stackup.stackup_layers:
+                        layer.extend(list(v.layout_component.edb_object.nets.nets.keys()))
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
