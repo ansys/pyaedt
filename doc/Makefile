@@ -43,8 +43,8 @@ clean: .install-deps
 # 	@echo
 # 	@echo "Check finished. Report is in $(LINKCHECKDIR)."
 
-html-noexamples: .install-deps
-	@echo "Building HTML pages without running examples."
+html-no-examples: .install-deps
+	@echo "Building HTML pages without examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="0"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
 	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
@@ -53,7 +53,7 @@ html-noexamples: .install-deps
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
 html: .install-deps
-	@echo "Building HTML pages with running examples."
+	@echo "Building HTML pages with examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="1"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
 	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
@@ -61,17 +61,18 @@ html: .install-deps
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
-pdf-noexamples: .install-deps
-	@echo "Building PDF pages without running examples."
+pdf-no-examples: .install-deps
+	@echo "Building PDF pages without examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="0"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
-	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
+	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
 	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
 
 pdf: .install-deps
-	@echo "Building PDF pages."
+	@echo "Building PDF pages with examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="1"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
-	(test -f $(BUILDDIR)/latex/pyaedt.pdf && echo pdf exists) || exit 1
+	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
 	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
