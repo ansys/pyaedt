@@ -3364,7 +3364,7 @@ class PostProcessor(PostProcessorCommon, object):
     def create_fieldplot_layers(
         self, layers, quantity, setup=None, nets=None, plot_on_surface=True, intrinsics=None, name=None
     ):
-        # type: (list, str, str, list, dict, str) -> FieldPlot
+        # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout
         and any modeler where a layout component is used. HFSS 3D Layout will plot only dielectrics layer.
