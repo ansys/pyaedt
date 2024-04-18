@@ -654,6 +654,19 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+
+        assert test_post1.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            nets=["GND", "V3P3_S5"],
+        )
+
+        assert test_post1.post.create_fieldplot_layers(
+            ["UNNAMED_006"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
@@ -672,24 +685,18 @@ class TestClass:
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers3",
         )
-        assert test_post1.post.create_fieldplot_layers(
-            [],
-            "Mag_H",
-            intrinsics={"Time": "1ms"},
-            plot_name="Test_Layers31",
-        )
-        assert test_post1.post.create_fieldplot_layers(
-            ["UNNAMED_006"],
-            "Mag_H",
-            intrinsics={"Time": "1ms"},
-            plot_name="Test_Layers32",
-        )
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
             plot_name="Test_Layers4",
+        )
+        assert test_post2.post.create_fieldplot_layers(
+            ["TOP", "UNNAMED_004"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            nets=["GND", "V3P3_S5"],
         )
         self.aedtapp.close_project(test_post2.project_name)
 
@@ -702,20 +709,29 @@ class TestClass:
             [],
             "Mag_H",
             intrinsics={"Time": "1ms"},
-            plot_name="Test_Layers31",
         )
 
         assert test.post.create_fieldplot_layers(
-            ["UNNAMED_002"],
+            ["UNNAMED_002", "TOP"],
             "Mag_H",
             intrinsics={"Time": "1ms"},
-            plot_name="Test_Layers32",
         )
-        assert not test.post.create_fieldplot_layers(
+        assert test.post.create_fieldplot_layers(
             ["TOP"],
             "Mag_H",
             intrinsics={"Time": "1ms"},
-            plot_name="Test_Layers33",
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP", "PWR"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
         )
         pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
