@@ -632,7 +632,7 @@ class Reports(object):
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create(),,
+        >>> new_eye.create()
 
         """
         if not setup:
@@ -690,7 +690,7 @@ class Reports(object):
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create(),,
+        >>> new_eye.create()
 
         """
         if not setup:
@@ -741,7 +741,7 @@ class Reports(object):
         >>> from pyaedt import Circuit
         >>> cir= Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
-        >>> new_eye.create(),,
+        >>> new_eye.create()
 
         """
         if not setup:
