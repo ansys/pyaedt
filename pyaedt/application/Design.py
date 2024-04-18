@@ -1070,8 +1070,8 @@ class Design(AedtObjects):
                 self.design_solutions._odesign = self.odesign
                 if self._temp_solution_type:
                     self.design_solutions.solution_type = self._temp_solution_type
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design" and self._ic_mode:
-            self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", True)
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
 
     @property
     def oproject(self):
