@@ -151,7 +151,7 @@ class FileManagement(object):
         return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
     def create_file(self, remote_file, create_options="w", encoding=None, override=True):
-        return self.client.root.create(remote_file)
+        return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
     def makedirs(self, remotepath):
         if self.client.root.pathexists(remotepath):
