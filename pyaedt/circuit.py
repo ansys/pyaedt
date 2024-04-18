@@ -1867,7 +1867,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.analyze()
         return True, diff_pairs, comm_pairs
 
-    @pyaedt_function_handler(input_file)
+    @pyaedt_function_handler(touchstone="input_file")
     def create_ami_schematic_from_snp(
         self,
         input_file,
