@@ -561,7 +561,7 @@ class TestClass:
             [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
             kdc=0.002,
             cut_depth=0.0009,
-            punit="w/kg",
+            units="w/kg",
             bunit="tesla",
             frequency=50,
             thickness="0.5mm",
