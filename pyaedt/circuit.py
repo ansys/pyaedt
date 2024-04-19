@@ -975,15 +975,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         """
         if not solution:
             solution = self.nominal_sweep
-        variations = {"Freq": ["All"]}
+        variations_dict = {"Freq": ["All"]}
         if variations:
             for el in variations:
-                variations[el] = [variations[el]]
+                variations_dict[el] = [variations[el]]
         dif = None
         if differential_pairs:
             dif = "Differential Pairs"
         return self.post.create_report(
-            curves, solution, variations=variations, context=dif, subdesign_id=subdesign_id, plot_name=name
+            curves, solution, variations=variations_dict, context=dif, subdesign_id=subdesign_id, plot_name=name
         )
 
     @pyaedt_function_handler(instance_name="instance", setup_name="setup")
