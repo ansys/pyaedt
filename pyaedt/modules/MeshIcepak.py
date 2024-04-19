@@ -783,7 +783,7 @@ class MeshRegion(MeshRegionCommon):
         """
         if isinstance(self._assignment, SubRegion):
             # try to update name
-            try:
+            if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
                 parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
                 if not isinstance(parts, list):
                     parts = [parts]
@@ -802,8 +802,6 @@ class MeshRegion(MeshRegionCommon):
                     p1 += p2
                     if "CreateSubRegion" == self._app.modeler[sr].history().command and all(p in p1 for p in parts):
                         self._assignment.name = sr
-            except GrpcApiError:
-                pass
             return self._assignment
         elif isinstance(self._assignment, list):
             return self._assignment
