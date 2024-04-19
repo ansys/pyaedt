@@ -387,10 +387,7 @@ class TestClass:
         assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
 
         assert diff_test.create_touchstone_report(
-            plot_name="Diff_plot",
-            curvenames=["dB(S(Diff1, Diff1))"],
-            solution_name="LinearFrequency",
-            differential_pairs=True,
+            name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
         )
 
     @pytest.mark.skipif(is_linux, reason="Failing on Linux")

@@ -94,10 +94,8 @@ circuit.analyze()
 ###############################################################################
 # Define differential pairs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
-                              negative_terminal="U0.via_39.B2B_SIGN")
-circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",
-                              negative_terminal="U1.via_33.B2B_SIGN")
+circuit.set_differential_pair(assignment="U0.via_38.B2B_SIGP", reference="U0.via_39.B2B_SIGN", differential_mode="U0")
+circuit.set_differential_pair(assignment="U1.via_32.B2B_SIGP", reference="U1.via_33.B2B_SIGN", differential_mode="U1")
 
 ###############################################################################
 # Plot results

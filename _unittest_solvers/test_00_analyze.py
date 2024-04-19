@@ -392,13 +392,13 @@ class TestClass:
         setup_name = "test_07a_LNA"
         setup = circuit_app.create_setup(setup_name)
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
-        assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
-        assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
+        assert circuit_app.push_excitations(instance="U1", thevenin_calculation=False, setup=setup_name)
+        assert circuit_app.push_excitations(instance="U1", thevenin_calculation=True, setup=setup_name)
 
     def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
         setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
-        assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
+        assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):
         assert m3dtransient.enable_harmonic_force(["Stator"], force_type=2, window_function="Rectangular",
