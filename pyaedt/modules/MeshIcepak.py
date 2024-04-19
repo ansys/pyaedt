@@ -485,8 +485,17 @@ class MeshSettings(object):
         if self._mesh_class.manual_settings:
             ref_dict = self._manual_mesh_settings
         else:
-            ref_dict = self.automatic_mesh_settings
-        return key in ref_dict or key in self.common_mesh_settings
+            ref_dict = self._automatic_mesh_settings
+        return key in ref_dict or key in self._common_mesh_settings
+
+    def keys(self):
+        return self.parse_settings().keys()
+
+    def values(self):
+        return self.parse_settings().values()
+
+    def __repr__(self):
+        return repr(self.parse_settings())
 
     def __getitem__(self, key):
         if key == "Level":
@@ -1372,7 +1381,7 @@ class IcepakMesh(object):
                     added_obj = [i for i in objectlist2 if i not in all_objs or i in assignment]
                 meshregion.Objects = added_obj
                 meshregion.SubModels = None
-                meshregion.update()
+            meshregion.update()
             return meshregion
         else:
             return False
