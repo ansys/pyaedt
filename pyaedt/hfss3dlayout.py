@@ -1729,9 +1729,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         # type: () -> list
         """Get the list defined differential pairs.
 
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -1803,8 +1800,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
         return True
 
-    @pyaedt_function_handler(filename="input_file")
-    def save_diff_pairs_to_file(self, input_file):
+    @pyaedt_function_handler(filename="output_file")
+    def save_diff_pairs_to_file(self, output_file):
         # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
@@ -1812,7 +1809,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        output_file : str
             Fully qualified name of the file containing the differential pairs definition.
 
         Returns
@@ -1824,9 +1821,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oModule.SaveDiffPairsToFile
         """
-        self.oexcitation.SaveDiffPairsToFile(input_file)
+        self.oexcitation.SaveDiffPairsToFile(output_file)
 
-        return os.path.isfile(input_file)
+        return os.path.isfile(output_file)
 
     @pyaedt_function_handler(file_name="output_file")
     def export_3d_model(self, output_file=None):
