@@ -431,7 +431,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         input_file : str
             Path of the IBIS file.
         is_ami : bool, optional
-            Whether if import an IBIS or an IBIS AMI.
+            Whether the file to import is an IBIS AMI file. The
+            default is ``False``, in which case it is an IBIS file.
 
         Returns
         -------
@@ -956,11 +957,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         curves : list
             List of names for the curves to plot.
         solution : str, optional
-            Name of the solution. The default value is ``None``.
+            Name of the solution. The default is ``None``.
         variations : dict, optional
-            Dictionary of variation names. The default value is ``None``.
+            Dictionary of variation names. The default is ``None``.
         differential_pairs : bool, optional
-            Specify if the plot is on differential pairs traces. The default value is ``False``.
+            Whether the plot is on differential pairs traces. The default is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
         Returns
@@ -1047,7 +1048,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         kaiser : float, optional
             Kaiser value. The default is ``0.0``.
         correct_coherent_gain : bool, optional
-            Enable coherent gain correction. The default is ``True``.
+            Whether to enable the coherent gain correction. The default is ``True``.
         setup : str, optional
             Name of the solution setup to push. The default is ``"LinearFrequency"``.
 
@@ -1222,7 +1223,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler(filepath="input_file")
     def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file):
-        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (.fds format).
+        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters
         ----------
@@ -1283,15 +1284,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         reference : str
             Name of the terminal to use as the negative terminal.
         common_mode : str, optional
-            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the common mode. The default is ``None``, in which case a unique name is assigned.
         differential_mode : str, optional
-            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
+            Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
         common_reference : float, optional
-            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
+            Reference impedance for the common mode. The units are Ohm. The default is ``25``.
         differential_reference : float, optional
             Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
         active : bool, optional
-            Set the differential pair as active. Default is ``True``.
+            Whether to set the differential pair as active. The default is ``True``.
 
         Returns
         -------
@@ -1377,7 +1378,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     def load_diff_pairs_from_file(self, input_file):
         """Load differtential pairs definition from a file.
 
-        You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
+        You can use the ``save_diff_pairs_to_file()`` method to obtain the file format.
         New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
@@ -1413,14 +1414,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler(filename="output_file")
     def save_diff_pairs_to_file(self, output_file):
-        """Save differtential pairs definition to file.
+        """Save differential pairs definition to a file.
 
         If the file that is specified already exists, it is overwritten.
 
         Parameters
         ----------
         output_file : str
-            Full qualified name of the file containing the differential pairs definition.
+            Full qualified name of the file to save the differential pairs definition to.
 
         Returns
         -------
@@ -1449,7 +1450,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Returns
         -------
         bool
-            ``True`` if successfully created, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
         """
         if not os.path.exists(input_file):
             self.logger.error("Netlist File doesn't exists")
@@ -1465,12 +1466,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler(filepath="input_file")
     def browse_log_file(self, input_file=None):
-        """Save most recent log file into a new directory.
+        """Save the most recent log file in a new directory.
 
         Parameters
         ----------
         input_file : str, optional
-            New log file path. The default is the pyaedt folder.
+            File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
         -------
@@ -1644,7 +1645,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         input_file : str
             Full path to the sNp file.
         probe_pins : list
-            Pins to attach to the probe components.
+            List of pins to attach to the probe components.
         probe_ref_pins : list, optional
             Reference pins to attach to probe components. The default is ``None``.
             This parameter is valid only in differential TDR probes.
@@ -1936,7 +1937,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
         if design_name in self.design_list:
-            self.logger.warning("Design already exists. renaming.")
+            self.logger.warning("Design already exists. Renaming.")
             design_name = generate_unique_name(design_name)
         self.insert_design(design_name)
         if isinstance(input_file, type(Hfss3dLayout)):
