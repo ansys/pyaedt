@@ -1784,7 +1784,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> oModule.LoadDiffPairsFromFile
         """
         if not os.path.isfile(input_file):  # pragma: no cover
-            raise ValueError("{}: unable to find the specified file.".format(input_file))
+            raise ValueError("{}: Unable to find the specified file.".format(input_file))
 
         try:
             new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
@@ -1832,9 +1832,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         Parameters
         ----------
         output_file : str, optional
-            Full name of the file to export. The default is None, in which case the file name is
+            Full name of the file to export. The default is ``None``, in which case the file name is
             set to the design name and saved as a SAT file in the working directory.
-            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022R2 and
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022 R2 and
             Parasolid format `"x_t"` from AEDT 2023R1.
 
         Returns
@@ -2009,7 +2009,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full name of the input file.
         is_time_domain : bool, optional
-            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+            Whether the input data is time-based. The defaulti s ``True``. If
+            ``False``, the input data is frequency-based. Frequency-based data
+            is degrees in this format: ``Mag/Phase``.
         x_scale : float, optional
             Scaling factor for x axis.
         y_scale : float, optional
