@@ -86,7 +86,7 @@ pv = {freq_25kHz: curves_csv_25kHz,
 m3d.materials[mat.name].set_coreloss_at_frequency(points_list_at_freq=pv,
                                                   coefficient_setup="kw_per_cubic_meter",
                                                   core_loss_model_type="Power Ferrite")
-coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_list_at_freq=pv,
+coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_at_frequency=pv,
                                                                   coefficient_setup="kw_per_cubic_meter")
 
 ###################################################################################

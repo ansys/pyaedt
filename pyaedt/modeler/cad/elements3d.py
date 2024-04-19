@@ -745,8 +745,8 @@ class FacePrimitive(object):
         except Exception:
             return None
 
-    @pyaedt_function_handler()
-    def is_on_bounding(self, tol=1e-9):
+    @pyaedt_function_handler(tol="tolerance")
+    def is_on_bounding(self, tolerance=1e-9):
         """Check if the face is on bounding box or Not.
 
         Parameters
@@ -762,12 +762,12 @@ class FacePrimitive(object):
         b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
         if c and (
-            abs(c[0] - b[0]) < tol
-            or abs(c[1] - b[1]) < tol
-            or abs(c[2] - b[2]) < tol
-            or abs(c[0] - b[3]) < tol
-            or abs(c[1] - b[4]) < tol
-            or abs(c[2] - b[5]) < tol
+            abs(c[0] - b[0]) < tolerance
+            or abs(c[1] - b[1]) < tolerance
+            or abs(c[2] - b[2]) < tolerance
+            or abs(c[0] - b[3]) < tolerance
+            or abs(c[1] - b[4]) < tolerance
+            or abs(c[2] - b[5]) < tolerance
         ):
             return True
         return False

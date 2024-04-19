@@ -62,7 +62,7 @@ maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version=aed
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a rectangle and duplicate it.
 
-rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
+rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", material="copper")
 added = rect1.duplicate_along_line([14, 0, 0])
 rect2 = maxwell_2d.modeler[added[0]]
 

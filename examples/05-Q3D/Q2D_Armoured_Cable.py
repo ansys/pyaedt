@@ -137,7 +137,7 @@ mod2D.create_coordinate_system(['c_strand_xy_coord', 'c_strand_xy_coord', '0mm']
 mod2D.set_working_coordinate_system('CS_c_strand_1')
 c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
 c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
-mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
+mod2D.duplicate_around_axis(c2_id, axis="Z", angle=360 / core_n_strands, clones=6)
 c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
 fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
@@ -150,7 +150,7 @@ xlpe_id.color = (0, 128, 128)
 
 mod2D.set_working_coordinate_system('Global')
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
-mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
+mod2D.duplicate_around_axis(all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4)
 cond_names = q2d.get_all_conductors_names()
 
 #####################################################################################

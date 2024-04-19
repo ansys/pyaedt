@@ -65,8 +65,9 @@ hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    specified_version=aedt_version,
                    designname="filter",
                    non_graphical=non_graphical,
-                   new_desktop_session=True)
-hfss.solution_type = "Modal"
+                   new_desktop_session=True,
+                   close_on_exit=True,
+                   solution_type="Modal")
 
 # hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
 
@@ -110,8 +111,10 @@ def place_iris(zpos, dz, n):
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a', dz],
-                                        name=this_name, matname="silver"))
+    iris.append(hfss.modeler.create_box(origin=['-b/2', '-a/2', zpos],
+                                        sizes=['(b - ' + w_str + ')/2', 'a', dz],
+                                        name=this_name,
+                                        material="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
 
@@ -150,8 +153,10 @@ wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
-hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
-                        name="waveguide", matname="vacuum")
+hfss.modeler.create_box(origin=["-b/2", "-a/2", "wg_z_start"],
+                        sizes=["b", "a", "wg_length"],
+                        name="waveguide",
+                        material="vacuum")
 
 ###############################################################################
 # Draw the whole waveguide.
@@ -171,7 +176,7 @@ wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_val
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
-    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
+    face_id = hfss.modeler.get_faceid_from_position(position=[0, 0, z], assignment="waveguide")
     u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 

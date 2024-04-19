@@ -209,7 +209,7 @@ class TestClass:
     def test_06_assign_spice_model(self):
         model_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")
         assert self.aedtapp.modeler.set_spice_model(
-            component_name="C1", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+            assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
 
     def test_07_nets(self):
@@ -285,9 +285,9 @@ class TestClass:
 
     def test_15_3dplacement(self):
         self.aedtapp.insert_design("placement_3d")
-        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal", thickness="5mil")
-        self.aedtapp.modeler.layers.add_layer("diel", "dielectric", thickness="121mil", material="FR4_epoxy")
-        self.aedtapp.modeler.layers.add_layer("TOP", "signal", thickness="5mil", isnegative=True)
+        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
+        self.aedtapp.modeler.layers.add_layer("diel", "dielectric")
+        self.aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12
         encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "SMA_RF_Jack.a3dcomp")
         comp = self.aedtapp.modeler.place_3d_component(

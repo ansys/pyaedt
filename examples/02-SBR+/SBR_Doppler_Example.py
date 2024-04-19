@@ -82,7 +82,7 @@ bird_folder = os.path.join(actor_lib, "bird1")
 # ~~~~~~~~~~~~~~~~~~
 # Define the background environment.
 
-road1 = app.modeler.add_environment(env_folder=env_folder, environment_name="Bari")
+road1 = app.modeler.add_environment(input_dir=env_folder, name="Bari")
 prim = app.modeler
 
 ###############################################################################
@@ -91,28 +91,15 @@ prim = app.modeler
 # Place actors in the environment. This code places persons, birds, bikes, and cars
 # in the environment.
 
-person1 = app.modeler.add_person(
-    actor_folder=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180, actor_name="Massimo"
-)
-person2 = app.modeler.add_person(
-    actor_folder=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180, actor_name="Devin"
-)
-car1 = app.modeler.add_vehicle(actor_folder=car_folder, speed=8.7, global_offset=[3, -2.5, 0], actor_name="LuxuryCar")
-bike1 = app.modeler.add_vehicle(
-    actor_folder=bike_folder, speed=2.1, global_offset=[24, 3.6, 0], yaw=180, actor_name="Alberto_in_bike"
-)
-bird1 = app.modeler.add_bird(
-    actor_folder=bird_folder,
-    speed=1.0,
-    global_offset=[19, 4, 3],
-    yaw=120,
-    pitch=-5,
-    flapping_rate=30,
-    actor_name="Pigeon",
-)
-bird2 = app.modeler.add_bird(
-    actor_folder=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10, actor_name="Eagle"
-)
+person1 = app.modeler.add_person(input_dir=person_folder, speed=1.0, global_offset=[25, 1.5, 0], yaw=180,
+                                 name="Massimo")
+person2 = app.modeler.add_person(input_dir=person_folder, speed=1.0, global_offset=[25, 2.5, 0], yaw=180, name="Devin")
+car1 = app.modeler.add_vehicle(input_dir=car_folder, speed=8.7, global_offset=[3, -2.5, 0], name="LuxuryCar")
+bike1 = app.modeler.add_vehicle(input_dir=bike_folder, speed=2.1, global_offset=[24, 3.6, 0], yaw=180,
+                                name="Alberto_in_bike")
+bird1 = app.modeler.add_bird(input_dir=bird_folder, speed=1.0, global_offset=[19, 4, 3], yaw=120, pitch=-5,
+                             flapping_rate=30, name="Pigeon")
+bird2 = app.modeler.add_bird(input_dir=bird_folder, speed=1.0, global_offset=[6, 2, 3], yaw=-60, pitch=10, name="Eagle")
 
 ###############################################################################
 # Place radar

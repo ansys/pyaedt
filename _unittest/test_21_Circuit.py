@@ -109,7 +109,7 @@ class TestClass:
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol(
-            "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
+            "Test1", [1, 2], parameters=["Author:=", "NumTerminals:="], values=["pyaedt", 2]
         )
 
     def test_06a_create_setup(self):
@@ -155,7 +155,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
+        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
         # create_interface_port
@@ -182,14 +182,13 @@ class TestClass:
         assert self.aedtapp.modeler.move("L14", [0, -0.00508])
         assert myind.location == [0.01016, 0.00508]
         self.aedtapp.modeler.schematic_units = "mil"
-        assert self.aedtapp.modeler.move(
-            "L14",
-            [0, 200],
-        )
+        assert self.aedtapp.modeler.move("L14", [0, 200])
         assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("IPort@Port1")
+        assert self.aedtapp.modeler.rotate(
+            "IPort@Port1",
+        )
 
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
@@ -378,13 +377,13 @@ class TestClass:
     def test_29a_create_circuit_from_spice_edit_symbol(self):
         model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM5678", symbol_name="nexx_cap"
+            input_file=model, model="GRM5678", symbol="nexx_cap"
         )
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM6789", symbol_name="nexx_inductor"
+            input_file=model, model="GRM6789", symbol="nexx_inductor"
         )
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM9012", symbol_name="nexx_res"
+            input_file=model, model="GRM9012", symbol="nexx_res"
         )
 
     def test_30_create_subcircuit(self):
@@ -465,7 +464,7 @@ class TestClass:
         assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
-        myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe(name="test_probe", location=[0.4, 0.2])
         assert type(myprobe.id) is int
 
     def test_37_draw_graphical_primitives(self):
@@ -708,16 +707,16 @@ class TestClass:
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
         myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
         self.aedtapp.modeler.schematic.create_wire(
-            [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
+            [myind.pins[0].location, myres.pins[1].location], name="wire_name_test"
         )
         wire_names = []
         for key in self.aedtapp.modeler.schematic.wires.keys():
             wire_names.append(self.aedtapp.modeler.schematic.wires[key].name)
         assert "wire_name_test" in wire_names
         assert not self.aedtapp.modeler.schematic.create_wire(
-            [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
+            [["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1"
         )
-        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], name="wire_test1")
         wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
         for key in wire_keys:
             if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
@@ -737,13 +736,13 @@ class TestClass:
     def test_43_display_wire_properties(self):
         self.aedtapp.set_active_design("CreateWireTest")
         assert self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+            name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
         )
         assert not self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="invalid", property_to_display="NetName", visibility="Value", location="Top"
+            name="invalid", property_to_display="NetName", visibility="Value", location="Top"
         )
         assert not self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
+            name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
         )
 
     def test_44_auto_wire(self):
@@ -767,19 +766,7 @@ class TestClass:
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
         self.aedtapp.modeler.schematic_units = "mil"
-        text = self.aedtapp.modeler.create_text(
-            "text test",
-            100,
-            300,
-            text_size=14,
-            text_angle=45,
-            text_color=[255, 0, 0],
-            show_rect=True,
-            rect_line_width=3,
-            rect_border_color=[0, 255, 0],
-            rect_fill=1,
-            rect_color=[0, 0, 255],
-        )
+        text = self.aedtapp.modeler.create_text("text test", 100, 300)
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
@@ -814,7 +801,7 @@ class TestClass:
     def test_46_create_vpwl(self):
 
         # default inputs
-        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V1")
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
         assert myres.refdes != ""
         assert type(myres.id) is int
         assert myres.parameters["time1"] == "0s"
@@ -822,9 +809,7 @@ class TestClass:
         assert myres.parameters["val1"] == "0V"
         assert myres.parameters["val2"] == "0V"
         # time and voltage input list
-        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(
-            compname="V2", time_list=[0, "1u"], voltage_list=[0, 1]
-        )
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V2", time_list=[0, "1u"], voltage_list=[0, 1])
         assert myres.refdes != ""
         assert type(myres.id) is int
         assert myres.parameters["time1"] == "0"
@@ -832,7 +817,7 @@ class TestClass:
         assert myres.parameters["val1"] == "0"
         assert myres.parameters["val2"] == "1"
         # time and voltage different length
-        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(compname="V3", time_list=[0], voltage_list=[0, 1])
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V3", time_list=[0], voltage_list=[0, 1])
         assert myres is False
 
     def test_47_automatic_lna(self):
