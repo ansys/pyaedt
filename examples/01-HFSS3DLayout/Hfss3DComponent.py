@@ -198,8 +198,9 @@ comp = h3d.modeler.place_3d_component(
 
 h3d["len"] = str(trace_length) + "mm"
 h3d["w1"] = str(trace_width) + "mm"
+
+h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, is_wave_port=True, wave_horizontal_extension=15)
 line = h3d.modeler.create_line("L1", [[0, 0], ["len", 0]], lw="w1", name="microstrip", net="microstrip")
-h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, iswave=True, wave_horizontal_extension=15, )
 
 ###############################################################################
 # Create void on Ground plane for pin

@@ -198,10 +198,7 @@ class TestClass:
         )
 
     def test_05_change_property(self):
-        ports = self.aedtapp.create_ports_on_component_by_nets(
-            "U1",
-            "DDR4_DQS0_P",
-        )
+        ports = self.aedtapp.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
         assert self.aedtapp.modeler.change_property(
             "Excitations:{}".format(ports[0].name), "Impedance", "49ohm", "EM Design"
         )
@@ -322,10 +319,7 @@ class TestClass:
             if "GND" not in self.aedtapp.modeler.pins[i].net_name and self.aedtapp.modeler.pins[i].net_name != ""
         ]
         ports_before = len(self.aedtapp.port_list)
-        ports = self.aedtapp.create_ports_on_component_by_nets(
-            "J1",
-            nets,
-        )
+        ports = self.aedtapp.create_ports_on_component_by_nets("J1", nets)
         assert ports
         ports_after = len(self.aedtapp.port_list)
         assert ports_after - ports_before == len(nets)

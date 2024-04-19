@@ -608,7 +608,7 @@ class TestClass:
         )
 
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gerber_out") + ".aedb")
-        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gerber(gerber_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
@@ -618,7 +618,7 @@ class TestClass:
             os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gds_out") + ".aedb")
-        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
@@ -626,13 +626,13 @@ class TestClass:
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.dxf")
         control_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
-        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gerber(dxf_file, output_dir=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
-        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+        assert self.aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self, add_app):
@@ -748,14 +748,14 @@ class TestClass:
     def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
         assert hfss3dl.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            assignment="Port3",
+            reference="Port4",
+            common_mode=None,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
         )
-        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
         assert hfss3dl.get_differential_pairs()
         assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 
