@@ -127,8 +127,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -142,7 +142,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file.
 
         Returns
@@ -155,7 +155,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open_file(file_to_import, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
@@ -271,13 +271,13 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         self.set_sim_setup_parameter("Hmax", expression)
         return True
 
-    @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, var_str, expression, analysis_name="TR"):
+    @pyaedt_function_handler(var_str="variable")
+    def set_sim_setup_parameter(self, variable, expression, analysis_name="TR"):
         """Set simulation setup parameters.
 
         Parameters
         ----------
-        var_str : string
+        variable : string
             Name of the variable.
         expression :
 
@@ -308,7 +308,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 [
                     "NAME:BaseElementTab",
                     ["NAME:PropServers", analysis_name],
-                    ["NAME:ChangedProps", ["NAME:" + var_str, "Value:=", value_str]],
+                    ["NAME:ChangedProps", ["NAME:" + variable, "Value:=", value_str]],
                 ],
             ]
         )
