@@ -1582,7 +1582,7 @@ class Analysis(Design, object):
             Number of simulation cores. Default is ``4`` which is the number of cores available in license.
         tasks : int, optional
             Number of simulation tasks. The default is ``1``.
-            In bach solve, set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
+            In bach solve, set ``tasks`` to ``-1`` to apply auto settings and distributed mode.
         gpus : int, optional
             Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
