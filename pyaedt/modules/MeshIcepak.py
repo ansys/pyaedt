@@ -408,8 +408,8 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(object):
-    automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
-    common_mesh_settings = {
+    _automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
+    _common_mesh_settings = {
         "ProximitySizeFunction": True,
         "CurvatureSizeFunction": True,
         "EnableTransition": False,
@@ -419,7 +419,7 @@ class MeshSettings(object):
         "Enforce2dot5DCutCell": False,
         "StairStepMeshing": False,
     }
-    manual_mesh_settings = {
+    _manual_mesh_settings = {
         "MaxElementSizeX": "0.02mm",
         "MaxElementSizeY": "0.02mm",
         "MaxElementSizeZ": "0.03mm",
@@ -437,7 +437,7 @@ class MeshSettings(object):
         "MinGapY": "1mm",
         "MinGapZ": "1mm",
     }
-    aedt_20212_args = [
+    _aedt_20212_args = [
         "ProximitySizeFunction",
         "CurvatureSizeFunction",
         "EnableTransition",
@@ -450,12 +450,12 @@ class MeshSettings(object):
     def __init__(self, mesh_class, app):
         self._app = app
         self._mesh_class = mesh_class
-        self.instance_settings = self.common_mesh_settings.copy()
-        self.instance_settings.update(self.manual_mesh_settings.copy())
-        self.instance_settings.update(self.automatic_mesh_settings.copy())
+        self._instance_settings = self._common_mesh_settings.copy()
+        self._instance_settings.update(self._manual_mesh_settings.copy())
+        self._instance_settings.update(self._automatic_mesh_settings.copy())
         if settings.aedt_version < "2021.2":
-            for arg in self.aedt_20212_args:
-                del self.instance_settings[arg]
+            for arg in self._aedt_20212_args:
+                del self._instance_settings[arg]
 
     @pyaedt_function_handler()
     def _dim_arg(self, value):
@@ -474,7 +474,7 @@ class MeshSettings(object):
             List of strings containing all the parts that must be included in the subregion.
         """
         out = []
-        for k, v in self.instance_settings.items():
+        for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
                 v = self._dim_arg(v)
@@ -483,7 +483,7 @@ class MeshSettings(object):
 
     def _key_in_dict(self, key):
         if self._mesh_class.manual_settings:
-            ref_dict = self.manual_mesh_settings
+            ref_dict = self._manual_mesh_settings
         else:
             ref_dict = self.automatic_mesh_settings
         return key in ref_dict or key in self.common_mesh_settings
@@ -492,7 +492,7 @@ class MeshSettings(object):
         if key == "Level":
             key = "MeshRegionResolution"
         if self._key_in_dict(key):
-            return self.instance_settings[key]
+            return self._instance_settings[key]
         else:
             raise KeyError("Setting not available.")
 
@@ -515,7 +515,7 @@ class MeshSettings(object):
                         value = 5
                 except TypeError:
                     pass
-            self.instance_settings[key] = value
+            self._instance_settings[key] = value
         else:
             self._app.logger.error("Setting not available.")
 
@@ -523,13 +523,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self.instance_settings.__iter__()
+        return self._instance_settings.__iter__()
 
     def __len__(self):
-        return self.instance_settings.__len__()
+        return self._instance_settings.__len__()
 
     def __contains__(self, x):
-        return self.instance_settings.__contains__(x)
+        return self._instance_settings.__contains__(x)
 
 
 class MeshRegionCommon(object):
