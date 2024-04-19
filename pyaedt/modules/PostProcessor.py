@@ -4055,7 +4055,7 @@ class PostProcessor(PostProcessorCommon, object):
             return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_obj(self, setup=None, intrinsics=None, no_vacuum=True, on_surfaces=True):
+    def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
@@ -4074,9 +4074,9 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic dictionary that is needed for the export.
             The default is ``None``, which assumes that no variables are present in
             the dictionary or nominal values are used.
-        no_vacuum : bool, optional
+        export_air_objects : bool, optional
             Whether to include vacuum objects for the copied objects.
-            The default is ``True``.
+            The default is ``False``.
         on_surfaces : bool, optional
             Whether to create a mesh on surfaces or on the volume.  The default is ``True``.
 
@@ -4106,10 +4106,10 @@ class PostProcessor(PostProcessorCommon, object):
         for el in obj_list:
             object3d = self._app.modeler[el]
             if on_surfaces:
-                if not object3d.is3d or (no_vacuum and object3d.material_name not in ["vacuum", "air"]):
+                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
                     mesh_list += [i.id for i in object3d.faces]
             else:
-                if not object3d.is3d or (no_vacuum and object3d.material_name not in ["vacuum", "air"]):
+                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
                     mesh_list.append(el)
         if on_surfaces:
             plot = self.create_fieldplot_surface(mesh_list, "Mesh", setup, intrinsics)

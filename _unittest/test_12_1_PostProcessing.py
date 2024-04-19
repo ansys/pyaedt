@@ -91,7 +91,9 @@ class TestClass:
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
-        mesh_file_path2 = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic, no_vacuum=False, on_surfaces=False)
+        mesh_file_path2 = self.aedtapp.post.export_mesh_obj(
+            setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+        )
         assert os.path.exists(mesh_file_path2)
 
         min_value = self.aedtapp.post.get_scalar_field_value(
