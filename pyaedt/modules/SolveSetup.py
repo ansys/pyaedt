@@ -2091,7 +2091,7 @@ class Setup3DLayout(CommonSetup):
         output_file : str
             Full path and file name for exporting the project.
         keep_net_name : bool
-            Keep net name in 3D export when ``True`` or by default when ``False``. Default value is ``False``.
+            Whether to keep the net name in the 3D export, The default is ``False``.
 
         Returns
         -------
