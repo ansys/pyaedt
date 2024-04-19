@@ -1713,7 +1713,7 @@ class Object3d(object):
         Parameters
         ----------
         faces : List[FacePrimitive] or List[int] or int or FacePrimitive
-            Face or faces to be detached from the object.
+            Face or faces to detach from the object.
 
         Returns
         -------
