@@ -132,7 +132,7 @@ mech.assign_em_losses(design=hfss.design_name, setup=hfss.setups[0].name, sweep=
                       map_frequency=hfss.setups[0].props["Frequency"], surface_objects=hfss.get_all_conductors_names())
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+    mech.assign_uniform_convection(assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
                                    convection_value=3)
 
 ###############################################################################
