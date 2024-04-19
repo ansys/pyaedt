@@ -508,7 +508,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         name : str
             New Port Name.
         deembed : bool, optional
-            Either to deembed parasitics or not. Default is `True`.
+            Whether to deembed parasitics. The default is ``True``.
 
         Returns
         -------
@@ -522,7 +522,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         listp = self.port_list
         if name in self.port_list:
-            self.logger.error("Port already existing on via {}".format(name))
+            self.logger.error("Port already existd on via {}.".format(name))
             return False
         self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
 
@@ -546,7 +546,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     @pyaedt_function_handler(vianame="via")
     def create_coax_port(self, via, radial_extent=0.1, layer=None, alignment="lower"):
-        """Create a new coax port.
+        """Create a coax port.
 
         Parameters
         ----------
@@ -571,7 +571,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         listp = self.port_list
         if via in self.port_list:
-            self.logger.error("Port already existing on via {}".format(via))
+            self.logger.error("Port already exists on via {}.".format(via))
             return False
         self.oeditor.ToggleViaPin(["NAME:elements", via])
 
@@ -751,7 +751,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         #
         # Write an overall validation log file with all output from all checks
-        # The design validation inside HFSS outputs to a separate log file which we merge into this overall file
+        # The design validation inside HFSS outputs to a separate log file that is merged into this overall file
         #
         val_list = []
         all_validate = output_dir + "\\all_validation.log"
@@ -1277,7 +1277,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the GDS file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1311,7 +1311,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the DXF file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1345,7 +1345,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the Gerber zip file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1377,7 +1377,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the board file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         set_as_active : bool, optional
             Whether to set the board file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1410,7 +1410,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the AWR Microwave Office file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1442,7 +1442,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the IPC2581 file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1474,7 +1474,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         input_file : str
             Full path to the ODB++ file.
         output_dir : str, optional
-            Full path to the AEDB folder. Example ``"c:\\temp\\test.aedb"``
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1766,7 +1766,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     @pyaedt_function_handler(filename="input_file")
     def load_diff_pairs_from_file(self, input_file):
         # type: (str) -> bool
-        """Load differtential pairs definition from file.
+        """Load differential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
         The ``File End Of Line`` must be UNIX (LF).
