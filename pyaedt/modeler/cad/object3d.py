@@ -1711,6 +1711,28 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def detach_faces(self, faces):
+        """Section the object.
+
+        Parameters
+        ----------
+        faces : List[FacePrimitive] or List[int] or int or FacePrimitive
+            Face or faces to detach from the object.
+
+        Returns
+        -------
+        List[:class:`pyaedt.modeler.cad.object3d.Object3d`]
+            List of object resulting from the operation.
+
+        References
+        ----------
+
+        >>> oEditor.DetachFaces
+
+        """
+        return self._primitives.detach_faces(self, faces)
+
+    @pyaedt_function_handler()
     def clone(self):
         """Clone the object and return the new 3D object.
 
