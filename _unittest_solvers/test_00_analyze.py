@@ -125,7 +125,7 @@ class TestClass:
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
-        sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
         vrt = sbr_app.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
         assert vrt
         vrt.incident_phi = "30deg"
@@ -139,7 +139,7 @@ class TestClass:
 
     def test_01c_sbr_create_vrt_creeping(self, sbr_app):
         sbr_app.rename_design("vtr_creeping")
-        sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
         vrt = sbr_app.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
         assert vrt
         vrt.incident_phi = "30deg"

@@ -143,9 +143,7 @@ class TestClass:
             os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plot_folder
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
-        assert os.path.exists(
-            plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
-        )
+        assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg")))
 
     def test_03_create_scattering(self):
         setup_name = "Setup1 : Sweep"

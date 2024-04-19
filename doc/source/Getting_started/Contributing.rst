@@ -127,7 +127,7 @@ Here is an example of an error:
        position = [0, 0, 0]
        dimensions_list = [0, 10, 10]
        name = None
-       matname = None
+       material = None
    ----------------------------------------------------------------------------------
 
    (-2147352567, 'Exception occurred.', (0, None, None, None, 0, -2147024381), None)

@@ -46,6 +46,6 @@ modeler, including all primitives methods and properties:
     origin = [0,0,0]
     dimensions = [10,5,20]
     #Material and name are not mandatory fields
-    box_object = app.modeler.primivites.create_rectangle([15, 20, 0], [5, 5], matname="aluminum")
+    box_object = app.modeler.primivites.create_rectangle([15, 20, 0], [5, 5], material="aluminum")
 
     ...

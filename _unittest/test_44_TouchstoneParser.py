@@ -49,7 +49,7 @@ class TestClass:
         check = check_touchstone_files(folder=test_T44_dir)
         assert check
         for k, v in check.items():
-            if v[0] == "passivity":
+            if v and v[0] == "passivity":
                 assert v[1]
-            elif v[0] == "causality":
+            elif v and v[0] == "causality":
                 assert not v[1]

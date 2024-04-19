@@ -887,7 +887,7 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
         >>> net = aedtapp.assign_net(box, "my_net")
         >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
         ...     source_name="Source1", net_name=net.name)
@@ -1486,7 +1486,7 @@ class Q3d(QExtractor, object):
         --------
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
         >>> net_name = "my_net"
         >>> net = q3d.assign_net(box, net_name)
         """
@@ -2140,20 +2140,20 @@ class Q2d(QExtractor, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_rectangle(self, position, dimension_list, name="", matname=""):
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
+    def create_rectangle(self, origin, sizes, name="", material=""):
         """Create a rectangle.
 
         Parameters
         ----------
-        position : list
+        origin : list
             List of ``[x, y]`` coordinates for the starting point of the rectangle.
-        dimension_list : list
+        sizes : list
             List of ``[width, height]`` dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is used.
 
@@ -2167,7 +2167,7 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
+        return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
 
     @pyaedt_function_handler()
     def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
