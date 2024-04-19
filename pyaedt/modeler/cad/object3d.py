@@ -1730,15 +1730,7 @@ class Object3d(object):
         >>> oEditor.DetachFaces
 
         """
-        if isinstance(faces, FacePrimitive) or isinstance(faces, int):
-            faces = [faces]
-        if isinstance(faces[0], FacePrimitive):
-            faces = [f.id for f in faces]
-        result = self._primitives.oeditor.DetachFaces(
-            ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"],
-            ["NAME:Parameters", ["NAME:DetachFacesToParameters", "FacesToDetach:=", faces]],
-        )
-        return [getattr(self._primitives, "_modeler")[o] for o in result]
+        return self._primitives.detach_faces(self, faces)
 
     @pyaedt_function_handler()
     def clone(self):

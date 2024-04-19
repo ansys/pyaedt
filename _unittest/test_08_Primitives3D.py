@@ -1965,3 +1965,13 @@ class TestClass:
         primitives_builder = PrimitivesBuilder(q2d, input_dict=primitive_dict)
         primitive_names = primitives_builder.create()
         assert all(element is None for element in primitive_names)
+
+    def test_92_detach_faces(self):
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+        out_obj = box.detach_faces(box.top_face_z)
+        assert len(out_obj) == 2
+        assert isinstance(out_obj[0], Object3d)
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+        out_obj = box.detach_faces([box.top_face_z.id, box.bottom_face_z.id])
+        assert len(out_obj) == 3
+        assert all(isinstance(o, Object3d) for o in out_obj)

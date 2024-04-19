@@ -3714,6 +3714,40 @@ class GeometryModeler(Modeler):
         self.logger.info("Intersection Succeeded")
         return self.convert_to_selections(assignment[0], False)
 
+    @pyaedt_function_handler()
+    def detach_faces(self, assignment, faces):
+        """Section the object.
+
+        Parameters
+        ----------
+        assignment : Object3d or str
+            Object from which to detach faces.
+        faces : List[FacePrimitive] or List[int] or int or FacePrimitive
+            Face or faces to detach from the object.
+
+        Returns
+        -------
+        List[:class:`pyaedt.modeler.cad.object3d.Object3d`]
+            List of objects resulting from the operation (including the original one).
+
+        References
+        ----------
+
+        >>> oEditor.DetachFaces
+
+        """
+        if isinstance(assignment, str):
+            assignment = self._modeler[assignment]
+        if isinstance(faces, FacePrimitive) or isinstance(faces, int):
+            faces = [faces]
+        if isinstance(faces[0], FacePrimitive):
+            faces = [f.id for f in faces]
+        result = self.oeditor.DetachFaces(
+            ["NAME:Selections", "Selections:=", assignment.name, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", ["NAME:DetachFacesToParameters", "FacesToDetach:=", faces]],
+        )
+        return [assignment] + [self._modeler[o] for o in result]
+
     @pyaedt_function_handler(theList="assignment")
     def connect(self, assignment):
         """Connect objects from a list.

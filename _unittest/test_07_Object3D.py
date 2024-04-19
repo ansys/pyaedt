@@ -9,7 +9,6 @@ from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
-from pyaedt.modeler.cad.object3d import Object3d
 
 
 @pytest.fixture(scope="class")
@@ -678,13 +677,3 @@ class TestClass:
         )
         assert not self.aedtapp.modeler.simplify_objects(assignment=None)
         assert not self.aedtapp.modeler.simplify_objects(assignment=1)
-
-    def test_21_detach_faces(self):
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
-        out_obj = box.detach_faces(box.top_face_z)
-        assert len(out_obj) == 1
-        assert isinstance(out_obj[0], Object3d)
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
-        out_obj = box.detach_faces([box.top_face_z.id, box.bottom_face_z.id])
-        assert len(out_obj) == 2
-        assert all(isinstance(o, Object3d) for o in out_obj)
