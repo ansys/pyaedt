@@ -1772,7 +1772,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         Parameters
         ----------
         input_file : str
-            Fully qualified name of the file containing the differential pairs definition.
+            Full path to the differential pairs definition file.
 
         Returns
         -------
