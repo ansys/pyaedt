@@ -1095,38 +1095,34 @@ class Modeler3D(Primitives3D):
                     points = [nas_to_dict["Points"][id] for id in solid[1:]]
                     if solid[0] == "CPENTA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[3], points[4], points[5]], close_surface=True, cover_surface=True
+                            points=[points[3], points[4], points[5]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.connect([element1.name, element2.name])
                         element1.group_name = "PID_" + str(solid_pid)
                     elif solid[0] == "CHEXA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2], points[3]],
-                            close_surface=True,
-                            cover_surface=True,
+                            points=[points[0], points[1], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[4], points[5], points[6], points[7]],
-                            close_surface=True,
-                            cover_surface=True,
+                            points=[points[4], points[5], points[6], points[7]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.connect([element1.name, element2.name])
                         element1.group_name = "PID_" + str(solid_pid)
                     elif solid[0] == "CTETRA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[3]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[3]], cover_surface=True, close_surface=True
                         )
                         element3 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[2], points[3]], close_surface=True, cover_surface=True
+                            points=[points[0], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         element4 = self._app.modeler.create_polyline(
-                            position_list=[points[1], points[2], points[3]], close_surface=True, cover_surface=True
+                            points=[points[1], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.unite([element1.name, element2.name, element3.name, element4.name])
                         element1.group_name = "PID_" + str(solid_pid)

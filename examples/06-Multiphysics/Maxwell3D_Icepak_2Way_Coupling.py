@@ -54,19 +54,19 @@ m3d = pyaedt.Maxwell3d(
 # Create the coil, coil terminal, core, and region.
 
 coil = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil"
 )
 
-coil.sweep_around_axis(cs_axis=AXIS.Z)
+coil.sweep_around_axis(axis=AXIS.Z)
 
 coil_terminal = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil_terminal"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil_terminal"
 )
 
 core = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[45, 0, -18], dimension_list=[7, 160], name="Core"
+    orientation="XZ", origin=[45, 0, -18], sizes=[7, 160], name="Core"
 )
-core.sweep_around_axis(cs_axis=AXIS.Z)
+core.sweep_around_axis(axis=AXIS.Z)
 
 # Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.
 region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
@@ -182,7 +182,7 @@ ipk.copy_solid_bodies_from(m3d, no_pec=False)
 ipk.modeler["Region"].delete()
 coil_dim = coil.bounding_dimension[0]
 ipk.modeler.create_region(0, False)
-ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim/2, coil_dim*2, coil_dim])
+ipk.modeler.edit_region_dimensions([coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim])
 
 ###############################################################################
 # Map coil losses

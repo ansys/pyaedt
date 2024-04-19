@@ -97,10 +97,10 @@ hfss.edit_sources_from_file(os.path.join(project_path, "sources.csv"))
 # Save and analyze the project.
 
 hfss.save_project(os.path.join(project_path, "solved.aedt"))
-hfss.analyze(num_cores=6)
+hfss.analyze(cores=6)
 
 ###############################################################################
-# Plot SAR on Cut Plane in Phantom
+# Plot SAR on cut plane in phantom
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Ensure that the SAR averaging method is set to Gridless
 # Plot averagedSAR on GlobalYZ plane
@@ -143,7 +143,7 @@ hfss.modeler.import_3d_cad(os.path.join(project_path, "implant_rod.sat"))
 
 hfss.modeler["implant_box"].subtract("rod", keep_originals=True)
 hfss.modeler["rod"].material_name = "titanium"
-hfss.analyze(num_cores=6)
+hfss.analyze(cores=6)
 hfss.save_project()
 
 ###############################################################################
@@ -195,10 +195,10 @@ setup.props["N Steps"] = "2"
 # ~~~~~~~~~~~~~~~~~~
 # Analyze the project.
 
-mech.analyze(num_cores=6)
+mech.analyze(cores=6)
 
 ###############################################################################
-# Plot Fields
+# Plot fields
 # ~~~~~~~~~~~
 # Plot Temperature on cut plane.
 # Plot Temperature on point.
@@ -280,10 +280,10 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Analyze and plot fields
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Analyze the project.
-# Plot Temperature on cut plane.
-# Plot Temperature on monitor point.
+# Plot temperature on cut plane.
+# Plot temperature on monitor point.
 
-ipk.analyze(num_cores=4,num_tasks=4)
+ipk.analyze(cores=4, tasks=4)
 ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])
 ipk.save_project()
 

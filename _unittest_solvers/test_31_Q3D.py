@@ -49,9 +49,8 @@ class TestClass:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, matname="brass", name="MyCylinder"
-        )
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder",
+                                                 material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self):
@@ -138,8 +137,8 @@ class TestClass:
         assert self.aedtapp.auto_identify_nets()
 
     def test_07_create_source_sinks(self):
-        source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
-        sink = self.aedtapp.sink("MyCylinder", axisdir=3, name="Sink1")
+        source = self.aedtapp.source("MyCylinder", direction=0, name="Source1")
+        sink = self.aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
         assert len(self.aedtapp.excitations) > 0
@@ -167,7 +166,7 @@ class TestClass:
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
-        source = self.aedtapp.source(["Source1", "Sink1"], net_name="GND", name="Cylinder1")
+        source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
         source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
@@ -187,9 +186,8 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
-        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
-        )
+        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example", self.aedtapp.AXIS.Z,
+                                                                              min_size=0.2, number_of_segments=8)
         assert test
 
     def test_11_assign_net(self):
@@ -243,9 +241,8 @@ class TestClass:
         assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
         assert q3d.matrices[2].delete()
-        assert q3d.insert_reduced_matrix(
-            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
-        )
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source",
+                                         "New_sink")
         assert "New_net" in q3d.matrices[2].sources()
         assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
         assert len(q3d.matrices[2].operations) == 2
@@ -313,7 +310,7 @@ class TestClass:
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze_setup(q3d.active_setup, cores=6)
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
@@ -375,7 +372,7 @@ class TestClass:
         assert q3d.matrices[1].name == "JointTest"
         q3d["d"] = "10mm"
         q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze_setup(q3d.active_setup, cores=6)
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
@@ -435,11 +432,11 @@ class TestClass:
         exported_files = q3d.export_results()
         assert len(exported_files) == 0
         for setup_name in q3d.setup_names:
-            q3d.analyze_setup(setup_name, num_cores=6)
+            q3d.analyze_setup(setup_name, cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze(num_cores=6)
+        q3d.analyze(cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

@@ -703,10 +703,10 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> box1 = hfss.modeler.create_box([10, 10, 10], [4, 5, 5])
-        >>> box2 = hfss.modeler.create_box([0, 0, 0], [2, 3, 4])
-        >>> cylinder1 = hfss.modeler.create_cylinder(cs_axis="X", position=[5, 0, 0], radius=1, height=20)
-        >>> cylinder2 = hfss.modeler.create_cylinder(cs_axis="Z", position=[0, 0, 5], radius=1, height=10)
+        >>> box1 = hfss.modeler.create_box([10, 10, 10],[4, 5, 5])
+        >>> box2 = hfss.modeler.create_box([0, 0, 0],[2, 3, 4])
+        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X",origin=[5, 0, 0],radius=1,height=20)
+        >>> cylinder2 = hfss.modeler.create_cylinder(orientation="Z",origin=[0, 0, 5],radius=1,height=10)
 
         Assign the material ``"copper"`` to all the objects.
 
@@ -1035,7 +1035,8 @@ class FieldAnalysis3D(Analysis, object):
             if isinstance(component_name, str):
                 component_name = [component_name]
             for cmp in component_name:
-                assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+                if cmp not in self.modeler.user_defined_component_names:
+                    raise ValueError("Component definition was not found for '{}'.".format(cmp))
 
         for cmp in component_name:
             comp = self.modeler.user_defined_components[cmp]
@@ -1310,17 +1311,17 @@ class FieldAnalysis3D(Analysis, object):
         self.oeditor.ImportDXF(vArg1)
         return True
 
-    @pyaedt_function_handler
-    def import_gds_3d(self, gds_file, gds_number, unit="um", import_method=1):  # pragma: no cover
+    @pyaedt_function_handler(gds_file="input_file", gds_number="mapping_layers", unit="units")
+    def import_gds_3d(self, input_file, mapping_layers, units="um", import_method=1):  # pragma: no cover
         """Import a GDSII file.
 
         Parameters
         ----------
-        gds_file : str
+        input_file : str
             Path to the GDS file.
-        gds_number : dict
+        mapping_layers : dict
             Dictionary keys are GDS layer numbers, and the value is a tuple with the thickness and elevation.
-        unit : string, optional
+        units : string, optional
             Length unit values. The default is ``"um"``.
         import_method : integer, optional
             GDSII import method. The default is ``1``. Options are:
@@ -1345,23 +1346,23 @@ class FieldAnalysis3D(Analysis, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}
-        >>> hfss.import_gds_3d(gds_path, gds_number, unit="um", import_method=1)
+        >>> hfss.import_gds_3d(gds_path,gds_number,units="um",import_method=1)
 
         """
 
         if self.desktop_class.non_graphical:
             self.logger.error("Method is supported only in graphical mode.")
             return False
-        if not os.path.exists(gds_file):
+        if not os.path.exists(input_file):
             self.logger.error("GDSII file does not exist. No layer is imported.")
             return False
-        if len(gds_number) == 0:
+        if len(mapping_layers) == 0:
             self.logger.error("Dictionary for GDSII layer numbers is empty. No layer is imported.")
             return False
 
         layermap = ["NAME:LayerMap"]
         ordermap = []
-        for i, k in enumerate(gds_number):
+        for i, k in enumerate(mapping_layers):
             layername = "signal" + str(k)
             layermap.append(
                 [
@@ -1384,9 +1385,9 @@ class FieldAnalysis3D(Analysis, object):
                     "LayerNumber:=",
                     k,
                     "Thickness:=",
-                    unit_converter(gds_number[k][1], unit_system="Length", input_units=unit, output_units="meter"),
+                    unit_converter(mapping_layers[k][1], unit_system="Length", input_units=units, output_units="meter"),
                     "Elevation:=",
-                    unit_converter(gds_number[k][0], unit_system="Length", input_units=unit, output_units="meter"),
+                    unit_converter(mapping_layers[k][0], unit_system="Length", input_units=units, output_units="meter"),
                     "Color:=",
                     "color",
                 ],
@@ -1397,7 +1398,7 @@ class FieldAnalysis3D(Analysis, object):
             [
                 "NAME:options",
                 "FileName:=",
-                gds_file,
+                input_file,
                 "FlattenHierarchy:=",
                 True,
                 "ImportMethod:=",

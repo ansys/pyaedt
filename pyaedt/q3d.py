@@ -100,12 +100,12 @@ class QExtractor(FieldAnalysis3D, object):
         """
         return self.matrices[matrix_index].sources(is_gc_sources=is_gc_sources)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(source_names="assignment", rm_name="reduced_matrix")
     def insert_reduced_matrix(
         self,
         operation_name,
-        source_names=None,
-        rm_name=None,
+        assignment=None,
+        reduced_matrix=None,
         new_net_name=None,
         new_source_name=None,
         new_sink_name=None,
@@ -116,10 +116,10 @@ class QExtractor(FieldAnalysis3D, object):
         ----------
         operation_name : str
             Name of the operation to create.
-        source_names : list, str, optional
+        assignment : list, str, optional
             List of sources or nets or arguments needed for the operation. The default
             is ``None``.
-        rm_name : str, optional
+        reduced_matrix : str, optional
             Name of the reduced matrix. The default is ``None``.
         new_net_name : str, optional
             Name of the new net. The default is ``None``.
@@ -133,9 +133,9 @@ class QExtractor(FieldAnalysis3D, object):
         :class:`pyaedt.modules.Boundary.Matrix`
             Matrix object.
         """
-        if not rm_name:
-            rm_name = generate_unique_name(operation_name)
-        matrix = Matrix(self, rm_name, operation_name)
+        if not reduced_matrix:
+            reduced_matrix = generate_unique_name(operation_name)
+        matrix = Matrix(self, reduced_matrix, operation_name)
 
         if not new_net_name:
             new_net_name = generate_unique_name("Net")
@@ -146,7 +146,7 @@ class QExtractor(FieldAnalysis3D, object):
         if not new_sink_name:
             new_sink_name = generate_unique_name("Sink")
 
-        if matrix.create(source_names, new_net_name, new_source_name, new_sink_name):
+        if matrix.create(assignment, new_net_name, new_source_name, new_sink_name):
             self.matrices.append(matrix)
         return matrix
 
@@ -887,12 +887,11 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
-        >>> net = aedtapp.assign_net(box, "my_net")
+        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
+        >>> net = aedtapp.assign_net(box,"my_net")
         >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
         ...     source_name="Source1", net_name=net.name)
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id, axisdir=0,
-        ...     sink_name="Sink1", net_name=net.name)
+        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
         >>> aedtapp["d"] = "20mm"
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
@@ -1325,13 +1324,13 @@ class Q3d(QExtractor, object):
                 i.delete()
         return True
 
-    @pyaedt_function_handler()
-    def objects_from_nets(self, nets, materials=None):
+    @pyaedt_function_handler(nets="assignment")
+    def objects_from_nets(self, assignment, materials=None):
         """Find the objects that belong to one or more nets. You can filter by materials.
 
         Parameters
         ----------
-        nets : str, list
+        assignment : str, list
             One or more nets to search for. The search is case-insensitive.
         materials : str, list, optional
             One or more materials for filtering the net objects. The default
@@ -1342,15 +1341,15 @@ class Q3d(QExtractor, object):
         dict
             Dictionary of net name and objects that belongs to it.
         """
-        if isinstance(nets, str):
-            nets = [nets]
+        if isinstance(assignment, str):
+            assignment = [assignment]
         if isinstance(materials, str):
             materials = [materials]
         elif not materials:
             materials = []
         materials = [i.lower() for i in materials]
         objects = {}
-        for net in nets:
+        for net in assignment:
             for bound in self.boundaries:
                 if net.lower() == bound.name.lower() and "Net" in bound.type:
                     obj_list = self.modeler.convert_to_selections(bound.props.get("Objects", []), True)
@@ -1455,13 +1454,13 @@ class Q3d(QExtractor, object):
             self.logger.info("No new nets identified")
         return True
 
-    @pyaedt_function_handler()
-    def assign_net(self, objects, net_name=None, net_type="Signal"):
+    @pyaedt_function_handler(objects="assignment")
+    def assign_net(self, assignment, net_name=None, net_type="Signal"):
         """Assign a net to a list of objects.
 
         Parameters
         ----------
-        objects : list, str
+        assignment : list, str
             List of objects to assign the net to. It can be a single object.
         net_name : str, optional
             Name of the net. The default is ```None``, in which case the
@@ -1486,14 +1485,14 @@ class Q3d(QExtractor, object):
         --------
         >>> from pyaedt import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
         >>> net_name = "my_net"
-        >>> net = q3d.assign_net(box, net_name)
+        >>> net = q3d.assign_net(box,net_name)
         """
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
             net_name = generate_unique_name("Net")
-        props = OrderedDict({"Objects": objects})
+        props = OrderedDict({"Objects": assignment})
         type_bound = "SignalNet"
         if net_type.lower() == "ground":
             type_bound = "GroundNet"
@@ -1505,17 +1504,17 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def source(self, objects=None, axisdir=0, name=None, net_name=None, terminal_type="voltage"):
+    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    def source(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
         """Generate a source on a face of an object or a group of faces or face ids.
         The face ID is selected based on the axis direction. It is the face that
         has the maximum/minimum in this axis direction.
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
-        axisdir : int, optional
+        direction : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         name : str, optional
             Name of the source. The default is ``None``.
@@ -1534,10 +1533,10 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        return self._assign_source_or_sink(objects, axisdir, name, net_name, terminal_type, "Source")
+        return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Source")
 
-    @pyaedt_function_handler()
-    def sink(self, objects=None, axisdir=0, name=None, net_name=None, terminal_type="voltage"):
+    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    def sink(self, assignment=None, direction=0, name=None, net_name=None, terminal_type="voltage"):
         """Generate a sink on a face of an object or a group of faces or face ids.
 
         The face ID is selected based on the axis direction. It is the face that
@@ -1545,9 +1544,9 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        objects : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, int or list or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name of the object or face ID or face ID list.
-        axisdir : int, optional
+        direction : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
         name : str, optional
             Name of the source. The default is ``None``.
@@ -1566,18 +1565,18 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSource
         """
-        return self._assign_source_or_sink(objects, axisdir, name, net_name, terminal_type, "Sink")
+        return self._assign_source_or_sink(assignment, direction, name, net_name, terminal_type, "Sink")
 
-    @pyaedt_function_handler()
-    def _assign_source_or_sink(self, objects, axisdir, name, net_name, terminal_type, exc_type):
+    @pyaedt_function_handler(objects="assignment", axisdir="direction")
+    def _assign_source_or_sink(self, assignment, direction, name, net_name, terminal_type, exc_type):
         if not name:
             name = generate_unique_name(exc_type)
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         sheets = []
         is_face = True
-        for object_name in objects:
+        for object_name in assignment:
             if isinstance(object_name, str) and object_name in self.modeler.solid_names:
-                sheets.append(self.modeler._get_faceid_on_axis(object_name, axisdir))
+                sheets.append(self.modeler._get_faceid_on_axis(object_name, direction))
                 if not net_name:
                     for net in self.nets:
                         if object_name in self.objects_from_nets(net):
@@ -1607,77 +1606,12 @@ class Q3d(QExtractor, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_source_to_objectface(self, object_name, axisdir=0, source_name=None, net_name=None):
-        """Generate a source on a face of an object.
-
-        .. deprecated:: 0.6.70
-           Use :func:`source` method instead.
-
-        The face ID is selected based on the axis direction. It is the face that
-        has the maximum/minimum in this axis direction.
-
-        Parameters
-        ----------
-        object_name : str, int
-            Name of the object or face ID.
-        axisdir : int, optional
-            Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
-        source_name : str, optional
-            Name of the source. The default is ``None``.
-        net_name : str, optional
-            Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Source object.
-
-        References
-        ----------
-
-        >>> oModule.AssignSource
-        """
-        warnings.warn("Use :func:`source` method instead.", DeprecationWarning)
-        return self.source(objects=object_name, axisdir=0, name=source_name, net_name=net_name)
-
-    @pyaedt_function_handler()
-    def assign_source_to_sheet(
-        self, sheetname, objectname=None, netname=None, sourcename=None, terminal_type="voltage"
-    ):
-        """Generate a source on a sheet.
-
-        .. deprecated:: 0.6.70
-           Use :func:`source` method instead.
-
-        Parameters
-        ----------
-        sheetname : str, int or list
-            Name of the sheets to create the source on.
-        objectname :  str, optional
-            Name of the parent object. The default is ``None``.
-        netname : str, optional
-            Name of the net. The default is ``None``.
-        sourcename : str,  optional
-            Name of the source. The default is ``None``.
-        terminal_type : str
-            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Source object.
-
-        References
-        ----------
-
-        >>> oModule.AssignSource
-        """
-        warnings.warn("Use :func:`source` method instead.", DeprecationWarning)
-        return self.source(objects=sheetname, name=sourcename, net_name=netname, terminal_type=terminal_type)
-
-    @pyaedt_function_handler()
-    def assign_sink_to_objectface(self, object_name, axisdir=0, sink_name=None, net_name=None):
+    @pyaedt_function_handler(
+        object_name="assignment",
+        axisdir="direction",
+        sink_name="name",
+    )
+    def assign_sink_to_objectface(self, assignment, direction=0, name=None, net_name=None):
         """Generate a sink on a face of an object.
 
         The face ID is selected based on the axis direction. It is the face that has
@@ -1685,11 +1619,11 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        object_name : str, int
+        assignment : str, int
             Name of the object or face ID.
-        axisdir : int, optional
+        direction : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
-        sink_name : str, optional
+        name : str, optional
             Name of the sink. The default is ``None``.
         net_name : str, optional
             Name of the net. The default is ``None``, in which case the ``object_name`` is considered.
@@ -1704,39 +1638,41 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
-        object_name = self.modeler.convert_to_selections(object_name, True)[0]
-        if isinstance(object_name, int):
-            a = object_name
-            object_name = self.modeler.oeditor.GetObjectNameByFaceID(a)
+        assignment = self.modeler.convert_to_selections(assignment, True)[0]
+        if isinstance(assignment, int):
+            a = assignment
+            assignment = self.modeler.oeditor.GetObjectNameByFaceID(a)
         else:
-            a = self.modeler._get_faceid_on_axis(object_name, axisdir)
-        if not sink_name:
-            sink_name = generate_unique_name("Sink")
+            a = self.modeler._get_faceid_on_axis(assignment, direction)
+        if not name:
+            name = generate_unique_name("Sink")
         if not net_name:
-            net_name = object_name
+            net_name = assignment
         if a:
             props = OrderedDict(
-                {"Faces": [a], "ParentBndID": object_name, "TerminalType": "ConstantVoltage", "Net": net_name}
+                {"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name}
             )
-            bound = BoundaryObject(self, sink_name, props, "Sink")
+            bound = BoundaryObject(self, name, props, "Sink")
             if bound.create():
                 self._boundaries[bound.name] = bound
                 return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None, terminal_type="voltage"):
+    @pyaedt_function_handler(sheetname="assignment", objectname="object_name", netname="net_name", sinkname="sink_name")
+    def assign_sink_to_sheet(
+        self, assignment, object_name=None, net_name=None, sink_name=None, terminal_type="voltage"
+    ):
         """Generate a sink on a sheet.
 
         Parameters
         ----------
-        sheetname :
+        assignment :
             Name of the sheet to create the sink on.
-        objectname : str, optional
+        object_name : str, optional
             Name of the parent object. The default is ``None``.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``.
-        sinkname : str, optional
+        sink_name : str, optional
             Name of the sink. The default is ``None``.
         terminal_type : str
             Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
@@ -1751,15 +1687,15 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
-        if not sinkname:
-            sinkname = generate_unique_name("Sink")
-        sheetname = self.modeler.convert_to_selections(sheetname, True)[0]
-        if isinstance(sheetname, int):
-            props = OrderedDict({"Faces": [sheetname]})
+        if not sink_name:
+            sink_name = generate_unique_name("Sink")
+        assignment = self.modeler.convert_to_selections(assignment, True)[0]
+        if isinstance(assignment, int):
+            props = OrderedDict({"Faces": [assignment]})
         else:
-            props = OrderedDict({"Objects": [sheetname]})
-        if objectname:
-            props["ParentBndID"] = objectname
+            props = OrderedDict({"Objects": [assignment]})
+        if object_name:
+            props["ParentBndID"] = object_name
 
         if terminal_type == "current":
             terminal_str = "UniformCurrent"
@@ -1768,10 +1704,10 @@ class Q3d(QExtractor, object):
 
         props["TerminalType"] = terminal_str
 
-        if netname:
-            props["Net"] = netname
+        if net_name:
+            props["Net"] = net_name
 
-        bound = BoundaryObject(self, sinkname, props, "Sink")
+        bound = BoundaryObject(self, sink_name, props, "Sink")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
@@ -2140,20 +2076,20 @@ class Q2d(QExtractor, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_rectangle(self, position, dimension_list, name="", matname=""):
+    @pyaedt_function_handler(position="origin", dimension_list="sizes", matname="material")
+    def create_rectangle(self, origin, sizes, name="", material=""):
         """Create a rectangle.
 
         Parameters
         ----------
-        position : list
+        origin : list
             List of ``[x, y]`` coordinates for the starting point of the rectangle.
-        dimension_list : list
+        sizes : list
             List of ``[width, height]`` dimensions.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case
             the default name is assigned.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case
             the default material is used.
 
@@ -2167,15 +2103,15 @@ class Q2d(QExtractor, object):
 
         >>> oEditor.CreateRectangle
         """
-        return self.modeler.create_rectangle(position, dimension_list=dimension_list, name=name, matname=matname)
+        return self.modeler.create_rectangle(origin=origin, sizes=sizes, name=name, material=material)
 
-    @pyaedt_function_handler()
-    def assign_single_signal_line(self, target_objects, name="", solve_option="SolveInside", thickness=None, unit="um"):
+    @pyaedt_function_handler(target_objects="assignment", unit="units")
+    def assign_single_signal_line(self, assignment, name="", solve_option="SolveInside", thickness=None, units="um"):
         """Assign the conductor type to sheets.
 
         Parameters
         ----------
-        target_objects : list
+        assignment : list
             List of Object3D.
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
@@ -2186,7 +2122,7 @@ class Q2d(QExtractor, object):
             Conductor thickness. The default is ``None``, in which case the conductor thickness
             is obtained by dividing the conductor's area by its perimeter (A/p). If multiple
             conductors are selected, the average conductor thickness is used.
-        unit : str, optional
+        units : str, optional
             Thickness unit. The default is ``"um"``.
 
         References
@@ -2199,24 +2135,24 @@ class Q2d(QExtractor, object):
         warnings.warn(
             "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
         )
-        self.assign_single_conductor(target_objects, name, "SignalLine", solve_option, thickness, unit)
+        self.assign_single_conductor(assignment, name, "SignalLine", solve_option, thickness, units)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(target_objects="assignment", unit="units")
     def assign_single_conductor(
         self,
-        target_objects,
+        assignment,
         name="",
         conductor_type="SignalLine",
         solve_option="SolveInside",
         thickness=None,
-        unit="um",
+        units="um",
     ):
         """
         Assign the conductor type to sheets.
 
         Parameters
         ----------
-        target_objects : list
+        assignment : list
             List of Object3D.
         name : str, optional
             Name of the conductor. The default is ``""``, in which case the default name is used.
@@ -2230,7 +2166,7 @@ class Q2d(QExtractor, object):
             Conductor thickness. The default is ``None``, in which case the conductor thickness is obtained by dividing
             the conductor's area by its perimeter (A/p). If multiple conductors are selected, the average conductor
             thickness is used.
-        unit : str, optional
+        units : str, optional
             Thickness unit. The default is ``"um"``.
 
         Returns
@@ -2247,12 +2183,12 @@ class Q2d(QExtractor, object):
         if not name:
             name = generate_unique_name(name)
 
-        if isinstance(target_objects, list):
-            a = target_objects
-            obj_names = [i.name for i in target_objects]
+        if isinstance(assignment, list):
+            a = assignment
+            obj_names = [i.name for i in assignment]
         else:
-            a = [target_objects]
-            obj_names = [target_objects.name]
+            a = [assignment]
+            obj_names = [assignment.name]
 
         if not thickness:
             t_list = []
@@ -2263,7 +2199,7 @@ class Q2d(QExtractor, object):
                 t_list.append(t_obj.faces[0].area / perimeter)
             thickness = sum(t_list) / len(t_list)
 
-        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + unit})
+        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
@@ -2271,17 +2207,17 @@ class Q2d(QExtractor, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_huray_finitecond_to_edges(self, edges, radius, ratio, unit="um", name=""):
+    @pyaedt_function_handler(edges="assignment", unit="units")
+    def assign_huray_finitecond_to_edges(self, assignment, radius, ratio, units="um", name=""):
         """
         Assign the Huray surface roughness model to edges.
 
         Parameters
         ----------
-        edges :
+        assignment :
         radius :
         ratio :
-        unit : str, optional
+        units : str, optional
             The default is ``"um"``.
         name : str, optional
             The default is ``""``, in which case the default name is used.
@@ -2300,11 +2236,11 @@ class Q2d(QExtractor, object):
             name = generate_unique_name(name)
 
         if not isinstance(radius, str):
-            ra = str(radius) + unit
+            ra = str(radius) + units
         else:
             ra = radius
 
-        a = self.modeler.convert_to_selections(edges, True)
+        a = self.modeler.convert_to_selections(assignment, True)
 
         props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
@@ -2462,13 +2398,13 @@ class Q2d(QExtractor, object):
                             self.logger.warning("Export W-element failed")
         return exported_files
 
-    @pyaedt_function_handler()
-    def toggle_conductor_type(self, conductor_name, new_type):
+    @pyaedt_function_handler(conductor_name="assignment")
+    def toggle_conductor_type(self, assignment, new_type):
         """Change the conductor type.
 
         Parameters
         ----------
-        conductor_name : str
+        assignment : str
             Name of the conductor to update.
         new_type : str
             New conductor type.
@@ -2479,9 +2415,9 @@ class Q2d(QExtractor, object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            self.oboundary.ToggleConductor(conductor_name, new_type)
+            self.oboundary.ToggleConductor(assignment, new_type)
             for bound in self.boundaries:
-                if bound.name == conductor_name:
+                if bound.name == assignment:
                     bound.type = new_type
             self.logger.info("Conductor type correctly updated")
             return True

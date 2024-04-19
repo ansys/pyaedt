@@ -100,38 +100,35 @@ q.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a negative signal.
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
+q.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(objid=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
+q.modeler.move(assignment=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
 ###############################################################################
 # Create coplanar ground
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a coplanar ground.
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_left")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
-                                          name="co_gnd_right")
-top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
-q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
+base_line_obj = q.modeler.create_polyline(points=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right")
+top_line_obj = q.modeler.create_polyline(points=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+q.modeler.move(assignment=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move(objid=[base_line_obj],
-               vector=["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
+q.modeler.move(assignment=[base_line_obj], vector=["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
 ###############################################################################
 # Create reference ground plane
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a reference ground plane.
 
-q.modeler.create_rectangle(position=[0, layer_1_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_u")
-q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w, cond_h], name="ref_gnd_l")
+q.modeler.create_rectangle(origin=[0, layer_1_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_u")
+q.modeler.create_rectangle(origin=[0, layer_3_lh, 0], sizes=[model_w, cond_h], name="ref_gnd_l")
 
 ###############################################################################
 # Create dielectric
@@ -139,13 +136,13 @@ q.modeler.create_rectangle(position=[0, layer_3_lh, 0], dimension_list=[model_w,
 # Create a dielectric.
 
 q.modeler.create_rectangle(
-    position=[0, layer_1_uh, 0], dimension_list=[model_w, core_h], name="Core", matname="FR4_epoxy"
+    origin=[0, layer_1_uh, 0], sizes=[model_w, core_h], name="Core", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_uh, 0], dimension_list=[model_w, pp_h], name="Prepreg", matname="FR4_epoxy"
+    origin=[0, layer_2_uh, 0], sizes=[model_w, pp_h], name="Prepreg", material="FR4_epoxy"
 )
 q.modeler.create_rectangle(
-    position=[0, layer_2_lh, 0], dimension_list=[model_w, cond_h], name="Filling", matname="FR4_epoxy"
+    origin=[0, layer_2_lh, 0], sizes=[model_w, cond_h], name="Filling", material="FR4_epoxy"
 )
 
 ###############################################################################
@@ -154,14 +151,12 @@ q.modeler.create_rectangle(
 # Assign conductors to the signal.
 
 obj = q.modeler.get_object_from_name("signal_p")
-q.assign_single_conductor(
-    name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=[obj], name=obj.name, conductor_type="SignalLine", solve_option="SolveOnBoundary",
+                          units="mm")
 
 obj = q.modeler.get_object_from_name("signal_n")
-q.assign_single_conductor(
-    name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=[obj], name=obj.name, conductor_type="SignalLine", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Create reference ground
@@ -169,9 +164,8 @@ q.assign_single_conductor(
 # Create a reference ground.
 
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]]
-q.assign_single_conductor(
-    name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=obj, name="gnd", conductor_type="ReferenceGround", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Assign Huray model on signals
@@ -189,8 +183,8 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the differential pair.
 
-matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, source_names=["signal_p", "signal_n"],
-                                 rm_name="diff_pair")
+matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, assignment=["signal_p", "signal_n"],
+                                 reduced_matrix="diff_pair")
 
 ###############################################################################
 # Create setup, analyze, and plot

@@ -47,13 +47,16 @@ hfss["width"] = "1mm"
 # Objects can be created, deleted and modified using all available boolean operations.
 # History is also fully accessible to PyAEDT.
 
-substrate = hfss.modeler.create_box(["-width","-width","-thick"],["2*width","2*width", "thick"], matname="FR4_epoxy", name="sub")
+substrate = hfss.modeler.create_box(["-width", "-width", "-thick"], ["2*width", "2*width", "thick"], name="sub",
+                                    material="FR4_epoxy")
 
 patch = hfss.modeler.create_rectangle("XY",["-width/2","-width/2","0mm"],["width","width"], name="patch1")
 
-via1 = hfss.modeler.create_cylinder(2, ["-width/8","-width/4","-thick"],"0.01mm", "thick", matname="copper", name="via_inner")
+via1 = hfss.modeler.create_cylinder(2, ["-width/8", "-width/4", "-thick"], "0.01mm", "thick", name="via_inner",
+                                    material="copper")
 
-via_outer = hfss.modeler.create_cylinder(2, ["-width/8","-width/4","-thick"],"0.025mm", "thick", matname="Teflon_based", name="via_teflon")
+via_outer = hfss.modeler.create_cylinder(2, ["-width/8", "-width/4", "-thick"], "0.025mm", "thick", name="via_teflon",
+                                         material="Teflon_based")
 
 ##########################################################
 # Boundaries
@@ -126,7 +129,7 @@ hfss2.modeler.user_defined_components["patch_antenna1"].parameters["thick"]="p_t
 
 hfss2.modeler.create_coordinate_system(origin=[20, 20, 10], name="Second_antenna")
 
-ant2 = hfss2.modeler.insert_3d_component(component_path, targetCS="Second_antenna")
+ant2 = hfss2.modeler.insert_3d_component(component_path, coordinate_system="Second_antenna")
 
 ##########################################################
 # Move components

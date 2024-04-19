@@ -255,8 +255,8 @@ class TouchstoneData(rf.Network):
 
         If no excitation is provided it will provide a full list of return losses.
 
-        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
-        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
+        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)", S(2,2)]
+        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)", S(2,2)]
 
         Parameters
         ----------
@@ -267,7 +267,7 @@ class TouchstoneData(rf.Network):
         Returns
         -------
         list
-            list of index couples representing Return Losses of excitations
+            List of index couples representing return losses of excitations.
 
         """
         values = []
@@ -545,9 +545,9 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
                     causality_check = float(msg_log.split("Maximum causality error: ")[-1].split("for entry")[0])
                     if not causality_check == 0.0:
                         is_causal = False
-                except:
+                except Exception:
                     is_causal = False
-                    raise Exception("Failed evaluating causality value")
+                    raise Exception("Failed evaluating causality value.")
                 out[snpf].append(["causality", is_causal, msg_log])
             if "Causality check is inconclusive" in line and causality:
                 is_causal = False

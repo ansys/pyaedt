@@ -191,7 +191,9 @@ ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
 ipk.modeler.set_working_coordinate_system("Global")
-line = ipk.modeler.create_polyline([ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position], non_model=True)
+line = ipk.modeler.create_polyline(
+    [ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position],
+    non_model=True)
 ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable="X")
 
 ###############################################################################
@@ -213,7 +215,7 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze(num_cores=4, num_tasks=4)
+ipk.analyze(cores=4, tasks=4)
 ipk.save_project()
 
 ###############################################################################

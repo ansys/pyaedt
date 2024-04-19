@@ -131,15 +131,15 @@ class CircuitPins(object):
             deltay = point[1]
         return deltax, deltay
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(component_pin="assignment")
     def connect_to_component(
-        self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
+        self, assignment, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
     ):
         """Connect schematic components.
 
         Parameters
         ----------
-        component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
+        assignment : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -167,14 +167,14 @@ class CircuitPins(object):
         >>> oPadstackManager.CreatePagePort
         """
         tol = 1e-8
-        if not isinstance(component_pin, list):
-            component_pin = [component_pin]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
         if use_wire:
             direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
             negative = 0.0 >= direction >= (math.pi)
-            for cpin in component_pin:
+            for cpin in assignment:
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
                 pins_x = [i.location[0] for i in self._circuit_comp.pins if i.name != self.name]
@@ -248,7 +248,7 @@ class CircuitPins(object):
                         points.append(act)
 
                 cangles.append(cpin._circuit_comp.angle)
-            self._circuit_comp._circuit_components.create_wire(points, wire_name=wire_name)
+            self._circuit_comp._circuit_components.create_wire(points, name=wire_name)
             return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
@@ -264,7 +264,7 @@ class CircuitPins(object):
             except Exception:
                 pass
         else:
-            for cmp in component_pin:
+            for cmp in assignment:
                 if "Port" in cmp._circuit_comp.composed_name:
                     try:
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
@@ -284,7 +284,7 @@ class CircuitPins(object):
         else:
             angle = math.pi + comp_angle
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
-        for cmp in component_pin:
+        for cmp in assignment:
             try:
                 x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
@@ -715,13 +715,13 @@ class CircuitComponent(object):
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 
-    @pyaedt_function_handler()
-    def set_use_symbol_color(self, symbol_color=None):
+    @pyaedt_function_handler(symbol_color="color")
+    def set_use_symbol_color(self, color=None):
         """Set symbol color usage.
 
         Parameters
         ----------
-        symbol_color : bool, optional
+        color : bool, optional
             The default is ``None``.
 
         Returns
@@ -734,23 +734,23 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if not symbol_color:
-            symbol_color = self.usesymbolcolor
-        vMaterial = ["NAME:Use Symbol Color", "Value:=", symbol_color]
+        if not color:
+            color = self.usesymbolcolor
+        vMaterial = ["NAME:Use Symbol Color", "Value:=", color]
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler()
-    def set_color(self, R=255, G=128, B=0):
+    @pyaedt_function_handler(R="red", G="green", B="blue")
+    def set_color(self, red=255, green=128, blue=0):
         """Set symbol color.
 
         Parameters
         ----------
-        R : int, optional
+        red : int, optional
             Red color value. The default is ``255``.
-        G : int, optional
+        green : int, optional
             Green color value. The default is ``128``.
-        B : int, optional
+        blue : int, optional
             Blue color value. The default is ``0``
 
         Returns
@@ -763,19 +763,19 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        vMaterial = ["NAME:Component Color", "R:=", R, "G:=", G, "B:=", B]
+        vMaterial = ["NAME:Component Color", "R:=", red, "G:=", green, "B:=", blue]
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler()
-    def set_property(self, property_name, property_value):
+    @pyaedt_function_handler(property_name="name", property_value="value")
+    def set_property(self, name, value):
         """Set a part property.
 
         Parameters
         ----------
-        property_name : str
+        name : str
             Name of the property.
-        property_value :
+        value :
             Value for the property.
 
         Returns
@@ -788,8 +788,8 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if isinstance(property_name, list):
-            for p, v in zip(property_name, property_value):
+        if isinstance(name, list):
+            for p, v in zip(name, value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)
                 if self.__dict__.get("_parameters", None) and p in self.__dict__["_parameters"]:
@@ -797,16 +797,14 @@ class CircuitComponent(object):
                 else:
                     self.__dict__[p] = v
         else:
-            v_prop = ["NAME:" + property_name, "Value:=", property_value]
+            v_prop = ["NAME:" + name, "Value:=", value]
             self.change_property(v_prop)
-            if self.__dict__.get("_parameters", None) and property_name in self.__dict__["_parameters"]:
-                self.__dict__["_parameters"][property_name] = property_value
-            elif self.__dict__.get("_component_info", None) and property_name in self.__dict__.get(
-                "_component_info", None
-            ):
-                self.__dict__["_component_info"][property_name] = property_value
+            if self.__dict__.get("_parameters", None) and name in self.__dict__["_parameters"]:
+                self.__dict__["_parameters"][name] = value
+            elif self.__dict__.get("_component_info", None) and name in self.__dict__.get("_component_info", None):
+                self.__dict__["_component_info"][name] = value
             else:
-                self.__dict__[property_name] = property_value
+                self.__dict__[name] = value
         return True
 
     @pyaedt_function_handler()
@@ -830,15 +828,15 @@ class CircuitComponent(object):
         self.__dict__[property_name] = property_value
         return True
 
-    @pyaedt_function_handler()
-    def change_property(self, vPropChange, names_list=None):
+    @pyaedt_function_handler(vPropChange="property", names_list="names")
+    def change_property(self, property_name, names=None):
         """Modify a property.
 
         Parameters
         ----------
-        vPropChange :
-
-        names_list : list, optional
+        property_name : list
+            Property value in AEDT syntax.
+        names : list, optional
              The default is ``None``.
 
         Returns
@@ -851,19 +849,19 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        vChangedProps = ["NAME:ChangedProps", vPropChange]
-        if names_list:
+        vChangedProps = ["NAME:ChangedProps", property_name]
+        if names:
             vPropServers = ["NAME:PropServers"]
-            for el in names_list:
+            for el in names:
                 vPropServers.append(el)
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
+        if property_name[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
             tabname = self.tabname
-        elif vPropChange[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
@@ -902,14 +900,14 @@ class Wire(object):
                 wire_names.append(wire)
         return wire_names
 
-    @pyaedt_function_handler()
-    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+    @pyaedt_function_handler(wire_name="name")
+    def display_wire_properties(self, name="", property_to_display="NetName", visibility="Name", location="Top"):
         """
         Display wire properties.
 
         Parameters
         ----------
-        wire_name : str, optional
+        name : str, optional
             Wire name to display.
             Default value is ``""``.
         property_to_display : str, optional
@@ -932,7 +930,7 @@ class Wire(object):
         try:
             wire_exists = False
             for wire in self.wires:
-                if wire_name == wire.split("@")[1].split(";")[0]:
+                if name == wire.split("@")[1].split(";")[0]:
                     wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
                     wire_exists = True
                     break
@@ -946,7 +944,7 @@ class Wire(object):
                     "NAME:AllTabs",
                     [
                         "NAME:PropDisplayPropTab",
-                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        ["NAME:PropServers", "Wire@{};{};{}".format(name, wire_id, 1)],
                         [
                             "NAME:NewProps",
                             ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],

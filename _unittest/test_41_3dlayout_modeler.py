@@ -61,7 +61,7 @@ class TestClass:
 
     def test_02_stackup(self):
         s1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
+            layer="Bottom", layer_type="signal", thickness="0.035mm", elevation="0mm", material="iron"
         )
         s1.color = [220, 10, 10]
         s1.is_visible = False
@@ -159,7 +159,7 @@ class TestClass:
         assert s1._BNR == 0.1
 
         d1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
+            layer="Diel3", layer_type="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
         )
         assert d1.material == "plexiglass"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
@@ -170,8 +170,8 @@ class TestClass:
         assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.add_layer(
-            layername="Top",
-            layertype="signal",
+            layer="Top",
+            layer_type="signal",
             thickness=3.5e-5,
             elevation="1.035mm",
             material="copper",
@@ -220,12 +220,16 @@ class TestClass:
     def test_06_unite(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle2")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle2")
-        assert self.aedtapp.modeler.unite([n1, n2])
+        assert self.aedtapp.modeler.unite(
+            [n1, n2],
+        )
 
     def test_07_intersect(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 8, "mycircle3")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle3")
-        assert self.aedtapp.modeler.intersect([n1, n2])
+        assert self.aedtapp.modeler.intersect(
+            [n1, n2],
+        )
 
     def test_08_objectlist(self):
         a = self.aedtapp.modeler.geometries
@@ -242,7 +246,7 @@ class TestClass:
         pad1 = self.aedtapp.modeler.new_padstack("My_padstack2")
         hole1 = pad1.add_hole()
         pad1.add_layer("Start", pad_hole=hole1, thermal_hole=hole1)
-        hole2 = pad1.add_hole(holetype="Rct", sizes=[0.5, 0.8])
+        hole2 = pad1.add_hole(hole_type="Rct", sizes=[0.5, 0.8])
         pad1.add_layer("Default", pad_hole=hole2, thermal_hole=hole2)
         pad1.add_layer("Stop", pad_hole=hole1, thermal_hole=hole1)
         pad1.hole.sizes = ["0.8mm"]
@@ -269,7 +273,7 @@ class TestClass:
         assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
         assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
-        via2 = self.aedtapp.modeler.create_via("PlanarEMVia", x=10, y=10, name="Via123", netname="VCC")
+        via2 = self.aedtapp.modeler.create_via("PlanarEMVia", x=10, y=10, name="Via123", net="VCC")
         via_2 = via2.name
         assert isinstance(via_2, str)
         assert self.aedtapp.modeler.vias[via_2].name == via_2
@@ -278,9 +282,7 @@ class TestClass:
         assert self.aedtapp.modeler.vias[via_2].location[1] == float(10)
         assert self.aedtapp.modeler.vias[via_2].angle == "0deg"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
-        via_3 = self.aedtapp.modeler.create_via(
-            "PlanarEMVia", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
-        )
+        via_3 = self.aedtapp.modeler.create_via("PlanarEMVia", x=5, y=5, hole_diam="22mm", name="Via1234", net="VCC")
         assert via_3.location[0] == float(5)
         assert via_3.location[1] == float(5)
         assert via_3.angle == "0deg"
@@ -288,9 +290,7 @@ class TestClass:
         assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
-        line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net_name="VCC"
-        )
+        line = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line2", net="VCC")
         assert line.name == "line2"
         line.name = "line1"
         assert isinstance(line.center_line, dict)
@@ -502,8 +502,8 @@ class TestClass:
         file_fullname = os.path.join(self.local_scratch.path, filename)
         file_fullname2 = os.path.join(self.local_scratch.path, filename2)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
-        assert setup.export_to_hfss(file_fullname=file_fullname)
-        assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
+        assert setup.export_to_hfss(output_file=file_fullname)
+        assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
 
     def test_19E_export_to_q3d(self):
         filename = "export_to_q3d_test"
@@ -543,9 +543,11 @@ class TestClass:
         assert isinstance(out1, str)
 
     def test_31_heal(self):
-        l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5, name="poly_1111")
-        l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5, name="poly_2222")
-        self.aedtapp.modeler.unite([l1, l2])
+        l1 = self.aedtapp.modeler.create_line("Bottom", [[0, 0], [100, 0]], 0.5)
+        l2 = self.aedtapp.modeler.create_line("Bottom", [[100, 0], [120, -35]], 0.5)
+        self.aedtapp.modeler.unite(
+            [l1, l2],
+        )
         assert self.aedtapp.modeler.colinear_heal("poly_2222", tolerance=0.25)
 
     def test_32_cosim_simulation(self):
@@ -582,9 +584,7 @@ class TestClass:
 
     def test_35a_export_layout(self):
         self.aedtapp.insert_design("export_layout")
-        s1 = self.aedtapp.modeler.layers.add_layer(
-            layername="Top", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
-        )
+        s1 = self.aedtapp.modeler.layers.add_layer(layer="Top")
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
         time_out = 0
@@ -608,7 +608,7 @@ class TestClass:
         )
 
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gerber_out") + ".aedb")
-        assert self.aedtapp.import_gerber(gerber_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gerber(gerber_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_37_import_gds(self):
@@ -618,7 +618,7 @@ class TestClass:
             os.path.join(local_path, "../_unittest/example_models", "cad", "GDS", "gds1.tech")
         )
         aedb_file = os.path.join(self.local_scratch.path, generate_unique_name("gds_out") + ".aedb")
-        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gds(gds_file, output_dir=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(is_linux, reason="Fails in linux")
     def test_38_import_dxf(self):
@@ -626,13 +626,13 @@ class TestClass:
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.dxf")
         control_file = os.path.join(local_path, "../_unittest/example_models", "cad", "DXF", "dxf1.xml")
         aedb_file = os.path.join(self.local_scratch.path, "dxf_out.aedb")
-        assert self.aedtapp.import_gerber(dxf_file, aedb_path=aedb_file, control_file=control_file)
+        assert self.aedtapp.import_gerber(dxf_file, output_dir=aedb_file, control_file=control_file)
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
         dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
-        assert self.aedtapp.import_ipc2581(dxf_file, aedb_path=aedb_file, control_file="")
+        assert self.aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
 
     @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Not working on AEDT 22R1")
     def test_40_test_flex(self, add_app):
@@ -654,18 +654,49 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+
+        assert test_post1.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            nets=["GND", "V3P3_S5"],
+        )
+
+        assert test_post1.post.create_fieldplot_layers(
+            ["UNNAMED_006"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers2",
+        )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["no-layer", "GND"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers3",
+        )
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
-            plot_name="Test_Layers",
+            plot_name="Test_Layers4",
+        )
+        assert test_post2.post.create_fieldplot_layers(
+            ["TOP", "UNNAMED_004"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            nets=["GND", "V3P3_S5"],
         )
         self.aedtapp.close_project(test_post2.project_name)
 
@@ -674,12 +705,41 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+
+        assert test.post.create_fieldplot_layers(
+            ["UNNAMED_002", "TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP", "PWR"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
         pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)
@@ -688,14 +748,14 @@ class TestClass:
     def test_90_set_differential_pairs(self, hfss3dl):
         assert not self.aedtapp.get_differential_pairs()
         assert hfss3dl.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
+            assignment="Port3",
+            reference="Port4",
+            common_mode=None,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
         )
-        assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert hfss3dl.set_differential_pair(assignment="Port3", reference="Port5")
         assert hfss3dl.get_differential_pairs()
         assert hfss3dl.get_traces_for_plot(differential_pairs=["Diff1"], category="dB(S")
 

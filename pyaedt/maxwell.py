@@ -692,7 +692,7 @@ class Maxwell(object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
-        >>> cylinder= m3d.modeler.create_cylinder("X", [0,0,0],10, 100, 250)
+        >>> cylinder= m3d.modeler.create_cylinder("X",[0,0,0],10,100,250)
         >>> current = m3d.assign_current(cylinder.top_face_x.id,amplitude="2mA")
         >>> m3d.release_desktop(True, True)
         """
@@ -1249,16 +1249,16 @@ class Maxwell(object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
-        >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
+        >>> iron_object = m3d.modeler.create_box([0, 0, 0],[2, 10, 10],name="iron")
+        >>> magnet_object = m3d.modeler.create_box([10, 0, 0],[2, 10, 10],name="magnet")
         >>> m3d.assign_material(iron_object, "iron")
         >>> m3d.assign_material(magnet_object, "NdFe30")
         >>> m3d.assign_force("iron",is_virtual=True,force_name="force_iron")
 
         Assign Lorentz force to a conductor:
 
-        >>> conductor1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="conductor1")
-        >>> conductor2 = m3d.modeler.create_box([10, 0, 0], [1, 1, 10], name="conductor2")
+        >>> conductor1 = m3d.modeler.create_box([0, 0, 0],[1, 1, 10],name="conductor1")
+        >>> conductor2 = m3d.modeler.create_box([10, 0, 0],[1, 1, 10],name="conductor2")
         >>> m3d.assign_material(conductor1, "copper")
         >>> m3d.assign_material(conductor2, "copper")
         >>> m3d.assign_force("conductor1",is_virtual=False,force_name="force_copper") # conductor, use Lorentz force
@@ -1674,8 +1674,8 @@ class Maxwell(object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box1 = m3d.modeler.create_box([0, 0, 0], [2, 10, 10])
-        >>> box2 = m3d.modeler.create_box([10, 0, 0], [2, 10, 10])
+        >>> box1 = m3d.modeler.create_box([0, 0, 0],[2, 10, 10])
+        >>> box2 = m3d.modeler.create_box([10, 0, 0],[2, 10, 10])
         >>> m3d.assign_radiation([box1, box2.faces[0]])
         >>> m3d.release_desktop(True, True)
         """
@@ -2170,16 +2170,18 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> insulated_box = m3d.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
+        >>> insulated_box = m3d.modeler.create_box([50, 0, 50],[294, 294, 19],name="InsulatedBox")
         >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box,insulation="InsulatingExample")
         >>> m3d.release_desktop(True, True)
         """
 
         if self.solution_type in [
+            "Magnetostatic",
             "EddyCurrent",
             "Transient",
             "TransientAPhiFormulation",
             "DCConduction",
+            "ACConduction",
             "ElectroDCConduction",
         ]:
             if not insulation:
@@ -2247,7 +2249,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> shield = m3d.modeler.create_box([-50, -50, -50], [294, 294, 19], name="shield")
+        >>> shield = m3d.modeler.create_box([-50, -50, -50],[294, 294, 19],name="shield")
         >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
         >>> impedance_assignment = m3d.assign_impedance(assignment=shield_faces,impedance="ShieldImpedance")
         >>> m3d.release_desktop(True, True)
@@ -2538,7 +2540,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
+        >>> box = m3d.modeler.create_box([50, 0, 50],[294, 294, 19],name="Box")
         >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0],"FluxExample")
         >>> m3d.release_desktop(True, True)
         """

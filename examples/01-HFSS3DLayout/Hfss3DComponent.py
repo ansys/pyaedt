@@ -116,9 +116,9 @@ p2.add_via(0, 0)
 # The trace will connect the pin to the port on layer L1.
 
 t1 = s1.add_trace(trace_width, trace_length)
-rect1 = hfss.modeler.create_rectangle(csPlane=hfss.PLANE.YZ,
-                                                 position=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
-                                                 dimension_list=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
+rect1 = hfss.modeler.create_rectangle(orientation=hfss.PLANE.YZ,
+                                                 origin=["0.75*dielectric_length", "-5*" + t1.width.name, "0mm"],
+                                                 sizes=["15*" + t1.width.name, "-3*" + stackup.thickness.name])
 p1 = hfss.wave_port(assignment=rect1, reference="G1", name="P1")
 
 ###############################################################################
@@ -180,6 +180,7 @@ l1 = h3d.modeler.layers.add_layer("L1", "signal", thickness=sig_height)
 h3d.modeler.layers.add_layer("diel", "dielectric", thickness=diel_height, material="FR4_epoxy")
 h3d.modeler.layers.add_layer("G1", "signal", thickness=sig_height, isnegative=True)
 
+
 ###############################################################################
 # Place 3d Component
 # ~~~~~~~~~~~~~~~~~~
@@ -197,8 +198,9 @@ comp = h3d.modeler.place_3d_component(
 
 h3d["len"] = str(trace_length) + "mm"
 h3d["w1"] = str(trace_width) + "mm"
-line = h3d.modeler.create_line("L1", [[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
-h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, iswave=True, wave_horizontal_extension=15, )
+
+h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, is_wave_port=True, wave_horizontal_extension=15)
+line = h3d.modeler.create_line("L1", [[0, 0], ["len", 0]], lw="w1", name="microstrip", net="microstrip")
 
 ###############################################################################
 # Create void on Ground plane for pin

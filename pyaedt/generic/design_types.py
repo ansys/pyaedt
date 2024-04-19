@@ -530,6 +530,7 @@ def Hfss3dLayout(
     machine="",
     port=0,
     aedt_process_id=None,
+    ic_mode=False,
 ):
     """Hfss3dLayout Class.
 
@@ -579,6 +580,8 @@ def Hfss3dLayout(
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``.
 
     Returns
     -------
@@ -637,6 +640,7 @@ def Hfss3dLayout(
         machine=machine,
         port=port,
         aedt_process_id=aedt_process_id,
+        ic_mode=ic_mode,
     )
 
 

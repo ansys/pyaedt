@@ -87,7 +87,7 @@ class TestClass:
 
     def test_01A_litz_wire(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[50, 0, 0], radius=0.8, height=20, name="Wire", matname="magnesium"
+            orientation="X", origin=[50, 0, 0], radius=0.8, height=20, name="Wire", material="magnesium"
         )
         self.aedtapp.materials["magnesium"].stacking_type = "Litz Wire"
         self.aedtapp.materials["magnesium"].wire_type = "Round"
@@ -116,7 +116,7 @@ class TestClass:
 
     def test_01B_lamination(self):
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="X", position=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", matname="titanium"
+            orientation="X", origin=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", material="titanium"
         )
         self.aedtapp.materials["titanium"].stacking_type = "Lamination"
         self.aedtapp.materials["titanium"].stacking_factor = "0.99"
@@ -312,10 +312,7 @@ class TestClass:
         # Test udp with a custom name.
         my_udpName = "MyClawPoleCore"
         udp = self.aedtapp.modeler.create_udp(
-            udp_dll_name="RMxprt/ClawPoleCore",
-            udp_parameters_list=my_udpPairs,
-            upd_library="syslib",
-            name=my_udpName,
+            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib", name=my_udpName
         )
 
         assert udp
@@ -325,9 +322,7 @@ class TestClass:
 
         # Modify one of the 'MyClawPoleCore' udp properties.
         assert self.aedtapp.modeler.update_udp(
-            object_name="MyClawPoleCore",
-            operation_name="CreateUserDefinedPart",
-            udp_parameters_list=[["Length", "110mm"]],
+            assignment="MyClawPoleCore", operation="CreateUserDefinedPart", parameters=[["Length", "110mm"]]
         )
 
         assert int(udp.bounding_dimension[0]) == 102
@@ -336,9 +331,7 @@ class TestClass:
 
         # Test udp with default name -None-.
         second_udp = self.aedtapp.modeler.create_udp(
-            udp_dll_name="RMxprt/ClawPoleCore",
-            udp_parameters_list=my_udpPairs,
-            upd_library="syslib",
+            dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib"
         )
 
         assert second_udp
@@ -347,9 +340,9 @@ class TestClass:
 
         # Modify two of the 'MyClawPoleCore' udp properties.
         assert self.aedtapp.modeler.update_udp(
-            object_name="ClawPoleCore",
-            operation_name="CreateUserDefinedPart",
-            udp_parameters_list=[["Length", "110mm"], ["DiaGap", "125mm"]],
+            assignment="ClawPoleCore",
+            operation="CreateUserDefinedPart",
+            parameters=[["Length", "110mm"], ["DiaGap", "125mm"]],
         )
 
         assert int(second_udp.bounding_dimension[0]) == 125
@@ -374,9 +367,7 @@ class TestClass:
         python_udp_parameters.append(mypair)
 
         udp_from_python = self.aedtapp.modeler.create_udp(
-            udp_dll_name="Examples/RectangularSpiral.py",
-            udp_parameters_list=python_udp_parameters,
-            name="PythonSpiral",
+            dll="Examples/RectangularSpiral.py", parameters=python_udp_parameters, name="PythonSpiral"
         )
 
         assert udp_from_python
@@ -413,7 +404,7 @@ class TestClass:
         my_udmPairs.append(mypair)
 
         assert self.aedtapp.modeler.create_udm(
-            udmfullname="Maxwell3D/OnDieSpiralInductor.py", udm_params_list=my_udmPairs, udm_library="syslib"
+            udm_full_name="Maxwell3D/OnDieSpiralInductor.py", parameters=my_udmPairs, library="syslib"
         )
 
     def test_28_assign_torque(self):
@@ -458,10 +449,10 @@ class TestClass:
     def test_32_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix1")
         m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
-        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
 
         rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
@@ -491,10 +482,10 @@ class TestClass:
     def test_32B_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix2")
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", matname="aluminum")
-        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", matname="aluminum")
-        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", matname="aluminum")
-        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", matname="aluminum")
+        m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
+        m3d.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
+        m3d.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
+        m3d.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
 
         rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
@@ -527,7 +518,7 @@ class TestClass:
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1, False, 10, 3, True)
         self.aedtapp.validate_simple()
-        self.aedtapp.analyze_setup(setup_name, num_cores=1)
+        self.aedtapp.analyze_setup(setup_name, cores=1)
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_1)
         assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
         assert os.path.exists(export_path_1)
@@ -570,7 +561,7 @@ class TestClass:
             [[0, 0], [0.6, 1.57], [1.0, 4.44], [1.5, 20.562], [2.1, 44.23]],
             kdc=0.002,
             cut_depth=0.0009,
-            punit="w/kg",
+            units="w/kg",
             bunit="tesla",
             frequency=50,
             thickness="0.5mm",
@@ -683,9 +674,9 @@ class TestClass:
     @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
     def test_41_conduction_paths(self):
         self.aedtapp.insert_design("conduction")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], matname="copper")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], matname="copper")
-        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], material="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], material="copper")
+        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], material="copper")
         assert len(self.aedtapp.get_conduction_paths()) == 2
 
     def test_43_eddy_effect_transient(self, m3dtransient):
@@ -913,10 +904,10 @@ class TestClass:
     def test_57_radiation(self):
         self.aedtapp.insert_design("Radiation")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], matname="aluminum")
-        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], matname="aluminum")
-        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], matname="aluminum")
-        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], matname="aluminum")
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 5], material="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle(0, [15, 20, 0], [5, 5], material="aluminum")
+        box = self.aedtapp.modeler.create_box([15, 20, 0], [5, 5, 5], material="aluminum")
+        box2 = self.aedtapp.modeler.create_box([150, 20, 0], [50, 5, 10], material="aluminum")
         bound = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]])
         assert bound
         bound2 = self.aedtapp.assign_radiation([rect, rect2, box, box2.faces[0]], "my_rad")
