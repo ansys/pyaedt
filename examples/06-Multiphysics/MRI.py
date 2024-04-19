@@ -100,7 +100,7 @@ hfss.save_project(os.path.join(project_path, "solved.aedt"))
 hfss.analyze(cores=6)
 
 ###############################################################################
-# Plot SAR on Cut Plane in Phantom
+# Plot SAR on cut plane in phantom
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Ensure that the SAR averaging method is set to Gridless
 # Plot averagedSAR on GlobalYZ plane
@@ -198,7 +198,7 @@ setup.props["N Steps"] = "2"
 mech.analyze(cores=6)
 
 ###############################################################################
-# Plot Fields
+# Plot fields
 # ~~~~~~~~~~~
 # Plot Temperature on cut plane.
 # Plot Temperature on point.
@@ -280,8 +280,8 @@ ipk.assign_openings(ipk.modeler["Region"].top_face_z)
 # Analyze and plot fields
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Analyze the project.
-# Plot Temperature on cut plane.
-# Plot Temperature on monitor point.
+# Plot temperature on cut plane.
+# Plot temperature on monitor point.
 
 ipk.analyze(cores=4, tasks=4)
 ipk.post.create_fieldplot_cutplane("implant:YZ", "Temperature", filter_objects=["implant_box"])

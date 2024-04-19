@@ -1576,14 +1576,15 @@ class Analysis(Design, object):
         Parameters
         ----------
         name : str, optional
-            Setup to analyze. Default is ``None`` which solves all the setups.
+            Setup to analyze. The default is ``None``, in which case all
+            setups are solved.
         cores : int, optional
             Number of simulation cores. Default is ``4`` which is the number of cores available in license.
         tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
-            In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
+            Number of simulation tasks. The default is ``1``.
+            In bach solve, set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
         gpus : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1654,15 +1655,15 @@ class Analysis(Design, object):
         ----------
         name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
-            If ``None`` all setups will be solved.
+            The default is ``None``, in which case all setups are solved.
         cores : int, optional
-            Number of simulation cores.  Default is ``1``.
+            Number of simulation cores.  The default is ``1``.
         tasks : int, optional
-            Number of simulation tasks.  Default is ``1``.
+            Number of simulation tasks.  The default is ``1``.
         gpus : int, optional
-            Number of simulation graphics processing units.  Default is ``0``.
+            Number of simulation graphics processing units.  The default is ``0``.
         acf_file : str, optional
-            Full path to custom ACF file. The default is ``None.``
+            Full path to the custom ACF file. The default is ``None``.
         use_auto_settings : bool, optional
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
         num_variations_to_distribute : int, optional
@@ -1889,13 +1890,13 @@ class Analysis(Design, object):
             Whether to submit the batch command as a thread. The default is
             ``False``.
         cores : int, optional
-            Number of cores to use in simulation.
+            Number of cores to use in the simulation.
         tasks : int, optional
-            Number of tasks to use in simulation. Set num_tasks to ``-1`` to apply auto settings and distributed mode.
+            Number of tasks to use in the simulation. Set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
         setup : str
-            Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
+            Name of the setup, which can be an optimetric setup or a simple setup. The defaut is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
-            Whether to revert to initial mesh before solving or not. Default is ``False``.
+            Whether to revert to the initial mesh before solving. The default is ``False``.
 
         Returns
         -------

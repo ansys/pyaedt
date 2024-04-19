@@ -522,11 +522,11 @@ class CommonOptimetrics(PropsManager, object):
         Parameters
         ----------
         cores : int, optional
-            Number of simulation cores. Default is ``1``.
+            Number of simulation cores. The default is ``1``.
         tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
+            Number of simulation tasks. The default is ``1``.
         gpus : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional

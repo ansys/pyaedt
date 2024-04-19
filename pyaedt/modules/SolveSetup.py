@@ -89,11 +89,11 @@ class CommonSetup(PropsManager, object):
         Parameters
         ----------
         cores : int, optional
-            Number of simulation cores. Default is ``1``.
+            Number of simulation cores. The default is ``1``.
         tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
+            Number of simulation tasks. The default is ``1``.
         gpus : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1192,11 +1192,13 @@ class SetupCircuit(CommonSetup):
         Parameters
         ----------
         sweep_variable : str, optional
-            Variable to which the sweep belongs. Default is ``"Freq``.
+            Variable that the sweep belongs to. The default is ``"Freq``.
         start : float or str, optional
-            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
+            Start point of the linear count sweep. The default is ``1``.
+            If a string ``str`` is specified, no units are applied.
         stop : float or str, optional
-            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+            End point of the linear count sweep. The default is ``100``.
+            If a string is specified, no units are applied.
         count :  int, optional
             Number of points. Default is ``100``.
         units : str, optional
@@ -1254,7 +1256,8 @@ class SetupCircuit(CommonSetup):
         stop : float or str, optional
             End Point of Linear Count sweep. If ``str`` then no units will be applied.
         step_size :  float or str, optional
-            Step Size of sweep. If ``str`` then no units will be applied.
+            Step size of the sweep. The default is ``1``.
+            If a string is specified, no units are applied.
         units : str, optional
             Sweeps Units. It will be ignored if strings are provided as start_point or end_point
         override_existing_sweep : bool, optional
@@ -1853,7 +1856,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler(file_fullname="output_file")
     def export_to_hfss(self, output_file, keep_net_name=False):
-        """Export the HFSS 3D Layout design to HFSS 3D design.
+        """Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
 
@@ -2081,7 +2084,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler(file_fullname="output_file")
     def export_to_q3d(self, output_file, keep_net_name=False):
-        """Export the HFSS 3DLayout design to Q3D design.
+        """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
@@ -2118,7 +2121,7 @@ class Setup3DLayout(CommonSetup):
 
                 self._get_net_names(Q3d, output_file)
             else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
         return succeeded
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
