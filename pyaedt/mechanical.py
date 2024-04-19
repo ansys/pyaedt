@@ -339,20 +339,20 @@ class Mechanical(FieldAnalysis3D, object):
 
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
     def assign_uniform_convection(
         self,
-        objects_list,
+        assignment,
         convection_value=1.0,
         convection_unit="w_per_m2kel",
         temperature="AmbientTemp",
-        boundary_name="",
+        name="",
     ):
         """Assign a uniform convection to the face list.
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of objects, faces, or both.
         convection_value : float, optional
             Convection value. The default is ``"1.0"``.
@@ -360,7 +360,7 @@ class Mechanical(FieldAnalysis3D, object):
             Units for the convection value. The default is ``"w_per_m2kel"``.
         temperature : str, optional
             Temperature. The default is ``"AmbientTemp"``.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``, in which case the default
             name is used.
 
@@ -377,28 +377,28 @@ class Mechanical(FieldAnalysis3D, object):
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects_list, list):
-            if isinstance(objects_list[0], str):
-                props["Objects"] = objects_list
+        if isinstance(assignment, list):
+            if isinstance(assignment[0], str):
+                props["Objects"] = assignment
             else:
-                props["Faces"] = objects_list
+                props["Faces"] = assignment
 
         props["Temperature"] = temperature
         props["Uniform"] = True
         props["FilmCoeff"] = str(convection_value) + convection_unit
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("Convection")
-        bound = BoundaryObject(self, boundary_name, props, "Convection")
+        if not name:
+            name = generate_unique_name("Convection")
+        bound = BoundaryObject(self, name, props, "Convection")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_uniform_temperature(self, objects_list, temperature="AmbientTemp", boundary_name=""):
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
+    def assign_uniform_temperature(self, assignment, temperature="AmbientTemp", name=""):
         """Assign a uniform temperature boundary.
 
         .. note::
@@ -406,11 +406,11 @@ class Mechanical(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of objects, faces, or both.
         temperature : str, optional.
             Type of the temperature. The default is ``"AmbientTemp"``.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``.
 
         Returns
@@ -426,26 +426,26 @@ class Mechanical(FieldAnalysis3D, object):
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if isinstance(objects_list, list):
-            if isinstance(objects_list[0], str):
-                props["Objects"] = objects_list
+        if isinstance(assignment, list):
+            if isinstance(assignment[0], str):
+                props["Objects"] = assignment
             else:
-                props["Faces"] = objects_list
+                props["Faces"] = assignment
 
         props["Temperature"] = temperature
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, "Temperature")
+        if not name:
+            name = generate_unique_name("Temp")
+        bound = BoundaryObject(self, name, props, "Temperature")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_frictionless_support(self, objects_list, boundary_name=""):
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
+    def assign_frictionless_support(self, assignment, name=""):
         """Assign a Mechanical frictionless support.
 
         .. note::
@@ -453,9 +453,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of faces to apply to the frictionless support.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``, in which case the
             default name is used.
 
@@ -474,24 +474,24 @@ class Mechanical(FieldAnalysis3D, object):
             self.logger.error("This method works only in Mechanical Structural analysis.")
             return False
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
-                props["Objects"] = objects_list
+        if type(assignment) is list:
+            if type(assignment[0]) is str:
+                props["Objects"] = assignment
             else:
-                props["Faces"] = objects_list
+                props["Faces"] = assignment
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, "Frictionless")
+        if not name:
+            name = generate_unique_name("Temp")
+        bound = BoundaryObject(self, name, props, "Frictionless")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_fixed_support(self, objects_list, boundary_name=""):
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
+    def assign_fixed_support(self, assignment, name=""):
         """Assign a Mechanical fixed support.
 
         .. note::
@@ -499,9 +499,9 @@ class Mechanical(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of faces to apply to the fixed support.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``, in which case
             the default name is used.
 
@@ -519,14 +519,14 @@ class Mechanical(FieldAnalysis3D, object):
             self.logger.error("This method works only in a Mechanical Structural analysis.")
             return False
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if type(objects_list) is list:
-            props["Faces"] = objects_list
+        if type(assignment) is list:
+            props["Faces"] = assignment
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("Temp")
-        bound = BoundaryObject(self, boundary_name, props, "FixedSupport")
+        if not name:
+            name = generate_unique_name("Temp")
+        bound = BoundaryObject(self, name, props, "FixedSupport")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
@@ -552,19 +552,19 @@ class Mechanical(FieldAnalysis3D, object):
             sweep_list.append(el + " : Solution")
         return sweep_list
 
-    @pyaedt_function_handler()
-    def assign_heat_flux(self, objects_list, heat_flux_type, value, boundary_name=""):
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
+    def assign_heat_flux(self, assignment, heat_flux_type, value, name=""):
         """Assign heat flux boundary condition to an object or face list.
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of objects, faces, or both.
         heat_flux_type : str
             Type of the heat flux. Options are ``"Total Power"`` or ``"Surface Flux"``.
         value : str
             Value of heat flux with units.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``, in which case the default
             name is used.
 
@@ -581,38 +581,38 @@ class Mechanical(FieldAnalysis3D, object):
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
-        if type(objects_list) is list:
-            if type(objects_list[0]) is str:
-                props["Objects"] = objects_list
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if type(assignment) is list:
+            if type(assignment[0]) is str:
+                props["Objects"] = assignment
             else:
-                props["Faces"] = objects_list
+                props["Faces"] = assignment
 
         if heat_flux_type == "Total Power":
             props["TotalPower"] = value
         else:
             props["SurfaceFlux"] = value
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("HeatFlux")
+        if not name:
+            name = generate_unique_name("HeatFlux")
 
-        bound = BoundaryObject(self, boundary_name, props, "HeatFlux")
+        bound = BoundaryObject(self, name, props, "HeatFlux")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_heat_generation(self, objects_list, value, boundary_name=""):
+    @pyaedt_function_handler(objects_list="assignment", boundary_name="name")
+    def assign_heat_generation(self, assignment, value, name=""):
         """Assign a heat generation boundary condition to an object list.
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of objects.
         value : str
             Value of heat generation with units.
-        boundary_name : str, optional
+        name : str, optional
             Name of the boundary. The default is ``""``, in which case the default
             name is used.
 
@@ -629,16 +629,16 @@ class Mechanical(FieldAnalysis3D, object):
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
-        if type(objects_list) is list:
-            props["Objects"] = objects_list
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if type(assignment) is list:
+            props["Objects"] = assignment
 
         props["TotalPower"] = value
 
-        if not boundary_name:
-            boundary_name = generate_unique_name("HeatGeneration")
+        if not name:
+            name = generate_unique_name("HeatGeneration")
 
-        bound = BoundaryObject(self, boundary_name, props, "HeatGeneration")
+        bound = BoundaryObject(self, name, props, "HeatGeneration")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound

@@ -2318,13 +2318,13 @@ class DataSet(object):
             del self._app.design_datasets[self.name]
         return True
 
-    @pyaedt_function_handler()
-    def export(self, dataset_path=None):
+    @pyaedt_function_handler(dataset_path="output_dir")
+    def export(self, output_dir=None):
         """Export the dataset.
 
         Parameters
         ----------
-        dataset_path : str, optional
+        output_dir : str, optional
             Path to export the dataset to. The default is ``None``, in which
             case the dataset is exported to the working_directory path.
 
@@ -2339,10 +2339,10 @@ class DataSet(object):
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """
-        if not dataset_path:
-            dataset_path = os.path.join(self._app.working_directory, self.name + ".tab")
+        if not output_dir:
+            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
         if self.name[0] == "$":
-            self._app._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, output_dir)
         else:
-            self._app._odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, output_dir)
         return True
