@@ -1252,14 +1252,16 @@ class SetupCircuit(CommonSetup):
         sweep_variable : str, optional
             Variable to which the sweep belongs. Default is ``"Freq``.
         start : float or str, optional
-            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
+            Start point of the linear count sweep. The default is ``1``.
+            If a string ``str`` is specified, no units are applied.
         stop : float or str, optional
-            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+            End point of the linear count sweep. The default is ``100``.
+            If a string is specified, no units are applied.
         step_size :  float or str, optional
             Step size of the sweep. The default is ``1``.
             If a string is specified, no units are applied.
         units : str, optional
-            Sweeps Units. It will be ignored if strings are provided as start_point or end_point
+            Sweeps Units. It will be ignored if strings are provided as start_point or end_point.
         override_existing_sweep : bool, optional
             Define if existing sweep on the same variable has to be overridden or kept and added to this new sweep.
 
