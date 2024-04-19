@@ -80,13 +80,13 @@ q.plot(show=False, export_path=os.path.join(q.working_directory, "Q3D.jpg"), plo
 
 q.auto_identify_nets()
 
-q.source("Bar1", axisdir=q.AxisDir.XPos, name="Source1")
-q.sink("Bar1", axisdir=q.AxisDir.XNeg, name="Sink1")
+q.source("Bar1", direction=q.AxisDir.XPos, name="Source1")
+q.sink("Bar1", direction=q.AxisDir.XNeg, name="Sink1")
 
-q.source("Bar2", axisdir=q.AxisDir.XPos, name="Source2")
-q.sink("Bar2", axisdir=q.AxisDir.XNeg, name="Sink2")
-q.source("Bar3", axisdir=q.AxisDir.XPos, name="Source3")
-bar3_sink = q.sink("Bar3", axisdir=q.AxisDir.YPos)
+q.source("Bar2", direction=q.AxisDir.XPos, name="Source2")
+q.sink("Bar2", direction=q.AxisDir.XNeg, name="Sink2")
+q.source("Bar3", direction=q.AxisDir.XPos, name="Source3")
+bar3_sink = q.sink("Bar3", direction=q.AxisDir.YPos)
 bar3_sink.name = "Sink3"
 
 ###############################################################################

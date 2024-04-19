@@ -161,9 +161,8 @@ sm_obj.name = "solder_mask"
 # Assign a conductor to the signal.
 
 obj = q.modeler.get_object_from_name("signal")
-q.assign_single_conductor(
-    name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=[obj], name=obj.name, conductor_type="SignalLine", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Create reference ground
@@ -171,9 +170,8 @@ q.assign_single_conductor(
 # Create a reference ground.
 
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd"]]
-q.assign_single_conductor(
-    name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=obj, name="gnd", conductor_type="ReferenceGround", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Assign Huray model on signal
