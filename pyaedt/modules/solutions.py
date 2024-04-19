@@ -1110,7 +1110,7 @@ class FfdSolutionData(object):
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> eep_files = data.eep_files
     >>> frequencies = data.frequencies
     >>> app.release_desktop()
@@ -1574,7 +1574,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_farfield_contour()
 
         """
@@ -1682,7 +1682,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_2d_cut(theta=20)
 
         """
@@ -1826,7 +1826,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
 
         """
@@ -1935,7 +1935,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
 
         """
@@ -2445,7 +2445,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
 
     """
@@ -2821,7 +2821,7 @@ class FieldPlot:
             List or dictionary of the variables for the field plot.
         """
         var = ""
-        if type(self.intrinsics) is list:
+        if isinstance(self.intrinsics, list):
             l = 0
             while l < len(self.intrinsics):
                 val = self.intrinsics[l + 1]
@@ -3113,6 +3113,14 @@ class FieldPlot:
                 self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
             else:
                 self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            if (
+                "Maxwell" in self._postprocessor._app.design_type
+                and "Transient" in self._postprocessor.post_solution_type
+            ):
+                self._postprocessor.ofieldsreporter.SetPlotsViewSolutionContext(
+                    [self.name], self.solution, "Time:" + self.intrinsics["Time"]
+                )
+            self._postprocessor.field_plots[self.name] = self
             return True
         except Exception:
             return False

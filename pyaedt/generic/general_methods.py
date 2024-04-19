@@ -400,6 +400,9 @@ def open_file(file_path, file_options="r", encoding=None, override_existing=True
     object
         Opened file.
     """
+    if is_ironpython:
+        return open(file_path, file_options)
+
     file_path = str(file_path)
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
 
@@ -865,7 +868,7 @@ def is_array(a):
     except (ValueError, TypeError, NameError, SyntaxError):
         return False
     else:
-        if type(v) is list:
+        if isinstance(v, list):
             return True
         else:
             return False

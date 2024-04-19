@@ -189,12 +189,7 @@ ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim
 # ~~~~~~~~~~~~~~~
 # Map ohmic losses from Maxwell to the Icepak design.
 
-ipk.assign_em_losses(
-    designname="1 Maxwell",
-    setupname=m3d.setups[0].name,
-    sweepname="LastAdaptive",
-    object_list=["Coil"],
-)
+ipk.assign_em_losses(design="1 Maxwell", setup=m3d.setups[0].name, sweep="LastAdaptive", assignment=["Coil"])
 
 ###############################################################################
 # Boundary conditions
@@ -250,7 +245,7 @@ for name in ["Coil", "Core"]:
 surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature",
                                                      plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(objects=["Global:XZ"], quantity="Velocity Vectors",
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(assignment=["Global:XZ"], quantity="Velocity Vectors",
                                                        plot_name="Velocity Vectors")
 
 surf_temperature.export_image()

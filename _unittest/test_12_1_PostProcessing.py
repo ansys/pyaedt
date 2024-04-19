@@ -92,15 +92,19 @@ class TestClass:
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
 
+        min_value = self.aedtapp.post.get_scalar_field_value(
+            "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
+        )
+
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
         model_gif = self.aedtapp.post.plot_animated_field(
             quantity="Mag_E",
-            objects=cutlist,
+            assignment=cutlist,
             plot_type="CutPlane",
-            setup_name=self.aedtapp.nominal_adaptive,
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},
             variation_variable="Phase",
             variations=phases,
@@ -269,12 +273,10 @@ class TestClass:
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
-            setup_sweep_name="Setup1 : AdaptivePass",
             variations={"Pass": ["All"]},
             primary_sweep_variable="Pass",
             report_category="Modal Solution Data",
             plot_type="Rectangular Plot",
-            plot_name="Solution Convergence Plot",
         )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -283,6 +285,11 @@ class TestClass:
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
+
+        new_report = self.aedtapp.post.reports_by_category.modal_solution(
+            "dB(S(1,1))", setup=self.aedtapp.nominal_sweep
+        )
+        assert new_report.create()
 
     def test_09c_import_into_report(self):
         new_report = self.aedtapp.create_scattering("import_test")
@@ -553,7 +560,7 @@ class TestClass:
             "Vector_E",
             cutlist,
             "CutPlane",
-            setup_name=setup_name,
+            setup=setup_name,
             intrinsics=intrinsic,
             mesh_on_fields=False,
             view="isometric",
@@ -578,9 +585,9 @@ class TestClass:
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
-            objects=cutlist,
+            assignment=cutlist,
             quantity="Mag_E",
-            setup_name=self.aedtapp.nominal_adaptive,
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={},
             list_type="CutPlane",
         )
@@ -626,7 +633,7 @@ class TestClass:
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
-        assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
+        assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"

@@ -2451,10 +2451,7 @@ class Patch(CommonObject, object):
 
         # Assign port. Find the face with the minimum z-position.
         self.application.wave_port(
-            probe_feed_outer.bottom_face_z,
-            reference=probe_feed_outer.name,
-            create_pec_cap=True,
-            name="Probe_Port",
+            probe_feed_outer.bottom_face_z, reference=probe_feed_outer.name, create_pec_cap=True, name="Probe_Port"
         )
 
     def create_lumped_port(self, reference_layer, opposite_side=False, port_name=None, axisdir=None):
@@ -2514,9 +2511,9 @@ class Patch(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.lumped_port(rect.name, name=port_name, integration_line=axisdir)
+            port = self.application.lumped_port(rect.name, integration_line=axisdir, name=port_name)
         elif self.application.solution_type == "Terminal":
-            port = self.application.lumped_port(rect.name, name=port_name, reference=[reference_layer.name])
+            port = self.application.lumped_port(rect.name, reference=[reference_layer.name], name=port_name)
         return port
 
     def quarter_wave_feeding_line(self, impedance_to_adapt=50):
@@ -3254,10 +3251,16 @@ class Trace(CommonObject, object):
         if self.application.solution_type == "Modal":
             if axisdir is None:
                 axisdir = self.application.AxisDir.ZPos
-            port = self.application.create_lumped_port_to_sheet(port.name, portname=port_name, axisdir=axisdir)
+            port = self.application.lumped_port(
+                signal=port.name, name=port_name, integration_line=axisdir, create_port_sheet=False
+            )
         elif self.application.solution_type == "Terminal":
-            port = self.application.create_lumped_port_to_sheet(
-                port.name, portname=port_name, reference_object_list=[reference_layer.name]
+            port = self.application.lumped_port(
+                signal=port.name,
+                name=port_name,
+                integration_line=axisdir,
+                create_port_sheet=False,
+                reference=[reference_layer.name],
             )
         return port
 

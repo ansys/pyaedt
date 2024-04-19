@@ -90,7 +90,7 @@ region = hfss.modeler.create_air_region(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assigning lattice pair boundary automatically detected.
 
-hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
+hfss.auto_assign_lattice_pairs(assignment=region.name)
 
 ###############################################################################
 # Assign Floquet port excitation along +Z direction
@@ -98,8 +98,8 @@ hfss.auto_assign_lattice_pairs(object_to_assign=region.name)
 # Assign Floquet port.
 
 id_z_pos = region.top_face_z
-hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, z_max],
-                                     portname='port_z_max', deembed_dist=10 * bounding_dimensions[2])
+hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, z_max], name='port_z_max',
+                         deembed_distance=10 * bounding_dimensions[2])
 
 
 ###############################################################################
@@ -110,17 +110,9 @@ hfss.create_floquet_port(id_z_pos, [0, 0, z_max], [0, y_max, z_max], [x_max, 0, 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "10GHz"
 setup.props["MaximumPasses"] = 10
-hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=6,
-    freqstop=15,
-    num_of_freq_points=51,
-    sweepname="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol=6,
-    save_fields=False,
-)
+hfss.create_linear_count_sweep(setup=setup.name, units="GHz", start_frequency=6, stop_frequency=15,
+                               num_of_freq_points=51, name="sweep1", save_fields=False, sweep_type="Interpolating",
+                               interpolation_tol=6)
 
 ###############################################################################
 # Create S-parameter report using report objects

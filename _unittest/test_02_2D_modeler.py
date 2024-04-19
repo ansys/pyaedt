@@ -118,9 +118,9 @@ class TestClass:
     def test_06a_calculate_radius_2D(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
         radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name)
-        assert type(radius) is float
+        assert isinstance(radius, float)
         radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name, True)
-        assert type(radius) is float
+        assert isinstance(radius, float)
 
     def test_06b_radial_split(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
@@ -194,15 +194,15 @@ class TestClass:
         objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects_xy_4) is list
-        assert type(objects_xy_6) is list
+        assert isinstance(objects_xy_4, list)
+        assert isinstance(objects_xy_6, list)
         self.aedtapp.solution_type = "MagnetostaticZ"
         bounding_box = [-52, -68, 35, 42]
         objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects_z_4) is list
-        assert type(objects_z_6) is list
+        assert isinstance(objects_z_4, list)
+        assert isinstance(objects_z_6, list)
         with pytest.raises(ValueError):
             bounding_box = [3, 4, 5]
             self.aedtapp.modeler.objects_in_bounding_box(bounding_box)

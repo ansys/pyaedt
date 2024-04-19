@@ -417,7 +417,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
     # recompose value if list
     if saved_value:
         # makes the value a list, if it's not already
-        if type(saved_value) is not list:
+        if not isinstance(saved_value, list):
             saved_value = [saved_value]
         saved_value.append(save_dict[keyword])
         save_dict[keyword] = saved_value

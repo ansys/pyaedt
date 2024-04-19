@@ -96,7 +96,7 @@ source.phase = phase
 # Create a setup.
 
 setup_name = "MySetup"
-LNA_setup = circuit.create_setup(setupname=setup_name)
+LNA_setup = circuit.create_setup(name=setup_name)
 bw_start = 4.3
 bw_stop = 4.4
 n_points = 1001
@@ -128,13 +128,8 @@ mech.change_material_override(True)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get losses from HFSS and assign the convection to Mechanical.
 
-mech.assign_em_losses(
-    designname=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
-    map_frequency=hfss.setups[0].props["Frequency"],
-    surface_objects=hfss.get_all_conductors_names(),
-)
+mech.assign_em_losses(design=hfss.design_name, setup=hfss.setups[0].name, sweep="LastAdaptive",
+                      map_frequency=hfss.setups[0].props["Frequency"], surface_objects=hfss.get_all_conductors_names())
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
     mech.assign_uniform_convection(objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
@@ -158,7 +153,7 @@ mech.analyze()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objects=surfaces, quantity="Temperature")
+mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
 ###############################################################################
 # Release AEDT

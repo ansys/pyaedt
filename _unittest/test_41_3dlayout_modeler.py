@@ -311,12 +311,7 @@ class TestClass:
         assert len(self.aedtapp.excitations) > 0
         time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
         assert self.aedtapp.edit_source_from_file(
-            port_wave.name,
-            time_domain,
-            is_time_domain=True,
-            data_format="Voltage",
-            x_scale=1e-6,
-            y_scale=1e-3,
+            port_wave.name, time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
 
     def test_14a_create_coaxial_port(self):
@@ -326,13 +321,13 @@ class TestClass:
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
-        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup = self.aedtapp.create_setup(name=setup_name)
         assert setup.name == self.aedtapp.existing_analysis_setups[0]
         assert setup.solver_type == "HFSS"
 
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
-        setup2 = self.aedtapp.create_setup(setupname=setup_name)
+        setup2 = self.aedtapp.create_setup(name=setup_name)
         assert not setup2.get_sweep()
 
         sweep = setup2.add_sweep()
@@ -350,7 +345,7 @@ class TestClass:
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"
-        setup3 = self.aedtapp.create_setup(setupname=setup_name)
+        setup3 = self.aedtapp.create_setup(name=setup_name)
         setup3.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 1
         assert setup3.update()
         assert setup3.disable()
@@ -375,47 +370,40 @@ class TestClass:
 
     def test_18a_create_linear_count_sweep(self):
         setup_name = "RF_create_linear_count"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep1 = self.aedtapp.create_linear_count_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             num_of_freq_points=1001,
-            sweepname="RFBoardSweep1",
-            sweep_type="Interpolating",
-            interpolation_tol_percent=0.2,
-            interpolation_max_solutions=111,
             save_fields=False,
-            use_q3d_for_dc=False,
+            sweep_type="Interpolating",
+            interpolation_max_solutions=111,
         )
         assert sweep1.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 1001"
         sweep2 = self.aedtapp.create_linear_count_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             num_of_freq_points=12,
-            sweepname="RFBoardSweep2",
-            sweep_type="Discrete",
-            interpolation_tol_percent=0.4,
-            interpolation_max_solutions=255,
             save_fields=True,
-            save_rad_fields_only=True,
-            use_q3d_for_dc=True,
+            sweep_type="Discrete",
+            interpolation_max_solutions=255,
         )
         assert sweep2.props["Sweeps"]["Data"] == "LINC 1GHz 10GHz 12"
 
     def test_18b_create_linear_step_sweep(self):
         setup_name = "RF_create_linear_step"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep3 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.2,
-            sweepname="RFBoardSweep3",
+            name="RFBoardSweep3",
             sweep_type="Interpolating",
             interpolation_tol_percent=0.4,
             interpolation_max_solutions=255,
@@ -426,24 +414,24 @@ class TestClass:
         assert sweep3.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.2GHz"
         assert sweep3.props["FreqSweepType"] == "kInterpolating"
         sweep4 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.12,
-            sweepname="RFBoardSweep4",
+            name="RFBoardSweep4",
             sweep_type="Discrete",
             save_fields=True,
         )
         assert sweep4.props["Sweeps"]["Data"] == "LIN 1GHz 10GHz 0.12GHz"
         assert sweep4.props["FreqSweepType"] == "kDiscrete"
         sweep5 = self.aedtapp.create_linear_step_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
-            freqstart=1,
-            freqstop=10,
+            start_frequency=1,
+            stop_frequency=10,
             step_size=0.12,
-            sweepname="RFBoardSweep4",
+            name="RFBoardSweep4",
             sweep_type="Fast",
             save_fields=True,
         )
@@ -453,12 +441,12 @@ class TestClass:
         # Create a linear step sweep with the incorrect sweep type.
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_step_sweep(
-                setupname=setup_name,
+                setup=setup_name,
                 unit="GHz",
-                freqstart=1,
-                freqstop=10,
+                start_frequency=1,
+                stop_frequency=10,
                 step_size=0.12,
-                sweepname="RFBoardSweep4",
+                name="RFBoardSweep4",
                 sweep_type="Incorrect",
                 save_fields=True,
             )
@@ -469,37 +457,37 @@ class TestClass:
 
     def test_18c_create_single_point_sweep(self):
         setup_name = "RF_create_single_point"
-        self.aedtapp.create_setup(setupname=setup_name)
+        self.aedtapp.create_setup(name=setup_name)
         sweep5 = self.aedtapp.create_single_point_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="MHz",
             freq=1.23,
-            sweepname="RFBoardSingle",
+            name="RFBoardSingle",
             save_fields=True,
         )
         assert sweep5.props["Sweeps"]["Data"] == "1.23MHz"
         sweep6 = self.aedtapp.create_single_point_sweep(
-            setupname=setup_name,
+            setup=setup_name,
             unit="GHz",
             freq=[1, 2, 3, 4],
-            sweepname="RFBoardSingle",
+            name="RFBoardSingle",
             save_fields=False,
         )
         assert sweep6.props["Sweeps"]["Data"] == "1GHz 2GHz 3GHz 4GHz"
 
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_single_point_sweep(
-                setupname=setup_name,
+                setup=setup_name,
                 unit="GHz",
                 freq=[],
-                sweepname="RFBoardSingle",
+                name="RFBoardSingle",
                 save_fields=False,
             )
             assert execinfo.args[0] == "Frequency list is empty. Specify at least one frequency point."
 
     def test_18d_delete_setup(self):
         setup_name = "SetupToDelete"
-        setuptd = self.aedtapp.create_setup(setupname=setup_name)
+        setuptd = self.aedtapp.create_setup(name=setup_name)
         assert setuptd.name in self.aedtapp.existing_analysis_setups
         self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
@@ -583,13 +571,13 @@ class TestClass:
 
     def test_34_create_additional_setup(self):
         setup_name = "SiwaveDC"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveDC3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="SiwaveDC3DLayout")
         assert setup_name == setup.name
         setup_name = "SiwaveAC"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="SiwaveAC3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="SiwaveAC3DLayout")
         assert setup_name == setup.name
         setup_name = "LNA"
-        setup = self.aedtapp.create_setup(setupname=setup_name, setuptype="LNA3DLayout")
+        setup = self.aedtapp.create_setup(name=setup_name, setup_type="LNA3DLayout")
         assert setup_name == setup.name
 
     def test_35a_export_layout(self):
@@ -666,18 +654,49 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
+
+        assert test_post1.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+            nets=["GND", "V3P3_S5"],
+        )
+
+        assert test_post1.post.create_fieldplot_layers(
+            ["UNNAMED_006"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
         assert test_post1.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_Volume_Force_Density",
             intrinsics={"Time": "1ms"},
             plot_name="Test_Layers",
         )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["TOP"], ["PWR", "V3P3_S5"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers2",
+        )
+        assert test_post1.post.create_fieldplot_layers_nets(
+            [["no-layer", "GND"]],
+            "Mag_Volume_Force_Density",
+            intrinsics={"Time": "1ms"},
+            plot_name="Test_Layers3",
+        )
         test_post2 = add_app(project_name=test_post1.project_name, just_open=True)
         assert test_post2.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
-            plot_name="Test_Layers",
+            plot_name="Test_Layers4",
+        )
+        assert test_post2.post.create_fieldplot_layers(
+            ["TOP", "UNNAMED_004"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+            nets=["GND", "V3P3_S5"],
         )
         self.aedtapp.close_project(test_post2.project_name)
 
@@ -686,12 +705,41 @@ class TestClass:
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
         )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+
+        assert test.post.create_fieldplot_layers(
+            ["UNNAMED_002", "TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_H",
+            intrinsics={"Time": "1ms"},
+        )
+        assert test.post.create_fieldplot_layers(
+            ["TOP", "PWR"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
+        assert test.post.create_fieldplot_layers(
+            [],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz"},
+            nets=["GND", "V3P3_S5"],
+        )
         pl1 = test.post.create_fieldplot_layers_nets(
             [["TOP", "GND", "V3P3_S5"], ["PWR", "V3P3_S5"]],
             "Mag_E",
             intrinsics={"Freq": "1GHz"},
             plot_name="Test_Layers",
         )
+
         assert pl1
         assert pl1.export_image_from_aedtplt(tempfile.gettempdir())
         self.aedtapp.close_project(test.project_name)
@@ -706,8 +754,6 @@ class TestClass:
             diff_name=None,
             common_ref_z=34,
             diff_ref_z=123,
-            active=True,
-            matched=False,
         )
         assert hfss3dl.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
         assert hfss3dl.get_differential_pairs()

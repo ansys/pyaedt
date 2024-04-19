@@ -335,7 +335,7 @@ class ComponentParameters(dict):
                             self._tab, self._component.composed_name, key, str(value)
                         )
                         dict.__setitem__(self, key, value)
-                    except:
+                    except Exception:
                         self._component._circuit_components.logger.warning(
                             "Property %s has not been edited.Check if readonly", key
                         )
@@ -788,7 +788,7 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if type(property_name) is list:
+        if isinstance(property_name, list):
             for p, v in zip(property_name, property_value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)

@@ -54,7 +54,7 @@ class NexximComponents(CircuitComponents):
         :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
-        if type(partname) is int:
+        if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
             if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
@@ -601,7 +601,7 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
@@ -628,6 +628,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname, location=location, angle=angle, use_instance_id_netlist=use_instance_id_netlist
         )
@@ -636,7 +638,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_inductor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_inductor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create an inductor.
 
         Parameters
@@ -663,6 +665,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Inductors",
@@ -807,7 +811,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_current_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a current pulse.
 
         Parameters
@@ -834,6 +840,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -861,7 +871,9 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_voltage_pulse(self, compname=None, value_lists=[], location=[], angle=0, use_instance_id_netlist=False):
+    def create_voltage_pulse(
+        self, compname=None, value_lists=None, location=None, angle=0, use_instance_id_netlist=False
+    ):
         """Create a voltage pulse.
 
         Parameters
@@ -888,6 +900,10 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if value_lists is None:
+            value_lists = []
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -970,7 +986,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_current_dc(self, compname=None, value=1, location=[], angle=0, use_instance_id_netlist=False):
+    def create_current_dc(self, compname=None, value=1, location=None, angle=0, use_instance_id_netlist=False):
         """Create a current DC source.
 
         Parameters
@@ -997,6 +1013,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Independent Sources",
@@ -1060,7 +1078,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_diode(self, compname=None, model_name="required", location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, model_name="required", location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -1087,6 +1105,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         cmpid = self.create_component(
             compname,
             component_library="Diodes",
@@ -1100,7 +1120,7 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler()
-    def create_npn(self, compname=None, value=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, value=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
@@ -1127,6 +1147,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",
@@ -1140,7 +1162,7 @@ class NexximComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -1167,6 +1189,8 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location is None:
+            location = []
         id = self.create_component(
             compname,
             component_library="BJTs",

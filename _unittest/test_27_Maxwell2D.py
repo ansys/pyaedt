@@ -382,7 +382,7 @@ class TestClass:
     def test_27_add_mesh_link(self):
         self.aedtapp.save_project(self.aedtapp.project_file)
         self.aedtapp.set_active_design("Sinusoidal")
-        assert self.aedtapp.setups[0].add_mesh_link(design_name="Y_Connections")
+        assert self.aedtapp.setups[0].add_mesh_link(design="Y_Connections")
         meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
         assert meshlink_props["Project"] == "This Project*"
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
@@ -390,22 +390,17 @@ class TestClass:
         assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
         assert sorted(list(meshlink_props["Params"].keys())) == sorted(self.aedtapp.available_variations.variables)
         assert sorted(list(meshlink_props["Params"].values())) == sorted(self.aedtapp.available_variations.variables)
-        assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
-        assert self.aedtapp.setups[0].add_mesh_link(design_name="Y_Connections", solution_name="Setup1 : LastAdaptive")
-        assert not self.aedtapp.setups[0].add_mesh_link(
-            design_name="Y_Connections", solution_name="Setup_Test : LastAdaptive"
-        )
+        assert not self.aedtapp.setups[0].add_mesh_link(design="")
+        assert self.aedtapp.setups[0].add_mesh_link(design="Y_Connections", solution="Setup1 : LastAdaptive")
+        assert not self.aedtapp.setups[0].add_mesh_link(design="Y_Connections", solution="Setup_Test : LastAdaptive")
         assert self.aedtapp.setups[0].add_mesh_link(
-            design_name="Y_Connections",
-            parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
+            design="Y_Connections", parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, test_name + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert os.path.exists(example_project_copy)
-        assert self.aedtapp.setups[0].add_mesh_link(
-            design_name="Basis_Model_For_Test", project_name=example_project_copy
-        )
+        assert self.aedtapp.setups[0].add_mesh_link(design="Basis_Model_For_Test", project=example_project_copy)
 
     def test_28_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -462,30 +457,26 @@ class TestClass:
         self.aedtapp.set_active_design("Basis_Model_For_Test")
 
         assert self.aedtapp.setups[0].start_continue_from_previous_setup(
-            design_name="design_for_test", solution_name="Setup1 : Transient"
+            design="design_for_test", solution="Setup1 : Transient"
         )
         assert self.aedtapp.setups[0].props["PrevSoln"]["Project"] == "This Project*"
         assert self.aedtapp.setups[0].props["PrevSoln"]["Design"] == "design_for_test"
         assert self.aedtapp.setups[0].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
         assert self.aedtapp.setups[1].start_continue_from_previous_setup(
-            design_name="design_for_test", solution_name="Setup1 : Transient", map_variables_by_name=False
+            design="design_for_test", solution="Setup1 : Transient", map_variables_by_name=False
         )
         assert self.aedtapp.setups[1].props["PrevSoln"]["Project"] == "This Project*"
         assert self.aedtapp.setups[1].props["PrevSoln"]["Design"] == "design_for_test"
         assert self.aedtapp.setups[1].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
-        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(
-            design_name="", solution_name="Setup1 : Transient"
-        )
-        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(
-            design_name="design_for_test", solution_name=""
-        )
-        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(design_name="", solution_name="")
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(design="", solution="Setup1 : Transient")
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(design="design_for_test", solution="")
+        assert not self.aedtapp.setups[0].start_continue_from_previous_setup(design="", solution="")
 
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
         assert os.path.exists(example_project_copy)
         self.aedtapp.create_setup(name="test_setup")
         assert self.aedtapp.setups[2].start_continue_from_previous_setup(
-            design_name="design_for_test", solution_name="Setup1 : Transient", project_name=example_project_copy
+            design="design_for_test", solution="Setup1 : Transient", project=example_project_copy
         )
         assert self.aedtapp.setups[2].props["PrevSoln"]["Project"] == example_project_copy
         assert self.aedtapp.setups[2].props["PrevSoln"]["Design"] == "design_for_test"

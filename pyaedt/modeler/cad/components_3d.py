@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -921,8 +922,56 @@ class LayoutComponent(object):
         self.layers = {}
         self.nets = {}
         self.objects = {}
-        if self.edb_definition:
+        self._edb_object = None
+        self._edb_path = None
+        if self.edb_definition and self.edb_path:
             self._get_edb_info()
+
+    @property
+    def edb_path(self):
+        """EDB path.
+
+        Returns
+        -------
+        str
+           EDB file path.
+
+        """
+        return self._edb_path
+
+    @property
+    def edb_object(self):
+        """EDB object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb.Edb`
+           EDB object.
+
+        """
+        if not self._edb_object:
+            aedb_component_path = self._edb_path
+
+            for edb_object in _edb_sessions:
+                if edb_object.edbpath == aedb_component_path:
+                    self._edb_object = edb_object
+                    return self._edb_object
+
+            if not aedb_component_path or not os.path.exists(aedb_component_path):  # pragma: no cover
+                return False
+
+            app = Edb(
+                edbpath=aedb_component_path,
+                isreadonly=False,
+                edbversion=self._primitives._app._aedt_version,
+                student_version=self._primitives._app.student_version,
+            )
+
+            _edb_sessions.append(app)
+
+            self._edb_object = app
+
+        return self._edb_object
 
     @property
     def edb_definition(self):
@@ -940,6 +989,20 @@ class LayoutComponent(object):
                 self._primitives.oeditor, self._component.definition_name, key
             )
             self._edb_definition = edb_definition
+            aedb_folder = os.path.abspath(
+                os.path.join(
+                    self._primitives._app.project_path,
+                    self._primitives._app.project_name + ".aedb",
+                    "LayoutComponents",
+                    edb_definition,
+                )
+            )
+            if os.path.exists(aedb_folder):
+                subdirs = next(os.walk(aedb_folder))[1]
+                for subdir in subdirs:
+                    if subdir.endswith(".aedb"):
+                        self._edb_path = os.path.abspath(os.path.join(aedb_folder, subdir))
+                        break
             return edb_definition
         else:
             return None
@@ -1058,35 +1121,29 @@ class LayoutComponent(object):
             self._display_mode = display_mode
 
     @pyaedt_function_handler()
-    def _get_edb_info(self):
-        """Get Edb information."""
-
-        # Open Layout component and get information
-        aedb_component_path = os.path.join(
-            self._primitives._app.project_file[:-1] + "b",
-            "LayoutComponents",
-            self._edb_definition,
-            self._edb_definition + ".aedb",
-        )
-
-        if not os.path.exists(aedb_component_path):  # pragma: no cover
+    def close_edb_object(self):
+        """Close EDB object."""
+        if self.edb_object:
+            try:
+                self.edb_object.close()
+                return True
+            except Exception:  # pragma: no cover
+                self._logger.error("EDB object cannot be closed.")
+                return False
+        else:  # pragma: no cover
+            self._logger.warning("EDB object was not created.")
             return False
 
-        component_obj = Edb(
-            edbpath=aedb_component_path,
-            isreadonly=True,
-            edbversion=self._primitives._app._aedt_version,
-            student_version=self._primitives._app.student_version,
-        )
-
-        # Get objects, nets and layers
-        self.nets = {key: [True, False, 60] for key in component_obj.nets.netlist}
-        self.layers = {key: [True, False, 60] for key in list(component_obj.stackup.stackup_layers.keys())}
-        self.objects = {key: [True, False, 60] for key in list(component_obj.components.instances.keys())}
-
-        component_obj.close_edb()
-
-        return True
+    @pyaedt_function_handler()
+    def _get_edb_info(self):
+        """Get EDB information."""
+        if self.edb_object:
+            self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
+            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.stackup_layers.keys())}
+            self.objects = {key: [True, False, 60] for key in list(self.edb_object.components.instances.keys())}
+            return True
+        else:  # pragma: no cover
+            return False
 
     @pyaedt_function_handler()
     def update_visibility(self):

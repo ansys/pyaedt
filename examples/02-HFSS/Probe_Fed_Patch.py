@@ -88,14 +88,14 @@ region = hfss.modeler.create_region(pad_length, is_percentage=False)
 hfss.assign_radiation_boundary_to_objects(region.name)
 
 patch.create_probe_port(ground, rel_x_offset=0.485)
-setup = hfss.create_setup(setupname="Setup1",
-                          setuptype="HFSSDriven",
+setup = hfss.create_setup(name="Setup1",
+                          setup_type="HFSSDriven",
                           Frequency="10GHz")
 
 setup.create_frequency_sweep(unit="GHz",
-                             sweepname="Sweep1",
-                             freqstart=8,
-                             freqstop=12,
+                             name="Sweep1",
+                             start_frequency=8,
+                             stop_frequency=12,
                              sweep_type="Interpolating")
 
 hfss.save_project()

@@ -92,8 +92,7 @@ hfss.analyze(num_cores=4)
 # Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setup_name=hfss.nominal_adaptive,
-                                            frequencies=[5e9])
+ffdata = hfss.get_antenna_ffd_solution_data(frequencies=[5e9], setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
 
 ##########################################################
 # Generate contour plot

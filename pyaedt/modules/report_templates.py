@@ -1058,7 +1058,7 @@ class CommonReport(object):
             if el in [self.primary_sweep, self.secondary_sweep]:
                 continue
             sweep_list.append(el + ":=")
-            if type(sweeps[el]) is list:
+            if isinstance(sweeps[el], list):
                 sweep_list.append(sweeps[el])
             else:
                 sweep_list.append([sweeps[el]])
@@ -3786,3 +3786,223 @@ class Spectral(CommonReport):
         self._post.plots.append(self)
         self._is_created = True
         return True
+
+
+class EMIReceiver(CommonReport):
+    """Provides for managing EMI receiver reports."""
+
+    def __init__(self, app, setup_name, expressions=None):
+        CommonReport.__init__(self, app, "EMIReceiver", setup_name, expressions)
+        self.logger = app.logger
+        self.domain = "EMI Receiver"
+        self.available_nets = []
+        self._net = "0"
+        for comp in app.modeler.components.components.values():
+            if comp.name == "CompInst@EMI_RCVR":
+                self.available_nets.append(comp.pins[0].net)
+        if self.available_nets:
+            self._net = self.available_nets[0]
+        self.time_start = "0ns"
+        self.time_stop = "200ns"
+        self._emission = "CE"
+        self.overlap_rate = 95
+        self.band = "0"
+        self.primary_sweep = "Freq"
+
+    @property
+    def net(self):
+        """Net attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+        """
+        return self._net
+
+    @net.setter
+    def net(self, value):
+        if value not in self.available_nets:
+            self.logger.error("Net not available.")
+        else:
+            self._net = value
+
+    @property
+    def band(self):
+        """Band attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["context"].get("band", None)
+
+    @band.setter
+    def band(self, value):
+        self.props["context"]["band"] = value
+
+    @property
+    def emission(self):
+        """Emission test.
+
+        Options are ``"CE"`` and ``"RE"``.
+
+        Returns
+        -------
+        str
+        """
+        return self._emission
+
+    @emission.setter
+    def emission(self, value):
+        if value == "CE":
+            self._emission = value
+            self.props["context"]["emission"] = "0"
+        elif value == "RE":
+            self._emission = value
+            self.props["context"]["emission"] = "1"
+        else:
+            self.logger.error("Emission must be 'CE' or 'RE', value '{}' is not valid.".format(value))
+
+    @property
+    def time_start(self):
+        """Time start value.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["context"].get("time_start", None)
+
+    @time_start.setter
+    def time_start(self, value):
+        self.props["context"]["time_start"] = value
+
+    @property
+    def time_stop(self):
+        """Time stop value.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["context"].get("time_stop", None)
+
+    @time_stop.setter
+    def time_stop(self, value):
+        self.props["context"]["time_stop"] = value
+
+    @property
+    def _context(self):
+
+        if self.emission == "CE":
+            em = "0"
+        else:
+            em = "1"
+
+        arg = [
+            "NAME:Context",
+            "SimValueContext:=",
+            [
+                55830,
+                0,
+                2,
+                0,
+                False,
+                False,
+                -1,
+                1,
+                0,
+                1,
+                1,
+                self.net,
+                0,
+                0,
+                "BAND",
+                False,
+                self.band,
+                "CG",
+                False,
+                "1",
+                "EM",
+                False,
+                em,
+                "KP",
+                False,
+                "0",
+                "NUMLEVELS",
+                False,
+                "0",
+                "OR",
+                False,
+                str(self.overlap_rate),
+                "RBW",
+                False,
+                "9000Hz",
+                "SIG",
+                False,
+                "0",
+                "TCT",
+                False,
+                "1ms",
+                "TDT",
+                False,
+                "160ms",
+                "TE",
+                False,
+                self.time_stop,
+                "TS",
+                False,
+                self.time_start,
+                "WT",
+                False,
+                "6",
+                "WW",
+                False,
+                "100",
+            ],
+        ]
+        return arg
+
+    @property
+    def _trace_info(self):
+        if isinstance(self.expressions, list):
+            return self.expressions
+        else:
+            return [self.expressions]
+
+    @pyaedt_function_handler()
+    def create(self, plot_name=None):
+        """Create an EMI receiver report.
+
+        Parameters
+        ----------
+        plot_name : str, optional
+            Plot name. The default is ``None``, in which case
+            the default name is used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not plot_name:
+            self.plot_name = generate_unique_name("Plot")
+        else:
+            self.plot_name = plot_name
+        self._post.oreportsetup.CreateReport(
+            self.plot_name,
+            "Standard",
+            self.report_type,
+            self.setup,
+            self._context,
+            self._convert_dict_to_report_sel(self.variations),
+            [
+                "X Component:=",
+                self.primary_sweep,
+                "Y Component:=",
+                self._trace_info,
+            ],
+        )
+        self._post.plots.append(self)
+        self._is_created = True
+        return self

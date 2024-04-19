@@ -33,6 +33,7 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
+test_emi_name = "EMI_RCV_241"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 ipk_post_proj = "for_icepak_post"
@@ -49,6 +50,12 @@ def field_test(add_app):
 @pytest.fixture(scope="class")
 def circuit_test(add_app):
     app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def emi_receiver_test(add_app):
+    app = add_app(project_name=test_emi_name, design_name="CE_band", application=Circuit, subfolder=test_subfolder)
     return app
 
 
@@ -96,7 +103,7 @@ def ami_test(add_app, q3dtest):
 
 @pytest.fixture(scope="class")
 def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder)
+    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
     return app
 
 
@@ -165,6 +172,11 @@ class TestClass:
         )
         new_report3.report_type = "Data Table"
         assert new_report3.create()
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        assert new_report4.create()
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -177,8 +189,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context="3D",
             report_category="Far Fields",
+            context="3D",
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -195,8 +207,8 @@ class TestClass:
             field_test.nominal_adaptive,
             variations=variations,
             primary_sweep_variable="Theta",
-            context=context,
             report_category="Far Fields",
+            context=context,
         )
         assert data.plot(is_polar=True)
         assert data.plot_3d()
@@ -219,27 +231,33 @@ class TestClass:
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
+        new_report = field_test.post.reports_by_category.fields("Mag_H")
+        new_report.variations = variations2
+        new_report.polyline = "Poly1"
+        assert new_report.create()
         new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.report_type = "Smith Chart"
         assert new_report.create()
         data = field_test.setups[0].get_solution_data(
-            "Mag_E",
-            variations=variations2,
-            primary_sweep_variable="Theta",
-            context="Poly1",
-            report_category="Fields",
+            "Mag_E", variations=variations2, primary_sweep_variable="Theta", report_category="Fields", context="Poly1"
         )
         assert data.units_sweeps["Phase"] == "deg"
 
         assert field_test.post.get_far_field_data(
-            expression="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
+            expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
         data_farfield2 = field_test.post.get_far_field_data(
-            expression="RealizedGainTotal",
+            expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
         assert data_farfield2.plot(formula="db20", is_polar=True)
+
+        assert field_test.post.reports_by_category.terminal_solution()
+
+        assert not field_test.post.get_solution_data_per_variation(
+            solution_type="Far Fields", expressions="RealizedGainTotal"
+        )
 
     def test_09b_export_report_A(self, circuit_test):
         files = circuit_test.export_results()
@@ -294,6 +312,8 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
+        new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"])
+        assert new_report.create()
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
         new_report.adjust_coherent_gain = False
@@ -304,9 +324,7 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
-        )
+        assert circuit_test.post.create_report(["dB(V(net_11))", "dB(V(Port1))"], domain="Spectrum")
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -386,10 +404,7 @@ class TestClass:
         sbr_test.analyze(sbr_test.active_setup, use_auto_settings=False)
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
-            expressions=["NearEX", "NearEY", "NearEZ"],
-            # variations={"_u": ["All"], "_v": ["All"], "Freq": ["All"]},
-            context="Near_Field",
-            report_category="Near Fields",
+            expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
         )
         assert solution_data
         assert len(solution_data.primary_sweep_values) > 0
@@ -615,7 +630,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
         ffdata.phase_offset = [0, 90]
         assert ffdata.phase_offset == [0, 90]
         ffdata.phase_offset = [0]
@@ -667,7 +682,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D")
+        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(
             quantity="RealizedGain",
@@ -707,7 +722,7 @@ class TestClass:
             convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere_name="3D", overwrite=False)
+        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
         assert ffdata1.plot_farfield_contour(
             quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata1.frequency),
@@ -720,35 +735,30 @@ class TestClass:
         ami_test.solution_type = "NexximAMI"
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="InitialWave<b_output4_42.int_ami_tx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Time",
             variations=ami_test.available_variations.nominal,
         )
 
         assert ami_test.post.get_solution_data(
             expressions="ClockTics<b_input_43.int_ami_rx>",
-            setup_sweep_name="AMIAnalysis",
             domain="Clock Times",
             variations=ami_test.available_variations.nominal,
         )
@@ -856,15 +866,33 @@ class TestClass:
         plot.surfaces.append(8)
         assert not plot.update()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+    def test_76_emi_receiver(self, emi_receiver_test):
+        emi_receiver_test.analyze()
+        new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
+        new_report.band = "2"
+        new_report.emission = "RE"
+        new_report.time_start = "1ns"
+        new_report.time_stop = "2us"
+        new_report.net = "net_invented"
+        assert new_report.net != "net_invented"
+        assert new_report.create()
+        new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
+            ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
+        )
+        assert new_report2.net == "net_6"
+        new_report2.time_stop = "2.5us"
+        assert new_report2.create()
+
     def test_98_get_variations(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
         assert vars
         variations = field_test.available_variations.variations()
-        assert type(variations) is list
-        assert type(variations[0]) is list
+        assert isinstance(variations, list)
+        assert isinstance(variations[0], list)
         vars_dict = field_test.available_variations.variations(output_as_dict=True)
-        assert type(vars_dict) is list
-        assert type(vars_dict[0]) is dict
+        assert isinstance(vars_dict, list)
+        assert isinstance(vars_dict[0], dict)
 
     def test_z99_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()

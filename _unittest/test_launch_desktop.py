@@ -37,9 +37,12 @@ class TestClass:
         assert aedtapp.solution_type == "SteadyState"
 
     def test_run_desktop_hfss3dlayout(self):
-        aedtapp = Hfss3dLayout()
+        aedtapp = Hfss3dLayout(ic_mode=True)
         assert aedtapp.design_type == "HFSS 3D Layout Design"
         assert aedtapp.solution_type == "HFSS3DLayout"
+        assert aedtapp.ic_mode == True
+        aedtapp.ic_mode = False
+        assert aedtapp.ic_mode == False
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_run_desktop_twinbuilder(self):
@@ -64,7 +67,7 @@ class TestClass:
     def test_run_desktop_hfss(self):
         aedtapp = Hfss()
         assert aedtapp.design_type == "HFSS"
-        assert "Modal" in aedtapp.solution_type
+        assert "Terminal" in aedtapp.solution_type
 
     def test_run_desktop_maxwell3d(self):
         aedtapp = Maxwell3d()

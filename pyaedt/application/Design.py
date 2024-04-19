@@ -105,6 +105,8 @@ class Design(AedtObjects):
     aedt_process_id : int, optional
         Only used when ``new_desktop_session = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``. Applicable only to ``Hfss3dLayout``.
 
     """
 
@@ -199,6 +201,7 @@ class Design(AedtObjects):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=False,
     ):
 
         self.__t = None
@@ -211,6 +214,7 @@ class Design(AedtObjects):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
         self._init_variables()
+        self._ic_mode = ic_mode
         self._design_type = design_type
         self.last_run_log = ""
         self.last_run_job = ""
@@ -396,7 +400,7 @@ class Design(AedtObjects):
                 if k not in self._boundaries:
                     self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
-            pass
+            self.logger.info("Failed to design boundary object.")
         return list(self._boundaries.values())
 
     @property
@@ -516,8 +520,9 @@ class Design(AedtObjects):
             try:
                 settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
             except Exception:
-                pass
-            self._logger.info("aedt file load time {}".format(time.time() - start))
+                self._logger.info("Failed to load AEDT file.")
+            else:
+                self._logger.info("Time to load AEDT file: {}.".format(time.time() - start))
         if os.path.normpath(self.project_file) in settings._project_properties:
             return settings._project_properties[os.path.normpath(self.project_file)]
         return {}
@@ -617,7 +622,8 @@ class Design(AedtObjects):
             ]:
                 time.sleep(timestep)
                 timeout -= timestep
-                assert timeout >= 0
+                if timeout < 0:
+                    raise RuntimeError("Timeout reached while checking design renaming.")
 
     @property
     def design_list(self):
@@ -1066,6 +1072,8 @@ class Design(AedtObjects):
                 self.design_solutions._odesign = self.odesign
                 if self._temp_solution_type:
                     self.design_solutions.solution_type = self._temp_solution_type
+        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
 
     @property
     def oproject(self):
@@ -1122,9 +1130,8 @@ class Design(AedtObjects):
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
-                        assert not is_project_locked(
-                            project
-                        ), "Project is locked. Close or remove the lock before proceeding."
+                        if is_project_locked(project):
+                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("aedt project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
                         self._add_handler()
@@ -1148,9 +1155,8 @@ class Design(AedtObjects):
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
-                    assert not is_project_locked(
-                        proj_name
-                    ), "Project is locked. Close or remove the lock before proceeding."
+                    if is_project_locked(proj_name):
+                        raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
@@ -1296,17 +1302,45 @@ class Design(AedtObjects):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str
-            Path to the object list. Example ``"DesignName\\Boundaries"``.
+            Path to the object list. For example, ``"DesignName\\Boundaries"``.
+        prop_name : str
+            Property name.
 
         Returns
         -------
         str, float, bool
-            Values returned by method if any.
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             return aedt_object.GetChildObject(object_name).GetPropValue(prop_name)
         except Exception:
             return None
+
+    @pyaedt_function_handler()
+    def set_oo_property_value(self, aedt_object, object_name, prop_name, value):
+        """Change the property value of the object-oriented AEDT object.
+
+        Parameters
+        ----------
+        aedt_object : object
+            AEDT object to search for the property on. It can be any oProperty. For example, oDesign.
+        object_name : str
+            Path to the object list. Example ``"DesignName\\Boundaries"``.
+        prop_name : str
+            Property name.
+        value : str
+            Property value.
+
+        Returns
+        -------
+        bool
+            Values returned by method if any.
+        """
+        try:
+            aedt_object.GetChildObject(object_name).SetPropValue(prop_name, value)
+            return True
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def export_profile(self, setup_name, variation_string="", file_path=None):
@@ -1542,7 +1576,7 @@ class Design(AedtObjects):
         """
         if units is None:
             units = self.modeler.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
@@ -2212,7 +2246,7 @@ class Design(AedtObjects):
                                 )
                             )
                 except Exception:
-                    pass
+                    self.logger.debug("Failed to retrieve boundary data from 'BoundarySetup'.")
         if self.design_properties and "MaxwellParameterSetup" in self.design_properties:
             for ds in self.design_properties["MaxwellParameterSetup"]["MaxwellParameters"]:
                 try:
@@ -2230,7 +2264,7 @@ class Design(AedtObjects):
                             )
                         )
                 except Exception:
-                    pass
+                    self.logger.debug("Failed to retrieve boundary data from 'MaxwellParameterSetup'.")
         if self.design_properties and "ModelSetup" in self.design_properties:
             if "MotionSetupList" in self.design_properties["ModelSetup"]:
                 for ds in self.design_properties["ModelSetup"]["MotionSetupList"]:
@@ -2248,7 +2282,7 @@ class Design(AedtObjects):
                                 )
                             )
                     except Exception:
-                        pass
+                        self.logger.debug("Failed to retrieve boundary data from 'ModelSetup'.")
         if self.design_type in ["HFSS 3D Layout Design"]:
             for port in self.oboundary.GetAllPortsList():
                 bound = self._update_port_info(port)
@@ -2327,7 +2361,7 @@ class Design(AedtObjects):
                 ]
                 datasets[ds] = self._get_ds_data(ds, data)
         except Exception:
-            pass
+            self.logger.debug("Failed to retrieve project data sets.")
         return datasets
 
     @pyaedt_function_handler()
@@ -2339,7 +2373,7 @@ class Design(AedtObjects):
                 data = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, data)
         except Exception:
-            pass
+            self.logger.debug("Failed to retrieve design data sets.")
         return datasets
 
     @pyaedt_function_handler()
@@ -3264,9 +3298,9 @@ class Design(AedtObjects):
         )
 
     def _insert_design(self, design_type, design_name=None):
-        assert design_type in self.design_solutions.design_types, "Invalid design type for insert: {}".format(
-            design_type
-        )
+        if design_type not in self.design_solutions.design_types:
+            raise ValueError("Design type of insert '{}' is invalid.".format(design_type))
+
         # self.save_project() ## Commented because it saves a Projectxxx.aedt when launched on an empty Desktop
         unique_design_name = self._generate_unique_design_name(design_name)
 
@@ -3283,6 +3317,8 @@ class Design(AedtObjects):
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
+            elif design_type == "HFSS" and self._aedt_version < "2024.1":
+                new_design = self._oproject.InsertDesign(design_type, unique_design_name, "HFSS Modal Network", "")
             else:
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
@@ -3669,7 +3705,8 @@ class Design(AedtObjects):
 
         >>> oDesktop.DeleteProject
         """
-        assert self.project_name != project_name, "You cannot delete the active project."
+        if self.project_name == project_name:
+            raise ValueError("You cannot delete the active project.")
         self.odesktop.DeleteProject(project_name)
         return True
 
@@ -3896,13 +3933,10 @@ class Design(AedtObjects):
             self._odesign = self._oproject.SetActiveDesign(des_name)
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
-                assert dtype == self._design_type, "Error: Specified design is not of type {}.".format(
-                    self._design_type
-                )
-            else:
-                assert ("RMxprtSolution" == self._design_type) or (
-                    "ModelCreation" == self._design_type
-                ), "Error: Specified design is not of type {}.".format(self._design_type)
+                if dtype != self._design_type:
+                    raise ValueError("Specified design is not of type {}.".format(self._design_type))
+            elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
+                raise ValueError("Specified design is not of type {}.".format(self._design_type))
             return True
         elif ":" in des_name:
             try:

@@ -806,11 +806,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design", setupname="setup")
     def export_fullwave_spice(
         self,
-        designname=None,
-        setupname=None,
+        design=None,
+        setup=None,
         is_solution_file=False,
         filename=None,
         passivity=False,
@@ -828,10 +828,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Parameters
         ----------
-        designname : str, optional
+        design : str, optional
             Name of the design or the full path to the solution file if it is an imported file.
             The default is ``None``.
-        setupname : str, optional
+        setup : str, optional
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
@@ -862,20 +862,20 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         >>> oDesign.ExportFullWaveSpice
         """
-        if not designname:
-            designname = self.design_name
+        if not design:
+            design = self.design_name
         if not filename:
             filename = os.path.join(self.working_directory, self.design_name + ".sp")
         if is_solution_file:
-            setupname = designname
-            designname = ""
+            setup = design
+            design = ""
         else:
-            if not setupname:
-                setupname = self.nominal_sweep
+            if not setup:
+                setup = self.nominal_sweep
         self.onetwork_data_explorer.ExportFullWaveSpice(
-            designname,
+            design,
             is_solution_file,
-            setupname,
+            setup,
             "",
             [],
             [
@@ -981,12 +981,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if differential_pairs:
             dif = "Differential Pairs"
         return self.post.create_report(
-            curvenames,
-            solution_name,
-            variations=variations,
-            context=dif,
-            subdesign_id=subdesign_id,
-            plot_name=plot_name,
+            curvenames, solution_name, variations=variations, context=dif, subdesign_id=subdesign_id
         )
 
     @pyaedt_function_handler()
@@ -1373,7 +1368,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     def load_diff_pairs_from_file(self, filename):
         """Load differtential pairs definition from a file.
 
-        You can use the the ``save_diff_pairs_to_file`` method to obtain the file format.
+        You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
         New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
@@ -1732,7 +1727,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             else:
                 tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
 
-        setup = self.create_setup(setupname="Transient_TDR", setuptype=self.SETUPS.NexximTransient)
+        setup = self.create_setup(name="Transient_TDR", setup_type=self.SETUPS.NexximTransient)
         setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(

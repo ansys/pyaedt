@@ -198,10 +198,10 @@ matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, sou
 # Create a setup, analyze, and plot solution data.
 
 # Create a setup.
-setup = q.create_setup(setupname="new_setup")
+setup = q.create_setup(name="new_setup")
 
 # Add a sweep.
-sweep = setup.add_sweep(sweepname="sweep1", sweeptype="Discrete")
+sweep = setup.add_sweep(name="sweep1", sweep_type="Discrete")
 sweep.props["RangeType"] = "LinearStep"
 sweep.props["RangeStart"] = "1GHz"
 sweep.props["RangeStep"] = "100MHz"
