@@ -137,8 +137,8 @@ class TestClass:
         assert self.aedtapp.auto_identify_nets()
 
     def test_07_create_source_sinks(self):
-        source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
-        sink = self.aedtapp.sink("MyCylinder", axisdir=3, name="Sink1")
+        source = self.aedtapp.source("MyCylinder", direction=0, name="Source1")
+        sink = self.aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
         assert len(self.aedtapp.excitations) > 0
@@ -166,7 +166,7 @@ class TestClass:
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
-        source = self.aedtapp.source(["Source1", "Sink1"], net_name="GND", name="Cylinder1")
+        source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
         source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
@@ -241,9 +241,8 @@ class TestClass:
         assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
         assert q3d.matrices[2].delete()
-        assert q3d.insert_reduced_matrix(
-            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
-        )
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source",
+                                         "New_sink")
         assert "New_net" in q3d.matrices[2].sources()
         assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
         assert len(q3d.matrices[2].operations) == 2

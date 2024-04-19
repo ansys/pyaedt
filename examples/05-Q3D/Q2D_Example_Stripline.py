@@ -151,14 +151,12 @@ q.modeler.create_rectangle(
 # Assign conductors to the signal.
 
 obj = q.modeler.get_object_from_name("signal_p")
-q.assign_single_conductor(
-    name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=[obj], name=obj.name, conductor_type="SignalLine", solve_option="SolveOnBoundary",
+                          units="mm")
 
 obj = q.modeler.get_object_from_name("signal_n")
-q.assign_single_conductor(
-    name=obj.name, target_objects=[obj], conductor_type="SignalLine", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=[obj], name=obj.name, conductor_type="SignalLine", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Create reference ground
@@ -166,9 +164,8 @@ q.assign_single_conductor(
 # Create a reference ground.
 
 obj = [q.modeler.get_object_from_name(i) for i in ["co_gnd_left", "co_gnd_right", "ref_gnd_u", "ref_gnd_l"]]
-q.assign_single_conductor(
-    name="gnd", target_objects=obj, conductor_type="ReferenceGround", solve_option="SolveOnBoundary", unit="mm"
-)
+q.assign_single_conductor(assignment=obj, name="gnd", conductor_type="ReferenceGround", solve_option="SolveOnBoundary",
+                          units="mm")
 
 ###############################################################################
 # Assign Huray model on signals
@@ -186,8 +183,8 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the differential pair.
 
-matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, source_names=["signal_p", "signal_n"],
-                                 rm_name="diff_pair")
+matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, assignment=["signal_p", "signal_n"],
+                                 reduced_matrix="diff_pair")
 
 ###############################################################################
 # Create setup, analyze, and plot

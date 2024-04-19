@@ -207,10 +207,10 @@ region.material_name = "vacuum"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
-[q2d.assign_single_conductor(name='C1' + str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
+[q2d.assign_single_conductor(assignment=i, name='C1' + str(obj.index(i) + 1), conductor_type='SignalLine') for i
  in obj]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
-q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
+q2d.assign_single_conductor(assignment=obj, name="gnd", conductor_type="ReferenceGround")
 mod2D.fit_all()
 
 ##########################################################
