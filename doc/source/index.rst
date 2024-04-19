@@ -44,14 +44,15 @@ enabling straightforward and efficient automation in your workflow.
 
    .. grid:: 2
 
-      {% if run_examples %}
-      .. grid-item-card:: Examples :fa:`scroll`
-         :link: examples/index
-         :link-type: doc
+      .. only:: html
+        {% if run_examples %}
+        .. grid-item-card:: Examples :fa:`scroll`
+            :link: examples/index
+            :link-type: doc
 
-         Explore examples that show how to use PyAEDT to perform different types of simulations.
-      
-      {% endif %}
+            Explore examples that show how to use PyAEDT to perform different types of simulations.
+
+        {% endif %}
 
       .. grid-item-card:: Contribute :fa:`people-group`
          :link: Getting_started/Contributing
@@ -67,8 +68,10 @@ enabling straightforward and efficient automation in your workflow.
        Getting_started/index
        User_guide/index
        API/index
-       {% if run_examples %}
-       examples/index
-       {% endif %}
+       .. only:: html
+
+         {% if run_examples %}
+         examples/index
+         {% endif %}
 
 
