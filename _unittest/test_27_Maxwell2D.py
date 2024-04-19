@@ -51,7 +51,7 @@ class TestClass:
     def test_04_create_winding(self):
         bounds = self.aedtapp.assign_winding(assignment=["Coil"], current=20e-3)
         assert bounds
-        o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", matname="copper")
+        o = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle2", material="copper")
         bounds = self.aedtapp.assign_winding(assignment=o.id, current=20e-3)
         assert bounds
         bounds = self.aedtapp.assign_winding(assignment=["Coil"], current="20e-3A")
@@ -130,7 +130,7 @@ class TestClass:
 
     def test_12_assign_current_source(self):
         coil = self.aedtapp.modeler.create_circle(
-            position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", matname="Copper"
+            position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
         assert self.aedtapp.assign_current([coil])
         assert not self.aedtapp.assign_current([coil.faces[0].id])
@@ -189,8 +189,8 @@ class TestClass:
     def test_18_end_connection(self):
         self.aedtapp.insert_design("EndConnection")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.TransientXY
-        rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [5, 5], matname="aluminum")
-        rect2 = self.aedtapp.modeler.create_rectangle([15, 20, 0], [5, 5], matname="aluminum")
+        rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [5, 5], material="aluminum")
+        rect2 = self.aedtapp.modeler.create_rectangle([15, 20, 0], [5, 5], material="aluminum")
         bound = self.aedtapp.assign_end_connection([rect, rect2])
         assert bound
         assert bound.props["ResistanceValue"] == "0ohm"
@@ -203,10 +203,10 @@ class TestClass:
     def test_19_matrix(self):
         self.aedtapp.insert_design("Matrix")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        self.aedtapp.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", matname="vacuum")
-        self.aedtapp.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", matname="vacuum")
-        self.aedtapp.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", matname="vacuum")
-        self.aedtapp.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", matname="vacuum")
+        self.aedtapp.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", material="vacuum")
+        self.aedtapp.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", material="vacuum")
+        self.aedtapp.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", material="vacuum")
+        self.aedtapp.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4", material="vacuum")
         self.aedtapp.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
         self.aedtapp.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
         self.aedtapp.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")

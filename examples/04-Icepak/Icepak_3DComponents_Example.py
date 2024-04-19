@@ -49,16 +49,16 @@ ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"),
 ipk.modeler.get_object_from_name("Region").delete()
 
 # Definition of heatsink with boxes
-hs_base = ipk.modeler.create_box(position=[0, 0, 0], dimensions_list=[37.5, 37.5, 2], name="HS_Base")
+hs_base = ipk.modeler.create_box(origin=[0, 0, 0], sizes=[37.5, 37.5, 2], name="HS_Base")
 hs_base.material_name = "Al-Extruded"
-hs_fin = ipk.modeler.create_box(position=[0, 0, 2], dimensions_list=[37.5, 1, 18], name="HS_Fin1")
+hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_Fin1")
 hs_fin.material_name = "Al-Extruded"
 hs_fin.duplicate_along_line([0, 3.65, 0], nclones=11)
 
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "Heatsink.jpg"))
 
 # Definition of a mesh region. First a non-model box is created, then the mesh region is assigned
-mesh_box = ipk.modeler.create_box(position=[-2, -2, -3], dimensions_list=[41.5, 41.5, 24])
+mesh_box = ipk.modeler.create_box(origin=[-2, -2, -3], sizes=[41.5, 41.5, 24])
 mesh_box.model = False
 mesh_region = ipk.mesh.assign_mesh_region([mesh_box.name])
 mesh_region.UserSpecifiedSettings = True
@@ -164,12 +164,11 @@ cs = ipk.modeler.create_coordinate_system(
     y_pointing=[0, 1, 0],
 )
 heatsink_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
-    targetCS="HeatsinkCS", auxiliary_dict=True)
+    input_file=os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"), coordinate_system="HeatsinkCS",
+    auxiliary_parameters=True)
 
-QFP2_obj = ipk.modeler.insert_3d_component(
-    comp_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
-    targetCS="Global", auxiliary_dict=True)
+QFP2_obj = ipk.modeler.insert_3d_component(input_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
+                                           coordinate_system="Global", auxiliary_parameters=True)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package.jpg"))
 
 # Create a coordinate system at the xmin, ymin, zmin of the model

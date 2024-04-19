@@ -338,13 +338,13 @@ class BaseCoordinateSystem(PropsManager, object):
         arguments = ["NAME:AllTabs", ["NAME:Geometry3DCSTab", ["NAME:PropServers", name], arg]]
         self._modeler.oeditor.ChangeProperty(arguments)
 
-    @pyaedt_function_handler()
-    def rename(self, newname):
+    @pyaedt_function_handler(newname="name")
+    def rename(self, name):
         """Rename the coordinate system.
 
         Parameters
         ----------
-        newname : str
+        name : str
             New name for the coordinate system.
 
         Returns
@@ -353,8 +353,8 @@ class BaseCoordinateSystem(PropsManager, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]])
-        self.name = newname
+        self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]])
+        self.name = name
         return True
 
     @pyaedt_function_handler()
@@ -454,9 +454,9 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(face="assignment")
     def create(
-        self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+        self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
         """Create a face coordinate system.
         The face coordinate has always the Z axis parallel to face normal.
@@ -464,7 +464,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         Parameters
         ----------
-        face : int, FacePrimitive
+        assignment : int, FacePrimitive
             Face where the coordinate system is defined.
         origin : int, FacePrimitive, EdgePrimitive, VertexPrimitive
             Specify the coordinate system origin. The origin must belong to the face where the
@@ -503,7 +503,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         """
 
-        face_id = self._modeler.convert_to_selections(face, True)[0]
+        face_id = self._modeler.convert_to_selections(assignment, True)[0]
         if not isinstance(face_id, int):  # pragma: no cover
             raise ValueError("Unable to find reference face.")
         else:
@@ -1294,10 +1294,10 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         coordinateSystemAttributes = ["NAME:Attributes", "Name:=", self.name, "PartName:=", self._part_name]
         return coordinateSystemAttributes
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(obj="assignment")
     def create(
         self,
-        obj,
+        assignment,
         origin,
         x_axis,
         y_axis,
@@ -1309,7 +1309,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
         Parameters
         ----------
-        obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Origin where the object coordinate system is anchored.
@@ -1351,10 +1351,10 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if isinstance(obj, str):
-            self.entity_id = self._modeler.objects_by_name[obj].id
-        elif isinstance(obj, Object3d):
-            self.entity_id = obj.id
+        if isinstance(assignment, str):
+            self.entity_id = self._modeler.objects_by_name[assignment].id
+        elif isinstance(assignment, Object3d):
+            self.entity_id = assignment.id
         else:
             raise ValueError("Object provided is invalid.")
 
@@ -1711,23 +1711,23 @@ class Lists(PropsManager, object):
 
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(object_list="assignment", type="entity_type")
     def create(
         self,
-        object_list,
+        assignment,
         name=None,
-        type="Object",
+        entity_type="Object",
     ):
         """Create a List.
 
         Parameters
         ----------
-        object_list : list
+        assignment : list
             List of ``["Obj1", "Obj2"]`` objects or face ID if type is "Face".
             The default is ``None``, in which case all objects are selected.
         name : list, str
             List of names. The default is ``None``.
-        type : str, optional
+        entity_type : str, optional
             List type. Options are ``"Object"``, ``"Face"``. The default is ``"Object"``.
 
         Returns
@@ -1738,24 +1738,24 @@ class Lists(PropsManager, object):
         """
 
         if not name:
-            name = generate_unique_name(type + "List")
+            name = generate_unique_name(entity_type + "List")
 
-        object_list_new = self._list_verification(object_list, type)
+        object_list_new = self._list_verification(assignment, entity_type)
 
         if object_list_new:
             olist = object_list_new
-            if type == "Object":
+            if entity_type == "Object":
                 olist = ",".join(object_list_new)
 
             self.name = self._modeler.oeditor.CreateEntityList(
-                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", olist],
+                ["NAME:GeometryEntityListParameters", "EntityType:=", entity_type, "EntityList:=", olist],
                 ["NAME:Attributes", "Name:=", name],
             )
             props = {}
             props["List"] = object_list_new
 
             props["ID"] = self._modeler.get_entitylist_id(self.name)
-            props["Type"] = type
+            props["Type"] = entity_type
 
             self.props = ListsProps(self, props)
             self._modeler.user_lists.append(self)
@@ -1777,13 +1777,13 @@ class Lists(PropsManager, object):
         self._modeler.user_lists.remove(self)
         return True
 
-    @pyaedt_function_handler()
-    def rename(self, newname):
+    @pyaedt_function_handler(newname="name")
+    def rename(self, name):
         """Rename the List.
 
         Parameters
         ----------
-        newname : str
+        name : str
             New name for the List.
 
         Returns
@@ -1797,11 +1797,11 @@ class Lists(PropsManager, object):
             [
                 "NAME:Geometry3DListTab",
                 ["NAME:PropServers", self.name],
-                ["NAME:ChangedProps", ["NAME:Name", "Value:=", newname]],
+                ["NAME:ChangedProps", ["NAME:Name", "Value:=", name]],
             ],
         ]
         self._modeler.oeditor.ChangeProperty(argument)
-        self.name = newname
+        self.name = name
         return True
 
     def _list_verification(self, object_list, list_type):

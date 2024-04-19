@@ -163,7 +163,7 @@ class TestClass:
     def test_08_add_material_from_amat(self, mat1):
         mat_file = os.path.join(local_path, "example_models", test_subfolder, "material_sample.amat")
         dd = load_entire_aedt_file(mat_file)
-        newmat = mat1.materials.add_material("foe_mat", props=dd["mat_example_1"])
+        newmat = mat1.materials.add_material("foe_mat", properties=dd["mat_example_1"])
         assert newmat.conductivity.value == "1100000"
         assert newmat.thermal_conductivity.value == "13.8"
         assert newmat.mass_density.value == "8055"
