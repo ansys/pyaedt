@@ -207,10 +207,10 @@ setup.create_frequency_sweep(
 #  Each frequency point is solved simultaneously.
 
 
-setup.analyze(num_tasks=2)
+setup.analyze(tasks=2)
 
 ###############################################################################
-# Generate S-Parameter Plots
+# Generate S-parameter plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.

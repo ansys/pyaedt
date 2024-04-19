@@ -215,7 +215,7 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze(num_cores=4, num_tasks=4)
+ipk.analyze(cores=4, tasks=4)
 ipk.save_project()
 
 ###############################################################################

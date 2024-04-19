@@ -504,12 +504,12 @@ class CommonOptimetrics(PropsManager, object):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        num_cores=1,
-        num_tasks=1,
-        num_gpu=0,
+        cores=1,
+        tasks=1,
+        gpus=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -521,12 +521,12 @@ class CommonOptimetrics(PropsManager, object):
 
         Parameters
         ----------
-        num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
-        num_tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
-        num_gpu : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+        cores : int, optional
+            Number of simulation cores. The default is ``1``.
+        tasks : int, optional
+            Number of simulation tasks. The default is ``1``.
+        gpus : int, optional
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -554,10 +554,10 @@ class CommonOptimetrics(PropsManager, object):
         >>> oDesign.Analyze
         """
         return self._app.analyze(
-            setup_name=self.name,
-            num_cores=num_cores,
-            num_tasks=num_tasks,
-            num_gpu=num_gpu,
+            name=self.name,
+            cores=cores,
+            tasks=tasks,
+            gpus=gpus,
             acf_file=acf_file,
             use_auto_settings=use_auto_settings,
             solve_in_batch=solve_in_batch,

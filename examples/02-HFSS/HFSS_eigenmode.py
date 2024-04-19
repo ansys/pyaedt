@@ -105,7 +105,7 @@ def find_resonance():
     setup.props['MinimumPasses'] = 3
     setup.props['MaxDeltaFreq'] = 5
     # analyzing the eigenmode setup
-    hfss.analyze_setup(setup_name, num_cores=8, use_auto_settings=True)
+    hfss.analyze_setup(setup_name, cores=8, use_auto_settings=True)
     # getting the Q and real frequency of each mode
     eigen_q = hfss.post.available_report_quantities(quantities_category="Eigen Q")
     eigen_mode = hfss.post.available_report_quantities()
