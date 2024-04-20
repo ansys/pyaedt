@@ -74,28 +74,30 @@ For example::
   Validate GitHub Workflows................................................Passed
   blacken-docs.............................................................Passed
 
-Keyword Conventions
-~~~~~~~~~~~~~~~~~~~
-Consistency of names in the Python code helps improve readability and
+Naming Conventions
+~~~~~~~~~~~~~~~~~~
+Consistency of names helps improve readability and
 ease of use. Starting with release 0.8 a concerted effort
 has been made to
 improve consistency of naming and adherence to
 :ref:`PEP-8<https://peps.python.org/pep-0008/>`_.
 
 For example, methods used to create or access entities in
-AEDT require that a name to be passed to the method or functon.
+Electronics Desktop require that a name to be passed to the method or functon
+as an argument.
 It is tempting to
-include context as part of that variable name. For example by passing
+include context as part of that variable name. For example, one is tempted to use
 ``setupname``
 as an argument to :meth:`Hfss.create_setup`_.
 However, the context "setup" is
-explicitly clear through the method name. The variable ``name`` provides
+explicitly defined by the method name. The variable ``name`` provides
 a more compact
-description of the variable in this case.
+description of the variable in this context.
 
 One may
-also find both ``setup_name`` and ``setupname`` in use for various methods or classes.
-Improving naming consistency will greatly help maintainability and readability of the code.
+also find both ``setup_name`` and ``setupname`` used in previous versions of PyAEDT
+for various methods or classes.
+Improving naming consistency improves maintainability and readability.
 
 The following table illustrates the recommended conventions:
 
@@ -119,8 +121,9 @@ The following table illustrates the recommended conventions:
      - ``assignment``
      - ``Maxwell.assign_symmetry()``
 
-If you want to contribute to PyAEDT, please take care to use compact, descriptive names for
-variables and classes that adhere to PEP-8 and are consistent with conventions already in use.
+Please take care to use descriptive names for
+variables and classes that adhere to PEP-8 and are consistent with conventions already
+usd in PyAEDT.
 
 Log errors
 ~~~~~~~~~~
