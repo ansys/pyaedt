@@ -199,8 +199,8 @@ comp = h3d.modeler.place_3d_component(
 h3d["len"] = str(trace_length) + "mm"
 h3d["w1"] = str(trace_width) + "mm"
 
-h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, is_wave_port=True, wave_horizontal_extension=15)
 line = h3d.modeler.create_line("L1", [[0, 0], ["len", 0]], lw="w1", name="microstrip", net="microstrip")
+h3d.create_edge_port(line, h3d.modeler[line.name].top_edge_x, is_wave_port=True, wave_horizontal_extension=15)
 
 ###############################################################################
 # Create void on Ground plane for pin
@@ -218,7 +218,12 @@ h3d.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False
 h3d.edit_hfss_extents(diel_extent_horizontal_padding="0.2", air_vertical_positive_padding="0",
                       air_vertical_negative_padding="2", airbox_values_as_dim=False)
 setup1 = h3d.create_setup()
-sweep1 = h3d.create_linear_count_sweep(setup1.name, "GHz", 0.01, 8, 1601, sweep_type="Interpolating")
+sweep1 = h3d.create_linear_count_sweep(setup1.name,
+                                       "GHz",
+                                       0.01,
+                                       8,
+                                       1601,
+                                       sweep_type="Interpolating")
 setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = freq
 setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = max_steps
 
