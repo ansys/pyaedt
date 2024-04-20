@@ -41,12 +41,13 @@ for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-Adhere to code style
---------------------
-PyAEDT is compliant with `PyAnsys code style
-<https://dev.docs.pyansys.com/coding-style/index.html>`_. It uses the tool
-`pre-commit <https://pre-commit.com/>`_ to check the code style. You can install
-and activate this tool with:
+Code Style
+----------
+PyAEDT complies with the `PyAnsys code style
+<https://dev.docs.pyansys.com/coding-style/index.html>`_.
+`pre-commit <https://pre-commit.com/>`_ is applied within the CI/CD to ensure compliance.
+The ``pre-commit`` Python package can be installed
+and run as follows:
 
 .. code:: bash
 
@@ -72,6 +73,54 @@ For example::
   trim trailing whitespace.................................................Passed
   Validate GitHub Workflows................................................Passed
   blacken-docs.............................................................Passed
+
+Keyword Conventions
+~~~~~~~~~~~~~~~~~~~
+Consistency of names in the Python code helps improve readability and
+ease of use. Starting with release 0.8 a concerted effort
+has been made to
+improve consistency of naming and adherence to
+:ref:`PEP-8<https://peps.python.org/pep-0008/>`_.
+
+For example, methods used to create or access entities in
+AEDT require that a name to be passed to the method or functon.
+It is tempting to
+include context as part of that variable name. For example by passing
+``setupname``
+as an argument to :meth:`Hfss.create_setup`_.
+However, the context "setup" is
+explicitly clear through the method name. The variable ``name`` provides
+a more compact
+description of the variable in this case.
+
+One may
+also find both ``setup_name`` and ``setupname`` in use for various methods or classes.
+Improving naming consistency will greatly help maintainability and readability of the code.
+
+The following table illustrates the recommended conventions:
+
+.. list-table:: Keywords and Object Names
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Old Name(s)
+     - New Name
+     - Example
+   * - ``setupname``, ``setup_name``, ``sweepname``
+     - ``name``
+     - ``Hfss.create_setup()``, ``Hfss.create_linear_step_sweep()``
+   * - ``usethickness``
+     - ``thickness``
+     - ``Hfss.assign_coating()``
+   * - ``entities``
+     - ``assignment``
+     - ``Maxwell.assign_current_density()``
+   * - ``entity_list``
+     - ``assignment``
+     - ``Maxwell.assign_symmetry()``
+
+If you want to contribute to PyAEDT, please take care to use compact, descriptive names for
+variables and classes that adhere to PEP-8 and are consistent with conventions already in use.
 
 Log errors
 ~~~~~~~~~~
