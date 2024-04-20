@@ -708,7 +708,6 @@ class NexximComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
-
         if location == None:
             location = []
 
