@@ -135,7 +135,7 @@ E_Value = "V_AC.V"
 x = tb.post.get_solution_data(E_Value, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.data_real(E_Value))
 
-R_Value = "RL.V"
+R_Value = "R1.V"
 x = tb.post.get_solution_data(R_Value, "TR", "Time")
 plt.plot(x.intrinsics["Time"], x.data_real(R_Value))
 
