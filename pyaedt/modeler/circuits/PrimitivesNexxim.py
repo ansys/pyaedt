@@ -681,12 +681,12 @@ class NexximComponents(CircuitComponents):
         return cmpid
 
     @pyaedt_function_handler(compname="name")
-    def create_capacitor(self, cname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, name=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
         ----------
-        cname : str, optional
+        name : str, optional
             Name of the capacitor. The default is ``None``.
         value : float, optional
             Capacitor value. The default is ``50``.
@@ -713,7 +713,7 @@ class NexximComponents(CircuitComponents):
             location = []
 
         cmpid = self.create_component(
-            cname,
+            name,
             component_library="Capacitors",
             component_name="CAP_",
             location=location,
