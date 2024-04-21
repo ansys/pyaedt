@@ -88,7 +88,7 @@ echo Examples> source\examples\index.rst
 echo ========> source\examples\index.rst
 ::FIXME: currently linkcheck freezes and further investigation must be performed
 ::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
-%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+%SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 echo
 echo "Build finished. The HTML pages are in %BUILDDIR%."
 goto end
