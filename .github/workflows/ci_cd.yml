@@ -287,7 +287,7 @@ jobs:
 
   # TODO: Si if we can use ansys/actions
   test-solvers-linux:
-    name: Testing and coverage (Linux)
+    name: Testing solvers and coverage (Linux)
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -320,7 +320,8 @@ jobs:
 
       - name: Run tests on _unittest_solvers
         run: |
-          .venv\Scripts\Activate.ps1
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          source .venv/bin/activate
           pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
