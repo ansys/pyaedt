@@ -1329,7 +1329,7 @@ class ModelPlotter(CommonPlotter):
                     field._cached_polydata = reader[reader.keys()[0]].extract_surface()
 
                     if (
-                        "active_vectors" in dir(field._cached_polydata.point_data)
+                        hasattr(field._cached_polydata.point_data, "active_vectors")
                         and field._cached_polydata.point_data.active_vectors_name
                     ):
                         field.scalar_name = field._cached_polydata.point_data.active_scalars_name
