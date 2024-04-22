@@ -972,7 +972,7 @@ class QExtractor(FieldAnalysis3D, object):
             matrix = "Original"
         else:
             if self.matrices:
-                if not [matrix for matrix in self.matrices if matrix.name == matrix]:
+                if not [matrix_object for matrix_object in self.matrices if matrix_object.name == matrix]:
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
             else:
@@ -1098,6 +1098,7 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
             return False
 
+        cpp_settings = []
         if include_cpp:
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
@@ -1112,9 +1113,6 @@ class QExtractor(FieldAnalysis3D, object):
                         if isinstance(setting, tuple):
                             if setting[0] == "NAME:CPPInfo":
                                 cpp_settings = setting
-        else:
-            include_cpp = False
-            cpp_settings = []
 
         if self.modeler._is3d:
             try:
