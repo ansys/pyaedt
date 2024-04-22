@@ -47,7 +47,7 @@ class TestClass:
 
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_polyline(position_list=pointsList1, name=name)
+        return self.aedtapp.modeler.create_polyline(points=pointsList1, name=name)
 
     def create_copper_box(self, name=None):
         if not name:
@@ -66,7 +66,7 @@ class TestClass:
             name = "Mysphere"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius=4, name=name, matname="Copper")
+        return self.aedtapp.modeler.create_sphere([0, 0, 0], radius=4, name=name, material="Copper")
 
     def create_copper_cylinder(self, name=None):
         if not name:
@@ -74,7 +74,7 @@ class TestClass:
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         return self.aedtapp.modeler.create_cylinder(
-            cs_axis="Y", position=[0, 0, 0], radius=1, height=20, numSides=8, name=name, matname="Copper"
+            orientation="Y", origin=[0, 0, 0], radius=1, height=20, num_sides=8, name=name, material="Copper"
         )
 
     def test_00_uname(self):
@@ -183,7 +183,7 @@ class TestClass:
         self.aedtapp["mat_sweep_test"] = '["myMat", "myMat2"]'
         box = self.aedtapp.modeler["MyBox"]
         box.material_name = "mat_sweep_test[0]"
-        assert self.aedtapp.modeler.get_objects_by_material(materialname="myMat")[0].name == "MyBox"
+        assert self.aedtapp.modeler.get_objects_by_material(material="myMat")[0].name == "MyBox"
 
     def test_05_object3d_properties_transparency(self):
         o = self.create_copper_box("TransparencyBox")
@@ -226,6 +226,8 @@ class TestClass:
         assert len(new_object.faces) == 6
         assert len(new_object.edges) == 12
         assert new_object.display_wireframe == initial_object.display_wireframe
+        new_object.name = "Properties_Box"
+        assert not new_object.name == "Properties_Box"
 
     def test_08_set_model(self):
         o = self.create_copper_box()
@@ -359,16 +361,20 @@ class TestClass:
     def test_14_translate_delete_self(self):
         o = self.create_copper_box()
         v0 = o.vertices[0].position
-        o.move([1, 0, 0])
+        o.move(
+            [1, 0, 0],
+        )
         v1 = o.vertices[0].position
         assert v1[0] == v0[0] + 1.0
         assert v1[1] == v0[1]
         assert v1[2] == v0[2]
-        assert o.move([1, 0, 0])
+        assert o.move(
+            [1, 0, 0],
+        )
 
     def test_15_duplicate_around_axis_and_unite(self):
         turn = self.create_example_coil("single_turn")
-        added_objects = turn.duplicate_around_axis(cs_axis="Z", angle=8, nclones=19)
+        added_objects = turn.duplicate_around_axis(axis="Z", angle=8, clones=19)
         turn.unite(added_objects)
         assert len(added_objects) == 18
         assert "single_turn" in self.aedtapp.modeler.line_names
@@ -391,7 +397,7 @@ class TestClass:
 
     def test_19_rotate(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "RotateBox", "Copper")
-        assert o.rotate(cs_axis="Y", angle=180)
+        assert o.rotate(axis="Y", angle=180)
 
     def test_20_mirror(self):
         o = self.aedtapp.modeler.create_box([-10, 0, 0], [10, 10, 5], "MirrorBox", "Copper")
@@ -411,10 +417,10 @@ class TestClass:
 
     def test_22_mass(self):
         self.aedtapp.modeler.model_units = "meter"
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], matname="Copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 2], material="Copper")
         assert box1.mass == 893300.0
         new_material = self.aedtapp.materials.add_material("MyMaterial")
-        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], matname="MyMaterial")
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], material="MyMaterial")
         assert box2.mass == 0.0
         new_material.mass_density = 1
         assert isclose(box2.mass, 1000.0)
@@ -424,7 +430,7 @@ class TestClass:
         assert rec.mass == 0.0
 
     def test_23_volume(self):
-        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], matname="Copper")
+        box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], material="Copper")
         assert isclose(box3.volume, 100)
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
@@ -530,7 +536,9 @@ class TestClass:
     def test_26_unclassified_object(self):
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         box2 = self.aedtapp.modeler.create_box([2, 2, 2], [2, 2, 2])
-        self.aedtapp.modeler.intersect([box1, box2])
+        self.aedtapp.modeler.intersect(
+            [box1, box2],
+        )
         vArg1 = ["NAME:Selections", "Selections:=", ", ".join([box1.name, box2.name])]
         vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", False]
 
@@ -544,20 +552,20 @@ class TestClass:
         assert len(self.aedtapp.modeler.unclassified_objects) == 0
 
     def test_27_get_object_history_properties(self):
-        box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
+        box = self.aedtapp.modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", material="Copper")
         cylinder = self.aedtapp.modeler.create_cylinder(
-            cs_axis="Y",
-            position=[10, 10, 10],
+            orientation="Y",
+            origin=[10, 10, 10],
             radius=5,
             height=20,
-            numSides=4,
+            num_sides=4,
             name="cylinder_history",
-            matname="Copper",
+            material="Copper",
         )
 
         box_clone = box.clone()
         box_subtract = box_clone.subtract(cylinder)
-        box_subtract.rotate(cs_axis="Y", angle=180)
+        box_subtract.rotate(axis="Y", angle=180)
         box_subtract.split("XY")
         box_history = box.history()
         box_clone_history = box_clone.history()
@@ -630,9 +638,9 @@ class TestClass:
 
     def test_29_test_nets(self):
         self.aedtapp.insert_design("nets")
-        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], matname="copper")
-        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], matname="copper")
-        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], matname="vacuum")
+        self.aedtapp.modeler.create_box([0, 0, 0], [5, 10, 10], material="copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [5, 10, 10], material="copper")
+        self.aedtapp.modeler.create_box([60, 0, 0], [5, 10, 10], material="vacuum")
         nets = self.aedtapp.identify_touching_conductors()
         assert len(nets) == 2
 
@@ -640,32 +648,32 @@ class TestClass:
         self.aedtapp.insert_design("Heal_Objects")
         self.aedtapp.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="box_1")
         self.aedtapp.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="box_2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1,box_2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1, box_2 ")
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list=["box_1", "box_2"])
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list="box_1", simplify_type=3)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", max_stitch_tolerance="0.01")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", max_stitch_tolerance=0.01)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", geometry_simplification_tolerance=1.2)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", geometry_simplification_tolerance="1.2")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width=0.001)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", tighten_gaps_width="0.001")
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance=1.2)
-        assert self.aedtapp.modeler.heal_objects(input_objects_list="box_1", silver_face_tolerance="1.2")
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list=None)
-        assert not self.aedtapp.modeler.heal_objects(input_objects_list=1)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1")
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1,box_2")
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1, box_2 ")
+        assert not self.aedtapp.modeler.heal_objects(assignment=["box_1", "box_2"])
+        assert not self.aedtapp.modeler.heal_objects(assignment="box_1", simplify_type=3)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", max_stitch_tolerance="0.01")
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", max_stitch_tolerance=0.01)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance=1.2)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", geometry_simplification_tolerance="1.2")
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", tighten_gaps_width=0.001)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", tighten_gaps_width="0.001")
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", silver_face_tolerance=1.2)
+        assert self.aedtapp.modeler.heal_objects(assignment="box_1", silver_face_tolerance="1.2")
+        assert not self.aedtapp.modeler.heal_objects(assignment=None)
+        assert not self.aedtapp.modeler.heal_objects(assignment=1)
 
     @pytest.mark.skipif(is_linux, reason="Crashing in linux")
     def test_20_simplify_objects(self):
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1")
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1,box_2")
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1, box_2")
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=["box_1", "box_2"])
-        assert self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Primitive Fit")
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list="box_1", simplify_type="Invalid")
+        assert self.aedtapp.modeler.simplify_objects(assignment="box_1")
+        assert self.aedtapp.modeler.simplify_objects(assignment="box_1,box_2")
+        assert self.aedtapp.modeler.simplify_objects(assignment="box_1, box_2")
+        assert not self.aedtapp.modeler.simplify_objects(assignment=["box_1", "box_2"])
+        assert self.aedtapp.modeler.simplify_objects(assignment="box_1", simplify_type="Primitive Fit")
+        assert not self.aedtapp.modeler.simplify_objects(assignment="box_1", simplify_type="Invalid")
         assert not self.aedtapp.modeler.simplify_objects(
-            input_objects_list="box_1", simplify_type="Polygon Fit", extrusion_axis="U"
+            assignment="box_1", simplify_type="Polygon Fit", extrusion_axis="U"
         )
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=None)
-        assert not self.aedtapp.modeler.simplify_objects(input_objects_list=1)
+        assert not self.aedtapp.modeler.simplify_objects(assignment=None)
+        assert not self.aedtapp.modeler.simplify_objects(assignment=1)

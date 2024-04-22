@@ -57,7 +57,7 @@ cir.analyze()
 # notes and edit axes, the grid, and the legend. You can create custom reports
 # in non-graphical mode in AEDT 2023 R2 and later.
 
-report1 = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Basic.json'))
+report1 = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Basic.json'))
 out = cir.post.export_report_to_jpg(cir.working_directory, report1.plot_name)
 Image(out)
 
@@ -66,7 +66,7 @@ Image(out)
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Every aspect of the report can be customized.
 
-report1_full = cir.post.create_report_from_configuration(os.path.join(project_path,'Spectrum_CISPR_Custom.json'))
+report1_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'Spectrum_CISPR_Custom.json'))
 out = cir.post.export_report_to_jpg(cir.working_directory, report1_full.plot_name)
 Image(out)
 ###############################################################################
@@ -80,7 +80,7 @@ Image(out)
 
 props = pyaedt.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
-report2 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
+report2 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)
 Image(out)
 
@@ -92,7 +92,7 @@ Image(out)
 
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
 props["plot_name"] = "Battery Voltage"
-report3 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
+report3 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)
 Image(out)
 

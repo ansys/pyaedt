@@ -11,8 +11,10 @@ import shutil
 
 from pyaedt import Hfss3dLayout
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -27,7 +29,7 @@ from pyaedt.modules.Boundary import VoltageSinSource
 from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
-class Circuit(FieldAnalysisCircuit, object):
+class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     """Provides the Circuit application interface.
 
     Parameters
@@ -148,7 +150,7 @@ class Circuit(FieldAnalysisCircuit, object):
             port,
             aedt_process_id,
         )
-
+        ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
 
     def _init_from_design(self, *args, **kwargs):
@@ -160,11 +162,11 @@ class Circuit(FieldAnalysisCircuit, object):
         try:
             float(value)
             return value
-        except:
+        except Exception:
             return from_rkm_to_aedt(value)
 
-    @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice netlist.
 
         Supported currently are:
@@ -178,7 +180,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file to import.
 
         Returns
@@ -199,7 +201,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
             autosave = True
-        with open_file(file_to_import, "rb") as f:
+        with open_file(input_file, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 if ".param" in line[:7].lower():
@@ -211,8 +213,8 @@ class Circuit(FieldAnalysisCircuit, object):
                         pval = param_re[1]
                         self[ppar] = pval
                         xpos = 0.0254
-                    except:
-                        pass
+                    except Exception:
+                        self.logger.error("Failed to parse line '{}'.".format(line))
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
         if model:
@@ -225,10 +227,10 @@ class Circuit(FieldAnalysisCircuit, object):
                 location=[xpos, 0],
                 global_netlist_list=model,
             )
-            self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
+            self.modeler.schematic.disable_data_netlist(assignment="Models_Netlist")
             xpos += 0.0254
         counter = 0
-        with open_file(file_to_import, "rb") as f:
+        with open_file(input_file, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 mycomp = None
@@ -254,7 +256,7 @@ class Circuit(FieldAnalysisCircuit, object):
                     if len(fields) > 4 and "=" not in fields[4]:
                         try:
                             float(fields[4])
-                        except:
+                        except Exception:
                             self.logger.warning(
                                 "Component {} was not imported. Check it and manually import".format(name)
                             )
@@ -305,11 +307,7 @@ class Circuit(FieldAnalysisCircuit, object):
                                 already_exist = True
                         if not already_exist:
                             self.modeler.schematic.create_new_component_from_symbol(
-                                parameter,
-                                pins,
-                                refbase=fields[0][0],
-                                parameter_list=parameter_list,
-                                parameter_value=parameter_value,
+                                parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                             )
                         mycomp = self.modeler.schematic.create_component(
                             fields[0],
@@ -340,11 +338,7 @@ class Circuit(FieldAnalysisCircuit, object):
                             already_exist = True
                     if not already_exist:
                         self.modeler.schematic.create_new_component_from_symbol(
-                            parameter,
-                            pins,
-                            refbase=fields[0][0],
-                            parameter_list=parameter_list,
-                            parameter_value=parameter_value,
+                            parameter, pins, refbase=fields[0][0], parameters=parameter_list, values=parameter_value
                         )
                     mycomp = self.modeler.schematic.create_component(
                         fields[0],
@@ -420,16 +414,17 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
-    @pyaedt_function_handler()
-    def get_ibis_model_from_file(self, path, is_ami=False):
+    @pyaedt_function_handler(path="input_file")
+    def get_ibis_model_from_file(self, input_file, is_ami=False):
         """Create an IBIS model based on the data contained in an IBIS file.
 
         Parameters
         ----------
-        path : str
+        input_file : str
             Path of the IBIS file.
         is_ami : bool, optional
-            Whether if import an IBIS or an IBIS AMI.
+            Whether the file to import is an IBIS AMI file. The
+            default is ``False``, in which case it is an IBIS file.
 
         Returns
         -------
@@ -437,14 +432,14 @@ class Circuit(FieldAnalysisCircuit, object):
             IBIS object exposing all data from the IBIS file.
         """
         if is_ami:
-            reader = ibis_reader.AMIReader(path, self)
+            reader = ibis_reader.AMIReader(input_file, self)
         else:
-            reader = ibis_reader.IbisReader(path, self)
+            reader = ibis_reader.IbisReader(input_file, self)
         reader.parse_ibis_file()
         return reader.ibis_model
 
-    @pyaedt_function_handler()
-    def create_schematic_from_mentor_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_mentor_netlist(self, input_file):
         """Create a circuit schematic from a Mentor netlist.
 
         Supported currently are:
@@ -458,7 +453,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file to import.
 
         Returns
@@ -474,7 +469,7 @@ class Circuit(FieldAnalysisCircuit, object):
         delta = 0.0508
         use_instance = True
         my_netlist = []
-        with open_file(file_to_import, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 my_netlist.append(line.split(" "))
         nets = [i for i in my_netlist if i[0] == "NET"]
@@ -584,13 +579,13 @@ class Circuit(FieldAnalysisCircuit, object):
         self.modeler.schematic_units = units
         return True
 
-    @pyaedt_function_handler()
-    def retrieve_mentor_comp(self, refid):
+    @pyaedt_function_handler(refid="reference_id")
+    def retrieve_mentor_comp(self, reference_id):
         """Retrieve the type of the Mentor netlist component for a given reference ID.
 
         Parameters
         ----------
-        refid : int
+        reference_id : list
             Reference ID.
 
         Returns
@@ -599,15 +594,15 @@ class Circuit(FieldAnalysisCircuit, object):
             Type of the Mentor netlist component.
 
         """
-        if refid[1] == "R":
+        if reference_id[1] == "R":
             return "resistor:RES."
-        elif refid[1] == "C":
+        elif reference_id[1] == "C":
             return "capacitor:CAP."
-        elif refid[1] == "L":
+        elif reference_id[1] == "L":
             return "inductor:COIL."
-        elif refid[1] == "D":
+        elif reference_id[1] == "D":
             return "diode"
-        elif refid[1] == "Q":
+        elif reference_id[1] == "Q":
             return "transistor:NPN"
         else:
             return ""
@@ -668,15 +663,15 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("%s Excitations Pins found.", len(pins))
         return pins
 
-    @pyaedt_function_handler()
-    def import_touchstone_solution(self, filename, solution_name="Imported_Data"):
+    @pyaedt_function_handler(filename="input_file", solution_name="solution")
+    def import_touchstone_solution(self, input_file, solution="Imported_Data"):
         """Import a Touchstone file as the solution.
 
         Parameters
         ----------
-        filename : str
+        input_file : str
             Name of the Touchstone file.
-        solution_name : str, optional
+        solution : str, optional
             Name of the solution. The default is ``"Imported_Data"``.
 
         Returns
@@ -689,8 +684,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ImportData
         """
-        if filename[-2:] == "ts":
-            with open_file(filename, "r") as f:
+        if input_file[-2:] == "ts":
+            with open_file(input_file, "r") as f:
                 lines = f.readlines()
                 for i in lines:
                     if "[Number of Ports]" in i:
@@ -700,10 +695,10 @@ class Circuit(FieldAnalysisCircuit, object):
                     portnames = ["Port{}".format(i + 1) for i in range(ports)]
         else:
             re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
-            m = re_filename.search(filename)
+            m = re_filename.search(input_file)
             ports = int(m.group("ports"))
             portnames = None
-            with open_file(filename, "r") as f:
+            with open_file(input_file, "r") as f:
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
@@ -719,7 +714,7 @@ class Circuit(FieldAnalysisCircuit, object):
             ["NAME:PortInfoBlk"],
             ["NAME:PortOrderBlk"],
             "filename:=",
-            filename,
+            input_file,
             "numberofports:=",
             ports,
             "sssfilename:=",
@@ -735,7 +730,7 @@ class Circuit(FieldAnalysisCircuit, object):
             "devicename:=",
             "",
             "SolutionName:=",
-            solution_name,
+            solution,
             "displayformat:=",
             "MagnitudePhase",
             "datatype:=",
@@ -804,51 +799,11 @@ class Circuit(FieldAnalysisCircuit, object):
         self.logger.info("Touchstone file was correctly imported into %s", self.design_name)
         return portnames
 
-    @pyaedt_function_handler()
-    def export_touchstone(
-        self, setup_name=None, sweep_name=None, file_name=None, variations=None, variations_value=None
-    ):
-        """Export the Touchstone file to a local folder.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the file is exported to the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-
-        Returns
-        -------
-        str
-            File name when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ExportNetworkData
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-        )
-
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design", setupname="setup")
     def export_fullwave_spice(
         self,
-        designname=None,
-        setupname=None,
+        design=None,
+        setup=None,
         is_solution_file=False,
         filename=None,
         passivity=False,
@@ -866,10 +821,10 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        designname : str, optional
+        design : str, optional
             Name of the design or the full path to the solution file if it is an imported file.
             The default is ``None``.
-        setupname : str, optional
+        setup : str, optional
             Name of the setup if it is a design. The default is ``None``.
         is_solution_file : bool, optional
             Whether it is an imported solution file. The default is ``False``.
@@ -900,20 +855,20 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.ExportFullWaveSpice
         """
-        if not designname:
-            designname = self.design_name
+        if not design:
+            design = self.design_name
         if not filename:
             filename = os.path.join(self.working_directory, self.design_name + ".sp")
         if is_solution_file:
-            setupname = designname
-            designname = ""
+            setup = design
+            design = ""
         else:
-            if not setupname:
-                setupname = self.nominal_sweep
+            if not setup:
+                setup = self.nominal_sweep
         self.onetwork_data_explorer.ExportFullWaveSpice(
-            designname,
+            design,
             is_solution_file,
-            setupname,
+            setup,
             "",
             [],
             [
@@ -972,13 +927,15 @@ class Circuit(FieldAnalysisCircuit, object):
 
         return filename
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        plot_name="name", curvenames="curves", solution_name="solution", variation_dict="variations"
+    )
     def create_touchstone_report(
         self,
-        plot_name,
-        curvenames,
-        solution_name=None,
-        variation_dict=None,
+        name,
+        curves,
+        solution=None,
+        variations=None,
         differential_pairs=False,
         subdesign_id=None,
     ):
@@ -987,16 +944,16 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Parameters
         ----------
-        plot_name : str
+        name : str
             Name of the plot.
-        curvenames : list
+        curves : list
             List of names for the curves to plot.
-        solution_name : str, optional
-            Name of the solution. The default value is ``None``.
-        variation_dict : dict, optional
-            Dictionary of variation names. The default value is ``None``.
+        solution : str, optional
+            Name of the solution. The default is ``None``.
+        variations : dict, optional
+            Dictionary of variation names. The default is ``None``.
         differential_pairs : bool, optional
-            Specify if the plot is on differential pairs traces. The default value is ``False``.
+            Whether the plot is on differential pairs traces. The default is ``False``.
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. The default value is ``None``.
         Returns
@@ -1009,65 +966,30 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oModule.CreateReport
         """
-        if not solution_name:
-            solution_name = self.nominal_sweep
-        variations = {"Freq": ["All"]}
-        if variation_dict:
-            for el in variation_dict:
-                variations[el] = [variation_dict[el]]
+        if not solution:
+            solution = self.nominal_sweep
+        variations_dict = {"Freq": ["All"]}
+        if variations:
+            for el in variations:
+                variations_dict[el] = [variations[el]]
         dif = None
         if differential_pairs:
             dif = "Differential Pairs"
         return self.post.create_report(
-            curvenames, solution_name, variations=variations, plotname=plot_name, context=dif, subdesign_id=subdesign_id
+            curves, solution, variations=variations_dict, context=dif, subdesign_id=subdesign_id, plot_name=name
         )
 
-    @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name=None, variation_dict=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the solution. The default value is ``None``.
-        variation_dict : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.existing_analysis_sweeps[0]
-
-        s_parameters = []
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, setup_name, variations=variation_dict)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
-
-    @pyaedt_function_handler()
-    def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
+    @pyaedt_function_handler(instance_name="instance", setup_name="setup")
+    def push_excitations(self, instance, thevenin_calculation=False, setup="LinearFrequency"):
         """Push excitations for a linear frequency setup.
 
         Parameters
         ----------
-        instance_name : str
+        instance : str
             Name of the instance.
         thevenin_calculation : bool, optional
             Whether to perform the Thevenin equivalent calculation. The default is ``False``.
-        setup_name : str, optional
+        setup : str, optional
             Name of the solution setup to push. The default is ``"LinearFrequency"``.
 
         Returns
@@ -1080,15 +1002,15 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oEditor.PushExcitations
         """
-        arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
+        arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup]
 
-        self.modeler.oeditor.PushExcitations(instance_name, arg)
+        self.modeler.oeditor.PushExcitations(instance, arg)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(instance_name="instance", setup_name="setup")
     def push_time_excitations(
         self,
-        instance_name,
+        instance,
         start=0.0,
         stop=0.0,
         harmonics=100,
@@ -1096,13 +1018,13 @@ class Circuit(FieldAnalysisCircuit, object):
         width_percentage=100.0,
         kaiser=0.0,
         correct_coherent_gain=True,
-        setup_name="NexximTransient",
+        setup="NexximTransient",
     ):
         """Push excitations for a transient setup.
 
         Parameters
         ----------
-        instance_name : str
+        instance : str
             Name of the instance.
         start : float, optional
             Start time in ``seconds``. The default is ``0.0``.
@@ -1118,8 +1040,8 @@ class Circuit(FieldAnalysisCircuit, object):
         kaiser : float, optional
             Kaiser value. The default is ``0.0``.
         correct_coherent_gain : bool, optional
-            Enable coherent gain correction. The default is ``True``.
-        setup_name : str, optional
+            Whether to enable the coherent gain correction. The default is ``True``.
+        setup : str, optional
             Name of the solution setup to push. The default is ``"LinearFrequency"``.
 
         Returns
@@ -1152,9 +1074,9 @@ class Circuit(FieldAnalysisCircuit, object):
                 correct_coherent_gain,
             ],
             "Sol:=",
-            setup_name,
+            setup,
         ]
-        self.modeler.oeditor.PushExcitations(instance_name, arg)
+        self.modeler.oeditor.PushExcitations(instance, arg)
         return True
 
     @pyaedt_function_handler()
@@ -1237,8 +1159,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_v.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_v.name)
+            self.excitation_objects[port].update()
         return source_v
 
     @pyaedt_function_handler()
@@ -1262,8 +1184,8 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         source_i = self.create_source(source_type="CurrentSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_i.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_i.name)
+            self.excitation_objects[port].update()
         return source_i
 
     @pyaedt_function_handler()
@@ -1287,19 +1209,19 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         source_p = self.create_source(source_type="PowerSin")
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_p.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_p.name)
+            self.excitation_objects[port].update()
         return source_p
 
-    @pyaedt_function_handler()
-    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, filepath):
-        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (.fds format).
+    @pyaedt_function_handler(filepath="input_file")
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, input_file):
+        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (FDS format).
 
         Parameters
         ----------
         ports : list
             List of circuit ports to assign to the frequency dependent excitation.
-        filepath : str
+        input_file : str
             Path to the frequency dependent file.
 
         Returns
@@ -1312,50 +1234,57 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oDesign.UpdateSources
         """
-        if not os.path.exists(filepath) or os.path.splitext(filepath)[1] != ".fds":
+        if not os.path.exists(input_file) or os.path.splitext(input_file)[1] != ".fds":
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.excitation_names for elem in ports):
+        if not all(elem in self.excitations for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
         source_freq = self.create_source(source_type="VoltageFrequencyDependent")
-        source_freq.fds_filename = filepath
+        source_freq.fds_filename = input_file
         for port in ports:
-            self.excitations[port].enabled_sources.append(source_freq.name)
-            self.excitations[port].update()
+            self.excitation_objects[port].enabled_sources.append(source_freq.name)
+            self.excitation_objects[port].update()
         return source_freq
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        positive_terminal="assignment",
+        negative_terminal="reference",
+        common_name="common_mode",
+        diff_name="differential_mode",
+        common_ref="common_reference",
+        diff_ref_z="differential_reference",
+    )
     def set_differential_pair(
         self,
-        positive_terminal,
-        negative_terminal,
-        common_name=None,
-        diff_name=None,
-        common_ref_z=25,
-        diff_ref_z=100,
+        assignment,
+        reference,
+        common_mode=None,
+        differential_mode=None,
+        common_reference=25,
+        differential_reference=100,
         active=True,
     ):
         """Add a differential pair definition.
 
         Parameters
         ----------
-        positive_terminal : str
+        assignment : str
             Name of the terminal to use as the positive terminal.
-        negative_terminal : str
+        reference : str
             Name of the terminal to use as the negative terminal.
-        common_name : str, optional
-            Name for the common mode. Default is ``None`` in which case a unique name is chosen.
-        diff_name : str, optional
-            Name for the differential mode. Default is ``None`` in which case a unique name is chosen.
-        common_ref_z : float, optional
-            Reference impedance for the common mode. Units are Ohm. Default is ``25``.
-        diff_ref_z : float, optional
+        common_mode : str, optional
+            Name for the common mode. The default is ``None``, in which case a unique name is assigned.
+        differential_mode : str, optional
+            Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
+        common_reference : float, optional
+            Reference impedance for the common mode. The units are Ohm. The default is ``25``.
+        differential_reference : float, optional
             Reference impedance for the differential mode. Units are Ohm. Default is ``100``.
         active : bool, optional
-            Set the differential pair as active. Default is ``True``.
+            Whether to set the differential pair as active. The default is ``True``.
 
         Returns
         -------
@@ -1366,28 +1295,28 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         >>> oDesign.SetDiffPairs
         """
-        if not diff_name:
-            diff_name = generate_unique_name("Diff")
-        if not common_name:
-            common_name = generate_unique_name("Comm")
+        if not differential_mode:
+            differential_mode = generate_unique_name("Diff")
+        if not common_mode:
+            common_mode = generate_unique_name("Comm")
 
         arg1 = [
             "Pos:=",
-            positive_terminal,
+            assignment,
             "Neg:=",
-            negative_terminal,
+            reference,
             "On:=",
             active,
             "matched:=",
             False,
             "Dif:=",
-            diff_name,
+            differential_mode,
             "DfZ:=",
-            [float(diff_ref_z), 0],
+            [float(differential_reference), 0],
             "Com:=",
-            common_name,
+            common_mode,
             "CmZ:=",
-            [float(common_ref_z), 0],
+            [float(common_reference), 0],
         ]
 
         arg = ["NAME:DiffPairs"]
@@ -1398,7 +1327,7 @@ class Circuit(FieldAnalysisCircuit, object):
         self.odesign.SaveDiffPairsToFile(tmpfile1)
         with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
-        num_diffs_before = len(lines)
+
         old_arg = []
         for line in lines:
             data = line.split(",")
@@ -1428,25 +1357,25 @@ class Circuit(FieldAnalysisCircuit, object):
 
         try:
             os.remove(tmpfile1)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
         try:
             self.odesign.SetDiffPairs(arg)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
-    @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, filename):
+    @pyaedt_function_handler(filename="input_file")
+    def load_diff_pairs_from_file(self, input_file):
         """Load differtential pairs definition from a file.
 
-        You can use the the ``save_diff_pairs_to_file`` method to obtain the file format.
+        You can use the ``save_diff_pairs_to_file()`` method to obtain the file format.
         New definitions are added only if they are compatible with the existing definitions in the project.
 
         Parameters
         ----------
-        filename : str
+        input_file : str
             Full qualified name of the file containing the differential pairs definition.
 
         Returns
@@ -1458,12 +1387,12 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         >>> oDesign.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(filename):  # pragma: no cover
-            raise ValueError("{}: The specified file could not be found.".format(filename))
+        if not os.path.isfile(input_file):  # pragma: no cover
+            raise ValueError("{}: The specified file could not be found.".format(input_file))
 
         try:
-            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open_file(filename, "r") as file:
+            new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
+            with open_file(input_file, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1471,20 +1400,20 @@ class Circuit(FieldAnalysisCircuit, object):
 
             self.odesign.LoadDiffPairsFromFile(new_file)
             os.remove(new_file)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
-    @pyaedt_function_handler()
-    def save_diff_pairs_to_file(self, filename):
-        """Save differtential pairs definition to file.
+    @pyaedt_function_handler(filename="output_file")
+    def save_diff_pairs_to_file(self, output_file):
+        """Save differential pairs definition to a file.
 
         If the file that is specified already exists, it is overwritten.
 
         Parameters
         ----------
-        filename : str
-            Full qualified name of the file containing the differential pairs definition.
+        output_file : str
+            Full qualified name of the file to save the differential pairs definition to.
 
         Returns
         -------
@@ -1495,59 +1424,59 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         >>> oDesign.SaveDiffPairsToFile
         """
-        self.odesign.SaveDiffPairsToFile(filename)
+        self.odesign.SaveDiffPairsToFile(output_file)
 
-        return os.path.isfile(filename)
+        return os.path.isfile(output_file)
 
-    @pyaedt_function_handler()
-    def add_netlist_datablock(self, netlist_file, datablock_name=None):
+    @pyaedt_function_handler(netlist_file="input_file", datablock_name="name")
+    def add_netlist_datablock(self, input_file, name=None):
         """Add a new netlist data block to the circuit schematic.
 
         Parameters
         ----------
-        netlist_file : str
+        input_file : str
             Path to the netlist file.
-        datablock_name : str, optional
+        name : str, optional
             Name of the data block.
 
         Returns
         -------
         bool
-            ``True`` if successfully created, ``False`` otherwise.
+            ``True`` when successful, ``False`` when failed.
         """
-        if not os.path.exists(netlist_file):
+        if not os.path.exists(input_file):
             self.logger.error("Netlist File doesn't exists")
             return False
-        if not datablock_name:
-            datablock_name = generate_unique_name("Inc")
+        if not name:
+            name = generate_unique_name("Inc")
 
         tmp_oModule = self.odesign.GetModule("DataBlock")
         tmp_oModule.AddNetlistDataBlock(
-            ["NAME:DataBlock", "name:=", datablock_name, "filename:=", netlist_file, "filelocation:=", 0]
+            ["NAME:DataBlock", "name:=", name, "filename:=", input_file, "filelocation:=", 0]
         )
         return True
 
-    @pyaedt_function_handler()
-    def browse_log_file(self, filepath=None):
-        """Save most recent log file into a new directory.
+    @pyaedt_function_handler(filepath="input_file")
+    def browse_log_file(self, input_file=None):
+        """Save the most recent log file in a new directory.
 
         Parameters
         ----------
-        filepath : str, optional
-            New log file path. The default is the pyaedt folder.
+        input_file : str, optional
+            File path to save the new log file to. The default is the ``pyaedt`` folder.
 
         Returns
         -------
         str
             File Path.
         """
-        if filepath and not os.path.exists(os.path.normpath(filepath)):
+        if input_file and not os.path.exists(os.path.normpath(input_file)):
             self.logger.error("Path does not exist.")
             return None
-        elif not filepath:
-            filepath = os.path.join(os.path.normpath(self.working_directory), "logfile")
-            if not os.path.exists(filepath):
-                os.mkdir(filepath)
+        elif not input_file:
+            input_file = os.path.join(os.path.normpath(self.working_directory), "logfile")
+            if not os.path.exists(input_file):
+                os.mkdir(input_file)
 
         results_path = os.path.join(os.path.normpath(self.results_directory), self.design_name)
         results_temp_path = os.path.join(results_path, "temp")
@@ -1565,9 +1494,9 @@ class Circuit(FieldAnalysisCircuit, object):
             self.logger.error("Design not solved")
             return None
 
-        shutil.copy(latest_file, filepath)
+        shutil.copy(latest_file, input_file)
         filename = os.path.basename(latest_file)
-        return os.path.join(filepath, filename)
+        return os.path.join(input_file, filename)
 
     @pyaedt_function_handler()
     def connect_circuit_models_from_multi_zone_cutout(
@@ -1614,7 +1543,7 @@ class Circuit(FieldAnalysisCircuit, object):
             inc = model_inc
             ind = 1
             for edb_file in list(edb_zones_dict.keys()):
-                hfss3d_layout_model = self.import_edb_in_circuit(edb_path=edb_file)
+                hfss3d_layout_model = self.import_edb_in_circuit(input_dir=edb_file)
                 model_position = [ind * inc, 0]
                 hfss3d_layout_model.location = model_position
                 ind += 1
@@ -1627,7 +1556,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 if model1:
                     try:
                         pin1 = next(pin for pin in model1.pins if pin.name == connection[0][1])
-                    except:
+                    except Exception:
                         print("failed to get pin1")
                 model2 = next(
                     cmp for cmp in list(self.modeler.schematic.components.values()) if connection[1][0] in cmp.name
@@ -1635,7 +1564,7 @@ class Circuit(FieldAnalysisCircuit, object):
                 if model2:
                     try:
                         pin2 = next(pin for pin in model2.pins if pin.name == connection[1][1])
-                    except:
+                    except Exception:
                         print("failed to get pin2")
                 if pin1 and pin2:
                     pin1.connect_to_component(component_pin=pin2, use_wire=False)
@@ -1656,27 +1585,27 @@ class Circuit(FieldAnalysisCircuit, object):
             return True
         return False
 
-    @pyaedt_function_handler()
-    def import_edb_in_circuit(self, edb_path):
+    @pyaedt_function_handler(edb_path="input_dir")
+    def import_edb_in_circuit(self, input_dir):
         """Import an EDB design inside a Circuit project.
 
         Parameters
         ----------
-        edb_path : str
+        input_dir : str
             Path of the EDB file to copy.
 
         Returns
         -------
             ``Hfss3DLayout`` component instance.
         """
-        hfss = Hfss3dLayout(edb_path)
+        hfss = Hfss3dLayout(input_dir)
         try:
             hfss.edit_cosim_options(
                 simulate_missing_solution=True,
                 setup_override_name=hfss.setup_names[0],
                 sweep_override_name=hfss.existing_analysis_sweeps[0].split(":")[1].strip(" "),
             )
-        except:
+        except Exception:
             self.logger.error(
                 "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
             )
@@ -1687,3 +1616,414 @@ class Circuit(FieldAnalysisCircuit, object):
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)
         return hfss_3d_layout_model
+
+    @pyaedt_function_handler(touchstone="input_file")
+    def create_tdr_schematic_from_snp(
+        self,
+        input_file,
+        probe_pins,
+        probe_ref_pins=None,
+        termination_pins=None,
+        differential=True,
+        rise_time=30,
+        use_convolution=True,
+        analyze=True,
+        design_name="LNA",
+    ):
+        """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the sNp file.
+        probe_pins : list
+            List of pins to attach to the probe components.
+        probe_ref_pins : list, optional
+            Reference pins to attach to probe components. The default is ``None``.
+            This parameter is valid only in differential TDR probes.
+        termination_pins : list, optional
+            Pins to terminate. The default is ``None``.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``, the
+            pins are single ended.
+        rise_time : float, int, optional
+            Rise time of the input pulse in picoseconds. The default is ``30``.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is ``True``.
+            If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+        Returns
+        -------
+
+        """
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(input_file, type(Hfss3dLayout)):
+            touchstone_path = input_file.export_touchstone()
+        else:
+            touchstone_path = input_file
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        center_x = sub.location[0]
+        center_y = sub.location[1]
+        left = 0
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_pins)
+        if differential:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
+        else:
+            tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
+        tdr_probe_names = []
+        for i, probe_pin in enumerate(probe_pins):
+            pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
+            left += 1
+            new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
+            try:
+                if isinstance(probe_pin, int):
+                    p_pin = probe_pin
+                    if differential:
+                        n_pin = probe_ref_pins[i]
+                else:
+                    p_pin = [k for k in sub.pins if k.name == probe_pin][0]
+                    if differential:
+                        n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
+            except IndexError:
+                self.logger.error("Failed to retrieve the pins.")
+                return False
+            for pin in sub.pins:
+                if not termination_pins or (pin.name in termination_pins):
+                    loc = pin.location
+                    loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
+                    if loc[0] < center_x:
+                        p1 = self.modeler.components.create_interface_port(
+                            name=pin.name, location=[loc[0] - loc1, loc[1]]
+                        )
+                    else:
+                        p1 = self.modeler.components.create_interface_port(
+                            name=pin.name, location=[loc[0] + loc1, loc[1]]
+                        )
+                    p1.pins[0].connect_to_component(pin, use_wire=True)
+
+            _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
+            self.modeler.move(first, [0, 100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            if differential:
+                _, first, second = new_tdr_comp.pins[1].connect_to_component(n_pin)
+                self.modeler.move(first, [0, -100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+            new_tdr_comp.parameters["Pulse_repetition"] = "{}ms".format(rise_time * 1e5)
+            new_tdr_comp.parameters["Rise_time"] = "{}ps".format(rise_time)
+            if differential:
+                tdr_probe_names.append("O(A{}:zdiff)".format(new_tdr_comp.id))
+            else:
+                tdr_probe_names.append("O(A{}:zl)".format(new_tdr_comp.id))
+
+        setup = self.create_setup(name="Transient_TDR", setup_type=self.SETUPS.NexximTransient)
+        setup.props["TransientData"] = ["{}ns".format(rise_time / 4), "{}ns".format(rise_time * 1000)]
+        if use_convolution:
+            self.oanalysis.AddAnalysisOptions(
+                [
+                    "NAME:DataBlock",
+                    "DataBlockID:=",
+                    8,
+                    "Name:=",
+                    "Nexxim Options",
+                    [
+                        "NAME:ModifiedOptions",
+                        "ts_convolution:=",
+                        True,
+                    ],
+                ]
+            )
+            setup.props["OptionName"] = "Nexxim Options"
+        if analyze:
+            self.analyze()
+            for trace in tdr_probe_names:
+                self.post.create_report(trace)
+        return True, tdr_probe_names
+
+    @pyaedt_function_handler(touchstone="input_file")
+    def create_lna_schematic_from_snp(
+        self,
+        input_file,
+        start_frequency=0,
+        stop_frequency=30,
+        auto_assign_diff_pairs=False,
+        separation=".",
+        pattern=None,
+        analyze=True,
+        design_name="LNA",
+    ):
+        """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
+
+        This method optionally assigns differential pairs automatically based on name pattern.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the sNp file.
+        start_frequency : int, float, optional
+            Start frequency in GHz of the LNA setup. The default is ``0``.
+        stop_frequency  : int, float, optional
+            Stop frequency in GHz of the LNA setup. The default is ``30``.
+        auto_assign_diff_pairs : bool
+            Whether to automatically assign differential pairs. The default is ``False``.
+        separation : str, optional
+            Character to use to separate port names. The default is ``"."``.
+        pattern : list, optional
+            Port name pattern. The default is ``["component", "pin", "net"]``.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if succeeded.
+            Second and third argument are respectively names of the differential and common mode pairs.
+        """
+        if pattern is None:
+            pattern = ["component", "pin", "net"]
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(input_file, type(Hfss3dLayout)):
+            touchstone_path = input_file.export_touchstone()
+        else:
+            touchstone_path = input_file
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+
+        ports = []
+        center = sub.location[0]
+        left = 0
+        right = 0
+        start = 1500
+        for pin in sub.pins:
+            loc = pin.location
+            if loc[0] < center:
+                delta = unit_converter(start + left * 200, input_units="mil", output_units=self.modeler.schematic_units)
+                new_loc = [loc[0] - delta, loc[1]]
+                left += 1
+            else:
+                delta = unit_converter(
+                    start + right * 200, input_units="mil", output_units=self.modeler.schematic_units
+                )
+                new_loc = [loc[0] + delta, loc[1]]
+                right += 1
+            port = self.modeler.components.create_interface_port(name=pin.name, location=new_loc)
+            port.pins[0].connect_to_component(assignment=pin, use_wire=True)
+            ports.append(port)
+        diff_pairs = []
+        comm_pairs = []
+        if auto_assign_diff_pairs:
+            for pin in ports:
+                pin_name = pin.name.split(separation)
+                if pin_name[-1][-1] == "P":
+                    component = pin_name[pattern.index("component")]
+                    net = pin_name[pattern.index("net")]
+                    for neg_pin in ports:
+                        neg_pin_name = neg_pin.name.split(separation)
+                        component_neg = neg_pin_name[pattern.index("component")]
+
+                        net_neg = neg_pin_name[pattern.index("net")]
+
+                        if component_neg == component and net_neg != net and net_neg[:-1] == net[:-1]:
+                            self.set_differential_pair(
+                                assignment=pin.name,
+                                reference=neg_pin.name,
+                                common_mode="COMMON_{}_{}".format(component, net),
+                                differential_mode="{}_{}".format(component, net),
+                                common_reference=25,
+                                differential_reference=100,
+                                active=True,
+                            )
+                            diff_pairs.append("{}_{}".format(component, net))
+                            comm_pairs.append("COMMON_{}_{}".format(component, net))
+                            break
+        setup1 = self.create_setup()
+        setup1.props["SweepDefinition"]["Data"] = "LINC {}GHz {}GHz 1001".format(start_frequency, stop_frequency)
+        if analyze:
+            self.analyze()
+        return True, diff_pairs, comm_pairs
+
+    @pyaedt_function_handler(touchstone="input_file")
+    def create_ami_schematic_from_snp(
+        self,
+        input_file,
+        ibis_ami,
+        component_name,
+        tx_buffer_name,
+        rx_buffer_name,
+        tx_pins,
+        tx_refs,
+        rx_pins,
+        rx_refs,
+        use_ibis_buffer=True,
+        differential=True,
+        bit_pattern=None,
+        unit_interval=None,
+        use_convolution=True,
+        analyze=False,
+        design_name="AMI",
+    ):
+        """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the sNp file.
+        ibis_ami : str
+            Full path to the IBIS file.
+        component_name : str
+            Component name in the IBIS file to assign to components.
+        tx_buffer_name : str
+            Transmission buffer name.
+        rx_buffer_name : str
+            Receiver buffer name
+        tx_pins : list
+            Pins to assign the transmitter IBIS.
+        tx_refs : list
+            Reference pins to assign the transmitter IBIS. This parameter is only used in
+            a differential configuration.
+        rx_pins : list
+            Pins to assign the receiver IBIS.
+        rx_refs : list
+            Reference pins to assign the receiver IBIS. This parameter is only used
+            in a differential configuration.
+        use_ibis_buffer : bool, optional
+            Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``,
+            the buffers are single-ended.
+        bit_pattern : str, optional
+            IBIS bit pattern.
+        unit_interval : str, optional
+            Unit interval of the bit pattern.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is
+            ``True``. If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"LNA"``.
+
+
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if successful.
+            Second and third arguments are respectively the names of the tx and rx mode probes.
+        """
+        if design_name in self.design_list:
+            self.logger.warning("Design already exists. Renaming.")
+            design_name = generate_unique_name(design_name)
+        self.insert_design(design_name)
+        if isinstance(input_file, type(Hfss3dLayout)):
+            touchstone_path = input_file.export_touchstone()
+        else:
+            touchstone_path = input_file
+
+        sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        center_x = sub.location[0]
+        center_y = sub.location[1]
+        left = 0
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_pins)
+        ibis = self.get_ibis_model_from_file(ibis_ami, is_ami=True)
+        tx_eye_names = []
+        rx_eye_names = []
+        for j in range(len(tx_pins)):
+            pos_x = unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
+            pos_y = unit_converter(delta_y - left * 800, input_units="mil", output_units=self.modeler.schematic_units)
+            left += 1
+
+            p_pin1 = [i for i in sub.pins if i.name == tx_pins[j]][0]
+            p_pin2 = [i for i in sub.pins if i.name == rx_pins[j]][0]
+            if differential:
+                n_pin1 = [i for i in sub.pins if i.name == tx_refs[j]][0]
+                n_pin2 = [i for i in sub.pins if i.name == rx_refs[j]][0]
+
+            if use_ibis_buffer:
+                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(tx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                tx = ibis.components[component_name].buffer[buf[0]].insert(center_x - pos_x, center_y + pos_y)
+                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(rx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                rx = ibis.components[component_name].buffer[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
+            else:
+                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(tx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                tx = ibis.components[component_name].pins[buf[0]].insert(center_x - pos_x, center_y + pos_y)
+                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(rx_buffer_name + "_")]
+                if differential:
+                    buf = [k for k in buf if k.endswith("diff")]
+                rx = ibis.components[component_name].pins[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
+
+            tx_eye_names.append(tx.parameters["probe_name"])
+            rx_eye_names.append(rx.parameters["source_name"])
+            _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
+            self.modeler.move(first, [0, 100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
+            self.modeler.move(first, [0, -100], "mil")
+            if second.pins[0].location[0] > center_x:
+                self.modeler.move(second, [1000, 0], "mil")
+            else:
+                self.modeler.move(second, [-1000, 0], "mil")
+            if differential:
+                _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
+                self.modeler.move(first, [0, -100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+                _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
+                self.modeler.move(first, [0, 100], "mil")
+                if second.pins[0].location[0] > center_x:
+                    self.modeler.move(second, [1000, 0], "mil")
+                else:
+                    self.modeler.move(second, [-1000, 0], "mil")
+            if unit_interval:
+                tx.parameters["UIorBPSValue"] = unit_interval
+            if bit_pattern:
+                tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
+
+        setup_ami = self.create_setup("AMI", "NexximAMI")
+        if use_convolution:
+            self.oanalysis.AddAnalysisOptions(
+                [
+                    "NAME:DataBlock",
+                    "DataBlockID:=",
+                    8,
+                    "Name:=",
+                    "Nexxim Options",
+                    [
+                        "NAME:ModifiedOptions",
+                        "ts_convolution:=",
+                        True,
+                    ],
+                ]
+            )
+            setup_ami.props["OptionName"] = "Nexxim Options"
+        if analyze:
+            setup_ami.analyze()
+        return True, tx_eye_names, rx_eye_names

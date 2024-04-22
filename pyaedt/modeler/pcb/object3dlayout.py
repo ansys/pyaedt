@@ -15,7 +15,7 @@ from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
-class Objec3DLayout(object):
+class Object3DLayout(object):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
@@ -40,15 +40,15 @@ class Objec3DLayout(object):
         """
         return self._primitives.model_units
 
-    @pyaedt_function_handler()
-    def change_property(self, property_val, names_list=None):
+    @pyaedt_function_handler(property_val="value", names_list="names")
+    def change_property(self, value, names=None):
         """Modify a property.
 
         Parameters
         ----------
-        property_val : list
+        value : list
 
-        names_list : list, optional
+        names : list, optional
              The default is ``None``.
 
         Returns
@@ -61,10 +61,10 @@ class Objec3DLayout(object):
 
         >>> oEditor.ChangeProperty
         """
-        vChangedProps = ["NAME:ChangedProps", property_val]
-        if names_list:  # pragma: no cover
+        vChangedProps = ["NAME:ChangedProps", value]
+        if names:  # pragma: no cover
             vPropServers = ["NAME:PropServers"]
-            for el in names_list:
+            for el in names:
                 vPropServers.append(el)
         else:
             vPropServers = ["NAME:PropServers", self.name]
@@ -74,15 +74,15 @@ class Objec3DLayout(object):
         self._oeditor.ChangeProperty(vOut)
         return True
 
-    @pyaedt_function_handler()
-    def set_property_value(self, property_name, property_value):
+    @pyaedt_function_handler(property_name="name", property_value="value")
+    def set_property_value(self, name, value):
         """Set a property value.
 
         Parameters
         ----------
-        property_name : str
+        name : str
             Name of the property.
-        property_value :
+        value :
             Value of the property.
 
         Returns
@@ -95,7 +95,7 @@ class Objec3DLayout(object):
 
         >>> oEditor.ChangeProperty
         """
-        vProp = ["NAME:" + property_name, "Value:=", property_value]
+        vProp = ["NAME:" + name, "Value:=", value]
         return self.change_property(vProp)
 
     @property
@@ -431,13 +431,14 @@ class ModelInfoRlc(object):
             return self.rlc_model_type[6]
 
 
-class Components3DLayout(Objec3DLayout, object):
+class Components3DLayout(Object3DLayout, object):
     """Contains components in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", edb_object=None):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
         self.edb_object = edb_object
+        self._pins = {}
 
     @property
     def part(self):
@@ -629,7 +630,13 @@ class Components3DLayout(Objec3DLayout, object):
 
     @pyaedt_function_handler()
     def set_solderball(
-        self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
+        self,
+        solderball_type="Cyl",
+        diameter="0.1mm",
+        mid_diameter="0.1mm",
+        height="0.2mm",
+        material="solder",
+        reference_offset=None,
     ):
         """Set solderball on the active component.
 
@@ -648,6 +655,8 @@ class Components3DLayout(Objec3DLayout, object):
             Ball height. The default is height="0.2mm".
         material : str, optional
             Ball material. The default is ``"solder"``.
+        reference_offset : str, optional.
+            Reference offset for port creation.  The default is ``"0mm"``
 
         Returns
         -------
@@ -656,28 +665,30 @@ class Components3DLayout(Objec3DLayout, object):
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
+        props = self._oeditor.GetComponentInfo(self.name)
+        model = ""
+        for p in props:
+            if "PortProp(" in p:
+                model = p
+                break
+        s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
+        m = re.search(s, model)
+        rsx = "0"
+        rsy = "0"
+        rsa = True
+        rh = "0"
+        if m:
+            rh = m.group(1)
+            rsx = m.group(3)
+            rsy = m.group(4)
+            if m.group(2) == "false":
+                rsa = False
+        if reference_offset:
+            rh = reference_offset
         if self._part_type_id == 4:
             prop_name = "ICProp:="
             if not self.die_enabled:
                 self.set_die_type()
-            props = self._oeditor.GetComponentInfo(self.name)
-            model = ""
-            for p in props:
-                if "PortProp(" in p:
-                    model = p
-                    break
-            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
-            m = re.search(s, model)
-            rh = "0"
-            rsx = "0"
-            rsy = "0"
-            rsa = True
-            if m:
-                rh = m.group(1)
-                rsx = m.group(3)
-                rsy = m.group(4)
-                if m.group(2) == "false":
-                    rsa = False
             s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
             m = re.search(s, model)
             dt = 0
@@ -739,6 +750,8 @@ class Components3DLayout(Objec3DLayout, object):
                             "sbn:=",
                             material,
                         ],
+                        "PortProp:=",
+                        ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy],
                     ],
                 ],
             ]
@@ -750,9 +763,13 @@ class Components3DLayout(Objec3DLayout, object):
 
         Returns
         -------
-        List of str
+        dict
+            Dictionary of pins.
         """
-        return list(self._oeditor.GetComponentPins(self.name))
+        if self._pins:
+            return self._pins
+        self._pins = {i: Pins3DLayout(self._primitives, i) for i in list(self._oeditor.GetComponentPins(self.name))}
+        return self._pins
 
     @property
     def model(self):
@@ -789,11 +806,11 @@ class Nets3DLayout(object):
         return comps
 
 
-class Pins3DLayout(Objec3DLayout, object):
+class Pins3DLayout(Object3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""
 
     def __init__(self, primitives, name="", component_name=None, is_pin=True):
-        Objec3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
+        Object3DLayout.__init__(self, primitives, "pin" if is_pin else "via")
         self.componentname = "-".join(name.split("-")[:-1]) if not component_name else component_name
         self.name = name
         self.is_pin = is_pin
@@ -847,11 +864,11 @@ class Pins3DLayout(Objec3DLayout, object):
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
 
 
-class Geometries3DLayout(Objec3DLayout, object):
+class Geometries3DLayout(Object3DLayout, object):
     """Contains geometries in HFSS 3D Layout."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
-        Objec3DLayout.__init__(self, primitives, prim_type)
+        Object3DLayout.__init__(self, primitives, prim_type)
         self.is_void = is_void
         self._name = name
 
@@ -884,7 +901,7 @@ class Geometries3DLayout(Objec3DLayout, object):
             self.change_property(vMaterial)
             self._name = value
             self._primitives._lines[self._name] = self
-        except:
+        except Exception:
             pass
 
     @property
@@ -1027,13 +1044,13 @@ class Geometries3DLayout(Objec3DLayout, object):
         result = [(edge[0][1] + edge[1][1]) for edge in self.edges]
         return result.index(max(result))
 
-    @pyaedt_function_handler()
-    def get_property_value(self, propertyname):
+    @pyaedt_function_handler(propertyname="name")
+    def get_property_value(self, name):
         """Retrieve a property value.
 
         Parameters
         ----------
-        propertyname : str
+        name : str
             Name of the property
 
         Returns
@@ -1046,7 +1063,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
         >>> oEditor.GetPropertyValue
         """
-        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, propertyname)
+        return self._oeditor.GetPropertyValue("BaseElementTab", self.name, name)
 
     @property
     def negative(self):
@@ -1514,7 +1531,7 @@ class Line3dLayout(Geometries3DLayout, object):
         point : list
             [x,y] coordinate point to add.
         position : int, optional
-            Position of the new point.
+            Position of the new point in the geometry.
 
         Returns
         -------
@@ -1524,14 +1541,7 @@ class Line3dLayout(Geometries3DLayout, object):
             [self._primitives.number_with_units(j, self.object_units) for j in i] for i in (self.center_line.values())
         ]
         points.insert(position, [self._primitives.number_with_units(j, self.object_units) for j in point])
-        line = self._primitives.create_line(
-            self.placement_layer,
-            points,
-            lw=self.width,
-            start_style=self.start_cap_type,
-            end_style=self.end_cap_type,
-            net_name=self.net_name,
-        )
+        line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])
         line.name = line_name
@@ -1559,14 +1569,7 @@ class Line3dLayout(Geometries3DLayout, object):
             for i, v in self.center_line.items()
             if i not in point
         ]
-        line = self._primitives.create_line(
-            self.placement_layer,
-            points,
-            lw=self.width,
-            start_style=self.start_cap_type,
-            end_style=self.end_cap_type,
-            net_name=self.net_name,
-        )
+        line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])
         line.name = line_name
@@ -1636,13 +1639,13 @@ class Points3dLayout(object):
         else:
             return [self.point.GetX(), self.point.GetY()]
 
-    @pyaedt_function_handler()
-    def move(self, new_position):
+    @pyaedt_function_handler(new_position="location")
+    def move(self, location):
         """Move actual point to new location.
 
         Parameters
         ----------
-        new_position : List
+        location : List
             New point location.
 
         Returns
@@ -1651,11 +1654,11 @@ class Points3dLayout(object):
             ``True`` if the point was moved to the new location.
 
         """
-        if self.point.Move(self._primitives.oeditor.Point().Set(new_position[0], new_position[1])):
+        if self.point.Move(self._primitives.oeditor.Point().Set(location[0], location[1])):
             return True
 
 
-class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
+class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     """Contains 3d Components in HFSS 3D Layout.
 
     Parameters
@@ -1668,7 +1671,7 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
     """
 
     def __init__(self, primitives, name=""):
-        Objec3DLayout.__init__(self, primitives, "component")
+        Object3DLayout.__init__(self, primitives, "component")
         self.name = name
 
     @property
@@ -2052,10 +2055,10 @@ class Padstack(object):
         arg.append([])
         return arg
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(layername="layer")
     def add_layer(
         self,
-        layername="Start",
+        layer="Start",
         pad_hole=None,
         antipad_hole=None,
         thermal_hole=None,
@@ -2068,7 +2071,7 @@ class Padstack(object):
 
         Parameters
         ----------
-        layername : str, optional
+        layer : str, optional
             Name of layer. The default is ``"Start"``.
         pad_hole : pyaedt.modeler.Object3d.Object3d.PDSHole
             Pad hole object, which you can create with the :func:`add_hole` method.
@@ -2092,29 +2095,28 @@ class Padstack(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        layer_id = None
-        if layername in self.layers:
+        if layer in self.layers:
             return False
         else:
             if not layer_id:
                 layer_id = len(list(self.layers.keys())) + 1
-            new_layer = self.PDSLayer(layername, layer_id)
+            new_layer = self.PDSLayer(layer, layer_id)
             new_layer.pad = pad_hole
             new_layer.antipad = antipad_hole
             new_layer.thermal = thermal_hole
             new_layer.connectionx = connx
             new_layer.connectiony = conny
             new_layer.connectiondir = conndir
-            self.layers[layername] = new_layer
+            self.layers[layer] = new_layer
             return True
 
-    @pyaedt_function_handler()
-    def add_hole(self, holetype="Cir", sizes=[1], xpos=0, ypos=0, rot=0):
+    @pyaedt_function_handler(holetype="hole_type", xpos="x", ypos="y", rot="rotation")
+    def add_hole(self, hole_type="Cir", sizes=None, x=0, y=0, rotation=0):
         """Add a hole.
 
         Parameters
         ----------
-        holetype : str, optional
+        hole_type : str, optional
             Type of the hole. Options are:
 
             * No" - no pad
@@ -2133,11 +2135,11 @@ class Padstack(object):
         sizes : array, optional
             Array of sizes, which depends on the object. For example, a circle ias an array
             of one element. The default is ``[1]``.
-        xpos :
+        x :
             Position on the X axis. The default is ``0``.
-        ypos :
+        y :
             Position on the Y axis. The default is ``0``.
-        rot : float, optional
+        rotation : float, optional
             Angle rotation in degrees. The default is ``0``.
 
         Returns
@@ -2146,13 +2148,15 @@ class Padstack(object):
             Hole object to be passed to padstack or layer.
 
         """
+        if sizes is None:
+            sizes = [1]
         hole = self.PDSHole()
-        hole.shape = holetype
+        hole.shape = hole_type
         sizes = [_dim_arg(i, self.units) for i in sizes if type(i) is int or float]
         hole.sizes = sizes
-        hole.x = _dim_arg(xpos, self.units)
-        hole.y = _dim_arg(ypos, self.units)
-        hole.rot = _dim_arg(rot, "deg")
+        hole.x = _dim_arg(x, self.units)
+        hole.y = _dim_arg(y, self.units)
+        hole.rot = _dim_arg(rotation, "deg")
         return hole
 
     @pyaedt_function_handler()

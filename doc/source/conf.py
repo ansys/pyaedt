@@ -64,7 +64,7 @@ class PrettyPrintDirective(Directive):
 def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
         exclude = True if ".. deprecated::" in obj.__doc__ else False
-    except:
+    except Exception:
         exclude = False
     exclude2 = True if name.startswith("_") else False
     return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
@@ -100,6 +100,7 @@ project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
+switcher_version = get_version_match(__version__)
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -129,12 +130,12 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_jinja",
-    "recommonmark",
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
     "numpydoc",
     "ansys_sphinx_theme.extension.linkcode",
+    "recommonmark",
 ]
 
 # Intersphinx mapping
@@ -267,7 +268,7 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
     # necessary for pyvista when building the sphinx gallery
     pyvista.BUILDING_GALLERY = True
 
-    if config["run_examples"]:
+    if config["run_examples"] and not os.environ.get("PYAEDT_SKIP_EXAMPLE", False):
         extensions.append("sphinx_gallery.gen_gallery")
 
         sphinx_gallery_conf = {
@@ -356,6 +357,18 @@ html_theme_options = {
         },
     },
 }
+
+# Only add button to download PDF in dev mode as the building PDF for the full documentation is too long
+if switcher_version == "dev":
+    html_theme_options["icon_links"].append(
+        {
+            "name": "Download documentation in PDF",
+            # NOTE: Changes to this URL must be reflected in CICD documentation build
+            "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
+            # noqa: E501
+            "icon": "fa fa-file-pdf fa-fw",
+        }
+    )
 
 html_static_path = ["_static"]
 

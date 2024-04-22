@@ -11,6 +11,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
@@ -185,19 +186,19 @@ class Maxwell(object):
             props.update(arg_slice_table)
             return self.change_design_settings(props)
 
-    @pyaedt_function_handler()
-    def set_core_losses(self, objects, value=False):
+    @pyaedt_function_handler(objects="assignment", value="core_loss_on_field")
+    def set_core_losses(self, assignment, core_loss_on_field=False):
         """Whether to enable core losses for a set of objects.
 
-        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calulcations
+        For ``EddyCurrent`` and ``Transient`` solver designs, core losses calculations
         may be included in the simulation on any object that has a corresponding
         core loss definition (with core loss coefficient settings) in the material library.
 
         Parameters
         ----------
-        objects : list, str
+        assignment : list, str
             List of object to apply core losses to.
-        value : bool, optional
+        core_loss_on_field : bool, optional
             Whether to enable ``Consider core loss effect on field`` for the given list. The default is
             ``False``.
 
@@ -216,22 +217,22 @@ class Maxwell(object):
         Set core losses in Maxwell 3D.
 
         >>> from pyaedt import Maxwell3d
-        >>> maxwell_3d = Maxwell3d()
-        >>> maxwell_3d.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"], True)
-
+        >>> m3d = Maxwell3d()
+        >>> m3d.set_core_losses(assignment=["PQ_Core_Bottom", "PQ_Core_Top"],core_loss_on_field=True)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type in ["EddyCurrent", "Transient"]:
-            objects = self.modeler.convert_to_selections(objects, True)
-            self.oboundary.SetCoreLoss(objects, value)
+            assignment = self.modeler.convert_to_selections(assignment, True)
+            self.oboundary.SetCoreLoss(assignment, core_loss_on_field)
             return True
         else:
             raise Exception("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(sources="assignment")
     def assign_matrix(
         self,
-        sources,
+        assignment,
         matrix_name=None,
         turns=None,
         return_path=None,
@@ -247,7 +248,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        sources : list, str
+        assignment : list, str
             List of sources to assign a matrix to.
         matrix_name : str, optional
             Name of the matrix. The default is ``None``.
@@ -276,30 +277,31 @@ class Maxwell(object):
         --------
         Set matrix in a Maxwell magnetostatic analysis.
 
-        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", close_on_exit=True, specified_version="2022.1")
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY",specified_version="2022.1",close_on_exit=True)
         >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
         >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
         >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
         >>> coil4 = m2d.modeler.create_rectangle([32, 1.5, 0], [8, 3], is_covered=True, name="Coil_4")
-        >>> current1 = m2d.assign_current("Coil_1", amplitude=1, swap_direction=False, name="Current1")
-        >>> current2 = m2d.assign_current("Coil_2", amplitude=1, swap_direction=True, name="Current2")
-        >>> current3 = m2d.assign_current("Coil_3", amplitude=1, swap_direction=True, name="Current3")
-        >>> current4 = m2d.assign_current("Coil_4", amplitude=1, swap_direction=True, name="Current4")
+        >>> current1 = m2d.assign_current(assignment="Coil_1",amplitude=1,swap_direction=False,name="Current1")
+        >>> current2 = m2d.assign_current(assignment="Coil_2",amplitude=1,swap_direction=True,name="Current2")
+        >>> current3 = m2d.assign_current(assignment="Coil_3",amplitude=1,swap_direction=True,name="Current3")
+        >>> current4 = m2d.assign_current(assignment="Coil_4",amplitude=1,swap_direction=True,name="Current4")
         >>> group_sources = {"Group1_Test": ["Current1", "Current3"], "Group2_Test": ["Current2", "Current4"]}
         >>> selection = ['Current1', 'Current2', 'Current3', 'Current4']
         >>> turns = [5, 1, 2, 3]
-        >>> L = m2d.assign_matrix(sources=selection, matrix_name="Test2", turns=turns, group_sources=group_sources)
+        >>> L = m2d.assign_matrix(assignment=selection,matrix_name="Test2",turns=turns,group_sources=group_sources)
 
         Set matrix in a Maxwell DC Conduction analysis.
-        >>> m2d.assign_voltage(["Port1"], amplitude=1, name="1V")
-        >>> m2d.assign_voltage(["Port2"], amplitude=0, name="0V")
-        >>> m2d.assign_matrix(sources=['1V'], group_sources=['0V'], matrix_name="Matrix1")
-
+        >>> m2d.assign_voltage(["Port1"],amplitude=1,name="1V")
+        >>> m2d.assign_voltage(["Port2"],amplitude=0,name="0V")
+        >>> m2d.assign_matrix(assignment=['1V'],matrix_name="Matrix1",group_sources=['0V'])
+        >>> m2d.release_desktop(True, True)
         """
 
-        sources = self.modeler.convert_to_selections(sources, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type in ["Electrostatic", "ACConduction", "DCConduction"]:
-            turns = ["1"] * len(sources)
+            turns = ["1"] * len(assignment)
             branches = None
             if self.design_type == "Maxwell 2D":
                 if group_sources:
@@ -308,7 +310,7 @@ class Maxwell(object):
                         group_sources = group_sources[first_key]
                         self.logger.warning("First Ground is selected")
                     group_sources = self.modeler.convert_to_selections(group_sources, True)
-                    if any(item in group_sources for item in sources):
+                    if any(item in group_sources for item in assignment):
                         self.logger.error("Ground must be different than selected sources")
                         return False
             else:
@@ -320,7 +322,7 @@ class Maxwell(object):
                     if isinstance(group_sources, (dict, OrderedDict)):
                         new_group = group_sources.copy()
                         for element in new_group:
-                            if not all(item in sources for item in group_sources[element]):
+                            if not all(item in assignment for item in group_sources[element]):
                                 self.logger.warning("Sources in group " + element + " are not selected")
                                 group_sources.pop(element)
                         if not branches or len(group_sources) != len(
@@ -345,31 +347,31 @@ class Maxwell(object):
             else:
                 group_sources = None
                 branches = None
-                turns = ["1"] * len(sources)
+                turns = ["1"] * len(assignment)
                 self.logger.info("Infinite is the only return path option in EddyCurrent.")
-                return_path = ["infinite"] * len(sources)
+                return_path = ["infinite"] * len(assignment)
 
         if self.solution_type not in ["Transient", "ElectricTransient"]:
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
-            if not turns or len(sources) != len(self.modeler.convert_to_selections(turns, True)):
+            if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
                 if turns:
                     turns = self.modeler.convert_to_selections(turns, True)
-                    num = abs(len(sources) - len(self.modeler.convert_to_selections(turns, True)))
-                    if len(sources) < len(self.modeler.convert_to_selections(turns, True)):
+                    num = abs(len(assignment) - len(self.modeler.convert_to_selections(turns, True)))
+                    if len(assignment) < len(self.modeler.convert_to_selections(turns, True)):
                         turns = turns[:-num]
                     else:
                         new_element = [turns[0]] * num
                         turns.extend(new_element)
                 else:
-                    turns = ["1"] * len(sources)
+                    turns = ["1"] * len(assignment)
             else:
                 turns = self.modeler.convert_to_selections(turns, True)
-            if not return_path or len(sources) != len(self.modeler.convert_to_selections(return_path, True)):
-                return_path = ["infinite"] * len(sources)
+            if not return_path or len(assignment) != len(self.modeler.convert_to_selections(return_path, True)):
+                return_path = ["infinite"] * len(assignment)
             else:
                 return_path = self.modeler.convert_to_selections(return_path, True)
-            if any(item in return_path for item in sources):
+            if any(item in return_path for item in assignment):
                 self.logger.error("Return path specified must not be included in sources")
                 return False
 
@@ -380,19 +382,19 @@ class Maxwell(object):
             else:
                 props = OrderedDict({"MatrixEntry": OrderedDict({"MatrixEntry": []}), "MatrixGroup": []})
 
-            for element in range(len(sources)):
+            for element in range(len(assignment)):
                 if self.solution_type == "Magnetostatic" and self.design_type == "Maxwell 2D":
                     prop = OrderedDict(
                         {
-                            "Source": sources[element],
+                            "Source": assignment[element],
                             "NumberOfTurns": turns[element],
                             "ReturnPath": return_path[element],
                         }
                     )
                 elif self.solution_type == "EddyCurrent":
-                    prop = OrderedDict({"Source": sources[element], "ReturnPath": return_path[element]})
+                    prop = OrderedDict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
-                    prop = OrderedDict({"Source": sources[element], "NumberOfTurns": turns[element]})
+                    prop = OrderedDict({"Source": assignment[element], "NumberOfTurns": turns[element]})
                 props["MatrixEntry"]["MatrixEntry"].append(prop)
 
             if group_sources:
@@ -460,9 +462,9 @@ class Maxwell(object):
             source_dir = self.pyaedt_dir
 
         if os.path.exists(ctl_file_path) and keep_modifications:
-            with open(ctl_file_path, "r") as fi:
+            with open_file(ctl_file_path, "r") as fi:
                 existing_data = fi.readlines()
-            with open(ctl_file_path, "w") as fo:
+            with open_file(ctl_file_path, "w") as fo:
                 first_line = True
                 for line in existing_data:
                     if first_line:
@@ -499,19 +501,23 @@ class Maxwell(object):
         )
         return True
 
-    @pyaedt_function_handler()
-    def eddy_effects_on(self, object_list, activate_eddy_effects=True, activate_displacement_current=True):
+    @pyaedt_function_handler(
+        object_list="assignment",
+        activate_eddy_effects="enable_eddy_effects",
+        activate_displacement_current="enable_displacement_current",
+    )
+    def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
         For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
         ----------
-        object_list : list, str
+        assignment : list, str
             List of objects to assign eddy effects to.
-        activate_eddy_effects : bool, optional
+        enable_eddy_effects : bool, optional
             Whether to activate eddy effects. The default is ``True``.
-        activate_displacement_current : bool, optional
+        enable_displacement_current : bool, optional
             Whether to activate the displacement current. The default is ``True``.
             Valid only for Eddy Current solvers.
 
@@ -529,20 +535,20 @@ class Maxwell(object):
 
         EddyVector = ["NAME:EddyEffectVector"]
         if self.modeler._is3d:
-            if not activate_eddy_effects:
-                activate_displacement_current = False
+            if not enable_eddy_effects:
+                enable_displacement_current = False
             for obj in solid_objects_names:
                 if self.solution_type == "EddyCurrent":
-                    if obj in object_list:
+                    if obj in assignment:
                         EddyVector.append(
                             [
                                 "NAME:Data",
                                 "Object Name:=",
                                 obj,
                                 "Eddy Effect:=",
-                                activate_eddy_effects,
+                                enable_eddy_effects,
                                 "Displacement Current:=",
-                                activate_displacement_current,
+                                enable_displacement_current,
                             ]
                         )
                     else:
@@ -558,14 +564,14 @@ class Maxwell(object):
                             ]
                         )
                 if self.solution_type == "Transient":
-                    if obj in object_list:
+                    if obj in assignment:
                         EddyVector.append(
                             [
                                 "NAME:Data",
                                 "Object Name:=",
                                 obj,
                                 "Eddy Effect:=",
-                                activate_eddy_effects,
+                                enable_eddy_effects,
                             ]
                         )
                     else:
@@ -580,14 +586,14 @@ class Maxwell(object):
                         )
         else:
             for obj in solid_objects_names:
-                if obj in object_list:
+                if obj in assignment:
                     EddyVector.append(
                         [
                             "NAME:Data",
                             "Object Name:=",
                             obj,
                             "Eddy Effect:=",
-                            activate_eddy_effects,
+                            enable_eddy_effects,
                         ]
                     )
                 else:
@@ -603,15 +609,15 @@ class Maxwell(object):
         self.oboundary.SetEddyEffect(["NAME:Eddy Effect Setting", EddyVector])
         return True
 
-    @pyaedt_function_handler()
-    def setup_y_connection(self, windings_name=None):
-        """Setup the Y connection.
+    @pyaedt_function_handler(windings_name="assignment")
+    def setup_y_connection(self, assignment=None):
+        """Set up the Y connection.
 
         Parameters
         ----------
-        windings_name : list, optional
+        assignment : list, optional
             List of windings. For example, ``["PhaseA", "PhaseB", "PhaseC"]``.
-            The default value is ``None``, in which case the design has no Y connection.
+            The default is ``None``, in which case the design has no Y connection.
 
         Returns
         -------
@@ -629,30 +635,31 @@ class Maxwell(object):
         This creates one ``YConnection`` group containing these three phases.
 
         >>> from pyaedt import Maxwell2d
-        >>> aedtapp = Maxwell2d("Motor_EM_R2019R3.aedt")
-        >>> aedtapp.set_active_design("Basis_Model_For_Test")
-        >>> aedtapp.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        >>> m2d = Maxwell2d("Motor_EM_R2019R3.aedt")
+        >>> m2d.set_active_design("Basis_Model_For_Test")
+        >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
+        >>> m2d.release_desktop(True, True)
         """
 
         if self.solution_type not in ["Transient"]:
             self.logger.error("Y connections only available for Transient solutions.")
             return False
 
-        if windings_name:
-            connection = ["NAME:YConnection", "Windings:=", ",".join(windings_name)]
-            windings = ["NAME:YConnection", connection]
-            self.oboundary.SetupYConnection(windings)
+        if assignment:
+            connection = ["NAME:YConnection", "Windings:=", ",".join(assignment)]
+            assignment = ["NAME:YConnection", connection]
+            self.oboundary.SetupYConnection(assignment)
         else:
             self.oboundary.SetupYConnection()
         return True
 
-    @pyaedt_function_handler()
-    def assign_current(self, object_list, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
+    @pyaedt_function_handler(object_list="assignment")
+    def assign_current(self, assignment, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
         """Assign the source of the current.
 
         Parameters
         ----------
-        object_list : list, str
+        assignment : list, str
             List of objects to assign the current source to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
@@ -684,9 +691,10 @@ class Maxwell(object):
         --------
 
         >>> from pyaedt import Maxwell3d
-        >>> app = pyaedt.Maxwell3d(solution_type="ElectroDCConduction")
-        >>> cylinder= app.modeler.create_cylinder("X", [0,0,0],10, 100, 250)
-        >>> current = app.assign_current(cylinder.top_face_x.id, amplitude= "2mA")
+        >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
+        >>> cylinder= m3d.modeler.create_cylinder("X",[0,0,0],10,100,250)
+        >>> current = m3d.assign_current(cylinder.top_face_x.id,amplitude="2mA")
+        >>> m3d.release_desktop(True, True)
         """
 
         if isinstance(amplitude, (int, float)):
@@ -695,19 +703,19 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Current")
 
-        object_list = self.modeler.convert_to_selections(object_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if self.is3d:
-            if type(object_list[0]) is int:
+            if type(assignment[0]) is int:
                 props = OrderedDict(
                     {
-                        "Faces": object_list,
+                        "Faces": assignment,
                         "Current": amplitude,
                     }
                 )
             else:
                 props = OrderedDict(
                     {
-                        "Objects": object_list,
+                        "Objects": assignment,
                         "Current": amplitude,
                     }
                 )
@@ -723,8 +731,8 @@ class Maxwell(object):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
-            if type(object_list[0]) is str:
-                props = OrderedDict({"Objects": object_list, "Current": amplitude, "IsPositive": swap_direction})
+            if type(assignment[0]) is str:
+                props = OrderedDict({"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction})
             else:
                 self.logger.warning("Input must be a 2D object.")
                 return False
@@ -734,10 +742,10 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(band_object="assignment")
     def assign_translate_motion(
         self,
-        band_object,
+        assignment,
         coordinate_system="Global",
         axis="Z",
         positive_movement=True,
@@ -758,7 +766,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        band_object : str
+        assignment : str
             Object container.
         coordinate_system : str, optional
             Coordinate system name. The default is ``"Global"``.
@@ -808,7 +816,7 @@ class Maxwell(object):
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
         if not motion_name:
             motion_name = generate_unique_name("Motion")
-        object_list = self.modeler.convert_to_selections(band_object, True)
+        object_list = self.modeler.convert_to_selections(assignment, True)
         props = OrderedDict(
             {
                 "Move Type": "Translate",
@@ -834,10 +842,10 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(band_object="assignment")
     def assign_rotate_motion(
         self,
-        band_object,
+        assignment,
         coordinate_system="Global",
         axis="Z",
         positive_movement=True,
@@ -858,7 +866,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        band_object : str,
+        assignment : str,
             Object container.
         coordinate_system : str, optional
             Coordinate system name. The default is ``"Global"``.
@@ -906,7 +914,7 @@ class Maxwell(object):
         assert self.solution_type == SOLUTIONS.Maxwell3d.Transient, "Motion applies only to the Transient setup."
         names = list(self.omodelsetup.GetMotionSetupNames())
         motion_name = "MotionSetup" + str(len(names) + 1)
-        object_list = self.modeler.convert_to_selections(band_object, True)
+        object_list = self.modeler.convert_to_selections(assignment, True)
         props = OrderedDict(
             {
                 "Move Type": "Rotate",
@@ -932,13 +940,13 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_voltage(self, face_list, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces in Maxwell 3D or a list of Objects in Maxwell 2D.
+    @pyaedt_function_handler(face_list="assignment")
+    def assign_voltage(self, assignment, amplitude=1, name=None):
+        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects in Maxwell 2D.
 
         Parameters
         ----------
-        face_list : list
+        assignment : list
             List of faces or objects to assign a voltage source to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
@@ -961,27 +969,33 @@ class Maxwell(object):
 
         if not name:
             name = generate_unique_name("Voltage")
-        face_list = self.modeler.convert_to_selections(face_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if self.design_type == "Maxwell 2D":
-            props = OrderedDict({"Objects": face_list, "Value": amplitude})
+            props = OrderedDict({"Objects": assignment, "Value": amplitude})
         else:
-            props = OrderedDict({"Faces": face_list, "Voltage": amplitude})
+            if len(assignment) == 1:
+                if isinstance(assignment[0], str) and assignment[0] in self.modeler.object_names:
+                    props = OrderedDict({"Objects": assignment, "Voltage": amplitude})
+                else:
+                    props = OrderedDict({"Faces": assignment, "Value": amplitude})
+            else:
+                props = OrderedDict({"Faces": assignment, "Voltage": amplitude})
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_voltage_drop(self, face_list, amplitude=1, swap_direction=False, name=None):
+    @pyaedt_function_handler(face_list="assignment")
+    def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
         The voltage drop applies only to sheet objects.
 
         Parameters
         ----------
-        face_list : list
+        assignment : list
             List of faces to assign a voltage drop to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
@@ -1006,24 +1020,24 @@ class Maxwell(object):
 
         if not name:
             name = generate_unique_name("VoltageDrop")
-        face_list = self.modeler.convert_to_selections(face_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        props = OrderedDict({"Faces": face_list, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
+        props = OrderedDict({"Faces": assignment, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(coil_terminals="assignment", current_value="current", res="resistance", ind="inductance")
     def assign_winding(
         self,
-        coil_terminals=None,
+        assignment=None,
         winding_type="Current",
         is_solid=True,
-        current_value=1,
-        res=0,
-        ind=0,
+        current=1,
+        resistance=0,
+        inductance=0,
         voltage=0,
         parallel_branches=1,
         phase=0,
@@ -1033,7 +1047,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        coil_terminals : list, optional
+        assignment : list, optional
             List of faces to create the coil terminal on.
             The default is ``None``.
         winding_type : str, optional
@@ -1042,12 +1056,12 @@ class Maxwell(object):
         is_solid : bool, optional
             Whether the winding is the solid type. The default is ``True``. If ``False``,
             the winding is the stranded type.
-        current_value : float, optional
+        current : float, optional
             Value of the current in amperes. The default is ``1``.
-        res : float, optional
+        resistance : float, optional
             Resistance in ohms. The default is ``0``.
-        ind : float, optional
-            Henry (H). The default is ``0``.
+        inductance : float, optional
+            Inductance in Henry (H). The default is ``0``.
         voltage : float, optional
             Voltage value. The default is ``0``.
         parallel_branches : int, optional
@@ -1076,9 +1090,9 @@ class Maxwell(object):
             {
                 "Type": winding_type,
                 "IsSolid": is_solid,
-                "Current": self.modeler._arg_with_dim(current_value, "A"),
-                "Resistance": self.modeler._arg_with_dim(res, "ohm"),
-                "Inductance": self.modeler._arg_with_dim(ind, "H"),
+                "Current": self.modeler._arg_with_dim(current, "A"),
+                "Resistance": self.modeler._arg_with_dim(resistance, "ohm"),
+                "Inductance": self.modeler._arg_with_dim(inductance, "H"),
                 "Voltage": self.modeler._arg_with_dim(voltage, "V"),
                 "ParallelBranchesNum": str(parallel_branches),
                 "Phase": self.modeler._arg_with_dim(phase, "deg"),
@@ -1087,12 +1101,12 @@ class Maxwell(object):
         bound = BoundaryObject(self, name, props, "Winding")
         if bound.create():
             self._boundaries[bound.name] = bound
-            if coil_terminals is None:
-                coil_terminals = []
-            if type(coil_terminals) is not list:
-                coil_terminals = [coil_terminals]
+            if assignment is None:
+                assignment = []
+            if type(assignment) is not list:
+                assignment = [assignment]
             coil_names = []
-            for coil in coil_terminals:
+            for coil in assignment:
                 c = self.assign_coil(coil)
                 if c:
                     coil_names.append(c.name)
@@ -1102,15 +1116,15 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def add_winding_coils(self, windingname, coil_names):
+    @pyaedt_function_handler(windingname="assignment", coil_names="coils")
+    def add_winding_coils(self, assignment, coils):
         """Add coils to the winding.
 
         Parameters
         ----------
-        windingname : str
+        assignment : str
             Name of the winding.
-        coil_names : list
+        coils : list
             List of the coil names.
 
         Returns
@@ -1125,20 +1139,20 @@ class Maxwell(object):
         >>> oModule.AddWindingCoils
         """
         if self.modeler._is3d:
-            self.oboundary.AddWindingTerminals(windingname, coil_names)
+            self.oboundary.AddWindingTerminals(assignment, coils)
         else:
-            self.oboundary.AddWindingCoils(windingname, coil_names)
+            self.oboundary.AddWindingCoils(assignment, coils)
         return True
 
-    @pyaedt_function_handler()
-    def assign_coil(self, input_object, conductor_number=1, polarity="Positive", name=None):
+    @pyaedt_function_handler(input_object="assignment", conductor_number="conductors_number")
+    def assign_coil(self, assignment, conductors_number=1, polarity="Positive", name=None):
         """Assign coils to a list of objects or face IDs.
 
         Parameters
         ----------
-        input_object : list
+        assignment : list
             List of objects or face IDs.
-        conductor_number : int, optional
+        conductors_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.
@@ -1161,22 +1175,22 @@ class Maxwell(object):
         else:
             point = True
 
-        input_object = self.modeler.convert_to_selections(input_object, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if not name:
             name = generate_unique_name("Coil")
 
-        if type(input_object[0]) is str:
+        if type(assignment[0]) is str:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Objects": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
+                    {"Objects": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
             else:
                 props2 = OrderedDict(
                     {
-                        "Objects": input_object,
-                        "Conductor number": str(conductor_number),
+                        "Objects": assignment,
+                        "Conductor number": str(conductors_number),
                         "PolarityType": polarity.lower(),
                     }
                 )
@@ -1184,7 +1198,7 @@ class Maxwell(object):
         else:
             if self.modeler._is3d:
                 props2 = OrderedDict(
-                    {"Faces": input_object, "Conductor number": str(conductor_number), "Point out of terminal": point}
+                    {"Faces": assignment, "Conductor number": str(conductors_number), "Point out of terminal": point}
                 )
                 bound = BoundaryObject(self, name, props2, "CoilTerminal")
 
@@ -1196,8 +1210,8 @@ class Maxwell(object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_force(self, input_object, reference_cs="Global", is_virtual=True, force_name=None):
+    @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
+    def assign_force(self, assignment, coordinate_system="Global", is_virtual=True, force_name=None):
         """Assign a force to one or more objects.
 
         Force assignment can be calculated based upon the solver type.
@@ -1208,9 +1222,9 @@ class Maxwell(object):
 
         Parameters
         ----------
-        input_object : str, list
+        assignment : str, list
             One or more objects to assign the force to.
-        reference_cs : str, optional
+        coordinate_system : str, optional
             Name of the reference coordinate system. The default is ``"Global"``.
         is_virtual : bool, optional
             Whether the force is virtual. The default is ``True.``
@@ -1233,39 +1247,42 @@ class Maxwell(object):
 
         Assign virtual force to a magnetic object:
 
-        >>> iron_object = m3d.modeler.create_box([0, 0, 0], [2, 10, 10], name="iron")
-        >>> magnet_object = m3d.modeler.create_box([10, 0, 0], [2, 10, 10], name="magnet")
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> iron_object = m3d.modeler.create_box([0, 0, 0],[2, 10, 10],name="iron")
+        >>> magnet_object = m3d.modeler.create_box([10, 0, 0],[2, 10, 10],name="magnet")
         >>> m3d.assign_material(iron_object, "iron")
         >>> m3d.assign_material(magnet_object, "NdFe30")
-        >>> m3d.assign_force("iron", force_name="force_iron", is_virtual=True)
+        >>> m3d.assign_force("iron",is_virtual=True,force_name="force_iron")
 
         Assign Lorentz force to a conductor:
 
-        >>> conductor1 = m3d.modeler.create_box([0, 0, 0], [1, 1, 10], name="conductor1")
-        >>> conductor2 = m3d.modeler.create_box([10, 0, 0], [1, 1, 10], name="conductor2")
+        >>> conductor1 = m3d.modeler.create_box([0, 0, 0],[1, 1, 10],name="conductor1")
+        >>> conductor2 = m3d.modeler.create_box([10, 0, 0],[1, 1, 10],name="conductor2")
         >>> m3d.assign_material(conductor1, "copper")
         >>> m3d.assign_material(conductor2, "copper")
-        >>> m3d.assign_force("conductor1", force_name="force_copper", is_virtual=False) # conductor, use Lorentz force
+        >>> m3d.assign_force("conductor1",is_virtual=False,force_name="force_copper") # conductor, use Lorentz force
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in ["ACConduction", "DCConduction"]:
-            input_object = self.modeler.convert_to_selections(input_object, True)
+            assignment = self.modeler.convert_to_selections(assignment, True)
             if not force_name:
                 force_name = generate_unique_name("Force")
             if self.design_type == "Maxwell 3D":
                 prop = OrderedDict(
                     {
                         "Name": force_name,
-                        "Reference CS": reference_cs,
+                        "Reference CS": coordinate_system,
                         "Is Virtual": is_virtual,
-                        "Objects": input_object,
+                        "Objects": assignment,
                     }
                 )
             else:
                 prop = OrderedDict(
                     {
                         "Name": force_name,
-                        "Reference CS": reference_cs,
-                        "Objects": input_object,
+                        "Reference CS": coordinate_system,
+                        "Objects": assignment,
                     }
                 )
 
@@ -1274,12 +1291,12 @@ class Maxwell(object):
                 self._boundaries[bound.name] = bound
                 return bound
         else:
-            self.logger.error("Solution Type has not Matrix Parameter")
+            self.logger.error("Solution type has no 'Matrix' parameter.")
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(input_object="assignment", reference_cs="coordinate_system")
     def assign_torque(
-        self, input_object, reference_cs="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
+        self, assignment, coordinate_system="Global", is_positive=True, is_virtual=True, axis="Z", torque_name=None
     ):
         """Assign a torque to one or more objects.
 
@@ -1291,9 +1308,9 @@ class Maxwell(object):
 
         Parameters
         ----------
-        input_object : str or list
+        assignment : str or list
            One or more objects to assign the torque to.
-        reference_cs : str, optional
+        coordinate_system : str, optional
             Name of the reference coordinate system. The default is ``"Global"``.
         is_positive : bool, optional
             Whether the torque is positive. The default is ``True``.
@@ -1318,7 +1335,7 @@ class Maxwell(object):
         if self.solution_type not in ["ACConduction", "DCConduction"]:
             if self.solution_type == "Transient":
                 is_virtual = True
-            input_object = self.modeler.convert_to_selections(input_object, True)
+            assignment = self.modeler.convert_to_selections(assignment, True)
             if not torque_name:
                 torque_name = generate_unique_name("Torque")
             if self.design_type == "Maxwell 3D":
@@ -1326,19 +1343,19 @@ class Maxwell(object):
                     {
                         "Name": torque_name,
                         "Is Virtual": is_virtual,
-                        "Coordinate System": reference_cs,
+                        "Coordinate System": coordinate_system,
                         "Axis": axis,
                         "Is Positive": is_positive,
-                        "Objects": input_object,
+                        "Objects": assignment,
                     }
                 )
             else:
                 prop = OrderedDict(
                     {
                         "Name": torque_name,
-                        "Coordinate System": reference_cs,
+                        "Coordinate System": coordinate_system,
                         "Is Positive": is_positive,
-                        "Objects": input_object,
+                        "Objects": assignment,
                     }
                 )
 
@@ -1400,15 +1417,15 @@ class Maxwell(object):
         self.analyze()
         return True
 
-    @pyaedt_function_handler()
-    def set_initial_angle(self, motion_setup, val):
+    @pyaedt_function_handler(val="angle")
+    def set_initial_angle(self, motion_setup, angle):
         """Set the initial angle.
 
         Parameters
         ----------
         motion_setup : str
             Name of the motion setup.
-        val : float
+        angle : float
             Value of the angle in degrees.
 
         Returns
@@ -1427,14 +1444,14 @@ class Maxwell(object):
                 [
                     "NAME:Maxwell2D",
                     ["NAME:PropServers", "ModelSetup:" + motion_setup],
-                    ["NAME:ChangedProps", ["NAME:Initial Position", "Value:=", val]],
+                    ["NAME:ChangedProps", ["NAME:Initial Position", "Value:=", angle]],
                 ],
             ]
         )
         return True
 
-    @pyaedt_function_handler()
-    def assign_symmetry(self, entity_list, symmetry_name=None, is_odd=True):
+    @pyaedt_function_handler(entity_list="assignment")
+    def assign_symmetry(self, assignment, symmetry_name=None, is_odd=True):
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
@@ -1442,7 +1459,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        entity_list : list
+        assignment : list
             List IDs or :class:`pyaedt.modeler.Object3d.EdgePrimitive` or
             :class:`pyaedt.modeler.Object3d.FacePrimitive`.
         symmetry_name : str, optional
@@ -1466,13 +1483,13 @@ class Maxwell(object):
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
 
-            if entity_list:
+            if assignment:
                 if self.design_type == "Maxwell 2D":
-                    entity_list = self.modeler.convert_to_selections(entity_list, True)
-                    prop = OrderedDict({"Name": symmetry_name, "Edges": entity_list, "IsOdd": is_odd})
+                    assignment = self.modeler.convert_to_selections(assignment, True)
+                    prop = OrderedDict({"Name": symmetry_name, "Edges": assignment, "IsOdd": is_odd})
                 else:
-                    entity_list = self.modeler.convert_to_selections(entity_list, True)
-                    prop = OrderedDict({"Name": symmetry_name, "Faces": entity_list, "IsOdd": is_odd})
+                    assignment = self.modeler.convert_to_selections(assignment, True)
+                    prop = OrderedDict({"Name": symmetry_name, "Faces": assignment, "IsOdd": is_odd})
             else:
                 msg = "At least one edge must be provided."
                 ValueError(msg)
@@ -1482,21 +1499,25 @@ class Maxwell(object):
                 self._boundaries[bound.name] = bound
                 return bound
             return True
-        except:
+        except Exception:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        entities="assignment",
+        coordinate_system_name="coordinate_system",
+        coordinate_system_cartesian="coordinate_system_type",
+    )
     def assign_current_density(
         self,
-        entities,
+        assignment,
         current_density_name=None,
         phase="0deg",
         current_density_x="0",
         current_density_y="0",
         current_density_z="0",
         current_density_2d="0",
-        coordinate_system_name="Global",
-        coordinate_system_cartesian="Cartesian",
+        coordinate_system="Global",
+        coordinate_system_type="Cartesian",
     ):
         """Assign current density to a single or list of entities.
 
@@ -1504,7 +1525,7 @@ class Maxwell(object):
 
         Parameters
         ----------
-        entities : list
+        assignment : list
             Objects to assign the current to.
         current_density_name : str, optional
             Current density name.
@@ -1525,10 +1546,10 @@ class Maxwell(object):
         current_density_2d : str, optional
             Current density 2D value.
             Default value is 0 A/m2.
-        coordinate_system_name : str, optional
+        coordinate_system : str, optional
             Coordinate system name.
             Default value is 'Global'.
-        coordinate_system_cartesian : str, optional
+        coordinate_system_type : str, optional
             Coordinate system cartesian.
             Possible values can be ``"Cartesian"``, ``"Cylindrical"``, and ``"Spherical"``.
             Default value is ``"Cartesian"``.
@@ -1544,11 +1565,11 @@ class Maxwell(object):
             if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
                 self.logger.error("Invalid phase unit.")
                 return False
-            if coordinate_system_cartesian not in ["Cartesian", "Cylindrical", "Spherical"]:
+            if coordinate_system_type not in ["Cartesian", "Cylindrical", "Spherical"]:
                 self.logger.error("Invalid coordinate system.")
                 return False
 
-            objects_list = self.modeler.convert_to_selections(entities, True)
+            objects_list = self.modeler.convert_to_selections(assignment, True)
 
             try:
                 if self.modeler._is3d:
@@ -1565,8 +1586,8 @@ class Maxwell(object):
                                 "CurrentDensityX": current_density_x,
                                 "CurrentDensityY": current_density_y,
                                 "CurrentDensityZ": current_density_z,
-                                "CoordinateSystem Name": coordinate_system_name,
-                                "CoordinateSystem Type": coordinate_system_cartesian,
+                                "CoordinateSystem Name": coordinate_system,
+                                "CoordinateSystem Type": coordinate_system_type,
                             }
                         )
                         bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
@@ -1578,8 +1599,8 @@ class Maxwell(object):
                                 "CurrentDensityX": current_density_x,
                                 "CurrentDensityY": current_density_y,
                                 "CurrentDensityZ": current_density_z,
-                                "CoordinateSystem Name": coordinate_system_name,
-                                "CoordinateSystem Type": coordinate_system_cartesian,
+                                "CoordinateSystem Name": coordinate_system,
+                                "CoordinateSystem Type": coordinate_system_type,
                             }
                         )
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
@@ -1614,15 +1635,15 @@ class Maxwell(object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return True
-            except:
+            except Exception:
                 self.logger.error("Couldn't assign current density to desired list of objects.")
                 return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
 
-    @pyaedt_function_handler()
-    def assign_radiation(self, input_object, radiation_name=None):
+    @pyaedt_function_handler(input_object="assignment", radiation_name="radiation")
+    def assign_radiation(self, assignment, radiation=None):
         """Assign radiation boundary to one or more objects.
 
         Radiation assignment can be calculated based upon the solver type.
@@ -1630,9 +1651,9 @@ class Maxwell(object):
 
         Parameters
         ----------
-        input_object : str, list
+        assignment : str, list
             One or more objects to assign the radiation to.
-        radiation_name : str, optional
+        radiation : str, optional
             Name of the force. The default is ``None``, in which case the default
             name is used.
 
@@ -1651,35 +1672,38 @@ class Maxwell(object):
 
         Assign radiation boundary to one box and one face:
 
-        >>> box1 = m3d.modeler.create_box([0, 0, 0], [2, 10, 10])
-        >>> box2 = m3d.modeler.create_box([10, 0, 0], [2, 10, 10])
-        >>> m3d.assign_radiation([box1, box2.faces[0]], force_name="radiation_boundary")
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box1 = m3d.modeler.create_box([0, 0, 0],[2, 10, 10])
+        >>> box2 = m3d.modeler.create_box([10, 0, 0],[2, 10, 10])
+        >>> m3d.assign_radiation([box1, box2.faces[0]])
+        >>> m3d.release_desktop(True, True)
         """
 
         if self.solution_type in ["EddyCurrent"]:
-            if not radiation_name:
-                radiation_name = generate_unique_name("Radiation")
-            elif radiation_name in self.modeler.get_boundaries_name():
-                radiation_name = generate_unique_name(radiation_name)
+            if not radiation:
+                radiation = generate_unique_name("Radiation")
+            elif radiation in self.modeler.get_boundaries_name():
+                radiation = generate_unique_name(radiation)
 
-            listobj = self.modeler.convert_to_selections(input_object, True)
+            listobj = self.modeler.convert_to_selections(assignment, True)
             props = {"Objects": [], "Faces": []}
             for sel in listobj:
                 if isinstance(sel, str):
                     props["Objects"].append(sel)
                 elif isinstance(sel, int):
                     props["Faces"].append(sel)
-            bound = BoundaryObject(self, radiation_name, props, "Radiation")
+            bound = BoundaryObject(self, radiation, props, "Radiation")
             if bound.create():
                 self._boundaries[bound.name] = bound
                 return bound
         self.logger.error("Excitation applicable only to Eddy current.")
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objects="assignment")
     def enable_harmonic_force(
         self,
-        objects,
+        assignment,
         force_type=0,
         window_function="Rectangular",
         use_number_of_last_cycles=True,
@@ -1690,16 +1714,16 @@ class Maxwell(object):
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of object names for force calculations.
         force_type : int, optional
-            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+            Force type. Options are ``0`` for objects, ``1`` for surface, and ``2`` for volumetric.
         window_function : str, optional
             Windowing function. Default is ``"Rectangular"``.
             Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
             ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
         use_number_of_last_cycles : bool, optional
-            Use number Of last cycles for force calculations. Default is ``True``.
+            Use number of last cycles for force calculations. Default is ``True``.
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
         calculate_force : sr, optional
@@ -1716,11 +1740,11 @@ class Maxwell(object):
         if self.solution_type != "Transient":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
-        objects = self.modeler.convert_to_selections(objects, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         self.odesign.EnableHarmonicForceCalculation(
             [
                 "EnabledObjects:=",
-                objects,
+                assignment,
                 "ForceType:=",
                 force_type,
                 "WindowFunctionType:=",
@@ -1745,10 +1769,10 @@ class Maxwell(object):
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(layout_component_name="assignment")
     def enable_harmonic_force_on_layout_component(
         self,
-        layout_component_name,
+        assignment,
         nets,
         force_type=0,
         window_function="Rectangular",
@@ -1766,10 +1790,10 @@ class Maxwell(object):
 
         Parameters
         ----------
-        layout_component_name : str
-            Name of layout component to apply harmonic forces.
+        assignment : str
+            Name of layout component to apply harmonic forces to.
         nets : dict
-            Dictionary containing nets and layers on which enable harmonic forces.
+            Dictionary containing nets and layers to enable harmonic forces on.
         force_type : int, optional
             Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
         window_function : str, optional
@@ -1829,7 +1853,7 @@ class Maxwell(object):
         args2 = [
             "NAME:NetsAndLayersChoices",
             [
-                "NAME:" + layout_component_name,
+                "NAME:" + assignment,
                 [
                     "NAME:NetLayerSetMap",
                 ],
@@ -1844,11 +1868,11 @@ class Maxwell(object):
         self.odesign.EnableHarmonicForceCalculation(args)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup")
     def export_element_based_harmonic_force(
         self,
         output_directory=None,
-        setup_name=None,
+        setup=None,
         start_frequency=None,
         stop_frequency=None,
         number_of_frequency=None,
@@ -1858,8 +1882,8 @@ class Maxwell(object):
         Parameters
         ----------
         output_directory : str, optional
-            The path for the output directory. If ``None`` pyaedt working dir will be used.
-        setup_name : str, optional
+            Path for the output directory. If ``None`` pyaedt working dir will be used.
+        setup : str, optional
             Name of the solution setup. If ``None``, the nominal setup is used.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
@@ -1878,8 +1902,8 @@ class Maxwell(object):
             return False
         if not output_directory:
             output_directory = self.working_directory
-        if not setup_name:
-            setup_name = self.setups[0].name
+        if not setup:
+            setup = self.setups[0].name
         freq_option = 1
         f1 = -1
         f2 = -1
@@ -1890,7 +1914,7 @@ class Maxwell(object):
         elif number_of_frequency:
             freq_option = 3
             f1 = number_of_frequency
-        self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
+        self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
 
     @pyaedt_function_handler
@@ -1940,22 +1964,23 @@ class Maxwell(object):
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
         return True
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Maxwell 3D or 2D.
 
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.
+        Optional arguments are passed using the ``setup_type`` and ``name``
+        parameters.
         Keyword names correspond to the ``setuptype`` corresponding to the native AEDT API.
         The list of keywords here is not exhaustive.
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        setup_type : int, str, optional
             Type of the setup. Depending on the solution type, options are
             ``"AC Conduction"``, ``"DC Conduction"``, ``"EddyCurrent"``,
             ``"Electric Transient"``, ``"Electrostatic"``, ``"Magnetostatic"``,
             and ``Transient"``.
-        setupname : str, optional
+        name : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on the setup chosen.
@@ -1973,18 +1998,18 @@ class Maxwell(object):
         Examples
         --------
         >>> from pyaedt import Maxwell3d
-        >>> app = Maxwell3d()
-        >>> app.create_setup(setupname="My_Setup", setuptype="EddyCurrent", MaximumPasses=10, PercentError=2 )
-
+        >>> m3d = Maxwell3d()
+        >>> m3d.create_setup(name="My_Setup",setup_type="EddyCurrent",MaximumPasses=10,PercentError=2)
+        >>> m3d.release_desktop(True, True)
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -2058,13 +2083,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     project, which is named ``mymaxwell.aedt``.
 
     >>> from pyaedt import Maxwell3d
-    >>> aedtapp = Maxwell3d("mymaxwell.aedt")
+    >>> m3d = Maxwell3d("mymaxwell.aedt")
     PyAEDT INFO: Added design ...
 
-    Create an instance of Maxwell 3D using the 2023 R2 release and open
+    Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> aedtapp = Maxwell3d(specified_version="2023.2", projectname="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(specified_version="2024.1", projectname="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """
@@ -2112,10 +2137,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
     def _init_from_design(self, *args, **kwargs):
-        self.__init__(*args, **kwargs)
+        self.__init__(**kwargs)
 
-    @pyaedt_function_handler()
-    def assign_insulating(self, geometry_selection, insulation_name=None):
+    @pyaedt_function_handler(geometry_selection="assignment", insulation_name="insulation")
+    def assign_insulating(self, assignment, insulation=None):
         """Create an insulating boundary condition.
 
         This boundary condition is used to model very thin sheets of perfectly insulating material between
@@ -2123,10 +2148,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        geometry_selection : str or int
+        assignment : str or int
             Objects or faces to apply the insulating boundary to.
-        insulation_name : str, optional
-            Name of the insulation. The default is ``None`` in which case a unique name is chosen.
+        insulation : str, optional
+            Name of the insulation. The default is ``None``, in which case a unique name is assigned.
 
         Returns
         -------
@@ -2143,24 +2168,28 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Create a box and assign insulating boundary to it.
 
-        >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
-        >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
-        >>> type(insulating_assignment)
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> insulated_box = m3d.modeler.create_box([50, 0, 50],[294, 294, 19],name="InsulatedBox")
+        >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box,insulation="InsulatingExample")
+        >>> m3d.release_desktop(True, True)
         """
 
         if self.solution_type in [
+            "Magnetostatic",
             "EddyCurrent",
             "Transient",
             "TransientAPhiFormulation",
             "DCConduction",
+            "ACConduction",
             "ElectroDCConduction",
         ]:
-            if not insulation_name:
-                insulation_name = generate_unique_name("Insulation")
-            elif insulation_name in self.modeler.get_boundaries_name():
-                insulation_name = generate_unique_name(insulation_name)
+            if not insulation:
+                insulation = generate_unique_name("Insulation")
+            elif insulation in self.modeler.get_boundaries_name():
+                insulation = generate_unique_name(insulation)
 
-            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            listobj = self.modeler.convert_to_selections(assignment, True)
             props = {"Objects": [], "Faces": []}
             for sel in listobj:
                 if isinstance(sel, str):
@@ -2168,18 +2197,18 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 elif isinstance(sel, int):
                     props["Faces"].append(sel)
 
-            return self._create_boundary(insulation_name, props, "Insulating")
+            return self._create_boundary(insulation, props, "Insulating")
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(geometry_selection="assignment", impedance_name="impedance")
     def assign_impedance(
         self,
-        geometry_selection,
+        assignment,
         material_name=None,
         permeability=0.0,
         conductivity=None,
         non_linear_permeability=False,
-        impedance_name=None,
+        impedance=None,
     ):
         """Create an impedance boundary condition for Transient or Eddy Current solvers.
 
@@ -2188,11 +2217,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        geometry_selection : str
+        assignment : str
             Faces or objects to apply the impedance boundary to.
         material_name : str, optional
-            If it is different from ``None``, then material properties values will be extracted from
-            the named material in the list of materials available. The default value is ``None``.
+            Material name. The default is ``None``. If other than ``None``, material properties values are extracted
+            from the named material in the list of materials available. The default value is ``None``.
         permeability : float, optional
             Permeability of the material.The default value is ``0.0``.
         conductivity : float, optional
@@ -2200,8 +2229,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         non_linear_permeability : bool, optional
             If the option ``material_name`` is activated, the permeability can either be linear or not.
             The default value is ``False``.
-        impedance_name : str, optional
-            Name of the impedance. The default is ``None`` in which case a unique name is chosen.
+        impedance : str, optional
+            Name of the impedance. The default is ``None``, in which case a unique name is assigned.
 
         Returns
         -------
@@ -2218,24 +2247,24 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Create a box and assign impedance boundary to the faces.
 
-        >>> shield = m3d.modeler.create_box([-50, -50, -50], [294, 294, 19], name="shield")
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> shield = m3d.modeler.create_box([-50, -50, -50],[294, 294, 19],name="shield")
         >>> shield_faces = m3d.modeler.select_allfaces_fromobjects(["shield"])
-        >>> impedance_assignment = m3d.assign_impedance(shield_faces, "ShieldImpedance")
-
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
-
+        >>> impedance_assignment = m3d.assign_impedance(assignment=shield_faces,impedance="ShieldImpedance")
+        >>> m3d.release_desktop(True, True)
         """
 
         if self.solution_type in [
             "EddyCurrent",
             "Transient",
         ]:
-            if not impedance_name:
-                impedance_name = generate_unique_name("Impedance")
-            elif impedance_name in self.modeler.get_boundaries_name():
-                impedance_name = generate_unique_name(impedance_name)
+            if not impedance:
+                impedance = generate_unique_name("Impedance")
+            elif impedance in self.modeler.get_boundaries_name():
+                impedance = generate_unique_name(impedance)
 
-            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            listobj = self.modeler.convert_to_selections(assignment, True)
             props = {"Objects": [], "Faces": []}
             for sel in listobj:
                 if isinstance(sel, str):
@@ -2254,16 +2283,16 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 props["Permeability"] = permeability
                 props["Conductivity"] = conductivity
 
-            return self._create_boundary(impedance_name, props, "Impedance")
+            return self._create_boundary(impedance, props, "Impedance")
         return False
 
-    @pyaedt_function_handler()
-    def assign_current_density_terminal(self, entities, current_density_name=None):
+    @pyaedt_function_handler(entities="assignment")
+    def assign_current_density_terminal(self, assignment, current_density_name=None):
         """Assign current density terminal to a single or list of entities for an Eddy Current or Magnetostatic solver.
 
         Parameters
         ----------
-        entities : list
+        assignment : list
             Objects to assign the current to.
         current_density_name : str, optional
             Current density name.
@@ -2278,7 +2307,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             if current_density_name is None:
                 current_density_name = generate_unique_name("CurrentDensity")
 
-            objects_list = self.modeler.convert_to_selections(entities, True)
+            objects_list = self.modeler.convert_to_selections(assignment, True)
 
             existing_2d_objects_list = [x.name for x in self.modeler.object_list if not x.is3d]
             if [x for x in objects_list if x not in existing_2d_objects_list]:
@@ -2302,7 +2331,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     self._boundaries[bound.name] = bound
                     return bound
                 return False
-            except:
+            except Exception:
                 return False
         else:
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
@@ -2355,14 +2384,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             for path in paths:
                 conduction_paths[path] = list(self.oboundary.GetConductionPathObjects(path))
             return conduction_paths
-        except:
+        except Exception:
             return conduction_paths
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(master_entity="independent", slave_entity="dependent")
     def assign_master_slave(
         self,
-        master_entity,
-        slave_entity,
+        independent,
+        dependent,
         u_vector_origin_coordinates_master,
         u_vector_pos_coordinates_master,
         u_vector_origin_coordinates_slave,
@@ -2376,9 +2405,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        master_entity : int
+        independent : int
             ID of the master entity.
-        slave_entity : int
+        dependent : int
             ID of the slave entity.
         u_vector_origin_coordinates_master : list
             Master's list of U vector origin coordinates.
@@ -2410,8 +2439,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignDependent
         """
         try:
-            master_entity = self.modeler.convert_to_selections(master_entity, True)
-            slave_entity = self.modeler.convert_to_selections(slave_entity, True)
+            independent = self.modeler.convert_to_selections(independent, True)
+            dependent = self.modeler.convert_to_selections(dependent, True)
             if not bound_name:
                 bound_name_m = generate_unique_name("Independent")
                 bound_name_s = generate_unique_name("Dependent")
@@ -2449,7 +2478,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 }
             )
             props2 = OrderedDict(
-                {"Faces": master_entity, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
+                {"Faces": independent, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
             )
             bound = BoundaryObject(self, bound_name_m, props2, "Independent")
             if bound.create():
@@ -2465,7 +2494,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
                 props2 = OrderedDict(
                     {
-                        "Faces": slave_entity,
+                        "Faces": dependent,
                         "CoordSysVector": u_slave_vector_coordinates,
                         "ReverseU": reverse_slave,
                         "Independent": bound_name_m,
@@ -2478,17 +2507,17 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     return bound, bound2
                 else:
                     return bound, False
-        except:
+        except Exception:
             return False, False
 
-    @pyaedt_function_handler
-    def assign_flux_tangential(self, objects_list, flux_name=None):
+    @pyaedt_function_handler(objects_list="assignment")
+    def assign_flux_tangential(self, assignment, flux_name=None):
         # type : (list, str = None) -> pyaedt.modules.Boundary.BoundaryObject
         """Assign a flux tangential boundary for a transient A-Phi solver.
 
         Parameters
         ----------
-        objects_list : list
+        assignment : list
             List of objects to assign the flux tangential boundary condition to.
         flux_name : str, optional
             Name of the flux tangential boundary. The default is ``None``,
@@ -2509,14 +2538,17 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Create a box and assign a flux tangential boundary to one of its faces.
 
-        >>> box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        >>> flux_tangential = maxwell3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box = m3d.modeler.create_box([50, 0, 50],[294, 294, 19],name="Box")
+        >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0],"FluxExample")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type != "TransientAPhiFormulation":
             self.logger.error("Flux tangential boundary can only be assigned to a transient APhi solution type.")
             return False
 
-        objects_list = self.modeler.convert_to_selections(objects_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
         if not flux_name:
             flux_name = generate_unique_name("FluxTangential")
@@ -2524,14 +2556,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             flux_name = generate_unique_name(flux_name)
 
         props = {"NAME": flux_name, "Faces": []}
-        for sel in objects_list:
+        for sel in assignment:
             props["Faces"].append(sel)
 
         return self._create_boundary(flux_name, props, "FluxTangential")
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(nets_layers_mapping="net_layers", reference_cs="coordinate_system")
     def assign_layout_force(
-        self, nets_layers_mapping, component_name, reference_cs="Global", force_name=None, include_no_layer=True
+        self, net_layers, component_name, coordinate_system="Global", force_name=None, include_no_layer=True
     ):
         # type: (dict, str, str, str, bool) -> bool
         """Assign the layout force to a component in a Transient A-Phi solver.
@@ -2539,14 +2571,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        nets_layers_mapping : dict
-            Each <layer, net> pair represents the object(s) in the intersection of corresponding layer and net.
-            Net name is dictionary's key, layers name is the list of layer names.
+        net_layers : dict
+            Each <net, layer> pair represents the objects in the intersection of the corresponding net and layer.
+            The layer name is from the list of layer names. The net name is the dictionary's key.
         component_name : str
-            Name of the 3d component to assign the layout force to.
-        reference_cs : str, optional
+            Name of the 3D component to assign the layout force to.
+        coordinate_system : str, optional
             Reference coordinate system.
-            If not provided the global one will be set.
+            If not provided, the global one is used.
         force_name : str, optional
             Name of the layout force.
             If not provided a random name will be generated.
@@ -2567,18 +2599,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         --------
 
         Create a dictionary to give as an input to assign_layout_force method.
-        >>> nets_layers = {}
-        >>> nets_layers["<no-net>"] = ["PWR","TOP","UNNAMED_000","UNNAMED_002"]
-        >>> nets_layers["GND"] = ["LYR_1","LYR_2","UNNAMED_006"]
+        >>> nets_layers = {"<no-net>": ["PWR","TOP","UNNAMED_000","UNNAMED_002"],
+        >>>                "GND": ["LYR_1","LYR_2","UNNAMED_006"]}
+        >>>
 
         Assign layout force to a component.
+        >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> m3d.assign_layout_force(nets_layers_mapping=nets_layers, component_name="LC1_1")
+        >>> m3d.assign_layout_force(net_layers=nets_layers,component_name="LC1_1")
+        >>> m3d.release_desktop(True, True)
         """
 
-        for key in nets_layers_mapping.keys():
-            if not isinstance(nets_layers_mapping[key], list):
-                nets_layers_mapping[key] = list(nets_layers_mapping[key])
+        for key in net_layers.keys():
+            if not isinstance(net_layers[key], list):
+                net_layers[key] = list(net_layers[key])
 
         if component_name not in self.modeler.user_defined_component_names:
             self.logger.error("Provided component name doesn't exist in current design.")
@@ -2588,7 +2622,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             force_name = generate_unique_name("Layout_Force")
 
         nets_layers_props = None
-        for key, valy in nets_layers_mapping.items():
+        for key, valy in net_layers.items():
             layers = valy[:]
             if include_no_layer:
                 layers = layers[:] + ["<no-layer>"]
@@ -2599,7 +2633,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         props = OrderedDict(
             {
-                "Reference CS": reference_cs,
+                "Reference CS": coordinate_system,
                 "NetsAndLayersChoices": OrderedDict(
                     {component_name: OrderedDict({"NetLayerSetMap": nets_layers_props})}
                 ),
@@ -2610,10 +2644,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             self._boundaries[bound.name] = bound
             return bound
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(faces="assignment")
     def assign_tangential_h_field(
         self,
-        faces,
+        assignment,
         x_component_real=0,
         x_component_imag=0,
         y_component_real=0,
@@ -2628,7 +2662,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        faces : list of int  or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : list of int  or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
         x_component_real : float, str, optional
             X component value real part. The default is ``0``.
@@ -2665,18 +2699,18 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if self.solution_type not in ["EddyCurrent", "Magnetostatic"]:
             self.logger.error("Tangential H Field is applicable only to Eddy current.")
             return False
-        objects = self.modeler.convert_to_selections(faces, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
         if not bound_name:
             bound_name = generate_unique_name("TangentialHField")
         props = OrderedDict(
             {
-                "Faces": objects,
+                "Faces": assignment,
             }
         )
-        if isinstance(objects[0], str):
+        if isinstance(assignment[0], str):
             props = OrderedDict(
                 {
-                    "Objects": objects,
+                    "Objects": assignment,
                 }
             )
         props["ComponentXReal"] = x_component_real
@@ -2685,8 +2719,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         props["ComponentYReal"] = y_component_real
         if self.solution_type == "EddyCurrent":
             props["ComponentYImag"] = y_component_imag
-        if not origin and isinstance(objects[0], int):
-            edges = self.modeler.get_face_edges(objects[0])
+        if not origin and isinstance(assignment[0], int):
+            edges = self.modeler.get_face_edges(assignment[0])
             origin = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 0)
             if not u_pos:
                 u_pos = self.oeditor.GetEdgePositionAtNormalizedParameter(edges[0], 1)
@@ -2699,15 +2733,15 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_zero_tangential_h_field(self, faces, bound_name=None):
+    @pyaedt_function_handler(faces="assignment", bound_name="boundary")
+    def assign_zero_tangential_h_field(self, assignment, boundary=None):
         """Assign a zero tangential H field boundary to a list of faces.
 
         Parameters
         ----------
-        faces : list of int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : list of int or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
-        bound_name : str, optional
+        boundary : str, optional
             Name of the end connection boundary. The default is ``None``, in which case the
             default name is used.
 
@@ -2724,15 +2758,15 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         if self.solution_type not in ["EddyCurrent"]:
             self.logger.error("Tangential H Field is applicable only to Eddy current.")
             return False
-        objects = self.modeler.convert_to_selections(faces, True)
-        if not bound_name:
-            bound_name = generate_unique_name("ZeroTangentialHField")
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if not boundary:
+            boundary = generate_unique_name("ZeroTangentialHField")
         props = OrderedDict(
             {
-                "Faces": objects,
+                "Faces": assignment,
             }
         )
-        bound = BoundaryObject(self, bound_name, props, "Zero Tangential H Field")
+        bound = BoundaryObject(self, boundary, props, "Zero Tangential H Field")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
@@ -2802,18 +2836,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     not exist.
 
     >>> from pyaedt import Maxwell2d
-    >>> aedtapp = Maxwell2d()
+    >>> m2d = Maxwell2d()
 
     Create an instance of Maxwell 2D and link to a project named
     ``projectname``. If this project does not exist, create one with
     this name.
 
-    >>> aedtapp = Maxwell2d(projectname)
+    >>> m2d = Maxwell2d(projectname)
 
     Create an instance of Maxwell 2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> aedtapp = Maxwell2d(projectname,designame)
+    >>> m2d = Maxwell2d(projectname,designname)
 
     """
 
@@ -2867,7 +2901,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
     def _init_from_design(self, *args, **kwargs):
-        self.__init__(*args, **kwargs)
+        self.__init__(**kwargs)
 
     @property
     def xy_plane(self):
@@ -2895,15 +2929,15 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             value = self.modeler._arg_with_dim(value, self.modeler.model_units)
         self.change_design_settings({"ModelDepth": value})
 
-    @pyaedt_function_handler()
-    def generate_design_data(self, linefilter=None, objectfilter=None):
-        """Generate a generic set of design data and store it in the extension directory as ``design_data.json``.
+    @pyaedt_function_handler(linefilter="line_filter", objectfilter="object_filter")
+    def generate_design_data(self, line_filter=None, object_filter=None):
+        """Generate a generic set of design data and store it in the extension directory in a ``design_data.json`` file.
 
         Parameters
         ----------
-        linefilter : optional
+        line_filter : optional
             The default is ``None``.
-        objectfilter : optional
+        object_filter : optional
             The default is ``None``.
 
         Returns
@@ -2923,8 +2957,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             return obj
 
         solid_bodies = self.modeler.solid_bodies
-        if objectfilter:
-            solid_ids = [i for i, j in self.modeler._object_names_to_ids.items() if j.name in objectfilter]
+        if object_filter:
+            solid_ids = [i for i, j in self.modeler._object_names_to_ids.items() if j.name in object_filter]
         else:
             solid_ids = [i for i in list(self.modeler._object_names_to_ids.keys())]
         self.design_data = {
@@ -2937,7 +2971,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             "Symmetry": self.symmetry_multiplier,
             "ModelDepth": self.model_depth,
             "ObjectList": solid_ids,
-            "LineList": self.modeler.vertex_data_of_lines(linefilter),
+            "LineList": self.modeler.vertex_data_of_lines(line_filter),
             "VarList": self.variable_manager.variable_names,
             "Setups": self.existing_analysis_setups,
             "MaterialProperties": self.get_object_material_properties(solid_bodies),
@@ -2960,15 +2994,15 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         design_file = os.path.join(self.working_directory, "design_data.json")
         return read_configuration_file(design_file)
 
-    @pyaedt_function_handler()
-    def assign_balloon(self, edge_list, bound_name=None):
+    @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
+    def assign_balloon(self, assignment, boundary=None):
         """Assign a balloon boundary to a list of edges.
 
         Parameters
         ----------
-        edge_list : list
+        assignment : list
             List of edges.
-        bound_name : str, optional
+        boundary : str, optional
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
 
@@ -2982,32 +3016,32 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         >>> oModule.AssignBalloon
         """
-        edge_list = self.modeler.convert_to_selections(edge_list, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if not bound_name:
-            bound_name = generate_unique_name("Balloon")
+        if not boundary:
+            boundary = generate_unique_name("Balloon")
 
-        props2 = OrderedDict({"Edges": edge_list})
-        bound = BoundaryObject(self, bound_name, props2, "Balloon")
+        props2 = OrderedDict({"Edges": assignment})
+        bound = BoundaryObject(self, boundary, props2, "Balloon")
 
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
-    def assign_vector_potential(self, input_edge, vectorvalue=0, bound_name=None):
+    @pyaedt_function_handler(input_edge="assignment", vectorvalue="vector_value", bound_name="boundary")
+    def assign_vector_potential(self, assignment, vector_value=0, boundary=None):
         """Assign a vector potential boundary condition to specified edges.
 
         This method is valid for Maxwell 2D Eddy Current, Magnetostatic, and Transient solvers.
 
         Parameters
         ----------
-        input_edge : list
+        assignment : list
             List of edge names or edge IDs to assign a vector to.
-        vectorvalue : float, optional
+        vector_value : float, optional
             Value of the vector. The default is ``0``.
-        bound_name : str, optional
+        boundary : str, optional
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
 
@@ -3021,32 +3055,32 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         >>> oModule.AssignVectorPotential
         """
-        input_edge = self.modeler.convert_to_selections(input_edge, True)
+        assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if not bound_name:
-            bound_name = generate_unique_name("Vector")
-        if type(input_edge[0]) is str:
-            props2 = OrderedDict({"Objects": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
+        if not boundary:
+            boundary = generate_unique_name("Vector")
+        if type(assignment[0]) is str:
+            props2 = OrderedDict({"Objects": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
         else:
-            props2 = OrderedDict({"Edges": input_edge, "Value": str(vectorvalue), "CoordinateSystem": ""})
-        bound = BoundaryObject(self, bound_name, props2, "Vector Potential")
+            props2 = OrderedDict({"Edges": assignment, "Value": str(vector_value), "CoordinateSystem": ""})
+        bound = BoundaryObject(self, boundary, props2, "Vector Potential")
 
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(master_edge="independent", slave_edge="dependent", bound_name="boundary")
     def assign_master_slave(
-        self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
+        self, independent, dependent, reverse_master=False, reverse_slave=False, same_as_master=True, boundary=None
     ):
         """Assign dependent and independent boundary conditions to two edges of the same object.
 
         Parameters
         ----------
-        master_edge : int
+        independent : int
             ID of the master edge.
-        slave_edge : int
+        dependent : int
             ID of the slave edge.
         reverse_master : bool, optional
             Whether to reverse the master edge to the V direction. The default is ``False``.
@@ -3054,7 +3088,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             Whether to reverse the master edge to the U direction. The default is ``False``.
         same_as_master : bool, optional
             Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
-        bound_name : str, optional
+        boundary : str, optional
             Name of the master boundary. The default is ``None``, in which case the default name
             is used. The name of the slave boundary has a ``_dep`` suffix.
 
@@ -3068,22 +3102,22 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
         """
-        master_edge = self.modeler.convert_to_selections(master_edge, True)
-        slave_edge = self.modeler.convert_to_selections(slave_edge, True)
-        if not bound_name:
+        independent = self.modeler.convert_to_selections(independent, True)
+        dependent = self.modeler.convert_to_selections(dependent, True)
+        if not boundary:
             bound_name_m = generate_unique_name("Independent")
             bound_name_s = generate_unique_name("Dependent")
         else:
-            bound_name_m = bound_name
-            bound_name_s = bound_name + "_dep"
-        props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
+            bound_name_m = boundary
+            bound_name_s = boundary + "_dep"
+        props2 = OrderedDict({"Edges": independent, "ReverseV": reverse_master})
         bound = BoundaryObject(self, bound_name_m, props2, "Independent")
         if bound.create():
             self._boundaries[bound.name] = bound
 
             props2 = OrderedDict(
                 {
-                    "Edges": slave_edge,
+                    "Edges": dependent,
                     "ReverseU": reverse_slave,
                     "Independent": bound_name_m,
                     "SameAsMaster": same_as_master,
@@ -3097,13 +3131,13 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
                 return bound, False
         return False, False
 
-    @pyaedt_function_handler()
-    def assign_end_connection(self, objects, resistance=0, inductance=0, bound_name=None):
+    @pyaedt_function_handler(objects="assignment", bound_name="boundary")
+    def assign_end_connection(self, assignment, resistance=0, inductance=0, boundary=None):
         """Assign an end connection to a list of objects.
 
         Parameters
         ----------
-        objects : list of int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : list of int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
             List of objects to assign an end connection to.
         resistance : float or str, optional
             Resistance value. If float is provided, the units are assumed to be ohms.
@@ -3111,7 +3145,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         inductance : float or str, optional
             Inductance value. If a float is provided, the units are assumed to Henry (H).
             The default value is ``0``.
-        bound_name : str, optional
+        boundary : str, optional
             Name of the end connection boundary. The default is ``None``, in which case the
             default name is used.
 
@@ -3128,21 +3162,21 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         if self.solution_type not in ["EddyCurrent", "Transient"]:
             self.logger.error("Excitation applicable only to Eddy current or Transient Solver.")
             return False
-        if len(objects) < 2:
+        if len(assignment) < 2:
             self.logger.error("At least 2 objects are needed.")
             return False
-        objects = self.modeler.convert_to_selections(objects, True)
-        if not bound_name:
-            bound_name = generate_unique_name("EndConnection")
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        if not boundary:
+            boundary = generate_unique_name("EndConnection")
 
         props = OrderedDict(
             {
-                "Objects": objects,
+                "Objects": assignment,
                 "ResistanceValue": self.modeler._arg_with_dim(resistance, "ohm"),
                 "InductanceValue": self.modeler._arg_with_dim(inductance, "H"),
             }
         )
-        bound = BoundaryObject(self, bound_name, props, "EndConnection")
+        bound = BoundaryObject(self, boundary, props, "EndConnection")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound

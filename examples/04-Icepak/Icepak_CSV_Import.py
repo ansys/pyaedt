@@ -48,7 +48,7 @@ ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_CSV_Import.aed
 ipk.autosave_disable()
 
 # Create the PCB as a simple block.
-board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], "board_outline", matname="FR-4_Ref")
+board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], "board_outline", material="FR-4_Ref")
 
 ###############################################################################
 # Blocks creation with a CSV file
@@ -86,7 +86,7 @@ with open(filename, 'r') as csv_file:
             material_name = "copper"
 
         # creates the block with the given name, coordinates, material, and type
-        block = ipk.modeler.create_box(origin, dimensions, name=block_name, matname=material_name)
+        block = ipk.modeler.create_box(origin, dimensions, name=block_name, material=material_name)
 
         # Assign boundary conditions
         if row["block_type"] == "solid":

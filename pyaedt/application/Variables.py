@@ -146,8 +146,6 @@ class CSVDataset:
                         for quantity_name in self._header:
                             self._data[quantity_name] = []
 
-        pass
-
     @pyaedt_function_handler()
     def __getitem__(self, item):
         variable_list = item.split(",")
@@ -542,7 +540,7 @@ class VariableManager(object):
         """
         try:
             all_post_vars = list(self._odesign.GetPostProcessingVariables())
-        except:
+        except Exception:
             all_post_vars = []
         out = self.design_variables
         post_vars = {}
@@ -786,26 +784,26 @@ class VariableManager(object):
 
     @property
     def _independent_variables(self):
-        all = {}
-        all.update(self._independent_project_variables)
-        all.update(self._independent_design_variables)
-        return all
+        all_independent = {}
+        all_independent.update(self._independent_project_variables)
+        all_independent.update(self._independent_design_variables)
+        return all_independent
 
     @property
     def _dependent_variables(self):
-        all = {}
+        all_dependent = {}
         for k, v in self._dependent_project_variables.items():
-            all[k] = v
+            all_dependent[k] = v
         for k, v in self._dependent_design_variables.items():
-            all[k] = v
-        return all
+            all_dependent[k] = v
+        return all_dependent
 
     @property
     def _all_variables(self):
-        all = {}
-        all.update(self._independent_variables)
-        all.update(self._dependent_variables)
-        return all
+        all_variables = {}
+        all_variables.update(self._independent_variables)
+        all_variables.update(self._dependent_variables)
+        return all_variables
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
@@ -904,7 +902,7 @@ class VariableManager(object):
         if variable_name not in invalid_names:
             try:
                 return self.aedt_object(variable_name).GetVariableValue(variable_name)
-            except:
+            except Exception:
                 return False
         else:
             return False
@@ -1057,7 +1055,7 @@ class VariableManager(object):
                     desktop_object.Undo()
                     self._logger.clear_messages()
                     return
-            except:
+            except Exception:
                 pass
         else:
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
@@ -1095,7 +1093,7 @@ class VariableManager(object):
                         ],
                     ]
                 )
-            except:
+            except Exception:
                 if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
                     self._logger.info("PostProcessing Variable exists already. Changing value.")
                     desktop_object.ChangeProperty(
@@ -1189,7 +1187,7 @@ class VariableManager(object):
                     ]
                 )
                 return True
-            except:
+            except Exception:
                 pass
         return False
 
@@ -1230,7 +1228,7 @@ class VariableManager(object):
                         ],
                     ]
                 )
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 pass
             else:
                 self._cleanup_variables()
@@ -1494,7 +1492,7 @@ class Variable(object):
                 if result:
                     break
                 i += 1
-        except:
+        except Exception:
             pass
 
     @pyaedt_function_handler()
@@ -1516,7 +1514,7 @@ class Variable(object):
                 else:
                     name = "LocalVariables"
             return self._app.get_oo_object(self._aedt_obj, "{}/{}".format(name, self._variable_name)).GetPropValue(prop)
-        except:
+        except Exception:
             pass
 
     @property
@@ -2320,13 +2318,13 @@ class DataSet(object):
             del self._app.design_datasets[self.name]
         return True
 
-    @pyaedt_function_handler()
-    def export(self, dataset_path=None):
+    @pyaedt_function_handler(dataset_path="output_dir")
+    def export(self, output_dir=None):
         """Export the dataset.
 
         Parameters
         ----------
-        dataset_path : str, optional
+        output_dir : str, optional
             Path to export the dataset to. The default is ``None``, in which
             case the dataset is exported to the working_directory path.
 
@@ -2341,10 +2339,10 @@ class DataSet(object):
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """
-        if not dataset_path:
-            dataset_path = os.path.join(self._app.working_directory, self.name + ".tab")
+        if not output_dir:
+            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
         if self.name[0] == "$":
-            self._app._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, output_dir)
         else:
-            self._app._odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, output_dir)
         return True

@@ -8,6 +8,7 @@ import warnings
 
 from pyaedt import Edb
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import _uname
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -27,7 +28,7 @@ class UserDefinedComponentParameters(dict):
                 ]
             )
             dict.__setitem__(self, key, value)
-        except:
+        except Exception:
             self._component._logger.warning("Property %s has not been edited.Check if readonly", key)
 
     def __init__(self, component, *args, **kw):
@@ -205,7 +206,7 @@ class UserDefinedComponent(object):
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
             return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
-        except:
+        except Exception:
             return False
 
     @property
@@ -414,8 +415,8 @@ class UserDefinedComponent(object):
             component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())
 
         parts_id = [
-            self._primitives._object_names_to_ids[part]
-            for part in self._primitives._object_names_to_ids
+            self._primitives.objects_by_name[part].id
+            for part in self._primitives.objects_by_name.keys()
             if part in component_parts
         ]
         parts_dict = {part_id: self._primitives.objects[part_id] for part_id in parts_id}
@@ -484,13 +485,13 @@ class UserDefinedComponent(object):
         self._primitives.cleanup_objects()
         self.__dict__ = {}
 
-    @pyaedt_function_handler()
-    def duplicate_and_mirror(self, position, vector):
+    @pyaedt_function_handler(position="origin")
+    def duplicate_and_mirror(self, origin, vector):
         """Duplicate and mirror a selection.
 
         Parameters
         ----------
-        position : float
+        origin : float
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
         vector : float
@@ -507,9 +508,7 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.duplicate_and_mirror(
-            self.name, position, vector, is_3d_comp=True, duplicate_assignment=True
-        )
+        return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -543,18 +542,18 @@ class UserDefinedComponent(object):
             return self
         return False
 
-    @pyaedt_function_handler()
-    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        cs_axis
+        axis
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -569,11 +568,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Rotate
         """
         if self.is3dcomponent:
-            if self._primitives.rotate(self.name, cs_axis=cs_axis, angle=angle, unit=unit):
+            if self._primitives.rotate(self.name, axis=axis, angle=angle, units=units):
                 return self
         else:
             for part in self.parts:
-                self._primitives.rotate(part, cs_axis=cs_axis, angle=angle, unit=unit)
+                self._primitives.rotate(part, axis=axis, angle=angle, units=units)
             return self
         return False
 
@@ -597,26 +596,26 @@ class UserDefinedComponent(object):
         >>> oEditor.Move
         """
         if self.is3dcomponent:
-            if self._primitives.move(self.name, vector=vector):
+            if self._primitives.move(self.name, vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.move(part, vector=vector)
+                self._primitives.move(part, vector)
             return self
 
         return False
 
-    @pyaedt_function_handler()
-    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the component around the axis.
 
         Parameters
         ----------
-        cs_axis : Application.AXIS object
+        axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects : bool, optional
             Whether to create copies as new objects. The default is ``True``.
@@ -634,23 +633,23 @@ class UserDefinedComponent(object):
         """
         if self.is3dcomponent:
             ret, added_objects = self._primitives.duplicate_around_axis(
-                self.name, cs_axis, angle, nclones, create_new_objects, True
+                self.name, axis, angle, clones, create_new_objects=create_new_objects, is_3d_comp=True
             )
             return added_objects
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attach_object=False, **kwargs):
+    @pyaedt_function_handler(nclones="clones", attach_object="attach")
+    def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
-        attach_object : bool, optional
+        attach : bool, optional
             Whether to attach the object. The default is ``False``.
 
         Returns
@@ -673,7 +672,9 @@ class UserDefinedComponent(object):
 
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
-            _, added_objects = self._primitives.duplicate_along_line(self.name, vector, nclones, attach_object, True)
+            _, added_objects = self._primitives.duplicate_along_line(
+                self.name, vector, clones, attach=attach, is_3d_comp=True
+            )
             return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False
@@ -818,15 +819,15 @@ class UserDefinedComponent(object):
             "3D Component File Path"
         )
 
-    @pyaedt_function_handler()
-    def update_definition(self, password="", new_filepath=""):
+    @pyaedt_function_handler(new_filepath="output_file")
+    def update_definition(self, password="", output_file=""):
         """Update 3d component definition.
 
         Parameters
         ----------
         password : str, optional
             Password for encrypted models. The default value is ``""``.
-        new_filepath : str, optional
+        output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
 
@@ -846,7 +847,7 @@ class UserDefinedComponent(object):
                 "Passwords:=",
                 [password],
                 "NewFilePath:=",
-                new_filepath,
+                output_file,
             ]
         )
         self._primitives._app.modeler.refresh_all_ids()
@@ -893,7 +894,7 @@ class UserDefinedComponent(object):
             #     design_name = project.GetDesigns()[0].GetName()
             # else:
             #     design_name = project.GetActiveDesign().GetName()
-            return get_pyaedt_app(project_name, design_name)
+            return get_pyaedt_app(project_name, design_name, desktop=self._primitives._app.desktop_class)
         return False
 
 
@@ -921,8 +922,56 @@ class LayoutComponent(object):
         self.layers = {}
         self.nets = {}
         self.objects = {}
-        if self.edb_definition:
+        self._edb_object = None
+        self._edb_path = None
+        if self.edb_definition and self.edb_path:
             self._get_edb_info()
+
+    @property
+    def edb_path(self):
+        """EDB path.
+
+        Returns
+        -------
+        str
+           EDB file path.
+
+        """
+        return self._edb_path
+
+    @property
+    def edb_object(self):
+        """EDB object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb.Edb`
+           EDB object.
+
+        """
+        if not self._edb_object:
+            aedb_component_path = self._edb_path
+
+            for edb_object in _edb_sessions:
+                if edb_object.edbpath == aedb_component_path:
+                    self._edb_object = edb_object
+                    return self._edb_object
+
+            if not aedb_component_path or not os.path.exists(aedb_component_path):  # pragma: no cover
+                return False
+
+            app = Edb(
+                edbpath=aedb_component_path,
+                isreadonly=False,
+                edbversion=self._primitives._app._aedt_version,
+                student_version=self._primitives._app.student_version,
+            )
+
+            _edb_sessions.append(app)
+
+            self._edb_object = app
+
+        return self._edb_object
 
     @property
     def edb_definition(self):
@@ -940,6 +989,20 @@ class LayoutComponent(object):
                 self._primitives.oeditor, self._component.definition_name, key
             )
             self._edb_definition = edb_definition
+            aedb_folder = os.path.abspath(
+                os.path.join(
+                    self._primitives._app.project_path,
+                    self._primitives._app.project_name + ".aedb",
+                    "LayoutComponents",
+                    edb_definition,
+                )
+            )
+            if os.path.exists(aedb_folder):
+                subdirs = next(os.walk(aedb_folder))[1]
+                for subdir in subdirs:
+                    if subdir.endswith(".aedb"):
+                        self._edb_path = os.path.abspath(os.path.join(aedb_folder, subdir))
+                        break
             return edb_definition
         else:
             return None
@@ -1058,35 +1121,29 @@ class LayoutComponent(object):
             self._display_mode = display_mode
 
     @pyaedt_function_handler()
-    def _get_edb_info(self):
-        """Get Edb information."""
-
-        # Open Layout component and get information
-        aedb_component_path = os.path.join(
-            self._primitives._app.project_file[:-1] + "b",
-            "LayoutComponents",
-            self._edb_definition,
-            self._edb_definition + ".aedb",
-        )
-
-        if not os.path.exists(aedb_component_path):  # pragma: no cover
+    def close_edb_object(self):
+        """Close EDB object."""
+        if self.edb_object:
+            try:
+                self.edb_object.close()
+                return True
+            except Exception:  # pragma: no cover
+                self._logger.error("EDB object cannot be closed.")
+                return False
+        else:  # pragma: no cover
+            self._logger.warning("EDB object was not created.")
             return False
 
-        component_obj = Edb(
-            edbpath=aedb_component_path,
-            isreadonly=True,
-            edbversion=self._primitives._app._aedt_version,
-            student_version=self._primitives._app.student_version,
-        )
-
-        # Get objects, nets and layers
-        self.nets = {key: [True, False, 60] for key in component_obj.nets.netlist}
-        self.layers = {key: [True, False, 60] for key in list(component_obj.stackup.stackup_layers.keys())}
-        self.objects = {key: [True, False, 60] for key in list(component_obj.components.instances.keys())}
-
-        component_obj.close_edb()
-
-        return True
+    @pyaedt_function_handler()
+    def _get_edb_info(self):
+        """Get EDB information."""
+        if self.edb_object:
+            self.nets = {key: [True, False, 60] for key in self.edb_object.nets.netlist}
+            self.layers = {key: [True, False, 60] for key in list(self.edb_object.stackup.stackup_layers.keys())}
+            self.objects = {key: [True, False, 60] for key in list(self.edb_object.components.instances.keys())}
+            return True
+        else:  # pragma: no cover
+            return False
 
     @pyaedt_function_handler()
     def update_visibility(self):

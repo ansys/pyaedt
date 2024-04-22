@@ -38,8 +38,17 @@ class TestClass:
         assert self.aedtapp
 
     def test_01_designname(self):
-        self.aedtapp.design_name = "myname"
-        assert self.aedtapp.design_name == "myname"
+        # TODO: Remove subsequent dependence on string "myname"
+        design_names = ["myname", "design2"]
+        self.aedtapp.design_name = design_names[0]  # Change the design name.
+        assert self.aedtapp.design_name == design_names[0]
+        self.aedtapp.insert_design(design_names[1])  # Insert a new design
+        assert self.aedtapp.design_name == design_names[1]
+        self.aedtapp.design_name = design_names[0]  # Change current design back.
+        assert len(self.aedtapp.design_list) == 2  # Make sure there are still 2 designs.
+        assert self.aedtapp.design_list[0] in design_names  # Make sure the name is correct.
+        self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
+        assert len(self.aedtapp.design_list) == 1
 
     def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
@@ -112,7 +121,9 @@ class TestClass:
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.solid_names if self.aedtapp.modeler[o].model]
-        assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
+        assert self.aedtapp.modeler.set_objects_temperature(
+            objects, ambient_temperature=ambient_temp, create_project_var=True
+        )
 
     def test_10_change_material_override(self):
         assert self.aedtapp.change_material_override(True)
@@ -328,7 +339,7 @@ class TestClass:
         aedt_obj = AedtObjects()
         assert aedt_obj.odesign
         assert aedt_obj.oproject
-        aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
+        aedt_obj = AedtObjects(self.aedtapp._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):
@@ -340,7 +351,7 @@ class TestClass:
             h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
         except Exception as e:
             exception_raised = True
-            assert e.args[0] == "Project doesn't exists. Check it and retry."
+            assert e.args[0] == "Project doesn't exist. Check it and retry."
         assert exception_raised
         settings.force_error_on_missing_project = False
 
@@ -374,7 +385,7 @@ class TestClass:
             f.write(" ")
         try:
             hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
-        except:
+        except Exception:
             assert True
         try:
             os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
@@ -382,7 +393,7 @@ class TestClass:
             with open(file_name3, "w") as f:
                 f.write(" ")
             hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
-        except:
+        except Exception:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):

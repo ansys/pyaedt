@@ -30,10 +30,6 @@ class Emit(Design, object):
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
     specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
@@ -85,16 +81,16 @@ class Emit(Design, object):
 
     Once the schematic is generated, the ``Emit`` object can be analyzed to generate
     a revision. Each revision is added as an element of the ``Emit`` object member's
-    revisions_list.
+    ``Results.revisions`` list.
 
-    >>> aedtapp.analyze()
+    >>> revision = aedtapp.results.analyze()
 
     A revision within PyAEDT is analogous to a revision in AEDT. An interaction domain must
     be defined and then used as the input to the run command used on that revision.
 
-    >>> domain = aedtapp.interaction_domain()
+    >>> domain = aedtapp.results.interaction_domain()
     >>> domain.rx_radio_name = "UE - HandHeld"
-    >>> interaction = aedtapp.revisions_list[0].run(domain)
+    >>> interaction = revision.run(domain)
 
     The output of the run command is an ``interaction`` object. This object summarizes the interaction data
     that is defined in the interaction domain.
@@ -109,7 +105,6 @@ class Emit(Design, object):
         projectname=None,
         designname=None,
         solution_type=None,
-        setup_name=None,
         specified_version=None,
         non_graphical=False,
         new_desktop_session=True,
@@ -215,7 +210,7 @@ class Emit(Design, object):
 
     @pyaedt_function_handler()
     def set_units(self, unit_type, unit_value):
-        """Set units for the component.
+        """Set units for the EMIT design.
 
         Parameters
         ----------
@@ -277,7 +272,7 @@ class Emit(Design, object):
 
     @pyaedt_function_handler()
     def get_units(self, unit_type=""):
-        """Get units for the component.
+        """Get units for the EMIT design.
 
         Parameters
         ----------

@@ -236,8 +236,7 @@ udp_par_list_stator = [["DiaGap", "DiaGap"], ["DiaYoke", "DiaStatorYoke"], ["Len
                        ["DuctPitch", "0mm"],
                        ["SegAngle", "0deg"], ["LenRegion", "Model_Length"], ["InfoCore", "0"]]
 
-stator_id = mod2D.create_udp(udp_dll_name="RMxprt/VentSlotCore.dll",
-                             udp_parameters_list=udp_par_list_stator, upd_library='syslib',
+stator_id = mod2D.create_udp(dll="RMxprt/VentSlotCore.dll", parameters=udp_par_list_stator, library='syslib',
                              name='my_stator')  # name not taken
 
 ##########################################################
@@ -323,11 +322,11 @@ IM1_points = [[56.70957112, 3.104886585, 0], [40.25081875, 16.67243502, 0], [38.
               [55.05576774, 1.098662669, 0]]
 OM1_points = [[54.37758185, 22.52393189, 0], [59.69688156, 9.68200639, 0], [63.26490432, 11.15992981, 0],
               [57.94560461, 24.00185531, 0]]
-IPM1_id = mod2D.create_polyline(position_list=IM1_points, cover_surface=True, name="PM_I1",
-                                matname="Arnold_Magnetics_N30UH_80C_new")
+IPM1_id = mod2D.create_polyline(points=IM1_points, cover_surface=True, name="PM_I1",
+                                material="Arnold_Magnetics_N30UH_80C_new")
 IPM1_id.color = (0, 128, 64)
-OPM1_id = mod2D.create_polyline(position_list=OM1_points, cover_surface=True, name="PM_O1",
-                                matname="Arnold_Magnetics_N30UH_80C_new")
+OPM1_id = mod2D.create_polyline(points=OM1_points, cover_surface=True, name="PM_O1",
+                                material="Arnold_Magnetics_N30UH_80C_new")
 OPM1_id.color = (0, 128, 64)
 
 #####################################################################################
@@ -343,7 +342,7 @@ create_cs_magnets(OPM1_id, 'CS_' + OPM1_id.name, 'outer')
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Duplicate and mirror the PMs along with the local coordinate system.
 
-mod2D.duplicate_and_mirror([IPM1_id, OPM1_id], position=[0, 0, 0],
+mod2D.duplicate_and_mirror([IPM1_id, OPM1_id], origin=[0, 0, 0],
                            vector=["cos((360deg/SymmetryFactor/2)+90deg)", "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 
@@ -352,12 +351,12 @@ id_PMs = mod2D.get_objects_w_string("PM", case_sensitive=True)
 # ~~~~~~~~~~~~
 # Create the coils.
 
-coil_id = mod2D.create_rectangle(position=['DiaRotorLam/2+Airgap+Coil_SetBack', '-Coil_Edge_Short/2', 0],
-                                 dimension_list=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
-                                 name='Coil', matname="Copper (Annealed)_65C")
+coil_id = mod2D.create_rectangle(origin=['DiaRotorLam/2+Airgap+Coil_SetBack', '-Coil_Edge_Short/2', 0],
+                                 sizes=['Coil_Edge_Long', 'Coil_Edge_Short', 0],
+                                 name='Coil', material="Copper (Annealed)_65C")
 coil_id.color = (255, 128, 0)
-M2D.modeler.rotate(objid=coil_id, cs_axis="Z", angle="360deg/SlotNumber/2")
-coil_id.duplicate_around_axis(cs_axis="Z", angle="360deg/SlotNumber", nclones='CoilPitch+1',
+M2D.modeler.rotate(assignment=coil_id, axis="Z", angle="360deg/SlotNumber/2")
+coil_id.duplicate_around_axis(axis="Z", angle="360deg/SlotNumber", nclones='CoilPitch+1',
                               create_new_objects=True)
 id_coils = mod2D.get_objects_w_string("Coil", case_sensitive=True)
 
@@ -388,7 +387,7 @@ bandOUT_id = mod2D.create_circle(position=[0, 0, 0], radius='(DiaGap - (0.5 * Ai
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a motion setup to a ``Band`` object named ``RotatingBand_mid``.
 
-M2D.assign_rotate_motion(band_object='Band', coordinate_system="Global", axis="Z", positive_movement=True,
+M2D.assign_rotate_motion(assignment='Band', coordinate_system="Global", axis="Z", positive_movement=True,
                          start_position="InitialPositionMD", angular_velocity="MachineRPM")
 
 ##########################################################
@@ -407,27 +406,25 @@ for item in vacuum_obj_id:
 # Allocated PMs are created.
 
 rotor_id = mod2D.create_circle(position=[0, 0, 0], radius='DiaRotorLam/2',
-                               num_sides=0, name="Rotor", matname="30DH_20C_smooth")
+                               num_sides=0, name="Rotor", material="30DH_20C_smooth")
 rotor_id.color = (0, 128, 255)
 mod2D.subtract(rotor_id, shaft_id, keep_originals=True)
 void_small_1_id = mod2D.create_circle(position=[62, 0, 0], radius="2.55mm",
-                                      num_sides=0, name="void1", matname="vacuum")
-M2D.modeler.duplicate_around_axis(void_small_1_id, cs_axis="Z", angle="360deg/SymmetryFactor",
-                                  nclones=2, create_new_objects=False)
+                                      num_sides=0, name="void1", material="vacuum")
+M2D.modeler.duplicate_around_axis(void_small_1_id, axis="Z", angle="360deg/SymmetryFactor",
+                                  clones=2, create_new_objects=False)
 void_big_1_id = mod2D.create_circle(position=[29.5643, 12.234389332712, 0], radius='9.88mm/2',
-                                    num_sides=0, name="void_big", matname="vacuum")
+                                    num_sides=0, name="void_big", material="vacuum")
 mod2D.subtract(rotor_id, [void_small_1_id, void_big_1_id], keep_originals=False)
 
 slot_IM1_points = [[37.5302872, 15.54555396, 0], [55.05576774, 1.098662669, 0], [57.33637589, 1.25, 0],
                    [57.28982158, 2.626565019, 0], [40.25081875, 16.67243502, 0]]
 slot_OM1_points = [[54.37758185, 22.52393189, 0], [59.69688156, 9.68200639, 0], [63.53825619, 10.5, 0],
                    [57.94560461, 24.00185531, 0]]
-slot_IM_id = mod2D.create_polyline(position_list=slot_IM1_points, cover_surface=True, name="slot_IM1",
-                                   matname="vacuum")
-slot_OM_id = mod2D.create_polyline(position_list=slot_OM1_points, cover_surface=True, name="slot_OM1",
-                                   matname="vacuum")
+slot_IM_id = mod2D.create_polyline(points=slot_IM1_points, cover_surface=True, name="slot_IM1", material="vacuum")
+slot_OM_id = mod2D.create_polyline(points=slot_OM1_points, cover_surface=True, name="slot_OM1", material="vacuum")
 
-M2D.modeler.duplicate_and_mirror(objid=[slot_IM_id, slot_OM_id], position=[0, 0, 0],
+M2D.modeler.duplicate_and_mirror(assignment=[slot_IM_id, slot_OM_id], origin=[0, 0, 0],
                                  vector=["cos((360deg/SymmetryFactor/2)+90deg)",
                                          "sin((360deg/SymmetryFactor/2)+90deg)", 0])
 
@@ -461,15 +458,11 @@ mod2D.split(object_list, "ZX", sides="PositiveOnly")
 # The points for edge picking are in the airgap.
 
 pos_1 = "((DiaGap - (1.0 * Airgap))/4)"
-id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], obj_name='Region')
+id_bc_1 = mod2D.get_edgeid_from_position(position=[pos_1, 0, 0], assignment='Region')
 id_bc_2 = mod2D.get_edgeid_from_position(
-    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0],
-    obj_name='Region')
-M2D.assign_master_slave(master_edge=id_bc_1, slave_edge=id_bc_2,
-                        reverse_master=False,
-                        reverse_slave=True,
-                        same_as_master=False,
-                        bound_name="Matching")
+    position=[pos_1 + "*cos((360deg/SymmetryFactor))", pos_1 + "*sin((360deg/SymmetryFactor))", 0], assignment='Region')
+M2D.assign_master_slave(independent=id_bc_1, dependent=id_bc_2, reverse_master=False, reverse_slave=True,
+                        same_as_master=False, boundary="Matching")
 
 ##########################################################
 # Assign vector potential
@@ -479,8 +472,8 @@ M2D.assign_master_slave(master_edge=id_bc_1, slave_edge=id_bc_2,
 pos_2 = "(DiaOuter/2)"
 id_bc_az = mod2D.get_edgeid_from_position(
     position=[pos_2 + "*cos((360deg/SymmetryFactor/2))", pos_2 + "*sin((360deg/SymmetryFactor)/2)", 0],
-    obj_name='Region')
-M2D.assign_vector_potential(id_bc_az, vectorvalue=0, bound_name="VectorPotentialZero")
+    assignment='Region')
+M2D.assign_vector_potential(id_bc_az, vector_value=0, boundary="VectorPotentialZero")
 
 ##########################################################
 # Create excitations
@@ -496,35 +489,33 @@ PhC_current = "IPeak * cos(2*pi * ElectricFrequency*time - 240deg+Theta_i)"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase A.
 
-M2D.assign_coil(input_object=["Coil"], conductor_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go")
-M2D.assign_coil(input_object=["Coil_5"], conductor_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret")
-M2D.assign_winding(coil_terminals=None, winding_type="Current", is_solid=False,
-                   current_value=PhA_current, parallel_branches=1, name="Phase_A")
-M2D.add_winding_coils(windingname="Phase_A", coil_names=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
+M2D.assign_coil(assignment=["Coil"], conductors_number=6, polarity="Positive", name="CT_Ph1_P2_C1_Go")
+M2D.assign_coil(assignment=["Coil_5"], conductors_number=6, polarity="Negative", name="CT_Ph1_P2_C1_Ret")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhA_current, parallel_branches=1,
+                   name="Phase_A")
+M2D.add_winding_coils(assignment="Phase_A", coils=["CT_Ph1_P2_C1_Go", "CT_Ph1_P2_C1_Ret"])
 
 ##########################################################
 # Define windings in phase B
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase B.
 
-M2D.assign_coil(input_object="Coil_3", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go")
-M2D.assign_coil(input_object="Coil_4", conductor_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go")
-M2D.assign_winding(coil_terminals=None, winding_type="Current", is_solid=False,
-                   current_value=PhB_current, parallel_branches=1,
+M2D.assign_coil(assignment="Coil_3", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C2_Go")
+M2D.assign_coil(assignment="Coil_4", conductors_number=6, polarity="Positive", name="CT_Ph3_P1_C1_Go")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhB_current, parallel_branches=1,
                    name="Phase_B")
-M2D.add_winding_coils(windingname="Phase_B", coil_names=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
+M2D.add_winding_coils(assignment="Phase_B", coils=["CT_Ph3_P1_C2_Go", "CT_Ph3_P1_C1_Go"])
 
 ##########################################################
 # Define windings in phase C
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define windings in phase C.
 
-M2D.assign_coil(input_object="Coil_1", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret")
-M2D.assign_coil(input_object="Coil_2", conductor_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret")
-M2D.assign_winding(coil_terminals=None, winding_type="Current", is_solid=False,
-                   current_value=PhC_current, parallel_branches=1,
+M2D.assign_coil(assignment="Coil_1", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C2_Ret")
+M2D.assign_coil(assignment="Coil_2", conductors_number=6, polarity="Negative", name="CT_Ph2_P2_C1_Ret")
+M2D.assign_winding(assignment=None, winding_type="Current", is_solid=False, current=PhC_current, parallel_branches=1,
                    name="Phase_C")
-M2D.add_winding_coils(windingname="Phase_C", coil_names=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
+M2D.add_winding_coils(assignment="Phase_C", coils=["CT_Ph2_P2_C2_Ret", "CT_Ph2_P2_C1_Ret"])
 
 ##########################################################
 # Assign total current on PMs
@@ -540,9 +531,9 @@ for item in PM_list:
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the mesh operations.
 
-M2D.mesh.assign_length_mesh(id_coils, isinside=True, maxlength=3, maxel=None, meshop_name="coils")
-M2D.mesh.assign_length_mesh(stator_id, isinside=True, maxlength=3, maxel=None, meshop_name="stator")
-M2D.mesh.assign_length_mesh(rotor_id, isinside=True, maxlength=3, maxel=None, meshop_name="rotor")
+M2D.mesh.assign_length_mesh(id_coils, inside_selection=True, maximum_length=3, maximum_elements=None, name="coils")
+M2D.mesh.assign_length_mesh(stator_id, inside_selection=True, maximum_length=3, maximum_elements=None, name="stator")
+M2D.mesh.assign_length_mesh(rotor_id, inside_selection=True, maximum_length=3, maximum_elements=None, name="rotor")
 
 ##########################################################
 # Turn on eddy effects
@@ -585,7 +576,7 @@ M2D.change_symmetry_multiplier("SymmetryFactor")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the setup and validate it.
 
-setup = M2D.create_setup(setupname=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props["StopTime"] = "StopTime"
 setup.props["TimeStep"] = "TimeStep"
 setup.props["SaveFieldsType"] = "None"
@@ -692,9 +683,9 @@ post_params_multiplot = {  # reports
 
 for k, v in post_params.items():
     M2D.post.create_report(expressions=k, setup_sweep_name="", domain="Sweep", variations=None,
-                           primary_sweep_variable="Time", secondary_sweep_variable=None,
-                           report_category=None, plot_type="Rectangular Plot", context=None, subdesign_id=None,
-                           polyline_points=1001, plotname=v)
+                           primary_sweep_variable="Time", secondary_sweep_variable=None, report_category=None,
+                           plot_type="Rectangular Plot", context=None, subdesign_id=None, polyline_points=1001,
+                           plot_name=v)
 
 ##########################################################
 # Create multiplot report
@@ -723,11 +714,8 @@ M2D.analyze_setup(setup_name, use_auto_settings=False)
 # formerly created when the section is applied.
 
 faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
-plot1 = M2D.post.create_fieldplot_surface(objlist=faces_reg,
-                                          quantityName='Flux_Lines',
-                                          intrinsincDict={
-                                              "Time": M2D.variable_manager.variables["StopTime"].evaluated_value},
-                                          plot_name="Flux_Lines")
+plot1 = M2D.post.create_fieldplot_surface(assignment=faces_reg, quantity='Flux_Lines', intrinsics={
+    "Time": M2D.variable_manager.variables["StopTime"].evaluated_value}, plot_name="Flux_Lines")
 
 ##########################################################
 # Export a field plot to an image file

@@ -257,6 +257,8 @@ class Polyline(Object3d):
                         )
                     self._positions = [list(i) for i in position_list[: self._segment_types[-1].num_points]]
                 else:  # AngularArc
+                    if not all(isinstance(x, list) for x in position_list):
+                        position_list = [position_list]
                     self._positions = [position_list[0]]
                     self._evaluate_arc_angle_extra_points(segment_type, start_point=position_list[0])
                     self._positions.extend(segment_type.extra_points[:])
@@ -325,7 +327,7 @@ class Polyline(Object3d):
 
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)
-            self._primitives._create_object(self.name)
+            self._primitives._create_object(self.name, is_polyline=True)
 
     @property
     def start_point(self):
@@ -385,7 +387,7 @@ class Polyline(Object3d):
         try:
             history = self.history()
             h_segments = history.segments
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             history = None
             h_segments = None
         if h_segments:
@@ -474,7 +476,7 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        id_list = self._primitives.get_object_vertices(partID=self.id)
+        id_list = self._primitives.get_object_vertices(assignment=self.id)
         position_list = [self._primitives.get_vertex_position(id) for id in id_list]
         return position_list
 
@@ -721,19 +723,8 @@ class Polyline(Object3d):
         new_polyline._id = None
         return self._primitives._create_object(new_name)
 
-    @pyaedt_function_handler()
-    def remove_vertex(self, position, abstol=1e-9):
-        """Remove a vertex from an existing polyline by position.
-
-        .. deprecated:: 0.6.55
-           Use :func:``remove_point`` method instead.
-
-        """
-        warnings.warn("`remove_vertex` is deprecated. Use `remove_point` method instead.", DeprecationWarning)
-        return self.remove_point(position, abstol)
-
-    @pyaedt_function_handler()
-    def remove_point(self, position, abstol=1e-9):
+    @pyaedt_function_handler(abstol="tolerance")
+    def remove_point(self, position, tolerance=1e-9):
         """Remove a point from an existing polyline by position.
 
         You must enter the exact position of the vertex as a list
@@ -743,7 +734,7 @@ class Polyline(Object3d):
         ----------
         position : list
             List of ``[x, y, z]`` coordinates specifying the vertex to remove.
-        abstol : float, optional
+        tolerance : float, optional
             Absolute tolerance of the comparison of a specified position to the
             vertex positions. The default is ``1e-9``.
 
@@ -773,7 +764,7 @@ class Polyline(Object3d):
         tolerance when searching for the vertex to be removed.
 
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_point(["0mm", "1mm", "2mm"], abstol=1e-6)
+        >>> P.remove_point(["0mm", "1mm", "2mm"],tolerance=1e-6)
         """
         found_vertex = False
         seg_id = None
@@ -782,7 +773,7 @@ class Polyline(Object3d):
         for ind, point_pos in enumerate(self.points):
             # compare the specified point with the vertex data using an absolute tolerance
             # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-            found_vertex = GeometryOperators.points_distance(point_pos, pos_xyz) <= abstol
+            found_vertex = GeometryOperators.points_distance(point_pos, pos_xyz) <= tolerance
             if found_vertex:
                 if ind == len(self.points) - 1:
                     at_start = False
@@ -807,7 +798,7 @@ class Polyline(Object3d):
                     at_start,
                 ]
             )
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(seg_id, self.name))
         else:
             i_start, i_end = self._get_point_slice_from_segment_id(seg_id, at_start)
@@ -816,8 +807,8 @@ class Polyline(Object3d):
 
         return True
 
-    @pyaedt_function_handler()
-    def remove_edges(self, edge_id):
+    @pyaedt_function_handler(edge_id="assignment")
+    def remove_edges(self, assignment):
         """Remove a segment from an existing polyline by segment id.
 
         .. deprecated:: 0.6.55
@@ -825,17 +816,17 @@ class Polyline(Object3d):
 
         """
         warnings.warn("`remove_edges` is deprecated. Use `remove_segments` method instead.", DeprecationWarning)
-        return self.remove_segments(segment_id=edge_id)
+        return self.remove_segments(assignment=assignment)
 
-    @pyaedt_function_handler()
-    def remove_segments(self, segment_id):
+    @pyaedt_function_handler(segment_id="assignment")
+    def remove_segments(self, assignment):
         """Remove a segment from an existing polyline by segment id.
 
         You must enter the segment id or the list of the segment ids you want to remove.
 
         Parameters
         ----------
-        segment_id : int or List of int
+        assignment : int or List of int
             One or more edge IDs within the total number of edges of the polyline.
 
         Returns
@@ -851,12 +842,12 @@ class Polyline(Object3d):
         Examples
         --------
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_segments(segment_id=0)
+        >>> P.remove_segments(assignment=0)
         """
-        if isinstance(segment_id, int):
-            segment_id = [segment_id]
-        elif isinstance(segment_id, list):
-            segment_id.sort()
+        if isinstance(assignment, int):
+            assignment = [assignment]
+        elif isinstance(assignment, list):
+            assignment.sort()
         else:
             raise TypeError("segment_id must be int or list of int.")
         try:
@@ -866,16 +857,16 @@ class Polyline(Object3d):
                     "Selections:=",
                     self.name + ":CreatePolyline:1",
                     "Segment Indices:=",
-                    segment_id,
+                    assignment,
                     "At Start:=",
                     True,
                 ]
             )
-        except:  # pragma: no cover
-            raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(segment_id, self.name))
+        except Exception:  # pragma: no cover
+            raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(assignment, self.name))
         else:
-            segment_id.reverse()
-            for sid in segment_id:
+            assignment.reverse()
+            for sid in assignment:
                 if sid == len(self._segment_types) - 1:
                     # removing the last segment, AEDT removes ALWAYS the last polyline point
                     at_start = False
@@ -1053,13 +1044,13 @@ class Polyline(Object3d):
                 return i
         return False
 
-    @pyaedt_function_handler()
-    def insert_segment(self, position_list, segment=None):
+    @pyaedt_function_handler(position_list="points")
+    def insert_segment(self, points, segment=None):
         """Add a segment to an existing polyline.
 
         Parameters
         ----------
-        position_list : List
+        points : List
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
@@ -1081,7 +1072,7 @@ class Polyline(Object3d):
 
         """
         # Check for a valid number of points
-        num_points = len(position_list)
+        num_points = len(points)
 
         # define the segment type from the number of points given
         if not segment:
@@ -1100,20 +1091,20 @@ class Polyline(Object3d):
             elif isinstance(segment, PolylineSegment):
                 num_points = segment.num_points
                 if segment.type == "AngularArc":
-                    self._evaluate_arc_angle_extra_points(segment, start_point=position_list[0])
+                    self._evaluate_arc_angle_extra_points(segment, start_point=points[0])
             else:
                 raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object.')
-            if segment.type != "AngularArc" and len(position_list) < num_points:
+            if segment.type != "AngularArc" and len(points) < num_points:
                 raise ValueError("position_list must contain enough points for the specified segment type.")
-            elif segment.type == "AngularArc" and len(position_list) < 1:
+            elif segment.type == "AngularArc" and len(points) < 1:
                 raise ValueError("position_list must contain the start point for AngularArc segment.")
 
         # Check whether start-point and end-point of the segment is in the existing polylines points
-        start_point = position_list[0]
+        start_point = points[0]
 
         # End point does not exist for an AngularArc
         if segment.type != "AngularArc":
-            end_point = position_list[-1]
+            end_point = points[-1]
         else:
             end_point = []
 
@@ -1131,14 +1122,14 @@ class Polyline(Object3d):
             ):
                 at_start = True
                 p_insert_position = i
-                insert_points = position_list[: num_points - 1]  # All points but last one.
+                insert_points = points[: num_points - 1]  # All points but last one.
                 if i == num_polyline_points - 1:
                     if segment.type != "Line":
                         # Inserting a segment in this position is not allowed in AEDT.
                         # We can make it work only for "Line" segments.
                         return False
                     at_start = False
-                    position_list = [self.points[-2], start_point]
+                    points = [self.points[-2], start_point]
                 break
             elif (
                 GeometryOperators.points_distance(
@@ -1150,7 +1141,7 @@ class Polyline(Object3d):
                 at_start = False
                 p_insert_position = i + 1
                 if segment.type != "AngularArc":
-                    insert_points = position_list[1:num_points]  # Insert all points but first one
+                    insert_points = points[1:num_points]  # Insert all points but first one
                 else:
                     insert_points = segment.extra_points[:]  # For AngularArc insert the extra points
                 if i == 0:
@@ -1159,7 +1150,7 @@ class Polyline(Object3d):
                         # PyAEDT can make it work only for "Line" segments.
                         return False
                     at_start = True
-                    position_list = [end_point, self.points[1]]
+                    points = [end_point, self.points[1]]
                 break
 
         assert p_insert_position is not None, "Point for the insert is not found."
@@ -1191,7 +1182,7 @@ class Polyline(Object3d):
         varg2 = ["NAME:PolylinePoints"]
 
         if segment.type == "Line" or segment.type == "Spline" or segment.type == "Arc":
-            for pt in position_list[0:num_points]:
+            for pt in points[0:num_points]:
                 varg2.append(self._pl_point(pt))
             varg1.append(varg2)
         elif segment.type == "AngularArc":

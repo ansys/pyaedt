@@ -137,7 +137,7 @@ mod2D.create_coordinate_system(['c_strand_xy_coord', 'c_strand_xy_coord', '0mm']
 mod2D.set_working_coordinate_system('CS_c_strand_1')
 c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
 c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
-mod2D.duplicate_around_axis(c2_id, cs_axis="Z", angle=360 / core_n_strands, nclones=6)
+mod2D.duplicate_around_axis(c2_id, axis="Z", angle=360 / core_n_strands, clones=6)
 c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
 fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
@@ -150,7 +150,7 @@ xlpe_id.color = (0, 128, 128)
 
 mod2D.set_working_coordinate_system('Global')
 all_obj_names = q2d.get_all_conductors_names() + q2d.get_all_dielectrics_names()
-mod2D.duplicate_around_axis(all_obj_names, cs_axis="Z", angle=360 / cable_n_cores, nclones=4)
+mod2D.duplicate_around_axis(all_obj_names, axis="Z", angle=360 / cable_n_cores, clones=4)
 cond_names = q2d.get_all_conductors_names()
 
 #####################################################################################
@@ -199,7 +199,7 @@ arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 # Create region
 # ~~~~~~~~~~~~~
 
-region = q2d.modeler.create_region([500, 500, 500, 500, 0, 0])
+region = q2d.modeler.create_region([500, 500, 500, 500])
 region.material_name = "vacuum"
 
 ##########################################################
@@ -207,10 +207,10 @@ region.material_name = "vacuum"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 obj = [q2d.modeler.get_object_from_name(i) for i in cond_names]
-[q2d.assign_single_conductor(name='C1' + str(obj.index(i) + 1), target_objects=i, conductor_type='SignalLine') for i
+[q2d.assign_single_conductor(assignment=i, name='C1' + str(obj.index(i) + 1), conductor_type='SignalLine') for i
  in obj]
 obj = [q2d.modeler.get_object_from_name(i) for i in arm_strand_names]
-q2d.assign_single_conductor(name="gnd", target_objects=obj, conductor_type="ReferenceGround")
+q2d.assign_single_conductor(assignment=obj, name="gnd", conductor_type="ReferenceGround")
 mod2D.fit_all()
 
 ##########################################################
@@ -226,14 +226,8 @@ q2d.change_design_settings(q2d_des_settings)
 # Insert setup and frequency sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-q2d_setup = q2d.create_setup(setupname=setup_name)
-q2d_sweep = q2d_setup.add_sweep(sweepname=sweep_name)
-q2d_sweep.props["RangeType"] = "LogScale"
-q2d_sweep.props["RangeStart"] = "0Hz"
-q2d_sweep.props["RangeEnd"] = "3MHz"
-q2d_sweep.props["RangeCount"] = 10
-q2d_sweep.props["RangeSamples"] = 1
-q2d_sweep.update()
+q2d_setup = q2d.create_setup(name=setup_name)
+q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 
 ##########################################################
 # Analyze setup
@@ -251,12 +245,8 @@ tb = pyaedt.TwinBuilder(designname=tb_design_name)
 # Add a Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb.add_q3d_dynamic_component(project_name,
-                             q2d_design_name,
-                             setup_name,
-                             sweep_name,
-                             model_depth=lumped_length,
-                             coupling_matrix_name="Original")
+tb.add_q3d_dynamic_component(project_name, q2d_design_name, setup_name, sweep_name, coupling_matrix_name="Original",
+                             model_depth=lumped_length)
 
 ##########################################################
 # Save project and release desktop

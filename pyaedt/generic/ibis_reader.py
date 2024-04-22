@@ -7,7 +7,7 @@ import pyaedt
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_if_path_exists
-from pyaedt.generic.settings import settings
+from pyaedt.generic.general_methods import open_file
 
 
 class Component:
@@ -251,7 +251,7 @@ class Pin:
                     [],
                 ],
             )
-        except:
+        except Exception:
             logger.error("Error adding {} pin component.".format(self.short_name))
             return False
 
@@ -275,10 +275,7 @@ class Pin:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.buffer_name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
         )
 
 
@@ -415,7 +412,7 @@ class DifferentialPin:
                     [],
                 ],
             )
-        except:
+        except Exception:
             logger.error("Error adding {} pin component.".format(self.short_name))
             return False
 
@@ -439,10 +436,7 @@ class DifferentialPin:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.buffer_name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
         )
 
 
@@ -503,10 +497,7 @@ class Buffer:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.name, location=[x, y], angle=angle
         )
 
 
@@ -799,11 +790,8 @@ class IbisReader(object):
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -899,13 +887,10 @@ class IbisReader(object):
                     elif is_started_with(model_spec.lower(), "enable ", True):
                         model.enable = model_spec.split()[-1].strip()
 
-            model_info_lower = {key.lower(): value for key, value in model_info.items()}
-
             if "gnd clamp" in [key.lower() for key in model_info.keys()]:
                 model.clamp = True
             if "algorithmic model" in [key.lower() for key in model_info.keys()]:
                 matching_key = next((key for key in model_info.keys() if "algorithmic model" in key.lower()), None)
-                ami_info = model_info[matching_key][matching_key].split()
                 model.ami = model_info[matching_key][matching_key].split()
                 ibis.AMI = True
             else:
@@ -1222,11 +1207,7 @@ class AMIReader(IbisReader):
 
         ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -1342,10 +1323,10 @@ def ibis_parsing(file):
     """
     ibis = {}
     # OPEN AND READ IBIS FILE
-    with open(file, "r") as fp:
+    with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+    with open_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
 

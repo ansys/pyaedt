@@ -8,6 +8,7 @@ from fpdf import FontFace
 
 from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import open_file
 
 
 @dataclass
@@ -77,7 +78,7 @@ class AnsysReport(FPDF):
         if template_file:
             self.report_specs.template_name = template_file
         if os.path.exists(self.report_specs.template_name):
-            with open(self.report_specs.template_name, "r") as f:
+            with open_file(self.report_specs.template_name, "r") as f:
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
 
@@ -258,10 +259,9 @@ class AnsysReport(FPDF):
             msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
             msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
             image_path = os.path.join(design.working_directory, "model.jpg")
-            design.modeler.edb.nets.plot(
-                save_plot=image_path,
-            )
-            self.add_image(image_path, "Model Image")
+            design.modeler.edb.nets.plot(save_plot=image_path)
+            if os.path.exists(image_path):
+                self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
             msg = f"The schematic has {len(design.modeler.components.components)} components."
             self.add_text(msg)
@@ -574,7 +574,7 @@ class AnsysReport(FPDF):
         for section in self._outline:
             link = self.add_link()
             self.set_link(link, page=section.page_number)
-            string1 = f'{" " * section.level * 2} {section.name}'
+            string1 = f'{" " * section.level * 2} {section.name}'[:70]
             string2 = f"Page {section.page_number}"
             self.set_x(self.l_margin * 2)
             self.cell(

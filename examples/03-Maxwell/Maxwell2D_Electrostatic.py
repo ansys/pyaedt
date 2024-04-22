@@ -106,8 +106,8 @@ mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 # Create rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
-rect = mod2D.create_rectangle(position=['r_x0', 'r_y0', 'r_z0'],
-                              dimension_list=['r_dx', 'r_dy', 0],
+rect = mod2D.create_rectangle(origin=['r_x0', 'r_y0', 'r_z0'],
+                              sizes=['r_dx', 'r_dy', 0],
                               name='Ground', matname=mats[0])
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
@@ -119,8 +119,8 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0],[8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod2D.create_polyline(position_list=poly1_points,segment_type='Spline', name='Poly1')
-poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
+poly1_id = mod2D.create_polyline(points=poly1_points, segment_type='Spline', name='Poly1')
+poly2_id = mod2D.create_polyline(points=poly2_points, name='Poly2')
 mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
 mod2D.create_region([20, 100, 20, 100])
 
@@ -137,14 +137,14 @@ M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
+M2D.mesh.assign_surface_mesh_manual(assignment=['Ground'], surface_deviation=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setupname=setup_name)
+setup = M2D.create_setup(name=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()
@@ -177,8 +177,7 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # and as ``In surface objects`` only the region.
 
 plot = M2D.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
-                                             in_volume_tracing_objs="Region",
-                                             plot_name="LineTracesTest")
+                                             in_volume_tracing_objs="Region", plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot
@@ -197,7 +196,7 @@ plot.update()
 # Export field line traces plot.
 # For field lint traces plot, the export file format is ``.fldplt``.
 
-M2D.post.export_field_plot(plotname="LineTracesTest", filepath=M2D.toolkit_directory, file_format="fldplt")
+M2D.post.export_field_plot(plot_name="LineTracesTest", output_dir=M2D.toolkit_directory, file_format="fldplt")
 
 ##########################################################
 # Export a field plot to an image file
@@ -211,7 +210,7 @@ M2D.post.plot_field_from_fieldplot(plot.name, show=False)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export the mesh in ``aedtplt`` format.
 
-M2D.post.export_mesh_obj(setup_name=M2D.nominal_adaptive)
+M2D.post.export_mesh_obj(setup=M2D.nominal_adaptive)
 
 ###################################################################################
 # Save project and close AEDT

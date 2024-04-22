@@ -192,13 +192,13 @@ class TestClass:
         assert setup2
         setup1.props["RestrictElem"] = False
         assert setup1.update()
-        assert self.aedtapp.mesh.delete_mesh_operations("HFSS", setup1.name)
+        assert self.aedtapp.mesh.delete_mesh_operations(
+            "HFSS",
+            setup1.name,
+        )
 
     def test_05_change_property(self):
-        ports = self.aedtapp.create_ports_on_component_by_nets(
-            "U1",
-            "DDR4_DQS0_P",
-        )
+        ports = self.aedtapp.create_ports_on_component_by_nets("U1", "DDR4_DQS0_P")
         assert self.aedtapp.modeler.change_property(
             "Excitations:{}".format(ports[0].name), "Impedance", "49ohm", "EM Design"
         )
@@ -206,7 +206,7 @@ class TestClass:
     def test_06_assign_spice_model(self):
         model_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32ER72A225KA35_25C_0V.sp")
         assert self.aedtapp.modeler.set_spice_model(
-            component_name="C1", model_path=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
+            assignment="C1", input_file=model_path, subcircuit_name="GRM32ER72A225KA35_25C_0V"
         )
 
     def test_07_nets(self):
@@ -282,9 +282,9 @@ class TestClass:
 
     def test_15_3dplacement(self):
         self.aedtapp.insert_design("placement_3d")
-        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal", thickness="5mil")
-        self.aedtapp.modeler.layers.add_layer("diel", "dielectric", thickness="121mil", material="FR4_epoxy")
-        self.aedtapp.modeler.layers.add_layer("TOP", "signal", thickness="5mil", isnegative=True)
+        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
+        self.aedtapp.modeler.layers.add_layer("diel", "dielectric")
+        self.aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12
         encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "SMA_RF_Jack.a3dcomp")
         comp = self.aedtapp.modeler.place_3d_component(
@@ -307,7 +307,7 @@ class TestClass:
 
     def test_16_differential_ports(self):
         self.aedtapp.set_active_design(self.design_name)
-        pins = self.aedtapp.modeler.components["R3"].pins
+        pins = list(self.aedtapp.modeler.components["R3"].pins.keys())
         assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
         assert "test_differential" in self.aedtapp.port_list
 
@@ -319,10 +319,7 @@ class TestClass:
             if "GND" not in self.aedtapp.modeler.pins[i].net_name and self.aedtapp.modeler.pins[i].net_name != ""
         ]
         ports_before = len(self.aedtapp.port_list)
-        ports = self.aedtapp.create_ports_on_component_by_nets(
-            "J1",
-            nets,
-        )
+        ports = self.aedtapp.create_ports_on_component_by_nets("J1", nets)
         assert ports
         ports_after = len(self.aedtapp.port_list)
         assert ports_after - ports_before == len(nets)
@@ -351,7 +348,6 @@ class TestClass:
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
             self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
-            setup_sweep_name="SIwaveDCIR1",
             domain="DCIR",
             context="RL",
         )
@@ -376,3 +372,15 @@ class TestClass:
         assert (
             self.aedtapp.get_oo_property_value(self.aedtapp.odesign, "Design Settings", "DCExtrapolation") == "Advanced"
         )
+
+    def test_23_dissolve_element(self):
+        comp = self.aedtapp.modeler.components["D1"]
+        pins = {name: pin for name, pin in comp.pins.items() if name in ["D1-1", "D1-2", "D1-7"]}
+        self.aedtapp.dissolve_component("D1")
+        comp = self.aedtapp.modeler.create_component_on_pins(list(pins.keys()))
+        nets = [
+            list(pins.values())[0].net_name,
+            list(pins.values())[1].net_name,
+        ]
+        assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
+        assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")

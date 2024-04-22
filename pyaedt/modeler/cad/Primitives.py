@@ -55,6 +55,129 @@ default_materials = {
 aedt_wait_time = 0.1
 
 
+class Objects(dict):
+    """AEDT object dictionary."""
+
+    def _parse_objs(self):
+        if self.__refreshed is False and dict.__len__(self) != len(self.__parent.object_names):
+            self.__refreshed = True
+            if self.__obj_type == "o":
+                self.__parent.logger.info("Parsing design objects. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent._refresh_all_ids_from_aedt_file()
+                self.__parent.add_new_solids()
+                self.__parent.cleanup_solids()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "p":
+                self.__parent.logger.info("Parsing design points. This operation can take time")
+                self.__parent.logger.reset_timer()
+                self.__parent.add_new_points()
+                self.__parent.cleanup_points()
+                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+            elif self.__obj_type == "u":
+                self.__parent.add_new_user_defined_component()
+
+    def __len__(self):
+        if self.__refreshed:
+            return dict.__len__(self)
+        elif self.__obj_type == "o":
+            return len(self.__parent.object_names)
+        elif self.__obj_type == "p":
+            return len(self.__parent.point_names)
+        else:
+            return len(self.__parent.user_defined_component_names)
+
+    def __contains__(self, item):
+        if self.__refreshed:
+            return True if (item in dict.keys(self) or item in self.__obj_names) else False
+        elif isinstance(item, str):
+            if self.__obj_type == "o":
+                return True if item in self.__parent.object_names else False
+            elif self.__obj_type == "p":
+                return True if item in self.__parent.point_names else False
+            else:
+                return True if item in self.__parent.user_defined_component_names else False
+        self._parse_objs()
+        return True if (item in dict.keys(self) or item in self.__obj_names) else False
+
+    def keys(self):
+        self._parse_objs()
+
+        return dict.keys(self)
+
+    def values(self):
+        self._parse_objs()
+        return dict.values(self)
+
+    def items(self):
+        self._parse_objs()
+        return dict.items(self)
+
+    def __iter__(self):
+        self._parse_objs()
+        return dict.__iter__(self)
+
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        self.__obj_names[value.name] = value
+        if self.__obj_type == "o":
+            self.__parent._object_names_to_ids[value.name] = key
+
+    @pyaedt_function_handler()
+    def __getitem__(self, item):
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        if self.__obj_type == "o":
+            if isinstance(item, int):
+                try:
+                    id = item
+                    name = self.__parent.oeditor.GetObjectNameByID(id)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except Exception:
+                    raise KeyError(item)
+
+            elif isinstance(item, str):
+                try:
+                    name = item
+                    id = self.__parent.oeditor.GetObjectIDByName(name)
+                    o = self.__parent._create_object(name, id)
+                    self.__setitem__(id, o)
+                    return o
+                except Exception:
+                    raise KeyError(item)
+
+            elif isinstance(item, (Object3d, Polyline)):
+                self.__setitem__(item.id, item)
+                return item
+            else:
+                raise TypeError(item)
+        self._parse_objs()
+        if item in dict.keys(self):
+            return dict.__getitem__(self, item)
+        elif item in self.__obj_names:
+            return self.__obj_names[item]
+        raise KeyError(item)
+
+    def __init__(self, parent, obj_type="o", props=None):
+        dict.__init__(self)
+        self.__obj_names = {}
+        self.__parent = parent
+        self.__obj_type = obj_type
+        if props:
+            for key, value in props.items():
+                dict.__setitem__(self, key, value)
+                self.__obj_names[value.name] = value
+                if self.__obj_type == "o":
+                    self.__parent._object_names_to_ids[value.name] = key
+            self.__refreshed = True
+        else:
+            self.__refreshed = False
+
+
 class GeometryModeler(Modeler):
     """Manages the main AEDT Modeler functionalities for geometry-based designs.
 
@@ -81,26 +204,20 @@ class GeometryModeler(Modeler):
             Returns ``None`` if the part ID or the object name is not found.
 
         """
-        if isinstance(partId, (int, str)) and not (
-            partId in self.objects or partId in self._object_names_to_ids or partId in self.user_defined_components
-        ):
-            self.refresh_all_ids()
-        if isinstance(partId, int):
-            if partId in self.objects:
-                return self.objects[partId]
-        elif partId in self._object_names_to_ids:
-            return self.objects[self._object_names_to_ids[partId]]
-        elif partId in self.user_defined_components:
-            return self.user_defined_components[partId]
-        elif isinstance(partId, Object3d) or isinstance(partId, UserDefinedComponent):
+        if isinstance(partId, (Object3d, UserDefinedComponent, Point)):
             return partId
+        try:
+            return self.objects[partId]
+        except Exception:
+            if partId in self.user_defined_components.keys():
+                return self.user_defined_components[partId]
         self.logger.error("Object '{}' not found.".format(partId))
         return None
 
     def __init__(self, app, is3d=True):
         self._app = app
+        self._model_data = {}
         Modeler.__init__(self, app)
-        # TODO Refactor this as a dictionary with names as key
         self._coordinate_systems = []
         self._user_lists = []
         self._planes = []
@@ -111,10 +228,10 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
-        self.user_defined_components = {}
         self._object_names_to_ids = {}
-        self.points = {}
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
+        self.points = Objects(self, "p")
         self.refresh()
 
     class Position:
@@ -156,28 +273,28 @@ class GeometryModeler(Modeler):
             if len(args) == 1 and type(args[0]) is list:
                 try:
                     self.X = args[0][0]
-                except:
+                except Exception:
                     self.X = 0
                 try:
                     self.Y = args[0][1]
-                except:
+                except Exception:
                     self.Y = 0
                 try:
                     self.Z = args[0][2]
-                except:
+                except Exception:
                     self.Z = 0
             else:
                 try:
                     self.X = args[0]
-                except:
+                except Exception:
                     self.X = 0
                 try:
                     self.Y = args[1]
-                except:
+                except Exception:
                     self.Y = 0
                 try:
                     self.Z = args[2]
-                except:
+                except Exception:
                     self.Z = 0
 
     class SweepOptions(object):
@@ -327,7 +444,7 @@ class GeometryModeler(Modeler):
                 return "2D"
             else:
                 return "3D"
-        except:
+        except Exception:
             if self.design_type == "2D Extractor":
                 return "2D"
             else:
@@ -402,8 +519,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_sheets()
-        return [self[name] for name in self.sheet_names if self[name]]
+        self._refresh_sheets()
+        return [v for k, v in self.objects_by_name.items() if k in self._sheets]
 
     @property
     def line_objects(self):
@@ -414,8 +531,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_lines()
-        return [self[name] for name in self.line_names if self[name]]
+        self._refresh_lines()
+        return [v for k, v in self.objects_by_name.items() if k in self._lines]
 
     @property
     def point_objects(self):
@@ -426,8 +543,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_points()
-        return [self.points[name] for name in self.point_names]
+        self._refresh_points()
+        return [v for k, v in self.points.items() if k in self._points]
 
     @property
     def unclassified_objects(self):
@@ -438,8 +555,8 @@ class GeometryModeler(Modeler):
         list of :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         """
-        # self._refresh_unclassified()
-        return [self[name] for name in self.unclassified_names if name is not None]
+        self._refresh_unclassified()
+        return [v for k, v in self.objects_by_name.items() if k in self._unclassified]
 
     @property
     def object_list(self):
@@ -451,7 +568,7 @@ class GeometryModeler(Modeler):
             3D object.
         """
         self._refresh_object_types()
-        return [self[name] for name in self._all_object_names if name is not None and name not in self.point_names]
+        return [v for name, v in self.objects_by_name.items() if name is not None and name not in self.point_names]
 
     @property
     def solid_names(self):
@@ -538,11 +655,11 @@ class GeometryModeler(Modeler):
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
                 try:
                     udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
-                except:  # pragma: no cover
+                except Exception:  # pragma: no cover
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
-            if self.user_defined_components:
+            if self.user_defined_components.keys():
                 existing_components = list(self.user_defined_components.keys())
                 new_obs3d = [i for i in obs3d if i]
                 for _, value in enumerate(existing_components):
@@ -563,7 +680,7 @@ class GeometryModeler(Modeler):
             Layout component names.
         """
         lc_names = []
-        if self.user_defined_components:
+        if self.user_defined_components.keys():
             for name, value in self.user_defined_components.items():
                 if value.layout_component:
                     lc_names.append(name)
@@ -658,19 +775,19 @@ class GeometryModeler(Modeler):
         self._points = []
         self._unclassified = []
         self._all_object_names = []
-        self.objects = {}
-        self.user_defined_components = {}
         self._object_names_to_ids = {}
-        self._currentId = 0
+        self.objects = Objects(self, "o")
+        self.user_defined_components = Objects(self, "u")
         self._refresh_object_types()
-        self._refresh_all_ids_from_aedt_file()
-        self.refresh_all_ids()
+        if not settings.objects_lazy_load:
+            self._refresh_all_ids_from_aedt_file()
+            self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def _get_commands(self, name):
         try:
             return self.oeditor.GetChildObject(name).GetChildNames()
-        except:
+        except Exception:
             return []
 
     @pyaedt_function_handler()
@@ -696,46 +813,52 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def _refresh_all_ids_from_aedt_file(self):
-        if not self._design_properties or "ModelSetup" not in self._design_properties:
+
+        dp = copy.deepcopy(self._app.design_properties)
+        if not dp or "ModelSetup" not in dp:
             return False
 
         try:
-            groups = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
+            groups = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["Groups"]["Group"]
         except KeyError:
             groups = []
         if not isinstance(groups, list):
             groups = [groups]
         try:
-            self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
+            dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]
         except KeyError:
             return 0
-        for el in self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-            "GeometryPart"
-        ]:
+
+        for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
                 operations = el.get("Operations", None)
             else:
-                attribs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
-                    "GeometryPart"
-                ]["Attributes"]
-                operations = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "ToplevelParts"
-                ]["GeometryPart"]["Operations"]
+                attribs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Attributes"
+                ]
+                operations = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"][
+                    "Operations"
+                ]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
                 if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
-                    except:  # pragma: no cover
-                        pass
+                    except Exception as e:  # pragma: no cover
+                        self.logger.debug(e)
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:
                         pid = operations["Operation"][0]["ParentPartID"]
-                    except:
-                        pass
-                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True)
+                    except Exception as e:
+                        self.logger.debug(e)
+
+                is_polyline = False
+                if operations and "PolylineParameters" in operations.get("Operation", {}):
+                    is_polyline = True
+
+                o = self._create_object(name=attribs["Name"], pid=pid, use_cached=True, is_polyline=is_polyline)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
@@ -753,7 +876,7 @@ class GeometryModeler(Modeler):
                 o._m_groupName = groupname
                 try:
                     o._color = tuple(int(x) for x in attribs["Color"][1:-1].split(" "))
-                except:
+                except Exception:
                     o._color = None
                 o._surface_material = attribs.get("SurfaceMaterialValue", None)
                 if o._surface_material:
@@ -779,25 +902,62 @@ class GeometryModeler(Modeler):
            Dictionary of updated object IDs.
 
         """
+        self.cleanup_solids()
+        self.cleanup_points()
+
+    @pyaedt_function_handler()
+    def cleanup_solids(self):
+        """Clean up solids that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
         new_object_dict = {}
         new_object_id_dict = {}
-        new_points_dict = {}
 
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
-        for old_id, obj in self.objects.items():
-            if obj.name in all_objs:
-                # Check if ID can change in boolean operations
-                # updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = old_id
-                new_object_dict[old_id] = obj
+        if len(all_objs) != len(self._object_names_to_ids):
+            for old_id, obj in self.objects.items():
+                if obj.name in all_objs:
+                    # Check if ID can change in boolean operations
+                    # updated_id = obj.id  # By calling the object property we get the new id
+                    new_object_id_dict[obj.name] = old_id
+                    new_object_dict[old_id] = obj
+            self._object_names_to_ids = {}
+            self.objects = Objects(self, "o", new_object_dict)
+
+    @pyaedt_function_handler()
+    def cleanup_points(self):
+        """Clean up points that no longer exist in the modeler because
+        they were removed by previous operations.
+
+        This method also updates object IDs that may have changed via
+        a modeler operation such as :func:`pyaedt.modeler.Model3D.Modeler3D.unite`
+        or :func:`pyaedt.modeler.Model2D.Modeler2D.unite`.
+
+        Returns
+        -------
+        dict
+           Dictionary of updated object IDs.
+
+        """
+        new_points_dict = {}
+
         for old_id, obj in self.points.items():
             if obj.name in self._points:
                 new_points_dict[obj.name] = obj
-        self.objects = new_object_dict
-        self._object_names_to_ids = new_object_id_dict
-        self.points = new_points_dict
+
+        self.points = Objects(self, "p", new_points_dict)
 
     @pyaedt_function_handler()
     def find_new_objects(self):
@@ -827,29 +987,59 @@ class GeometryModeler(Modeler):
             List of added objects.
 
         """
-        # TODO: Need to improve documentation for this method.
         added_objects = []
         objs_ids = {}
-        if not self._object_names_to_ids:
-            for obj in self._all_object_names:
-                try:
-                    objs_ids[obj] = self.oeditor.GetObjectIDByName(obj)
-                except:
-                    pass
+        added_objects = self.add_new_solids()
+        added_objects += self.add_new_points()
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_solids(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
+        added_objects = []
+
         for obj_name in self.object_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj_name)
+                except Exception:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
         for obj_name in self.unclassified_names:
             if obj_name not in self._object_names_to_ids:
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
+                try:
+                    pid = self.oeditor.GetObjectIDByName(obj_name)
+                except Exception:
+                    pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
                 added_objects.append(obj_name)
+
+        return added_objects
+
+    @pyaedt_function_handler()
+    def add_new_points(self):
+        """Add objects that have been created in the modeler by
+        previous operations.
+
+        Returns
+        -------
+        list
+            List of added objects.
+
+        """
+        added_objects = []
         for obj_name in self.point_names:
             if obj_name not in self.points.keys():
-                pid = objs_ids[obj_name] if obj_name in objs_ids else 0
-                self._create_object(obj_name, pid=pid, use_cached=True)
+                self._create_object(obj_name, pid=0, use_cached=True)
                 added_objects.append(obj_name)
         return added_objects
 
@@ -866,7 +1056,7 @@ class GeometryModeler(Modeler):
         """
         added_component = []
         for comp_name in self.user_defined_component_names:
-            if comp_name not in self.user_defined_components:
+            if comp_name not in self.user_defined_components.keys():
                 self._create_user_defined_component(comp_name)
             added_component.append(comp_name)
         return added_component
@@ -877,19 +1067,20 @@ class GeometryModeler(Modeler):
     def refresh_all_ids(self):
         """Refresh all IDs."""
 
-        self.add_new_objects()
+        self.add_new_solids()
+        self.add_new_points()
         self.add_new_user_defined_component()
         self.cleanup_objects()
 
         return len(self.objects)
 
-    @pyaedt_function_handler()
-    def get_objects_by_material(self, materialname=None):
+    @pyaedt_function_handler(materialname="material")
+    def get_objects_by_material(self, material=None):
         """Get a list of objects either of a specified material or classified by material.
 
         Parameters
         ----------
-        materialname : str
+        material : str
             Name of the material. The default is ``None``.
 
         Returns
@@ -909,7 +1100,7 @@ class GeometryModeler(Modeler):
 
         """
         obj_lst = []
-        if materialname is not None:
+        if material is not None:
             for obj in self.object_list:
                 if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
                     material = (
@@ -918,9 +1109,9 @@ class GeometryModeler(Modeler):
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if materialname.lower() == material:
+                    if material.lower() == material:
                         obj_lst.append(obj)
-                elif obj and (obj.material_name == materialname or obj.material_name == materialname.lower()):
+                elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)
         else:
             obj_lst = [
@@ -936,8 +1127,9 @@ class GeometryModeler(Modeler):
         coord = []
         id2name = {1: "Global"}
         name2refid = {}
-        if self._design_properties and "ModelSetup" in self._design_properties:
-            cs = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
+        dp = copy.deepcopy(self._design_properties)
+        if dp and "ModelSetup" in dp:
+            cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
                     if isinstance(cs[ds], (OrderedDict, dict)):
@@ -959,9 +1151,9 @@ class GeometryModeler(Modeler):
                             cs_id = cs[ds]["ID"]
                             id2name[cs_id] = name
                             op_id = cs[ds]["PlaceHolderOperationID"]
-                            geometry_part = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                                "ToplevelParts"
-                            ]["GeometryPart"]
+                            geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                "GeometryPart"
+                            ]
                             if isinstance(geometry_part, (OrderedDict, dict)):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                 if isinstance(op, (OrderedDict, dict)):
@@ -1007,9 +1199,9 @@ class GeometryModeler(Modeler):
                                 cs_id = el["ID"]
                                 id2name[cs_id] = name
                                 op_id = el["PlaceHolderOperationID"]
-                                geometry_part = self._design_properties["ModelSetup"]["GeometryCore"][
-                                    "GeometryOperations"
-                                ]["ToplevelParts"]["GeometryPart"]
+                                geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
+                                    "GeometryPart"
+                                ]
                                 if isinstance(geometry_part, (OrderedDict, dict)):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
                                     if isinstance(op, (OrderedDict, dict)):
@@ -1038,14 +1230,14 @@ class GeometryModeler(Modeler):
                                                     props = iop["FaceCSParameters"]
                                                     coord.append(FaceCoordinateSystem(self, props, name))
                                                     break
-                except:
-                    pass
+                except Exception as e:
+                    self.logger.debug(e)
             for cs in coord:
                 if isinstance(cs, CoordinateSystem):
                     try:
                         cs._ref_cs = id2name[name2refid[cs.name]]
-                    except:
-                        pass
+                    except Exception as e:
+                        self.logger.debug(e)
         coord.reverse()
         return coord
 
@@ -1057,12 +1249,13 @@ class GeometryModeler(Modeler):
         [Dict with List information]
         """
         design_lists = []
-        if self._design_properties and self._design_properties.get("ModelSetup", None):
+        dp = copy.deepcopy(self._design_properties)
+        if dp and dp.get("ModelSetup", None):
             key1 = "GeometryOperations"
             key2 = "GeometryEntityLists"
             key3 = "GeometryEntityListOperation"
             try:
-                entity_list = self._design_properties["ModelSetup"]["GeometryCore"][key1][key2]
+                entity_list = dp["ModelSetup"]["GeometryCore"][key1][key2]
                 if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
                     if isinstance(geom_entry, (dict, OrderedDict)):
@@ -1081,7 +1274,7 @@ class GeometryModeler(Modeler):
                         else:
                             props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                         design_lists.append(Lists(self, props, name))
-            except:
+            except Exception:
                 self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists
 
@@ -1152,13 +1345,13 @@ class GeometryModeler(Modeler):
             return False, (origin, a_end, b_end)
         return True, (origin, a_end, b_end)
 
-    @pyaedt_function_handler()
-    def cover_lines(self, selection):
+    @pyaedt_function_handler(selection="assignment")
+    def cover_lines(self, assignment):
         """Cover closed lines and transform them to a sheet.
 
         Parameters
         ----------
-        selection : str, int
+        assignment : str, int
             Polyline object to cover.
 
         Returns
@@ -1171,17 +1364,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CoverLines
         """
-        obj_to_cover = self.convert_to_selections(selection, False)
+        obj_to_cover = self.convert_to_selections(assignment, False)
         self.oeditor.CoverLines(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
-    @pyaedt_function_handler()
-    def cover_faces(self, selection):
+    @pyaedt_function_handler(selection="assignment")
+    def cover_faces(self, assignment):
         """Cover a face.
 
         Parameters
         ----------
-        selection : str, int
+        assignment : str, int
             Sheet object to cover.
         Returns
         -------
@@ -1193,7 +1386,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CoverLines
         """
-        obj_to_cover = self.convert_to_selections(selection, False)
+        obj_to_cover = self.convert_to_selections(assignment, False)
         self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
@@ -1368,7 +1561,7 @@ class GeometryModeler(Modeler):
         cs = FaceCoordinateSystem(self)
         if cs:
             result = cs.create(
-                face=face,
+                assignment=face,
                 origin=origin,
                 axis_position=axis_position,
                 axis=axis,
@@ -1382,15 +1575,23 @@ class GeometryModeler(Modeler):
                 return cs
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(obj="assignment")
     def create_object_coordinate_system(
-        self, obj, origin, x_axis, y_axis, move_to_end=True, reverse_x_axis=False, reverse_y_axis=False, name=None
+        self,
+        assignment,
+        origin,
+        x_axis,
+        y_axis,
+        move_to_end=True,
+        reverse_x_axis=False,
+        reverse_y_axis=False,
+        name=None,
     ):
         """Create an object coordinate system.
 
         Parameters
         ----------
-        obj : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Refer to the origin where the object coordinate system is anchored.
@@ -1442,7 +1643,7 @@ class GeometryModeler(Modeler):
         cs = ObjectCoordinateSystem(self, name=name)
         if cs:
             result = cs.create(
-                obj=obj,
+                assignment=assignment,
                 origin=origin,
                 x_axis=x_axis,
                 y_axis=y_axis,
@@ -1455,15 +1656,15 @@ class GeometryModeler(Modeler):
                 return cs
         return False
 
-    @pyaedt_function_handler()
-    def global_to_cs(self, point, ref_cs):
+    @pyaedt_function_handler(ref_cs="coordinate_system")
+    def global_to_cs(self, point, coordinate_system):
         """Transform a point from the global coordinate system to another coordinate system.
 
         Parameters
         ----------
         point : list
             List of the ``[x, y, z]`` coordinates to transform.
-        ref_cs : str, CoordinateSystem
+        coordinate_system : str, CoordinateSystem
             Name of the destination reference system. The ``CoordinateSystem`` object can also be
             used.
 
@@ -1477,12 +1678,12 @@ class GeometryModeler(Modeler):
             raise AttributeError("Point must be in format [x, y, z].")
         try:
             point = [float(i) for i in point]
-        except:
+        except Exception:
             raise AttributeError("Point must be in format [x, y, z].")
-        if isinstance(ref_cs, BaseCoordinateSystem):
-            ref_cs_name = ref_cs.name
-        elif isinstance(ref_cs, str):
-            ref_cs_name = ref_cs
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            ref_cs_name = coordinate_system.name
+        elif isinstance(coordinate_system, str):
+            ref_cs_name = coordinate_system
         else:
             raise AttributeError("ref_cs must be either a string or a CoordinateSystem object.")
         if ref_cs_name == "Global":
@@ -1712,7 +1913,7 @@ class GeometryModeler(Modeler):
                 axis_position = [v for v in edge.vertices if v.id == face_cs.props["AxisPosn"]["EntityID"]][0]
             if face_cs:
                 result = face_cs.create(
-                    face=face,
+                    assignment=face,
                     origin=origin,
                     axis_position=axis_position,
                     axis=face_cs.props["WhichAxis"],
@@ -1784,7 +1985,7 @@ class GeometryModeler(Modeler):
                 ]
             if obj_cs:
                 result = obj_cs.create(
-                    obj=obj,
+                    assignment=obj,
                     origin=origin,
                     x_axis=x_axis,
                     y_axis=y_axis,
@@ -1796,13 +1997,13 @@ class GeometryModeler(Modeler):
                     return obj_cs
         return False
 
-    @pyaedt_function_handler()
-    def set_objects_deformation(self, objects):
+    @pyaedt_function_handler(objects="assignment")
+    def set_objects_deformation(self, assignment):
         """Assign deformation objects to a Workbench link.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of the deformation objects to assign to the Workbench link.
 
         Returns
@@ -1817,25 +2018,25 @@ class GeometryModeler(Modeler):
         """
         self.logger.info("Enabling deformation feedback")
         try:
-            self._odesign.SetObjectDeformation(["EnabledObjects:=", objects])
-        except:
+            self._odesign.SetObjectDeformation(["EnabledObjects:=", assignment])
+        except Exception:
             self.logger.error("Failed to enable the deformation dependence")
             return False
         else:
             self.logger.info("Successfully enabled deformation feedback")
             return True
 
-    @pyaedt_function_handler()
-    def set_objects_temperature(self, objects, ambient_temp=22, create_project_var=False):
+    @pyaedt_function_handler(objects="assignment", ambient_temp="ambient_temperature")
+    def set_objects_temperature(self, assignment, ambient_temperature=22, create_project_var=False):
         """Assign temperatures to objects.
 
         The materials assigned to the objects must have a thermal modifier.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of objects.
-        ambient_temp : float, optional
+        ambient_temperature : float, optional
             Ambient temperature. The default is ``22``.
         create_project_var : bool, optional
             Whether to create a project variable for the ambient temperature.
@@ -1853,10 +2054,10 @@ class GeometryModeler(Modeler):
         """
         self.logger.info("Set model temperature and enabling Thermal Feedback")
         if create_project_var:
-            self._app.variable_manager["$AmbientTemp"] = str(ambient_temp) + "cel"
+            self._app.variable_manager["$AmbientTemp"] = str(ambient_temperature) + "cel"
             var = "$AmbientTemp"
         else:
-            var = str(ambient_temp) + "cel"
+            var = str(ambient_temperature) + "cel"
         vargs1 = [
             "NAME:TemperatureSettings",
             "IncludeTemperatureDependence:=",
@@ -1866,7 +2067,7 @@ class GeometryModeler(Modeler):
             "Temperatures:=",
         ]
         vargs2 = []
-        for obj in objects:
+        for obj in assignment:
             mat = self[obj].material_name
             th = self._app.materials.check_thermal_modifier(mat)
             if th:
@@ -1878,7 +2079,7 @@ class GeometryModeler(Modeler):
             vargs1.append(vargs2)
         try:
             self._odesign.SetObjectTemperature(vargs1)
-        except:
+        except Exception:
             self.logger.error("Failed to enable the temperature dependence")
             return False
         else:
@@ -1928,15 +2129,18 @@ class GeometryModeler(Modeler):
         self.connect(port_edges)
         return sheet_name, point0, point1
 
-    @pyaedt_function_handler()
-    def find_point_around(self, objectname, startposition, offset, plane):
+    @pyaedt_function_handler(
+        objectname="assignment",
+        startposition="origin",
+    )
+    def find_point_around(self, assignment, origin, offset, plane):
         """Find the point around an object.
 
         Parameters
         ----------
-        objectname : str
+        assignment : str
             Name of the object.
-        startposition : list
+        origin : list
             List of the ``[x, y, z]`` coordinates for the starting
             position of the object.
         offset :
@@ -1956,32 +2160,32 @@ class GeometryModeler(Modeler):
         angle = 0
         if plane == 0:
             while angle <= 360:
-                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
-                position[1] = startposition[1] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[0] = origin[0] + offset * math.cos(math.pi * angle / 180)
+                position[1] = origin[1] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 1:
             while angle <= 360:
-                position[1] = startposition[1] + offset * math.cos(math.pi * angle / 180)
-                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[1] = origin[1] + offset * math.cos(math.pi * angle / 180)
+                position[2] = origin[2] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         elif plane == 2:
             while angle <= 360:
-                position[0] = startposition[0] + offset * math.cos(math.pi * angle / 180)
-                position[2] = startposition[2] + offset * math.sin(math.pi * angle / 180)
-                if objectname in self.get_bodynames_from_position(startposition):
+                position[0] = origin[0] + offset * math.cos(math.pi * angle / 180)
+                position[2] = origin[2] + offset * math.sin(math.pi * angle / 180)
+                if assignment in self.get_bodynames_from_position(origin):
                     angle = 400
                 else:
                     angle += 90
         return position
 
-    @pyaedt_function_handler()
-    def create_sheet_to_ground(self, objectname, groundname=None, axisdir=0, sheet_dim=1):
+    @pyaedt_function_handler(objectname="assignment", groundname="ground_name", axisdir="orientation")
+    def create_sheet_to_ground(self, assignment, ground_name=None, orientation=0, sheet_dim=1):
         """Create a sheet between an object and a ground plane.
 
         The ground plane must be bigger than the object and perpendicular
@@ -1989,12 +2193,12 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objectname : str
+        assignment : str
             Name of the object.
-        groundname : str, optional
+        ground_name : str, optional
             Name of the ground. The default is ``None``, in which case the
             bounding box is used.
-        axisdir : int, optional
+        orientation : int, optional
             Axis direction. Options are ``0`` through ``5``. The default is ``0``.
         sheet_dim : optional
             Sheet dimension in millimeters. The default is ``1``.
@@ -2009,36 +2213,36 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreatePolyline
         """
-        if axisdir > 2:
+        if orientation > 2:
             obj_cent = [-1e6, -1e6, -1e6]
         else:
             obj_cent = [1e6, 1e6, 1e6]
         face_ob = None
-        for face in self[objectname].faces:
+        for face in self[assignment].faces:
             center = face.center
             if not center:
                 continue
-            if axisdir > 2 and center[axisdir - 3] > obj_cent[axisdir - 3]:
+            if orientation > 2 and center[orientation - 3] > obj_cent[orientation - 3]:
                 obj_cent = center
                 face_ob = face
-            elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
+            elif orientation <= 2 and center[orientation] < obj_cent[orientation]:
                 obj_cent = center
                 face_ob = face
         vertex = face_ob.vertices
         start = vertex[0].position
 
-        if not groundname:
+        if not ground_name:
             gnd_cent = []
             bounding = self.get_model_bounding_box()
-            if axisdir < 3:
+            if orientation < 3:
                 for i in bounding[0:3]:
                     gnd_cent.append(float(i))
             else:
                 for i in bounding[3:]:
                     gnd_cent.append(float(i))
         else:
-            ground_plate = self[groundname]
-            if axisdir > 2:
+            ground_plate = self[ground_name]
+            if orientation > 2:
                 gnd_cent = [1e6, 1e6, 1e6]
             else:
                 gnd_cent = [-1e6, -1e6, -1e6]
@@ -2047,26 +2251,26 @@ class GeometryModeler(Modeler):
                 center = face.center
                 if not center:
                     continue
-                if axisdir > 2 and center[axisdir - 3] < gnd_cent[axisdir - 3]:
+                if orientation > 2 and center[orientation - 3] < gnd_cent[orientation - 3]:
                     gnd_cent = center
-                elif axisdir <= 2 and center[axisdir] > gnd_cent[axisdir]:
+                elif orientation <= 2 and center[orientation] > gnd_cent[orientation]:
                     gnd_cent = center
 
-        axisdist = obj_cent[divmod(axisdir, 3)[1]] - gnd_cent[divmod(axisdir, 3)[1]]
-        if axisdir < 3:
+        axisdist = obj_cent[divmod(orientation, 3)[1]] - gnd_cent[divmod(orientation, 3)[1]]
+        if orientation < 3:
             axisdist = -axisdist
 
-        if divmod(axisdir, 3)[1] == 0:
+        if divmod(orientation, 3)[1] == 0:
             cs = self._app.PLANE.YZ
             vector = [axisdist, 0, 0]
-        elif divmod(axisdir, 3)[1] == 1:
+        elif divmod(orientation, 3)[1] == 1:
             cs = self._app.PLANE.ZX
             vector = [0, axisdist, 0]
-        elif divmod(axisdir, 3)[1] == 2:
+        elif divmod(orientation, 3)[1] == 2:
             cs = self._app.PLANE.XY
             vector = [0, 0, axisdist]
 
-        offset = self.find_point_around(objectname, start, sheet_dim, cs)
+        offset = self.find_point_around(assignment, start, sheet_dim, cs)
         p1 = self.create_polyline([start, offset])
         p2 = p1.clone().move(vector)
         self.connect([p1, p2])
@@ -2105,7 +2309,7 @@ class GeometryModeler(Modeler):
                 elif axisdir > 2 and c[axisdir - 3] > center[axisdir - 3]:
                     face = f
                     center = c
-            except:
+            except Exception:
                 pass
         return face
 
@@ -2177,13 +2381,13 @@ class GeometryModeler(Modeler):
         else:
             return list(self._app.odesign.GetChildObject("Boundaries").GetChildNames())
 
-    @pyaedt_function_handler()
-    def set_object_model_state(self, obj_list, model=True):
+    @pyaedt_function_handler(obj_list="assignment")
+    def set_object_model_state(self, assignment, model=True):
         """Set a list of objects to either models or non-models.
 
         Parameters
         ----------
-        obj_list : list
+        assignment : list
             List of objects IDs or names.
         model : bool, optional
             Whether to set the objects as models. The default is ``True``.
@@ -2199,7 +2403,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ChangeProperty
         """
-        selections = self.convert_to_selections(obj_list, True)
+        selections = self.convert_to_selections(assignment, True)
         arguments = [
             "NAME:AllTabs",
             [
@@ -2230,7 +2434,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetObjectsInGroup
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -2258,7 +2462,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetObjectsInGroup
         >>> oEditor.GetModelBoundingBox
         """
-        if type(group) is not str:
+        if not isinstance(group, str):
             raise ValueError("Group name must be a string")
         group_objs = list(self.oeditor.GetObjectsInGroup(group))
         if not group_objs:
@@ -2274,15 +2478,15 @@ class GeometryModeler(Modeler):
             bounding = self.get_model_bounding_box()
         return bounding
 
-    @pyaedt_function_handler()
-    def convert_to_selections(self, object_id, return_list=False):
+    @pyaedt_function_handler(object_id="assignment")
+    def convert_to_selections(self, assignment, return_list=False):
         """Convert modeler objects.
 
         This method converts modeler object or IDs to the corresponding
         output according to the following scheme:
 
         ====================  ===========================
-          ``object_id``          Return value
+          ``assignment``          Return value
         ====================  ===========================
 
          ``int``                 object name (str)
@@ -2302,7 +2506,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        object_id : str, int, list
+        assignment : str, int, list
             One or more object IDs whose name will be returned. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -2316,10 +2520,10 @@ class GeometryModeler(Modeler):
            Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if not isinstance(object_id, list):
-            object_id = [object_id]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
         objnames = []
-        for el in object_id:
+        for el in assignment:
             if isinstance(el, int) and el in self.objects:
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
@@ -2335,15 +2539,17 @@ class GeometryModeler(Modeler):
         else:
             return ",".join([str(i) for i in objnames])
 
-    @pyaedt_function_handler()
-    def split(self, objects, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True):
+    @pyaedt_function_handler(objects="assignment")
+    def split(
+        self, assignment, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True
+    ):
         """Split a list of objects.
         In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
         In case of 2D design possible splitting option is plane.
 
         Parameters
         ----------
-        objects : str, int, or list
+        assignment : str, int, or list
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str, optional
@@ -2381,7 +2587,7 @@ class GeometryModeler(Modeler):
         if plane is None and not tool or plane and tool:
             self.logger.info("One method to split the objects has to be defined.")
             return False
-        objects = self.convert_to_selections(objects)
+        assignment = self.convert_to_selections(assignment)
         all_objs = [i for i in self.object_names]
         selections = []
         planes = "Dummy"
@@ -2394,7 +2600,7 @@ class GeometryModeler(Modeler):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model"]
             elif tool and plane is None:
                 if isinstance(tool, str):
                     obj = [f for f in self.object_list if f.name == tool][0]
@@ -2454,7 +2660,7 @@ class GeometryModeler(Modeler):
                 selections = [
                     "NAME:Selections",
                     "Selections:=",
-                    objects,
+                    assignment,
                     "NewPartsModelFlag:=",
                     "Model",
                     "ToolPart:=",
@@ -2468,7 +2674,7 @@ class GeometryModeler(Modeler):
                 tool_type = "PlaneTool"
                 tool_entity_id = -1
                 planes = GeometryOperators.cs_plane_to_plane_str(plane)
-                selections = ["NAME:Selections", "Selections:=", objects, "NewPartsModelFlag:=", "Model"]
+                selections = ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model"]
         self.oeditor.Split(
             selections,
             [
@@ -2488,13 +2694,13 @@ class GeometryModeler(Modeler):
             ],
         )
         self.refresh_all_ids()
-        return [objects] + [i for i in self.object_names if i not in all_objs]
+        return [assignment] + [i for i in self.object_names if i not in all_objs]
 
-    @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
+    @pyaedt_function_handler(objid="assignment", position="origin")
     def duplicate_and_mirror(
         self,
-        objid,
-        position,
+        assignment,
+        origin,
         vector,
         is_3d_comp=False,
         duplicate_assignment=True,
@@ -2503,12 +2709,12 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : str, int, or  Object3d
+        assignment : str, int, or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Name or ID of the object.
-        position : float
+        origin : list
             List of the ``[x, y, z]`` coordinates or
             Application.Position object for the selection.
-        vector : float
+        vector : float, str
             List of the ``[x1, y1, z1]`` coordinates or
             Application.Position object for the vector.
         is_3d_comp : bool, optional
@@ -2527,19 +2733,19 @@ class GeometryModeler(Modeler):
         >>> oEditor.DuplicateMirror
         """
         return self.mirror(
-            objid, position, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
+            assignment, origin, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
         )
         # selections = self.convert_to_selections(objid)
 
-    @pyaedt_function_handler()
-    def mirror(self, objid, position, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
+    @pyaedt_function_handler(objid="assignment", position="origin")
+    def mirror(self, assignment, origin, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
         """Mirror a selection.
 
         Parameters
         ----------
-        objid : str, int, or Object3d
+        assignment : str, int, or Object3d
             Name or ID of the object.
-        position : int or float
+        origin : int or float
             List of the ``[x, y, z]`` coordinates or the
             ``Application.Position`` object for the selection.
         duplicate : bool, optional
@@ -2547,7 +2753,7 @@ class GeometryModeler(Modeler):
         is_3d_comp : bool, optional
             Whether the component is 3D. The default is ``False``. If ``True``, the method
             tries to return the duplicated list of 3D components.
-        vector : float
+        vector : list
             List of the ``[x1, y1, z1]`` coordinates or
             the ``Application.Position`` object for the vector.
         duplicate_assignment : bool, optional
@@ -2564,8 +2770,8 @@ class GeometryModeler(Modeler):
         >>> oEditor.Mirror
         >>> oEditor.DuplicateMirror
         """
-        selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self._pos_with_arg(position)
+        selections = self.convert_to_selections(assignment)
+        Xpos, Ypos, Zpos = self._pos_with_arg(origin)
         Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
         if duplicate:
             vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
@@ -2600,13 +2806,13 @@ class GeometryModeler(Modeler):
             self.oeditor.Mirror(vArg1, vArg2)
             return True
 
-    @pyaedt_function_handler()
-    def move(self, objid, vector):
+    @pyaedt_function_handler(objid="assignment")
+    def move(self, assignment, vector):
         """Move objects from a list.
 
         Parameters
         ----------
-        objid : list, Position object
+        assignment : list, Position object
             List of object IDs.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
@@ -2623,7 +2829,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Move
         """
         Xvec, Yvec, Zvec = self._pos_with_arg(vector)
-        szSelections = self.convert_to_selections(objid)
+        szSelections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", szSelections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:TranslateParameters"]
@@ -2635,13 +2841,13 @@ class GeometryModeler(Modeler):
             self.oeditor.Move(vArg1, vArg2)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment", cs_axis="axis", nclones="clones")
     def duplicate_around_axis(
         self,
-        objid,
-        cs_axis,
+        assignment,
+        axis,
         angle=90,
-        nclones=2,
+        clones=2,
         create_new_objects=True,
         is_3d_comp=False,
         duplicate_assignment=True,
@@ -2650,13 +2856,13 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : list, str, int, Object3d or UserDefinedComponent
+        assignment : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
-        cs_axis :
+        axis : str
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects :
             Whether to create the copies as new objects. The
@@ -2675,7 +2881,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.DuplicateAroundAxis
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = [
@@ -2683,11 +2889,11 @@ class GeometryModeler(Modeler):
             "CreateNewObjects:=",
             create_new_objects,
             "WhichAxis:=",
-            GeometryOperators.cs_axis_str(cs_axis),
+            GeometryOperators.cs_axis_str(axis),
             "AngleStr:=",
             self._arg_with_dim(angle, "deg"),
             "Numclones:=",
-            str(nclones),
+            str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
@@ -2710,13 +2916,13 @@ class GeometryModeler(Modeler):
         else:
             return False, []
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment", nclones="clones", attachObject="attach")
     def duplicate_along_line(
         self,
-        objid,
+        assignment,
         vector,
-        nclones=2,
-        attachObject=False,
+        clones=2,
+        attach=False,
         is_3d_comp=False,
         duplicate_assignment=True,
     ):
@@ -2724,14 +2930,14 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         vector : list
             List of ``[x1,y1,z1]`` coordinates or the Application.Position object for
             the vector.
-        attachObject : bool, optional
+        attach : bool, optional
             The default is ``False``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         is_3d_comp : bool, optional
             If True, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
@@ -2747,35 +2953,35 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.DuplicateAlongLine
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         Xpos, Ypos, Zpos = self._pos_with_arg(vector)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:DuplicateToAlongLineParameters"]
-        vArg2.append("CreateNewObjects:="), vArg2.append(not attachObject)
+        vArg2.append("CreateNewObjects:="), vArg2.append(not attach)
         vArg2.append("XComponent:="), vArg2.append(Xpos)
         vArg2.append("YComponent:="), vArg2.append(Ypos)
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
-        vArg2.append("Numclones:="), vArg2.append(str(nclones))
+        vArg2.append("Numclones:="), vArg2.append(str(clones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
-        if attachObject:
+        if attach:
             return True, []
         return self._duplicate_added_objects_tuple()
 
-    @pyaedt_function_handler()
-    def thicken_sheet(self, objid, thickness, bBothSides=False):
+    @pyaedt_function_handler(objid="assignment", bBothSides="both_sides")
+    def thicken_sheet(self, assignment, thickness, both_sides=False):
         """Thicken the sheet of the selection.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         thickness : float, str
             Amount to thicken the sheet by.
-        bBothSides : bool, optional
+        both_sides : bool, optional
             Whether to thicken the sheet on both side. The default is ``False``.
 
         Returns
@@ -2787,31 +2993,31 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ThickenSheet
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:SheetThickenParameters"]
         vArg2.append("Thickness:="), vArg2.append(self._arg_with_dim(thickness))
-        vArg2.append("BothSides:="), vArg2.append(bBothSides)
+        vArg2.append("BothSides:="), vArg2.append(both_sides)
 
         self.oeditor.ThickenSheet(vArg1, vArg2)
 
-        if isinstance(objid, list):
+        if isinstance(assignment, list):
             obj_list = []
-            for objl in objid:
+            for objl in assignment:
                 obj_list.append(self.update_object(objl))
             return obj_list
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def sweep_along_normal(self, obj_name, face_id, sweep_value=0.1):
+    @pyaedt_function_handler(obj_name="assignment", face_id="faces")
+    def sweep_along_normal(self, assignment, faces, sweep_value=0.1):
         """Sweep the selection along the vector.
 
         Parameters
         ----------
-        obj_name : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        face_id : int or list
+        faces : int or list
             Face or list of faces to sweep.
         sweep_value : float, optional
             Sweep value. The default is ``0.1``.
@@ -2825,16 +3031,16 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepFacesAlongNormal
         """
-        if not isinstance(face_id, list):
-            face_id = [face_id]
-        selections = self.convert_to_selections(obj_name)
+        if not isinstance(faces, list):
+            faces = [faces]
+        selections = self.convert_to_selections(assignment)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:Parameters"]
         vArg2.append(
             [
                 "NAME:SweepFaceAlongNormalToParameters",
                 "FacesToDetach:=",
-                face_id,
+                faces,
                 "LengthOfSweep:=",
                 self._arg_with_dim(sweep_value),
             ]
@@ -2854,13 +3060,13 @@ class GeometryModeler(Modeler):
                 return self.update_object(self[obj[0]])
         return False
 
-    @pyaedt_function_handler()
-    def sweep_along_vector(self, objid, sweep_vector, draft_angle=0, draft_type="Round"):
+    @pyaedt_function_handler(objid="assignment")
+    def sweep_along_vector(self, assignment, sweep_vector, draft_angle=0, draft_type="Round"):
         """Sweep the selection along a vector.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_vector : float
             List of ``[x1, y1, z1]`` coordinates or Application.Position object for
@@ -2881,7 +3087,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAlongVector
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         vectorx, vectory, vectorz = self._pos_with_arg(sweep_vector)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:VectorSweepParameters"]
@@ -2893,23 +3099,29 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongVector(vArg1, vArg2)
 
-        if isinstance(objid, list):
+        if isinstance(assignment, list):
             updated_obj = []
-            for sel_obj in objid:
+            for sel_obj in assignment:
                 updated_obj.append(self.update_object(sel_obj))
             return updated_obj
         else:
-            return self.update_object(objid)
+            return self.update_object(assignment)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(objid="assignment")
     def sweep_along_path(
-        self, objid, sweep_object, draft_angle=0, draft_type="Round", is_check_face_intersection=False, twist_angle=0
+        self,
+        assignment,
+        sweep_object,
+        draft_angle=0,
+        draft_type="Round",
+        is_check_face_intersection=False,
+        twist_angle=0,
     ):
         """Sweep the selection along a path.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
         sweep_object : str, int
             Name or ID of the sweep.
@@ -2933,7 +3145,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAlongPath
         """
-        selections = self.convert_to_selections(objid) + "," + self.convert_to_selections(sweep_object)
+        selections = self.convert_to_selections(assignment) + "," + self.convert_to_selections(sweep_object)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:PathSweepParameters"]
         vArg2.append("DraftAngle:="), vArg2.append(self._arg_with_dim(draft_angle, "deg"))
@@ -2943,17 +3155,17 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAlongPath(vArg1, vArg2)
 
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def sweep_around_axis(self, objid, cs_axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
+    @pyaedt_function_handler(objid="assignment", cs_axis="axis")
+    def sweep_around_axis(self, assignment, axis, sweep_angle=360, draft_angle=0, number_of_segments=0):
         """Sweep the selection around the axis.
 
         Parameters
         ----------
-        objid : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, :class:`pyaedt.modeler.Object3d.Object3d`
             Name or ID of the object.
-        cs_axis :
+        axis :
             Coordinate system axis or the Application.AXIS object.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
@@ -2972,7 +3184,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.SweepAroundAxis
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = [
@@ -2984,7 +3196,7 @@ class GeometryModeler(Modeler):
             "CheckFaceFaceIntersection:=",
             False,
             "SweepAxis:=",
-            GeometryOperators.cs_axis_str(cs_axis),
+            GeometryOperators.cs_axis_str(axis),
             "SweepAngle:=",
             self._arg_with_dim(sweep_angle, "deg"),
             "NumOfSegments:=",
@@ -2993,15 +3205,15 @@ class GeometryModeler(Modeler):
 
         self.oeditor.SweepAroundAxis(vArg1, vArg2)
 
-        return self.update_object(objid)
+        return self.update_object(assignment)
 
-    @pyaedt_function_handler()
-    def section(self, object_list, plane, create_new=True, section_cross_object=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def section(self, assignment, plane, create_new=True, section_cross_object=False):
         """Section the selection.
 
         Parameters
         ----------
-        object_list : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
             One or more objects to section.
         plane : str
             Coordinate plane or Application.PLANE object.
@@ -3023,7 +3235,7 @@ class GeometryModeler(Modeler):
         """
         section_plane = GeometryOperators.cs_plane_to_plane_str(plane)
 
-        selections = self.convert_to_selections(object_list)
+        selections = self.convert_to_selections(assignment)
 
         self.oeditor.Section(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
@@ -3040,13 +3252,13 @@ class GeometryModeler(Modeler):
         self.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler()
-    def separate_bodies(self, object_list, create_group=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def separate_bodies(self, assignment, create_group=False):
         """Separate bodies of the selection.
 
         Parameters
         ----------
-        object_list : list, str
+        assignment : list, str
             List of objects to separate.
         create_group : bool, optional
             Whether to create a group. The default is ``False``.
@@ -3063,7 +3275,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.SeparateBody
         """
         try:
-            selections = self.convert_to_selections(object_list)
+            selections = self.convert_to_selections(assignment)
             all_objs = [i for i in self.object_names]
             self.oeditor.SeparateBody(
                 ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
@@ -3077,23 +3289,27 @@ class GeometryModeler(Modeler):
                     if obj.name == new_obj:
                         new_objects_list.append(obj)
             return new_objects_list
-        except:
+        except Exception:
             return False
 
-    @pyaedt_function_handler()
-    def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(
+        objid="assignment",
+        cs_axis="axis",
+        unit="units",
+    )
+    def rotate(self, assignment, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        objid :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment :  list, str, int, or  :class:`pyaedt.modeler.Object3d.Object3d`
              ID of the object.
-        cs_axis
+        axis : str
             Coordinate system axis or the Application.AXIS object.
-        angle : float
+        angle : float, str
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -3107,11 +3323,11 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Rotate
         """
-        selections = self.convert_to_selections(objid)
+        selections = self.convert_to_selections(assignment)
         vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:RotateParameters"]
-        vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(cs_axis))
-        vArg2.append("RotateAngle:="), vArg2.append(self._arg_with_dim(angle, unit))
+        vArg2.append("RotateAxis:="), vArg2.append(GeometryOperators.cs_axis_str(axis))
+        vArg2.append("RotateAngle:="), vArg2.append(self._arg_with_dim(angle, units))
 
         if self.oeditor is not None:
             self.oeditor.Rotate(vArg1, vArg2)
@@ -3221,17 +3437,17 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(tool_list="assignment")
     def imprint_normal_projection(
         self,
-        tool_list,
+        assignment,
         keep_originals=True,
     ):
         """Imprint the normal projection of objects over a sheet.
 
         Parameters
         ----------
-        tool_list : list
+        assignment : list
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
         keep_originals : bool, optional
@@ -3247,12 +3463,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ImprintProjection
         """
-        return self._imprint_projection(tool_list, keep_originals, True)
+        return self._imprint_projection(assignment, keep_originals, True)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(tool_list="assignment")
     def imprint_vector_projection(
         self,
-        tool_list,
+        assignment,
         vector_points,
         distance,
         keep_originals=True,
@@ -3261,7 +3477,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        tool_list : list
+        assignment : list
             List of objects to imprint. The list can be of
             either Object3d objects or object IDs.
         vector_points : list
@@ -3281,15 +3497,15 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.ImprintProjection
         """
-        return self._imprint_projection(tool_list, keep_originals, False, vector_points, distance)
+        return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
 
-    @pyaedt_function_handler()
-    def purge_history(self, theList):
+    @pyaedt_function_handler(theList="assignment")
+    def purge_history(self, assignment):
         """Purge history objects from object names.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of object names to purge.
 
         Returns
@@ -3302,7 +3518,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.PurgeHistory
         """
-        szList = self.convert_to_selections(theList)
+        szList = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
@@ -3329,13 +3545,13 @@ class GeometryModeler(Modeler):
         bound = [float(b) for b in bb]
         return bound
 
-    @pyaedt_function_handler()
-    def unite(self, unite_list, purge=False, keep_originals=False):
+    @pyaedt_function_handler(unite_list="assignment")
+    def unite(self, assignment, purge=False, keep_originals=False):
         """Unite objects from a list.
 
         Parameters
         ----------
-        unite_list : list, str
+        assignment : list, str
             List of objects to unite.
         purge : bool, optional
             Purge history after unite. Default is False.
@@ -3352,12 +3568,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Unite
         """
-        slice = min(100, len(unite_list))
-        num_objects = len(unite_list)
+        slice = min(100, len(assignment))
+        num_objects = len(assignment)
         remaining = num_objects
         objs_groups = []
         while remaining > 1:
-            objs = unite_list[:slice]
+            objs = assignment[:slice]
             szSelections = self.convert_to_selections(objs)
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", keep_originals]
@@ -3375,22 +3591,22 @@ class GeometryModeler(Modeler):
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
-                unite_list = unite_list[slice:]
+                assignment = assignment[slice:]
         if remaining > 0:
-            objs_groups.extend(unite_list)
+            objs_groups.extend(assignment)
         self.cleanup_objects()
         if len(objs_groups) > 1:
             return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return self.convert_to_selections(unite_list[0], False)
+        return self.convert_to_selections(assignment[0], False)
 
-    @pyaedt_function_handler()
-    def clone(self, objid):
+    @pyaedt_function_handler(objid="assignment")
+    def clone(self, assignment):
         """Clone objects from a list of object IDs.
 
         Parameters
         ----------
-        objid : list
+        assignment : list
             List of object IDs.
 
         Returns
@@ -3406,17 +3622,17 @@ class GeometryModeler(Modeler):
         >>> oEditor.Copy
         >>> oEditor.Paste
         """
-        self.copy(objid)
+        self.copy(assignment)
         new_objects = self.paste()
         return True, new_objects
 
-    @pyaedt_function_handler()
-    def copy(self, object_list):
+    @pyaedt_function_handler(object_list="assignment")
+    def copy(self, assignment):
         """Copy objects to the clipboard.
 
             Parameters
             ----------
-            object_list : list
+            assignment : list
                 List of objects (IDs or names).
 
             Returns
@@ -3432,7 +3648,7 @@ class GeometryModeler(Modeler):
         # convert to string
 
         try:
-            selections = self.convert_to_selections(object_list)
+            selections = self.convert_to_selections(assignment)
             vArg1 = ["NAME:Selections", "Selections:=", selections]
             self.oeditor.Copy(vArg1)
             return selections
@@ -3458,13 +3674,13 @@ class GeometryModeler(Modeler):
         new_objects = self.add_new_objects()
         return new_objects
 
-    @pyaedt_function_handler()
-    def intersect(self, theList, keep_originals=False, **kwargs):
+    @pyaedt_function_handler(theList="assignment")
+    def intersect(self, assignment, keep_originals=False, **kwargs):
         """Intersect objects from a list.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of objects.
         keep_originals : bool, optional
             Whether to keep the original object. The default is ``False``.
@@ -3483,7 +3699,7 @@ class GeometryModeler(Modeler):
             warnings.warn("keeporiginal has been deprecated. use keep_originals.", DeprecationWarning)
             keep_originals = kwargs["keeporiginal"]
         unclassified = list(self.oeditor.GetObjectsInGroup("Unclassified"))
-        szSelections = self.convert_to_selections(theList)
+        szSelections = self.convert_to_selections(assignment)
 
         vArg1 = ["NAME:Selections", "Selections:=", szSelections]
         vArg2 = ["NAME:IntersectParameters", "KeepOriginals:=", keep_originals]
@@ -3496,15 +3712,49 @@ class GeometryModeler(Modeler):
             return
         self.cleanup_objects()
         self.logger.info("Intersection Succeeded")
-        return self.convert_to_selections(theList[0], False)
+        return self.convert_to_selections(assignment[0], False)
 
     @pyaedt_function_handler()
-    def connect(self, theList):
+    def detach_faces(self, assignment, faces):
+        """Section the object.
+
+        Parameters
+        ----------
+        assignment : Object3d or str
+            Object from which to detach faces.
+        faces : List[FacePrimitive] or List[int] or int or FacePrimitive
+            Face or faces to detach from the object.
+
+        Returns
+        -------
+        List[:class:`pyaedt.modeler.cad.object3d.Object3d`]
+            List of objects resulting from the operation (including the original one).
+
+        References
+        ----------
+
+        >>> oEditor.DetachFaces
+
+        """
+        if isinstance(assignment, str):
+            assignment = self._modeler[assignment]
+        if isinstance(faces, FacePrimitive) or isinstance(faces, int):
+            faces = [faces]
+        if isinstance(faces[0], FacePrimitive):
+            faces = [f.id for f in faces]
+        result = self.oeditor.DetachFaces(
+            ["NAME:Selections", "Selections:=", assignment.name, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", ["NAME:DetachFacesToParameters", "FacesToDetach:=", faces]],
+        )
+        return [assignment] + [self._modeler[o] for o in result]
+
+    @pyaedt_function_handler(theList="assignment")
+    def connect(self, assignment):
         """Connect objects from a list.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of objects.
 
         Returns
@@ -3520,7 +3770,7 @@ class GeometryModeler(Modeler):
         """
         try:
             unclassified_before = list(self.unclassified_names)
-            szSelections = self.convert_to_selections(theList)
+            szSelections = self.convert_to_selections(assignment)
             szSelections_list = szSelections.split(",")
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
@@ -3541,7 +3791,7 @@ class GeometryModeler(Modeler):
                 if obj.name == sel
             ]
             return objects_list_after_connection
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3618,15 +3868,15 @@ class GeometryModeler(Modeler):
             off3 = +offset
         return off1, off2, off3
 
-    @pyaedt_function_handler()
-    def check_plane(self, obj, faceposition, offset=1):
+    @pyaedt_function_handler(obj="assignment", face_position="face_location")
+    def check_plane(self, assignment, face_location, offset=1):
         """Check for the plane that is defined as the face for an object.
 
         Parameters
         ----------
-        obj : str
+        assignment : str
             Name of the object.
-        faceposition : list
+        face_location : list
             List of the ``[x, y, z]`` coordinates for the position of the face.
         offset : optional
             Offset to apply. The default is ``1``.
@@ -3638,17 +3888,17 @@ class GeometryModeler(Modeler):
 
         """
 
-        Xvec, Yvec, Zvec = self._pos_with_arg(faceposition)
+        Xvec, Yvec, Zvec = self._pos_with_arg(face_location)
 
-        if isinstance(obj, int):
-            obj = self.objects[obj].name
+        if isinstance(assignment, int):
+            assignment = self.objects[assignment].name
         plane = None
         found = False
         i = 0
         while not found:
             off1, off2, off3 = self._offset_on_plane(i, offset)
             vArg1 = ["NAME:FaceParameters"]
-            vArg1.append("BodyName:="), vArg1.append(obj)
+            vArg1.append("BodyName:="), vArg1.append(assignment)
             vArg1.append("XPosition:="), vArg1.append(Xvec + "+" + self._arg_with_dim(off1))
             vArg1.append("YPosition:="), vArg1.append(Yvec + "+" + self._arg_with_dim(off2))
             vArg1.append("ZPosition:="), vArg1.append(Zvec + "+" + self._arg_with_dim(off3))
@@ -3661,7 +3911,7 @@ class GeometryModeler(Modeler):
                 else:
                     plane = "YZ"
                 found = True
-            except:
+            except Exception:
                 i = i + 1
                 if i > 11:
                     found = True
@@ -3722,8 +3972,8 @@ class GeometryModeler(Modeler):
             self.oeditor.RenamePart(RenameArgs)
         return True
 
-    @pyaedt_function_handler()
-    def create_airbox(self, offset=0, offset_type="Absolute", defname="AirBox_Auto"):
+    @pyaedt_function_handler(defname="name")
+    def create_airbox(self, offset=0, offset_type="Absolute", name="AirBox_Auto"):
         """Create an airbox that is as big as the bounding extension of the project.
 
         Parameters
@@ -3735,7 +3985,7 @@ class GeometryModeler(Modeler):
             Type of the offset. Options are ``"Absolute"`` and ``"Relative"``.
             The default is ``"Absolute"``. If ``"Relative"``, the offset input
             is between 0 and 100.
-        defname : str, optional
+        name : str, optional
             Name of the airbox. The default is ``"AirBox_Auto"``.
 
         Returns
@@ -3763,7 +4013,7 @@ class GeometryModeler(Modeler):
         dim.append(bound[3] - bound[0] + 2 * offset1)
         dim.append(bound[4] - bound[1] + 2 * offset2)
         dim.append(bound[5] - bound[2] + 2 * offset3)
-        airid = self.create_box(startpos, dim, defname)
+        airid = self.create_box(startpos, dim, name)
         return airid
 
     @pyaedt_function_handler()
@@ -3809,15 +4059,15 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage)
+        return self.create_region(pad_percent=[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage=is_percentage)
 
-    @pyaedt_function_handler()
-    def edit_region_dimensions(self, listvalues):
+    @pyaedt_function_handler(listvalues="values")
+    def edit_region_dimensions(self, values):
         """Modify the dimensions of the region.
 
         Parameters
         ----------
-        listvalues : list
+        values : list
             List of the padding percentages along all six directions in
             the form ``[+X, -X, +Y, -Y, +Z, -Z]``.
 
@@ -3835,7 +4085,7 @@ class GeometryModeler(Modeler):
         arg2 = ["NAME:Geometry3DCmdTab", ["NAME:PropServers", "Region:CreateRegion:1"]]
         arg3 = ["NAME:ChangedProps"]
         p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
-        for label, value in zip(p, listvalues):
+        for label, value in zip(p, values):
             padding = []
             padding.append("NAME:" + label + " Padding Data")
             padding.append("Value:=")
@@ -3846,13 +4096,13 @@ class GeometryModeler(Modeler):
         self.oeditor.ChangeProperty(arg)
         return True
 
-    @pyaedt_function_handler()
-    def create_face_list(self, face_list, name=None):
+    @pyaedt_function_handler(face_list="assignment")
+    def create_face_list(self, assignment, name=None):
         """Create a list of faces given a list of face ID or a list of objects.
 
         Parameters
         ----------
-        face_list : list
+        assignment : list
             List of face ID or list of objects
 
         name : str, optional
@@ -3873,15 +4123,11 @@ class GeometryModeler(Modeler):
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
-        face_list = self.convert_to_selections(face_list, True)
+        assignment = self.convert_to_selections(assignment, True)
         user_list = Lists(self)
         list_type = "Face"
         if user_list:
-            result = user_list.create(
-                object_list=face_list,
-                name=name,
-                type=list_type,
-            )
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
             else:
@@ -3891,13 +4137,13 @@ class GeometryModeler(Modeler):
             self._app.logger.error("User list object could not be created")
             return False
 
-    @pyaedt_function_handler()
-    def create_object_list(self, object_list, name=None):
+    @pyaedt_function_handler(object_list="assignment")
+    def create_object_list(self, assignment, name=None):
         """Create an object list given a list of object names.
 
         Parameters
         ----------
-        object_list : list
+        assignment : list
             List of object names.
         name : str, optional
             Name of the new object list.
@@ -3917,15 +4163,11 @@ class GeometryModeler(Modeler):
                 if i.name == name:
                     self.logger.warning("A List with the specified name already exists!")
                     return i
-        object_list = self.convert_to_selections(object_list, True)
+        assignment = self.convert_to_selections(assignment, True)
         user_list = Lists(self)
         list_type = "Object"
         if user_list:
-            result = user_list.create(
-                object_list=object_list,
-                name=name,
-                type=list_type,
-            )
+            result = user_list.create(assignment=assignment, name=name, entity_type=list_type)
             if result:
                 return user_list
             else:
@@ -3935,13 +4177,13 @@ class GeometryModeler(Modeler):
             self._app.logger.error("User list object could not be created")
             return False
 
-    @pyaedt_function_handler()
-    def generate_object_history(self, objectname):
+    @pyaedt_function_handler(objectname="assignment")
+    def generate_object_history(self, assignment):
         """Generate history for the object.
 
         Parameters
         ----------
-        objectname : str
+        assignment : str
             Name of the history object.
 
         Returns
@@ -3954,27 +4196,27 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GenerateHistory
         """
-        objectname = self.convert_to_selections(objectname)
+        assignment = self.convert_to_selections(assignment)
         self.oeditor.GenerateHistory(
-            ["NAME:Selections", "Selections:=", objectname, "NewPartsModelFlag:=", "Model", "UseCurrentCS:=", True]
+            ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model", "UseCurrentCS:=", True]
         )
         self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler()
-    def create_faceted_bondwire_from_true_surface(self, bondname, bond_direction, min_size=0.2, numberofsegments=8):
+    @pyaedt_function_handler(bondname="assignment", bond_direction="direction", numberofsegments="number_of_segments")
+    def create_faceted_bondwire_from_true_surface(self, assignment, direction, min_size=0.2, number_of_segments=8):
         """Create a faceted bondwire from an existing true surface bondwire.
 
         Parameters
         ----------
-        bondname : str
+        assignment : str
             Name of the bondwire to replace.
-        bond_direction : list
+        direction : list
             List of the ``[x, y, z]`` coordinates for the axis direction
             of the bondwire. For example, ``[0, 1, 2]``.
         min_size : float
             Minimum size of the subsegment of the new polyline. The default is ``0.2``.
-        numberofsegments : int, optional
+        number_of_segments : int, optional
             Number of segments. The default is ``8``.
 
         Returns
@@ -3982,7 +4224,7 @@ class GeometryModeler(Modeler):
         str
             Name of the bondwire created.
         """
-        old_bondwire = self.get_object_from_name(bondname)
+        old_bondwire = self.get_object_from_name(assignment)
         if not old_bondwire:
             return False
         edges = old_bondwire.edges
@@ -4003,7 +4245,7 @@ class GeometryModeler(Modeler):
             p3 = [abs(i - j) for i, j in zip(p1, p2)]
 
             dir = p3.index(max(p3))
-            if dir == bond_direction:
+            if dir == direction:
                 edgelist.append(el)
                 verlist.append([p1, p2])
         if not edgelist:
@@ -4067,15 +4309,15 @@ class GeometryModeler(Modeler):
                 rad = dist
                 move_vector = GeometryOperators.v_sub(fc, first_vert)
 
-        P = self.get_existing_polyline(object=new_edges[0])
+        P = self.get_existing_polyline(assignment=new_edges[0])
 
         if edge_to_delete:
             P.remove_edges(edge_to_delete)
 
-        angle = math.pi * (180 - 360 / numberofsegments) / 360
+        angle = math.pi * (180 - 360 / number_of_segments) / 360
 
         status = P.set_crosssection_properties(
-            type="Circle", num_seg=numberofsegments, width=(rad * (2 - math.sin(angle))) * 2
+            type="Circle", num_seg=number_of_segments, width=(rad * (2 - math.sin(angle))) * 2
         )
         if status:
             self.move(new_edges[0], move_vector)
@@ -4106,13 +4348,13 @@ class GeometryModeler(Modeler):
         id = self.oeditor.GetEntityListIDByName(name)
         return id
 
-    @pyaedt_function_handler()
-    def create_outer_facelist(self, externalobjects, name="outer_faces"):
+    @pyaedt_function_handler(externalobjects="assignment")
+    def create_outer_facelist(self, assignment, name="outer_faces"):
         """Create a face list from a list of outer objects.
 
         Parameters
         ----------
-        externalobjects : list
+        assignment : list
             List of outer objects.
         name : str, optional
             Name of the new list. The default is ``"outer_faces"``.
@@ -4123,20 +4365,20 @@ class GeometryModeler(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        list2 = self.select_allfaces_fromobjects(externalobjects)  # find ALL faces of outer objects
+        list2 = self.select_allfaces_fromobjects(assignment)  # find ALL faces of outer objects
         self.create_face_list(list2, name)
         self.logger.info("Extfaces of thermal model = " + str(len(list2)))
         return True
 
-    @pyaedt_function_handler()
-    def explicitly_subtract(self, diellist, metallist):
+    @pyaedt_function_handler(diellist="tool_parts", metallist="blank_parts")
+    def explicitly_subtract(self, tool_parts, blank_parts):
         """Explicitly subtract all elements in a SolveInside list and a SolveSurface list.
 
         Parameters
         ----------
-        diellist : list
+        tool_parts : list
             List of dielectrics.
-        metallist : list
+        blank_parts : list
             List of metals.
 
         Returns
@@ -4151,12 +4393,12 @@ class GeometryModeler(Modeler):
         >>> oEditor.PurgeHistory
         """
         self.logger.info("Creating explicit subtraction between objects.")
-        for el in diellist:
+        for el in tool_parts:
             list1 = el
             list2 = ""
-            for el1 in metallist:
+            for el1 in blank_parts:
                 list2 = list2 + el1 + ","
-            for el1 in diellist:
+            for el1 in tool_parts:
                 if el1 is not el:
                     list2 = list2 + el1 + ","
             if list2:
@@ -4164,10 +4406,10 @@ class GeometryModeler(Modeler):
                 self.subtract(list1, list2, True)
                 self.purge_history(list1)
                 self.purge_history(list2)
-        for el in metallist:
+        for el in blank_parts:
             list1 = el
             list2 = ""
-            for el1 in metallist:
+            for el1 in blank_parts:
                 if el1 is not el:
                     list2 = list2 + el1 + ","
             if list2:
@@ -4178,8 +4420,8 @@ class GeometryModeler(Modeler):
         self.logger.info("Explicit subtraction is completed.")
         return True
 
-    @pyaedt_function_handler()
-    def find_port_faces(self, port_sheets):
+    @pyaedt_function_handler(port_sheets="assignment")
+    def find_port_faces(self, assignment):
         """Find the vacuums given a list of input sheets.
 
         Starting from a list of input sheets, this method creates a list of output sheets
@@ -4189,7 +4431,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        port_sheets : list
+        assignment : list
             List of input sheets names.
 
         Returns
@@ -4200,7 +4442,7 @@ class GeometryModeler(Modeler):
         """
         faces = []
         solids = [s for s in self.solid_objects if s.material_name not in ["vacuum", "air"] and s.model]
-        for sheet_name in port_sheets:
+        for sheet_name in assignment:
             sheet = self[sheet_name]  # get the sheet object
             _, cloned = self.clone(sheet)
             cloned = self[cloned[0]]
@@ -4220,7 +4462,7 @@ class GeometryModeler(Modeler):
             # TODO Problem with GetObjectIDByName
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
-            except:
+            except Exception:
                 self.logger.warning("Line {} has an invalid ID!".format(line_object))
         return line_ids
 
@@ -4246,13 +4488,13 @@ class GeometryModeler(Modeler):
         dimensions.append(abs(float(oBoundingBox[2]) - float(oBoundingBox[5])))
         return dimensions
 
-    @pyaedt_function_handler()
-    def get_object_name_from_edge_id(self, edge_id):
+    @pyaedt_function_handler(edge_id="assignment")
+    def get_object_name_from_edge_id(self, assignment):
         """Retrieve the object name for a predefined edge ID.
 
         Parameters
         ----------
-        edge_id : int
+        assignment : int
             ID of the edge.
 
         Returns
@@ -4265,12 +4507,12 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.GetEdgeIDsFromObject
         """
-        for object in list(self._object_names_to_ids.keys()):
+        for object in self.solid_names + self.sheet_names + self.line_names:
             try:
                 oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(object)
-                if str(edge_id) in oEdgeIDs:
+                if str(assignment) in oEdgeIDs:
                     return object
-            except:
+            except Exception:
                 return False
         return False
 
@@ -4293,13 +4535,13 @@ class GeometryModeler(Modeler):
         volume = str(round(volume, 0))
         return volume
 
-    @pyaedt_function_handler()
-    def vertex_data_of_lines(self, txtfilter=None):
+    @pyaedt_function_handler(txtfilter="text_filter")
+    def vertex_data_of_lines(self, text_filter=None):
         """Generate a dictionary of line vertex data for all lines contained within the design.
 
         Parameters
         ----------
-        txtfilter : str, optional
+        text_filter : str, optional
             Text string for filtering. The default is ``None``. When a text string is specified,
             line data is generated only if this text string is contained within the line name.
 
@@ -4311,20 +4553,20 @@ class GeometryModeler(Modeler):
         """
         line_data = {}
         lines = self.get_line_ids()
-        if txtfilter is not None:
-            lines = [n for n in lines if txtfilter in n]
+        if text_filter is not None:
+            lines = [n for n in lines if text_filter in n]
         for x in lines:
             line_data[x] = self.get_vertices_of_line(x)
 
         return line_data
 
-    @pyaedt_function_handler()
-    def get_vertices_of_line(self, sLineName):
+    @pyaedt_function_handler(sLineName="assignment")
+    def get_vertices_of_line(self, assignment):
         """Generate a list of vertex positions for a line object from AEDT in model units.
 
         Parameters
         ----------
-        sLineName : str
+        assignment : str
             Name of the line object in AEDT.
 
         Returns
@@ -4340,7 +4582,7 @@ class GeometryModeler(Modeler):
         position_list = []
 
         # Get all vertices in the line
-        vertices_on_line = self.oeditor.GetVertexIDsFromObject(sLineName)
+        vertices_on_line = self.oeditor.GetVertexIDsFromObject(assignment)
 
         if settings.aedt_version > "2022.2":
             vertices_on_line = vertices_on_line[::-1]
@@ -4357,10 +4599,10 @@ class GeometryModeler(Modeler):
 
         return position_list
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(filename="input_file")
     def import_3d_cad(
         self,
-        filename,
+        input_file,
         healing=False,
         refresh_all_ids=True,
         import_materials=False,
@@ -4375,7 +4617,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        filename : str
+        input_file : str
             Full path and name of the CAD file.
         healing : bool, optional
             Whether to perform healing. The default is ``False``, in which
@@ -4412,7 +4654,6 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Import
         """
-
         if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
@@ -4432,20 +4673,20 @@ class GeometryModeler(Modeler):
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)
-        vArg1.append("SourceFile:="), vArg1.append(filename)
+        vArg1.append("SourceFile:="), vArg1.append(input_file)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
             self.refresh_all_ids()
-        self.logger.info("Step file {} imported".format(filename))
+        self.logger.info("Step file {} imported".format(input_file))
         return True
 
-    @pyaedt_function_handler()
-    def import_spaceclaim_document(self, SCFile):
+    @pyaedt_function_handler(SCFile="input_file")
+    def import_spaceclaim_document(self, input_file):
         """Import a SpaceClaim document.
 
         Parameters
         ----------
-        SCFile :
+        input_file :
             Full path and name of the SpaceClaim file.
 
         Returns
@@ -4458,16 +4699,17 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        environlist = os.environ
-        latestversion = ""
-        for l in environlist:
-            if "AWP_ROOT" in l:
-                if l > latestversion:
-                    latestversion = l
-        if not latestversion:
+        env_var = os.environ
+        latest_version = ""
+        for variable in env_var:
+            if "AWP_ROOT" in variable:
+                if variable > latest_version:
+                    latest_version = variable
+                    break
+        if not latest_version:
             self.logger.error("SpaceClaim is not found.")
         else:
-            scdm_path = os.path.join(os.environ[latestversion], "scdm")
+            scdm_path = os.path.join(os.environ[latest_version], "scdm")
         self.oeditor.CreateUserDefinedModel(
             [
                 "NAME:UserDefinedModelParameters",
@@ -4478,7 +4720,7 @@ class GeometryModeler(Modeler):
                         "Name:=",
                         "GeometryFilePath",
                         "Value:=",
-                        '"' + SCFile + '"',
+                        '"' + input_file + '"',
                         "DataType:=",
                         "String",
                         "PropType2:=",
@@ -4660,16 +4902,16 @@ class GeometryModeler(Modeler):
         self.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler()
-    def import_primitives_from_file(self, input_file=None, input_dict=None):
+    @pyaedt_function_handler(input_dict="primitives")
+    def import_primitives_from_file(self, input_file=None, primitives=None):
         """Import and create primitives from a JSON file or dictionary of properties.
 
         Parameters
         ----------
         input_file : str, optional
-            Path to a JSON file containing report settings.
-        input_dict : dict, optional
-            Dictionary containing report settings.
+            Path to a JSON file containing all primitives to import. It can be used in alternative to ``parameters``.
+        primitives : dict, optional
+            Dictionary containing all primitives to import. It can be used in alternative to ``input_file``.
 
         Returns
         -------
@@ -4682,7 +4924,7 @@ class GeometryModeler(Modeler):
         >>> aedtapp = Icepak()
         >>> aedtapp.modeler.import_primitives_from_file(r'C:\\temp\\primitives.json')
         """
-        primitives_builder = PrimitivesBuilder(self._app, input_file, input_dict)
+        primitives_builder = PrimitivesBuilder(self._app, input_file, primitives)
         primitive_names = primitives_builder.create()
         return primitive_names
 
@@ -4722,13 +4964,13 @@ class GeometryModeler(Modeler):
         self.oeditor.BreakUDMConnection(args)
         return True
 
-    @pyaedt_function_handler()
-    def load_scdm_in_hfss(self, SpaceClaimFile):
+    @pyaedt_function_handler(SpaceClaimFile="input_file")
+    def load_scdm_in_hfss(self, input_file):
         """Load a SpaceClaim file in HFSS.
 
         Parameters
         ----------
-        SpaceClaimFile : str
+        input_file : str
             Full path and name of the SpaceClaim file.
 
 
@@ -4743,17 +4985,17 @@ class GeometryModeler(Modeler):
         >>> oEditor.CreateUserDefinedModel
         >>> oEditor.BreakUDMConnection
         """
-        self.import_spaceclaim_document(SpaceClaimFile)
+        self.import_spaceclaim_document(input_file)
         self.break_spaceclaim_connection()
         return True
 
-    @pyaedt_function_handler()
-    def get_faces_from_materials(self, mats):
+    @pyaedt_function_handler(mats="filter_materials")
+    def get_faces_from_materials(self, filter_materials):
         """Select all outer faces given a list of materials.
 
         Parameters
         ----------
-        mats : list
+        filter_materials : list
             List of materials to include in the search for outer
             faces.
 
@@ -4772,9 +5014,9 @@ class GeometryModeler(Modeler):
 
         sel = []
         objs = []
-        if type(mats) is str:
-            mats = [mats]
-        for mat in mats:
+        if isinstance(filter_materials, str):
+            filter_materials = [filter_materials]
+        for mat in filter_materials:
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
@@ -4784,13 +5026,13 @@ class GeometryModeler(Modeler):
                     sel.append(int(face))
         return sel
 
-    @pyaedt_function_handler()
-    def scale(self, obj_list, x=2.0, y=2.0, z=2.0):
+    @pyaedt_function_handler(obj_list="assignment")
+    def scale(self, assignment, x=2.0, y=2.0, z=2.0):
         """Scale a list of objects.
 
         Parameters
         ----------
-        obj_list : list
+        assignment : list
             List of objects IDs or names.
         x : float, optional
             Scale factor for X.
@@ -4809,19 +5051,19 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Scale
         """
-        selections = self.convert_to_selections(obj_list, True)
+        selections = self.convert_to_selections(assignment, True)
         arg1 = ["NAME:Selections", "Selections:=", ", ".join(selections), "NewPartsModelFlag:=", "Model"]
         arg2 = ["NAME:ScaleParameters", "ScaleX:=", str(x), "ScaleY:=", str(y), "ScaleZ:=", str(z)]
         self.oeditor.Scale(arg1, arg2)
         return True
 
-    @pyaedt_function_handler()
-    def select_allfaces_fromobjects(self, elements):
+    @pyaedt_function_handler(elements="assignment")
+    def select_allfaces_fromobjects(self, assignment):
         """Select all outer faces given a list of objects.
 
         Parameters
         ----------
-        elements : list
+        assignment : list
             List of objects to include in the search for outer faces.
 
         Returns
@@ -4838,7 +5080,7 @@ class GeometryModeler(Modeler):
 
         sel = []
 
-        for i in elements:
+        for i in assignment:
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
             for face in oFaceIDs:
@@ -4866,21 +5108,23 @@ class GeometryModeler(Modeler):
                 self.oeditor.SetPropertyValue("Geometry3DAttributeTab", obj, "Model", False)
         return True
 
-    @pyaedt_function_handler()
-    def automatic_thicken_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
+    @pyaedt_function_handler(
+        inputlist="assignment", internalExtr="extrude_internally", internalvalue="internal_extrusion"
+    )
+    def automatic_thicken_sheets(self, assignment, value, extrude_internally=True, internal_extrusion=1):
         """Create thickened sheets for a list of input faces.
 
         This method automatically checks the direction in which to thicken the sheets.
 
         Parameters
         ----------
-        inputlist : list
+        assignment : list
             List of faces.
         value : float
             Value in millimeters to thicken the sheets.
-        internalExtr : bool, optional
+        extrude_internally : bool, optional
             Whether to extrude sheets internally. The default is ``True``.
-        internalvalue : float, optional
+        internal_extrusion : float, optional
             Value in millimeters to thicken the sheets internally (vgoing into the model).
             The default is ``1``.
 
@@ -4896,16 +5140,16 @@ class GeometryModeler(Modeler):
         """
         aedt_bounding_box = self.get_model_bounding_box()
         directions = {}
-        inputlist = self.convert_to_selections(inputlist, True)
-        for el in inputlist:
+        assignment = self.convert_to_selections(assignment, True)
+        for el in assignment:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = 10
+            thickness = 10
             while not directionfound:
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
                 self._odesign.Undo()
@@ -4914,7 +5158,7 @@ class GeometryModeler(Modeler):
                     directionfound = True
                 self.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
-                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(l) + "mm", "BothSides:=", False],
+                    ["NAME:SheetThickenParameters", "Thickness:=", "-" + str(thickness) + "mm", "BothSides:=", False],
                 )
                 aedt_bounding_box2 = self.get_model_bounding_box()
 
@@ -4924,8 +5168,8 @@ class GeometryModeler(Modeler):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + 10
-        for el in inputlist:
+                    thickness = thickness + 10
+        for el in assignment:
             objID = self.oeditor.GetFaceIDs(el)
             faceCenter = self.oeditor.GetFaceCenter(int(objID[0]))
             if directions[el] == "Internal":
@@ -4938,7 +5182,7 @@ class GeometryModeler(Modeler):
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
                     ["NAME:SheetThickenParameters", "Thickness:=", str(value) + "mm", "BothSides:=", False],
                 )
-            if internalExtr:
+            if extrude_internally:
                 objID2 = self.oeditor.GetFaceIDs(el)
                 for fid in objID2:
                     try:
@@ -4953,7 +5197,7 @@ class GeometryModeler(Modeler):
                                         "MoveAlongNormalFlag:=",
                                         True,
                                         "OffsetDistance:=",
-                                        str(internalvalue) + "mm",
+                                        str(internal_extrusion) + "mm",
                                         "MoveVectorX:=",
                                         "0mm",
                                         "MoveVectorY:=",
@@ -4965,20 +5209,20 @@ class GeometryModeler(Modeler):
                                     ],
                                 ],
                             )
-                    except:
+                    except Exception:
                         self.logger.info("done")
                         # self.modeler_oproject.ClearMessages()
         return True
 
-    @pyaedt_function_handler()
-    def move_face(self, faces, offset=1.0):
+    @pyaedt_function_handler(faces="assignment")
+    def move_face(self, assignment, offset=1.0):
         """Move an input face or a list of input faces of a specific object.
 
         This method moves a face or a list of faces which belong to the same solid.
 
         Parameters
         ----------
-        faces : list
+        assignment : list
             List of Face ID or List of :class:`pyaedt.modeler.Object3d.FacePrimitive` object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
@@ -4994,7 +5238,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.MoveFaces
 
         """
-        face_selection = self.convert_to_selections(faces, True)
+        face_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in face_selection:
             if self.oeditor.GetObjectNameByFaceID(f) in selection:
@@ -5031,15 +5275,15 @@ class GeometryModeler(Modeler):
         self.oeditor.MoveFaces(arg1, arg2)
         return True
 
-    @pyaedt_function_handler()
-    def move_edge(self, edges, offset=1.0):
+    @pyaedt_function_handler(edges="assignment")
+    def move_edge(self, assignment, offset=1.0):
         """Move an input edge or a list of input edges of a specific object.
 
         This method moves an edge or a list of edges which belong to the same solid.
 
         Parameters
         ----------
-        edges : list
+        assignment : list
             List of Edge ID or List of :class:`pyaedt.modeler.Object3d.EdgePrimitive` object or mixed.
         offset : float, optional
              Offset to apply in model units. The default is ``1.0``.
@@ -5055,7 +5299,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.MoveEdges
 
         """
-        edge_selection = self.convert_to_selections(edges, True)
+        edge_selection = self.convert_to_selections(assignment, True)
         selection = {}
         for f in edge_selection:
             if self.oeditor.GetObjectNameByEdgeID(f) in selection:
@@ -5207,16 +5451,16 @@ class GeometryModeler(Modeler):
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
         return True
 
-    @pyaedt_function_handler()
-    def wrap_sheet(self, sheet_name, object_name, imprinted=False):
+    @pyaedt_function_handler(sheet_name="sheet", object_name="object")
+    def wrap_sheet(self, sheet, object, imprinted=False):
         """Execute the sheet wrapping around an object.
         If wrapping produces an unclassified operation it will be reverted.
 
         Parameters
         ----------
-        sheet_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str, :class:`pyaedt.modeler.Object3d.Object3d`
             Sheet name or sheet object.
-        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+        object : str, :class:`pyaedt.modeler.Object3d.Object3d`
             Object name or solid object.
         imprinted : bool, optional
             Either if imprint or not over the sheet. Default is ``False``.
@@ -5226,18 +5470,18 @@ class GeometryModeler(Modeler):
         bool
             Command execution status.
         """
-        sheet_name = self.convert_to_selections(sheet_name, False)
-        object_name = self.convert_to_selections(object_name, False)
+        sheet = self.convert_to_selections(sheet, False)
+        object = self.convert_to_selections(object, False)
 
-        if sheet_name not in self.sheet_names:
-            self.logger.error("{} is not a valid sheet.".format(sheet_name))
+        if sheet not in self.sheet_names:
+            self.logger.error("{} is not a valid sheet.".format(sheet))
             return False
-        if object_name not in self.solid_names:
-            self.logger.error("{} is not a valid solid body.".format(object_name))
+        if object not in self.solid_names:
+            self.logger.error("{} is not a valid solid body.".format(object))
             return False
         unclassified = [i for i in self.unclassified_objects]
         self.oeditor.WrapSheet(
-            ["NAME:Selections", "Selections:=", "{},{}".format(sheet_name, object_name)],
+            ["NAME:Selections", "Selections:=", "{},{}".format(sheet, object)],
             ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
         )
         is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
@@ -5249,10 +5493,10 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(input_objects_list="assignment")
     def heal_objects(
         self,
-        input_objects_list,
+        assignment,
         auto_heal=True,
         tolerant_stitch=True,
         simplify_geometry=True,
@@ -5285,7 +5529,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        input_objects_list : str
+        assignment : str
             List of object names to analyze.
         auto_heal : bool, optional
             Auto heal option. Default value is ``True``.
@@ -5348,25 +5592,25 @@ class GeometryModeler(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not input_objects_list:
+        if not assignment:
             self.logger.error("Provide an object name or a list of object names as a string.")
             return False
-        elif not isinstance(input_objects_list, str):
+        elif not isinstance(assignment, str):
             self.logger.error("Provide an object name or a list of object names as a string.")
             return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
+        elif "," in assignment:
+            assignment = assignment.strip()
+            if ", " in assignment:
+                input_objects_list_split = assignment.split(", ")
             else:
-                input_objects_list_split = input_objects_list.split(",")
+                input_objects_list_split = assignment.split(",")
             for obj in input_objects_list_split:
                 if obj not in self.object_names:
                     self.logger.error("Provide an object name or a list of object names that exists in current design.")
                     return False
             objects_selection = ",".join(input_objects_list_split)
         else:
-            objects_selection = input_objects_list
+            objects_selection = assignment
 
         if simplify_type not in [0, 1, 2]:
             self.logger.error("Invalid simplify type.")
@@ -5441,10 +5685,10 @@ class GeometryModeler(Modeler):
         self.oeditor.HealObject(selections_args, healing_parameters)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(input_objects_list="assignment")
     def simplify_objects(
         self,
-        input_objects_list,
+        assignment,
         simplify_type="Polygon Fit",
         extrusion_axis="Auto",
         clean_up=True,
@@ -5460,7 +5704,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        input_objects_list : str
+        assignment : str
             List of object names to simplify.
         simplify_type : str, optional
             Simplify type. The default is ``"Polygon Fit"``. Options are
@@ -5492,25 +5736,25 @@ class GeometryModeler(Modeler):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not input_objects_list:
+        if not assignment:
             self.logger.error("Provide an object name or a list of object names as a string.")
             return False
-        elif not isinstance(input_objects_list, str):
+        elif not isinstance(assignment, str):
             self.logger.error("Provide an object name or a list of object names as a string.")
             return False
-        elif "," in input_objects_list:
-            input_objects_list = input_objects_list.strip()
-            if ", " in input_objects_list:
-                input_objects_list_split = input_objects_list.split(", ")
+        elif "," in assignment:
+            assignment = assignment.strip()
+            if ", " in assignment:
+                input_objects_list_split = assignment.split(", ")
             else:
-                input_objects_list_split = input_objects_list.split(",")
+                input_objects_list_split = assignment.split(",")
             for obj in input_objects_list_split:
                 if obj not in self.object_names:
                     self.logger.error("Provide an object name or a list of object names that exists in current design.")
                     return False
             objects_selection = ",".join(input_objects_list_split)
         else:
-            objects_selection = input_objects_list
+            objects_selection = assignment
 
         if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
             self.logger.error("Invalid simplify type.")
@@ -5547,17 +5791,17 @@ class GeometryModeler(Modeler):
         try:
             self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
             return True
-        except:
+        except Exception:
             self.logger.error("Simplify objects failed.")
             return False
 
-    @pyaedt_function_handler
-    def get_face_by_id(self, id):
+    @pyaedt_function_handler(id="assignment")
+    def get_face_by_id(self, assignment):
         """Get the face object given its ID.
 
         Parameters
         ----------
-        id : int
+        assignment : int
             ID of the face to retrieve.
 
         Returns
@@ -5566,9 +5810,9 @@ class GeometryModeler(Modeler):
             Face object.
 
         """
-        obj = [o for o in self.object_list for face in o.faces if face.id == id]
+        obj = [o for o in self.object_list for face in o.faces if face.id == assignment]
         if obj:
-            face_obj = [face for face in obj[0].faces if face.id == id][0]
+            face_obj = [face for face in obj[0].faces if face.id == assignment][0]
             return face_obj
         else:
             return False
@@ -5756,14 +6000,14 @@ class GeometryModeler(Modeler):
             self.cleanup_objects()
         return True
 
-    @pyaedt_function_handler()
-    def update_object(self, obj):
+    @pyaedt_function_handler(obj="assignment")
+    def update_object(self, assignment):
         """Update any :class:`pyaedt.modeler.Object3d.Object3d` derivatives
         that have potentially been modified by a modeler operation.
 
         Parameters
         ----------
-        obj : int, str, or :class:`pyaedt.modeler.Object3d.Object3d`
+        assignment : int, str, or :class:`pyaedt.modeler.Object3d.Object3d`
             Object to be updated after a modeler operation.
 
         Returns
@@ -5772,10 +6016,10 @@ class GeometryModeler(Modeler):
            Updated 3D object.
 
         """
-        o = self._resolve_object(obj)
+        o = self._resolve_object(assignment)
         name = o.name
 
-        del self.objects[self._object_names_to_ids[name]]
+        del self.objects[self.objects_by_name[name].id]
         del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
@@ -5824,13 +6068,13 @@ class GeometryModeler(Modeler):
         else:
             return numeric_list
 
-    @pyaedt_function_handler()
-    def does_object_exists(self, obj_to_check):
+    @pyaedt_function_handler(obj_to_check="assignment")
+    def does_object_exists(self, assignment):
         """Check to see if an object exists.
 
         Parameters
         ----------
-        obj_to_check : str, int
+        assignment : str, int
             Object name or object ID.
 
         Returns
@@ -5839,99 +6083,124 @@ class GeometryModeler(Modeler):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if isinstance(obj_to_check, int) and obj_to_check in self.objects:
+        if isinstance(assignment, int) and assignment in self.objects:
             return True
-        elif obj_to_check in self.objects_by_name:
+        elif assignment in self.objects_by_name:
             return True
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
+    @pyaedt_function_handler(parts="assignment", region_name="name")
+    def create_subregion(self, padding_values, padding_types, assignment, name=None):
+        """Create a subregion.
 
         Parameters
         ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+        padding_values : float, str, list of floats or list of str
+            Padding values to apply. If a list is not provided, the same
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        padding_types : str or list of str, optional
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
+        assignment : list of str
+            One or more names of the parts to include in the subregion.
+        name : str, optional
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
 
         Returns
         -------
         :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
+            Subregion object.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        return self._create_region(pad_percent=pad_percent, is_percentage=is_percentage)
+        if name is None:
+            name = generate_unique_name("SubRegion")
+        is_percentage = padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(padding_values, padding_types, name, assignment, "SubRegion", is_percentage)
+        self.oeditor.CreateSubregion(arg, arg2)
+        return self._create_object(name)
 
-    @pyaedt_function_handler()
-    def _create_region(self, pad_percent=300, is_percentage=True):
-        """Create an air region.
+    def reassign_subregion(self, region, parts):
+        """Modify parts in the subregion.
 
         Parameters
         ----------
-        pad_percent : float, str, list of floats or list of str, optional
-            Same padding is applied if not a list. The default is ``300``.
-            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
-        is_percentage : bool, optional
-            Region definition in percentage or absolute value. The default is `True``.
+        region : :class:`pyaedt.modules.MeshIcepak.SubRegion`
+            Subregion to modify.
+        parts : list of str
+            One or more names of the parts to include in the subregion.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
-            Region object.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        if "Region" in self.object_names:
-            return None
-        if not isinstance(pad_percent, list):
-            pad_percent = [pad_percent] * 6
+        is_percentage = region.padding_types in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(
+            region.padding_values, region.padding_types, region.name, parts, "SubRegion", is_percentage
+        )
+        self.oeditor.ReassignSubregion(arg, arg2)
+        if self._create_object(region.name):
+            return True
+        return False
 
-        arg = ["NAME:RegionParameters"]
-
-        # TODO: Can the order be updated to match the UI?
-        p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
-        i = 0
-        for pval in p:
-            region_type = "Percentage Offset"
-            if not is_percentage:
-                region_type = "Absolute Offset"
+    @pyaedt_function_handler()
+    def _parse_region_args(self, pad_value, pad_type, region_name, parts, region_type, is_percentage):
+        arg = ["NAME:{}Parameters".format(region_type)]
+        p = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        if not isinstance(pad_type, list):
+            pad_type = [pad_type] * 6
+        for i, pval in enumerate(p):
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append(region_type)
+            arg.append(pad_type[i])
             arg.append(qvalstr)
-            if isinstance(pad_percent[i], str):
-                units = decompose_variable_value(pad_percent[i])[1]
-                if not units and pad_percent[i].isnumeric():
-                    if not is_percentage:
-                        units = self.model_units
-                        pad_percent[i] += units
-                elif is_percentage:
+            if isinstance(pad_value[i], str):
+                units = decompose_variable_value(pad_value[i])[1]
+                if not units and pad_value[i].isnumeric() and not is_percentage:
+                    units = self.model_units
+                    pad_value[i] += units
+                elif units and is_percentage:
                     self.logger.error("Percentage input must not have units")
-                    return False
+                    return False, False
             elif not is_percentage:
                 units = self.model_units
-                pad_percent[i] = str(pad_percent[i])
-                pad_percent[i] += units
-            arg.append(str(pad_percent[i]))
-            i += 1
+                pad_value[i] = str(pad_value[i])
+                pad_value[i] += units
+            arg.append(str(pad_value[i]))
+        flags = "Wireframe#"
+        if region_type == "SubRegion":
+            if not isinstance(parts, list):
+                parts = [parts]
+            normal_parts = [p for p in parts if p in self._app.modeler.objects_by_name]
+            submodel_parts = [p for p in parts if p in self._app.modeler.user_defined_components]
+            arg += [["NAME:SubRegionPartNames"] + normal_parts, ["NAME:SubRegionSubmodelNames"] + submodel_parts]
+            flags = "NonModel#Wireframe"
         arg2 = [
             "NAME:Attributes",
             "Name:=",
-            "Region",
+            region_name,
             "Flags:=",
-            "Wireframe#",
+            flags,
             "Color:=",
             "(143 175 143)",
             "Transparency:=",
@@ -5953,16 +6222,84 @@ class GeometryModeler(Modeler):
             "IsLightweight:=",
             False,
         ]
-        self.oeditor.CreateRegion(arg, arg2)
-        return self._create_object("Region")
+        return arg, arg2
 
-    @pyaedt_function_handler()
-    def create_object_from_edge(self, edge, non_model=False):
+    @pyaedt_function_handler(region_name="name")
+    def _create_region(
+        self, pad_value=300, pad_type="Percentage Offset", name="Region", parts=None, region_type="Region"
+    ):
+        if name in self._app.modeler.objects_by_name:
+            self._app.logger.error("{} object already exists".format(name))
+            return False
+        if not isinstance(pad_value, list):
+            pad_value = [pad_value] * 6
+        is_percentage = pad_type in ["Percentage Offset", "Transverse Percentage Offset"]
+        arg, arg2 = self._parse_region_args(pad_value, pad_type, name, parts, region_type, is_percentage)
+        if arg and arg2:
+            self.oeditor.CreateRegion(arg, arg2)
+            return self._create_object(name)
+        else:
+            return False
+
+    @pyaedt_function_handler(region_name="name")
+    def create_region(self, pad_value=300, pad_type="Percentage Offset", name="Region", **kwarg):
+        """Create an air region.
+
+        Parameters
+        ----------
+        pad_value : float, str, list of floats or list of str, optional
+            Padding values to apply. If a list is not provided, the same
+            value is applied to all padding directions. If a list of floats
+            or strings is provided, the values are
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+        pad_type : str, optional
+            Padding definition. The default is ``"Percentage Offset"``.
+            Options are ``"Absolute Offset"``,
+            ``"Absolute Position"``, ``"Percentage Offset"``, and
+            ``"Transverse Percentage Offset"``. When using a list,
+            different padding types can be provided for different
+           directions.
+        name : str, optional
+            Region name. The default is ``None``, in which case the name
+            is generated automatically.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            Region object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRegion
+        """
+        # backward compatibility
+        if kwarg:
+            if "is_percentage" in kwarg.keys():
+                is_percentage = kwarg["is_percentage"]
+            else:
+                is_percentage = True
+            if kwarg.get("pad_percent", False):
+                pad_percent = kwarg["pad_percent"]
+                pad_value = pad_percent
+            if isinstance(pad_value, list) and len(pad_value) < 6:
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
+
+        if isinstance(pad_type, bool):
+            pad_type = ["Absolute Offset", "Percentage Offset"][int(pad_type)]
+            if isinstance(pad_value, list):
+                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+
+        return self._create_region(pad_value, pad_type, name, region_type="Region")
+
+    @pyaedt_function_handler(edge="assignment")
+    def create_object_from_edge(self, assignment, non_model=False):
         """Create an object from one or multiple edges.
 
         Parameters
         ----------
-        edge : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        assignment : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
             Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. The default is `False`.
@@ -5977,7 +6314,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateObjectFromFaces
         """
-        edge_ids = self.convert_to_selections(edge, True)
+        edge_ids = self.convert_to_selections(assignment, True)
         objs = OrderedDict()
         for edge_id in edge_ids:
             obj_name = self._find_object_from_edge_id(edge_id)
@@ -6006,13 +6343,13 @@ class GeometryModeler(Modeler):
         self.logger.error("Error creating object from edges.")
         return
 
-    @pyaedt_function_handler()
-    def create_object_from_face(self, face, non_model=False):
+    @pyaedt_function_handler(face="assignment")
+    def create_object_from_face(self, assignment, non_model=False):
         """Create an object from one or multiple face.
 
         Parameters
         ----------
-        face : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        assignment : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
             Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
         non_model : bool, optional
             Either if create the new object as model or non-model. Default is `False`.
@@ -6027,7 +6364,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateObjectFromFaces
         """
-        face_ids = self.convert_to_selections(face, True)
+        face_ids = self.convert_to_selections(assignment, True)
         objs = OrderedDict()
         for face_id in face_ids:
             obj_name = self._find_object_from_face_id(face_id)
@@ -6101,15 +6438,15 @@ class GeometryModeler(Modeler):
             arc_plane=arc_plane,
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(position_list="points", matname="material")
     def create_polyline(
         self,
-        position_list,
+        points,
         segment_type=None,
         cover_surface=False,
         close_surface=False,
         name=None,
-        matname=None,
+        material=None,
         xsection_type=None,
         xsection_orient=None,
         xsection_width=1,
@@ -6132,7 +6469,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        position_list : list
+        points : list
             Array of positions of each point of the polyline.  A
             position is a list of 2D or 3D coordinates. Position
             coordinate values can be numbers or valid AEDT string
@@ -6152,7 +6489,7 @@ class GeometryModeler(Modeler):
             starting and ending points.
         name : str, optional
             Name of the polyline. The default is ``None``.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
         xsection_type : str, optional
@@ -6213,25 +6550,24 @@ class GeometryModeler(Modeler):
         The default behavior assumes that all points are to be
         connected by line segments.  Optionally specify the name.
 
-        >>> P1 = modeler.create_polyline(test_points, name="PL_line_segments")
+        >>> P1 = modeler.create_polyline(test_points,name="PL_line_segments")
 
         Specify that the first segment is a line and the last three
         points define a three-point arc.
 
-        >>> P2 = modeler.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
+        >>> P2 = modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and
         additionally specify five segments using ``PolylineSegment``.
 
-        >>> P3 = modeler.create_polyline(test_points[1:],
-        ...                               segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
-        ...                               name="PL_segmented_arc")
+        >>> P3 = modeler.create_polyline(test_points[1:],segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
+        ...                              name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
         cross-section with a diameter of 1 mm.
 
-        >>> P4 = modeler.create_polyline(test_points, segment_type="Spline", name="PL_spline",
-        ...                               xsection_type="Circle", xsection_width="1mm")
+        >>> P4 = modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
+        ...                              xsection_type="Circle",xsection_width="1mm")
 
         Use the `PolylineSegment` object to specify more detail about
         the individual segments.  Create a center point arc starting
@@ -6242,25 +6578,25 @@ class GeometryModeler(Modeler):
         >>> center_point = test_points[0]
         >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
         ...                                arc_angle="90deg", arc_plane="XY")
-        >>> modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
+        >>> modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
         >>> x2, y2, z2 = "2", "2", "1"
-        >>> P5 = modeler.create_polyline(position_list = [[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
-        ...                                 segment_type="Spline", name="polyline_with_variables")
+        >>> P5 = modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
+        ...                              segment_type="Spline",name="polyline_with_variables")
 
         """
         new_polyline = Polyline(
             primitives=self,
-            position_list=position_list,
+            position_list=points,
             segment_type=segment_type,
             cover_surface=cover_surface,
             close_surface=close_surface,
             name=name,
-            matname=matname,
+            matname=material,
             xsection_type=xsection_type,
             xsection_orient=xsection_orient,
             xsection_width=xsection_width,
@@ -6272,14 +6608,17 @@ class GeometryModeler(Modeler):
         )
         return new_polyline
 
-    @pyaedt_function_handler()
-    def create_spiral_on_face(self, face, poly_width, filling_factor=1.5):
+    @pyaedt_function_handler(
+        face="assignment",
+        poly_width="width",
+    )
+    def create_spiral_on_face(self, assignment, width, filling_factor=1.5):
         """Create a Spiral Polyline inside a face.
 
         Parameters
         ----------
-        face : int or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
-        poly_width : float
+        assignment : int or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        width : float
         filling_factor : float
 
         Returns
@@ -6287,12 +6626,12 @@ class GeometryModeler(Modeler):
         :class:`pyaedt.modeler.Object3d.Polyline`
         """
         # fmt: off
-        if isinstance(face, FacePrimitive):
-            face_id = face.id
-        elif isinstance(face, int):
-            face_id = face
+        if isinstance(assignment, FacePrimitive):
+            face_id = assignment.id
+        elif isinstance(assignment, int):
+            face_id = assignment
         else:
-            face_id = self.get_object_faces(face)[0]
+            face_id = self.get_object_faces(assignment)[0]
 
         vertices = self.get_face_vertices(face_id)
         vertex_coordinates = []
@@ -6305,7 +6644,7 @@ class GeometryModeler(Modeler):
         for vc in vertex_coordinates:
             segments_lengths.append(GeometryOperators.points_distance(vc, centroid))
 
-        n = math.floor(min(segments_lengths) / (poly_width * filling_factor))
+        n = math.floor(min(segments_lengths) / (width * filling_factor))
 
         if n % 2 == 0:
             n_points = int(n / 2 - 1)
@@ -6332,10 +6671,10 @@ class GeometryModeler(Modeler):
         del poly_points_list[-1]
 
         # fmt: on
-        return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=poly_width)
+        return self.create_polyline(poly_points_list, xsection_type="Line", xsection_width=width)
 
-    @pyaedt_function_handler()
-    def get_existing_polyline(self, object):
+    @pyaedt_function_handler(object="assignment")
+    def get_existing_polyline(self, assignment):
         """Retrieve a polyline object to manipulate it.
 
         Parameters
@@ -6347,20 +6686,24 @@ class GeometryModeler(Modeler):
         -------
         Polyline
         """
-        return Polyline(self, src_object=object)
+        return Polyline(self, src_object=assignment)
 
-    @pyaedt_function_handler()
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None):
+    @pyaedt_function_handler(
+        udp_dll_name="dll",
+        udp_parameters_list="parameters",
+        upd_library="library",
+    )
+    def create_udp(self, dll, parameters, library="syslib", name=None):
         """Create a user-defined primitive (UDP).
 
         Parameters
         ----------
-        udp_dll_name : str
+        dll : str
             Name of the UDP DLL or Python file. The default for the file format
             is ``".dll"``.
-        udp_parameters_list :
+        parameters :
             List of the UDP parameters.
-        upd_library : str, optional
+        library : str, optional
             Name of the UDP library. The default is ``"syslib"``.
         name : str, optional
             Name of the component. The default is ``None``.
@@ -6377,26 +6720,24 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-        >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
-        ...                                          udp_parameters_list=my_udpPairs,
-        ...                                          upd_library="syslib")
+        >>> my_udp = self.aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore",parameters=my_udpPairs,library="syslib")
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """
-        if ".dll" not in udp_dll_name and ".py" not in udp_dll_name:
+        if ".dll" not in dll and ".py" not in dll:
             vArg1 = [
                 "NAME:UserDefinedPrimitiveParameters",
                 "DllName:=",
-                udp_dll_name + ".dll",
+                dll + ".dll",
                 "Library:=",
-                upd_library,
+                library,
             ]
         else:
-            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", udp_dll_name, "Library:=", upd_library]
+            vArg1 = ["NAME:UserDefinedPrimitiveParameters", "DllName:=", dll, "Library:=", library]
 
         vArgParamVector = ["NAME:ParamVector"]
 
-        for pair in udp_parameters_list:
+        for pair in parameters:
             if isinstance(pair, list):
                 vArgParamVector.append(["NAME:Pair", "Name:=", pair[0], "Value:=", pair[1]])
 
@@ -6407,22 +6748,22 @@ class GeometryModeler(Modeler):
         if name:
             obj_name = name
         else:
-            obj_name, ext = os.path.splitext(os.path.basename(udp_dll_name))
+            obj_name, ext = os.path.splitext(os.path.basename(dll))
         vArg2 = self._default_object_attributes(name=obj_name)
         obj_name = self.oeditor.CreateUserDefinedPart(vArg1, vArg2)
         return self._create_object(obj_name)
 
-    @pyaedt_function_handler()
-    def update_udp(self, object_name, operation_name, udp_parameters_list):
+    @pyaedt_function_handler(object_name="assignment", operation_name="operation", udp_parameters_list="parameters")
+    def update_udp(self, assignment, operation, parameters):
         """Update an existing geometrical object that was originally created using a user-defined primitive (UDP).
 
         Parameters
         ----------
-        object_name : str
+        assignment : str
             Name of the object to update.
-        operation_name : str
+        operation : str
             Name of the operation used to create the object.
-        udp_parameters_list : list
+        parameters : list
             List of the UDP parameters to update and their value.
 
         Returns
@@ -6437,9 +6778,8 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-        >>> self.aedtapp.modeler.update_udp(object_name="ClawPoleCore",
-        ...                                 operation_name="CreateUserDefinedPart",
-        ...                                 udp_parameters_list=[["Length","110mm"], ["DiaGap","125mm"]])
+        >>> self.aedtapp.modeler.update_udp(assignment="ClawPoleCore",operation="CreateUserDefinedPart",
+        ...                                 parameters=[["Length","110mm"], ["DiaGap","125mm"]])
         True
 
         """
@@ -6447,14 +6787,14 @@ class GeometryModeler(Modeler):
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
-        prop_servers.append("{0}:{1}:1".format(object_name, operation_name))
+        prop_servers.append("{0}:{1}:1".format(assignment, operation))
 
         cmd_tab = ["NAME:Geometry3DCmdTab"]
         cmd_tab.append(prop_servers)
 
         changed_props = ["NAME:ChangedProps"]
 
-        for pair in udp_parameters_list:
+        for pair in parameters:
             if isinstance(pair, list):
                 changed_props.append(["NAME:{0}".format(pair[0]), "Value:=", pair[1]])
             else:
@@ -6465,13 +6805,13 @@ class GeometryModeler(Modeler):
         self.oeditor.ChangeProperty(vArg1)
         return True
 
-    @pyaedt_function_handler()
-    def delete(self, objects=None):
+    @pyaedt_function_handler(objects="assignment")
+    def delete(self, assignment=None):
         """Delete objects or groups.
 
         Parameters
         ----------
-        objects : list, optional
+        assignment : list, optional
             List of objects or group names. The default is ``None``,
             in which case all objects are deleted.
 
@@ -6486,37 +6826,37 @@ class GeometryModeler(Modeler):
         >>> oEditor.Delete
 
         """
-        if objects is None:
-            objects = self.object_names
-        objects = self._modeler.convert_to_selections(objects, return_list=True)
-        for el in objects:
+        if assignment is None:
+            assignment = self.object_names
+        assignment = self._modeler.convert_to_selections(assignment, return_list=True)
+        for el in assignment:
             if (
                 el not in self.object_names
                 and not list(self.oeditor.GetObjectsInGroup(el))
                 and not self.oeditor.GetObjectsInGroup("Unclassified")
             ):
-                objects.remove(el)
-        if not objects:
+                assignment.remove(el)
+        if not assignment:
             self.logger.warning("No objects to delete")
             return False
-        slice = min(100, len(objects))
-        num_objects = len(objects)
+        slice = min(100, len(assignment))
+        num_objects = len(assignment)
         remaining = num_objects
         while remaining > 0:
-            objs = objects[:slice]
+            objs = assignment[:slice]
             objects_str = self._modeler.convert_to_selections(objs, return_list=False)
             arg = ["NAME:Selections", "Selections:=", objects_str]
             try:
                 self.oeditor.Delete(arg)
-            except:
+            except Exception:
                 self.logger.warning("Failed to delete {}.".format(objects_str))
             remaining -= slice
             if remaining > 0:
-                objects = objects[slice:]
+                assignment = assignment[slice:]
 
         self._refresh_object_types()
 
-        if len(objects) > 0:
+        if len(assignment) > 0:
             self.cleanup_objects()
             self.logger.info("Deleted {} Objects: {}.".format(num_objects, objects_str))
         return True
@@ -6543,7 +6883,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.Delete
 
         """
-        objnames = self._object_names_to_ids
+        objnames = self.object_names
         num_del = 0
         for el in objnames:
             if case_sensitive:
@@ -6557,13 +6897,13 @@ class GeometryModeler(Modeler):
         self.logger.info("Deleted %s objects", num_del)
         return True
 
-    @pyaedt_function_handler()
-    def get_obj_id(self, objname):
+    @pyaedt_function_handler(objname="assignment")
+    def get_obj_id(self, assignment):
         """Return the object ID from an object name.
 
         Parameters
         ----------
-        objname : str
+        assignment : str
             Name of the object.
 
         Returns
@@ -6572,17 +6912,17 @@ class GeometryModeler(Modeler):
             Object ID.
 
         """
-        if objname in self._object_names_to_ids:
-            return self._object_names_to_ids[objname]
+        if assignment in self.objects_by_name:
+            return self.objects_by_name[assignment].id
         return None
 
-    @pyaedt_function_handler()
-    def get_object_from_name(self, objname):
+    @pyaedt_function_handler(objname="assignment")
+    def get_object_from_name(self, assignment):
         """Return the object from an object name.
 
         Parameters
         ----------
-        objname : str
+        assignment : str
             Name of the object.
 
         Returns
@@ -6591,17 +6931,17 @@ class GeometryModeler(Modeler):
             3D object returned.
 
         """
-        if objname in self._object_names_to_ids:
-            object_id = self.get_obj_id(objname)
-            return self.objects[object_id]
+        if assignment in self.object_names:
+            # object_id = self.get_obj_id(objname)
+            return self.objects[assignment]
 
-    @pyaedt_function_handler()
-    def get_objects_w_string(self, stringname, case_sensitive=True):
+    @pyaedt_function_handler(stringname="string_name")
+    def get_objects_w_string(self, string_name, case_sensitive=True):
         """Retrieve all objects with a given string in their names.
 
         Parameters
         ----------
-        stringname : str
+        string_name : str
             String to search object names for.
         case_sensitive : bool, optional
             Whether the string is case-sensitive. The default is ``True``.
@@ -6615,24 +6955,24 @@ class GeometryModeler(Modeler):
         list_objs = []
         for name in list(self.objects_by_name.keys()):
             if case_sensitive:
-                if stringname in name:
+                if string_name in name:
                     list_objs.append(name)
             else:
-                if stringname.lower() in name.lower():
+                if string_name.lower() in name.lower():
                     list_objs.append(name)
         return list_objs
 
-    @pyaedt_function_handler()
-    def find_closest_edges(self, start_obj, end_obj, port_direction=0):
+    @pyaedt_function_handler(start_obj="start_object", end_obj="end_object", port_direction="direction")
+    def find_closest_edges(self, start_object, end_object, direction=0):
         """Retrieve the two closest edges that are not perpendicular for two objects.
 
         Parameters
         ----------
-        start_obj : str
+        start_object : str
             Name of the starting object.
-        end_obj : str
+        end_object : str
             Name of the ending object.
-        port_direction : str, optional
+        direction : str, optional
             Direction of the port to which to give edges precedence when more than two couples
             are at the same distance. For example, for a coax or microstrip, precedence is given
             to the edges that are on the given axis direction, such as ``"XNeg"``. Options are
@@ -6645,44 +6985,44 @@ class GeometryModeler(Modeler):
             List with two edges if present.
 
         """
-        start_obj = self._resolve_object(start_obj)
-        end_obj = self._resolve_object(end_obj)
+        start_object = self._resolve_object(start_object)
+        end_object = self._resolve_object(end_object)
         edge_start_list = None
         edge_stop_list = None
-        if port_direction == 0:
-            if start_obj.bottom_face_x:
-                edge_start_list = start_obj.bottom_face_x.edges
-            if end_obj.bottom_face_x:
-                edge_stop_list = end_obj.bottom_face_x.edges
-        elif port_direction == 3:
-            if start_obj.top_face_x:
-                edge_start_list = start_obj.top_face_x.edges
-            if end_obj.top_face_x:
-                edge_stop_list = end_obj.top_face_x.edges
-        elif port_direction == 1:
-            if start_obj.bottom_face_y:
-                edge_start_list = start_obj.bottom_face_y.edges
-            if end_obj.bottom_face_y:
-                edge_stop_list = end_obj.bottom_face_y.edges
-        elif port_direction == 4:
-            if start_obj.top_face_y:
-                edge_start_list = start_obj.top_face_y.edges
-            if end_obj.top_face_y:
-                edge_stop_list = end_obj.top_face_y.edges
-        elif port_direction == 2:
-            if start_obj.bottom_face_z:
-                edge_start_list = start_obj.bottom_face_z.edges
-            if end_obj.bottom_face_z:
-                edge_stop_list = end_obj.bottom_face_z.edges
-        elif port_direction == 5:
-            if start_obj.top_face_z:
-                edge_start_list = start_obj.top_face_z.edges
-            if end_obj.top_face_z:
-                edge_stop_list = end_obj.top_face_z.edges
+        if direction == 0:
+            if start_object.bottom_face_x:
+                edge_start_list = start_object.bottom_face_x.edges
+            if end_object.bottom_face_x:
+                edge_stop_list = end_object.bottom_face_x.edges
+        elif direction == 3:
+            if start_object.top_face_x:
+                edge_start_list = start_object.top_face_x.edges
+            if end_object.top_face_x:
+                edge_stop_list = end_object.top_face_x.edges
+        elif direction == 1:
+            if start_object.bottom_face_y:
+                edge_start_list = start_object.bottom_face_y.edges
+            if end_object.bottom_face_y:
+                edge_stop_list = end_object.bottom_face_y.edges
+        elif direction == 4:
+            if start_object.top_face_y:
+                edge_start_list = start_object.top_face_y.edges
+            if end_object.top_face_y:
+                edge_stop_list = end_object.top_face_y.edges
+        elif direction == 2:
+            if start_object.bottom_face_z:
+                edge_start_list = start_object.bottom_face_z.edges
+            if end_object.bottom_face_z:
+                edge_stop_list = end_object.bottom_face_z.edges
+        elif direction == 5:
+            if start_object.top_face_z:
+                edge_start_list = start_object.top_face_z.edges
+            if end_object.top_face_z:
+                edge_stop_list = end_object.top_face_z.edges
         if not edge_start_list:
-            edge_start_list = start_obj.edges
+            edge_start_list = start_object.edges
         if not edge_stop_list:
-            edge_stop_list = end_obj.edges
+            edge_stop_list = end_object.edges
         mindist = 1e6
         tol = 1e-12
         pos_tol = 1e-6
@@ -6692,7 +7032,7 @@ class GeometryModeler(Modeler):
         for el in edge_start_list:
             vertices_i = el.vertices
             if not vertices_i:
-                for f in start_obj.faces:
+                for f in start_object.faces:
                     if len(f.edges) == 1:
                         edges_ids = [i.id for i in f.edges]
                         if el.id in edges_ids:
@@ -6714,7 +7054,7 @@ class GeometryModeler(Modeler):
             for el1 in edge_stop_list:
                 vertices_j = el1.vertices
                 if not vertices_j:
-                    for f in end_obj.faces:
+                    for f in end_object.faces:
                         if len(f.edges) == 1:
                             edges_ids = [i.id for i in f.edges]
                             if el1.id in edges_ids:
@@ -6774,45 +7114,51 @@ class GeometryModeler(Modeler):
                 if actual_point is None:
                     edge_list = [el, el1]
                     is_parallel = parallel_edges
-                    actual_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
+                    actual_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], direction)
                     mindist = vert_dist_sum
                 else:
-                    new_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], port_direction)
-                    if (port_direction <= 2 and new_point - actual_point < 0) or (
-                        port_direction > 2 and actual_point - new_point < 0
+                    new_point = GeometryOperators.find_point_on_plane([start_midpoint, end_midpoint], direction)
+                    if (direction <= 2 and new_point - actual_point < 0) or (
+                        direction > 2 and actual_point - new_point < 0
                     ):
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
                         actual_point = new_point
                         mindist = vert_dist_sum
-                    elif port_direction <= 2 and new_point - actual_point < tol and vert_dist_sum - mindist < pos_tol:
+                    elif direction <= 2 and new_point - actual_point < tol and vert_dist_sum - mindist < pos_tol:
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
                         actual_point = new_point
                         mindist = vert_dist_sum
-                    elif port_direction > 2 and actual_point - new_point < tol and vert_dist_sum - mindist < pos_tol:
+                    elif direction > 2 and actual_point - new_point < tol and vert_dist_sum - mindist < pos_tol:
                         edge_list = [el, el1]
                         is_parallel = parallel_edges
                         actual_point = new_point
                         mindist = vert_dist_sum
         return edge_list, is_parallel
 
-    @pyaedt_function_handler()
-    def get_equivalent_parallel_edges(self, edgelist, portonplane=True, axisdir=0, startobj="", endobject=""):
+    @pyaedt_function_handler(
+        edgelist="assignment",
+        portonplane="port_on_plane",
+        axisdir="axis",
+        startobj="start_object",
+        endobject="end_object",
+    )
+    def get_equivalent_parallel_edges(self, assignment, port_on_plane=True, axis=0, start_object="", end_object=""):
         """Create two new edges that are parallel and equal to the smallest edge given a parallel couple of edges.
 
         Parameters
         ----------
-        edgelist : list
+        assignment : list
             List of two parallel edges.
-        portonplane : bool, optional
+        port_on_plane : bool, optional
             Whether edges are to be on the plane orthogonal to the axis direction.
             The default is ``True``.
-        axisdir : int, optional
+        axis : int, optional
             Axis direction. Choices are ``0`` through ``5``. The default is ``0``.
-        startobj : str, optional
+        start_object : str, optional
              Name of the starting object. The default is ``""``.
-        endobject : str, optional
+        end_object : str, optional
              Name of the ending object. The default is ``""``.
 
         Returns
@@ -6821,19 +7167,19 @@ class GeometryModeler(Modeler):
             List of two created edges.
 
         """
-        if isinstance(edgelist[0], str):
-            edgelist[0] = self.get_object_from_name(edgelist[0])
-        if isinstance(edgelist[1], str):
-            edgelist[1] = self.get_object_from_name(edgelist[1])
+        if isinstance(assignment[0], str):
+            assignment[0] = self.get_object_from_name(assignment[0])
+        if isinstance(assignment[1], str):
+            assignment[1] = self.get_object_from_name(assignment[1])
 
-        l1 = edgelist[0].length
-        l2 = edgelist[1].length
+        l1 = assignment[0].length
+        l2 = assignment[1].length
         if l1 < l2:
-            orig_edge = edgelist[0]
-            dest_edge = edgelist[1]
+            orig_edge = assignment[0]
+            dest_edge = assignment[1]
         else:
-            orig_edge = edgelist[1]
-            dest_edge = edgelist[0]
+            orig_edge = assignment[1]
+            dest_edge = assignment[0]
 
         first_edge = self.create_object_from_edge(orig_edge)
         second_edge = self.create_object_from_edge(orig_edge)
@@ -6844,8 +7190,8 @@ class GeometryModeler(Modeler):
             a1 = ver2[0].position
             a2 = ver2[1].position
             vect = GeometryOperators.distance_vector(p, a1, a2)
-            if portonplane:
-                vect[divmod(axisdir, 3)[1]] = 0
+            if port_on_plane:
+                vect[divmod(axis, 3)[1]] = 0
             # TODO: can we avoid this translate operation - is there another way to check ?
             self.move(second_edge, vect)
             p_check = second_edge.vertices[0].position
@@ -6861,7 +7207,9 @@ class GeometryModeler(Modeler):
         obj_check = self.get_bodynames_from_position(p_check)
         obj_check2 = self.get_bodynames_from_position(p_check2)
         # if (startobj in obj_check and endobject in obj_check2) or (startobj in obj_check2 and endobject in obj_check):
-        if (startobj in obj_check or endobject in obj_check) and (startobj in obj_check2 or endobject in obj_check2):
+        if (start_object in obj_check or end_object in obj_check) and (
+            start_object in obj_check2 or end_object in obj_check2
+        ):
             if l1 < l2:
                 return_edges = [first_edge, second_edge]
             else:
@@ -6872,13 +7220,13 @@ class GeometryModeler(Modeler):
             self.delete(first_edge)
             return None
 
-    @pyaedt_function_handler()
-    def get_object_faces(self, partId):
+    @pyaedt_function_handler(partId="assignment")
+    def get_object_faces(self, assignment):
         """Retrieve the face IDs of a given object ID or object name.
 
         Parameters
         ----------
-        partId : int or str
+        assignment : int or str
             Object ID or object name.
 
         Returns
@@ -6893,23 +7241,23 @@ class GeometryModeler(Modeler):
 
         """
         oFaceIDs = []
-        if isinstance(partId, str) and partId in self._object_names_to_ids:
-            oFaceIDs = self.oeditor.GetFaceIDs(partId)
+        if isinstance(assignment, str) and assignment in self.objects_by_name:
+            oFaceIDs = self.oeditor.GetFaceIDs(assignment)
             oFaceIDs = [int(i) for i in oFaceIDs]
-        elif partId in self.objects:
-            o = self.objects[partId]
+        elif assignment in self.objects:
+            o = self.objects[assignment]
             name = o.name
             oFaceIDs = self.oeditor.GetFaceIDs(name)
             oFaceIDs = [int(i) for i in oFaceIDs]
         return oFaceIDs
 
-    @pyaedt_function_handler()
-    def get_object_edges(self, partId):
+    @pyaedt_function_handler(partId="assignment")
+    def get_object_edges(self, assignment):
         """Retrieve the edge IDs of a given object ID or object name.
 
         Parameters
         ----------
-        partId : int or str
+        assignment : int or str
             Object ID or object name.
 
         Returns
@@ -6924,22 +7272,22 @@ class GeometryModeler(Modeler):
 
         """
         oEdgeIDs = []
-        if isinstance(partId, str) and partId in self._object_names_to_ids:
-            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(partId)
+        if isinstance(assignment, str) and assignment in self._object_names_to_ids:
+            oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(assignment)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
-        elif partId in self.objects:
-            o = self.objects[partId]
+        elif assignment in self.objects:
+            o = self.objects[assignment]
             oEdgeIDs = self.oeditor.GetEdgeIDsFromObject(o.name)
             oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
-    @pyaedt_function_handler()
-    def get_face_edges(self, partId):
+    @pyaedt_function_handler(partID="assignment")
+    def get_face_edges(self, assignment):
         """Retrieve the edge IDs of a given face name or face ID.
 
         Parameters
         ----------
-        partId : int or str
+        assignment : int or str
             Object ID or object name.
 
         Returns
@@ -6953,17 +7301,17 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetEdgeIDsFromFace
 
         """
-        oEdgeIDs = self.oeditor.GetEdgeIDsFromFace(partId)
+        oEdgeIDs = self.oeditor.GetEdgeIDsFromFace(assignment)
         oEdgeIDs = [int(i) for i in oEdgeIDs]
         return oEdgeIDs
 
-    @pyaedt_function_handler()
-    def get_object_vertices(self, partID):
+    @pyaedt_function_handler(partID="assignment")
+    def get_object_vertices(self, assignment):
         """Retrieve the vertex IDs of a given object name or object ID.
 
         Parameters
         ----------
-        partID : int or str
+        assignment : int or str
             Object ID or object name.
 
         Returns
@@ -6978,22 +7326,22 @@ class GeometryModeler(Modeler):
 
         """
         oVertexIDs = []
-        if isinstance(partID, str) and partID in self._object_names_to_ids:
-            oVertexIDs = self.oeditor.GetVertexIDsFromObject(partID)
+        if isinstance(assignment, str) and assignment in self._object_names_to_ids:
+            oVertexIDs = self.oeditor.GetVertexIDsFromObject(assignment)
             oVertexIDs = [int(i) for i in oVertexIDs]
-        elif partID in self.objects:
-            o = self.objects[partID]
+        elif assignment in self.objects:
+            o = self.objects[assignment]
             oVertexIDs = self.oeditor.GetVertexIDsFromObject(o.name)
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @pyaedt_function_handler()
-    def get_face_vertices(self, face_id):
+    @pyaedt_function_handler(face_id="assignment")
+    def get_face_vertices(self, assignment):
         """Retrieve the vertex IDs of a given face ID or face name.
 
         Parameters
         ----------
-        face_id : int or str
+        assignment : int or str
             Object ID or object name, which is available
             using the methods :func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
             or :func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
@@ -7010,20 +7358,20 @@ class GeometryModeler(Modeler):
 
         """
         try:
-            oVertexIDs = self.oeditor.GetVertexIDsFromFace(face_id)
-        except:
+            oVertexIDs = self.oeditor.GetVertexIDsFromFace(assignment)
+        except Exception:
             oVertexIDs = []
         else:
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @pyaedt_function_handler()
-    def get_edge_length(self, edgeID):
+    @pyaedt_function_handler(edgeID="assignment")
+    def get_edge_length(self, assignment):
         """Get the length of an edge.
 
         Parameters
         ----------
-        edgeID : int
+        assignment : int
             ID of the edge.
 
         Returns
@@ -7032,7 +7380,7 @@ class GeometryModeler(Modeler):
             Edge length.
 
         """
-        vertexID = self.get_edge_vertices(edgeID)
+        vertexID = self.get_edge_vertices(assignment)
         pos1 = self.get_vertex_position(vertexID[0])
         if len(vertexID) < 2:
             return 0
@@ -7040,13 +7388,13 @@ class GeometryModeler(Modeler):
         length = GeometryOperators.points_distance(pos1, pos2)
         return length
 
-    @pyaedt_function_handler()
-    def get_edge_vertices(self, edgeID):
+    @pyaedt_function_handler(edgeID="assignment")
+    def get_edge_vertices(self, assignment):
         """Retrieve the vertex IDs of a given edge ID or edge name.
 
         Parameters
         ----------
-        edgeID : int, str
+        assignment : int, str
             Object ID or object name, which is available using the
             methods :func:`pyaedt.modeler.Primitives3D.Primitives3D.get_object_vertices`
             or :func:`pyaedt.modeler.Primitives2D.Primitives2D.get_object_vertices`.
@@ -7063,20 +7411,20 @@ class GeometryModeler(Modeler):
 
         """
         try:
-            oVertexIDs = self.oeditor.GetVertexIDsFromEdge(edgeID)
-        except:
+            oVertexIDs = self.oeditor.GetVertexIDsFromEdge(assignment)
+        except Exception:
             oVertexIDs = []
         else:
             oVertexIDs = [int(i) for i in oVertexIDs]
         return oVertexIDs
 
-    @pyaedt_function_handler()
-    def get_vertex_position(self, vertex_id):
+    @pyaedt_function_handler(vertex_id="assignment")
+    def get_vertex_position(self, assignment):
         """Retrieve a vector of vertex coordinates.
 
         Parameters
         ----------
-        vertex_id : int or str
+        assignment : int or str
             ID or name of the vertex.
 
         Returns
@@ -7091,20 +7439,20 @@ class GeometryModeler(Modeler):
 
         """
         try:
-            pos = self.oeditor.GetVertexPosition(vertex_id)
-        except:
+            pos = self.oeditor.GetVertexPosition(assignment)
+        except Exception:
             position = []
         else:
             position = [float(i) for i in pos]
         return position
 
-    @pyaedt_function_handler()
-    def get_face_area(self, face_id):
+    @pyaedt_function_handler(face_id="assignment")
+    def get_face_area(self, assignment):
         """Retrieve the area of a given face ID.
 
         Parameters
         ----------
-        face_id : int
+        assignment : int
             ID of the face.
 
         Returns
@@ -7119,16 +7467,16 @@ class GeometryModeler(Modeler):
 
         """
 
-        area = self.oeditor.GetFaceArea(face_id)
+        area = self.oeditor.GetFaceArea(assignment)
         return area
 
-    @pyaedt_function_handler()
-    def get_face_center(self, face_id):
+    @pyaedt_function_handler(face_id="assignment")
+    def get_face_center(self, assignment):
         """Retrieve the center position for a given planar face ID.
 
         Parameters
         ----------
-        face_id : int
+        assignment : int
             ID of the face.
 
         Returns
@@ -7144,22 +7492,22 @@ class GeometryModeler(Modeler):
 
         """
         try:
-            c = self.oeditor.GetFaceCenter(face_id)
-        except:
+            c = self.oeditor.GetFaceCenter(assignment)
+        except Exception:
             self.logger.warning("Non Planar Faces doesn't provide any Face Center")
             return False
         center = [float(i) for i in c]
         return center
 
-    @pyaedt_function_handler()
-    def get_mid_points_on_dir(self, sheet, axisdir):
+    @pyaedt_function_handler(sheet="assignment", axisdir="axis")
+    def get_mid_points_on_dir(self, assignment, axis):
         """Retrieve midpoints on a given axis direction.
 
         Parameters
         ----------
-        sheet :
+        assignment :
 
-        axisdir : int
+        axis : int
             Axis direction. Choices are ``0`` through ``5``.
 
         Returns
@@ -7167,8 +7515,8 @@ class GeometryModeler(Modeler):
         type
 
         """
-        edgesid = self.get_object_edges(sheet)
-        id_ = divmod(axisdir, 3)[1]
+        edgesid = self.get_object_edges(assignment)
+        id_ = divmod(axis, 3)[1]
         midpoint_array = []
         for ed in edgesid:
             midpoint_array.append(self.get_edge_midpoint(ed))
@@ -7178,19 +7526,19 @@ class GeometryModeler(Modeler):
             if not point0:
                 point0 = el
                 point1 = el
-            elif axisdir < 3 and el[id_] < point0[id_] or axisdir > 2 and el[id_] > point0[id_]:
+            elif axis < 3 and el[id_] < point0[id_] or axis > 2 and el[id_] > point0[id_]:
                 point0 = el
-            elif axisdir < 3 and el[id_] > point1[id_] or axisdir > 2 and el[id_] < point1[id_]:
+            elif axis < 3 and el[id_] > point1[id_] or axis > 2 and el[id_] < point1[id_]:
                 point1 = el
         return point0, point1
 
-    @pyaedt_function_handler()
-    def get_edge_midpoint(self, partID):
+    @pyaedt_function_handler(partID="assignment")
+    def get_edge_midpoint(self, assignment):
         """Retrieve the midpoint coordinates of a given edge ID or edge name.
 
         Parameters
         ----------
-        partID : int or str
+        assignment : int or str
             Object ID  or object name.
 
         Returns
@@ -7200,15 +7548,15 @@ class GeometryModeler(Modeler):
             two vertices, an empty list is returned.
         """
 
-        if isinstance(partID, str) and partID in self._object_names_to_ids:
-            partID = self._object_names_to_ids[partID]
+        if isinstance(assignment, str) and assignment in self._object_names_to_ids:
+            assignment = self._object_names_to_ids[assignment]
 
-        if partID in self.objects and self.objects[partID].object_type == "Line":
-            vertices = self.get_object_vertices(partID)
+        if assignment in self.objects and self.objects[assignment].object_type == "Line":
+            vertices = self.get_object_vertices(assignment)
         else:
             try:
-                vertices = self.get_edge_vertices(partID)
-            except:
+                vertices = self.get_edge_vertices(assignment)
+            except Exception:
                 vertices = []
         if len(vertices) == 2:
             vertex1 = self.get_vertex_position(vertices[0])
@@ -7259,15 +7607,15 @@ class GeometryModeler(Modeler):
             list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
-    @pyaedt_function_handler()
-    def get_edgeid_from_position(self, position, obj_name=None, units=None):
+    @pyaedt_function_handler(obj_name="assignment")
+    def get_edgeid_from_position(self, position, assignment=None, units=None):
         """Get an edge ID from a position.
 
         Parameters
         ----------
         position : list
             List of ``[x, y, z]`` coordinates for the position.
-        obj_name : str, optional
+        assignment : str, optional
             Name of the object. The default is ``None``, in which case all
             objects are searched.
         units : str, optional
@@ -7279,8 +7627,8 @@ class GeometryModeler(Modeler):
         type
             Edge ID of the first object touching this position.
         """
-        if isinstance(obj_name, str):
-            object_list = [obj_name]
+        if isinstance(assignment, str):
+            object_list = [assignment]
         else:
             object_list = self.object_names
 
@@ -7297,18 +7645,18 @@ class GeometryModeler(Modeler):
             try:
                 edgeID = int(self.oeditor.GetEdgeByPosition(vArg1))
                 return edgeID
-            except:
+            except Exception:
                 pass
 
-    @pyaedt_function_handler()
-    def get_edgeids_from_vertexid(self, vertexid, obj_name):
+    @pyaedt_function_handler(vertexid="vertex", obj_name="assignment")
+    def get_edgeids_from_vertexid(self, vertex, assignment):
         """Retrieve edge IDs for a vertex ID.
 
         Parameters
         ----------
-        vertexid : int
+        vertex : int
             Vertex ID.
-        obj_name :
+        assignment : str
             Name of the object.
 
         Returns
@@ -7324,23 +7672,23 @@ class GeometryModeler(Modeler):
 
         """
         edgeID = []
-        edges = self.get_object_edges(obj_name)
+        edges = self.get_object_edges(assignment)
         for edge in edges:
             vertices = self.get_edge_vertices(edge)
-            if vertexid in vertices:
+            if vertex in vertices:
                 edgeID.append(edge)
 
         return edgeID
 
-    @pyaedt_function_handler()
-    def get_faceid_from_position(self, position, obj_name=None, units=None):
+    @pyaedt_function_handler(obj_name="assignment")
+    def get_faceid_from_position(self, position, assignment=None, units=None):
         """Retrieve a face ID from a position.
 
         Parameters
         ----------
         position : list
             List of ``[x, y, z]`` coordinates for the position.
-        obj_name : str, optional
+        assignment : str, optional
             Name of the object. The default is ``None``, in which case all
             objects are searched.
         units : str, optional
@@ -7358,8 +7706,8 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetFaceByPosition
 
         """
-        if isinstance(obj_name, str):
-            object_list = [obj_name]
+        if isinstance(assignment, str):
+            object_list = [assignment]
         else:
             object_list = self.object_names
 
@@ -7374,12 +7722,12 @@ class GeometryModeler(Modeler):
             try:
                 face_id = self.oeditor.GetFaceByPosition(vArg1)
                 return face_id
-            except:
+            except Exception:
                 # Not Found, keep looking
                 pass
 
-    @pyaedt_function_handler()
-    def get_edges_on_bounding_box(self, sheets, return_colinear=True, tol=1e-6):
+    @pyaedt_function_handler(sheets="assignment", tol="tolerance")
+    def get_edges_on_bounding_box(self, assignment, return_colinear=True, tolerance=1e-6):
         """Retrieve the edges of the sheets passed in the input that are lying on the bounding box.
 
         This method creates new lines for the detected edges and returns the IDs of these lines.
@@ -7387,12 +7735,12 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        sheets : int, str, or list
+        assignment : int, str, or list
             ID or name for one or more sheets.
         return_colinear : bool, optional
             Whether to return only colinear edges. The default is ``True``.
             If ``False``, all edges on the bounding box are returned.
-        tol : float, optional
+        tolerance : float, optional
             Geometric tolerance. The default is ``1e-6``.
 
         Returns
@@ -7401,7 +7749,7 @@ class GeometryModeler(Modeler):
             List of edge IDs lying on the bounding box.
 
         """
-        port_sheets = self._modeler.convert_to_selections(sheets, return_list=True)
+        port_sheets = self._modeler.convert_to_selections(assignment, return_list=True)
         bb = self._modeler.get_model_bounding_box()
 
         candidate_edges = []
@@ -7413,11 +7761,11 @@ class GeometryModeler(Modeler):
                 for vertex in vertices:
                     v = vertex.position
                     xyz_flag = 0
-                    if abs(v[0] - bb[0]) < tol or abs(v[0] - bb[3]) < tol:
+                    if abs(v[0] - bb[0]) < tolerance or abs(v[0] - bb[3]) < tolerance:
                         xyz_flag += 1
-                    if abs(v[1] - bb[1]) < tol or abs(v[1] - bb[4]) < tol:
+                    if abs(v[1] - bb[1]) < tolerance or abs(v[1] - bb[4]) < tolerance:
                         xyz_flag += 1
-                    if abs(v[2] - bb[2]) < tol or abs(v[2] - bb[5]) < tol:
+                    if abs(v[2] - bb[2]) < tolerance or abs(v[2] - bb[5]) < tolerance:
                         xyz_flag += 1
                     if xyz_flag >= 2:
                         v_flag = True
@@ -7437,7 +7785,7 @@ class GeometryModeler(Modeler):
             for j, edge_j in enumerate(candidate_edges[i + 1 :]):
                 midpoint_j = edge_j.midpoint
                 area = GeometryOperators.get_triangle_area(midpoint_i, midpoint_j, vertex1_i)
-                if area < tol**2:
+                if area < tolerance**2:
                     selected_edges.extend([edge_i, edge_j])
                     break
         selected_edges = list(set(selected_edges))
@@ -7448,9 +7796,11 @@ class GeometryModeler(Modeler):
 
         return selected_edges
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        sheet="assignment", XY_plane="xy_plane", YZ_plane="yz_plane", XZ_plane="xz_plane", tol="tolerance"
+    )
     def get_edges_for_circuit_port_from_sheet(
-        self, sheet, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
+        self, assignment, xy_plane=True, yz_plane=True, xz_plane=True, allow_perpendicular=False, tolerance=1e-6
     ):
         """Retrieve two edge IDs that are suitable for a circuit port from a sheet.
 
@@ -7465,21 +7815,21 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        sheet : int, str, or list
+        assignment : int, str, or list
             ID or name for one or more sheets.
-        XY_plane : bool, optional
+        xy_plane : bool, optional
             Whether the edge's pair are to be on the XY plane.
             The default is ``True``.
-        YZ_plane : bool, optional
+        yz_plane : bool, optional
             Whether the edge's pair are to be on the YZ plane.
             The default is ``True``.
-        XZ_plane : bool, optional
+        xz_plane : bool, optional
             Whether the edge's pair are to be on the XZ plane.
             The default is ``True``.
         allow_perpendicular : bool, optional
             Whether the edge's pair are to be perpendicular.
             The default is ``False``.
-        tol : float, optional
+        tolerance : float, optional
             Geometric tolerance. The default is ``1e-6``.
 
         Returns
@@ -7488,8 +7838,8 @@ class GeometryModeler(Modeler):
             List of edge IDs.
 
         """
-        tol2 = tol**2
-        port_sheet = self._modeler.convert_to_selections(sheet, return_list=True)
+        tol2 = tolerance**2
+        port_sheet = self._modeler.convert_to_selections(assignment, return_list=True)
         if len(port_sheet) > 1:
             return []
         else:
@@ -7556,7 +7906,7 @@ class GeometryModeler(Modeler):
                             GeometryOperators.v_points(vertex1_j, vertex2_j),
                         )
                     )
-                    < tol
+                    < tolerance
                 ):
                     continue
 
@@ -7564,11 +7914,11 @@ class GeometryModeler(Modeler):
                     GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
-                if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
+                if yz_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tolerance:
                     pass
-                elif XZ_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tol:
+                elif xz_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tolerance:
                     pass
-                elif XY_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tol:
+                elif xy_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tolerance:
                     pass
                 else:
                     continue
@@ -7577,7 +7927,7 @@ class GeometryModeler(Modeler):
                 if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
-        minimum_distance = tol**-1
+        minimum_distance = tolerance**-1
         selected_edges = []
         for ei in midpoints:
             midpoint_i = midpoints[ei]
@@ -7596,9 +7946,11 @@ class GeometryModeler(Modeler):
         else:
             return []
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        face_id="assignment", XY_plane="xy_plane", YZ_plane="yz_plane", XZ_plane="xz_plane", tol="tolerance"
+    )
     def get_edges_for_circuit_port(
-        self, face_id, XY_plane=True, YZ_plane=True, XZ_plane=True, allow_perpendicular=False, tol=1e-6
+        self, assignment, xy_plane=True, yz_plane=True, xz_plane=True, allow_perpendicular=False, tolerance=1e-6
     ):
         """Retrieve two edge IDs suitable for the circuit port.
 
@@ -7612,21 +7964,21 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        face_id :
+        assignment :
             ID of the face.
-        XY_plane : bool, optional
+        xy_plane : bool, optional
             Whether the edge's pair are to be on the XY plane.
             The default is ``True``.
-        YZ_plane : bool, optional
+        yz_plane : bool, optional
             Whether the edge's pair are to be on the YZ plane.
             The default is ``True``.
-        XZ_plane : bool, optional
+        xz_plane : bool, optional
             Whether the edge's pair are to be on the XZ plane.
             The default is ``True``.
         allow_perpendicular : bool, optional
             Whether the edge's pair are to be perpendicular.
             The default is ``False``.
-        tol : float, optional
+        tolerance : float, optional
             Geometric tolerance. The default is ``1e-6``.
 
         Returns
@@ -7635,12 +7987,12 @@ class GeometryModeler(Modeler):
             List of edge IDs.
 
         """
-        tol2 = tol**2
+        tol2 = tolerance**2
 
-        port_edges = self.get_face_edges(face_id)
+        port_edges = self.get_face_edges(assignment)
 
         # find the bodies to exclude
-        port_sheet_midpoint = self.get_face_center(face_id)
+        port_sheet_midpoint = self.get_face_center(assignment)
         point = self._modeler.Position(port_sheet_midpoint)
         list_of_bodies = self.get_bodynames_from_position(point)
 
@@ -7662,10 +8014,10 @@ class GeometryModeler(Modeler):
             vertices_i = self.get_edge_vertices(ei)
             if len(vertices_i) == 1:  # maybe a circle
                 vertex1_i = self.get_vertex_position(vertices_i[0])
-                area_i = self.get_face_area(face_id)
+                area_i = self.get_face_area(assignment)
                 if area_i is None or area_i < tol2:  # degenerated face
                     continue
-                center_i = self.get_face_center(face_id)
+                center_i = self.get_face_center(assignment)
                 if not center_i:  # non planar face
                     continue
                 radius_i = GeometryOperators.points_distance(vertex1_i, center_i)
@@ -7699,7 +8051,7 @@ class GeometryModeler(Modeler):
                             GeometryOperators.v_points(vertex1_j, vertex2_j),
                         )
                     )
-                    < tol
+                    < tolerance
                 ):
                     continue
 
@@ -7707,11 +8059,11 @@ class GeometryModeler(Modeler):
                     GeometryOperators.v_points(vertex1_i, vertex2_i), GeometryOperators.v_points(vertex1_i, vertex1_j)
                 )
                 normal1_norm = GeometryOperators.v_norm(normal1)
-                if YZ_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tol:
+                if yz_plane and abs(abs(GeometryOperators._v_dot(normal1, ux)) - normal1_norm) < tolerance:
                     pass
-                elif XZ_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tol:
+                elif xz_plane and abs(abs(GeometryOperators._v_dot(normal1, uy)) - normal1_norm) < tolerance:
                     pass
-                elif XY_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tol:
+                elif xy_plane and abs(abs(GeometryOperators._v_dot(normal1, uz)) - normal1_norm) < tolerance:
                     pass
                 else:
                     continue
@@ -7720,7 +8072,7 @@ class GeometryModeler(Modeler):
                 if abs(GeometryOperators._v_dot(normal1, vec1)) < tol2:  # the 4th point is coplanar
                     candidate_edges.append(ej)
 
-        minimum_distance = tol**-1
+        minimum_distance = tolerance**-1
         selected_edges = []
         for ei in midpoints:
             midpoint_i = midpoints[ei]
@@ -7761,7 +8113,7 @@ class GeometryModeler(Modeler):
 
         bodies = self.get_bodynames_from_position(position, units)
         # the function searches in all bodies, not efficient
-        face_id = self.get_faceid_from_position(position, obj_name=bodies[0], units=units)
+        face_id = self.get_faceid_from_position(position, assignment=bodies[0], units=units)
         edges = self.get_face_edges(face_id)
         distance = 1e6
         selected_edge = None
@@ -7943,7 +8295,7 @@ class GeometryModeler(Modeler):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name, pid=0, use_cached=False, **kwargs):
+    def _create_object(self, name, pid=0, use_cached=False, is_polyline=False, **kwargs):
         if use_cached:
             line_names = self._lines
         else:
@@ -7962,18 +8314,15 @@ class GeometryModeler(Modeler):
                 new_id = o.id
             o = self.get_existing_polyline(o)
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
         else:
             o = Object3d(self, name)
-            commands = self._get_commands(name)
-            if commands and commands[0].startswith("CreatePolyline"):
+            if is_polyline:
                 o = self.get_existing_polyline(o)
             if pid:
                 new_id = pid
             else:
                 new_id = o.id
             self.objects[new_id] = o
-            self._object_names_to_ids[o.name] = new_id
 
         #  Set properties from kwargs.
         if len(kwargs) > 0:
@@ -7987,10 +8336,10 @@ class GeometryModeler(Modeler):
                 if k in props:  # Only try to set valid properties.
                     try:
                         setattr(o, k, val)
-                    except:
+                    except Exception:
                         self.logger.warning("Unable to assign " + str(k) + " to object " + o.name + ".")
                 else:
-                    self.logger.error("'" + str(k) + "' is not a valid property of the primitive ")
+                    self.logger.debug("'" + str(k) + "' is not a valid property of the primitive.")
         return o
 
     @pyaedt_function_handler()
@@ -8006,7 +8355,7 @@ class GeometryModeler(Modeler):
             name = _uname()
         try:
             color = str(tuple(self._app.materials.material_keys[material].material_appearance)).replace(",", " ")
-        except:
+        except Exception:
             color = "(132 132 193)"
         if material in ["vacuum", "air", "glass", "water_distilled", "water_fresh", "water_sea"]:
             transparency = 0.8
@@ -8095,11 +8444,11 @@ class GeometryModeler(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -8178,11 +8527,12 @@ class GeometryModeler(Modeler):
             if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
                 component_name = comp3d
                 break
-        if self._design_properties and self._design_properties.get("ModelSetup", None) and component_name:
+        dp = copy.deepcopy(self._app.design_properties)
+        if dp and dp.get("ModelSetup", None) and component_name:
             try:
-                native_comp_entry = self._design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "SubModelDefinitions"
-                ]["NativeComponentDefinition"]
+                native_comp_entry = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["SubModelDefinitions"][
+                    "NativeComponentDefinition"
+                ]
                 if native_comp_entry:
                     if isinstance(native_comp_entry, (dict, OrderedDict)):
                         native_comp_entry = [native_comp_entry]
@@ -8191,12 +8541,12 @@ class GeometryModeler(Modeler):
                         if native_comp_name == component_name:
                             native_comp_properties = data
                             break
-            except:
+            except Exception:
                 return native_comp_properties
 
         return native_comp_properties
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def _get_object_dict_by_material(self, material):
         obj_dict = {}
         for mat in material:
@@ -8216,15 +8566,15 @@ class GeometryModeler(Modeler):
             obj_dict[mat] = objs
         return obj_dict
 
-    @pyaedt_function_handler()
-    def convert_segments_to_line(self, object_name):
+    @pyaedt_function_handler(object_name="assignment")
+    def convert_segments_to_line(self, assignment):
         """Convert a CreatePolyline list of segments to lines.
 
         This method applies to splines and 3-point arguments.
 
         Parameters
         ----------
-        object_name : int, str, or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : int, str, or :class:`pyaedt.modeler.cad.object3d.Object3d`
             Specified for the object.
 
         Returns
@@ -8247,7 +8597,7 @@ class GeometryModeler(Modeler):
         >>> aedtapp.modeler.convert_segments_to_line(edge_object.name)
 
         """
-        this_object = self._resolve_object(object_name)
+        this_object = self._resolve_object(assignment)
         edges = this_object.edges
         for i in reversed(range(len(edges))):
             self.oeditor.ChangeProperty(
@@ -8287,7 +8637,7 @@ class PrimitivesBuilder(object):
     >>> aedtapp = Hfss()
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)
-    >>> primitives_builder.create()
+    >>> primitives_builder.create(),,
     >>> aedtapp.release_desktop()
     """
 
@@ -8466,11 +8816,11 @@ class PrimitivesBuilder(object):
         self._app.modeler.set_working_coordinate_system(cs)
 
         cyl1 = self._app.modeler.create_cylinder(
-            cs_axis=data.get("Plane"),
-            position=origin,
+            orientation=data.get("Plane"),
+            origin=origin,
             radius=data.get("Radius"),
             height=data.get("Height"),
-            numSides=int(data.get("Number of Segments")),
+            num_sides=int(data.get("Number of Segments")),
             name=name,
         )
 
@@ -8482,11 +8832,11 @@ class PrimitivesBuilder(object):
                 self.logger.warning("Internal radius is larger than external radius.")
             elif internal_radius != 0:
                 cyl2 = self._app.modeler.create_cylinder(
-                    cs_axis=data.get("Plane"),
-                    position=origin,
+                    orientation=data.get("Plane"),
+                    origin=origin,
                     radius=internal_radius,
                     height=data.get("Height"),
-                    numSides=data.get("Number of Segments"),
+                    num_sides=data.get("Number of Segments"),
                     name=name,
                 )
                 self._app.modeler.subtract(blank_list=cyl1, tool_list=cyl2, keep_originals=False)
@@ -8522,9 +8872,7 @@ class PrimitivesBuilder(object):
         self._app.modeler.set_working_coordinate_system(cs)
 
         box1 = self._app.modeler.create_box(
-            position=origin,
-            dimensions_list=[data["X Length"], data["Y Length"], data["Z Length"]],
-            name=name,
+            origin=origin, sizes=[data["X Length"], data["Y Length"], data["Z Length"]], name=name
         )
         return box1
 

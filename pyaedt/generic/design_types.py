@@ -402,7 +402,6 @@ def Emit(
     projectname=None,
     designname=None,
     solution_type=None,
-    setup_name=None,
     specified_version=None,
     non_graphical=False,
     new_desktop_session=False,
@@ -428,10 +427,6 @@ def Emit(
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
     specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
@@ -511,7 +506,6 @@ def Emit(
         projectname=projectname,
         designname=designname,
         solution_type=solution_type,
-        setup_name=setup_name,
         specified_version=specified_version,
         non_graphical=non_graphical,
         new_desktop_session=new_desktop_session,
@@ -536,6 +530,7 @@ def Hfss3dLayout(
     machine="",
     port=0,
     aedt_process_id=None,
+    ic_mode=False,
 ):
     """Hfss3dLayout Class.
 
@@ -585,6 +580,8 @@ def Hfss3dLayout(
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``False``.
 
     Returns
     -------
@@ -643,6 +640,7 @@ def Hfss3dLayout(
         machine=machine,
         port=port,
         aedt_process_id=aedt_process_id,
+        ic_mode=ic_mode,
     )
 
 
@@ -1750,45 +1748,67 @@ app_map = {
 }
 
 
-def get_pyaedt_app(project_name=None, design_name=None):
-    """Returns the Pyaedt Object of specific project_name and design_name.
+def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
+    """Gets the PyAEDT object with a given project name and design name.
 
     Parameters
     ----------
-    project_name
-    design_name
+    project_name : str, optional
+        Project name.
+    design_name : str, optional
+        Design name.
+    desktop : :class:`pyaedt.desktop.Desktop`, optional
+        Desktop class. The default is ``None``.
 
     Returns
     -------
     :def :`pyaedt.Hfss`
         Any of the Pyaedt App initialized.
     """
-    main = sys.modules["__main__"]
-    if "oDesktop" in dir(main):
-        if project_name and project_name not in main.oDesktop.GetProjectList():
-            raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
-        if not project_name:
-            oProject = main.oDesktop.GetActiveProject()
-        else:
-            oProject = main.oDesktop.SetActiveProject(project_name)
-        if not oProject:
-            raise AttributeError("No Project Present.")
-        design_names = []
-        deslist = list(oProject.GetTopDesignList())
-        for el in deslist:
-            m = re.search(r"[^;]+$", el)
-            design_names.append(m.group(0))
-        if design_name and design_name not in design_names:
-            raise AttributeError("Design  {} doesn't exists in current Project.".format(design_name))
-        if not design_name:
-            oDesign = oProject.GetActiveDesign()
-        else:
-            oDesign = oProject.SetActiveDesign(design_name)
-        if not oDesign:
-            raise AttributeError("No Design Present.")
-        design_type = oDesign.GetDesignType()
-        if design_type in list(app_map.keys()):
-            version = main.oDesktop.GetVersion().split(".")
-            v = ".".join([version[0], version[1]])
-            return app_map[design_type](project_name, design_name, specified_version=v)
+    from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+    odesktop = None
+    process_id = None
+    if desktop:
+        odesktop = desktop.odesktop
+        process_id = desktop.aedt_process_id
+    elif _desktop_sessions and project_name:
+        for desktop in list(_desktop_sessions.values()):
+            if project_name in list(desktop.project_list()):
+                odesktop = desktop.odesktop
+                break
+    elif _desktop_sessions:
+        odesktop = list(_desktop_sessions.values())[-1]
+    elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
+        odesktop = sys.modules["__main__"].oDesktop  # ironpython
+    else:
+        raise AttributeError("No Desktop Present.")
+    if not process_id:
+        process_id = odesktop.GetProcessID()
+    if project_name and project_name not in odesktop.GetProjectList():
+        raise AttributeError("Project  {} doesn't exist in current desktop.".format(project_name))
+    if not project_name:
+        oProject = odesktop.GetActiveProject()
+    else:
+        oProject = odesktop.SetActiveProject(project_name)
+    if not oProject:
+        raise AttributeError("No project is present.")
+    design_names = []
+    deslist = list(oProject.GetTopDesignList())
+    for el in deslist:
+        m = re.search(r"[^;]+$", el)
+        design_names.append(m.group(0))
+    if design_name and design_name not in design_names:
+        raise AttributeError("Design  {} doesn't exist in current project.".format(design_name))
+    if not design_name:
+        oDesign = oProject.GetActiveDesign()
+    else:
+        oDesign = oProject.SetActiveDesign(design_name)
+    if not oDesign:
+        raise AttributeError("No design is present.")
+    design_type = oDesign.GetDesignType()
+    if design_type in list(app_map.keys()):
+        version = odesktop.GetVersion().split(".")
+        v = ".".join([version[0], version[1]])
+        return app_map[design_type](project_name, design_name, specified_version=v, aedt_process_id=process_id)
     return None

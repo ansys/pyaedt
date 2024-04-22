@@ -91,6 +91,14 @@ class TestClass:
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
+        mesh_file_path2 = self.aedtapp.post.export_mesh_obj(
+            setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+        )
+        assert os.path.exists(mesh_file_path2)
+
+        min_value = self.aedtapp.post.get_scalar_field_value(
+            "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
+        )
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -98,25 +106,25 @@ class TestClass:
         phases = [str(i * 5) + "deg" for i in range(2)]
         model_gif = self.aedtapp.post.plot_animated_field(
             quantity="Mag_E",
-            object_list=cutlist,
+            assignment=cutlist,
             plot_type="CutPlane",
-            setup_name=self.aedtapp.nominal_adaptive,
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},
-            export_path=self.local_scratch.path,
             variation_variable="Phase",
-            variation_list=phases,
+            variations=phases,
             show=False,
             export_gif=True,
+            export_path=self.local_scratch.path,
         )
         assert os.path.exists(model_gif.gif_file)
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         pl1 = self.aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Mag_E", setup_name, intrinsic)
         model_gif2 = self.aedtapp.post.animate_fields_from_aedtplt(
-            plotname=pl1.name,
+            plot_name=pl1.name,
             plot_folder=None,
             variation_variable="Phase",
-            variation_list=phases,
+            variations=phases,
             project_path="",
             export_gif=False,
             show=False,
@@ -136,14 +144,10 @@ class TestClass:
         plot2 = self.aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
 
         self.aedtapp.post.export_field_jpg(
-            os.path.join(self.local_scratch.path, "prova2.jpg"),
-            plot2.name,
-            plot2.plotFolder,
+            os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plot_folder
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
-        assert os.path.exists(
-            plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
-        )
+        assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg")))
 
     def test_03_create_scattering(self):
         setup_name = "Setup1 : Sweep"
@@ -225,7 +229,7 @@ class TestClass:
             os.path.join(self.local_scratch.path, "Efield.fld"),
             grid_stop=[5, 5, 5],
             grid_step=[0.5, 0.5, 0.5],
-            isvector=True,
+            is_vector=True,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
@@ -235,10 +239,10 @@ class TestClass:
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
-            gridtype="Spherical",
+            grid_type="Spherical",
             grid_stop=[5, 300, 300],
             grid_step=[5, 50, 50],
-            isvector=False,
+            is_vector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
@@ -248,10 +252,10 @@ class TestClass:
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values_dict,
             os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
-            gridtype="Cylindrical",
+            grid_type="Cylindrical",
             grid_stop=[5, 300, 5],
             grid_step=[5, 50, 5],
-            isvector=False,
+            is_vector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
@@ -272,11 +276,9 @@ class TestClass:
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
-            setup_sweep_name="Setup1 : AdaptivePass",
             primary_sweep_variable="Pass",
             report_category="Modal Solution Data",
             plot_type="Rectangular Plot",
-            plotname="Solution Convergence Plot",
         )
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -285,6 +287,11 @@ class TestClass:
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
         assert len(self.aedtapp.post.all_report_names) > 0
+
+        new_report = self.aedtapp.post.reports_by_category.modal_solution(
+            "dB(S(1,1))", setup=self.aedtapp.nominal_sweep
+        )
+        assert new_report.create()
 
     def test_09c_import_into_report(self):
         new_report = self.aedtapp.create_scattering("import_test")
@@ -459,7 +466,6 @@ class TestClass:
         assert new_report.limit_lines[0].set_line_properties(
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
         )
-        pass
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
@@ -479,7 +485,6 @@ class TestClass:
             font_size=10,
             color=(255, 0, 0),
         )
-        pass
 
     def test_10_delete_report(self):
         plots_number = len(self.aedtapp.post.plots)
@@ -503,13 +508,13 @@ class TestClass:
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plotname=plot1.name,
+            plot_name=plot1.name,
             project_path=self.local_scratch.path,
-            meshplot=False,
-            imageformat="jpg",
+            mesh_plot=False,
+            image_format="jpg",
             view="xy",
-            show=False,
             plot_label=plot1.name + " label",
+            show=False,
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)
@@ -528,13 +533,13 @@ class TestClass:
         assert os.path.exists(plot_obj.image_file)
 
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plotname=plot1.name,
+            plot_name=plot1.name,
             project_path=self.local_scratch.path,
-            meshplot=False,
-            imageformat="jpg",
+            mesh_plot=False,
+            image_format="jpg",
             view="xy",
-            show=False,
             plot_label=plot1.name + " label",
+            show=False,
             file_format="aedtplt",
         )
         assert os.path.exists(plot_obj.image_file)
@@ -557,13 +562,13 @@ class TestClass:
             "Vector_E",
             cutlist,
             "CutPlane",
-            setup_name=setup_name,
+            setup=setup_name,
             intrinsics=intrinsic,
-            export_path=self.local_scratch.path,
             mesh_on_fields=False,
-            imageformat="jpg",
             view="isometric",
             show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
 
@@ -582,11 +587,11 @@ class TestClass:
     def test_16_create_field_plot(self):
         cutlist = ["Global:XY"]
         plot = self.aedtapp.post._create_fieldplot(
-            objlist=cutlist,
-            quantityName="Mag_E",
-            setup_name=self.aedtapp.nominal_adaptive,
+            assignment=cutlist,
+            quantity="Mag_E",
+            setup=self.aedtapp.nominal_adaptive,
             intrinsics={},
-            listtype="CutPlane",
+            list_type="CutPlane",
         )
         assert plot
 
@@ -630,7 +635,7 @@ class TestClass:
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
-        assert self.aedtapp.post.create_report_from_configuration(input_dict=dict_vals)
+        assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"

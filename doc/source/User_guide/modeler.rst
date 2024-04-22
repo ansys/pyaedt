@@ -9,8 +9,10 @@ The following code creates a box and changes the color to red:
 
      from pyaedt.hfss import Hfss
      hfss = Hfss()
-     box = hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
-                                   "mybox", "aluminum")
+     box = hfss.modeler.create_box(origin=[0, 0, 0],
+                                   sizes=[10, "dim", 10],
+                                   name="mybox",
+                                   material="aluminum")
      print(box.faces)
      box.color = "Red"
 
@@ -59,7 +61,15 @@ All objects support executing any modeler operation, such as union or subtractio
      box.subract(cyl)
 
 
-.. image:: ../Resources/objects_operations.gif
-  :width: 800
-  :alt: Object Modeler Operations
+.. only:: latex
+
+    The following demo is presented as an animated GIF.
+    `View online <https://aedt.docs.pyansys.com/version/stable/_images/objects_operations.gif>`_
+    if you are reading the PDF version of this documentation.
+
+.. only:: html
+
+  .. image:: ../Resources/objects_operations.gif
+    :width: 800
+    :alt: Object Modeler Operations
 

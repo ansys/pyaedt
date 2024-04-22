@@ -9,6 +9,7 @@ import warnings
 from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -274,7 +275,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
@@ -330,7 +331,7 @@ class Modeler3D(Primitives3D):
                 datasets.update(self._app.design_datasets)
             if native_components is None:
                 native_components = self._app.native_components
-            with open(configfile) as f:
+            with open_file(configfile) as f:
                 config_dict = json.load(f)
             out_dict = {}
             if monitor_objects:
@@ -370,7 +371,7 @@ class Modeler3D(Primitives3D):
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
                         del out_dict["coordinatesystems"][cs]
-            with open(auxiliary_dict, "w") as outfile:
+            with open_file(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
         if not os.path.isdir(os.path.dirname(component_file)):
             self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
@@ -515,7 +516,7 @@ class Modeler3D(Primitives3D):
             meshregions = [mr.name for mr in self._app.mesh.meshregions]
             try:
                 meshregions.remove("Global")
-            except:
+            except Exception:
                 pass
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
@@ -763,7 +764,7 @@ class Modeler3D(Primitives3D):
             if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.create_box(origin, [w, h, wg_length])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[0] = str(origin[0]) + "-" + wg_thickness
                     origin[1] = str(origin[1]) + "-" + wg_thickness
                 else:
@@ -773,7 +774,7 @@ class Modeler3D(Primitives3D):
             elif wg_direction_axis == self._app.AXIS.Y:
                 airbox = self.create_box(origin, [w, wg_length, h])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[0] = str(origin[0]) + "-" + wg_thickness
                     origin[2] = str(origin[2]) + "-" + wg_thickness
                 else:
@@ -782,7 +783,7 @@ class Modeler3D(Primitives3D):
             else:
                 airbox = self.create_box(origin, [wg_length, w, h])
 
-                if type(wg_thickness) is str:
+                if isinstance(wg_thickness, str):
                     origin[2] = str(origin[2]) + "-" + wg_thickness
                     origin[1] = str(origin[1]) + "-" + wg_thickness
                 else:
@@ -900,7 +901,7 @@ class Modeler3D(Primitives3D):
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
-        with open(file_path, "r") as f:
+        with open_file(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
             for lk in range(len(lines)):
@@ -1089,43 +1090,39 @@ class Modeler3D(Primitives3D):
         if import_solids and nas_to_dict["Solids"]:
             self.logger.reset_timer()
             self.logger.info("Loading solids")
-            for solid_pid in nas_to_dict["Solids"].keys():
+            for solid_pid in nas_to_dict["Solids"]:
                 for solid in nas_to_dict["Solids"][solid_pid]:
                     points = [nas_to_dict["Points"][id] for id in solid[1:]]
                     if solid[0] == "CPENTA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[3], points[4], points[5]], close_surface=True, cover_surface=True
+                            points=[points[3], points[4], points[5]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.connect([element1.name, element2.name])
                         element1.group_name = "PID_" + str(solid_pid)
                     elif solid[0] == "CHEXA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2], points[3]],
-                            close_surface=True,
-                            cover_surface=True,
+                            points=[points[0], points[1], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[4], points[5], points[6], points[7]],
-                            close_surface=True,
-                            cover_surface=True,
+                            points=[points[4], points[5], points[6], points[7]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.connect([element1.name, element2.name])
                         element1.group_name = "PID_" + str(solid_pid)
                     elif solid[0] == "CTETRA":
                         element1 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[2]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
                         )
                         element2 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[1], points[3]], close_surface=True, cover_surface=True
+                            points=[points[0], points[1], points[3]], cover_surface=True, close_surface=True
                         )
                         element3 = self._app.modeler.create_polyline(
-                            position_list=[points[0], points[2], points[3]], close_surface=True, cover_surface=True
+                            points=[points[0], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         element4 = self._app.modeler.create_polyline(
-                            position_list=[points[1], points[2], points[3]], close_surface=True, cover_surface=True
+                            points=[points[1], points[2], points[3]], cover_surface=True, close_surface=True
                         )
                         self._app.modeler.unite([element1.name, element2.name, element3.name, element4.name])
                         element1.group_name = "PID_" + str(solid_pid)
@@ -1240,7 +1237,7 @@ class Modeler3D(Primitives3D):
             "parts": parts_dict,
         }
 
-        with open(json_path, "w", encoding="utf-8") as f:
+        with open_file(json_path, "w", encoding="utf-8") as f:
             json.dump(scene, f, indent=4)
 
         self.logger.info("Done...")
@@ -1267,10 +1264,7 @@ class Modeler3D(Primitives3D):
                 if not os.path.exists(parts_dict[part]["file_name"]):
                     continue
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(
-                    parts_dict[part]["file_name"],
-                    create_lightweigth_part=create_lightweigth_part,
-                )
+                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2

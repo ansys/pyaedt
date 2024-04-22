@@ -64,8 +64,7 @@ cir.analyze()
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
 cir.solution_type = "NexximAMI"
-original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="AMIAnalysis", domain="Time",
+original_data = cir.post.get_solution_data(expressions=plot_name, domain="Time",
                                            variations=cir.available_variations.nominal)
 original_data_value = original_data.full_matrix_real_imag[0]
 original_data_sweep = original_data.primary_sweep_values
@@ -89,7 +88,7 @@ plot_type = "WaveAfterProbe"
 setup_name = "AMIAnalysis"
 ignore_bits = 100
 unit_interval = 0.1e-9
-sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=probe_name, source_name=source_name,
+sample_waveform = cir.post.sample_ami_waveform(setup=setup_name, probe=probe_name, source=source_name,
                                                variation_list_w_value=cir.available_variations.nominal,
                                                unit_interval=unit_interval, ignore_bits=ignore_bits,
                                                plot_type=plot_type)
@@ -134,7 +133,7 @@ sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_wav
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
-ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values, color='blue')
+ax.plot(np.array(list(original_data_zoom.index.values)), original_data_zoom.values)
 ax.set_title('WaveAfterProbe')
 ax.set_xlabel(original_data.units_sweeps["Time"])
 ax.set_ylabel(original_data.units_data[plot_name])
@@ -172,7 +171,8 @@ plt.show()
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 cir.solution_type = "NexximTransient"
 original_data = cir.post.get_solution_data(expressions=plot_name,
-                                           setup_sweep_name="NexximTransient", domain="Time",
+                                           domain="Time",
+                                           setup_sweep_name="NexximTransient",
                                            variations=cir.available_variations.nominal)
 
 ###############################################################################
@@ -242,7 +242,7 @@ sampled_data_zoom_array[:, 1] *= scale_data
 
 fig, ax = plt.subplots()
 ax.plot(sampled_data_zoom_array[:, 0], sampled_data_zoom_array[:, 1], "r*")
-ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1], color='blue')
+ax.plot(original_sweep_zoom, original_data_zoom_array[:, 1])
 ax.set_title(plot_name)
 ax.set_xlabel(waveform_sweep_unit)
 ax.set_ylabel(waveform_unit)

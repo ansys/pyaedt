@@ -54,19 +54,19 @@ m3d = pyaedt.Maxwell3d(
 # Create the coil, coil terminal, core, and region.
 
 coil = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil"
 )
 
-coil.sweep_around_axis(cs_axis=AXIS.Z)
+coil.sweep_around_axis(axis=AXIS.Z)
 
 coil_terminal = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil_terminal"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil_terminal"
 )
 
 core = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[45, 0, -18], dimension_list=[7, 160], name="Core"
+    orientation="XZ", origin=[45, 0, -18], sizes=[7, 160], name="Core"
 )
-core.sweep_around_axis(cs_axis=AXIS.Z)
+core.sweep_around_axis(axis=AXIS.Z)
 
 # Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.
 region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
@@ -98,14 +98,10 @@ m3d.assign_material(core.name, "ferrite")
 
 no_turns = 20
 coil_current = 10
-m3d.assign_coil(["Coil_terminal"], conductor_number=no_turns, name="Coil_terminal")
-m3d.assign_winding(
-    is_solid=False,
-    current_value=coil_current,
-    name="Winding1",
-)
+m3d.assign_coil(["Coil_terminal"], conductors_number=no_turns, name="Coil_terminal")
+m3d.assign_winding(is_solid=False, current=coil_current, name="Winding1")
 
-m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
+m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 ###############################################################################
 # Assign mesh operations
@@ -113,12 +109,8 @@ m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
 # Mesh operations are not necessary in eddy current solver because of auto-adaptive meshing.
 # However, with appropriate mesh operations, less adaptive passes are needed.
 
-m3d.mesh.assign_length_mesh(
-    ["Core"], maxlength=15, meshop_name="Inside_Core", maxel=None
-)
-m3d.mesh.assign_length_mesh(
-    ["Coil"], maxlength=30, meshop_name="Inside_Coil", maxel=None
-)
+m3d.mesh.assign_length_mesh(["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core")
+m3d.mesh.assign_length_mesh(["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil")
 
 ###############################################################################
 # Set conductivity temperature coefficient
@@ -148,7 +140,7 @@ m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Simulation frequency 150kHz.
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
@@ -190,19 +182,14 @@ ipk.copy_solid_bodies_from(m3d, no_pec=False)
 ipk.modeler["Region"].delete()
 coil_dim = coil.bounding_dimension[0]
 ipk.modeler.create_region(0, False)
-ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim/2, coil_dim*2, coil_dim])
+ipk.modeler.edit_region_dimensions([coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim])
 
 ###############################################################################
 # Map coil losses
 # ~~~~~~~~~~~~~~~
 # Map ohmic losses from Maxwell to the Icepak design.
 
-ipk.assign_em_losses(
-    designname="1 Maxwell",
-    setupname=m3d.setups[0].name,
-    sweepname="LastAdaptive",
-    object_list=["Coil"],
-)
+ipk.assign_em_losses(design="1 Maxwell", setup=m3d.setups[0].name, sweep="LastAdaptive", assignment=["Coil"])
 
 ###############################################################################
 # Boundary conditions
@@ -255,17 +242,11 @@ surface_list = []
 for name in ["Coil", "Core"]:
     surface_list.extend(ipk.modeler.get_object_faces(name))
 
-surf_temperature = ipk.post.create_fieldplot_surface(
-    surface_list,
-    quantityName="SurfTemperature",
-    plot_name="Surface Temperature"
-)
+surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature",
+                                                     plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(
-        objlist=["Global:XZ"],
-        quantityName="Velocity Vectors",
-        plot_name="Velocity Vectors"
-    )
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(assignment=["Global:XZ"], quantity="Velocity Vectors",
+                                                       plot_name="Velocity Vectors")
 
 surf_temperature.export_image()
 velocity_cutplane.export_image(orientation="right")

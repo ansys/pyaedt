@@ -5,6 +5,7 @@ import os
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import read_configuration_file
 
 
@@ -225,7 +226,7 @@ class Cable:
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable creation was unsuccessful.")
             return False
 
@@ -298,7 +299,7 @@ class Cable:
                     ]
                 )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable properties not updated.")
             return False
 
@@ -345,7 +346,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable shielding properties not updated.")
             return False
 
@@ -369,7 +370,7 @@ class Cable:
                 try:
                     self._omodule.RemoveCable(cable_to_remove)
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Remove cable failed.")
                     return False
 
@@ -392,7 +393,7 @@ class Cable:
                         ["NAME:CableInstAttribs", "Name:=", cable_to_add],
                     )
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Add cable to Bundle failed. Please check the provided cable names.")
                     return False
         else:
@@ -427,7 +428,7 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
@@ -460,7 +461,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
@@ -475,7 +476,7 @@ class Cable:
         try:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
@@ -492,7 +493,7 @@ class Cable:
                 for source in self.existing_sources_names:
                     self._omodule.RemoveTimeDomainSource(source)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
@@ -518,7 +519,7 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.pwl_source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
@@ -535,7 +536,7 @@ class Cable:
                 self.pwl_source_file_path, ["NAME:TDSourceAttribs", "Name:=", generate_unique_name("pwl")]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source from file not created.")
             return False
 
@@ -576,7 +577,7 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
@@ -688,7 +689,7 @@ class Cable:
             )
 
             return True
-        except:
+        except Exception:
             self._app.logger.error("Couldn't create cable harness.")
             return False
 
@@ -1409,6 +1410,6 @@ class Cable:
         omodule.ExportCableLibrary(file_path_export)
         file_path_export_as_json = os.path.join(working_dir, "export_cable_library_as_json_test.json")
         data = load_entire_aedt_file(file_path_export)
-        with open(file_path_export_as_json, "w") as f:
+        with open_file(file_path_export_as_json, "w") as f:
             json.dump(data, f)
         return data

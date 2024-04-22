@@ -8,10 +8,10 @@ from pyaedt import Icepak
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NetworkObject
+from pyaedt.modules.MeshIcepak import MeshRegion
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
-
 if config["desktopVersion"] > "2022.2":
     test_project_name = "Filter_Board_Icepak_231"
     src_project_name = "USB_Connector_IPK_231"
@@ -75,9 +75,17 @@ class TestClass:
 
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
-        self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
+        assert self.aedtapp.create_meshregion_component()
+        self.aedtapp.modeler.create_box([0, 0, 0], [50, 50, 2], "PCB")
+        old_pcb_mesh_region = MeshRegion(
+            meshmodule=self.aedtapp.mesh.omeshmodule, dimension=[1, 1, 1], unit="mm", app=self.aedtapp
+        )
+        assert old_pcb_mesh_region.MaxElementSizeX == 1 / 20
+        assert old_pcb_mesh_region.MaxElementSizeY == 1 / 20
+        assert old_pcb_mesh_region.MaxElementSizeZ == 1 / 20
+        pcb_mesh_region = MeshRegion(self.aedtapp, "PCB")
         pcb_mesh_region.name = "PCB_Region"
+        # backward compatibility check
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
         pcb_mesh_region.MaxElementSizeY = 2
@@ -91,9 +99,47 @@ class TestClass:
         pcb_mesh_region.MinGapX = 1
         pcb_mesh_region.MinGapY = 1
         pcb_mesh_region.MinGapZ = 1
-        pcb_mesh_region.Objects = ["Component_Region"]
-        assert pcb_mesh_region.create()
         assert pcb_mesh_region.update()
+        if settings.aedt_version > "2023.2":
+            assert pcb_mesh_region.assignment.padding_values == ["0"] * 6
+            assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
+            pcb_mesh_region.assignment.negative_x_padding = 1
+            pcb_mesh_region.assignment.positive_x_padding = 1
+            pcb_mesh_region.assignment.negative_y_padding = 1
+            pcb_mesh_region.assignment.positive_y_padding = 1
+            pcb_mesh_region.assignment.negative_z_padding = 1
+            pcb_mesh_region.assignment.positive_z_padding = 1
+            pcb_mesh_region.assignment.negative_x_padding_type = "Absolute Offset"
+            pcb_mesh_region.assignment.positive_x_padding_type = "Absolute Position"
+            pcb_mesh_region.assignment.negative_y_padding_type = "Transverse Percentage Offset"
+            pcb_mesh_region.assignment.positive_y_padding_type = "Absolute Position"
+            pcb_mesh_region.assignment.negative_z_padding_type = "Absolute Offset"
+            pcb_mesh_region.assignment.positive_z_padding_type = "Transverse Percentage Offset"
+            assert pcb_mesh_region.assignment.negative_x_padding == "1mm"
+            assert pcb_mesh_region.assignment.positive_x_padding == "1mm"
+            assert pcb_mesh_region.assignment.negative_y_padding == "1"
+            assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
+            assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
+            assert pcb_mesh_region.assignment.positive_z_padding == "1"
+            assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
+            assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
+            assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
+            assert pcb_mesh_region.assignment.positive_y_padding_type == "Absolute Position"
+            assert pcb_mesh_region.assignment.negative_z_padding_type == "Absolute Offset"
+            assert pcb_mesh_region.assignment.positive_z_padding_type == "Transverse Percentage Offset"
+            pcb_mesh_region.assignment.padding_values = 2
+            pcb_mesh_region.assignment.padding_types = "Absolute Offset"
+            assert pcb_mesh_region.assignment.padding_values == ["2mm"] * 6
+            assert pcb_mesh_region.assignment.padding_types == ["Absolute Offset"] * 6
+            assert self.aedtapp.modeler.create_subregion([50, 50, 50, 50, 100, 100], "Percentage Offset", "PCB")
+            box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+            assert self.aedtapp.modeler.create_subregion(
+                [50, 50, 50, 50, 100, 100], "Percentage Offset", ["PCB", box.name]
+            )
+        else:
+            box = self.aedtapp.modeler.create_box([0, 0, 0], [1, 2, 3])
+            pcb_mesh_region.Objects = box.name
+            assert pcb_mesh_region.update()
         assert self.aedtapp.mesh.meshregions_dict
         assert pcb_mesh_region.delete()
 
@@ -184,7 +230,6 @@ class TestClass:
 
     def test_11_mesh_level(self):
         assert self.aedtapp.mesh.assign_mesh_level({"USB_Shiels": 2})
-        pass
 
     def test_12a_AssignMeshOperation(self):
         self.aedtapp.oproject = test_project_name
@@ -219,24 +264,6 @@ class TestClass:
         test.Objects = ["US8_1D"]
         assert not test.update()
         assert test.delete()
-
-    def test_12c_AssignVirtualMeshOperation(self):
-        self.aedtapp.oproject = test_project_name
-        self.aedtapp.odesign = "IcepakDesign1"
-        group_name = "Group1"
-        mesh_level_Filter = "2"
-        component_name = ["RadioBoard1_1"]
-        mesh_level_RadioPCB = "1"
-        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
-        assert test
-        # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
-        test = self.aedtapp.mesh.assign_mesh_region(
-            component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
-        )
-        assert test
-        assert test.delete()
-        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
-        assert test
 
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler["Region"].top_face_x.id]
@@ -370,7 +397,7 @@ class TestClass:
 
     def test_32_automatic_mesh_3d(self):
         self.aedtapp.set_active_design("IcepakDesign1")
-        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy2=1)
+        assert self.aedtapp.mesh.automatic_mesh_3D(accuracy=1)
 
     def test_33_create_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
@@ -466,7 +493,7 @@ class TestClass:
             patternangle=8,
             numcolumn_perside=3,
             vertical_separation=5.5,
-            matname="Copper",
+            material="Copper",
             center=[10, 0, 0],
             plane_enum=self.aedtapp.PLANE.XY,
             rotation=45,
@@ -474,7 +501,7 @@ class TestClass:
         )
         box = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 3])
         top_face = box.top_face_z
-        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        hs, _ = self.aedtapp.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         assert hs
         hs.delete()
         box.rotate(0, 52)
@@ -486,7 +513,7 @@ class TestClass:
             fin_length=0.95,
             hs_basethick=0.2,
             separation=0.2,
-            matname="Al-Extruded",
+            material="Al-Extruded",
         )
         assert hs
         hs.delete()
@@ -821,7 +848,7 @@ class TestClass:
         cs2.props["OriginZ"] = 20
         file_path = self.local_scratch.path
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
 
         assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
@@ -840,7 +867,10 @@ class TestClass:
         self.aedtapp.delete_design()
         self.aedtapp.insert_design("test_51_2")
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
+            input_file=os.path.join(file_path, file_name),
+            coordinate_system="Global",
+            name="test",
+            auxiliary_parameters=False,
         )
         self.aedtapp.delete_design()
 
@@ -855,7 +885,7 @@ class TestClass:
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
         mon_name = self.aedtapp.monitor.assign_face_monitor(
             list(self.aedtapp.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
@@ -1012,9 +1042,9 @@ class TestClass:
             custom_x_resolution=400,
             custom_y_resolution=500,
         )
-        assert self.aedtapp.mesh.add_priority(entity_type=1, obj_list=self.aedtapp.modeler.object_names, priority=2)
+        assert self.aedtapp.mesh.add_priority(entity_type=1, assignment=self.aedtapp.modeler.object_names, priority=2)
         assert self.aedtapp.mesh.add_priority(
-            entity_type=2, comp_name=self.aedtapp.modeler.user_defined_component_names[0], priority=1
+            entity_type=2, component=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
 
     def test_57_update_source(self):
@@ -1121,8 +1151,8 @@ class TestClass:
         net.add_face_node(ids[0])
         net.add_face_node(ids[1], thermal_resistance="Specified", resistance=2)
         net.add_face_node(ids[2], thermal_resistance="Specified", resistance="2cel_per_w")
-        net.add_face_node(ids[3], thermal_resistance="Compute", thickness=2, material="Al-Extruded")
-        net.add_face_node(ids[4], thermal_resistance="Compute", thickness="2mm", material="Al-Extruded")
+        net.add_face_node(ids[3], thermal_resistance="Compute", material="Al-Extruded", thickness=2)
+        net.add_face_node(ids[4], thermal_resistance="Compute", material="Al-Extruded", thickness="2mm")
         net.add_face_node(ids[5], name="TestFace", thermal_resistance="Specified", resistance="20cel_per_w")
         net.add_internal_node(name="TestInternal", power=2, mass=None, specific_heat=None)
         net.add_internal_node(name="TestInternal2", power="4mW")
@@ -1220,7 +1250,7 @@ class TestClass:
         assert len(list(op_dict.keys())) == 2
         app.set_active_design("get_fan_op_point1")
         app.get_fans_operating_point()
-        app.get_fans_operating_point(timestep="0")
+        app.get_fans_operating_point(time_step="0")
         app.close_project()
 
     def test_63_generate_mesh(self):
@@ -1302,10 +1332,11 @@ class TestClass:
         self.aedtapp.insert_design("test_66")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_3dcomponent(os.path.join(file_path, file_name))
-        self.aedtapp.modeler.insert_3d_component(comp_file=os.path.join(file_path, file_name), name="test")
+        self.aedtapp.modeler.insert_3d_component(input_file=os.path.join(file_path, file_name), name="test")
         component_filepath = self.aedtapp.modeler.user_defined_components["test"].get_component_filepath()
         assert component_filepath
         comp = self.aedtapp.modeler.user_defined_components["test"].edit_definition()
+        comp.modeler.refresh_all_ids()
         comp.modeler.objects_by_name["surf1"].move([1, 1, 1])
         comp.modeler.create_3dcomponent(component_filepath)
         comp.close_project()
@@ -1326,11 +1357,11 @@ class TestClass:
             design_name="IcepakDesign1",
             subfolder=test_subfolder,
         )
-        assert app.mesh.add_priority(entity_type=2, comp_name="IcepakDesign1_1", priority=3)
+        assert app.mesh.add_priority(entity_type=2, component="IcepakDesign1_1", priority=3)
 
-        assert app.mesh.add_priority(entity_type=2, comp_name="all_2d_objects1", priority=2)
+        assert app.mesh.add_priority(entity_type=2, component="all_2d_objects1", priority=2)
 
-        assert app.mesh.add_priority(entity_type=2, comp_name="all_3d_objects1", priority=2)
+        assert app.mesh.add_priority(entity_type=2, component="all_3d_objects1", priority=2)
 
         app.close_project(name="3d_comp_mesh_prio_test", save_project=False)
 
@@ -1394,7 +1425,7 @@ class TestClass:
         )
 
     def test_70_blower_boundary(self):
-        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0, 0, 0], radius=10, height=1)
+        cylinder = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[0, 0, 0], radius=10, height=1)
         curved_face = [f for f in cylinder.faces if not f.is_planar]
         planar_faces = [f for f in cylinder.faces if f.is_planar]
         assert not self.aedtapp.assign_blower_type1(curved_face + planar_faces, planar_faces, [10, 5, 0], [0, 1, 2, 4])

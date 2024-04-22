@@ -62,7 +62,7 @@ tr1.parameters["P"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor(compname="R1", value="1Meg")
+res = cir.modeler.components.create_resistor(name="R1", value="1Meg")
 gnd1 = cir.modeler.components.create_gnd()
 
 ###############################################################################
@@ -91,7 +91,7 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
+trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
@@ -172,7 +172,7 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-plt.plot(cellst.T,  cellsv.T, zorder=0)
+plt.plot(cellst.T, cellsv.T, zorder=0)
 plt.show()
 
 ###############################################################################

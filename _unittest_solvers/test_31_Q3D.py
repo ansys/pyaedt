@@ -49,9 +49,8 @@ class TestClass:
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, matname="brass", name="MyCylinder"
-        )
+        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder",
+                                                 material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self):
@@ -75,26 +74,26 @@ class TestClass:
         # Create a discrete sweep with the same name of an existing sweep is not possible.
         assert not self.aedtapp.create_discrete_sweep(mysetup.name, sweepname="mysweep", freqstart=1, units="GHz")
         assert mysetup.create_linear_step_sweep(
-            sweepname="StepFast",
+            name="StepFast",
             unit="GHz",
-            freqstart=1,
-            freqstop=20,
+            start_frequency=1,
+            stop_frequency=20,
             step_size=0.1,
             sweep_type="Interpolating",
         )
         assert mysetup.create_linear_step_sweep(
             unit="GHz",
-            freqstart=1,
-            freqstop=20,
+            start_frequency=1,
+            stop_frequency=20,
             step_size=0.1,
             sweep_type="Interpolating",
         )
         with pytest.raises(AttributeError) as execinfo:
             mysetup.create_linear_step_sweep(
-                sweepname="invalid_sweep",
+                name="invalid_sweep",
                 unit="GHz",
-                freqstart=1,
-                freqstop=20,
+                start_frequency=1,
+                stop_frequency=20,
                 step_size=0.1,
                 sweep_type="Invalid",
             )
@@ -107,7 +106,7 @@ class TestClass:
         )
         assert mysetup.create_frequency_sweep(
             unit="GHz",
-            sweepname="Sweep1",
+            name="Sweep1",
             freqstart=9.5,
             freqstop="10.5GHz",
             sweep_type="Interpolating",
@@ -138,8 +137,8 @@ class TestClass:
         assert self.aedtapp.auto_identify_nets()
 
     def test_07_create_source_sinks(self):
-        source = self.aedtapp.source("MyCylinder", axisdir=0, name="Source1")
-        sink = self.aedtapp.sink("MyCylinder", axisdir=3, name="Sink1")
+        source = self.aedtapp.source("MyCylinder", direction=0, name="Source1")
+        sink = self.aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
         assert sink.name == "Sink1"
         assert len(self.aedtapp.excitations) > 0
@@ -167,7 +166,7 @@ class TestClass:
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
 
-        source = self.aedtapp.source(["Source1", "Sink1"], net_name="GND", name="Cylinder1")
+        source = self.aedtapp.source(["Source1", "Sink1"], name="Cylinder1", net_name="GND")
         source.props["Objects"] = ["Source1"]
         sink = self.aedtapp.sink("Sink1", net_name="GND")
         assert source
@@ -187,11 +186,9 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
-        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
-        )
+        test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example", self.aedtapp.AXIS.Z,
+                                                                              min_size=0.2, number_of_segments=8)
         assert test
-        pass
 
     def test_11_assign_net(self):
         box = self.aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
@@ -244,9 +241,8 @@ class TestClass:
         assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
         assert q3d.matrices[2].delete()
-        assert q3d.insert_reduced_matrix(
-            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
-        )
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source",
+                                         "New_sink")
         assert "New_net" in q3d.matrices[2].sources()
         assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
         assert len(q3d.matrices[2].operations) == 2
@@ -293,7 +289,7 @@ class TestClass:
         assert q3d.edit_sources(sources_cg, sources_ac)
 
         sources_dc = {"Box1:Source1": "20"}
-        assert q3d.edit_sources(dcrl=sources_dc)
+        assert q3d.edit_sources()
 
         sources_cg = {"Box2": "2V"}
         assert not q3d.edit_sources(sources_cg)
@@ -308,88 +304,54 @@ class TestClass:
     def test_15_export_matrix_data(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
-        q3d.matrices[1].name == "JointTest"
+        assert q3d.matrices[1].name == "JointTest"
         q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
-        q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
-        q3d.matrices[3].name == "JointTest3"
+        assert q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
+        q3d.analyze_setup(q3d.active_setup, cores=6)
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
         assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
-        assert not q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), matrix_type="Test"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            problem_type="C",
-            matrix_type="Maxwell, Spice, Couple",
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            problem_type="C",
-            matrix_type="Maxwell, Spice, Couple",
-        )
-        assert not q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            problem_type="AC RL, DC RL",
-            matrix_type="Maxwell, Spice, Couple",
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="AC RL, DC RL"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            problem_type="AC RL, DC RL",
-            matrix_type="Maxwell, Couple",
-        )
-        assert not q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            problem_type="AC",
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup1", sweep="LastAdaptive"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup1", sweep="Last Adaptive"
-        )
-        assert not q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup", sweep="LastAdaptive"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="Original"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="JointTest"
-        )
-        assert not q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="JointTest4"
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            freq=1,
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            freq=1,
-            freq_unit="kHz",
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), precision=16, field_width=22
-        )
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                          matrix_type="Test")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C",
+                                      matrix_type="Maxwell, Spice, Couple")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C",
+                                      matrix_type="Maxwell, Spice, Couple")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                          problem_type="AC RL, DC RL", matrix_type="Maxwell, Spice, Couple")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      problem_type="AC RL, DC RL")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      problem_type="AC RL, DC RL", matrix_type="Maxwell, Couple")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                          problem_type="AC")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                      sweep="LastAdaptive")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                      sweep="Last Adaptive")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup",
+                                          sweep="LastAdaptive")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      reduce_matrix="Original")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      reduce_matrix="JointTest")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                          reduce_matrix="JointTest4")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                      sweep="LastAdaptive", freq=1)
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                      sweep="LastAdaptive", freq=1, freq_unit="kHz")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), precision=16,
+                                      field_width=22)
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), precision=16.2)
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), use_sci_notation=True
-        )
-        assert q3d.export_matrix_data(
-            file_name=os.path.join(self.local_scratch.path, "test.txt"), use_sci_notation=False
-        )
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      use_sci_notation=True)
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
+                                      use_sci_notation=False)
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), r_unit="mohm")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), r_unit="A")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), l_unit="nH")
@@ -410,59 +372,39 @@ class TestClass:
         assert q3d.matrices[1].name == "JointTest"
         q3d["d"] = "10mm"
         q3d.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
-        q3d.analyze_setup(q3d.active_setup, num_cores=6)
-        assert q3d.export_equivalent_circuit(
-            os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
-        )
+        q3d.analyze_setup(q3d.active_setup, cores=6)
+        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                                             variations=["d: 10mm"])
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
 
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
-            sweep="LastAdaptive",
-            variations=["c: 10mm", "d: 20mm"],
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup1",
+            sweep="LastAdaptive", variations=["c: 10mm", "d: 20mm"])
 
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2")
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
-            sweep="Sweep1",
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup1",
+            sweep="Sweep1")
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Original"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original")
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest")
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest1"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest1")
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2)
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0)
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1)
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            coupling_limit_type=0,
-            cond_limit="3Sie",
-            cap_limit="4uF",
-            ind_limit="9uH",
-            res_limit="2ohm",
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0,
+            cap_limit="4uF", ind_limit="9uH", res_limit="2ohm", cond_limit="3Sie")
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test_14"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test_14")
         assert not q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
-        )
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test")
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_17_export_results_q3d(self, add_app):
@@ -470,11 +412,11 @@ class TestClass:
         exported_files = q3d.export_results()
         assert len(exported_files) == 0
         for setup_name in q3d.setup_names:
-            q3d.analyze_setup(setup_name, num_cores=6)
+            q3d.analyze_setup(setup_name, cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze(num_cores=6)
+        q3d.analyze(cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

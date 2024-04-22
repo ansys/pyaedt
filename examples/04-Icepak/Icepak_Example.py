@@ -72,7 +72,7 @@ ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 # ~~~~~~~~~~~~~~~~~~~
 # Assign a mesh region to the heat sink and CPU.
 
-mesh_region = ipk.mesh.assign_mesh_region(objectlist=["HEAT_SINK", "CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
@@ -106,7 +106,6 @@ surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
 surflist += [i.id for i in ipk.modeler["ALPHA_MAIN_PCB"].faces]
 
 plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
-
 
 ipk.analyze()
 

@@ -42,10 +42,10 @@ class TestClass:
         test_color = (220, 90, 0)
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, -2, -2],
-            dimension_list=[3, 10],
+            origin=[10, -2, -2],
+            sizes=[3, 10],
             name="MyRectangle",
-            material_name="Copper",
+            material="Copper",
             color=test_color,
         )
         assert rect1.solve_inside
@@ -69,7 +69,7 @@ class TestClass:
         self.aedtapp.solution_type = "MagnetostaticZ"
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])
         rect2 = self.aedtapp.modeler.create_rectangle(
-            position=[10, 0, -2], dimension_list=[10, 3], name="MyRectangle", matname="Copper"
+            origin=[10, 0, -2], sizes=[10, 3], name="MyRectangle", material="Copper"
         )
         list_of_pos = [ver.position for ver in rect1.vertices]
         assert sorted(list_of_pos) == [[1.0, 0.0, -2.0], [1.0, 0.0, 6.0], [4.0, 0.0, -2.0], [4.0, 0.0, 6.0]]
@@ -86,7 +86,7 @@ class TestClass:
             radius=3,
             num_sides=6,
             name="MyCircle",
-            matname="Copper",
+            material="Copper",
             display_wireframe=True,
         )
         assert circle1.solve_inside
@@ -118,9 +118,9 @@ class TestClass:
     def test_06a_calculate_radius_2D(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
         radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name)
-        assert type(radius) is float
+        assert isinstance(radius, float)
         radius = self.aedtapp.modeler.calculate_radius_2D(circle1.name, True)
-        assert type(radius) is float
+        assert isinstance(radius, float)
 
     def test_06b_radial_split(self):
         circle1 = self.aedtapp.modeler.create_circle([0, -2, 0], 3)
@@ -130,7 +130,7 @@ class TestClass:
     def test_07_create_ellipse(self):
         ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 3)
         ellipse2 = self.aedtapp.modeler.create_ellipse(
-            position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", matname="Copper"
+            position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", material="Copper"
         )
         assert ellipse1.solve_inside
         assert ellipse1.model
@@ -145,7 +145,7 @@ class TestClass:
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         pg2 = self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
         )
         assert pg1.solve_inside
         assert pg1.model
@@ -164,7 +164,7 @@ class TestClass:
         self.aedtapp.solution_type = "MagnetostaticZ"
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
-            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", matname="Copper"
+            position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
         )
         obj = self.aedtapp.plot(
             show=False,
@@ -194,15 +194,15 @@ class TestClass:
         objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects_xy_4) is list
-        assert type(objects_xy_6) is list
+        assert isinstance(objects_xy_4, list)
+        assert isinstance(objects_xy_6, list)
         self.aedtapp.solution_type = "MagnetostaticZ"
         bounding_box = [-52, -68, 35, 42]
         objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        assert type(objects_z_4) is list
-        assert type(objects_z_6) is list
+        assert isinstance(objects_z_4, list)
+        assert isinstance(objects_z_6, list)
         with pytest.raises(ValueError):
             bounding_box = [3, 4, 5]
             self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
@@ -219,12 +219,10 @@ class TestClass:
     def test_14_split(self):
         self.aedtapp.insert_design("split_test")
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, 0], [3, 8])
-        poly1 = self.aedtapp.modeler.create_polyline(
-            position_list=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc"
-        )
-        assert not self.aedtapp.modeler.split(objects=rect1)
-        split = self.aedtapp.modeler.split(objects=rect1, plane=self.aedtapp.PLANE.ZX)
+        poly1 = self.aedtapp.modeler.create_polyline(points=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc")
+        assert not self.aedtapp.modeler.split(assignment=rect1)
+        split = self.aedtapp.modeler.split(assignment=rect1, plane=self.aedtapp.PLANE.ZX)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
-        assert not self.aedtapp.modeler.split(objects=obj_split, tool=poly1.edges[0])
+        assert not self.aedtapp.modeler.split(assignment=obj_split, tool=poly1.edges[0])

@@ -28,6 +28,7 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
+@pytest.mark.skipif(sys.version_info < (3,8), reason="Emit API is only available for Python 3.8+.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
@@ -175,14 +176,14 @@ class TestClass:
         exception_raised = False
         try:
             radio.set_band_power_level(100)
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
         # Try getting band power from the radio
         exception_raised = False
         try:
             radio.get_band_power_level()
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
         # full units support added with 2023.2
@@ -561,7 +562,7 @@ class TestClass:
         exception_raised = False
         try:
             freqs = rev.get_active_frequencies(radios[0], bands[0], TxRxMode.BOTH, "MHz")
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
 
@@ -628,7 +629,7 @@ class TestClass:
         exception_raised = False
         try:
             rad.set_channel_sampling()
-        except:
+        except Exception:
             exception_raised = True
         assert exception_raised
 

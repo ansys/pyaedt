@@ -105,7 +105,7 @@ Layout_name = 'A1_uprev'          # 3D layout name available for import, the ext
 hfss3dLO = Hfss3dLayout('Icepak_ECAD_Import', 'PCB_temp')      # adding a dummy HFSS 3D layout to the current project
 
 #edb_full_path = os.path.join(os.getcwd(), Layout_name+'.aedb\edb.def')   # path to the EDB file
-hfss3dLO.import_edb(def_path)                                       # importing the EDB file           
+hfss3dLO.import_edb(def_path)  # importing the EDB file
 hfss3dLO.save_project()                                                  # save the new project so files are stored in the path     
 
 ipk.delete_design(name='PCB_temp', fallback_design=None)                 # deleting the dummy layout from the original project

@@ -9,13 +9,15 @@ import subprocess  # nosec
 from numpy import float64
 from numpy import zeros
 
+from pyaedt import generate_unique_folder_name
 from pyaedt import generate_unique_name
 from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
-from pyaedt.generic.com_parameters import COMParameters
 from pyaedt.generic.general_methods import env_value
+from pyaedt.generic.general_methods import open_file
 from pyaedt.misc import current_version
+from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
 
 class SpiSim:
@@ -63,15 +65,19 @@ class SpiSim:
         command = [spisimExe, parameter, cfgCmmd]
         # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
         # try up to three times to be sure
-        out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
+        if out_file:
+            out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
+        else:
+            out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
+
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
         if is_linux:  # pragma: no cover
             command.append("&")
-            with open(out_processing, "w") as outfile:
+            with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
-            with open(out_processing, "w") as outfile:
+            with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         return out_processing
 
@@ -79,7 +85,7 @@ class SpiSim:
     def _get_output_parameter_from_result(self, out_file, parameter_name):
         if parameter_name == "ERL":
             try:
-                with open(out_file, "r") as infile:
+                with open_file(out_file, "r") as infile:
                     lines = infile.read()
                     parmDat = lines.split("[ParmDat]:", 1)[1]
                     for keyValu in parmDat.split(","):
@@ -95,11 +101,21 @@ class SpiSim:
                 return False
         elif parameter_name == "COM":
             try:
-                with open(out_file, "r") as infile:
+                with open_file(out_file, "r") as infile:
                     txt = infile.read()
-                com_case_0 = re.search(r"Case 0: Calculated COM = (.*?),", txt).groups()[0]
-                com_case_1 = re.search(r"Case 1: Calculated COM = (.*?),", txt).groups()[0]
-                return float(com_case_0), float(com_case_1)
+                i = 0
+                com_results = []
+                while True:
+                    m = re.search(r"Case {}: Calculated COM = (.*?),".format(i), txt)
+                    if m:
+                        com_results.append(float(m.groups()[0]))
+                        i = i + 1
+                    else:
+                        if i == 0:
+                            self.logger.error("Failed to find results from SPISim log file. \n{txt}")
+                        break
+
+                return com_results
             except IndexError:  # pragma: no cover
                 self.logger.error("Failed to compute {}. Check input parameters and retry".format(parameter_name))
 
@@ -186,7 +202,7 @@ class SpiSim:
             "NCYCLES": 1000,
         }
         if config_file:
-            with open(config_file, "r") as fp:
+            with open_file(config_file, "r") as fp:
                 lines = fp.readlines()
                 for line in lines:
                     if not line.startswith("#") and "=" in line:
@@ -224,7 +240,7 @@ class SpiSim:
         cfg_dict["NCYCLES"] = reflections_length if reflections_length is not None else cfg_dict["NCYCLES"]
 
         new_cfg_file = os.path.join(self.working_directory, "spisim_erl.cfg").replace("\\", "/")
-        with open(new_cfg_file, "w") as fp:
+        with open_file(new_cfg_file, "w") as fp:
             for k, v in cfg_dict.items():
                 fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
@@ -255,13 +271,20 @@ class SpiSim:
         next_s4p="",
         out_folder="",
     ):
-        """Compute Channel Operating Margin.
+        """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
         Parameters
         ----------
-        standard : str
-            Name of the standard to apply.
-        config_file : str, optional
+        standard : int
+            Name of the standard to apply. Supported stdnards are as below.
+            COM_CUSTOM = 0
+            COM_50GAUI_1_C2C = 1
+            COM_100GAUI_2_C2C = 2
+            COM_200GAUI_4 = 3
+            COM_400GAUI_8 = 4
+            COM_100GBASE_KR4 = 5
+            COM_100GBASE_KP4 = 6
+        config_file : str, Path, optional
             Config file to use.
         port_order : str, optional
             Whether to use "``EvenOdd``" or "``Incremental``" numbering for S4P files. The default is ``EvenOdd``.
@@ -277,19 +300,23 @@ class SpiSim:
         -------
 
         """
-        if standard == "custom":
-            com_param = COMParameters()
-            com_param.load(config_file)
+
+        com_param = COMParametersVer3p4()
+        if standard == 0:
+            if os.path.splitext(config_file)[-1] == ".cfg":
+                com_param.load_spisim_cfg(config_file)
+            else:
+                com_param.load(config_file)
         else:
-            com_param = COMParameters(standard)
+            com_param.standard = standard
 
-        com_param.THRUSNP = self.touchstone_file
-        com_param.FEXTARY = fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p)
-        com_param.NEXTARY = next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p)
+        com_param.set_parameter("THRUSNP", self.touchstone_file)
+        com_param.set_parameter("FEXTARY", fext_s4p if not isinstance(fext_s4p, list) else ";".join(fext_s4p))
+        com_param.set_parameter("NEXTARY", next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p))
 
-        com_param.PORT_ORDER = "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]"
+        com_param.set_parameter("Port Order", "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]")
 
-        com_param.RESULT_DIR = out_folder if out_folder else self.working_directory
+        com_param.set_parameter("RESULT_DIR", out_folder if out_folder else self.working_directory)
         return self._compute_com(com_param)
 
     @pyaedt_function_handler
@@ -308,49 +335,44 @@ class SpiSim:
         -------
 
         """
+        thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
+        fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
+        next_snp = com_parameter.parameters["NEXTARY"].replace("\\", "/")
+        result_dir = com_parameter.parameters["RESULT_DIR"].replace("\\", "/")
 
-        com_parameter.THRUSNP = com_parameter.THRUSNP.replace("\\", "/")
-        com_parameter.FEXTARY = com_parameter.FEXTARY.replace("\\", "/")
-        com_parameter.NEXTARY = com_parameter.NEXTARY.replace("\\", "/")
-        com_parameter.RESULT_DIR = com_parameter.RESULT_DIR.replace("\\", "/")
+        com_parameter.set_parameter("THRUSNP", thru_snp)
+        com_parameter.set_parameter("FEXTARY", fext_snp)
+        com_parameter.set_parameter("NEXTARY", next_snp)
+        com_parameter.set_parameter("RESULT_DIR", result_dir)
 
-        cfg_file = os.path.join(com_parameter.RESULT_DIR, "com_parameters.cfg")
-        com_parameter.export(cfg_file)
+        cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
+        com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self._compute_spisim(parameter="COM", config_file=cfg_file)
         return self._get_output_parameter_from_result(out_processing, "COM")
 
-    @property
-    def com_standards(self):
-        """List of supported COM standards."""
-        return list(COMParameters._STD_TABLE_MAPPING.keys())
-
-    @staticmethod
     @pyaedt_function_handler
-    def com_parameters(standard="50GAUI-1_C2C"):
-        return COMParameters(standard).parameters
-
-    @pyaedt_function_handler
-    def export_com_configure_file(self, file_path, standard="50GAUI-1_C2C"):
+    def export_com_configure_file(self, file_path, standard=1):
         """Generate a configuration file for SpiSim.
 
         Parameters
         ----------
-        file_path : str
+        file_path : str, Path
             Full path to configuration file to create.
-
+        standard : int
+            Index of the standard.
         Returns
         -------
         bool
         """
-        return COMParameters(standard).export(file_path)
+        return COMParametersVer3p4(standard).export(file_path)
 
 
 def detect_encoding(file_path, expected_pattern="", re_flags=0):
     """Check encoding of a file."""
     for encoding in ("utf-8", "utf_16_le", "cp1252", "cp1250", "shift_jis"):
         try:
-            with open(file_path, "r", encoding=encoding) as f:
+            with open_file(file_path, "r", encoding=encoding) as f:
                 lines = f.read()
                 f.seek(0)
         except UnicodeDecodeError:

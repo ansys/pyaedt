@@ -223,7 +223,6 @@ class Icepak(FieldAnalysis3D):
         air_faces,
         free_loss_coeff=True,
         free_area_ratio=0.8,
-        resistance_type=0,
         external_temp="AmbientTemp",
         expternal_pressure="AmbientPressure",
         x_curve=["0", "1", "2"],
@@ -241,14 +240,6 @@ class Icepak(FieldAnalysis3D):
             the free loss coefficient is not used.
         free_area_ratio : float, str
             Free loss coefficient value. The default is ``0.8``.
-        resistance_type : int, optional
-            Type of the resistance. Options are:
-
-            - ``0`` for ``"Perforated Thin Vent"``
-            - ``1`` for ``"Circular Metal Wire Screen"``
-            - ``2`` for ``"Two-Plane Screen Cyl. Bars"``
-
-            The default is ``0`` for ``"Perforated Thin Vent"``.
         external_temp : str, optional
             External temperature. The default is ``"AmbientTemp"``.
         expternal_pressure : str, optional
@@ -346,15 +337,15 @@ class Icepak(FieldAnalysis3D):
             return bound
         return None
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup")
     def assign_2way_coupling(
-        self, setup_name=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
+        self, setup=None, number_of_iterations=2, continue_ipk_iterations=True, ipk_iterations_per_coupling=20
     ):
         """Assign two-way coupling to a setup.
 
         Parameters
         ----------
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup. The default is ``None``, in which case the active setup is used.
         number_of_iterations : int, optional
             Number of iterations. The default is ``2``.
@@ -376,18 +367,18 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
+        >>> icepak.assign_2way_coupling("Setup1",1,True,10)
         True
 
         """
-        if not setup_name:
+        if not setup:
             if self.setups:
-                setup_name = self.setups[0].name
+                setup = self.setups[0].name
             else:
                 self.logger.error("No setup is defined.")
                 return False
         self.oanalysis.AddTwoWayCoupling(
-            setup_name,
+            setup,
             [
                 "NAME:Options",
                 "NumCouplingIters:=",
@@ -433,8 +424,8 @@ class Icepak(FieldAnalysis3D):
 
         Create block boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
-        >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
+        >>> box1 = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
+        >>> box2 = icepak.modeler.create_box([2, 2, 2],[4, 4, 4],"BlockBox2","copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
         PyAEDT INFO: Block on ...
         >>> blocks[1].props
@@ -497,7 +488,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> box = icepak.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
         PyAEDT INFO: Block on ...
         >>> block.props
@@ -697,7 +688,7 @@ class Icepak(FieldAnalysis3D):
 
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
-        >>> box = icepak.modeler.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
+        >>> box = icepak.modeler.create_box([0, 0, 0],[20, 20, 20],name="SourceBox")
         >>> source1 = icepak.create_source_power(box.top_face_z.id, input_power="2W")
         >>> source1.props["Total Power"]
         '2W'
@@ -790,7 +781,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+        >>> box = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox1","copper")
         >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2 , 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
@@ -890,8 +881,8 @@ class Icepak(FieldAnalysis3D):
 
         Create network boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
-        >>> box2 = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
+        >>> box1 = icepak.modeler.create_box([1, 2, 3],[10, 10, 10],"NetworkBox2","copper")
+        >>> box2 = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox3","copper")
         >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
         ...                                        2, 1.05918, False)
         >>> blocks[0].props["Nodes"]["Internal"]
@@ -956,8 +947,7 @@ class Icepak(FieldAnalysis3D):
 
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,
-        ...                                           [0, 0, 0], [10, 20], name="Surface1")
+        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
@@ -1027,7 +1017,7 @@ class Icepak(FieldAnalysis3D):
 
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
-        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
@@ -1089,7 +1079,7 @@ class Icepak(FieldAnalysis3D):
                         )
                     else:
                         total_power += float(power)
-            except:
+            except Exception:
                 pass
             i += 1
         self.logger.info("Blocks inserted with total power %sW.", total_power)
@@ -1177,7 +1167,7 @@ class Icepak(FieldAnalysis3D):
         else:
             return oBoundingBox[gravityDir - 3]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(matname="material")
     def create_parametric_fin_heat_sink(
         self,
         hs_height=100,
@@ -1194,7 +1184,7 @@ class Icepak(FieldAnalysis3D):
         symmetric_separation=20,
         numcolumn_perside=2,
         vertical_separation=10,
-        matname="Al-Extruded",
+        material="Al-Extruded",
         center=[0, 0, 0],
         plane_enum=0,
         rotation=0,
@@ -1232,7 +1222,7 @@ class Icepak(FieldAnalysis3D):
             Number of columns per side. The default is ``2``.
         vertical_separation : optional
             The default is ``10``.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``Al-Extruded``.
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
@@ -1259,7 +1249,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak = Icepak()
         >>> icepak.insert_design("Heat_Sink_Example")
         >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
-        ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
+        ...                                        vertical_separation=5.5, material="Steel", center=[10, 0, 0],
         ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
@@ -1283,12 +1273,12 @@ class Icepak(FieldAnalysis3D):
             symmetric=symmetric,
             symmetric_separation=symmetric_separation,
             numcolumn_perside=numcolumn_perside,
-            matname=matname,
+            material=material,
         )
         rect.delete()
         return bool(hs)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(matname="material")
     def create_parametric_heatsink_on_face(
         self,
         top_face,
@@ -1304,7 +1294,7 @@ class Icepak(FieldAnalysis3D):
         symmetric=True,
         symmetric_separation=0.05,
         numcolumn_perside=2,
-        matname="Al-Extruded",
+        material="Al-Extruded",
     ):
         """Create a parametric heat sink.
 
@@ -1346,7 +1336,7 @@ class Icepak(FieldAnalysis3D):
             fraction of the ``top_face`` height. The default is ``0.01``.
         numcolumn_perside : int, optional
             Number of columns per side. The default is ``2``.
-        matname : str, optional
+        material : str, optional
             Name of the material. The default is ``Al-Extruded``.
 
         Returns
@@ -1362,9 +1352,9 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([0,0,0], [1,2,3])
+        >>> box = ipk.modeler.create_box([0,0,0],[1,2,3])
         >>> top_face=box.top_face_z
-        >>> ipk.create_parametric_heatsink_on_face(top_face, matname="Al-Extruded")
+        >>> ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         """
         all_obj = self.modeler.object_names
         center = top_face.center
@@ -1426,8 +1416,7 @@ class Icepak(FieldAnalysis3D):
             else:
                 self[name_map[var_name]] = self.modeler._arg_with_dim(var)
 
-        if numcolumn_perside > 1:
-            self[name_map["NumColumnsPerSide"]] = numcolumn_perside
+        self[name_map["NumColumnsPerSide"]] = numcolumn_perside
         if symmetric:
             if relative:
                 self[name_map["SymSeparation_Factor"]] = symmetric_separation
@@ -1439,7 +1428,7 @@ class Icepak(FieldAnalysis3D):
             ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
             [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
             generate_unique_name("HSBase"),
-            matname,
+            material,
         )
         fin_line = []
         fin_line.append(self.Position(0, 0, name_map["HSBaseThick"]))
@@ -1517,7 +1506,7 @@ class Icepak(FieldAnalysis3D):
         )
         fin_top = self.modeler.create_polyline(fin_line2, cover_surface=True, name=generate_unique_name("Fin_top"))
         self.modeler.connect([fin_base.name, fin_top.name])
-        self.modeler[fin_base.name].material_name = matname
+        self.modeler[fin_base.name].material_name = material
         self[name_map["_num"]] = (
             "nint(("
             + name_map["HSWidth"]
@@ -1552,17 +1541,16 @@ class Icepak(FieldAnalysis3D):
             name_map["_num"] + "*2",
             True,
         )
-        if numcolumn_perside > 0:
-            self.modeler.duplicate_along_line(
-                fin_base.name,
-                self.Position(
-                    name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
-                    name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
-                    0,
-                ),
-                name_map["NumColumnsPerSide"],
-                True,
-            )
+        self.modeler.duplicate_along_line(
+            fin_base.name,
+            self.Position(
+                name_map["FinLength"] + "+" + name_map["ColumnSeparation"],
+                name_map["FinLength"] + "*sin(" + name_map["PatternAngle"] + "*3.14/180)",
+                0,
+            ),
+            name_map["NumColumnsPerSide"],
+            True,
+        )
         cs = self.modeler.oeditor.GetActiveCoordinateSystem()
         cs_ymax = self.modeler.create_coordinate_system(
             self.Position(0, name_map["HSHeight"] + "/2", 0),
@@ -1743,27 +1731,31 @@ class Icepak(FieldAnalysis3D):
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(designname="design",
+                             setupname="setup",
+                             sweepname="sweep",
+                             paramlist="parameters",
+                             object_list="assignment")
     def assign_em_losses(
             self,
-            designname="HFSSDesign1",
-            setupname="Setup1",
-            sweepname="LastAdaptive",
+            design="HFSSDesign1",
+            setup="Setup1",
+            sweep="LastAdaptive",
             map_frequency=None,
             surface_objects=None,
             source_project_name=None,
-            paramlist=None,
-            object_list=None,
+            parameters=None,
+            assignment=None,
     ):
         """Map EM losses to an Icepak design.
 
         Parameters
         ----------
-        designname : string, optional
+        design : string, optional
             Name of the design with the source mapping. The default is ``"HFSSDesign1"``.
-        setupname : str, optional
+        setup : str, optional
             Name of the EM setup. The default is ``"Setup1"``.
-        sweepname : str, optional
+        sweep : str, optional
             Name of the EM sweep to use for the mapping. The default is ``"LastAdaptive"``.
         map_frequency : str, optional
             String containing the frequency to map. The default is ``None``.
@@ -1773,14 +1765,15 @@ class Icepak(FieldAnalysis3D):
         source_project_name : str, optional
             Name of the source project. The default is ``None``, in which case the
             source from the same project is used.
-        paramlist : list, dict, optional
-            List of all parameters to map from source and Icepak design. The default is ``None``.
+        parameters : list, dict, optional
+            List of all parameters to map from source and Icepak design.
+            The default is ``None``, in which case the variables are set to their values (no mapping).
             If ``None`` the variables are set to their values (no mapping).
-            If it is a list, the specified variables in the icepak design are mapped to variables
+            If a list is provided, the specified variables in the Icepak design are mapped to variables
             in the source design having the same name.
-            If it is a dictionary, it is possible to map variables to the source design having a different name.
+            If a dictionary is provided, it is possible to map variables to the source design having a different name.
             The dictionary structure is {"source_design_variable": "icepak_variable"}.
-        object_list : list, optional
+        assignment : list, optional
             List of objects. The default is ``None``.
 
         Returns
@@ -1795,8 +1788,8 @@ class Icepak(FieldAnalysis3D):
         """
         if surface_objects is None:
             surface_objects = []
-        if object_list is None:
-            object_list = []
+        if assignment is None:
+            assignment = []
 
         self.logger.info("Mapping EM losses.")
 
@@ -1807,12 +1800,12 @@ class Icepak(FieldAnalysis3D):
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
         #
-        if not object_list:
-            all_objects = self.modeler.object_names
-            if "Region" in all_objects:
-                all_objects.remove("Region")
+        if not assignment:
+            assignment = self.modeler.object_names
+            if "Region" in assignment:
+                assignment.remove("Region")
         else:
-            all_objects = object_list[:]
+            assignment = assignment[:]
 
         surfaces = surface_objects
         if map_frequency:
@@ -1824,20 +1817,20 @@ class Icepak(FieldAnalysis3D):
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
-        if paramlist and isinstance(paramlist, list):
-            for el in paramlist:
+        if parameters and isinstance(parameters, list):
+            for el in parameters:
                 argparam[el] = el
-        elif paramlist and isinstance(paramlist, dict):
-            for el in paramlist:
-                argparam[el] = paramlist[el]
+        elif parameters and isinstance(parameters, dict):
+            for el in parameters:
+                argparam[el] = parameters[el]
 
         props = OrderedDict(
             {
-                "Objects": all_objects,
+                "Objects": assignment,
                 "Project": project_name,
                 "Product": "ElectronicsDesktop",
-                "Design": designname,
-                "Soln": setupname + " : " + sweepname,
+                "Design": design,
+                "Soln": setup + " : " + sweep,
                 "Params": argparam,
                 "ForceSourceToSolve": True,
                 "PreservePartnerSoln": True,
@@ -1851,7 +1844,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self._boundaries[bound.name] = bound
-            self.logger.info("EM losses mapped from design: %s.", designname)
+            self.logger.info("EM losses mapped from design: %s.", design)
             return bound
         return False
 
@@ -2768,6 +2761,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
+        .. deprecated:: 0.8.3
+            Use ``create_subregion`` or ``create_region`` functions inside the modeler class.
+
         Parameters
         ----------
         scale_factor : float, optional
@@ -2787,6 +2783,12 @@ class Icepak(FieldAnalysis3D):
 
         >>> oeditor.ChangeProperty
         """
+        warnings.warn(
+            "``create_meshregion_component`` was deprecated in 0.8.3."
+            "Use ``create_subregion`` or ``create_region`` instead.",
+            DeprecationWarning,
+        )
+
         self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
         vertex_ids = self.modeler.oeditor.GetVertexIDsFromObject("Region")
@@ -3174,7 +3176,7 @@ class Icepak(FieldAnalysis3D):
                     ],
                 ]
             )
-        except:
+        except Exception:
             self.logger.warning("Warning. The material is not the database. Use add_surface_material.")
             return False
         if mat.lower() not in self.materials.surface_material_keys:
@@ -3420,8 +3422,8 @@ class Icepak(FieldAnalysis3D):
 
         Examples
         --------
-        >>> board = icepak.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
-        >>> box = icepak.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
+        >>> board = icepak.modeler.create_box([0, 0, 0],[50, 100, 2],"board","copper")
+        >>> box = icepak.modeler.create_box([20, 20, 2],[10, 10, 3],"network_box1","copper")
         >>> network_block = icepak.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
         >>> network_block.props["Nodes"]["Internal"][0]
         '5W'
@@ -3442,7 +3444,7 @@ class Icepak(FieldAnalysis3D):
             part_names = sorted(
                 [
                     pcb_layer
-                    for pcb_layer in self.modeler.get_3d_component_object_list(componentname=pcb)
+                    for pcb_layer in self.modeler.get_3d_component_object_list(name=pcb)
                     if re.search(self.modeler.user_defined_components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
                 ]
             )
@@ -4048,11 +4050,11 @@ class Icepak(FieldAnalysis3D):
                 shell_conduction=shell_conduction,
             )
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
+        Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
+        names correspond to the ``setup_type``
         corresponding to the native AEDT API.  The list of
         keywords here is not exhaustive.
 
@@ -4061,11 +4063,11 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        setuptype : int, str, optional
+        name : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        setup_type : int, str, optional
             Type of the setup. Options are ``"IcepakSteadyState"``
             and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
-        setupname : str, optional
-            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
             Available keys depend on setup chosen.
             For more information, see
@@ -4086,17 +4088,17 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setupname="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
+        >>> app.create_setup(setup_type="TransientTemperatureOnly",name="Setup1",MaxIterations=20)
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
         if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+            return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
         else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+            setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
@@ -4182,7 +4184,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> box = app.modeler.create_box([0, 0, 0],[20, 20, 20],name="box")
         >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> app.solution_type = "Transient"
         >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
@@ -4327,7 +4329,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> from pyaedt import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> box = app.modeler.create_box([0, 0, 0],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]
         >>> matrix = [[0, 0, 0, 0],
@@ -4410,7 +4412,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
 
@@ -4520,7 +4522,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox5","copper")
         >>> box.solve_inside = False
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
@@ -4594,8 +4596,8 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, boundary_name, props, "Block")
         return _create_boundary(bound)
 
-    @pyaedt_function_handler()
-    def get_fans_operating_point(self, export_file=None, setup_name=None, timestep=None, design_variation=None):
+    @pyaedt_function_handler(timestep="time_step")
+    def get_fans_operating_point(self, export_file=None, setup_name=None, time_step=None, design_variation=None):
         """
         Get operating point of the fans in the design.
 
@@ -4607,7 +4609,7 @@ class Icepak(FieldAnalysis3D):
         setup_name : str, optional
             Setup name from which to determine the fans' operating point. The default is
             ``None``, in which case the first available setup is used.
-        timestep : str, optional
+        time_step : str, optional
             Time, with units, at which to determine the fans' operating point. The default
             is ``None``, in which case the first available timestep is used. This argument is
             only relevant in transient simulations.
@@ -4637,7 +4639,7 @@ class Icepak(FieldAnalysis3D):
         >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
         """
 
-        return self.post.get_fans_operating_point(export_file, setup_name, timestep, design_variation)
+        return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()
     def assign_free_opening(
@@ -5102,7 +5104,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"Box","copper")
         >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
 
         """
@@ -5556,7 +5558,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
         >>> box.solve_inside = False
         >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
         >>>                                          flow_assignment="10kg_per_s_m2")
@@ -5697,7 +5699,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> cylinder = self.aedtapp.modeler.create_cylinder(cs_axis="X", position=[0,0,0], radius=10, height=1)
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(orientation="X",origin=[0,0,0],radius=10,height=1)
         >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
         >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
         >>> cylinder.solve_inside=False
@@ -5762,7 +5764,7 @@ class Icepak(FieldAnalysis3D):
         --------
         >>> from pyaedt import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
         >>> box.solve_inside=False
         >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
         >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])

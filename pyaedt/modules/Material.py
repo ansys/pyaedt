@@ -610,13 +610,13 @@ class MatProperty(object):
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
 
-    @pyaedt_function_handler()
-    def add_thermal_modifier_dataset(self, dataset_name, index=0):
+    @pyaedt_function_handler(dataset_name="dataset")
+    def add_thermal_modifier_dataset(self, dataset, index=0):
         """Add a thermal modifier to a material property using an existing dataset.
 
         Parameters
         ----------
-        dataset_name : str
+        dataset : str
             Name of the project dataset.
         index : int, optional
             Value for the index. The default is ``0``.
@@ -641,7 +641,7 @@ class MatProperty(object):
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
 
-        formula = "pwl({}, Temp)".format(dataset_name)
+        formula = "pwl({}, Temp)".format(dataset)
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
 
@@ -1057,13 +1057,13 @@ class MatProperty(object):
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
 
-    @pyaedt_function_handler()
-    def add_spatial_modifier_dataset(self, dataset_name, index=0):
+    @pyaedt_function_handler(dataset_name="dataset")
+    def add_spatial_modifier_dataset(self, dataset, index=0):
         """Add a spatial modifier to a material property using an existing dataset.
 
         Parameters
         ----------
-        dataset_name : str
+        dataset : str
             Name of the project dataset.
         index : int, optional
             Value for the index. The default is ``0``.
@@ -1088,7 +1088,7 @@ class MatProperty(object):
         >>> mat1.add_spatial_modifier_dataset("$ds1")
         """
 
-        formula = "clp({}, X,Y,Z)".format(dataset_name)
+        formula = "clp({}, X,Y,Z)".format(dataset)
         self._property_value[index].spatialmodifier = formula
         return self._add_spatial_modifier(formula, index)
 
@@ -1190,7 +1190,7 @@ class CommonMaterial(object):
         try:
             material_props = getattr(self, propname)
             material_props_type = material_props.type
-        except:
+        except Exception:
             material_props_type = None
 
         if isinstance(propvalue, list) and material_props_type and material_props_type in ["tensor", "anisotropic"]:
@@ -1231,7 +1231,7 @@ class CommonMaterial(object):
                 self._props[propname]["BHCoordinates"] = bh
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
-                except:
+                except Exception:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
             else:
                 bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
@@ -1301,6 +1301,7 @@ class Material(CommonMaterial, object):
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Green"])
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Blue"])
+            self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"].get("Transparency", 0.0))
         else:
             vals = list(CSS4_COLORS.values())
             if (materiallib._color_id) >= len(vals):
@@ -1308,6 +1309,7 @@ class Material(CommonMaterial, object):
             h = vals[materiallib._color_id].lstrip("#")
             self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
+            self._material_appearance.append(0)
             self._props["AttachedData"] = OrderedDict(
                 {
                     "MatAppearanceData": OrderedDict(
@@ -1316,6 +1318,7 @@ class Material(CommonMaterial, object):
                             "Red": self._material_appearance[0],
                             "Green": self._material_appearance[1],
                             "Blue": self._material_appearance[2],
+                            "Transparency": self._material_appearance[3],
                         }
                     )
                 }
@@ -1363,50 +1366,64 @@ class Material(CommonMaterial, object):
                 self._props[property] if property in self._props else MatProperties.get_defaultvalue(aedtname=property)
             )
             self.__dict__["_" + property] = MatProperty(self, property, property_value, tmods, smods)
-        pass
 
     @property
     def material_appearance(self):
-        """Material Appearance specified as an RGB list.
+        """Material appearance specified as a list where the first three items are
+        RGB color and the fourth one is transparency.
 
         Returns
         -------
         list
-            Color of the material in RGB.  Values are in the range ``[0, 255]``.
+            Color of the material in RGB and transparency.
+            Color values are in the range ``[0, 255]``.
+            Transparency is a float in the range ``[0,1]``.
 
         Examples
         --------
-        Create a new material with color ``[0, 153, 153]`` (darker cyan).
+        Create a material with color ``[0, 153, 153]`` (darker cyan) and transparency ``0.5``.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(specified_version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
-        >>> rgbcolor = mat1.material_appearance
-        >>> mat1.material_appearance = [0, 153, 153]
+        >>> appearance_props = mat1.material_appearance
+        >>> mat1.material_appearance = [0, 153, 153, 0.5]
         """
         return self._material_appearance
 
     @material_appearance.setter
-    def material_appearance(self, rgb):
-        if not isinstance(rgb, (list, tuple)):
-            raise TypeError("`material_apperance` must be a list or tuple")
-        if len(rgb) != 3:
-            raise ValueError("`material_appearance` must be three items (RGB)")
-        value_int = []
-        for rgb_item in rgb:
-            rgb_int = int(rgb_item)
-            if rgb_int < 0 or rgb_int > 255:
-                raise ValueError("RGB value must be between 0 and 255")
-            value_int.append(rgb_int)
-        self._material_appearance = value_int
+    def material_appearance(self, appearance_props):
+        if not isinstance(appearance_props, (list, tuple)):
+            raise TypeError("`material_appearance` must be a list or tuple.")
+        if len(appearance_props) != 3 and len(appearance_props) != 4:
+            raise ValueError("`material_appearance` must be four items (R, G, B, transparency).")
+        elif len(appearance_props) == 3:
+            transparency_value = self.material_appearance[3]
+            msg = "Only RGB specified. Transparency is set to " + str(transparency_value)
+            self.logger.info(msg)
+            appearance_props.append(transparency_value)
+        value = []
+        for i in range(len(appearance_props)):
+            if i < 3:
+                rgb_int = int(appearance_props[i])
+                if rgb_int < 0 or rgb_int > 255:
+                    raise ValueError("RGB value must be between 0 and 255.")
+                value.append(rgb_int)
+            else:
+                transparency = float(appearance_props[i])
+                if transparency < 0 or transparency > 1:
+                    raise ValueError("Transparency value must be between 0 and 1.")
+                value.append(transparency)
+        self._material_appearance = value
         self._props["AttachedData"] = OrderedDict(
             {
                 "MatAppearanceData": OrderedDict(
                     {
                         "property_data": "appearance_data",
-                        "Red": value_int[0],
-                        "Green": value_int[1],
-                        "Blue": value_int[2],
+                        "Red": value[0],
+                        "Green": value[1],
+                        "Blue": value[2],
+                        "Transparency": value[3],
                     }
                 )
             }
@@ -2009,10 +2026,10 @@ class Material(CommonMaterial, object):
         )
         return self.update()
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(points_list_at_freq="points_at_frequency")
     def get_core_loss_coefficients(
         self,
-        points_list_at_freq,
+        points_at_frequency,
         core_loss_model_type="Electrical Steel",
         thickness="0.5mm",
         conductivity=0,
@@ -2022,7 +2039,7 @@ class Material(CommonMaterial, object):
 
         Parameters
         ----------
-        points_list_at_freq : dict
+        points_at_frequency : dict
             Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
             If the core loss model is calculated at one frequency, this parameter must be provided as a
             dictionary with one key (single frequency in Hz) and values are lists of points at
@@ -2055,16 +2072,15 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> coefficients = m3d.materials["magnesium"].get_core_loss_coefficients(
-        ...                                                        points_list_at_freq={60 : [[0, 0], [1, 3], [2, 7]]},
-        ...                                                        thickness="0.5mm",
-        ...                                                        conductivity=0)
+        ...                                                         points_at_frequency={60 : [[0, 0], [1, 3], [2, 7]]},
+        ...                                                         thickness="0.5mm",conductivity=0)
         >>> print(coefficients)
         >>> m3d.release_desktop(True, True)
         """
-        if not isinstance(points_list_at_freq, dict):
+        if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
         if not isinstance(thickness, str):
             raise TypeError("Thickness must be provided as a string with value and unit.")
@@ -2072,37 +2088,37 @@ class Material(CommonMaterial, object):
             value, unit = decompose_variable_value(thickness)
             if not is_number(value) and not unit:
                 raise TypeError("Thickness must be provided as a string with value and unit.")
-        if len(points_list_at_freq) <= 1 and core_loss_model_type == "Power Ferrite":
+        if len(points_at_frequency) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
         props = OrderedDict({})
-        freq_keys = list(points_list_at_freq.keys())
+        freq_keys = list(points_at_frequency.keys())
         for i in range(0, len(freq_keys)):
             if isinstance(freq_keys[i], str):
                 value, unit = decompose_variable_value(freq_keys[i])
                 if unit != "Hz":
                     value = unit_converter(values=value, unit_system="Freq", input_units=unit, output_units="Hz")
-                points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
-                del points_list_at_freq[freq_keys[i]]
+                points_at_frequency[value] = points_at_frequency[freq_keys[i]]
+                del points_at_frequency[freq_keys[i]]
 
-        if len(points_list_at_freq) == 1:
+        if len(points_at_frequency) == 1:
             props["CoefficientSetupData"] = OrderedDict({})
             props["CoefficientSetupData"]["property_data"] = "coreloss_data"
             props["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
-            frequency = list(points_list_at_freq.keys())[0]
+            frequency = list(points_at_frequency.keys())[0]
             props["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
             props["CoefficientSetupData"]["Thickness"] = thickness
             props["CoefficientSetupData"]["Conductivity"] = str(conductivity)
-            points = [i for p in points_list_at_freq[frequency] for i in p]
+            points = [i for p in points_at_frequency[frequency] for i in p]
             props["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""], "Points": points})
-        elif len(points_list_at_freq) > 1:
+        elif len(points_at_frequency) > 1:
             props["CoreLossMultiCurveData"] = OrderedDict({})
             props["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             props["CoreLossMultiCurveData"]["coreloss_unit"] = coefficient_setup
 
             props["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
             props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
-            for freq in points_list_at_freq.keys():
-                points = [i for p in points_list_at_freq[freq] for i in p]
+            for freq in points_at_frequency.keys():
+                points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = OrderedDict(
                     {
                         "Frequency": "{}Hz".format(freq),
@@ -2113,7 +2129,7 @@ class Material(CommonMaterial, object):
 
         props = self._get_args(props)
         props.pop(0)
-        if len(points_list_at_freq) == 1:
+        if len(points_at_frequency) == 1:
             props[0][-1][2] = "NAME:Points"
             points = props[0][-1].pop(2)
             props[0][-1][2].insert(0, points)
@@ -2127,10 +2143,10 @@ class Material(CommonMaterial, object):
         )
         return list(coefficients)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(points_list_at_freq="points_at_frequency")
     def set_coreloss_at_frequency(
         self,
-        points_list_at_freq,
+        points_at_frequency,
         kdc=0,
         cut_depth="1mm",
         thickness="0.5mm",
@@ -2142,7 +2158,7 @@ class Material(CommonMaterial, object):
 
         Parameters
         ----------
-        points_list_at_freq : dict
+        points_at_frequency : dict
             Dictionary where keys are the frequencies (in Hz) and values are lists of points (BP curve).
             If the core loss model is calculated at one frequency, this parameter must be provided as a
             dictionary with one key (single frequency in Hz) and values are lists of points at
@@ -2185,10 +2201,10 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
-                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]]}
+                                                    ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
@@ -2196,28 +2212,28 @@ class Material(CommonMaterial, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
-                                                    ... points_list_at_freq={60 : [[0,0], [1,3.5], [2,7.4]],
+                                                    ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]],
                                                     ...                      100 : [[0,0], [1,8], [2,9]],
                                                     ...                      150 : [[0,0], [1,10], [2,19]]}
                                                     ... )
         >>> m3d.release_desktop(True, True)
 
         """
-        if not isinstance(points_list_at_freq, dict):
+        if not isinstance(points_at_frequency, dict):
             raise TypeError("Points list at frequency must be provided as a dictionary.")
-        if len(points_list_at_freq) <= 1 and core_loss_model_type == "Power Ferrite":
+        if len(points_at_frequency) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
-        freq_keys = list(points_list_at_freq.keys())
+        freq_keys = list(points_at_frequency.keys())
         for i in range(0, len(freq_keys)):
             if isinstance(freq_keys[i], str):
                 value, unit = decompose_variable_value(freq_keys[i])
                 if unit != "Hz":
                     value = unit_converter(values=value, unit_system="Freq", input_units=unit, output_units="Hz")
-                points_list_at_freq[value] = points_list_at_freq[freq_keys[i]]
-                del points_list_at_freq[freq_keys[i]]
+                points_at_frequency[value] = points_at_frequency[freq_keys[i]]
+                del points_at_frequency[freq_keys[i]]
         if "core_loss_type" not in self._props:
             choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else "Power Ferrite"
             self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": choice})
@@ -2230,27 +2246,27 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_hkc", None)
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = core_loss_model_type
-        if len(points_list_at_freq) == 1:
+        if len(points_at_frequency) == 1:
             self._props["AttachedData"]["CoefficientSetupData"] = OrderedDict({})
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
             self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
-            frequency = list(points_list_at_freq.keys())[0]
+            frequency = list(points_at_frequency.keys())[0]
             self._props["AttachedData"]["CoefficientSetupData"]["Frequency"] = "{}Hz".format(frequency)
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
-            points = [i for p in points_list_at_freq[frequency] for i in p]
+            points = [i for p in points_at_frequency[frequency] for i in p]
             self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict(
                 {"DimUnits": ["", ""], "Points": points}
             )
-        elif len(points_list_at_freq) > 1:
+        elif len(points_at_frequency) > 1:
             self._props["AttachedData"]["CoreLossMultiCurveData"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             self._props["AttachedData"]["CoreLossMultiCurveData"]["coreloss_unit"] = coefficient_setup
 
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
-            for freq in points_list_at_freq.keys():
-                points = [i for p in points_list_at_freq[freq] for i in p]
+            for freq in points_at_frequency.keys():
+                points = [i for p in points_at_frequency[freq] for i in p]
                 one_curve = OrderedDict(
                     {
                         "Frequency": "{}Hz".format(freq),
@@ -2260,7 +2276,7 @@ class Material(CommonMaterial, object):
                 self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
 
         coefficients = self.get_core_loss_coefficients(
-            points_list_at_freq, thickness=thickness, conductivity=conductivity
+            points_at_frequency, thickness=thickness, conductivity=conductivity
         )
         if core_loss_model_type == "Electrical Steel":
             self._props["core_loss_kh"] = str(coefficients[0])
@@ -2396,19 +2412,19 @@ class Material(CommonMaterial, object):
         self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
         return self.update()
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(point_list="points", punit="units")
     def set_bp_curve_coreloss(
-        self, point_list, kdc=0, cut_depth=0.0001, punit="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
+        self, points, kdc=0, cut_depth=0.0001, units="kw/m^3", bunit="tesla", frequency=60, thickness="0.5mm"
     ):
         """Set B-P Type Core Loss.
 
         Parameters
         ----------
-        point_list : list of list
+        points : list of list
             List of [x,y] points.
         kdc : float
         cut_depth : float
-        punit : str
+        units : str
             Core loss unit. The default is ``"kw/m^3"``.
         bunit : str
             Magnetic field unit. The default is ``"tesla"``.
@@ -2438,7 +2454,7 @@ class Material(CommonMaterial, object):
         self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
         self._props["core_loss_curves"] = OrderedDict({})
         self._props["core_loss_curves"]["property_type"] = "nonlinear"
-        self._props["core_loss_curves"]["PUnit"] = punit
+        self._props["core_loss_curves"]["PUnit"] = units
         self._props["core_loss_curves"]["BUnit"] = bunit
         self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
         self._props["core_loss_curves"]["Thickness"] = thickness
@@ -2446,7 +2462,7 @@ class Material(CommonMaterial, object):
 
         self._props["core_loss_curves"]["BPCoordinates"] = OrderedDict({})
         self._props["core_loss_curves"]["BPCoordinates"]["Point"] = []
-        for points in point_list:
+        for points in points:
             self._props["core_loss_curves"]["BPCoordinates"]["Point"].append(points)
         return self.update()
 
@@ -2556,7 +2572,7 @@ class Material(CommonMaterial, object):
         try:
             if float(cond) >= threshold:
                 return True
-        except:
+        except Exception:
             return False
         return False
 
@@ -2579,12 +2595,12 @@ class Material(CommonMaterial, object):
         """
         return not self.is_conductor(threshold)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(i_freq="frequency")
     def set_djordjevic_sarkar_model(
         self,
         dk=4,
         df=0.02,
-        i_freq=1e9,
+        frequency=1e9,
         sigma_dc=1e-12,
         freq_hi=159.15494e9,
     ):
@@ -2596,7 +2612,7 @@ class Material(CommonMaterial, object):
             Dielectric constant at input frequency.
         df : int, float, str, optional
             Loss tangent at input frequency.
-        i_freq : int, float, optional.
+        frequency : int, float, optional.
             Input frequency in Hz.
         sigma_dc : int, float, optional
             Conductivity at DC. The default is ``1e-12``.
@@ -2610,8 +2626,10 @@ class Material(CommonMaterial, object):
         """
 
         # K = f"({dk} * {df} - {sigma_dc} / (2 * pi * {i_freq} * e0)) / atan({freq_hi} / {i_freq})"
-        K = "({} * {} - {} / (2 * pi * {} * e0)) / atan({} / {})".format(dk, df, sigma_dc, i_freq, freq_hi, i_freq)
-        epsilon_inf = "({} - {} / 2 * ln({}**2 / {}**2 + 1))".format(dk, K, freq_hi, i_freq)
+        K = "({} * {} - {} / (2 * pi * {} * e0)) / atan({} / {})".format(
+            dk, df, sigma_dc, frequency, freq_hi, frequency
+        )
+        epsilon_inf = "({} - {} / 2 * ln({}**2 / {}**2 + 1))".format(dk, K, freq_hi, frequency)
         freq_low = "({} / exp(10 * {} * {} / ({})))".format(freq_hi, df, epsilon_inf, K)
         ds_er = "{} + {} / 2 * ln(({}**2 + Freq**2) / ({}**2 + Freq**2))".format(epsilon_inf, K, freq_hi, freq_low)
         cond = "{} + 2 * pi * Freq * e0 * ({}) * (atan(Freq / ({})) - atan(Freq / {}))".format(
@@ -2704,7 +2722,6 @@ class SurfaceMaterial(CommonMaterial, object):
                 self.__dict__["_" + property] = MatProperty(
                     self, property, SurfMatProperties.get_defaultvalue(aedtname=property)
                 )
-        pass
 
     @property
     def emissivity(self):

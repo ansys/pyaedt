@@ -453,7 +453,7 @@ class VirtualCompliance:
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                 _design.logger.info(f"Creating report {name}")
                 aedt_report = _design.post.create_report_from_configuration(
-                    input_dict=local_config, solution_name=sw_name
+                    report_settings=local_config, solution_name=sw_name
                 )
                 if not aedt_report:  # pragma: no cover
                     _design.logger.error(f"Failed to create report {name}")
@@ -491,7 +491,7 @@ class VirtualCompliance:
                 if (
                     pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None)
                 ):  # pragma: no cover
-                    _design.logger.info(f"Checking lines violations")
+                    _design.logger.info("Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                     write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                 if self.local_config.get("delete_after_export", True):
@@ -504,7 +504,7 @@ class VirtualCompliance:
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                     _design.logger.info(f"Creating report {name} for trace {trace}")
                     aedt_report = _design.post.create_report_from_configuration(
-                        input_dict=local_config, solution_name=sw_name
+                        report_settings=local_config, solution_name=sw_name
                     )
                     if report_type != "contour eye diagram":
                         aedt_report.hide_legend()
@@ -541,25 +541,25 @@ class VirtualCompliance:
                                 sleep_time -= 1
                         if pass_fail:
                             if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                                _design.logger.info(f"Checking lines violations")
+                                _design.logger.info("Checking lines violations")
                                 table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                             elif report_type == "statistical eye" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_statistical_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             elif report_type == "eye diagram" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
                             elif report_type == "contour eye diagram":
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_contour_eye_diagram_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
                         if report_type in ["eye diagram", "statistical eye"]:
-                            _design.logger.info(f"Adding eye measurements")
+                            _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
                         if self.local_config.get("delete_after_export", True):
@@ -602,7 +602,7 @@ class VirtualCompliance:
                     spisim.touchstone_file = _design.export_touchstone()
                     if not isinstance(trace_pin[0], int):
                         try:
-                            ports = list(_design.excitations.keys())
+                            ports = list(_design.excitations)
                             thrus4p = [ports.index(i) for i in trace_pin]
                             trace_pin = thrus4p
                         except IndexError:
@@ -691,6 +691,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
+        # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
@@ -711,13 +712,14 @@ class VirtualCompliance:
         if result_value == "FAIL":
             result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
-
+        result_value = "PASS"
         if local_config["eye_mask"]["enable_limits"]:
             mystr = "Upper/Lower Mask Violation:"
             for point in mag_data:
+                # checking if amplitude is overcoming limits.
                 if (
-                    point[1] > local_config["eye_mask"]["upper_limit"]
-                    or point[1] < local_config["eye_mask"]["lower_limit"]
+                    point[0] > local_config["eye_mask"]["upper_limit"]
+                    or point[0] < local_config["eye_mask"]["lower_limit"]
                 ):
                     result_value = "FAIL"
                     break

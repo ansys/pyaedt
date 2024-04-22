@@ -56,18 +56,28 @@ class TestClass:
             osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
 
     def test_01_open_source(self, source):
-        assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
+        assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
         assert len(self.aedtapp.native_components) == 1
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", field_type="farfield", name="LinkedAntenna"
+        )
+        assert len(self.aedtapp.native_components) == 2
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", name="LinkedAntennaNF1", current_conformance=True
+        )
+        assert len(self.aedtapp.native_components) == 3
+        assert self.aedtapp.create_sbr_linked_antenna(
+            source, target_cs="feederPosition", name="LinkedAntennaNF2", current_conformance=False
+        )
+        assert len(self.aedtapp.native_components) == 4
 
     def test_02_add_antennas(self):
         self.aedtapp.insert_design("add_antennas")
         dict1 = {"polarization": "Horizontal"}
         par_beam = self.aedtapp.create_sbr_antenna(
-            self.aedtapp.SbrAntennas.ParametricBeam, parameters_dict=dict1, antenna_name="TX1"
+            self.aedtapp.SbrAntennas.ParametricBeam, parameters=dict1, name="TX1"
         )
-        assert self.aedtapp.create_sbr_antenna(
-            self.aedtapp.SbrAntennas.ConicalHorn, parameters_dict=dict1, antenna_name="RX1"
-        )
+        assert self.aedtapp.create_sbr_antenna(self.aedtapp.SbrAntennas.ConicalHorn, parameters=dict1, name="RX1")
         par_beam.native_properties["Unit"] = "in"
         assert par_beam.update()
         self.aedtapp.modeler.user_defined_components["TX1_1"].native_properties["Unit"] = "mm"
@@ -112,7 +122,7 @@ class TestClass:
     def test_03_add_ffd_antenna(self):
         self.aedtapp.insert_design("ffd_antenna")
         assert self.aedtapp.create_sbr_file_based_antenna(
-            ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
+            far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
     def test_04_add_environment(self):
@@ -154,8 +164,8 @@ class TestClass:
             "library",
             "radar_modules",
         )
-        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name="Example_1Tx_1Rx", speed=3)
-        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, radar_name="Example_1Tx_4Rx")
+        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, name="Example_1Tx_1Rx", speed=3)
+        assert self.aedtapp.create_sbr_radar_from_json(radar_lib, name="Example_1Tx_4Rx")
 
     def test_09_add_doppler_sweep(self):
         setup, sweep = self.aedtapp.create_sbr_pulse_doppler_setup(sweep_time_duration=30)
@@ -179,7 +189,7 @@ class TestClass:
 
         # sbr file based antenna should only work for SBR+ solution.
         assert not hfss_terminal.create_sbr_file_based_antenna(
-            ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
+            far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
     @pytest.mark.skipif(is_linux, reason="Not supported.")
