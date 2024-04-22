@@ -1328,7 +1328,10 @@ class ModelPlotter(CommonPlotter):
                     reader = pv.get_reader(os.path.abspath(field.path)).read()
                     field._cached_polydata = reader[reader.keys()[0]].extract_surface()
 
-                    if "active_vectors" in dir(field._cached_polydata.point_data):
+                    if (
+                        "active_vectors" in dir(field._cached_polydata.point_data)
+                        and field._cached_polydata.point_data.active_vectors_name
+                    ):
                         field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
                             10
