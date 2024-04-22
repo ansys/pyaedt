@@ -12,6 +12,7 @@ from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
+import pyaedt.modules.Material
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -23,6 +24,7 @@ import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
@@ -174,9 +176,14 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
+        self._design_settins = IcepakDesignSettings(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
+
+    @property
+    def design_settings(self):
+        return self._design_settins
 
     @property
     def problem_type(self):
@@ -1605,25 +1612,27 @@ class Icepak(FieldAnalysis3D):
         hs.name = hs_name
         return hs, name_map
 
-    # fmt: off
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        ambtemp="ambient_temperature",
+        performvalidation="perform_validation",
+        defaultfluid="default_fluid",
+        defaultsolid="default_solid",
+    )
     def edit_design_settings(
-            self,
-            gravity_dir=0,
-            ambtemp=20,
-            performvalidation=False,
-            check_level="None",
-            defaultfluid="air",
-            defaultsolid="Al-Extruded",
-            export_monitor=False,
-            export_directory=os.getcwd(),
-            gauge_pressure=0,
-            radiation_temperature=20,
-            ignore_unclassified_objects=False,
-            skip_intersection_checks=False,
-            **kwargs
+        self,
+        gravity_dir=0,
+        ambient_temperature=20,
+        perform_validation=False,
+        check_level="None",
+        default_fluid="air",
+        default_solid="Al-Extruded",
+        export_monitor=False,
+        export_directory=os.getcwd(),
+        gauge_pressure=0,
+        radiation_temperature=20,
+        ignore_unclassified_objects=False,
+        skip_intersection_checks=False,
     ):
-        # fmt: on
         """Update the main settings of the design.
 
         Parameters
@@ -1631,17 +1640,20 @@ class Icepak(FieldAnalysis3D):
         gravity_dir : int, optional
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
             The default is ``0``.
-        ambtemp : float, str, optional
+        ambient_temperature : float, str or BoundaryDictionary, optional
             Ambient temperature. The default is ``20``.
-            The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
-        performvalidation : bool, optional
+            The default unit is Celsius for ``float`` or ``str`` including unit
+            definition is accepted, e.g. ``325kel``.
+            :class:`pyaedt.modules.Boundary.BoundaryDictionary` objects can be used
+            for transient assignments.
+        perform_validation : bool, optional
             Whether to perform validation. The default is ``False``.
         check_level : str, optional
             Level of check to perform during validation. The default
             is ``"None"``.
-        defaultfluid : str, optional
+        default_fluid : str, optional
             Default fluid material. The default is ``"air"``.
-        defaultsolid : str, optional
+        default_solid : str, optional
             Default solid material. The default is ``"Al-Extruded"``.
         export_monitor : bool, optional
             Whether to use the default export directory for monitor point data.
@@ -1670,82 +1682,33 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-        #
-        # Configure design settings for gravity etc
-        IceGravity = ["X", "Y", "Z"]
-        GVPos = False
-        if "gravityDir" in kwargs:  # pragma: no cover
-            warnings.warn(
-                "`gravityDir` is deprecated. Use `gravity_dir` instead.",
-                DeprecationWarning,
-            )
+        self.design_settings.ambient_temperature = ambient_temperature
+        self.design_settings.gravity_direction = gravity_dir
+        self.design_settings.default_fluid_material = default_fluid
+        self.design_settings.default_solid_material = default_solid
+        self.design_settings.perform_validation = perform_validation
+        self.design_settings.check_level = check_level
+        self.design_settings.export_monitor = export_monitor
+        self.design_settings.export_directory = export_directory
+        self.design_settings.gauge_pressure = gauge_pressure
+        self.design_settings.radiation_temperature = radiation_temperature
+        self.design_settings.ignore_unclassified_objects = ignore_unclassified_objects
+        self.design_settings.skip_intersection_checks = skip_intersection_checks
+        return self.design_settings.update()
 
-            gravity_dir = kwargs["gravityDir"]
-        if "CheckLevel" in kwargs:  # pragma: no cover
-            warnings.warn(
-                "`CheckLevel` is deprecated. Use `check_level` instead.",
-                DeprecationWarning,
-            )
-
-            check_level = kwargs["CheckLevel"]
-        if int(gravity_dir) > 2:
-            GVPos = True
-        GVA = IceGravity[int(gravity_dir) - 3]
-        self._odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "Perform Minimal validation:=",
-                performvalidation,
-                "Default Fluid Material:=",
-                defaultfluid,
-                "Default Solid Material:=",
-                defaultsolid,
-                "Default Surface Material:=",
-                "Steel-oxidised-surface",
-                "AmbientTemperature:=",
-                self.value_with_units(ambtemp, "cel"),
-                "AmbientPressure:=",
-                self.value_with_units(gauge_pressure, "n_per_meter_sq"),
-                "AmbientRadiationTemperature:=",
-                self.value_with_units(radiation_temperature, "cel"),
-                "Gravity Vector CS ID:=",
-                1,
-                "Gravity Vector Axis:=",
-                GVA,
-                "Positive:=",
-                GVPos,
-                "ExportOnSimulationComplete:=",
-                export_monitor,
-                "ExportDirectory:=",
-                export_directory,
-            ],
-            [
-                "NAME:Model Validation Settings",
-                "EntityCheckLevel:=",
-                check_level,
-                "IgnoreUnclassifiedObjects:=",
-                ignore_unclassified_objects,
-                "SkipIntersectionChecks:=",
-                skip_intersection_checks,
-            ],
-        )
-        return True
-
-    @pyaedt_function_handler(designname="design",
-                             setupname="setup",
-                             sweepname="sweep",
-                             paramlist="parameters",
-                             object_list="assignment")
+    @pyaedt_function_handler(
+        designname="design", setupname="setup", sweepname="sweep", paramlist="parameters", object_list="assignment"
+    )
     def assign_em_losses(
-            self,
-            design="HFSSDesign1",
-            setup="Setup1",
-            sweep="LastAdaptive",
-            map_frequency=None,
-            surface_objects=None,
-            source_project_name=None,
-            parameters=None,
-            assignment=None,
+        self,
+        design="HFSSDesign1",
+        setup="Setup1",
+        sweep="LastAdaptive",
+        map_frequency=None,
+        surface_objects=None,
+        source_project_name=None,
+        parameters=None,
+        assignment=None,
     ):
         """Map EM losses to an Icepak design.
 
@@ -1850,13 +1813,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def eval_surface_quantity_from_field_summary(
-            self,
-            faces_list,
-            quantity_name="HeatTransCoeff",
-            savedir=None,
-            filename=None,
-            sweep_name=None,
-            parameter_dict_with_values={},
+        self,
+        faces_list,
+        quantity_name="HeatTransCoeff",
+        savedir=None,
+        filename=None,
+        sweep_name=None,
+        parameter_dict_with_values={},
     ):
         """Export the field surface output.
 
@@ -1923,13 +1886,13 @@ class Icepak(FieldAnalysis3D):
         return filename
 
     def eval_volume_quantity_from_field_summary(
-            self,
-            object_list,
-            quantity_name="HeatTransCoeff",
-            savedir=None,
-            filename=None,
-            sweep_name=None,
-            parameter_dict_with_values={},
+        self,
+        object_list,
+        quantity_name="HeatTransCoeff",
+        savedir=None,
+        filename=None,
+        sweep_name=None,
+        parameter_dict_with_values={},
     ):
         """Export the field volume output.
 
@@ -1994,16 +1957,16 @@ class Icepak(FieldAnalysis3D):
         return filename
 
     def export_summary(
-            self,
-            output_dir=None,
-            solution_name=None,
-            type="Object",
-            geometry_type="Volume",
-            quantity="Temperature",
-            variation="",
-            variation_list=None,
-            filename="IPKsummaryReport",
-            **kwargs
+        self,
+        output_dir=None,
+        solution_name=None,
+        type="Object",
+        geometry_type="Volume",
+        quantity="Temperature",
+        variation="",
+        variation_list=None,
+        filename="IPKsummaryReport",
+        **kwargs,
     ):
         """Export a fields summary of all objects.
 
@@ -2040,16 +2003,16 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
-        if 'geometryType' in kwargs:
-            warnings.warn("The 'geometryType' argument is deprecated. Use 'geometry_type' instead.",
-                          DeprecationWarning)
+        if "geometryType" in kwargs:
+            warnings.warn("The 'geometryType' argument is deprecated. Use 'geometry_type' instead.", DeprecationWarning)
 
-        if 'variationlist' in kwargs:
-            warnings.warn("The 'variationlist' argument is deprecated. Use 'variation_list' instead.",
-                          DeprecationWarning)
+        if "variationlist" in kwargs:
+            warnings.warn(
+                "The 'variationlist' argument is deprecated. Use 'variation_list' instead.", DeprecationWarning
+            )
 
-        geometry_type = kwargs.get('geometryType', geometry_type)
-        variation_list = kwargs.get('variationlist', variation_list)
+        geometry_type = kwargs.get("geometryType", geometry_type)
+        variation_list = kwargs.get("variationlist", variation_list)
 
         if variation_list is None:
             variation_list = []
@@ -2201,14 +2164,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_fan(
-            self,
-            name=None,
-            is_2d=False,
-            shape="Circular",
-            cross_section="XY",
-            radius="0.008mm",
-            hub_radius="0mm",
-            origin=None,
+        self,
+        name=None,
+        is_2d=False,
+        shape="Circular",
+        cross_section="XY",
+        radius="0.008mm",
+        hub_radius="0mm",
+        origin=None,
     ):
         """Create a fan component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2302,7 +2265,7 @@ class Icepak(FieldAnalysis3D):
                 "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-"
-                                              + random_string(12, char_set="abcdef0123456789"),
+                + random_string(12, char_set="abcdef0123456789"),
                 "OriginFilePath": "",
                 "IsLocal": False,
                 "ChecksumString": "",
@@ -2336,7 +2299,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
-            self,
+        self,
             compName,
             setupLinkInfo,
             solutionFreq,
@@ -2490,7 +2453,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
-            self,
+        self,
             component_name,
             project_name,
             design_name,
@@ -2660,15 +2623,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def globalMeshSettings(
-            self,
-            meshtype,
-            gap_min_elements="1",
-            noOgrids=False,
-            MLM_en=True,
-            MLM_Type="3D",
-            stairStep_en=False,
-            edge_min_elements="1",
-            object="Region",
+        self,
+        meshtype,
+        gap_min_elements="1",
+        noOgrids=False,
+        MLM_en=True,
+        MLM_Type="3D",
+        stairStep_en=False,
+        edge_min_elements="1",
+        object="Region",
     ):
         """Create a custom mesh tailored on a PCB design.
 
@@ -2757,7 +2720,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_meshregion_component(
-            self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
+        self, scale_factor=1.0, name="Component_Region", restore_padding_values=[50, 50, 50, 50, 50, 50]
     ):
         """Create a bounding box to use as a mesh region in Icepak.
 
@@ -2904,14 +2867,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def generate_fluent_mesh(
-            self,
-            object_lists=None,
-            meshtype="tetrahedral",
-            min_size=None,
-            max_size=None,
-            inflation_layer_number=3,
-            inflation_growth_rate=1.2,
-            mesh_growth_rate=1.2,
+        self,
+        object_lists=None,
+        meshtype="tetrahedral",
+        min_size=None,
+        max_size=None,
+        inflation_layer_number=3,
+        inflation_growth_rate=1.2,
+        mesh_growth_rate=1.2,
     ):
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
@@ -3070,13 +3033,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def apply_icepak_settings(
-            self,
-            ambienttemp=20,
-            gravityDir=5,
-            perform_minimal_val=True,
-            default_fluid="air",
-            default_solid="Al-Extruded",
-            default_surface="Steel-oxidised-surface",
+        self,
+        ambienttemp=20,
+        gravityDir=5,
+        perform_minimal_val=True,
+        default_fluid="air",
+        default_solid="Al-Extruded",
+        default_surface="Steel-oxidised-surface",
     ):
         """Apply Icepak default design settings.
 
@@ -3204,31 +3167,31 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def import_idf(
-            self,
-            board_path,
-            library_path=None,
-            control_path=None,
-            filter_cap=False,
-            filter_ind=False,
-            filter_res=False,
-            filter_height_under=None,
-            filter_height_exclude_2d=False,
-            power_under=None,
-            create_filtered_as_non_model=False,
-            high_surface_thick="0.07mm",
-            low_surface_thick="0.07mm",
-            internal_thick="0.07mm",
-            internal_layer_number=2,
-            high_surface_coverage=30,
-            low_surface_coverage=30,
-            internal_layer_coverage=30,
-            trace_material="Cu-Pure",
-            substrate_material="FR-4",
-            create_board=True,
-            model_board_as_rect=False,
-            model_device_as_rect=True,
-            cutoff_height="5mm",
-            component_lib="",
+        self,
+        board_path,
+        library_path=None,
+        control_path=None,
+        filter_cap=False,
+        filter_ind=False,
+        filter_res=False,
+        filter_height_under=None,
+        filter_height_exclude_2d=False,
+        power_under=None,
+        create_filtered_as_non_model=False,
+        high_surface_thick="0.07mm",
+        low_surface_thick="0.07mm",
+        internal_thick="0.07mm",
+        internal_layer_number=2,
+        high_surface_coverage=30,
+        low_surface_coverage=30,
+        internal_layer_coverage=30,
+        trace_material="Cu-Pure",
+        substrate_material="FR-4",
+        create_board=True,
+        model_board_as_rect=False,
+        model_device_as_rect=True,
+        cutoff_height="5mm",
+        component_lib="",
     ):
         """Import an IDF file into an Icepak design.
 
@@ -3508,33 +3471,33 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall(
-            self,
-            geometry,
-            boundary_condition,
-            name=None,
-            temperature="0cel",
-            heat_flux="0irrad_W_per_m2",
-            thickness="0mm",
-            htc="0w_per_m2kel",
-            ref_temperature="AmbientTemp",
-            material="Al-Extruded",  # relevant if th>0
-            radiate=False,
-            radiate_surf_mat="Steel-oxidised-surface",  # relevant if radiate = False
-            ht_correlation=False,
-            ht_correlation_type="Natural Convection",
-            ht_correlation_fluid="air",
-            ht_correlation_flow_type="Turbulent",
-            ht_correlation_flow_direction="X",
-            ht_correlation_value_type="Average Values",  # "Local Values"
-            ht_correlation_free_stream_velocity="1m_per_sec",
-            ht_correlation_surface="Vertical",  # Top, Bottom, Vertical
-            ht_correlation_amb_temperature="AmbientTemp",
-            shell_conduction=False,
-            ext_surf_rad=False,
-            ext_surf_rad_material="Stainless-steel-cleaned",
-            ext_surf_rad_ref_temp="AmbientTemp",
-            ext_surf_rad_view_factor="1",
-            **kwargs
+        self,
+        geometry,
+        boundary_condition,
+        name=None,
+        temperature="0cel",
+        heat_flux="0irrad_W_per_m2",
+        thickness="0mm",
+        htc="0w_per_m2kel",
+        ref_temperature="AmbientTemp",
+        material="Al-Extruded",  # relevant if th>0
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",  # relevant if radiate = False
+        ht_correlation=False,
+        ht_correlation_type="Natural Convection",
+        ht_correlation_fluid="air",
+        ht_correlation_flow_type="Turbulent",
+        ht_correlation_flow_direction="X",
+        ht_correlation_value_type="Average Values",  # "Local Values"
+        ht_correlation_free_stream_velocity="1m_per_sec",
+        ht_correlation_surface="Vertical",  # Top, Bottom, Vertical
+        ht_correlation_amb_temperature="AmbientTemp",
+        shell_conduction=False,
+        ext_surf_rad=False,
+        ext_surf_rad_material="Stainless-steel-cleaned",
+        ext_surf_rad_ref_temp="AmbientTemp",
+        ext_surf_rad_view_factor="1",
+        **kwargs,
     ):
         """Assign surface wall boundary condition.
 
@@ -3684,18 +3647,22 @@ class Icepak(FieldAnalysis3D):
         props["Solid Material"] = material
         props["External Condition"] = boundary_condition
         if "htc_dataset" in kwargs:  # backward compatibility
-            warnings.warn("``htc_dataset`` argument is being deprecated. Create a dictionary as per"
-                          "documentation and assign it to the ``htc`` argument.", DeprecationWarning)
+            warnings.warn(
+                "``htc_dataset`` argument is being deprecated. Create a dictionary as per"
+                "documentation and assign it to the ``htc`` argument.",
+                DeprecationWarning,
+            )
             if kwargs["htc_dataset"] is not None:
-                htc = {"Type": "Temp Dep",
-                       "Function": "Piecewise Linear",
-                       "Values": kwargs["htc_dataset"],
-                       }
+                htc = {
+                    "Type": "Temp Dep",
+                    "Function": "Piecewise Linear",
+                    "Values": kwargs["htc_dataset"],
+                }
         for quantity, assignment_value, to_add in [
             ("External Radiation Reference Temperature", ext_surf_rad_ref_temp, ext_surf_rad),
             ("Heat Transfer Coefficient", htc, boundary_condition == "Heat Transfer Coefficient"),
             ("Temperature", temperature, boundary_condition == "Temperature"),
-            ("Heat Flux", heat_flux, boundary_condition == "Heat Flux")
+            ("Heat Flux", heat_flux, boundary_condition == "Heat Flux"),
         ]:
             if to_add:
                 if isinstance(assignment_value, (dict, BoundaryDictionary)):
@@ -3748,15 +3715,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_heat_flux(
-            self,
-            geometry,
-            name=None,
-            heat_flux="0irrad_W_per_m2",
-            thickness="0mm",
-            material="Al-Extruded",
-            radiate=False,
-            radiate_surf_mat="Steel-oxidised-surface",
-            shell_conduction=False,
+        self,
+        geometry,
+        name=None,
+        heat_flux="0irrad_W_per_m2",
+        thickness="0mm",
+        material="Al-Extruded",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
     ):
         """Assign a surface wall boundary condition with specified heat flux.
 
@@ -3810,15 +3777,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_temperature(
-            self,
-            geometry,
-            name=None,
-            temperature="0cel",
-            thickness="0mm",
-            material="Al-Extruded",
-            radiate=False,
-            radiate_surf_mat="Steel-oxidised-surface",
-            shell_conduction=False,
+        self,
+        geometry,
+        name=None,
+        temperature="0cel",
+        thickness="0mm",
+        material="Al-Extruded",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
     ):
         """Assign a surface wall boundary condition with specified temperature.
 
@@ -3873,30 +3840,30 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_stationary_wall_with_htc(
-            self,
-            geometry,
-            name=None,
-            thickness="0mm",
-            material="Al-Extruded",
-            htc="0w_per_m2kel",
-            ref_temperature="AmbientTemp",
-            ht_correlation=False,
-            ht_correlation_type="Natural Convection",
-            ht_correlation_fluid="air",
-            ht_correlation_flow_type="Turbulent",
-            ht_correlation_flow_direction="X",
-            ht_correlation_value_type="Average Values",
-            ht_correlation_free_stream_velocity="1m_per_sec",
-            ht_correlation_surface="Vertical",
-            ht_correlation_amb_temperature="AmbientTemp",
-            ext_surf_rad=False,
-            ext_surf_rad_material="Stainless-steel-cleaned",
-            ext_surf_rad_ref_temp="AmbientTemp",
-            ext_surf_rad_view_factor="1",
-            radiate=False,
-            radiate_surf_mat="Steel-oxidised-surface",
-            shell_conduction=False,
-            **kwargs
+        self,
+        geometry,
+        name=None,
+        thickness="0mm",
+        material="Al-Extruded",
+        htc="0w_per_m2kel",
+        ref_temperature="AmbientTemp",
+        ht_correlation=False,
+        ht_correlation_type="Natural Convection",
+        ht_correlation_fluid="air",
+        ht_correlation_flow_type="Turbulent",
+        ht_correlation_flow_direction="X",
+        ht_correlation_value_type="Average Values",
+        ht_correlation_free_stream_velocity="1m_per_sec",
+        ht_correlation_surface="Vertical",
+        ht_correlation_amb_temperature="AmbientTemp",
+        ext_surf_rad=False,
+        ext_surf_rad_material="Stainless-steel-cleaned",
+        ext_surf_rad_ref_temp="AmbientTemp",
+        ext_surf_rad_view_factor="1",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
+        **kwargs,
     ):
         """Assign a surface wall boundary condition with specified heat transfer coefficient.
 
@@ -4129,14 +4096,14 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_source(
-            self,
-            assignment,
-            thermal_condition,
-            assignment_value,
-            boundary_name=None,
-            radiate=False,
-            voltage_current_choice=False,
-            voltage_current_value=None,
+        self,
+        assignment,
+        thermal_condition,
+        assignment_value,
+        boundary_name=None,
+        radiate=False,
+        voltage_current_choice=False,
+        voltage_current_value=None,
     ):
         """Create a source power for a face.
 
@@ -4361,7 +4328,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler
     def assign_solid_block(
-            self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
+        self, object_name, power_assignment, boundary_name=None, htc=None, ext_temperature="AmbientTemp"
     ):
         """
         Assign block boundary for solid objects.
@@ -4478,7 +4445,7 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler
     def assign_hollow_block(
-            self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
+        self, object_name, assignment_type, assignment_value, boundary_name=None, external_temperature="AmbientTemp"
     ):
         """Assign block boundary for hollow objects.
 
@@ -4643,18 +4610,18 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_free_opening(
-            self,
-            assignment,
-            boundary_name=None,
-            temperature="AmbientTemp",
-            radiation_temperature="AmbientRadTemp",
-            flow_type="Pressure",
-            pressure="AmbientPressure",
-            no_reverse_flow=False,
-            velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
-            mass_flow_rate="0kg_per_s",
-            inflow=True,
-            direction_vector=None,
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        flow_type="Pressure",
+        pressure="AmbientPressure",
+        no_reverse_flow=False,
+        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        mass_flow_rate="0kg_per_s",
+        inflow=True,
+        direction_vector=None,
     ):
         """
         Assign free opening boundary condition.
@@ -4735,8 +4702,9 @@ class Icepak(FieldAnalysis3D):
             mass_flow_rate = str(mass_flow_rate) + "kg_per_s"
         if not isinstance(temperature, str) and not isinstance(temperature, (dict, BoundaryDictionary)):
             temperature = str(temperature) + "cel"
-        if not isinstance(radiation_temperature, str) and not isinstance(radiation_temperature, (dict,
-                                                                                                 BoundaryDictionary)):
+        if not isinstance(radiation_temperature, str) and not isinstance(
+            radiation_temperature, (dict, BoundaryDictionary)
+        ):
             radiation_temperature = str(radiation_temperature) + "cel"
         if not isinstance(pressure, str) and not isinstance(pressure, (dict, BoundaryDictionary)):
             pressure = str(pressure) + "pascal"
@@ -4808,13 +4776,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_pressure_free_opening(
-            self,
-            assignment,
-            boundary_name=None,
-            temperature="AmbientTemp",
-            radiation_temperature="AmbientRadTemp",
-            pressure="AmbientPressure",
-            no_reverse_flow=False,
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        no_reverse_flow=False,
     ):
         """
         Assign free opening boundary condition.
@@ -4876,13 +4844,13 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_velocity_free_opening(
-            self,
-            assignment,
-            boundary_name=None,
-            temperature="AmbientTemp",
-            radiation_temperature="AmbientRadTemp",
-            pressure="AmbientPressure",
-            velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
     ):
         """
         Assign free opening boundary condition.
@@ -4949,15 +4917,15 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def assign_mass_flow_free_opening(
-            self,
-            assignment,
-            boundary_name=None,
-            temperature="AmbientTemp",
-            radiation_temperature="AmbientRadTemp",
-            pressure="AmbientPressure",
-            mass_flow_rate="0kg_per_s",
-            inflow=True,
-            direction_vector=None,
+        self,
+        assignment,
+        boundary_name=None,
+        temperature="AmbientTemp",
+        radiation_temperature="AmbientRadTemp",
+        pressure="AmbientPressure",
+        mass_flow_rate="0kg_per_s",
+        inflow=True,
+        direction_vector=None,
     ):
         """
         Assign free opening boundary condition.
@@ -5145,13 +5113,26 @@ class Icepak(FieldAnalysis3D):
             return None
 
     @pyaedt_function_handler()
-    def assign_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
-                          loss_type="Device", linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"],
-                          quadratic_loss = [1, 1, 1], linear_loss_free_area_ratio = [1, 1, 1],
-                          quadratic_loss_free_area_ratio = [1, 1, 1], power_law_constant=1, power_law_exponent=1,
-                          loss_curves_x = [[0, 1], [0, 1]], loss_curves_y = [[0, 1], [0, 1]],
-                          loss_curves_z = [[0, 1], [0, 1]], loss_curve_flow_unit = "m_per_sec",
-                          loss_curve_pressure_unit = "n_per_meter_sq"):
+    def assign_resistance(
+        self,
+        objects,
+        boundary_name=None,
+        total_power="0W",
+        fluid="air",
+        laminar=False,
+        loss_type="Device",
+        linear_loss=["1m_per_sec", "1m_per_sec", "1m_per_sec"],
+        quadratic_loss=[1, 1, 1],
+        linear_loss_free_area_ratio=[1, 1, 1],
+        quadratic_loss_free_area_ratio=[1, 1, 1],
+        power_law_constant=1,
+        power_law_exponent=1,
+        loss_curves_x=[[0, 1], [0, 1]],
+        loss_curves_y=[[0, 1], [0, 1]],
+        loss_curves_z=[[0, 1], [0, 1]],
+        loss_curve_flow_unit="m_per_sec",
+        loss_curve_pressure_unit="n_per_meter_sq",
+    ):
         """
         Assign resistance boundary condition.
 
@@ -5241,28 +5222,38 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         """
-        props = {"Objects": objects if isinstance(objects, list) else [objects], "Fluid Material": fluid,
-                 "Laminar Flow": laminar}
+        props = {
+            "Objects": objects if isinstance(objects, list) else [objects],
+            "Fluid Material": fluid,
+            "Laminar Flow": laminar,
+        }
 
         if loss_type == "Device":
-            for direction, linear, quadratic, linear_far, quadratic_far in zip(["X", "Y", "Z"], linear_loss,
-                                                                               quadratic_loss,
-                                                                               linear_loss_free_area_ratio,
-                                                                               quadratic_loss_free_area_ratio):
-                props.update({
-                    "Linear " + direction + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear,
-                                                                                                   str) else str(
-                        linear),
-                    "Quadratic " + direction + " Coefficient": str(quadratic),
-                    "Linear " + direction + " Free Area Ratio": str(linear_far),
-                    "Quadratic " + direction + " Free Area Ratio": str(quadratic_far)
-                })
+            for direction, linear, quadratic, linear_far, quadratic_far in zip(
+                ["X", "Y", "Z"],
+                linear_loss,
+                quadratic_loss,
+                linear_loss_free_area_ratio,
+                quadratic_loss_free_area_ratio,
+            ):
+                props.update(
+                    {
+                        "Linear "
+                        + direction
+                        + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear, str) else str(linear),
+                        "Quadratic " + direction + " Coefficient": str(quadratic),
+                        "Linear " + direction + " Free Area Ratio": str(linear_far),
+                        "Quadratic " + direction + " Free Area Ratio": str(quadratic_far),
+                    }
+                )
         elif loss_type == "Power Law":
-            props.update({
-                "Pressure Loss Model": "Power Law",
-                "Power Law Coefficient": power_law_constant,
-                "Power Law Exponent": power_law_exponent
-            })
+            props.update(
+                {
+                    "Pressure Loss Model": "Power Law",
+                    "Power Law Coefficient": power_law_constant,
+                    "Power Law Exponent": power_law_exponent,
+                }
+            )
         elif loss_type == "Loss Curve":
             props.update({"Pressure Loss Model": "Loss Curve"})
             for direction, values in zip(["X", "Y", "Z"], [loss_curves_x, loss_curves_y, loss_curves_z]):
@@ -5270,7 +5261,7 @@ class Icepak(FieldAnalysis3D):
                 props[key] = {
                     "DimUnits": [loss_curve_flow_unit, loss_curve_pressure_unit],
                     "X": [str(i) for i in values[0]],
-                    "Y": [str(i) for i in values[1]]
+                    "Y": [str(i) for i in values[1]],
                 }
 
         if isinstance(total_power, (dict, BoundaryDictionary)):
@@ -5301,8 +5292,16 @@ class Icepak(FieldAnalysis3D):
             return None
 
     @pyaedt_function_handler()
-    def assign_power_law_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
-                          power_law_constant=1, power_law_exponent=1):
+    def assign_power_law_resistance(
+        self,
+        objects,
+        boundary_name=None,
+        total_power="0W",
+        fluid="air",
+        laminar=False,
+        power_law_constant=1,
+        power_law_exponent=1,
+    ):
         """
         Assign resistance boundary condition prescribing a power law.
 
@@ -5348,16 +5347,31 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         """
-        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
-                                      laminar=laminar, loss_type="Power Law",
-                                      power_law_constant=power_law_constant, power_law_exponent=power_law_exponent)
+        return self.assign_resistance(
+            objects,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            fluid=fluid,
+            laminar=laminar,
+            loss_type="Power Law",
+            power_law_constant=power_law_constant,
+            power_law_exponent=power_law_exponent,
+        )
 
     @pyaedt_function_handler()
-    def assign_loss_curve_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
-                                     loss_curves_x = [[0, 1], [0, 1]],
-                                     loss_curves_y = [[0, 1], [0, 1]], loss_curves_z = [[0, 1], [0, 1]],
-                                     loss_curve_flow_unit="m_per_sec",
-                                     loss_curve_pressure_unit="n_per_meter_sq"):
+    def assign_loss_curve_resistance(
+        self,
+        objects,
+        boundary_name=None,
+        total_power="0W",
+        fluid="air",
+        laminar=False,
+        loss_curves_x=[[0, 1], [0, 1]],
+        loss_curves_y=[[0, 1], [0, 1]],
+        loss_curves_z=[[0, 1], [0, 1]],
+        loss_curve_flow_unit="m_per_sec",
+        loss_curve_pressure_unit="n_per_meter_sq",
+    ):
         """
         Assign resistance boundary condition prescribing a loss curve.
 
@@ -5421,16 +5435,33 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         """
-        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
-                                      laminar=laminar, loss_type="Loss Curve", loss_curves_x=loss_curves_x,
-                                      loss_curves_y=loss_curves_y, loss_curves_z=loss_curves_z,
-                                      loss_curve_flow_unit=loss_curve_flow_unit,
-                                      loss_curve_pressure_unit=loss_curve_pressure_unit)
+        return self.assign_resistance(
+            objects,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            fluid=fluid,
+            laminar=laminar,
+            loss_type="Loss Curve",
+            loss_curves_x=loss_curves_x,
+            loss_curves_y=loss_curves_y,
+            loss_curves_z=loss_curves_z,
+            loss_curve_flow_unit=loss_curve_flow_unit,
+            loss_curve_pressure_unit=loss_curve_pressure_unit,
+        )
 
     @pyaedt_function_handler()
-    def assign_device_resistance(self, objects, boundary_name=None, total_power="0W", fluid="air", laminar=False,
-                          linear_loss = ["1m_per_sec", "1m_per_sec", "1m_per_sec"], quadratic_loss = [1, 1, 1],
-                          linear_loss_free_area_ratio = [1, 1, 1], quadratic_loss_free_area_ratio = [1, 1, 1]):
+    def assign_device_resistance(
+        self,
+        objects,
+        boundary_name=None,
+        total_power="0W",
+        fluid="air",
+        laminar=False,
+        linear_loss=["1m_per_sec", "1m_per_sec", "1m_per_sec"],
+        quadratic_loss=[1, 1, 1],
+        linear_loss_free_area_ratio=[1, 1, 1],
+        quadratic_loss_free_area_ratio=[1, 1, 1],
+    ):
         """
         Assign resistance boundary condition using the device/approach model.
 
@@ -5488,17 +5519,34 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         """
-        return self.assign_resistance(objects, boundary_name=boundary_name, total_power=total_power, fluid=fluid,
-                                      laminar=laminar, loss_type="Device", linear_loss=linear_loss,
-                                      quadratic_loss=quadratic_loss,
-                                      linear_loss_free_area_ratio = linear_loss_free_area_ratio,
-                                      quadratic_loss_free_area_ratio = quadratic_loss_free_area_ratio)
+        return self.assign_resistance(
+            objects,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            fluid=fluid,
+            laminar=laminar,
+            loss_type="Device",
+            linear_loss=linear_loss,
+            quadratic_loss=quadratic_loss,
+            linear_loss_free_area_ratio=linear_loss_free_area_ratio,
+            quadratic_loss_free_area_ratio=quadratic_loss_free_area_ratio,
+        )
 
     @pyaedt_function_handler()
-    def assign_recirculation_opening(self, face_list, extract_face, thermal_specification="Temperature",
-                                     assignment_value="0cel", conductance_external_temperature=None,
-                                     flow_specification="Mass Flow", flow_assignment="0kg_per_s_m2",
-                                     flow_direction=None, start_time=None, end_time=None, boundary_name=None):
+    def assign_recirculation_opening(
+        self,
+        face_list,
+        extract_face,
+        thermal_specification="Temperature",
+        assignment_value="0cel",
+        conductance_external_temperature=None,
+        flow_specification="Mass Flow",
+        flow_assignment="0kg_per_s_m2",
+        flow_direction=None,
+        start_time=None,
+        end_time=None,
+        boundary_name=None,
+    ):
         """Assign recirculation faces.
 
         Parameters
@@ -5569,25 +5617,23 @@ class Icepak(FieldAnalysis3D):
             return False
         if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` '
-                'is ``"Conductance"``.')
+                "``conductance_external_temperature`` does not have any effect unless the ``thermal_specification`` "
+                'is ``"Conductance"``.'
+            )
         if conductance_external_temperature is not None and thermal_specification != "Conductance":
             self.logger.warning(
-                '``conductance_external_temperature`` must be specified when ``thermal_specification`` '
-                'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.')
+                "``conductance_external_temperature`` must be specified when ``thermal_specification`` "
+                'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.'
+            )
         if (start_time is not None or end_time is not None) and not self.solution_type == "Transient":
-            self.logger.warning(
-                '``start_time`` and ``end_time`` only effect steady-state simulations.')
+            self.logger.warning("``start_time`` and ``end_time`` only effect steady-state simulations.")
         elif self.solution_type == "Transient" and not (start_time is not None and end_time is not None):
             self.logger.warning(
-                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".')
+                '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".'
+            )
             start_time = "0s"
             end_time = "0s"
-        assignment_dict = {
-            "Conductance": "Conductance",
-            "Heat Input": "Heat Flow",
-            "Temperature": "Temperature Change"
-        }
+        assignment_dict = {"Conductance": "Conductance", "Heat Input": "Heat Flow", "Temperature": "Temperature Change"}
         props = {}
         if not isinstance(face_list[0], int):
             face_list = [f.id for f in face_list]
@@ -5648,9 +5694,19 @@ class Icepak(FieldAnalysis3D):
         return _create_boundary(bound)
 
     @pyaedt_function_handler()
-    def assign_blower_type1(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W", blade_rpm=0,
-                            blade_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
-                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+    def assign_blower_type1(
+        self,
+        faces,
+        inlet_face,
+        fan_curve_pressure,
+        fan_curve_flow,
+        blower_power="0W",
+        blade_rpm=0,
+        blade_angle="0rad",
+        fan_curve_pressure_unit="n_per_meter_sq",
+        fan_curve_flow_unit="m3_per_s",
+        boundary_name=None,
+    ):
         """Assign blower type 1.
 
         Parameters
@@ -5711,13 +5767,31 @@ class Icepak(FieldAnalysis3D):
         props["Blade RPM"] = blade_rpm
         props["Fan Blade Angle"] = blade_angle
         props["Blower Type"] = "Type 1"
-        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
-                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+        return self._assign_blower(
+            props,
+            faces,
+            inlet_face,
+            fan_curve_flow_unit,
+            fan_curve_pressure_unit,
+            fan_curve_flow,
+            fan_curve_pressure,
+            blower_power,
+            boundary_name,
+        )
 
     @pyaedt_function_handler()
-    def assign_blower_type2(self, faces, inlet_face, fan_curve_pressure, fan_curve_flow, blower_power="0W",
-                            exhaust_angle="0rad", fan_curve_pressure_unit="n_per_meter_sq",
-                            fan_curve_flow_unit="m3_per_s", boundary_name=None):
+    def assign_blower_type2(
+        self,
+        faces,
+        inlet_face,
+        fan_curve_pressure,
+        fan_curve_flow,
+        blower_power="0W",
+        exhaust_angle="0rad",
+        fan_curve_pressure_unit="n_per_meter_sq",
+        fan_curve_flow_unit="m3_per_s",
+        boundary_name=None,
+    ):
         """Assign blower type 2.
 
         Parameters
@@ -5773,12 +5847,31 @@ class Icepak(FieldAnalysis3D):
         props = {}
         props["Exhaust Exit Angle"] = exhaust_angle
         props["Blower Type"] = "Type 2"
-        return self._assign_blower(props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit,
-                                   fan_curve_flow, fan_curve_pressure, blower_power, boundary_name)
+        return self._assign_blower(
+            props,
+            faces,
+            inlet_face,
+            fan_curve_flow_unit,
+            fan_curve_pressure_unit,
+            fan_curve_flow,
+            fan_curve_pressure,
+            blower_power,
+            boundary_name,
+        )
 
     @pyaedt_function_handler()
-    def _assign_blower(self, props, faces, inlet_face, fan_curve_flow_unit, fan_curve_pressure_unit, fan_curve_flow,
-                       fan_curve_pressure, blower_power, boundary_name):
+    def _assign_blower(
+        self,
+        props,
+        faces,
+        inlet_face,
+        fan_curve_flow_unit,
+        fan_curve_pressure_unit,
+        fan_curve_flow,
+        fan_curve_pressure,
+        blower_power,
+        boundary_name,
+    ):
         if isinstance(faces[0], int):
             props["Faces"] = faces
         else:
@@ -5800,11 +5893,21 @@ class Icepak(FieldAnalysis3D):
         return _create_boundary(bound)
 
     @pyaedt_function_handler()
-    def assign_conducting_plate(self, obj_plate, boundary_name=None, total_power="0W",
-                                thermal_specification="Thickness", thickness="1mm", solid_material="Al-Extruded",
-                                conductance="0W_per_Cel", shell_conduction=False, thermal_resistance="0Kel_per_W",
-                                low_side_rad_material=None, high_side_rad_material=None,
-                                thermal_impedance="0celm2_per_W"):
+    def assign_conducting_plate(
+        self,
+        obj_plate,
+        boundary_name=None,
+        total_power="0W",
+        thermal_specification="Thickness",
+        thickness="1mm",
+        solid_material="Al-Extruded",
+        conductance="0W_per_Cel",
+        shell_conduction=False,
+        thermal_resistance="0Kel_per_W",
+        low_side_rad_material=None,
+        high_side_rad_material=None,
+        thermal_impedance="0celm2_per_W",
+    ):
         """
         Assign thermal boundary conditions to a conducting plate.
 
@@ -5881,9 +5984,9 @@ class Icepak(FieldAnalysis3D):
             props["Total Power"] = total_power
         props["Thermal Specification"] = thermal_specification
         for value, key, unit in zip(
-                [thickness, conductance, thermal_resistance, thermal_impedance],
-                ["Thickness", "Conductance", "Thermal Resistance", "Thermal Impedance"],
-                ["mm", "W_per_Cel", "Kel_per_W", "Cel_m2_per_W"]
+            [thickness, conductance, thermal_resistance, thermal_impedance],
+            ["Thickness", "Conductance", "Thermal Resistance", "Thermal Impedance"],
+            ["mm", "W_per_Cel", "Kel_per_W", "Cel_m2_per_W"],
         ):
             if thermal_specification == key:
                 if not isinstance(value, str):
@@ -5894,25 +5997,32 @@ class Icepak(FieldAnalysis3D):
         if low_side_rad_material is not None:
             props["LowSide"] = {"Radiate": False}
         else:
-            props["LowSide"] = {"Radiate": True,
-                                "RadiateTo": "AllObjects",
-                                "Surface Material": low_side_rad_material}
+            props["LowSide"] = {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_side_rad_material}
         if high_side_rad_material is not None:
             props["LowSide"] = {"Radiate": False}
         else:
-            props["HighSide"] = {"Radiate": True,
-                                 "RadiateTo - High": "AllObjects - High",
-                                 "Surface Material - High": high_side_rad_material}
+            props["HighSide"] = {
+                "Radiate": True,
+                "RadiateTo - High": "AllObjects - High",
+                "Surface Material - High": high_side_rad_material,
+            }
         props["Shell Conduction"] = shell_conduction
         if not boundary_name:
             boundary_name = generate_unique_name("Plate")
         bound = BoundaryObject(self, boundary_name, props, "Conducting Plate")
         return _create_boundary(bound)
 
-    def assign_conducting_plate_with_thickness(self, obj_plate, boundary_name=None, total_power="0W",
-                                               thickness="1mm", solid_material="Al-Extruded",
-                                               shell_conduction=False, low_side_rad_material=None,
-                                               high_side_rad_material=None):
+    def assign_conducting_plate_with_thickness(
+        self,
+        obj_plate,
+        boundary_name=None,
+        total_power="0W",
+        thickness="1mm",
+        solid_material="Al-Extruded",
+        shell_conduction=False,
+        low_side_rad_material=None,
+        high_side_rad_material=None,
+    ):
         """
         Assign thermal boundary conditions with thickness specification to a conducting plate.
 
@@ -5951,20 +6061,28 @@ class Icepak(FieldAnalysis3D):
             Boundary object when successful or ``None`` when failed.
 
         """
-        return self.assign_conducting_plate(obj_plate,
-                                            boundary_name=boundary_name,
-                                            total_power=total_power,
-                                            thermal_specification="Thickness",
-                                            thickness=thickness,
-                                            solid_material=solid_material,
-                                            shell_conduction=shell_conduction,
-                                            low_side_rad_material=low_side_rad_material,
-                                            high_side_rad_material=high_side_rad_material)
+        return self.assign_conducting_plate(
+            obj_plate,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            thermal_specification="Thickness",
+            thickness=thickness,
+            solid_material=solid_material,
+            shell_conduction=shell_conduction,
+            low_side_rad_material=low_side_rad_material,
+            high_side_rad_material=high_side_rad_material,
+        )
 
-    def assign_conducting_plate_with_resistance(self, obj_plate, boundary_name=None, total_power="0W",
-                                                thermal_resistance="0Kel_per_W",
-                                                shell_conduction=False, low_side_rad_material=None,
-                                                high_side_rad_material=None):
+    def assign_conducting_plate_with_resistance(
+        self,
+        obj_plate,
+        boundary_name=None,
+        total_power="0W",
+        thermal_resistance="0Kel_per_W",
+        shell_conduction=False,
+        low_side_rad_material=None,
+        high_side_rad_material=None,
+    ):
         """
         Assign thermal boundary conditions with thermal resistance specification to a conducting plate.
 
@@ -6000,19 +6118,27 @@ class Icepak(FieldAnalysis3D):
             Boundary object when successful or ``None`` when failed.
 
         """
-        return self.assign_conducting_plate(obj_plate,
-                                            boundary_name=boundary_name,
-                                            total_power=total_power,
-                                            thermal_specification="Thermal Resistance",
-                                            thermal_resistance=thermal_resistance,
-                                            shell_conduction=shell_conduction,
-                                            low_side_rad_material=low_side_rad_material,
-                                            high_side_rad_material=high_side_rad_material)
+        return self.assign_conducting_plate(
+            obj_plate,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            thermal_specification="Thermal Resistance",
+            thermal_resistance=thermal_resistance,
+            shell_conduction=shell_conduction,
+            low_side_rad_material=low_side_rad_material,
+            high_side_rad_material=high_side_rad_material,
+        )
 
-    def assign_conducting_plate_with_impedance(self, obj_plate, boundary_name=None, total_power="0W",
-                                               thermal_impedance="0celm2_per_W",
-                                               shell_conduction=False, low_side_rad_material=None,
-                                               high_side_rad_material=None):
+    def assign_conducting_plate_with_impedance(
+        self,
+        obj_plate,
+        boundary_name=None,
+        total_power="0W",
+        thermal_impedance="0celm2_per_W",
+        shell_conduction=False,
+        low_side_rad_material=None,
+        high_side_rad_material=None,
+    ):
         """
         Assign thermal boundary conditions with thermal impedance specification to a conducting plate.
 
@@ -6048,19 +6174,27 @@ class Icepak(FieldAnalysis3D):
             Boundary object when successful or ``None`` when failed.
 
         """
-        return self.assign_conducting_plate(obj_plate,
-                                            boundary_name=boundary_name,
-                                            total_power=total_power,
-                                            thermal_specification="Thermal Impedance",
-                                            thermal_impedance=thermal_impedance,
-                                            shell_conduction=shell_conduction,
-                                            low_side_rad_material=low_side_rad_material,
-                                            high_side_rad_material=high_side_rad_material)
+        return self.assign_conducting_plate(
+            obj_plate,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            thermal_specification="Thermal Impedance",
+            thermal_impedance=thermal_impedance,
+            shell_conduction=shell_conduction,
+            low_side_rad_material=low_side_rad_material,
+            high_side_rad_material=high_side_rad_material,
+        )
 
-    def assign_conducting_plate_with_conductance(self, obj_plate, boundary_name=None, total_power="0W",
-                                                 conductance="0W_per_Cel",
-                                                 shell_conduction=False, low_side_rad_material=None,
-                                                 high_side_rad_material=None):
+    def assign_conducting_plate_with_conductance(
+        self,
+        obj_plate,
+        boundary_name=None,
+        total_power="0W",
+        conductance="0W_per_Cel",
+        shell_conduction=False,
+        low_side_rad_material=None,
+        high_side_rad_material=None,
+    ):
         """
         Assign thermal boundary conditions with conductance specification to a conducting plate.
 
@@ -6096,14 +6230,16 @@ class Icepak(FieldAnalysis3D):
             Boundary object when successful or ``None`` when failed.
 
         """
-        return self.assign_conducting_plate(obj_plate,
-                                            boundary_name=boundary_name,
-                                            total_power=total_power,
-                                            thermal_specification="Conductance",
-                                            conductance=conductance,
-                                            shell_conduction=shell_conduction,
-                                            low_side_rad_material=low_side_rad_material,
-                                            high_side_rad_material=high_side_rad_material)
+        return self.assign_conducting_plate(
+            obj_plate,
+            boundary_name=boundary_name,
+            total_power=total_power,
+            thermal_specification="Conductance",
+            conductance=conductance,
+            shell_conduction=shell_conduction,
+            low_side_rad_material=low_side_rad_material,
+            high_side_rad_material=high_side_rad_material,
+        )
 
     @pyaedt_function_handler
     def __create_dataset_assignment(self, type_assignment, ds_name, scale):
@@ -6312,3 +6448,177 @@ class Icepak(FieldAnalysis3D):
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
+
+
+class IcepakDesignSettings:
+    def __init__(
+        self,
+        app,
+        gravity_dir=0,
+        ambient_temperature=20,
+        perform_validation=False,
+        check_level="None",
+        default_fluid="air",
+        default_solid="Al-Extruded",
+        export_monitor=False,
+        export_directory=os.getcwd(),
+        gauge_pressure=0,
+        radiation_temperature=20,
+        ignore_unclassified_objects=False,
+        skip_intersection_checks=False,
+    ):
+        self._app = app
+        self.gravity_direction = gravity_dir
+        self.ambient_temperature = ambient_temperature
+        self.perform_validation = perform_validation
+        self.check_level = check_level
+        self.default_fluid = default_fluid
+        self.default_solid = default_solid
+        self.export_monitor = export_monitor
+        self.export_directory = export_directory
+        self.gauge_pressure = gauge_pressure
+        self.radiation_temperature = radiation_temperature
+        self.ignore_unclassified_objects = ignore_unclassified_objects
+        self.skip_intersection_checks = skip_intersection_checks
+
+    @property
+    def gravity_direction(self):
+        return ["-", "+"][int(True)] + self._gravity_direction
+
+    @gravity_direction.setter
+    def gravity_direction(self, value):
+        if isinstance(value, int):
+            gravity_directions = ["X", "Y", "Z"]
+            if value > 2:
+                self._gravity_positive = True
+                self._gravity_direction = gravity_directions[value - 3]
+            else:
+                self._gravity_positive = False
+                self._gravity_direction = gravity_directions[value]
+        elif isinstance(value, str):
+            gravity_direction = None
+            gravity_positive = None
+            if len(value) == 2:
+                if value[1].lower() in ["x", "y", "z"]:
+                    gravity_direction = value[1].upper()
+                if value[0] in ["-", "+"]:
+                    gravity_positive = value[0] == "+"
+            if gravity_direction is not None and gravity_positive is not None:
+                self._gravity_direction = gravity_direction
+                self._gravity_positive = gravity_positive
+            else:
+                self._app.logger.error("Gravity value {} not valid.".format(value))
+
+    @property
+    def ambient_temperature(self):
+        return self._ambient_temperature
+
+    @ambient_temperature.setter
+    def ambient_temperature(self, value):
+        if isinstance(value, (dict, BoundaryDictionary)):
+            if not self._app.solution_type == "Transient":
+                self._app.logger.error("Transient assignment is supported only in transient designs.")
+            ambtemp = getattr(self._app, "_parse_variation_data")(
+                "AmbientTemperature",
+                "Transient",
+                variation_value=value["Values"],
+                function=value["Function"],
+            )
+            if ambtemp is not None:
+                self._ambient_temperature = ambtemp
+            else:
+                self._app.logger.error("Transient dictionary is not valid.")
+        else:
+            self._ambient_temperature = (self._app.value_with_units(value, "cel"),)
+
+    @property
+    def default_fluid_material(self):
+        return self._default_fluid_material
+
+    @default_fluid_material.setter
+    def default_fluid_material(self, value):
+        if isinstance(value, pyaedt.modules.Material.Material):
+            value = value.name
+        if self._app.materials[value]:
+            self._default_fluid_material = value
+
+    @property
+    def default_solid_material(self):
+        return self._default_solid_material
+
+    @default_solid_material.setter
+    def default_solid_material(self, value):
+        if isinstance(value, pyaedt.modules.Material.Material):
+            value = value.name
+        if self._app.materials[value]:
+            self._default_solid_material = value
+
+    @property
+    def default_surface_material(self):
+        return self._default_surface_material
+
+    @default_surface_material.setter
+    def default_surface_material(self, value):
+        if isinstance(value, pyaedt.modules.Material.Material):
+            value = value.name
+        if self._app.materials[value]:
+            self._default_surface_material = value
+
+    @property
+    def gauge_pressure(self):
+        return self._gauge_pressure
+
+    @gauge_pressure.setter
+    def gauge_pressure(self, value):
+        self._gauge_pressure = (self._app.value_with_units(value, "n_per_meter_sq"),)
+
+    @property
+    def radiation_temperature(self):
+        return self._radiation_temperature
+
+    @radiation_temperature.setter
+    def radiation_temperature(self, value):
+        self._radiation_temperature = self._app.value_with_units(value, "cel")
+
+    @property
+    def check_level(self):
+        return self._check_value
+
+    @check_level.setter
+    def check_level(self, value):
+        available_vals = ["None", "Basic", "Strict", "WarningOnly"]
+        if value in available_vals:
+            self._check_value = value
+        else:
+            self._app.logger.error("{} option not valid. Valid options are {}.".format(value, available_vals))
+
+    def update(self):
+        a = _dict2arg(
+            {
+                "Design Settings Data": {
+                    "Perform Minimal validation": self.perform_validation,
+                    "Default Fluid Material": self.default_fluid_material,
+                    "Default Solid Material": self.default_solid_material,
+                    "Default Surface Material": self.default_surface_material,
+                    "AmbientTemperature": self.ambient_temperature,
+                    "AmbientPressure": self.gauge_pressure,
+                    "AmbientRadiationTemperature": self.radiation_temperature,
+                    "Gravity Vector CS ID": 1,  # TODO: how to get cs id?
+                    "Gravity Vector Axis": self._gravity_direction,
+                    "Positive": self._gravity_positive,
+                    "ExportOnSimulationComplete": self.export_monitor,
+                    "ExportDirectory": self.export_directory,
+                }
+            }
+        )
+        b = _dict2arg(
+            {
+                "Model Validation Settings": {
+                    "EntityCheckLevel": self.check_level,
+                    "IgnoreUnclassifiedObjects": self.ignore_unclassified_objects,
+                    "SkipIntersectionChecks": self.skip_intersection_checks,
+                }
+            }
+        )
+        self._app.odesign.SetDesignSettings(a, b)
+        return True
