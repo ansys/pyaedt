@@ -208,11 +208,17 @@ jobs:
           .venv\Scripts\Activate.ps1
           .\doc\make.bat pdf-no-examples
 
+      - name: Add assets to HTML docs
+        run: |
+          zip -r documentation-html.zip ./doc/_build/html
+          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+
       - name: Upload PDF documentation without examples artifact
         uses: actions/upload-artifact@v3
         with:
           name: documentation-pdf
-          path: doc/_build/latex/PyAEDT-Documentation-*.pdf
+          path: doc/_build/latex/*.pdf
           retention-days: 7
 
       # - name: Upload PDF documentation with examples artifact

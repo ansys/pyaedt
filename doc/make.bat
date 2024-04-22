@@ -101,7 +101,7 @@ echo ========> source\examples\index.rst
 ::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 echo
-echo "Build finished. The HTML pages are in %BUILDDIR%."
+echo "Build finished. The PDF pages are in %BUILDDIR%."
 goto end
 
 :end
