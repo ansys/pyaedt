@@ -214,7 +214,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         self[ppar] = pval
                         xpos = 0.0254
                     except Exception:
-                        pass
+                        self.logger.error("Failed to parse line '{}'.".format(line))
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
         if model:
