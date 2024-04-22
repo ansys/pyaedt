@@ -1620,6 +1620,9 @@ class Q3d(QExtractor, object):
     def assign_sink_to_objectface(self, assignment, direction=0, name=None, net_name=None):
         """Generate a sink on a face of an object.
 
+        .. deprecated:: 0.8.9
+            This method is deprecated. Use the ``sink()`` method instead.
+
         The face ID is selected based on the axis direction. It is the face that has
         the maximum or minimum in this axis direction.
 
@@ -1644,6 +1647,11 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
+        warnings.warn(
+            "This method is deprecated in 0.8.9. Use the ``sink()`` method.",
+            DeprecationWarning,
+        )
+
         assignment = self.modeler.convert_to_selections(assignment, True)[0]
         if isinstance(assignment, int):
             a = assignment
@@ -1670,6 +1678,9 @@ class Q3d(QExtractor, object):
     ):
         """Generate a sink on a sheet.
 
+        .. deprecated:: 0.8.9
+            This method is deprecated. Use the ``sink()`` method instead.
+
         Parameters
         ----------
         assignment :
@@ -1693,6 +1704,11 @@ class Q3d(QExtractor, object):
 
         >>> oModule.AssignSink
         """
+        warnings.warn(
+            "This method is deprecated in 0.8.9. Use the ``sink()`` method.",
+            DeprecationWarning,
+        )
+
         if not sink_name:
             sink_name = generate_unique_name("Sink")
         assignment = self.modeler.convert_to_selections(assignment, True)[0]
