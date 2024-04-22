@@ -733,14 +733,22 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
+    @pyaedt_function_handler(
+        file_name="output_file",
+        setup_name="setup",
+        matrix_name="matrix",
+        num_cells="cells",
+        freq="frequency",
+        model_name="model",
+    )
     def export_equivalent_circuit(
         self,
-        file_name,
-        setup_name=None,
+        output_file,
+        setup=None,
         sweep=None,
         variations=None,
-        matrix_name=None,
-        num_cells=2,
+        matrix=None,
+        cells=2,
         user_changed_settings=True,
         include_cap=True,
         include_cond=True,
@@ -761,8 +769,8 @@ class QExtractor(FieldAnalysis3D, object):
         ind_limit=None,
         res_limit=None,
         cond_limit=None,
-        model_name=None,
-        freq=0,
+        model=None,
+        frequency=0,
         file_type="HSPICE",
         include_cpp=False,
     ):
@@ -770,11 +778,11 @@ class QExtractor(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        file_name : str
+        output_file : str
             Full path for saving the matrix data to.
             Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
             DML, and ICM.
-        setup_name : str, optional
+        setup : str, optional
             Setup name.
             The default value is ``None``, in which case the first analysis setup is used.
         sweep : str, optional
@@ -784,9 +792,9 @@ class QExtractor(FieldAnalysis3D, object):
             Design variation. The default is ``None``, in which case the
             current nominal variation is used. If you provide a
             design variation, use the format ``{Name}:{Value}``.
-        matrix_name : str, optional
+        matrix : str, optional
             Name of the matrix to show. The default is ``"Original"``.
-        num_cells : int, optional
+        cells : int, optional
             Number of cells in export.
             Default value is 2.
         user_changed_settings : bool, optional
@@ -855,10 +863,10 @@ class QExtractor(FieldAnalysis3D, object):
             Inductance limit.
             Default value is 1nH if coupling_limit_type is 0.
             Default value is 0.01 if coupling_limit_type is 1.
-        model_name : str, optional
+        model : str, optional
             Model name or name of the sub circuit (Optional).
             If None then file_name is considered as model name.
-        freq : str, optional
+        frequency : str, optional
             Sweep frequency in Hz.
             Default value is 0.
         file_type : str, optional
@@ -896,12 +904,10 @@ class QExtractor(FieldAnalysis3D, object):
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
-        >>> aedtapp.export_equivalent_circuit(file_name="test_export_circuit.cir",
-        ...     setup_name=mysetup.name,
-        ...     sweep="LastAdaptive",
-        ...     variations=["d: 20mm"]
+        >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
+        ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
         """
-        if os.path.splitext(file_name)[1] not in [
+        if os.path.splitext(output_file)[1] not in [
             ".cir",
             ".sml",
             ".sp",
@@ -919,10 +925,10 @@ class QExtractor(FieldAnalysis3D, object):
             )
             return False
 
-        if setup_name is None:
-            setup_name = self.active_setup
-        elif setup_name != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
+        if setup is None:
+            setup = self.active_setup
+        elif setup != self.active_setup:
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
             return False
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
@@ -931,7 +937,7 @@ class QExtractor(FieldAnalysis3D, object):
             if sweep.replace(" ", "") not in sweep_array:
                 self.logger.error("Sweep is invalid. Provide a valid sweep.")
                 return False
-        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
+        analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
             if not self.available_variations.nominal_w_values_dict:
@@ -962,11 +968,11 @@ class QExtractor(FieldAnalysis3D, object):
                 variations_list.append(variation)
             variations = ",".join(variations_list)
 
-        if matrix_name is None:
-            matrix_name = "Original"
+        if matrix is None:
+            matrix = "Original"
         else:
             if self.matrices:
-                if not [matrix for matrix in self.matrices if matrix.name == matrix_name]:
+                if not [matrix for matrix in self.matrices if matrix.name == matrix]:
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
             else:
@@ -1047,9 +1053,9 @@ class QExtractor(FieldAnalysis3D, object):
             coupling_limit_value = "None"
             coupling_limits.append(coupling_limit_value)
 
-        if model_name is None:
-            model_name = self.project_name
-        elif model_name != self.project_name:
+        if model is None:
+            model = self.project_name
+        elif model != self.project_name:
             self.logger.error("Invalid project name.")
             return False
 
@@ -1115,13 +1121,13 @@ class QExtractor(FieldAnalysis3D, object):
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    file_name,
+                    output_file,
                     [
                         "NAME:CircuitData",
                         "MatrixName:=",
-                        matrix_name,
+                        matrix,
                         "NumberOfCells:=",
-                        str(num_cells),
+                        str(cells),
                         "UserHasChangedSettings:=",
                         user_changed_settings,
                         "IncludeCap:=",
@@ -1145,8 +1151,8 @@ class QExtractor(FieldAnalysis3D, object):
                         include_cpp,
                         cpp_settings,
                     ],
-                    model_name,
-                    freq,
+                    model,
+                    frequency,
                 )
                 return True
             except Exception:
@@ -1157,13 +1163,13 @@ class QExtractor(FieldAnalysis3D, object):
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    file_name,
+                    output_file,
                     [
                         "NAME:CircuitData",
                         "MatrixName:=",
-                        matrix_name,
+                        matrix,
                         "NumberOfCells:=",
-                        str(num_cells),
+                        str(cells),
                         "UserHasChangedSettings:=",
                         user_changed_settings,
                         "IncludeCap:=",
@@ -1182,9 +1188,9 @@ class QExtractor(FieldAnalysis3D, object):
                         "RiseTime:=",
                         rise_time,
                     ],
-                    model_name,
+                    model,
                     file_type,
-                    freq,
+                    frequency,
                 )
                 return True
             except Exception:
