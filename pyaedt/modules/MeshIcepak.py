@@ -793,9 +793,19 @@ class MeshRegion(MeshRegionCommon):
         if isinstance(self._assignment, SubRegion):
             # try to update name
             if self.name in self._app.odesign.GetChildObject("Mesh").GetChildNames():
-                parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                parts = []
+                subparts = []
+                if "Parts" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                    parts = self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Parts")
+                if "Submodels" in self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropNames():
+                    subparts = (
+                        self._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).GetPropValue("Submodels")
+                    )
                 if not isinstance(parts, list):
                     parts = [parts]
+                if not isinstance(subparts, list):
+                    subparts = [subparts]
+                parts += subparts
                 sub_regions = self._app.modeler.non_model_objects
                 for sr in sub_regions:
                     p1 = []
