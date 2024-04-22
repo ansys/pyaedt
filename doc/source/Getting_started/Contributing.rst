@@ -41,7 +41,7 @@ for switching from viewing the documentation for the latest stable release
 to viewing the documentation for the development version or previously
 released versions.
 
-Code Style
+Code style
 ----------
 PyAEDT complies with the `PyAnsys code style
 <https://dev.docs.pyansys.com/coding-style/index.html>`_.
@@ -74,7 +74,7 @@ For example::
   Validate GitHub Workflows................................................Passed
   blacken-docs.............................................................Passed
 
-Naming Conventions
+Naming conventions
 ~~~~~~~~~~~~~~~~~~
 Consistency of names helps improve readability and
 ease of use. Starting with release 0.8 a concerted effort
@@ -83,7 +83,7 @@ improve consistency of naming and adherence to
 :ref:`PEP-8<https://peps.python.org/pep-0008/>`_.
 
 For example, methods used to create or access entities in
-Electronics Desktop require that a name to be passed to the method or functon
+Electronics Desktop require that a name to be passed to the method or function
 as an argument.
 It is tempting to
 include context as part of that variable name. For example, one is tempted to use
@@ -105,7 +105,7 @@ The following table illustrates the recommended conventions:
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Old Name(s)
+   * - Old Name
      - New Name
      - Example
    * - ``setupname``, ``setup_name``, ``sweepname``
@@ -123,7 +123,7 @@ The following table illustrates the recommended conventions:
 
 Please take care to use descriptive names for
 variables and classes that adhere to PEP-8 and are consistent with conventions already
-usd in PyAEDT.
+used in PyAEDT.
 
 Log errors
 ~~~~~~~~~~
