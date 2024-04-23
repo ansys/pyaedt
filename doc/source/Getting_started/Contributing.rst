@@ -83,30 +83,29 @@ improve consistency of naming and adherence to
 :ref:`PEP-8<https://peps.python.org/pep-0008/>`_.
 
 For example, methods used to create or access entities in
-Electronics Desktop require that a name to be passed to the method or function
+AEDT require that a name be passed to the method or function
 as an argument.
 It is tempting to
-include context as part of that variable name. For example, one is tempted to use
+include context as part of that variable name. For example, while it is tempting to use
 ``setupname``
-as an argument to :meth:`Hfss.create_setup`_.
-However, the context "setup" is
+as an argument to :meth:`Hfss.create_setup`_,
+the context "setup" is
 explicitly defined by the method name. The variable ``name`` provides
 a more compact
 description of the variable in this context.
 
-One may
-also find both ``setup_name`` and ``setupname`` used in previous versions of PyAEDT
+In previous PyAEDT versions, you can also find both ``setup_name`` and ``setupname`` used 
 for various methods or classes.
 Improving naming consistency improves maintainability and readability.
 
 The following table illustrates the recommended conventions:
 
-.. list-table:: Keywords and Object Names
+.. list-table:: Keywords and object names
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Old Name
-     - New Name
+   * - Old name
+     - New name
      - Example
    * - ``setupname``, ``setup_name``, ``sweepname``
      - ``name``
@@ -121,7 +120,7 @@ The following table illustrates the recommended conventions:
      - ``assignment``
      - ``Maxwell.assign_symmetry()``
 
-Please take care to use descriptive names for
+Take care to use descriptive names for
 variables and classes that adhere to PEP-8 and are consistent with conventions already
 used in PyAEDT.
 
