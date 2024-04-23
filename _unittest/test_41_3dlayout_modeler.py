@@ -654,7 +654,6 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
-
         assert test_post1.post.create_fieldplot_layers(
             [],
             "Mag_H",
@@ -691,6 +690,11 @@ class TestClass:
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
             plot_name="Test_Layers4",
+        )
+        assert test_post2.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
         )
         assert test_post2.post.create_fieldplot_layers(
             ["TOP", "UNNAMED_004"],
