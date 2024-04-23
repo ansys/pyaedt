@@ -1686,7 +1686,7 @@ class Desktop(object):
         return list(available_toolkits.keys())
 
     @pyaedt_function_handler()
-    def add_custom_toolkit(self, toolkit_name, wheel_toolkit=None):  # pragma: no cover
+    def add_custom_toolkit(self, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
         """Add toolkit to AEDT Automation Tab.
 
         Parameters
@@ -1695,6 +1695,8 @@ class Desktop(object):
             Name of toolkit to add.
         wheel_toolkit : str
             Wheelhouse path.
+        install : bool, optional
+            Whether to install the toolkit.
 
         Returns
         -------
@@ -1747,10 +1749,12 @@ class Desktop(object):
             venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(version))
             python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
             pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
+            package_dir = os.path.join(venv_dir, "Lib", "site-packages")
         else:
             venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(version))
             python_exe = os.path.join(venv_dir, "bin", "python")
             pip_exe = os.path.join(venv_dir, "bin", "pip")
+            package_dir = os.path.join(venv_dir, "Lib", "site-packages")
             edt_root = os.path.normpath(self.odesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(args.version)] = edt_root
             ld_library_path_dirs_to_add = [
@@ -1765,19 +1769,25 @@ class Desktop(object):
             os.environ["LD_LIBRARY_PATH"] = (
                 ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
             )
-        new_env = False
+
+        # Create virtual environment
+
         if not os.path.exists(venv_dir):
-            new_env = True
+            self.logger.info("Creating virtual environment")
             run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
             self.logger.info("Virtual environment created.")
 
+        is_installed = False
+        script_file = os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))
+        if os.path.isfile(script_file):
+            is_installed = True
         if wheel_toolkit:
             wheel_toolkit = os.path.normpath(wheel_toolkit)
-        self.logger.info("Installing dependencies.".format(toolkit_name))
-        if wheel_toolkit and os.path.exists(wheel_toolkit):
-            if not new_env:
+        self.logger.info("Installing dependencies".format(toolkit_name))
+        if install and wheel_toolkit and os.path.exists(wheel_toolkit):
+            self.logger.info("Starting offline installation".format(toolkit_name))
+            if is_installed:
                 run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit["pip"]))
-
             import zipfile
 
             unzipped_path = os.path.join(
@@ -1792,75 +1802,49 @@ class Desktop(object):
             run_command(
                 '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
             )
-        elif new_env:
+        elif install and not is_installed:
             # Install the specified package
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
-        else:
+        elif not install and is_installed:
+            # Uninstall toolkit
+            run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit["pip"]))
+        elif install and is_installed:
             # Update toolkit
             run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
+        else:
+            self.logger.info("Incorrect input".format(toolkit_name))
+            return
 
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
         script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", toolkit["image"])
 
-        if not os.path.exists(tool_dir):
-            script_path = os.path.join(venv_dir, "Lib", "site-packages", os.path.normpath(toolkit["toolkit_script"]))
-            # Install toolkit inside AEDT
-            self.add_script_to_menu(
-                toolkit_name=toolkit_name,
-                script_path=script_path,
-                script_image=script_image,
-                product=toolkit["installation_path"],
-                copy_to_personal_lib=False,
-                executable_interpreter=python_exe,
-            )
-
-    @pyaedt_function_handler()
-    def delete_custom_toolkit(self, toolkit_name):  # pragma: no cover
-        """Delete toolkit from AEDT Automation Tab.
-
-        Parameters
-        ----------
-        toolkit_name : str
-            Name of toolkit to add.
-
-        Returns
-        -------
-        bool
-        """
-        from pyaedt import is_windows
-        from pyaedt.misc.install_extra_toolkits import available_toolkits
-
-        toolkit = available_toolkits[toolkit_name]
-
-        # Set Python version based on AEDT version
-        python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
-
-        if is_windows:
-            venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(toolkit_name))
+        if install:
+            if not os.path.exists(tool_dir):
+                script_path = os.path.join(
+                    venv_dir, "Lib", "site-packages", os.path.normpath(toolkit["toolkit_script"])
+                )
+                # Install toolkit inside AEDT
+                self.add_script_to_menu(
+                    toolkit_name=toolkit_name,
+                    script_path=script_path,
+                    script_image=script_image,
+                    product=toolkit["installation_path"],
+                    copy_to_personal_lib=False,
+                    executable_interpreter=python_exe,
+                )
         else:
-            venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(toolkit_name))
+            toolkit_dir = os.path.join(self.personallib, "Toolkits")
+            tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
-        if not os.path.exists(venv_dir):
-            self.logger.info("Virtual environment {} does not exist.".format(toolkit_name))
-        else:
-            try:
-                shutil.rmtree(venv_dir)
-                self.logger.info("Virtual environment {} does deleted.".format(toolkit_name))
-            except OSError as e:
-                self.logger.info(f"Error: {venv_dir} : {e.strerror}")
-
-        toolkit_dir = os.path.join(self.personallib, "Toolkits")
-        tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
-
-        if os.path.exists(tool_dir):
-            # Install toolkit inside AEDT
-            self.remove_script_from_menu(
-                toolkit_name=toolkit_name,
-                product=toolkit["installation_path"],
-            )
+            if os.path.exists(tool_dir):
+                # Install toolkit inside AEDT
+                self.remove_script_from_menu(
+                    toolkit_name=toolkit_name,
+                    product=toolkit["installation_path"],
+                )
 
     @pyaedt_function_handler()
     def add_script_to_menu(

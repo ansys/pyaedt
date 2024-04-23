@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -31,16 +30,8 @@ else:
 def create_toolkit_page(frame, open_source_toolkits):
     """Create page to install toolkit"""
     # Available toolkits
-    toolkits_info = OrderedDict({"Custom": {"is_installed": False}})
-    for open_source_toolkit in open_source_toolkits:
-        script_file = os.path.normpath(
-            os.path.join(package_dir, available_toolkits[open_source_toolkit]["toolkit_script"])
-        )
-        is_installed = True if os.path.isfile(script_file) else False
-        toolkits_info[open_source_toolkit] = {}
-        toolkits_info[open_source_toolkit]["is_installed"] = is_installed
-
-    max_length = max(len(item) for item in toolkits_info.keys())
+    toolkits = ["Custom"] + open_source_toolkits
+    max_length = max(len(item) for item in toolkits)
 
     # Pip or Offline radio options
     installation_option_action = tk.StringVar(value="Offline")
@@ -56,7 +47,7 @@ def create_toolkit_page(frame, open_source_toolkits):
     toolkits_combo_label.grid(row=2, column=0, padx=5, pady=5)
 
     toolkits_combo = ttk.Combobox(
-        frame, values=list(filter(lambda x: x != "", list(toolkits_info.keys()))), state="readonly", width=max_length
+        frame, values=list(filter(lambda x: x != "", toolkits)), state="readonly", width=max_length
     )
     toolkits_combo.set("Custom")
     toolkits_combo.grid(row=2, column=1, padx=5, pady=5)
@@ -80,8 +71,7 @@ def create_toolkit_page(frame, open_source_toolkits):
 
     def update_page(event=None):
         selected_toolkit = toolkits_combo.get()
-        is_installed = toolkits_info[selected_toolkit]["is_installed"]
-        if is_installed:
+        if is_toolkit_installed(selected_toolkit):
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
         else:
@@ -108,7 +98,14 @@ def create_toolkit_page(frame, open_source_toolkits):
 
     update_page()
 
-    return install_button, uninstall_button, installation_option_action, input_file, toolkits_combo, toolkits_info
+    return install_button, uninstall_button, installation_option_action, input_file, toolkits_combo
+
+
+def is_toolkit_installed(toolkit_name):
+    if toolkit_name == "Custom":
+        return False
+    script_file = os.path.normpath(os.path.join(package_dir, available_toolkits[toolkit_name]["toolkit_script"]))
+    return True if os.path.isfile(script_file) else False
 
 
 def open_window(window, window_name, open_source_toolkits):
@@ -116,20 +113,18 @@ def open_window(window, window_name, open_source_toolkits):
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
-        install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info = (
-            create_toolkit_page(window, open_source_toolkits)
+        install_button, uninstall_button, option_action, input_file, toolkits_combo = create_toolkit_page(
+            window, open_source_toolkits
         )
         root.minsize(500, 250)
-        return install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info
+        return install_button, uninstall_button, option_action, input_file, toolkits_combo
     else:
         window.deiconify()
 
 
-def __get_command_function(
-    is_install, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
-):
+def __get_command_function(is_install, option_action, input_file, toolkits_combo, install_button, uninstall_button):
     return lambda: button_is_clicked(
-        is_install, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+        is_install, option_action, input_file, toolkits_combo, install_button, uninstall_button
     )
 
 
@@ -141,29 +136,26 @@ def toolkit_window(toolkit_level="Project"):
         if toolkit_info["installation_path"].lower() == toolkit_level.lower():
             open_source_toolkits.append(toolkit_name)
     toolkit_window_var.minsize(250, 150)
-    install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info = open_window(
+    install_button, uninstall_button, option_action, input_file, toolkits_combo = open_window(
         toolkit_window_var, toolkit_level, open_source_toolkits
     )
 
     install_command = __get_command_function(
-        True, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+        True, option_action, input_file, toolkits_combo, install_button, uninstall_button
     )
     uninstall_command = __get_command_function(
-        False, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+        False, option_action, input_file, toolkits_combo, install_button, uninstall_button
     )
 
     install_button.configure(command=install_command)
     uninstall_button.configure(command=uninstall_command)
 
 
-def button_is_clicked(
-    install_action, option_action, input_file, combo_toolkits, toolkits_info, install_button, uninstall_button
-):
+def button_is_clicked(install_action, option_action, input_file, combo_toolkits, install_button, uninstall_button):
     """Install/Uninstall button action"""
     installation_option = option_action.get()
     file = input_file.get()
     toolkit_name = combo_toolkits.get()
-    toolkit_info = toolkits_info[toolkit_name]
 
     if toolkit_name != "Custom":
         desktop = Desktop(
@@ -175,7 +167,7 @@ def button_is_clicked(
             student_version=student_version,
         )
 
-        if toolkit_info.get("is_installed") and install_action:
+        if is_toolkit_installed(toolkit_name) and install_action:
             desktop.logger.info(f"Updating {toolkit_name}.")
             desktop.add_custom_toolkit(toolkit_name, file)
             install_button.config(text="Update")
@@ -187,9 +179,9 @@ def button_is_clicked(
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
             desktop.logger.info(f"{toolkit_name} installed.")
-        elif toolkit_info.get("is_installed") and not install_action:
+        elif is_toolkit_installed(toolkit_name) and not install_action:
             desktop.logger.info(f"Uninstalling {toolkit_name}")
-            desktop.delete_custom_toolkit(toolkit_name)
+            desktop.add_custom_toolkit(toolkit_name, install=False)
             install_button.config(text="Install")
             uninstall_button.config(state="disabled")
             desktop.logger.info(f"{toolkit_name} uninstalled")
