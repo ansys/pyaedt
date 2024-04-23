@@ -108,7 +108,7 @@ class TestClass:
     # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     # def test_01a_sbr_link_array(self, sbr_platform, array):
     #     assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
-    #     sbr_platform.analyze(cores=6)
+    #     sbr_platform.analyze(num_cores=6)
     #     ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
     #     ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
 
@@ -125,7 +125,7 @@ class TestClass:
 
     # def test_01b_sbr_create_vrt(self, sbr_app):
     #     sbr_app.rename_design("vtr")
-    #     sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
+    #     sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
     #     vrt = sbr_app.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
     #     assert vrt
     #     vrt.incident_phi = "30deg"
@@ -139,7 +139,7 @@ class TestClass:
 
     # def test_01c_sbr_create_vrt_creeping(self, sbr_app):
     #     sbr_app.rename_design("vtr_creeping")
-    #     sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
+    #     sbr_app.modeler.create_sphere([10, 10, 10], 5, matname="copper")
     #     vrt = sbr_app.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
     #     assert vrt
     #     vrt.incident_phi = "30deg"
@@ -176,7 +176,7 @@ class TestClass:
     #     setup.props["Frequency"] = "1GHz"
     #     exported_files = hfss_app.export_results()
     #     assert len(exported_files) == 0
-    #     hfss_app.analyze_setup(name="test", cores=6)
+    #     hfss_app.analyze_setup(name="test", num_cores=6)
     #     exported_files = hfss_app.export_results()
     #     assert len(exported_files) == 39
     #     exported_files = hfss_app.export_results(
@@ -200,7 +200,7 @@ class TestClass:
     #     self.icepak_app.create_source_block("box", "1W", False)
     #     setup = self.icepak_app.create_setup("SetupIPK")
     #     new_props = {"Convergence Criteria - Max Iterations": 3}
-    #     setup.update(properties=new_props)
+    #     setup.update(update_dictionary=new_props)
     #     airfaces = [i.id for i in self.icepak_app.modeler["Region"].faces]
     #     opening = self.icepak_app.assign_openings(airfaces)
     #     self.icepak_app["Variable1"] = "0.5"
@@ -214,7 +214,7 @@ class TestClass:
     #         monitor_quantity=["Temperature", "HeatFlowRate"],
     #         monitor_name="test_monitor2",
     #     )
-    #     self.icepak_app.analyze("SetupIPK", cores=6)
+    #     self.icepak_app.analyze("SetupIPK", num_cores=6)
     #     self.icepak_app.save_project()
     #     assert self.icepak_app.export_summary(
     #         self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
@@ -321,14 +321,14 @@ class TestClass:
 
     # @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     # def test_04b_3dl_analyze_setup(self):
-    #     assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6, blocking=False)
+    #     assert self.hfss3dl_solve.analyze_setup("Setup1", blocking=False, num_cores=6)
     #     assert self.hfss3dl_solve.are_there_simulations_running
     #     assert self.hfss3dl_solve.stop_simulations()
     #     while self.hfss3dl_solve.are_there_simulations_running:
     #         time.sleep(1)
 
     # def test_04c_3dl_analyze_setup(self):
-    #     assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6)
+    #     assert self.hfss3dl_solve.analyze_setup("Setup1", num_cores=6)
     #     self.hfss3dl_solve.save_project()
     #     assert os.path.exists(self.hfss3dl_solve.export_profile("Setup1"))
     #     assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
@@ -369,7 +369,7 @@ class TestClass:
 
     # def test_05a_circuit_add_3dlayout_component(self, circuit_app):
     #     setup = circuit_app.create_setup("test_06b_LNA")
-    #     setup.add_sweep_step(start=0, stop=5, step_size=0.01)
+    #     setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
     #     myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
     #     assert type(myedb.id) is int
     #     ports = myedb.pins
@@ -391,14 +391,14 @@ class TestClass:
     # def test_05c_circuit_push_excitation(self, circuit_app):
     #     setup_name = "test_07a_LNA"
     #     setup = circuit_app.create_setup(setup_name)
-    #     setup.add_sweep_step(start=0, stop=5, step_size=0.01)
-    #     assert circuit_app.push_excitations(instance="U1", thevenin_calculation=False, setup=setup_name)
-    #     assert circuit_app.push_excitations(instance="U1", thevenin_calculation=True, setup=setup_name)
+    #     setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+    #     assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
+    #     assert circuit_app.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
     # def test_05d_circuit_push_excitation_time(self, circuit_app):
     #     setup_name = "test_07b_Transient"
     #     setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
-    #     assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
+    #     assert circuit_app.push_time_excitations(instance_name="U1", setup_name=setup_name)
 
     @pytest.mark.skipif(is_linux and config["NonGraphical"], reason="Not Supported on Linux and non graphical mode.")
     def test_06_m3d_harmonic_forces(self, m3dtransient):
@@ -406,7 +406,7 @@ class TestClass:
                                                   use_number_of_last_cycles=True, last_cycles_number=3,
                                                   calculate_force="Harmonic")
         m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2)
+        m3dtransient.analyze(m3dtransient.active_setup, num_cores=2, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
                                                                 number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
@@ -432,6 +432,7 @@ class TestClass:
         new_setup.props = setup.props
         new_setup.update()
 
+    @pytest.mark.skipif(is_linux, reason="Circuit not working in Linux with AEDT 2024R1")
     def test_08_compute_erl(self, circuit_erl):
         touchstone_file = circuit_erl.export_touchstone()
         spisim = SpiSim(touchstone_file)
@@ -453,6 +454,7 @@ class TestClass:
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
 
+    @pytest.mark.skipif(is_linux, reason="Circuit not working in Linux with AEDT 2024R1")
     def test_09a_compute_com(self, local_scratch, circuit_com):
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
@@ -465,6 +467,7 @@ class TestClass:
         )
         assert com
 
+    @pytest.mark.skipif(is_linux, reason="SPISIM in Linux is missing some DLLs")
     def test_09b_compute_com(self, local_scratch):
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
         thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
@@ -504,6 +507,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
+    @pytest.mark.skipif(is_linux, reason="SPISIM in Linux is missing some DLLs")
     def test_09c_compute_com(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
