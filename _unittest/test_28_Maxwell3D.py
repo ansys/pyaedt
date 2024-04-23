@@ -198,6 +198,7 @@ class TestClass:
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
+    @pytest.mark.skipif(desktop_version == "2024.2", reason="GetDisplacementCurrent not working in 2024.2")
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
