@@ -4052,10 +4052,11 @@ class DesignSettings:
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
     def __repr__(self):
-        design_settings = {}
+        lines = ["{"]
         for prop in self.available_properties:
-            design_settings[prop] = self.design_settings.GetPropValue(prop)
-        return f"{design_settings}"
+            lines.append("\t{}: {}".format(prop, self.design_settings.GetPropValue(prop)))
+        lines.append("}")
+        return "\n".join(lines)
 
     def __setitem__(self, key, value):
         if key in self.available_properties:
