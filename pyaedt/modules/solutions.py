@@ -2961,6 +2961,8 @@ class FieldPlot:
                 self.plotsettings,
                 "EnableGaussianSmoothing:=",
                 False,
+                "SurfaceOnly:=",
+                True if self.surfaces or self.cutplanes else False,
             ]
         )
         return out

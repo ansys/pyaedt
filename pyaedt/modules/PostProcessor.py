@@ -3333,33 +3333,15 @@ class PostProcessor(PostProcessorCommon, object):
         new_layers = []
         for k, v in self._app.modeler.user_defined_components.items():
             if v.layout_component:
-                if not layers and not nets:
-                    new_layers.extend(
-                        [
-                            "{}:{}#t=fill".format(k, i)
-                            for i in v.layout_component.edb_object.stackup.signal_layers.keys()
-                        ]
-                    )
-                    new_layers.extend(
-                        ["{}:{}".format(k, i) for i in v.layout_component.edb_object.stackup.dielectric_layers.keys()]
-                    )
-                elif not nets:
-                    for layer in layers:
-                        if layer in v.layout_component.edb_object.stackup.signal_layers:
-                            new_layers.append("{}:{}#t=fill".format(k, layer))
-                        elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                            new_layers.append("{}:{}".format(k, layer))
-                elif not layers:
-                    for v in self._app.modeler.user_defined_components.values():
-                        new_layers.extend(
-                            [[i] + nets for i in v.layout_component.edb_object.stackup.signal_layers.keys()]
-                        )
-                else:
-                    for layer in layers:
-                        if layer in v.layout_component.edb_object.stackup.signal_layers:
-                            new_layers.append([layer] + nets)
-                        elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                            dielectrics.append("{}:{}".format(k, layer))
+                if not layers:
+                    layers = [i for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                if not nets:
+                    nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
+                for layer in layers:
+                    if layer in v.layout_component.edb_object.stackup.signal_layers:
+                        new_layers.append([layer] + nets)
+                    elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
+                        dielectrics.append("{}:{}".format(k, layer))
         return dielectrics, new_layers
 
     @pyaedt_function_handler()
@@ -3433,12 +3415,10 @@ class PostProcessor(PostProcessorCommon, object):
                 return self._create_fieldplot(lst_faces, quantity, setup, intrinsics, "FacesList", name)
         else:
             dielectrics, new_layers = self._get_3d_layers_nets(layers, nets)
-            if nets and plot_on_surface:
+            if plot_on_surface:
                 plot_type = "LayerNetsExtFace"
-            elif nets:
-                plot_type = "LayerNets"
             else:
-                plot_type = "ObjList"
+                plot_type = "LayerNets"
             if new_layers:
                 plt = self._create_fieldplot(
                     new_layers, quantity, setup, intrinsics, plot_type, name, create_plot=False
