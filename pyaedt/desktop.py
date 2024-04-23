@@ -1708,7 +1708,32 @@ class Desktop(object):
         # Set Python version based on AEDT version
         python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
 
-        base_venv = sys.executable
+        if is_windows:
+            base_venv = os.path.normpath(
+                os.path.join(
+                    self.install_path,
+                    "commonfiles",
+                    "CPython",
+                    python_version.replace(".", "_"),
+                    "winx64",
+                    "Release",
+                    "python",
+                    "python.exe",
+                )
+            )
+        else:
+            base_venv = os.path.normpath(
+                os.path.join(
+                    self.install_path,
+                    "commonfiles",
+                    "CPython",
+                    python_version.replace(".", "_"),
+                    "linx64",
+                    "Release",
+                    "python",
+                    "runpython",
+                )
+            )
 
         def run_command(command):
             if is_windows:
@@ -1716,12 +1741,14 @@ class Desktop(object):
             ret_code = os.system(command)
             return ret_code
 
+        version = self.odesktop.GetVersion()[2:6].replace(".", "")
+
         if is_windows:
-            venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(toolkit_name))
+            venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(version))
             python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
             pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         else:
-            venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(toolkit_name))
+            venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(version))
             python_exe = os.path.join(venv_dir, "bin", "python")
             pip_exe = os.path.join(venv_dir, "bin", "pip")
             edt_root = os.path.normpath(self.odesktop.GetExeDir())
@@ -1742,7 +1769,7 @@ class Desktop(object):
         if not os.path.exists(venv_dir):
             new_env = True
             run_command('"{}" -m venv "{}" --system-site-packages'.format(base_venv, venv_dir))
-            self.logger.info("Virtual environment for {} toolkit created.".format(toolkit_name))
+            self.logger.info("Virtual environment created.")
 
         if wheel_toolkit:
             wheel_toolkit = os.path.normpath(wheel_toolkit)

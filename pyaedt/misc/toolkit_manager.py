@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 import tkinter as tk
 from tkinter import ttk
@@ -6,90 +7,165 @@ from pyaedt import Desktop
 from pyaedt import is_windows
 from pyaedt.misc.install_extra_toolkits import available_toolkits
 
+env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
+if all(var in os.environ for var in env_vars):
+    version = os.environ["PYAEDT_SCRIPT_VERSION"]
+    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
+    student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
+else:
+    version = None
+    port = 0
+    student_version = False
 
-def create_library_buttons(frame, libraries):
-    buttons = []
+if is_windows:
+    venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(version))
+    python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
+    package_dir = os.path.join(venv_dir, "Lib", "site-packages")
 
-    # Create the option menu at the top
-    option_action = tk.StringVar(value="Install")
-    install_radio = tk.Radiobutton(frame, text="Install", variable=option_action, value="Install")
-    uninstall_radio = tk.Radiobutton(frame, text="Uninstall", variable=option_action, value="Uninstall")
-    install_radio.grid(row=0, column=0, padx=5, pady=5)
-    uninstall_radio.grid(row=0, column=2, padx=5, pady=5)
+else:
+    venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(button["text"]))
+    python_exe = os.path.join(venv_dir, "bin", "python")
+    package_dir = os.path.join(venv_dir, "Lib", "site-packages")
 
-    row = 1
-    for library in libraries:
-        if is_windows:
-            venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(library))
-            python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
 
-        else:
-            venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(library))
-            python_exe = os.path.join(venv_dir, "bin", "python")
+def create_toolkit_page(frame, open_source_toolkits):
+    """Create page to install toolkit"""
+    # Available toolkits
+    toolkits_info = OrderedDict({"Custom": {"is_installed": False}})
+    for open_source_toolkit in open_source_toolkits:
+        script_file = os.path.normpath(
+            os.path.join(package_dir, available_toolkits[open_source_toolkit]["toolkit_script"])
+        )
+        is_installed = True if os.path.isfile(script_file) else False
+        toolkits_info[open_source_toolkit] = {}
+        toolkits_info[open_source_toolkit]["is_installed"] = is_installed
 
-        # Set the initial button color
-        button_bg_color = "green" if os.path.isfile(python_exe) else "red"
+    max_length = max(len(item) for item in toolkits_info.keys())
 
-        button = tk.Button(frame, text=library, bg=button_bg_color, fg="white")
-        button.grid(row=row, column=1, padx=5, pady=5)
+    # Pip or Offline radio options
+    installation_option_action = tk.StringVar(value="Offline")
+    pip_installation_radio = tk.Radiobutton(frame, text="Pip", variable=installation_option_action, value="Pip")
+    offline_installation_radio = tk.Radiobutton(
+        frame, text="Offline", variable=installation_option_action, value="Offline"
+    )
+    pip_installation_radio.grid(row=1, column=0, padx=5, pady=5)
+    offline_installation_radio.grid(row=1, column=1, padx=5, pady=5)
 
-        buttons.append(button)
-        row += 1
+    # Combobox with available toolkit options
+    toolkits_combo_label = tk.Label(frame, text="Toolkit:", width=max_length)
+    toolkits_combo_label.grid(row=2, column=0, padx=5, pady=5)
+
+    toolkits_combo = ttk.Combobox(
+        frame, values=list(filter(lambda x: x != "", list(toolkits_info.keys()))), state="readonly", width=max_length
+    )
+    toolkits_combo.set("Custom")
+    toolkits_combo.grid(row=2, column=1, padx=5, pady=5)
 
     # Create entry box for directory path
-    entry_label = tk.Label(frame, text="Enter Wheelhouse:")
-    entry_label.grid(row=row, column=0, padx=5, pady=5)
-    directory_entry = tk.Entry(frame)
-    directory_entry.grid(row=row, column=1, padx=5, pady=5)
+    input_file_label = tk.Label(frame, text="Enter script path:")
+    input_file_label.grid(row=3, column=0, padx=5, pady=5)
+    input_file = tk.Entry(frame)
+    input_file.grid(row=3, column=1, padx=5, pady=5)
 
-    return buttons, option_action, directory_entry
+    toolkit_name_label = tk.Label(frame, text="Enter toolkit name:")
+    toolkit_name_label.grid(row=4, column=0, padx=5, pady=5)
+    toolkit_name = tk.Entry(frame)
+    toolkit_name.grid(row=4, column=1, padx=5, pady=5)
+
+    # Install button
+    install_button = tk.Button(frame, text="Install", bg="green", fg="white", padx=20, pady=5)
+    install_button.grid(row=5, column=0, padx=5, pady=5, sticky="nsew")
+    uninstall_button = tk.Button(frame, text="Uninstall", bg="red", fg="white", padx=20, pady=5)
+    uninstall_button.grid(row=5, column=1, padx=5, pady=5, sticky="nsew")
+
+    def update_page(event=None):
+        selected_toolkit = toolkits_combo.get()
+        is_installed = toolkits_info[selected_toolkit]["is_installed"]
+        if is_installed:
+            install_button.config(text="Update")
+            uninstall_button.config(state="normal")
+        else:
+            install_button.config(text="Install")
+            uninstall_button.config(state="disabled")
+
+        if installation_option_action.get() == "Pip" and selected_toolkit != "Custom":
+            toolkit_name.config(state="disabled")
+            input_file_label.config(text="Enter wheelhouse path:")
+            input_file.config(state="disabled")
+        elif (installation_option_action.get() == "Pip" and selected_toolkit == "Custom") or (
+            installation_option_action.get() == "Offline" and selected_toolkit == "Custom"
+        ):
+            toolkit_name.config(state="normal")
+            input_file_label.config(text="Enter script path:")
+            input_file.config(state="normal")
+            installation_option_action.set("Offline")
+        else:
+            toolkit_name.config(state="disabled")
+            input_file_label.config(text="Enter wheelhouse path:")
+            input_file.config(state="normal")
+
+    toolkits_combo.bind("<<ComboboxSelected>>", update_page)
+
+    update_page()
+
+    return install_button, uninstall_button, installation_option_action, input_file, toolkits_combo, toolkits_info
 
 
-def open_window(window, window_name, libraries):
+def open_window(window, window_name, open_source_toolkits):
+    """Open window action"""
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
-        buttons, option_action, directory_entry = create_library_buttons(window, libraries)
+        install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info = (
+            create_toolkit_page(window, open_source_toolkits)
+        )
         root.minsize(500, 250)
-        return buttons, option_action, directory_entry
+        return install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info
     else:
         window.deiconify()
 
 
+def __get_command_function(
+    is_install, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+):
+    return lambda: button_is_clicked(
+        is_install, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+    )
+
+
 def toolkit_window(toolkit_level="Project"):
+    """Main window"""
     toolkit_window_var = tk.Toplevel(root)
-    specific_toolkits = []
+    open_source_toolkits = []
     for toolkit_name, toolkit_info in available_toolkits.items():
         if toolkit_info["installation_path"].lower() == toolkit_level.lower():
-            specific_toolkits.append(toolkit_name)
-    toolkit_window_var.minsize(300, 200)
-    library_buttons, option_action, wheelhouse = open_window(toolkit_window_var, toolkit_level, specific_toolkits)
+            open_source_toolkits.append(toolkit_name)
+    toolkit_window_var.minsize(250, 150)
+    install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkits_info = open_window(
+        toolkit_window_var, toolkit_level, open_source_toolkits
+    )
 
-    for button in library_buttons:
-        # Attach event handlers or perform other actions
-        button.configure(command=lambda b=button, o=option_action, w=wheelhouse: on_button_click(b, o, w))
+    install_command = __get_command_function(
+        True, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+    )
+    uninstall_command = __get_command_function(
+        False, option_action, input_file, toolkits_combo, toolkits_info, install_button, uninstall_button
+    )
+
+    install_button.configure(command=install_command)
+    uninstall_button.configure(command=uninstall_command)
 
 
-def on_button_click(button, option_action, wheelhouse):
-    if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], "{}_env_ide".format(button["text"]))
-        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
+def button_is_clicked(
+    install_action, option_action, input_file, combo_toolkits, toolkits_info, install_button, uninstall_button
+):
+    """Install/Uninstall button action"""
+    installation_option = option_action.get()
+    file = input_file.get()
+    toolkit_name = combo_toolkits.get()
+    toolkit_info = toolkits_info[toolkit_name]
 
-    else:
-        venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(button["text"]))
-        python_exe = os.path.join(venv_dir, "bin", "python")
-
-    student_version = False
-    if (
-        "PYAEDT_SCRIPT_VERSION" in os.environ
-        and "PYAEDT_SCRIPT_PORT" in os.environ
-        and "PYAEDT_STUDENT_VERSION" in os.environ
-    ):
-
-        version = os.environ["PYAEDT_SCRIPT_VERSION"]
-        port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-        student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
-
+    if toolkit_name != "Custom":
         desktop = Desktop(
             specified_version=version,
             port=port,
@@ -98,36 +174,30 @@ def on_button_click(button, option_action, wheelhouse):
             close_on_exit=False,
             student_version=student_version,
         )
-    else:
-        desktop = Desktop(
-            new_desktop_session=True,
-            non_graphical=False,
-            close_on_exit=False,
-            student_version=student_version,
-        )
 
-    action = option_action.get()
-    wheelhouse_path = wheelhouse.get()
+        if toolkit_info.get("is_installed") and install_action:
+            desktop.logger.info(f"Updating {toolkit_name}.")
+            desktop.add_custom_toolkit(toolkit_name, file)
+            install_button.config(text="Update")
+            uninstall_button.config(state="normal")
+            desktop.logger.info(f"{toolkit_name} updated")
+        elif install_action:
+            desktop.logger.info(f"Installing {toolkit_name}.")
+            desktop.add_custom_toolkit(toolkit_name, file)
+            install_button.config(text="Update")
+            uninstall_button.config(state="normal")
+            desktop.logger.info(f"{toolkit_name} installed.")
+        elif toolkit_info.get("is_installed") and not install_action:
+            desktop.logger.info(f"Uninstalling {toolkit_name}")
+            desktop.delete_custom_toolkit(toolkit_name)
+            install_button.config(text="Install")
+            uninstall_button.config(state="disabled")
+            desktop.logger.info(f"{toolkit_name} uninstalled")
+        else:
+            desktop.logger.info(f"{toolkit_name} not installed.")
 
-    if os.path.isfile(python_exe) and action == "Install":
-        desktop.logger.info(f"Updating {button['text']} toolkit.")
-        desktop.add_custom_toolkit(button["text"], wheelhouse_path)
-    elif action == "Install":
-        desktop.logger.info(f"Installing {button['text']} toolkit.")
-        desktop.add_custom_toolkit(button["text"], wheelhouse_path)
-    elif os.path.isfile(python_exe) and action == "Uninstall":
-        desktop.logger.info(f"Uninstalling {button['text']} toolkit.")
-        desktop.delete_custom_toolkit(button["text"])
-    else:
-        desktop.logger.info(f"{button['text']} not installed.")
-
-    if os.path.isfile(python_exe):
-        button.configure(text=button["text"], bg="green", fg="white")
-    else:
-        button.configure(text=button["text"], bg="red", fg="white")
-
-    desktop.odesktop.RefreshToolkitUI()
-    desktop.release_desktop(False, False)
+        desktop.odesktop.RefreshToolkitUI()
+        desktop.release_desktop(False, False)
 
 
 root = tk.Tk()
