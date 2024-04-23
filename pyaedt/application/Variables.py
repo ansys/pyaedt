@@ -1061,7 +1061,7 @@ class VariableManager(object):
                     self._logger.clear_messages()
                     return
             except Exception:
-                self._logger.debug("Failed to delete delimiter {}.".format(variable_name))
+                self._logger.debug("Something went wrong when deleting '{}'.".format(variable_name))
         else:
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
