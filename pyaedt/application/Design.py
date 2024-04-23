@@ -4022,7 +4022,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def _manipulate_design_settings_inputs(self, k, v):
-        pass
+        return v
 
     @property
     def design_settings(self):
