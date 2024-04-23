@@ -1583,3 +1583,25 @@ class TestClass:
     def test_75_native_component_load(self, add_app):
         app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
         assert len(app.native_components) == 1
+
+    def test_76_design_settings(self):
+        d = self.aedtapp.design_settings
+        d["AmbTemp"] = 5
+        assert d["AmbTemp"] == "5cel"
+        d["AmbTemp"] = "5kel"
+        assert d["AmbTemp"] == "5kel"
+        d["AmbTemp"] = {"1": "2"}
+        assert d["AmbTemp"] == "5kel"
+        d["AmbGaugePressure"] = 5
+        assert d["AmbGaugePressure"] == "5n_per_meter_sq"
+        d["GravityVec"] = 1
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = 4
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Negative"
+        d["GravityVec"] = "+X"
+        assert d["GravityVec"] == "Global::X"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = "Global::Y"
+        assert d["GravityVec"] == "Global::Y"

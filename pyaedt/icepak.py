@@ -12,7 +12,6 @@ from pyaedt import is_linux
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
-import pyaedt.modules.Material
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 if is_linux and is_ironpython:
@@ -24,7 +23,6 @@ import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
@@ -176,14 +174,14 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
-        self._design_settins = IcepakDesignSettings(self)
+        # self._design_settins = IcepakDesignSettings(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @property
-    def design_settings(self):
-        return self._design_settins
+    # @property
+    # def design_settings(self):
+    #    return self._design_settins
 
     @property
     def problem_type(self):
@@ -6449,176 +6447,43 @@ class Icepak(FieldAnalysis3D):
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
-
-class IcepakDesignSettings:
-    def __init__(
-        self,
-        app,
-        gravity_dir=0,
-        ambient_temperature=20,
-        perform_validation=False,
-        check_level="None",
-        default_fluid="air",
-        default_solid="Al-Extruded",
-        export_monitor=False,
-        export_directory=os.getcwd(),
-        gauge_pressure=0,
-        radiation_temperature=20,
-        ignore_unclassified_objects=False,
-        skip_intersection_checks=False,
-    ):
-        self._app = app
-        self.gravity_direction = gravity_dir
-        self.ambient_temperature = ambient_temperature
-        self.perform_validation = perform_validation
-        self.check_level = check_level
-        self.default_fluid = default_fluid
-        self.default_solid = default_solid
-        self.export_monitor = export_monitor
-        self.export_directory = export_directory
-        self.gauge_pressure = gauge_pressure
-        self.radiation_temperature = radiation_temperature
-        self.ignore_unclassified_objects = ignore_unclassified_objects
-        self.skip_intersection_checks = skip_intersection_checks
-
-    @property
-    def gravity_direction(self):
-        return ["-", "+"][int(True)] + self._gravity_direction
-
-    @gravity_direction.setter
-    def gravity_direction(self, value):
-        if isinstance(value, int):
-            gravity_directions = ["X", "Y", "Z"]
-            if value > 2:
-                self._gravity_positive = True
-                self._gravity_direction = gravity_directions[value - 3]
+    @pyaedt_function_handler()
+    def _manipulate_design_settings_inputs(self, k, v):
+        if k in ["AmbTemp", "AmbRadTemp"]:
+            if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
+                self.logger.error("Failed. Use `edit_design_settings` function.")
+                return self.design_settings["AmbTemp"]
+                # Bug in native API. Uncomment when fixed
+                # if not self.solution_type == "Transient":
+                #     self.logger.error("Transient assignment is supported only in transient designs.")
+                #     return False
+                # ambtemp = getattr(self, "_parse_variation_data")(
+                #     "AmbientTemperature",
+                #     "Transient",
+                #     variation_value=v["Values"],
+                #     function=v["Function"],
+                # )
+                # if ambtemp is not None:
+                #     return ambtemp
+                # else:
+                #     self.logger.error("Transient dictionary is not valid.")
+                #     return False
             else:
-                self._gravity_positive = False
-                self._gravity_direction = gravity_directions[value]
-        elif isinstance(value, str):
-            gravity_direction = None
-            gravity_positive = None
-            if len(value) == 2:
-                if value[1].lower() in ["x", "y", "z"]:
-                    gravity_direction = value[1].upper()
-                if value[0] in ["-", "+"]:
-                    gravity_positive = value[0] == "+"
-            if gravity_direction is not None and gravity_positive is not None:
-                self._gravity_direction = gravity_direction
-                self._gravity_positive = gravity_positive
+                return self.value_with_units(v, "cel")
+        elif k == "AmbGaugePressure":
+            return self.value_with_units(v, "n_per_meter_sq")
+        elif k == "GravityVec":
+            if isinstance(v, (float, int)):
+                self.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
+                v = "Global::{}".format(["X", "Y", "Z"][v - v // 3 * 3])
+                return v
             else:
-                self._app.logger.error("Gravity value {} not valid.".format(value))
-
-    @property
-    def ambient_temperature(self):
-        return self._ambient_temperature
-
-    @ambient_temperature.setter
-    def ambient_temperature(self, value):
-        if isinstance(value, (dict, BoundaryDictionary)):
-            if not self._app.solution_type == "Transient":
-                self._app.logger.error("Transient assignment is supported only in transient designs.")
-            ambtemp = getattr(self._app, "_parse_variation_data")(
-                "AmbientTemperature",
-                "Transient",
-                variation_value=value["Values"],
-                function=value["Function"],
-            )
-            if ambtemp is not None:
-                self._ambient_temperature = ambtemp
-            else:
-                self._app.logger.error("Transient dictionary is not valid.")
+                if len(v.split("::")) == 1 and len(v) < 3:
+                    if v.startswith("+") or v.startswith("-"):
+                        self.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
+                        v = v[-1]
+                    return "Global::{}".format(v)
+                else:
+                    return v
         else:
-            self._ambient_temperature = (self._app.value_with_units(value, "cel"),)
-
-    @property
-    def default_fluid_material(self):
-        return self._default_fluid_material
-
-    @default_fluid_material.setter
-    def default_fluid_material(self, value):
-        if isinstance(value, pyaedt.modules.Material.Material):
-            value = value.name
-        if self._app.materials[value]:
-            self._default_fluid_material = value
-
-    @property
-    def default_solid_material(self):
-        return self._default_solid_material
-
-    @default_solid_material.setter
-    def default_solid_material(self, value):
-        if isinstance(value, pyaedt.modules.Material.Material):
-            value = value.name
-        if self._app.materials[value]:
-            self._default_solid_material = value
-
-    @property
-    def default_surface_material(self):
-        return self._default_surface_material
-
-    @default_surface_material.setter
-    def default_surface_material(self, value):
-        if isinstance(value, pyaedt.modules.Material.Material):
-            value = value.name
-        if self._app.materials[value]:
-            self._default_surface_material = value
-
-    @property
-    def gauge_pressure(self):
-        return self._gauge_pressure
-
-    @gauge_pressure.setter
-    def gauge_pressure(self, value):
-        self._gauge_pressure = (self._app.value_with_units(value, "n_per_meter_sq"),)
-
-    @property
-    def radiation_temperature(self):
-        return self._radiation_temperature
-
-    @radiation_temperature.setter
-    def radiation_temperature(self, value):
-        self._radiation_temperature = self._app.value_with_units(value, "cel")
-
-    @property
-    def check_level(self):
-        return self._check_value
-
-    @check_level.setter
-    def check_level(self, value):
-        available_vals = ["None", "Basic", "Strict", "WarningOnly"]
-        if value in available_vals:
-            self._check_value = value
-        else:
-            self._app.logger.error("{} option not valid. Valid options are {}.".format(value, available_vals))
-
-    def update(self):
-        a = _dict2arg(
-            {
-                "Design Settings Data": {
-                    "Perform Minimal validation": self.perform_validation,
-                    "Default Fluid Material": self.default_fluid_material,
-                    "Default Solid Material": self.default_solid_material,
-                    "Default Surface Material": self.default_surface_material,
-                    "AmbientTemperature": self.ambient_temperature,
-                    "AmbientPressure": self.gauge_pressure,
-                    "AmbientRadiationTemperature": self.radiation_temperature,
-                    "Gravity Vector CS ID": 1,  # TODO: how to get cs id?
-                    "Gravity Vector Axis": self._gravity_direction,
-                    "Positive": self._gravity_positive,
-                    "ExportOnSimulationComplete": self.export_monitor,
-                    "ExportDirectory": self.export_directory,
-                }
-            }
-        )
-        b = _dict2arg(
-            {
-                "Model Validation Settings": {
-                    "EntityCheckLevel": self.check_level,
-                    "IgnoreUnclassifiedObjects": self.ignore_unclassified_objects,
-                    "SkipIntersectionChecks": self.skip_intersection_checks,
-                }
-            }
-        )
-        self._app.odesign.SetDesignSettings(a, b)
-        return True
+            return v
