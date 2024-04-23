@@ -166,7 +166,7 @@ class CSVDataset:
     @pyaedt_function_handler()
     def __add__(self, other):
         if self.number_of_columns != other.number_of_columns:
-            raise ValueError("Inconsistent number of columns.")
+            raise ValueError("Number of columns is inconsistent.")
 
         # Create a new object to return, avoiding changing the original inputs
         new_dataset = CSVDataset()
@@ -203,7 +203,7 @@ class CSVDataset:
                 self._data[column] = []
 
         if self.number_of_columns != other.number_of_columns:
-            raise ValueError("Inconsistent number of columns.")
+            raise ValueError("Number of columns is inconsistent.")
 
         # Append the data from 'other'
         for column, row_data in other.data.items():
@@ -1952,7 +1952,7 @@ class Variable(object):
         if not isinstance(other, Variable):
             raise ValueError("You can only add a variable with another variable.")
         if self.unit_system != other.unit_system:
-            raise ValueError("Only ``Variable`` objects with the same unit system can be added.")
+            raise ValueError("Only Variable objects with the same unit system can be added.")
 
         result_value = self.value + other.value
         result_units = SI_UNITS[self.unit_system]
@@ -1995,7 +1995,7 @@ class Variable(object):
         if not isinstance(other, Variable):
             raise ValueError("You can only subtract a variable from another variable.")
         if self.unit_system != other.unit_system:
-            raise ValueError("Only ``Variable`` objects with the same unit system can be subtracted.")
+            raise ValueError("Only Variable objects with the same unit system can be subtracted.")
 
         result_value = self.value - other.value
         result_units = SI_UNITS[self.unit_system]
