@@ -14,7 +14,7 @@ You can edit a setup after it is created. Here is an example:
     # Any property of this setup can be found on this page.
     setup = app.create_setup(MaxIterations=5)
 
-
+Available turbulent models are: ``"ZeroEquation"``, ``"TwoEquation"``, ``"EnhancedTwoEquation"``, ``"RNG"``, ``"EnhancedRNG"``, ``"RealizableTwoEquation"``, ``"EnhancedRealizableTwoEquation"``, ``"SpalartAllmaras"``, ``"kOmegaSST"``.
 
 .. pprint:: pyaedt.modules.SetupTemplates.TransientFlowOnly
 .. pprint:: pyaedt.modules.SetupTemplates.TransientTemperatureOnly

@@ -1945,6 +1945,7 @@ class Setup3DLayout(CommonSetup):
                                     if pad_ind not in obj_dict:
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
+            net = net.replace(".", "_")
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
@@ -1954,14 +1955,13 @@ class Setup3DLayout(CommonSetup):
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler.objects[united_object].id
-                try:
+                if obj_ind:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
                     net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
-                except Exception:
-                    pass
+
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
         aedtapp.close_project(save_project=True)
