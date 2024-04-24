@@ -54,37 +54,19 @@ q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
 # ~~~~~~~~~~~~~~~~~
 # Create polylines for three busbars and a box for the substrate.
 
-b1 = q.modeler.create_polyline(
-    [[0, 0, 0], [-100, 0, 0]],
-    name="Bar1",
-    matname="copper",
-    xsection_type="Rectangle",
-    xsection_width="5mm",
-    xsection_height="1mm",
-)
+b1 = q.modeler.create_polyline([[0, 0, 0], [-100, 0, 0]], name="Bar1", material="copper", xsection_type="Rectangle",
+                               xsection_width="5mm", xsection_height="1mm")
 q.modeler["Bar1"].color = (255, 0, 0)
 
-q.modeler.create_polyline(
-    [[0, -15, 0], [-150, -15, 0]],
-    name="Bar2",
-    matname="aluminum",
-    xsection_type="Rectangle",
-    xsection_width="5mm",
-    xsection_height="1mm",
-)
+q.modeler.create_polyline([[0, -15, 0], [-150, -15, 0]], name="Bar2", material="aluminum", xsection_type="Rectangle",
+                          xsection_width="5mm", xsection_height="1mm")
 q.modeler["Bar2"].color = (0, 255, 0)
 
-q.modeler.create_polyline(
-    [[0, -30, 0], [-175, -30, 0], [-175, -10, 0]],
-    name="Bar3",
-    matname="copper",
-    xsection_type="Rectangle",
-    xsection_width="5mm",
-    xsection_height="1mm",
-)
+q.modeler.create_polyline([[0, -30, 0], [-175, -30, 0], [-175, -10, 0]], name="Bar3", material="copper",
+                          xsection_type="Rectangle", xsection_width="5mm", xsection_height="1mm")
 q.modeler["Bar3"].color = (0, 0, 255)
 
-q.modeler.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", matname="FR4_epoxy")
+q.modeler.create_box([50, 30, -0.5], [-250, -100, -3], name="substrate", material="FR4_epoxy")
 q.modeler["substrate"].color = (128, 128, 128)
 q.modeler["substrate"].transparency = 0.8
 
@@ -98,13 +80,13 @@ q.plot(show=False, export_path=os.path.join(q.working_directory, "Q3D.jpg"), plo
 
 q.auto_identify_nets()
 
-q.source("Bar1", axisdir=q.AxisDir.XPos, name="Source1")
-q.sink("Bar1", axisdir=q.AxisDir.XNeg, name="Sink1")
+q.source("Bar1", direction=q.AxisDir.XPos, name="Source1")
+q.sink("Bar1", direction=q.AxisDir.XNeg, name="Sink1")
 
-q.source("Bar2", axisdir=q.AxisDir.XPos, name="Source2")
-q.sink("Bar2", axisdir=q.AxisDir.XNeg, name="Sink2")
-q.source("Bar3", axisdir=q.AxisDir.XPos, name="Source3")
-bar3_sink = q.sink("Bar3", axisdir=q.AxisDir.YPos)
+q.source("Bar2", direction=q.AxisDir.XPos, name="Source2")
+q.sink("Bar2", direction=q.AxisDir.XNeg, name="Sink2")
+q.source("Bar3", direction=q.AxisDir.XPos, name="Source3")
+bar3_sink = q.sink("Bar3", direction=q.AxisDir.YPos)
 bar3_sink.name = "Sink3"
 
 ###############################################################################

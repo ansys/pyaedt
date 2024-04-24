@@ -84,7 +84,7 @@ setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
 
-hfss.analyze(num_cores=4)
+hfss.analyze(cores=4)
 
 ##########################################################
 # Get far field data

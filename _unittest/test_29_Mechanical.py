@@ -104,7 +104,7 @@ class TestClass:
     def test_10_assign_heat_generation(self):
         self.aedtapp.insert_design("Th2", "Thermal")
         self.aedtapp.modeler.create_box([40, 40, 2], [10, 10, 3], "box3", "copper")
-        hg1 = self.aedtapp.assign_heat_generation(["box3"], value="1W", boundary_name="heatgenBC")
+        hg1 = self.aedtapp.assign_heat_generation(["box3"], value="1W", name="heatgenBC")
         assert hg1.props["TotalPower"] == "1W"
 
     def test_11_add_mesh_link(self):

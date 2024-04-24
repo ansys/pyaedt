@@ -311,8 +311,7 @@ class Layer3D(object):
     >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
-    >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
-    >>> thickness=3, fill_material=None)
+    >>> my_layer = my_stackup.add_layer("my_layer")
     >>> gnd = my_stackup.add_ground_layer("gnd")
     >>> diel = my_stackup.add_dielectric_layer("diel1", thickness=1.5, material="Duroid (tm)")
     >>> top = my_stackup.add_signal_layer("top")
@@ -366,7 +365,7 @@ class Layer3D(object):
                 ["dielectric_x_position", "dielectric_y_position", layer_position],
                 ["dielectric_length", "dielectric_width", self._thickness_variable],
                 name=self._name,
-                matname=self.material_name,
+                material=self.material_name,
             )
         elif self._layer_type == "ground":
             if thickness:
@@ -374,7 +373,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self.material_name,
+                    material=self.material_name,
                 )
 
             else:
@@ -391,7 +390,7 @@ class Layer3D(object):
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width", self._thickness_variable],
                     name=self._name,
-                    matname=self._fill_material.name,
+                    material=self._fill_material.name,
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
@@ -598,7 +597,7 @@ class Layer3D(object):
             if duplicated_material.name == cloned_material_name:  # return that material.
                 return duplicated_material
         duplicated_material = self._app.materials.duplicate_material(
-            material_name, cloned_material_name, props=list_of_properties
+            material_name, cloned_material_name, properties=list_of_properties
         )
         #        duplicated_material = DuplicatedParametrizedMaterial(
         #            application, material_name, cloned_material_name, list_of_properties
@@ -1176,9 +1175,9 @@ class Padstack(object):
                             [position_x, position_y, v._layer_elevation.name],
                             v._pad_radius,
                             v._layer_thickness.name,
-                            matname=self._padstacks_material,
+                            num_sides=self._num_sides,
                             name=instance_name,
-                            numSides=self._num_sides,
+                            material=self._padstacks_material,
                         )
                     )
                     if self.plating_ratio < 1:
@@ -1187,9 +1186,9 @@ class Padstack(object):
                             [position_x, position_y, v._layer_elevation.name],
                             "{}*{}".format(self._app.modeler._arg_with_dim(v._pad_radius), 1 - self.plating_ratio),
                             v._layer_thickness.name,
-                            matname=self._padstacks_material,
+                            num_sides=self._num_sides,
                             name=instance_name,
-                            numSides=self._num_sides,
+                            material=self._padstacks_material,
                         )
                         cyls[-1].subtract(hole, False)
                 if v._antipad_radius > 0:
@@ -1198,9 +1197,9 @@ class Padstack(object):
                         [position_x, position_y, v._layer_elevation.name],
                         v._antipad_radius,
                         v._layer_thickness.name,
-                        matname="air",
+                        num_sides=self._num_sides,
                         name=instance_name + "_antipad",
-                        numSides=self._num_sides,
+                        material="air",
                     )
                     self._app.modeler.subtract(
                         self._stackup._signal_list + self._stackup._ground_list + self._stackup._dielectric_list,
@@ -1553,8 +1552,7 @@ class Stackup3D(object):
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
-        >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
-        >>> thickness=3, fill_material=None)
+        >>> my_layer = my_stackup.add_layer("my_layer")
 
         """
         self._shifted_index += 1
@@ -1995,7 +1993,7 @@ class Patch(CommonObject, object):
     >>> patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch")
     >>> stackup.resize_around_element(patch)
     >>> pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
-    >>> region = hfss.modeler.create_region(pad_length, is_percentage=False)
+    >>> region = hfss.modeler.create_region(pad_length,is_percentage=False)
     >>> hfss.assign_radiation_boundary_to_objects(region)
     >>> patch.create_probe_port(gnd, rel_x_offset=0.485)
 
@@ -2095,21 +2093,21 @@ class Patch(CommonObject, object):
             self._reference_system = patch_name + "_CS"
         if signal_layer.thickness:
             self._aedt_object = application.modeler.create_box(
-                position=start_point,
-                dimensions_list=[
+                origin=start_point,
+                sizes=[
                     "{}_length".format(patch_name),
                     "{}_width".format(patch_name),
                     signal_layer.thickness.name,
                 ],
                 name=patch_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(
-                position=start_point,
-                dimension_list=[self.length.name, self.width.name],
+                origin=start_point,
+                sizes=[self.length.name, self.width.name],
                 name=patch_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
             application.assign_coating(self._aedt_object.name, signal_layer.material)
         application.modeler.set_working_coordinate_system("Global")
@@ -2426,18 +2424,23 @@ class Patch(CommonObject, object):
         z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
         probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
         probe_wire = self.application.modeler.create_cylinder(
-            cs_axis="Z", position=probe_pos, radius=r, height=probe_height, name=name, matname="copper"
+            orientation="Z", origin=probe_pos, radius=r, height=probe_height, name=name, material="copper"
         )
         probe_feed_wire = self.application.modeler.create_cylinder(
-            cs_axis="Z", position=probe_pos, radius=r, height=-feed_length, name=name + "_feed_wire", matname="copper"
+            orientation="Z",
+            origin=probe_pos,
+            radius=r,
+            height=-feed_length,
+            name=name + "_feed_wire",
+            material="copper",
         )
         probe_feed_outer = self.application.modeler.create_cylinder(
-            cs_axis="Z",
-            position=probe_pos,
+            orientation="Z",
+            origin=probe_pos,
             radius=probe_or,
             height=-feed_length,
             name=name + "_feed_outer",
-            matname="vacuum",
+            material="vacuum",
         )
 
         # Probe extends through the ground plane.
@@ -2502,11 +2505,11 @@ class Patch(CommonObject, object):
             + reference_layer.elevation.name
         )
         rect = self.application.modeler.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, string_position_z],
-            dimension_list=[string_width, string_length],
+            orientation=constants.PLANE.YZ,
+            origin=[string_position_x, string_position_y, string_position_z],
+            sizes=[string_width, string_length],
             name=self.name + "_port",
-            matname=None,
+            material=None,
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:
@@ -2764,21 +2767,21 @@ class Trace(CommonObject, object):
             self._reference_system = line_name + "_CS"
         if signal_layer.thickness:
             self._aedt_object = application.modeler.create_box(
-                position=start_point,
-                dimensions_list=[
+                origin=start_point,
+                sizes=[
                     "{}_length".format(self._name),
                     self.width.name,
                     signal_layer.thickness.name,
                 ],
                 name=line_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         else:
             self._aedt_object = application.modeler.create_rectangle(
-                position=start_point,
-                dimension_list=["{}_length".format(self._name), self.width.name],
+                oring=start_point,
+                sizes=["{}_length".format(self._name), self.width.name],
                 name=line_name,
-                matname=signal_layer.material_name,
+                material=signal_layer.material_name,
             )
         application.modeler.set_working_coordinate_system("Global")
         application.modeler.subtract(blank_list=[signal_layer.name], tool_list=[line_name], keep_originals=True)
@@ -3242,11 +3245,11 @@ class Trace(CommonObject, object):
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
-            csPlane=constants.PLANE.YZ,
-            position=[string_position_x, string_position_y, string_position_z],
-            dimension_list=[string_width, string_length],
+            orientation=constants.PLANE.YZ,
+            origin=[string_position_x, string_position_y, string_position_z],
+            sizes=[string_width, string_length],
             name=self.name + "_port",
-            matname=None,
+            material=None,
         )
         if self.application.solution_type == "Modal":
             if axisdir is None:
@@ -3342,7 +3345,7 @@ class Polygon(CommonObject, object):
 
             self._reference_system = poly_name + "_CS"
         self._aedt_object = application.modeler.create_polyline(
-            position_list=pts, name=poly_name, matname=mat_name, cover_surface=True
+            points=pts, cover_surface=True, name=poly_name, material=mat_name
         )
         if self._thickness:
             application.modeler.sweep_along_vector(

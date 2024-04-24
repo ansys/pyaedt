@@ -106,8 +106,8 @@ mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 # Create rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
-rect = mod2D.create_rectangle(position=['r_x0', 'r_y0', 'r_z0'],
-                              dimension_list=['r_dx', 'r_dy', 0],
+rect = mod2D.create_rectangle(origin=['r_x0', 'r_y0', 'r_z0'],
+                              sizes=['r_dx', 'r_dy', 0],
                               name='Ground', matname=mats[0])
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
@@ -119,8 +119,8 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0],[8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod2D.create_polyline(position_list=poly1_points,segment_type='Spline', name='Poly1')
-poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
+poly1_id = mod2D.create_polyline(points=poly1_points, segment_type='Spline', name='Poly1')
+poly2_id = mod2D.create_polyline(points=poly2_points, name='Poly2')
 mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
 mod2D.create_region([20, 100, 20, 100])
 
@@ -197,13 +197,6 @@ plot.update()
 # For field lint traces plot, the export file format is ``.fldplt``.
 
 M2D.post.export_field_plot(plot_name="LineTracesTest", output_dir=M2D.toolkit_directory, file_format="fldplt")
-
-##########################################################
-# Export a field plot to an image file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Export the flux lines plot to an image file using PyVista Python package.
-
-M2D.post.plot_field_from_fieldplot(plot.name, show=False)
 
 ##########################################################
 # Export the mesh field plot

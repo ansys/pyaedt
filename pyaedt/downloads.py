@@ -734,8 +734,8 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     return os.path.join(destination, "twin_builder")
 
 
-@pyaedt_function_handler(filename="name")
-def download_file(directory, name=None, destination=None):
+@pyaedt_function_handler(filename="name", directory="source")
+def download_file(source, name=None, destination=None):
     """
     Download a file or files from the online examples repository.
 
@@ -746,9 +746,10 @@ def download_file(directory, name=None, destination=None):
 
     Parameters
     ----------
-    directory : str
-        Directory name in the Ansys ``example-data`` repository. If the ``pyaed/`` prefix
-        is not part of ``directory`` it will be prepended.
+    source : str
+        Directory name in the Ansys ``example-data`` repository from which the example
+        data is to be retrieved. If the ``pyaedt/`` prefix
+        is not part of ``directory`` the path will be automatically prepended.
     name : str, optional
         File name to download. By default all files in ``directory``
         will be downloaded.
@@ -770,13 +771,13 @@ def download_file(directory, name=None, destination=None):
     'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
     """
     local_paths = []
-    _download_file(directory, name, destination, local_paths)
+    _download_file(source, name, destination, local_paths)
     if name:
         return list(set(local_paths))[0]
     else:
         if not destination:
             destination = EXAMPLES_PATH
-        destination_dir = os.path.join(destination, directory)
+        destination_dir = os.path.join(destination, source)
         return destination_dir
 
 

@@ -91,6 +91,10 @@ class TestClass:
         assert len(self.aedtapp.setups[0].sweeps[1].basis_frequencies) == 2
         mesh_file_path = self.aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
+        mesh_file_path2 = self.aedtapp.post.export_mesh_obj(
+            setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+        )
+        assert os.path.exists(mesh_file_path2)
 
         min_value = self.aedtapp.post.get_scalar_field_value(
             "E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True
@@ -143,9 +147,7 @@ class TestClass:
             os.path.join(self.local_scratch.path, "prova2.jpg"), plot2.name, plot2.plot_folder
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "prova2.jpg"))
-        assert os.path.exists(
-            plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg"), orientation="top")
-        )
+        assert os.path.exists(plot2.export_image(os.path.join(self.local_scratch.path, "test_x.jpg")))
 
     def test_03_create_scattering(self):
         setup_name = "Setup1 : Sweep"

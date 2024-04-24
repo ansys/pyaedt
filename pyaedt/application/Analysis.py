@@ -1556,13 +1556,13 @@ class Analysis(Design, object):
                     dict[entry][prop_name] = mat_props._props[prop_name]
         return dict
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="name", num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        setup_name=None,
-        num_cores=4,
-        num_tasks=1,
-        num_gpu=1,
+        name=None,
+        cores=4,
+        tasks=1,
+        gpus=1,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -1575,15 +1575,16 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        setup_name : str, optional
-            Setup to analyze. Default is ``None`` which solves all the setups.
-        num_cores : int, optional
+        name : str, optional
+            Setup to analyze. The default is ``None``, in which case all
+            setups are solved.
+        cores : int, optional
             Number of simulation cores. Default is ``4`` which is the number of cores available in license.
-        num_tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
-            In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
-        num_gpu : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+        tasks : int, optional
+            Number of simulation tasks. The default is ``1``.
+            In bach solve, set ``tasks`` to ``-1`` to apply auto settings and distributed mode.
+        gpus : int, optional
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1618,29 +1619,29 @@ class Analysis(Design, object):
                 filename=None,
                 machine=machine,
                 run_in_thread=run_in_thread,
-                num_cores=num_cores,
-                num_tasks=num_tasks,
+                cores=cores,
+                tasks=tasks,
                 revert_to_initial_mesh=revert_to_initial_mesh,
             )
         else:
             return self.analyze_setup(
-                setup_name,
-                num_cores,
-                num_tasks,
-                num_gpu,
+                name,
+                cores,
+                tasks,
+                gpus,
                 acf_file,
                 use_auto_settings,
                 revert_to_initial_mesh=revert_to_initial_mesh,
                 blocking=blocking,
             )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze_setup(
         self,
         name=None,
-        num_cores=4,
-        num_tasks=1,
-        num_gpu=0,
+        cores=4,
+        tasks=1,
+        gpus=0,
         acf_file=None,
         use_auto_settings=True,
         num_variations_to_distribute=None,
@@ -1654,15 +1655,15 @@ class Analysis(Design, object):
         ----------
         name : str, optional
             Name of the setup, which can be an optimetric setup or a simple setup.
-            If ``None`` all setups will be solved.
-        num_cores : int, optional
-            Number of simulation cores.  Default is ``1``.
-        num_tasks : int, optional
-            Number of simulation tasks.  Default is ``1``.
-        num_gpu : int, optional
-            Number of simulation graphics processing units.  Default is ``0``.
+            The default is ``None``, in which case all setups are solved.
+        cores : int, optional
+            Number of simulation cores.  The default is ``1``.
+        tasks : int, optional
+            Number of simulation tasks.  The default is ``1``.
+        gpus : int, optional
+            Number of simulation graphics processing units.  The default is ``0``.
         acf_file : str, optional
-            Full path to custom ACF file. The default is ``None.``
+            Full path to the custom ACF file. The default is ``None``.
         use_auto_settings : bool, optional
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
         num_variations_to_distribute : int, optional
@@ -1702,7 +1703,7 @@ class Analysis(Design, object):
                 success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
                 if success:
                     set_custom_dso = True
-        elif num_gpu or num_tasks or num_cores:
+        elif gpus or tasks or cores:
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
             if settings.remote_rpc_session:
@@ -1729,14 +1730,14 @@ class Analysis(Design, object):
                 self.logger.error("Error occurred while copying file.")
                 skip_files = True
             if not skip_files:
-                if num_cores:
-                    succeeded = update_hpc_option(target_name, "NumCores", num_cores, False)
+                if cores:
+                    succeeded = update_hpc_option(target_name, "NumCores", cores, False)
                     skip_files = True if not succeeded else skip_files
-                if num_gpu:
-                    succeeded = update_hpc_option(target_name, "NumGPUs", num_gpu, False)
+                if gpus:
+                    succeeded = update_hpc_option(target_name, "NumGPUs", gpus, False)
                     skip_files = True if not succeeded else skip_files
-                if num_tasks:
-                    succeeded = update_hpc_option(target_name, "NumEngines", num_tasks, False)
+                if tasks:
+                    succeeded = update_hpc_option(target_name, "NumEngines", tasks, False)
                     skip_files = True if not succeeded else skip_files
                 succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
                 skip_files = True if not succeeded else skip_files
@@ -1862,15 +1863,15 @@ class Analysis(Design, object):
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(numcores="cores", num_tasks="tasks", setup_name="setup")
     def solve_in_batch(
         self,
         filename=None,
         machine="localhost",
         run_in_thread=False,
-        num_cores=4,
-        num_tasks=1,
-        setup_name=None,
+        cores=4,
+        tasks=1,
+        setup=None,
         revert_to_initial_mesh=False,
     ):  # pragma: no cover
         """Analyze a design setup in batch mode.
@@ -1888,14 +1889,16 @@ class Analysis(Design, object):
         run_in_thread : bool, optional
             Whether to submit the batch command as a thread. The default is
             ``False``.
-        num_cores : int, optional
-            Number of cores to use in simulation.
-        num_tasks : int, optional
-            Number of tasks to use in simulation. Set num_tasks to ``-1`` to apply auto settings and distributed mode.
-        setup_name : str
-            Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
+        cores : int, optional
+            Number of cores to use in the simulation.
+        tasks : int, optional
+            Number of tasks to use in the simulation.
+            Set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
+        setup : str
+            Name of the setup, which can be an optimetric setup or a simple setup.
+            The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
-            Whether to revert to initial mesh before solving or not. Default is ``False``.
+            Whether to revert to the initial mesh before solving. The default is ``False``.
 
         Returns
         -------
@@ -1927,17 +1930,15 @@ class Analysis(Design, object):
             "-ng",
             "-BatchSolve",
             "-machinelist",
-            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+            "list={}:{}:{}:90%:1".format(machine, tasks, cores),
             "-Monitor",
         ]
-        if is_linux and settings.use_lsf_scheduler and num_tasks == -1:
+        if is_linux and settings.use_lsf_scheduler and tasks == -1:
             options.append("-distributed")
             options.append("-auto")
-        if setup_name and design_name:
+        if setup and design_name:
             options.append(
-                "{}:{}:{}".format(
-                    design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
-                )
+                "{}:{}:{}".format(design_name, "Nominal" if setup in self.setup_names else "Optimetrics", setup)
             )
         if is_linux and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
@@ -1946,9 +1947,9 @@ class Analysis(Design, object):
                 batch_run = [
                     "bsub",
                     "-n",
-                    str(num_cores),
+                    str(cores),
                     "-R",
-                    "span[ptile={}]".format(num_cores),
+                    "span[ptile={}]".format(cores),
                     "-R",
                     "rusage[mem={}]".format(settings.lsf_ram),
                     "-queue {}".format(settings.lsf_queue),
@@ -1958,9 +1959,9 @@ class Analysis(Design, object):
                 batch_run = [
                     "bsub",
                     "-n",
-                    str(num_cores),
+                    str(cores),
                     "-R",
-                    "span[ptile={}]".format(num_cores),
+                    "span[ptile={}]".format(cores),
                     "-R",
                     "rusage[mem={}]".format(settings.lsf_ram),
                     settings.lsf_aedt_command,

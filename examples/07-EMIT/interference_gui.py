@@ -144,7 +144,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.protection_results_btn.setEnabled(False)
         self.protection_export_btn.setEnabled(False)
         self.protection_save_img_btn.setEnabled(False)
-        self.file_select_btn.clicked.connect(self.open_file_dialog) 
+        self.file_select_btn.clicked.connect(self.open_file_dialog)
         self.protection_export_btn.clicked.connect(self.save_results_excel)
         self.protection_results_btn.clicked.connect(self.protection_results)
         self.protection_legend_table.resizeRowsToContents()

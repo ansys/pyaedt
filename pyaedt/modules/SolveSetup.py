@@ -70,12 +70,12 @@ class CommonSetup(PropsManager, object):
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        num_cores=1,
-        num_tasks=1,
-        num_gpu=0,
+        cores=1,
+        tasks=1,
+        gpus=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -88,12 +88,12 @@ class CommonSetup(PropsManager, object):
 
         Parameters
         ----------
-        num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
-        num_tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
-        num_gpu : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+        cores : int, optional
+            Number of simulation cores. The default is ``1``.
+        tasks : int, optional
+            Number of simulation tasks. The default is ``1``.
+        gpus : int, optional
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -124,10 +124,10 @@ class CommonSetup(PropsManager, object):
         >>> oDesign.Analyze
         """
         self._app.analyze(
-            setup_name=self.name,
-            num_cores=num_cores,
-            num_tasks=num_tasks,
-            num_gpu=num_gpu,
+            name=self.name,
+            cores=cores,
+            tasks=tasks,
+            gpus=gpus,
             acf_file=acf_file,
             use_auto_settings=use_auto_settings,
             solve_in_batch=solve_in_batch,
@@ -474,13 +474,13 @@ class Setup(CommonSetup):
         self.omodule.InsertSetup(soltype, arg)
         return arg
 
-    @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    @pyaedt_function_handler(update_dictionary="properties")
+    def update(self, properties=None):
         """Update the setup based on either the class argument or a dictionary.
 
         Parameters
         ----------
-        update_dictionary : optional
+        properties : optional
             Dictionary to use to update the setup. The default is ``None``.
 
         Returns
@@ -495,9 +495,9 @@ class Setup(CommonSetup):
         """
         legacy_update = self.auto_update
         self.auto_update = False
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props[el] = update_dictionary[el]
+        if properties:
+            for el in properties:
+                self.props[el] = properties[el]
         self.auto_update = legacy_update
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
@@ -1096,13 +1096,13 @@ class SetupCircuit(CommonSetup):
                 raise NotImplementedError("Solution type '{}' is not implemented yet".format(soltype))
         return True
 
-    @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    @pyaedt_function_handler(update_dictionary="properties")
+    def update(self, properties=None):
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
         ----------
-        update_dictionary : dict, optional
+        properties : dict, optional
             Dictionary of settings to apply. The default is ``None``.
 
         Returns
@@ -1122,9 +1122,9 @@ class SetupCircuit(CommonSetup):
         """
         legacy_update = self.auto_update
         self.auto_update = False
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props[el] = update_dictionary[el]
+        if properties:
+            for el in properties:
+                self.props[el] = properties[el]
         arg = ["NAME:SimSetup"]
         soltype = SetupKeys.SetupNames[self.setuptype]
         _dict2arg(self.props, arg)
@@ -1176,12 +1176,12 @@ class SetupCircuit(CommonSetup):
         lin_data = " ".join(sweeps)
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(start_point="start", end_point="stop")
     def add_sweep_count(
         self,
         sweep_variable="Freq",
-        start_point=1,
-        end_point=100,
+        start=1,
+        stop=100,
         count=100,
         units="GHz",
         count_type="Linear",
@@ -1192,11 +1192,13 @@ class SetupCircuit(CommonSetup):
         Parameters
         ----------
         sweep_variable : str, optional
-            Variable to which the sweep belongs. Default is ``"Freq``.
-        start_point : float or str, optional
-            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
-        end_point : float or str, optional
-            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+            Variable that the sweep belongs to. The default is ``"Freq``.
+        start : float or str, optional
+            Start point of the linear count sweep. The default is ``1``.
+            If a string ``str`` is specified, no units are applied.
+        stop : float or str, optional
+            End point of the linear count sweep. The default is ``100``.
+            If a string is specified, no units are applied.
         count :  int, optional
             Number of points. Default is ``100``.
         units : str, optional
@@ -1221,24 +1223,24 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
         """
-        if isinstance(start_point, (int, float)):
-            start_point = str(start_point) + units
-        if isinstance(end_point, (int, float)):
-            end_point = str(end_point) + units
+        if isinstance(start, (int, float)):
+            start = str(start) + units
+        if isinstance(stop, (int, float)):
+            stop = str(stop) + units
         lin_in = "LINC"
         if count_type.lower() == "decade":
             lin_in = "DEC"
         elif count_type.lower() == "octave":
             lin_in = "OCT"
-        lin_data = "{} {} {} {}".format(lin_in, start_point, end_point, count)
+        lin_data = "{} {} {} {}".format(lin_in, start, stop, count)
         return self._add_sweep(sweep_variable, lin_data, override_existing_sweep)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(start_point="start", end_point="stop")
     def add_sweep_step(
         self,
         sweep_variable="Freq",
-        start_point=1,
-        end_point=100,
+        start=1,
+        stop=100,
         step_size=1,
         units="GHz",
         override_existing_sweep=True,
@@ -1249,14 +1251,17 @@ class SetupCircuit(CommonSetup):
         ----------
         sweep_variable : str, optional
             Variable to which the sweep belongs. Default is ``"Freq``.
-        start_point : float or str, optional
-            Start Point of Linear Count sweep. If ``str`` then no units will be applied.
-        end_point : float or str, optional
-            End Point of Linear Count sweep. If ``str`` then no units will be applied.
+        start : float or str, optional
+            Start point of the linear count sweep. The default is ``1``.
+            If a string ``str`` is specified, no units are applied.
+        stop : float or str, optional
+            End point of the linear count sweep. The default is ``100``.
+            If a string is specified, no units are applied.
         step_size :  float or str, optional
-            Step Size of sweep. If ``str`` then no units will be applied.
+            Step size of the sweep. The default is ``1``.
+            If a string is specified, no units are applied.
         units : str, optional
-            Sweeps Units. It will be ignored if strings are provided as start_point or end_point
+            Sweeps Units. It will be ignored if strings are provided as start_point or end_point.
         override_existing_sweep : bool, optional
             Define if existing sweep on the same variable has to be overridden or kept and added to this new sweep.
 
@@ -1275,13 +1280,13 @@ class SetupCircuit(CommonSetup):
         >>> oModule.EditVerifEyeAnalysis
         >>> oModule.EditAMIAnalysis
         """
-        if isinstance(start_point, (int, float)):
-            start_point = str(start_point) + units
-        if isinstance(end_point, (int, float)):
-            end_point = str(end_point) + units
+        if isinstance(start, (int, float)):
+            start = str(start) + units
+        if isinstance(stop, (int, float)):
+            stop = str(stop) + units
         if isinstance(step_size, (int, float)):
             step_size = str(step_size) + units
-        linc_data = "LIN {} {} {}".format(start_point, end_point, step_size)
+        linc_data = "LIN {} {} {}".format(start, stop, step_size)
         return self._add_sweep(sweep_variable, linc_data, override_existing_sweep)
 
     @pyaedt_function_handler()
@@ -1778,13 +1783,13 @@ class Setup3DLayout(CommonSetup):
         self.omodule.Add(arg)
         return True
 
-    @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    @pyaedt_function_handler(update_dictionary="properties")
+    def update(self, properties=None):
         """Update the setup based on the class arguments or a dictionary.
 
         Parameters
         ----------
-        update_dictionary : dict, optional
+        properties : dict, optional
             Dictionary of settings to apply.
 
         Returns
@@ -1797,9 +1802,9 @@ class Setup3DLayout(CommonSetup):
 
         >>> oModule.Edit
         """
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props._setitem_without_update(el, update_dictionary[el])
+        if properties:
+            for el in properties:
+                self.props._setitem_without_update(el, properties[el])
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
         self.omodule.Edit(self.name, arg)
@@ -1851,15 +1856,15 @@ class Setup3DLayout(CommonSetup):
         self.update()
         return True
 
-    @pyaedt_function_handler()
-    def export_to_hfss(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3D Layout design to HFSS 3D design.
+    @pyaedt_function_handler(file_fullname="output_file")
+    def export_to_hfss(self, output_file, keep_net_name=False):
+        """Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
 
         Parameters
         ----------
-        file_fullname : str
+        output_file : str
             Full path and file name for exporting the project.
 
         keep_net_name : bool
@@ -1876,19 +1881,19 @@ class Setup3DLayout(CommonSetup):
         >>> oModule.ExportToHfss
         """
 
-        file_fullname = file_fullname
-        if not os.path.isdir(os.path.dirname(file_fullname)):
+        output_file = output_file
+        if not os.path.isdir(os.path.dirname(output_file)):
             return False
-        file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
+        output_file = os.path.splitext(output_file)[0] + ".aedt"
         info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
         error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
-        self.omodule.ExportToHfss(self.name, file_fullname)
-        succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
+        self.omodule.ExportToHfss(self.name, output_file)
+        succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             if not is_ironpython:
                 from pyaedt import Hfss
 
-                self._get_net_names(Hfss, file_fullname)
+                self._get_net_names(Hfss, output_file)
             else:
                 self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
@@ -1940,6 +1945,7 @@ class Setup3DLayout(CommonSetup):
                                     if pad_ind not in obj_dict:
                                         obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
             obj_list = list(obj_dict.values())
+            net = net.replace(".", "_")
             if len(obj_list) == 1:
                 net = net.replace("-", "m")
                 net = net.replace("+", "p")
@@ -1949,14 +1955,13 @@ class Setup3DLayout(CommonSetup):
             elif len(obj_list) > 1:
                 united_object = aedtapp.modeler.unite(obj_list, purge=True)
                 obj_ind = aedtapp.modeler.objects[united_object].id
-                try:
+                if obj_ind:
                     net = net.replace("-", "m")
                     net = net.replace("+", "p")
                     net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
-                except Exception:
-                    pass
+
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
         aedtapp.close_project(save_project=True)
@@ -2079,14 +2084,16 @@ class Setup3DLayout(CommonSetup):
             time.sleep(2)
         return succeeded
 
-    @pyaedt_function_handler()
-    def export_to_q3d(self, file_fullname, keep_net_name=False):
-        """Export the HFSS 3DLayout design to Q3D design.
+    @pyaedt_function_handler(file_fullname="output_file")
+    def export_to_q3d(self, output_file, keep_net_name=False):
+        """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
         ----------
-        file_fullname : str
+        output_file : str
             Full path and file name for exporting the project.
+        keep_net_name : bool
+            Whether to keep the net name in the 3D export, The default is ``False``.
 
         Returns
         -------
@@ -2101,22 +2108,22 @@ class Setup3DLayout(CommonSetup):
         >>> oModule.ExportToQ3d
         """
 
-        if not os.path.isdir(os.path.dirname(file_fullname)):
+        if not os.path.isdir(os.path.dirname(output_file)):
             return False
-        file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
-        if os.path.exists(file_fullname):
-            os.unlink(file_fullname)
+        output_file = os.path.splitext(output_file)[0] + ".aedt"
+        if os.path.exists(output_file):
+            os.unlink(output_file)
         info_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 0))
         error_messages = list(self.p_app.odesktop.GetMessages(self.p_app.project_name, self.p_app.design_name, 2))
-        self.omodule.ExportToQ3d(self.name, file_fullname)
-        succeeded = self._check_export_log(info_messages, error_messages, file_fullname)
+        self.omodule.ExportToQ3d(self.name, output_file)
+        succeeded = self._check_export_log(info_messages, error_messages, output_file)
         if succeeded and keep_net_name:
             if not is_ironpython:
                 from pyaedt import Q3d
 
-                self._get_net_names(Q3d, file_fullname)
+                self._get_net_names(Q3d, output_file)
             else:
-                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
+                self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
         return succeeded
 
     @pyaedt_function_handler(sweepname="name", sweeptype="sweep_type")
@@ -3710,12 +3717,12 @@ class SetupQ3D(Setup, object):
             self.props["DC"]["SolveResOnly"] = value
 
     @pyaedt_function_handler()
-    def update(self, update_dictionary=None):
+    def update(self, properties=None):
         """Update the setup based on either the class argument or a dictionary.
 
         Parameters
         ----------
-        update_dictionary : optional
+        properties : optional
             Dictionary to use to update the setup. The default is ``None``.
 
         Returns
@@ -3730,9 +3737,9 @@ class SetupQ3D(Setup, object):
         """
         legacy_update = self.auto_update
         self.auto_update = False
-        if update_dictionary:
-            for el in update_dictionary:
-                self.props[el] = update_dictionary[el]
+        if properties:
+            for el in properties:
+                self.props[el] = properties[el]
         self.auto_update = legacy_update
         arg = ["NAME:" + self.name]
         props1 = {i: v for i, v in self.props.items()}

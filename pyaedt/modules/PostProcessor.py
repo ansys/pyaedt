@@ -3333,33 +3333,15 @@ class PostProcessor(PostProcessorCommon, object):
         new_layers = []
         for k, v in self._app.modeler.user_defined_components.items():
             if v.layout_component:
-                if not layers and not nets:
-                    new_layers.extend(
-                        [
-                            "{}:{}#t=fill".format(k, i)
-                            for i in v.layout_component.edb_object.stackup.signal_layers.keys()
-                        ]
-                    )
-                    new_layers.extend(
-                        ["{}:{}".format(k, i) for i in v.layout_component.edb_object.stackup.dielectric_layers.keys()]
-                    )
-                elif not nets:
-                    for layer in layers:
-                        if layer in v.layout_component.edb_object.stackup.signal_layers:
-                            new_layers.append("{}:{}#t=fill".format(k, layer))
-                        elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                            new_layers.append("{}:{}".format(k, layer))
-                elif not layers:
-                    for v in self._app.modeler.user_defined_components.values():
-                        new_layers.extend(
-                            [[i] + nets for i in v.layout_component.edb_object.stackup.signal_layers.keys()]
-                        )
-                else:
-                    for layer in layers:
-                        if layer in v.layout_component.edb_object.stackup.signal_layers:
-                            new_layers.append([layer] + nets)
-                        elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
-                            dielectrics.append("{}:{}".format(k, layer))
+                if not layers:
+                    layers = [i for i in v.layout_component.edb_object.stackup.stackup_layers.keys()]
+                if not nets:
+                    nets = [""] + [i for i in v.layout_component.edb_object.nets.nets.keys()]
+                for layer in layers:
+                    if layer in v.layout_component.edb_object.stackup.signal_layers:
+                        new_layers.append([layer] + nets)
+                    elif layer in v.layout_component.edb_object.stackup.dielectric_layers:
+                        dielectrics.append("{}:{}".format(k, layer))
         return dielectrics, new_layers
 
     @pyaedt_function_handler()
@@ -3433,12 +3415,10 @@ class PostProcessor(PostProcessorCommon, object):
                 return self._create_fieldplot(lst_faces, quantity, setup, intrinsics, "FacesList", name)
         else:
             dielectrics, new_layers = self._get_3d_layers_nets(layers, nets)
-            if nets and plot_on_surface:
+            if plot_on_surface:
                 plot_type = "LayerNetsExtFace"
-            elif nets:
-                plot_type = "LayerNets"
             else:
-                plot_type = "ObjList"
+                plot_type = "LayerNets"
             if new_layers:
                 plt = self._create_fieldplot(
                     new_layers, quantity, setup, intrinsics, plot_type, name, create_plot=False
@@ -4055,7 +4035,7 @@ class PostProcessor(PostProcessorCommon, object):
             return [[fname, "aquamarine", 0.3]]
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_obj(self, setup=None, intrinsics=None):
+    def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
         """Export the mesh in AEDTPLT format.
         The mesh has to be available in the selected setup.
         If a parametric model is provided, you can choose the mesh to export by providing a specific set of variations.
@@ -4074,6 +4054,11 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic dictionary that is needed for the export.
             The default is ``None``, which assumes that no variables are present in
             the dictionary or nominal values are used.
+        export_air_objects : bool, optional
+            Whether to include vacuum objects for the copied objects.
+            The default is ``False``.
+        on_surfaces : bool, optional
+            Whether to create a mesh on surfaces or on the volume.  The default is ``True``.
 
         Returns
         -------
@@ -4096,13 +4081,21 @@ class PostProcessor(PostProcessorCommon, object):
 
         if not setup:
             setup = self._app.nominal_adaptive
-        face_lists = []
+        mesh_list = []
         obj_list = self._app.modeler.object_names
         for el in obj_list:
             object3d = self._app.modeler[el]
-            if not object3d.is3d or object3d.material_name not in ["vacuum", "air"]:
-                face_lists += [i.id for i in object3d.faces]
-        plot = self.create_fieldplot_surface(face_lists, "Mesh", setup, intrinsics)
+            if on_surfaces:
+                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
+                    mesh_list += [i.id for i in object3d.faces]
+            else:
+                if not object3d.is3d or (not export_air_objects and object3d.material_name not in ["vacuum", "air"]):
+                    mesh_list.append(el)
+        if on_surfaces:
+            plot = self.create_fieldplot_surface(mesh_list, "Mesh", setup, intrinsics)
+        else:
+            plot = self.create_fieldplot_volume(mesh_list, "Mesh", setup, intrinsics)
+
         if plot:
             file_to_add = self.export_field_plot(plot.name, project_path)
             plot.delete()
