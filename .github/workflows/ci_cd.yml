@@ -194,12 +194,12 @@ jobs:
       #     python doc/print_errors.py
 
       # Use environment variable to remove the doctree after the build of PDF pages
-      - name: Build PDF documentation without examples
+      - name: Build PDF documentation with examples
         env:
           SPHINXBUILD_KEEP_DOCTREEDIR: "0"
         run: |
           .venv\Scripts\Activate.ps1
-          .\doc\make.bat pdf-no-examples
+          .\doc\make.bat pdf
 
       - name: Add assets to HTML docs
         run: |
@@ -217,7 +217,7 @@ jobs:
       - name: Upload PDF documentation without examples artifact
         uses: actions/upload-artifact@v3
         with:
-          name: documentation-pdf
+          name: documentation-examples-pdf
           path: doc/_build/latex/*.pdf
           retention-days: 7
 
