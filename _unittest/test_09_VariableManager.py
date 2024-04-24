@@ -252,10 +252,10 @@ class TestClass:
         v2 = Variable(3)
         v3 = Variable("3mA")
         v4 = Variable("10A")
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v1 + v2
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v2 + v1
         result_1 = v2 + v2
         result_2 = v3 + v4
@@ -278,10 +278,10 @@ class TestClass:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v1 - v2
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v2 - v1
 
         result_1 = v2 - v2

@@ -1979,7 +1979,7 @@ class Setup3DLayout(CommonSetup):
             while len(primitive_dict[net]) < len(net_primitives[net]):
                 if n > 1000:  # adding 1000 as maximum value to prevent infinite loop
                     return
-                n += 20
+                n += 10
                 primitive_dict[net] = []
                 for prim in primitives:
                     layer = edb.stackup.signal_layers[prim.layer_name]
