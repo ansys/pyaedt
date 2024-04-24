@@ -406,13 +406,13 @@ class TestClass:
                                                   use_number_of_last_cycles=True, last_cycles_number=3,
                                                   calculate_force="Harmonic")
         m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, num_cores=2, use_auto_settings=False)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
                                                                 number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep, variations={},
                                                    output_dir=fld_file_3, assignment="Coil_A2", objects_type="Surf",
