@@ -478,7 +478,7 @@ class MeshSettings(object):
         Returns
         -------
         List
-            Arguments to be passed to native APIs.
+            Arguments to pass to native APIs.
         """
         out = []
         for k, v in self._instance_settings.items():
