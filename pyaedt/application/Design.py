@@ -4077,5 +4077,5 @@ class DesignSettings:
         if key in self.available_properties:
             return self.design_settings.GetPropValue(key)
         else:
-            self._app.logger.error("{} property not available in design settings.".format(key))
+            self._app.logger.error("{} property is not available in design settings.".format(key))
             return None
