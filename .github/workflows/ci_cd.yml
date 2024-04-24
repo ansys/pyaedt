@@ -186,13 +186,6 @@ jobs:
           .\doc\make.bat clean
           .\doc\make.bat html
 
-      - name: Upload HTML documentation with examples artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-examples-html
-          path: doc/_build/html
-          retention-days: 7
-
       # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
       # # Verify that sphinx generates no warnings
       # - name: Check for warnings
@@ -213,6 +206,13 @@ jobs:
           zip -r documentation-html.zip ./doc/_build/html
           mv documentation-html.zip ./doc/_build/html/_static/assets/download/
           cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+
+      - name: Upload HTML documentation with examples artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-examples-html
+          path: doc/_build/html
+          retention-days: 7
 
       - name: Upload PDF documentation without examples artifact
         uses: actions/upload-artifact@v3
