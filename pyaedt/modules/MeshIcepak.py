@@ -411,7 +411,7 @@ class SubRegion(CommonRegion):
 class MeshSettings(object):
     """
     Class for managing mesh settings.
-    
+
     It can be used like a dictionary. Available keys change according
     to the type of settings chosen (manual or automatic).
     """
