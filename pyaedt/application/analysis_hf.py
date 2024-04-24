@@ -360,3 +360,64 @@ class ScatteringMethods(object):
             impedance=impedance,
             comments=gamma_impedance_comments,
         )
+
+
+def array_element_phase(m, n, theta_name="theta_scan", phi_name="phi_scan"):
+    """Return an expression for the phase angle in an array excitation.
+
+    Parameters
+    ----------
+    m : int, required
+        Index of a rectangular antenna array element in the x-direction.
+    n : int, required
+        Index of a rectangular antenna array element in the y-direction.
+    theta_name : str, optional
+        Post-processing variable name in HFSS to be used to generate
+        the theta component of the phase angle expression. Default is ``"theta_scan"``.
+    phi_name : str, optional
+        Post-processing variable name in HFSS to be used to generate
+        the phi component of the phase angle expression. Default is ``"phi_scan"``
+
+    Returns
+    -------
+    str
+        The phase angle expression that will be imposed on the (m,n) element of
+        the antenna array.
+
+    """
+    # px is the term for the phase variation in the x-direction
+    # py is the term for the phase variation in the y-direction.
+
+    if n > 0:
+        add_char = " + "
+    else:
+        add_char = " - "
+    if m == 0:
+        px = ""
+    elif m == -1:
+        px = "-pi*sin(theta_scan)*cos(phi_scan)"
+    elif m == 1:
+        px = "pi*sin(theta_scan)*cos(phi_scan)"
+    else:
+        px = str(m) + "*pi*sin(theta_scan)*cos(phi_scan)"
+    if n == 0:
+        py = ""
+    elif n == -1 or n == 1:
+        py = "pi*sin(theta_scan)*sin(phi_scan)"
+
+    else:
+        py = str(abs(n)) + "*pi*sin(theta_scan)*sin(phi_scan)"
+    if m == 0:
+        if n == 0:
+            return "0"
+        elif n < 0:
+            return "-" + py
+        else:
+            return py
+    elif n == 0:
+        if m == 0:
+            return "0"
+        else:
+            return px
+    else:
+        return px + add_char + py
