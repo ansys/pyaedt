@@ -274,7 +274,8 @@ class CommonRegion(object):
     @name.setter
     def name(self, value):
         try:
-            self._app.modeler.objects_by_name[self._name].name = value
+            if self._app.modeler.objects_by_name[self._name].name != value:
+                self._app.modeler.objects_by_name[self._name].name = value
         except KeyError:
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
