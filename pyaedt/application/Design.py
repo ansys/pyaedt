@@ -4071,7 +4071,7 @@ class DesignSettings:
                     return False
             self.design_settings.SetPropValue(key, value)
         else:
-            self._app.logger.error("{} property not available in design settings.".format(key))
+            self._app.logger.error("{} property is not available in design settings.".format(key))
 
     def __getitem__(self, key):
         if key in self.available_properties:
