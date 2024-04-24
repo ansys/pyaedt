@@ -4026,6 +4026,7 @@ class Design(AedtObjects):
 
     @property
     def design_settings(self):
+        """Design settings for the AEDT app."""
         return DesignSettings(self, self._manipulate_design_settings_inputs)
 
 
