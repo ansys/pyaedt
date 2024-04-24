@@ -8,8 +8,10 @@ import math
 import os
 import re
 import shutil
+import time
 
 from pyaedt import Hfss3dLayout
+from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
@@ -649,6 +651,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self._desktop.CloseAllWindows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:

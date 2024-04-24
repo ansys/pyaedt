@@ -710,6 +710,34 @@ class Desktop(object):
 
         return get_pyaedt_app(projectname, designname, self)
 
+    @pyaedt_function_handler()
+    def active_design(self, project_object, name=None):
+        """Get the active design.
+
+        Parameters
+        ----------
+        project_object :
+            AEDT project object.
+
+        name : str, optional
+            Name of the active design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        References
+        ----------
+
+        >>> oProject.GetActiveDesign
+        >>> oProject.SetActiveDesign
+        """
+        if not name:
+            active_design = project_object.GetActiveDesign()
+        else:
+            active_design = project_object.SetActiveDesign(name)
+        if is_linux and settings.aedt_version and self.design_type == "Circuit Design":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+        return active_design
+
     @property
     def install_path(self):
         """Installation path for AEDT."""
@@ -1149,7 +1177,7 @@ class Desktop(object):
             if not design:
                 oproject.AnalyzeAll()
             else:
-                odesign = oproject.SetActiveDesign(design)
+                odesign = self.active_design(oproject, design)
                 if odesign:
                     odesign.AnalyzeAll()
         return True
@@ -1222,9 +1250,9 @@ class Desktop(object):
             oproject = self.odesktop.SetActiveProject(project_name)
         if oproject:  # pragma: no cover
             if not design_name:
-                odesign = oproject.GetActiveDesign()
+                odesign = self.active_design(oproject)
             else:
-                odesign = oproject.SetActiveDesign(design_name)
+                odesign = self.active_design(oproject, design_name)
             if odesign:
                 oproject.CopyDesign(design_name)
                 if not target_project:
@@ -1315,9 +1343,9 @@ class Desktop(object):
         if not oproject:
             return ""
         if not design_name:
-            odesign = oproject.GetActiveDesign()
+            odesign = self.active_design(oproject)
         else:
-            odesign = oproject.SetActiveDesign(design_name)
+            odesign = self.active_design(oproject.design_name)
         if odesign:
             return odesign.GetDesignType()
         return ""
@@ -1432,7 +1460,7 @@ class Desktop(object):
         else:
             proj = self.odesktop.OpenProject(project_file)
         if proj:
-            active_design = proj.GetActiveDesign()
+            active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:

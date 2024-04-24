@@ -415,12 +415,18 @@ class TestClass:
     def test_32_push_down(self):
         self.aedtapp.insert_design("Circuit_Design_Push_Down")
         subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            self._desktop.CloseAllWindows()
+        active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
             location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
         )
-        active_project_name_3 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            self._desktop.CloseAllWindows()
+        active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
         assert self.aedtapp.push_down(subcircuit_1)
@@ -428,10 +434,16 @@ class TestClass:
     def test_33_pop_up(self):
         self.aedtapp.insert_design("Circuit_Design_Pop_Up")
         assert self.aedtapp.pop_up()
-        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            self._desktop.CloseAllWindows()
+        active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
-        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            self._desktop.CloseAllWindows()
+        active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 
     def test_34_activate_variables(self):

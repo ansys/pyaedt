@@ -1,6 +1,9 @@
 import re
 import sys
 
+from pyaedt import is_linux
+from pyaedt.generic.settings import settings
+
 
 # lazy imports
 def Circuit(
@@ -1804,6 +1807,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oDesign = oProject.GetActiveDesign()
     else:
         oDesign = oProject.SetActiveDesign(design_name)
+    if is_linux and settings.aedt_version == "2024.1":
+        time.sleep(1)
+        odesktop.CloseAllWindows()
     if not oDesign:
         raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()

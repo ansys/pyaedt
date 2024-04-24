@@ -1019,7 +1019,7 @@ class Design(AedtObjects):
             if not self._check_design_consistency():
                 count_consistent_designs = 0
                 for des in self.design_list:
-                    self._odesign = self._oproject.SetActiveDesign(des)
+                    self._odesign = self.desktop_class.active_design(self.oproject, des)
                     if self._check_design_consistency():
                         count_consistent_designs += 1
                         activedes = des
@@ -1062,7 +1062,7 @@ class Design(AedtObjects):
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
-                self._odesign = self.oproject.SetActiveDesign(activedes)
+                self._odesign = self.desktop_class.active_design(self.oproject, activedes)
                 self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
@@ -3324,7 +3324,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         if new_design is None:  # pragma: no cover
-            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            new_design = self.desktop_class.active_design(self.oproject, unique_design_name)
             if new_design is None:
                 self.logger.error("Fail to create new design.")
                 return
@@ -3452,8 +3452,8 @@ class Design(AedtObjects):
         proj_from.CopyDesign(design_name)
         # paste in the destination project and get the name
         self._oproject.Paste()
-        new_designname = self._oproject.GetActiveDesign().GetName()
-        if self._oproject.GetActiveDesign().GetDesignType() == "HFSS 3D Layout Design":
+        new_designname = self.desktop_class.active_design(self._oproject).GetName()
+        if self.desktop_class.active_design(self._oproject).GetDesignType() == "HFSS 3D Layout Design":
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
         self.odesktop.CloseProject(proj_from_name)
@@ -3930,7 +3930,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler()
     def _assert_consistent_design_type(self, des_name):
         if des_name in self.design_list:
-            self._odesign = self._oproject.SetActiveDesign(des_name)
+            self._odesign = self.desktop_class.active_design(self.oproject, des_name)
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
                 if dtype != self._design_type:
@@ -3940,7 +3940,7 @@ class Design(AedtObjects):
             return True
         elif ":" in des_name:
             try:
-                self._odesign = self._oproject.SetActiveDesign(des_name)
+                self._odesign = self.desktop_class.active_design(self.oproject, des_name)
                 return True
             except Exception:
                 return des_name

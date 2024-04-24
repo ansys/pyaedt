@@ -174,7 +174,7 @@ class NexximComponents(CircuitComponents):
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if nested_subcircuit_id:
             pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
-            odes = self._app.oproject.SetActiveDesign(pname)
+            odes = self._app.desktop_class.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
             objs = oed.GetAllElements()
             match = [i for i in objs if name in i]
