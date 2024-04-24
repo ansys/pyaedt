@@ -50,7 +50,6 @@ def examples(local_scratch):
     return netlist_file1, netlist_file2, touchstone_file, touchstone_file2
 
 
-@pytest.mark.skipif(is_linux, reason="Multiple tests are not passing in Linux with AEDT 2024R1")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, circuitprj, local_scratch, examples):
@@ -220,7 +219,7 @@ class TestClass:
         assert self.aedtapp.setup_names[0] == solution_name
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
-    def test_19A_create_sweeps(self):
+    def test_19a_create_sweeps(self):
         setup_name = "Sweep_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
         LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
@@ -233,7 +232,7 @@ class TestClass:
         assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
         assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
-    def test_19B_create_EyE_setups(self):
+    def test_19b_create_eye_setups(self):
         setup_name = "Dom_Verify"
         assert self.aedtapp.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
@@ -241,7 +240,7 @@ class TestClass:
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    def test_20_create_AMI_plots(self, add_app):
+    def test_20_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
         report_name = "MyReport"
         assert (

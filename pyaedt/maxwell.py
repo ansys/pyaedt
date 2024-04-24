@@ -1936,7 +1936,7 @@ class Maxwell(object):
         """
         if schematic_design_name not in self.design_list:
             return False
-        odesign = self.oproject.SetActiveDesign(schematic_design_name)
+        odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
         comps = oeditor.GetAllComponents()
         sources_array = []

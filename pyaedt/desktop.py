@@ -733,9 +733,10 @@ class Desktop(object):
             active_design = project_object.GetActiveDesign()
         else:
             active_design = project_object.SetActiveDesign(name)
-        if is_linux and settings.aedt_version and self.design_type == "Circuit Design":
-            time.sleep(1)
-            self.odesktop.CloseAllWindows()
+        # if is_linux and settings.aedt_version and self.design_type == "Circuit Design":
+        #     time.sleep(1)
+        #     self.odesktop.CloseAllWindows()
+        self.odesktop.CloseAllWindows()
         return active_design
 
     @property
