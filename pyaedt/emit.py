@@ -114,8 +114,6 @@ class Emit(Design, object):
         port=0,
         aedt_process_id=None,
     ):
-        if projectname is None:
-            projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
