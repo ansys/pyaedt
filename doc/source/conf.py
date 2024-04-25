@@ -100,11 +100,31 @@ def remove_doctree(app, exception):
         shutil.rmtree(app.doctreedir, ignore_errors=True)
         logger.info(f"Doctree removed.")
 
+# NOTE: The list of skipped files requires to be updated every time a new example
+# with GIF content is created or removed.
+def skip_gif_examples_to_build_pdf(app):
+    """Callback function for builder-inited event.  
+
+    Add examples showing GIF to the list of excluded files when building PDF files.
+
+    Parameters
+    ----------
+    app :
+        The application object representing the Sphinx process.
+    """
+    if app.builder.name == 'latex':
+        app.config.exclude_patterns.extend([
+            'Maxwell2D_Transient.py',
+            'Maxwell2D_DCConduction.py',
+            'Hfss_Icepak_Coupling.py',
+        ])
+
 
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('build-finished', remove_doctree)
+    app.connect('builder-inited', skip_gif_examples_to_build_pdf)  
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -232,6 +252,7 @@ language = "en"
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
+
 
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
 inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
