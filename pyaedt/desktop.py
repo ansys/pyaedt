@@ -711,7 +711,7 @@ class Desktop(object):
         return get_pyaedt_app(projectname, designname, self)
 
     @pyaedt_function_handler()
-    def active_design(self, project_object, name=None):
+    def active_design(self, project_object, name=None, design_type=None):
         """Get the active design.
 
         Parameters
@@ -720,6 +720,10 @@ class Desktop(object):
             AEDT project object.
 
         name : str, optional
+            Name of the active design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        design_type : str, optional
             Name of the active design to make active.
             The default is ``None``, in which case the active design is returned.
 
@@ -733,7 +737,7 @@ class Desktop(object):
             active_design = project_object.GetActiveDesign()
         else:
             active_design = project_object.SetActiveDesign(name)
-        if is_linux and settings.aedt_version:
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
             time.sleep(1)
             self.odesktop.CloseAllWindows()
         return active_design

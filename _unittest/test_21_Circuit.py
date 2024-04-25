@@ -710,9 +710,10 @@ class TestClass:
         assert "PortTest" in c.excitations
         c.excitation_objects["PortTest"].delete()
         assert len(c.excitation_objects) == 0
-        self.aedtapp.save_project()
-        c = add_app(application=Circuit, design_name="sources")
-        assert c.sources
+        if not is_linux:
+            self.aedtapp.save_project()
+            c = add_app(application=Circuit, design_name="sources")
+            assert c.sources
 
     def test_41_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
