@@ -2644,10 +2644,10 @@ class Icepak(FieldAnalysis3D):
             source_project_path = kwargs["sourceProjectPath"]
 
         if source_project_name == self.project_name or source_project_name is None:
-            active_project = self._desktop.GetActiveProject()
+            active_project = self.desktop_class.active_project()
         else:
             self._desktop.OpenProject(source_project_path)
-            active_project = self._desktop.SetActiveProject(source_project_name)
+            active_project = self.desktop_class.active_project(source_project_name)
 
         active_design = self.desktop_class.active_design(active_project, source_design)
         active_editor = active_design.SetActiveEditor("3D Modeler")

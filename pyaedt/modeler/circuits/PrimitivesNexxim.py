@@ -2,12 +2,14 @@
 import os
 import random
 import re
+import time
 import warnings
 
+from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_name, is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
@@ -172,10 +174,16 @@ class NexximComponents(CircuitComponents):
             parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self._app.odesktop.CloseAllWindows()
         if nested_subcircuit_id:
             pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
             odes = self._app.desktop_class.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
+            if is_linux and settings.aedt_version == "2024.1":
+                time.sleep(1)
+                self._app.odesktop.CloseAllWindows()
             objs = oed.GetAllElements()
             match = [i for i in objs if name in i]
             o = CircuitComponent(self, tabname=self.tab_name, custom_editor=oed)

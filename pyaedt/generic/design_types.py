@@ -1,5 +1,6 @@
 import re
 import sys
+import time
 
 from pyaedt import is_linux
 from pyaedt.generic.settings import settings
@@ -1794,6 +1795,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oProject = odesktop.GetActiveProject()
     else:
         oProject = odesktop.SetActiveProject(project_name)
+    if is_linux and settings.aedt_version == "2024.1":
+        time.sleep(1)
+        odesktop.CloseAllWindows()
     if not oProject:
         raise AttributeError("No project is present.")
     design_names = []

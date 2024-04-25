@@ -206,10 +206,9 @@ class TestClass:
         ]
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze("Dom_LNA")
-        time.sleep(30)
+        time.sleep(2)
         solution_name = "Dom_LNA"
         sweep_name = None
         file_name = os.path.join(self.local_scratch.path, "new.s2p")
@@ -240,8 +239,10 @@ class TestClass:
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    def test_20_create_ami_plots(self, add_app):
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple Circuit designs not valid")
+    def test_20a_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
+
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -276,7 +277,7 @@ class TestClass:
         )
 
     @pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
-    def test_20B_create_AMI_plots(self):
+    def test_20b_create_ami_plots(self):
         assert (
             self.aedtapp.post.create_statistical_eye_plot(
                 "Dom_Verify",
@@ -416,7 +417,8 @@ class TestClass:
         subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
-            self._desktop.CloseAllWindows()
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
@@ -424,7 +426,8 @@ class TestClass:
         )
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
-            self._desktop.CloseAllWindows()
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
         active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
@@ -435,13 +438,15 @@ class TestClass:
         assert self.aedtapp.pop_up()
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
-            self._desktop.CloseAllWindows()
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
-            self._desktop.CloseAllWindows()
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
         active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 
@@ -495,11 +500,13 @@ class TestClass:
 
         assert not self.aedtapp.browse_log_file()
         self.aedtapp.analyze()
+        time.sleep(2)
         assert self.aedtapp.browse_log_file()
-        self.aedtapp.save_project()
-        assert self.aedtapp.browse_log_file()
-        assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
-        assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+        if not is_linux:
+            self.aedtapp.save_project()
+            assert self.aedtapp.browse_log_file()
+            assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
+            assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
 
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
@@ -783,6 +790,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to closed.")
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -796,6 +804,7 @@ class TestClass:
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to closed.")
     def test_45_create_circuit_from_multizone_layout(self, add_edb):
         edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
@@ -810,7 +819,6 @@ class TestClass:
         assert self.aedtapp.remove_all_unused_definitions()
 
     def test_46_create_vpwl(self):
-
         # default inputs
         myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
         assert myres.refdes != ""

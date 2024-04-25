@@ -18,7 +18,7 @@ from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_name, is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import CurrentSinSource
@@ -1614,9 +1614,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.logger.error(
                 "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
             )
-        active_project = hfss.odesktop.SetActiveProject(hfss.project_name)
+        active_project = hfss.desktop_class.active_project(hfss.project_name)
         active_project.CopyDesign(hfss.design_name)
-        active_project = self.odesktop.SetActiveProject(self.project_name)
+        active_project = hfss.desktop_class.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)

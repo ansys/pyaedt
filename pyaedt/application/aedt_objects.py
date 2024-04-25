@@ -1,6 +1,7 @@
 import sys
+import time
 
-from pyaedt import pyaedt_function_handler
+from pyaedt import pyaedt_function_handler, is_linux, settings
 from pyaedt.generic.desktop_sessions import _desktop_sessions
 
 
@@ -371,6 +372,9 @@ class AedtObjects(object):
         if not self._oeditor:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self.odesign.SetActiveEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":
+                    time.sleep(1)
+                    self._odesktop.CloseAllWindows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self.odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:

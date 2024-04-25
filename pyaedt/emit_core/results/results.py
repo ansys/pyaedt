@@ -215,7 +215,7 @@ class Results:
         elif (
             self.revisions[-1].revision_number
             == self.emit_project.desktop_class.active_design(
-                self.emit_project.odesktop.GetActiveProject()
+                self.emit_project.desktop_class.active_project()
             ).GetRevision()
         ):
             self.get_revision(self.revisions[-1].name)
