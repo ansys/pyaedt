@@ -100,31 +100,10 @@ def remove_doctree(app, exception):
         shutil.rmtree(app.doctreedir, ignore_errors=True)
         logger.info(f"Doctree removed.")
 
-# NOTE: The list of skipped files requires to be updated every time a new example
-# with GIF content is created or removed.
-def skip_gif_examples_to_build_pdf(app):
-    """Callback function for builder-inited event.  
-
-    Add examples showing GIF to the list of excluded files when building PDF files.
-
-    Parameters
-    ----------
-    app :
-        The application object representing the Sphinx process.
-    """
-    if app.builder.name == 'latex':
-        app.config.exclude_patterns.extend([
-            'Maxwell2D_Transient.py',
-            'Maxwell2D_DCConduction.py',
-            'Hfss_Icepak_Coupling.py',
-        ])
-
-
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('build-finished', remove_doctree)
-    app.connect('builder-inited', skip_gif_examples_to_build_pdf)  
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -152,6 +131,7 @@ os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
 # Do not run examples by default
 run_examples = bool(int(os.getenv("PYAEDT_DOC_RUN_EXAMPLES", "0")))
+use_gif = bool(int(os.getenv("PYAEDT_DOC_USE_GIF", "1")))
 
 # -- General configuration ---------------------------------------------------
 
@@ -324,9 +304,11 @@ if run_examples:
         # Modules for which function level galleries are created.  In
         "doc_module": "ansys-pyaedt",
         "image_scrapers": ("pyvista", "matplotlib"),
-        "ignore_pattern": "flycheck*",
+        "ignore_pattern": r"flycheck.*",
         "thumbnail_size": (350, 350),
     }
+    if not use_gif:
+        sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py"
 
 jinja_contexts = {
     "main_toctree": {

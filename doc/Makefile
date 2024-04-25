@@ -46,6 +46,7 @@ clean: .install-deps
 html-no-examples: .install-deps
 	@echo "Building HTML pages without examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="0"
+	export PYAEDT_DOC_USE_GIF="1"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
 	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -55,6 +56,7 @@ html-no-examples: .install-deps
 html: .install-deps
 	@echo "Building HTML pages with examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="1"
+	export PYAEDT_DOC_USE_GIF="1"
 	@# FIXME: currently linkcheck freezes and further investigation must be performed
 	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -64,6 +66,7 @@ html: .install-deps
 pdf-no-examples: .install-deps
 	@echo "Building PDF pages without examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="0"
+	export PYAEDT_DOC_USE_GIF="0"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
@@ -72,6 +75,7 @@ pdf-no-examples: .install-deps
 pdf: .install-deps
 	@echo "Building PDF pages with examples."
 	export PYAEDT_DOC_RUN_EXAMPLES="1"
+	export PYAEDT_DOC_USE_GIF="0"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1

@@ -61,6 +61,7 @@ goto end
 :html
 echo Building HTML pages with examples
 set PYAEDT_DOC_RUN_EXAMPLES=1
+set PYAEDT_DOC_USE_GIF=1
 ::FIXME: currently linkcheck freezes and further investigation must be performed
 ::%SPHINXBUILD% -M linkcheck %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %LINKCHECKOPTS% %O%
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR%
@@ -71,6 +72,7 @@ goto end
 :html-no-examples
 echo Building HTML pages without examples
 set PYAEDT_DOC_RUN_EXAMPLES=0
+set PYAEDT_DOC_USE_GIF=1
 if not exist "source\examples" mkdir "source\examples"
 echo Examples> source\examples\index.rst
 echo ========> source\examples\index.rst
@@ -84,6 +86,7 @@ goto end
 :pdf
 echo Building PDF pages with examples
 set PYAEDT_DOC_RUN_EXAMPLES=1
+set PYAEDT_DOC_USE_GIF=0
 %SPHINXBUILD% -M latex %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
@@ -94,6 +97,7 @@ goto end
 :pdf-no-examples
 echo Building PDF pages without examples
 set PYAEDT_DOC_RUN_EXAMPLES=0
+set PYAEDT_DOC_USE_GIF=0
 if not exist "source\examples" mkdir "source\examples"
 echo Examples> source\examples\index.rst
 echo ========> source\examples\index.rst
