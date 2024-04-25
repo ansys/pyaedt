@@ -855,6 +855,7 @@ class TestClass:
         )
         assert status
 
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_48_automatic_tdr(self):
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
 
@@ -871,6 +872,7 @@ class TestClass:
         )
         assert result
 
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ami(self):
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
         ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
