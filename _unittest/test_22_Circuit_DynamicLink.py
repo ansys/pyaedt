@@ -8,7 +8,6 @@ from pyaedt import Circuit
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import is_ironpython
-from pyaedt.generic.general_methods import is_linux
 
 test_subfloder = "T22"
 test_project_name = "Dynamic_Link"
