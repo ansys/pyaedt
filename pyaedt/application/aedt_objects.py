@@ -1,7 +1,9 @@
 import sys
 import time
 
-from pyaedt import pyaedt_function_handler, is_linux, settings
+from pyaedt import is_linux
+from pyaedt import pyaedt_function_handler
+from pyaedt import settings
 from pyaedt.generic.desktop_sessions import _desktop_sessions
 
 

@@ -18,7 +18,8 @@ from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
-from pyaedt.generic.general_methods import generate_unique_name, is_linux
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import CurrentSinSource
