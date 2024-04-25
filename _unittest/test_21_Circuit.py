@@ -239,7 +239,9 @@ class TestClass:
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple Circuit designs not valid")
+    @pytest.mark.skipif(
+        is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple Circuit designs not valid"
+    )
     def test_20a_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
 
@@ -497,7 +499,6 @@ class TestClass:
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-
         assert not self.aedtapp.browse_log_file()
         self.aedtapp.analyze()
         time.sleep(2)
