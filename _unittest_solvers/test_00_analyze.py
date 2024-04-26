@@ -431,7 +431,6 @@ class TestClass:
         new_setup.props = setup.props
         new_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM is not working in Linux.")
     def test_08_compute_erl(self, circuit_erl):
         touchstone_file = circuit_erl.export_touchstone()
         spisim = SpiSim(touchstone_file)
@@ -453,7 +452,6 @@ class TestClass:
         erl_data_3 = spisim.compute_erl(specify_through_ports=[1, 2, 3, 4])
         assert erl_data_3
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM not working in linux.")
     def test_09a_compute_com(self, local_scratch, circuit_com):
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
@@ -466,7 +464,6 @@ class TestClass:
         )
         assert com
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM not working in linux.")
     def test_09b_compute_com(self, local_scratch):
         com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
         thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
@@ -506,7 +503,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM not working in linux.")
+
     def test_09c_compute_com(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
