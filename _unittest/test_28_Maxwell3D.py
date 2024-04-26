@@ -869,7 +869,9 @@ class TestClass:
         nets_layers = {"1V0": "Bottom Solder"}
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
-    @pytest.mark.skipif(desktop_version < "2023.2" or is_linux, reason="Method is available in beta in 2023.2 and later.")
+    @pytest.mark.skipif(
+        desktop_version < "2023.2" or is_linux, reason="Method is available in beta in 2023.2 and later."
+    )
     @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
     def test_54_enable_harmonic_force_layout(self, layout_comp):
         comp = layout_comp.modeler.user_defined_components["LC1_1"]

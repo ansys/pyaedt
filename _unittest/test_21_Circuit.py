@@ -240,7 +240,8 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     @pytest.mark.skipif(
-        is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple circuit designs is not working."
+        is_linux and config["desktopVersion"] == "2024.1",
+        reason="Project with multiple circuit designs is not working.",
     )
     def test_20a_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
@@ -855,7 +856,9 @@ class TestClass:
         )
         assert status
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode.")
+    @pytest.mark.skipif(
+        config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode."
+    )
     def test_48_automatic_tdr(self):
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
 
