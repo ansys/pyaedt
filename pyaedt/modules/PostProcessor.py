@@ -5407,7 +5407,11 @@ class FieldSummary:
             if pandas_output:
                 if pd is None:
                     raise ImportError("pandas package is needed.")
-                return pd.DataFrame.from_dict(out_dict)
+                df = pd.DataFrame.from_dict(out_dict)
+                for col in ["Min", "Max", "Mean", "Stdev", "Area/Volume", "Total"]:
+                    if col in df.columns:
+                        df[col] = df[col].astype(float)
+                return df
         return out_dict
 
     @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")
