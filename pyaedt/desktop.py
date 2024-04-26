@@ -1737,21 +1737,34 @@ class Desktop(object):
                 )
             )
 
+        self.logger.info(base_venv)
+
         def run_command(command):
-            if is_windows:
-                command = '"{}"'.format(command)
-            ret_code = os.system(command)
-            return ret_code
+            try:
+                if is_linux:  # pragma: no cover
+                    process = subprocess.Popen(
+                        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                    )  # nosec
+                else:
+                    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+                ret_code = process.returncode
+                if ret_code != 0:
+                    print("Error occurred:", stderr.decode("utf-8"))
+                return ret_code
+            except Exception as e:
+                print("Exception occurred:", str(e))
+                return 1  # Return non-zero exit code for indicating an error
 
         version = self.odesktop.GetVersion()[2:6].replace(".", "")
 
         if is_windows:
-            venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(version))
+            venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
             python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
             pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
             package_dir = os.path.join(venv_dir, "Lib", "site-packages")
         else:
-            venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(version))
+            venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
             python_exe = os.path.join(venv_dir, "bin", "python")
             pip_exe = os.path.join(venv_dir, "bin", "pip")
             package_dir = os.path.join(venv_dir, "Lib", "site-packages")
@@ -1804,18 +1817,16 @@ class Desktop(object):
             )
         elif install and not is_installed:
             # Install the specified package
-            run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
         elif not install and is_installed:
             # Uninstall toolkit
-            run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit["pip"]))
+            run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit["package_name"]))
         elif install and is_installed:
             # Update toolkit
             run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
         else:
             self.logger.info("Incorrect input".format(toolkit_name))
             return
-
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
@@ -1932,7 +1943,7 @@ class Desktop(object):
             if not script_image:
                 script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", "pyansys.png")
             write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
-        self.logger.info("{} toolkit installed.".format(toolkit_name))
+        self.logger.info("{} installed".format(toolkit_name))
         return True
 
     @pyaedt_function_handler()
