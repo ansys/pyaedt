@@ -5408,7 +5408,7 @@ class FieldSummary:
                 if pd is None:
                     raise ImportError("pandas package is needed.")
                 df = pd.DataFrame.from_dict(out_dict)
-                for col in ["Min", "Max", "Mean", "Stdev", "Area/Volume", "Total"]:
+                for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
                         df[col] = df[col].astype(float)
                 return df
