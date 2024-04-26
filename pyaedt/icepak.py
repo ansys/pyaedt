@@ -3486,7 +3486,7 @@ class Icepak(FieldAnalysis3D):
             return boundary
         return None
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(htc_dataset="htc")
     def assign_stationary_wall(
         self,
         geometry,
@@ -3514,7 +3514,6 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_material="Stainless-steel-cleaned",
         ext_surf_rad_ref_temp="AmbientTemp",
         ext_surf_rad_view_factor="1",
-        **kwargs,
     ):
         """Assign surface wall boundary condition.
 
@@ -3663,18 +3662,6 @@ class Icepak(FieldAnalysis3D):
         props["Thickness"] = (thickness,)
         props["Solid Material"] = material
         props["External Condition"] = boundary_condition
-        if "htc_dataset" in kwargs:  # backward compatibility
-            warnings.warn(
-                "``htc_dataset`` argument is being deprecated. Create a dictionary as per"
-                "documentation and assign it to the ``htc`` argument.",
-                DeprecationWarning,
-            )
-            if kwargs["htc_dataset"] is not None:
-                htc = {
-                    "Type": "Temp Dep",
-                    "Function": "Piecewise Linear",
-                    "Values": kwargs["htc_dataset"],
-                }
         for quantity, assignment_value, to_add in [
             ("External Radiation Reference Temperature", ext_surf_rad_ref_temp, ext_surf_rad),
             ("Heat Transfer Coefficient", htc, boundary_condition == "Heat Transfer Coefficient"),
@@ -3855,7 +3842,7 @@ class Icepak(FieldAnalysis3D):
             shell_conduction=shell_conduction,
         )
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(htc_dataset="htc")
     def assign_stationary_wall_with_htc(
         self,
         geometry,
@@ -3880,7 +3867,6 @@ class Icepak(FieldAnalysis3D):
         radiate=False,
         radiate_surf_mat="Steel-oxidised-surface",
         shell_conduction=False,
-        **kwargs,
     ):
         """Assign a surface wall boundary condition with specified heat transfer coefficient.
 
@@ -3980,59 +3966,31 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignStationaryWallBoundary
         """
-        if kwargs.get("htc_dataset", None):
-            return self.assign_stationary_wall(
-                geometry,
-                "Heat Transfer Coefficient",
-                name=name,
-                thickness=thickness,
-                material=material,
-                htc=htc,
-                htc_dataset=kwargs["htc_dataset"],
-                ref_temperature=ref_temperature,
-                ht_correlation=ht_correlation,
-                ht_correlation_type=ht_correlation_type,
-                ht_correlation_fluid=ht_correlation_fluid,
-                ht_correlation_flow_type=ht_correlation_flow_type,
-                ht_correlation_flow_direction=ht_correlation_flow_direction,
-                ht_correlation_value_type=ht_correlation_value_type,
-                ht_correlation_free_stream_velocity=ht_correlation_free_stream_velocity,
-                ht_correlation_surface=ht_correlation_amb_temperature,
-                ht_correlation_amb_temperature=ht_correlation_surface,
-                ext_surf_rad=ext_surf_rad,
-                ext_surf_rad_material=ext_surf_rad_material,
-                ext_surf_rad_ref_temp=ext_surf_rad_ref_temp,
-                ext_surf_rad_view_factor=ext_surf_rad_view_factor,
-                radiate=radiate,
-                radiate_surf_mat=radiate_surf_mat,
-                shell_conduction=shell_conduction,
-            )
-        else:
-            return self.assign_stationary_wall(
-                geometry,
-                "Heat Transfer Coefficient",
-                name=name,
-                thickness=thickness,
-                material=material,
-                htc=htc,
-                ref_temperature=ref_temperature,
-                ht_correlation=ht_correlation,
-                ht_correlation_type=ht_correlation_type,
-                ht_correlation_fluid=ht_correlation_fluid,
-                ht_correlation_flow_type=ht_correlation_flow_type,
-                ht_correlation_flow_direction=ht_correlation_flow_direction,
-                ht_correlation_value_type=ht_correlation_value_type,
-                ht_correlation_free_stream_velocity=ht_correlation_free_stream_velocity,
-                ht_correlation_surface=ht_correlation_amb_temperature,
-                ht_correlation_amb_temperature=ht_correlation_surface,
-                ext_surf_rad=ext_surf_rad,
-                ext_surf_rad_material=ext_surf_rad_material,
-                ext_surf_rad_ref_temp=ext_surf_rad_ref_temp,
-                ext_surf_rad_view_factor=ext_surf_rad_view_factor,
-                radiate=radiate,
-                radiate_surf_mat=radiate_surf_mat,
-                shell_conduction=shell_conduction,
-            )
+        return self.assign_stationary_wall(
+            geometry,
+            "Heat Transfer Coefficient",
+            name=name,
+            thickness=thickness,
+            material=material,
+            htc=htc,
+            ref_temperature=ref_temperature,
+            ht_correlation=ht_correlation,
+            ht_correlation_type=ht_correlation_type,
+            ht_correlation_fluid=ht_correlation_fluid,
+            ht_correlation_flow_type=ht_correlation_flow_type,
+            ht_correlation_flow_direction=ht_correlation_flow_direction,
+            ht_correlation_value_type=ht_correlation_value_type,
+            ht_correlation_free_stream_velocity=ht_correlation_free_stream_velocity,
+            ht_correlation_surface=ht_correlation_amb_temperature,
+            ht_correlation_amb_temperature=ht_correlation_surface,
+            ext_surf_rad=ext_surf_rad,
+            ext_surf_rad_material=ext_surf_rad_material,
+            ext_surf_rad_ref_temp=ext_surf_rad_ref_temp,
+            ext_surf_rad_view_factor=ext_surf_rad_view_factor,
+            radiate=radiate,
+            radiate_surf_mat=radiate_surf_mat,
+            shell_conduction=shell_conduction,
+        )
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):

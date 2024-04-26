@@ -950,7 +950,6 @@ class TestClass:
             thickness="0mm",
             material="Al-Extruded",
             htc=10,
-            htc_dataset=None,
             ref_temperature="AmbientTemp",
             ht_correlation=True,
             ht_correlation_type="Forced Convection",
@@ -966,7 +965,7 @@ class TestClass:
             name=None,
             thickness="0mm",
             material="Al-Extruded",
-            htc_dataset="ds1",
+            htc="ds1",
             ref_temperature="AmbientTemp",
             ht_correlation=False,
         )
