@@ -27,7 +27,8 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
-    "jsonschema",
+    "jsonschema==4.17.3; python_version == '3.7'",
+    "jsonschema==4.21.1; python_version > '3.7'",
     "psutil",
     "pyedb>=0.4.0,<0.9; python_version == '3.7'",
     "pyedb>=0.5.0; python_version > '3.7'",
