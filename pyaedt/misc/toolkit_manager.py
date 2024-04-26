@@ -23,7 +23,7 @@ if is_windows:
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
 
 else:
-    venv_dir = os.path.join(os.environ["HOME"], "{}_env_ide".format(button["text"]))
+    venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
 
@@ -103,7 +103,7 @@ def create_toolkit_page(frame, open_source_toolkits):
 
     update_page()
 
-    return install_button, uninstall_button, installation_option_action, input_file, toolkits_combo, toolkit_name
+    return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
 
 
 def is_toolkit_installed(toolkit_name):
@@ -118,11 +118,11 @@ def open_window(window, window_name, open_source_toolkits):
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
-        install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkit_name = create_toolkit_page(
+        install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = create_toolkit_page(
             window, open_source_toolkits
         )
         root.minsize(500, 250)
-        return install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkit_name
+        return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
     else:
         window.deiconify()
 
@@ -143,7 +143,7 @@ def toolkit_window(toolkit_level="Project"):
         if toolkit_info["installation_path"].lower() == toolkit_level.lower():
             open_source_toolkits.append(toolkit_name)
     toolkit_window_var.minsize(250, 150)
-    install_button, uninstall_button, option_action, input_file, toolkits_combo, toolkit_name = open_window(
+    install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = open_window(
         toolkit_window_var, toolkit_level, open_source_toolkits
     )
 

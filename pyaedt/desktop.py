@@ -1702,7 +1702,6 @@ class Desktop(object):
         -------
         bool
         """
-        from pyaedt import is_windows
         from pyaedt.misc.install_extra_toolkits import available_toolkits
 
         toolkit = available_toolkits[toolkit_name]
@@ -1746,8 +1745,10 @@ class Desktop(object):
                         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
                     )  # nosec
                 else:
-                    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
+                    process = subprocess.Popen(
+                        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                    )  # nosec
+                _, stderr = process.communicate()
                 ret_code = process.returncode
                 if ret_code != 0:
                     print("Error occurred:", stderr.decode("utf-8"))
@@ -1769,7 +1770,7 @@ class Desktop(object):
             pip_exe = os.path.join(venv_dir, "bin", "pip")
             package_dir = os.path.join(venv_dir, "Lib", "site-packages")
             edt_root = os.path.normpath(self.odesktop.GetExeDir())
-            os.environ["ANSYSEM_ROOT{}".format(args.version)] = edt_root
+            os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [
                 "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
                     edt_root, python_version.replace(".", "_")
@@ -1777,8 +1778,8 @@ class Desktop(object):
                 "{}/common/mono/Linux64/lib64".format(edt_root),
                 "{}".format(edt_root),
             ]
-            if args.version < "232":
-                ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
+            if version < "232":
+                ld_library_path_dirs_to_add.append("{}/Delcross".format(edt_root))
             os.environ["LD_LIBRARY_PATH"] = (
                 ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
             )
@@ -1796,9 +1797,9 @@ class Desktop(object):
             is_installed = True
         if wheel_toolkit:
             wheel_toolkit = os.path.normpath(wheel_toolkit)
-        self.logger.info("Installing dependencies".format(toolkit_name))
+        self.logger.info("Installing dependencies")
         if install and wheel_toolkit and os.path.exists(wheel_toolkit):
-            self.logger.info("Starting offline installation".format(toolkit_name))
+            self.logger.info("Starting offline installation")
             if is_installed:
                 run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit["pip"]))
             import zipfile
@@ -1825,7 +1826,7 @@ class Desktop(object):
             # Update toolkit
             run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
         else:
-            self.logger.info("Incorrect input".format(toolkit_name))
+            self.logger.info("Incorrect input")
             return
         toolkit_dir = os.path.join(self.personallib, "Toolkits")
         tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
