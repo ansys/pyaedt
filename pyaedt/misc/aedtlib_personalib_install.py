@@ -211,16 +211,41 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
 
     # Write a new "Panel_PyAEDT" sub-element.
     panel = ET.SubElement(root, "panel", label="Panel_PyAEDT")
-    gallery = ET.SubElement(panel, "gallery", imagewidth="120", imageheight="72")
     image_rel_path = os.path.relpath(pyaedt_lib_dir, product_toolkit_dir).replace("\\", "/") + "/"
     if image_rel_path == "./":
         image_rel_path = ""
-    ET.SubElement(gallery, "button", label="PyAEDT", isLarge="1", image=image_rel_path + "images/large/pyansys.png")
-    group = ET.SubElement(gallery, "group", label="PyAEDT Menu", image=image_rel_path + "images/gallery/PyAEDT.png")
-    ET.SubElement(group, "button", label="Console", script="PyAEDT/Console")
-    ET.SubElement(group, "button", label="Jupyter Notebook", script="PyAEDT/Jupyter")
-    ET.SubElement(group, "button", label="Run PyAEDT Script", script="PyAEDT/Run PyAEDT Script")
-    ET.SubElement(group, "button", label="Toolkit Manager", script="PyAEDT/Run Toolkit Manager")
+    ET.SubElement(
+        panel,
+        "button",
+        label="Console",
+        script="PyAEDT/Console",
+        isLarge="1",
+        image=image_rel_path + "images/gallery/console.png",
+    )
+    ET.SubElement(
+        panel,
+        "button",
+        label="Jupyter Notebook",
+        script="PyAEDT/Jupyter",
+        isLarge="1",
+        image=image_rel_path + "images/gallery/jupyter.png",
+    )
+    ET.SubElement(
+        panel,
+        "button",
+        label="Run PyAEDT Script",
+        script="PyAEDT/Run PyAEDT Script",
+        isLarge="1",
+        image=image_rel_path + "images/gallery/run_script.png",
+    )
+    ET.SubElement(
+        panel,
+        "button",
+        label="Toolkit Manager",
+        script="PyAEDT/Run Toolkit Manager",
+        isLarge="1",
+        image=image_rel_path + "images/gallery/toolkit_manager.png",
+    )
 
     # Backup any existing file if present
     if os.path.isfile(tab_config_file_path):
@@ -228,7 +253,14 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
 
     write_pretty_xml(root, tab_config_file_path)
 
-    files_to_copy = ["images/large/pyansys.png", "images/gallery/PyAEDT.png", "images/large/logo.png"]
+    files_to_copy = [
+        "images/large/pyansys.png",
+        "images/gallery/console.png",
+        "images/gallery/jupyter.png",
+        "images/gallery/run_script.png",
+        "images/gallery/toolkit_manager.png",
+        "images/large/logo.png",
+    ]
     for file_name in files_to_copy:
         dest_file = os.path.normpath(os.path.join(pyaedt_lib_dir, file_name))
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
