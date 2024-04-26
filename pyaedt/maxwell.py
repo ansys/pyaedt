@@ -2915,7 +2915,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @property
     def model_depth(self):
         """Model depth."""
-        design_settings = self.design_settings()
+        design_settings = self.design_settings
         if "ModelDepth" in design_settings:
             value_str = design_settings["ModelDepth"]
             return value_str

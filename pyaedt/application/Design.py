@@ -4080,3 +4080,8 @@ class DesignSettings:
         else:
             self._app.logger.error("{} property is not available in design settings.".format(key))
             return None
+
+    def __contains__(self, item):
+        if item in self.available_properties:
+            return True
+        return False
