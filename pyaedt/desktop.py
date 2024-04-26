@@ -720,7 +720,7 @@ class Desktop(object):
             AEDT project object.
 
         name : str, optional
-            Name of the active design to make active.
+            Name of the design to make active.
             The default is ``None``, in which case the active design is returned.
 
         design_type : str, optional

@@ -431,7 +431,7 @@ class TestClass:
         new_setup.props = setup.props
         new_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM not working in linux.")
+    @pytest.mark.skipif(is_linux, reason="SPISIM is not working in Linux.")
     def test_08_compute_erl(self, circuit_erl):
         touchstone_file = circuit_erl.export_touchstone()
         spisim = SpiSim(touchstone_file)

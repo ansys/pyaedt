@@ -3333,7 +3333,7 @@ class Design(AedtObjects):
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
-                self.logger.error("Fail to create new design.")
+                self.logger.error("Failed to create design.")
                 return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()

@@ -654,7 +654,7 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
-    @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
+    @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
         assert test_post1.post.create_fieldplot_layers(

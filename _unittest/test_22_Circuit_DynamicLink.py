@@ -105,7 +105,7 @@ class TestClass:
         assert self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
-    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because AEDT is crashing.")
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_06_set_sim_solution_on_hfss_subcircuit(self):
         hfss_comp = "CompInst@uUSB;87;3"

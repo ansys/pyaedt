@@ -240,7 +240,7 @@ class TestClass:
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     @pytest.mark.skipif(
-        is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple Circuit designs not valid"
+        is_linux and config["desktopVersion"] == "2024.1", reason="Project with multiple circuit designs is not working."
     )
     def test_20a_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
@@ -792,7 +792,7 @@ class TestClass:
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
-    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to closed.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -806,7 +806,7 @@ class TestClass:
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
-    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to closed.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
     def test_45_create_circuit_from_multizone_layout(self, add_edb):
         edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
@@ -855,7 +855,7 @@ class TestClass:
         )
         assert status
 
-    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode.")
     def test_48_automatic_tdr(self):
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
 
