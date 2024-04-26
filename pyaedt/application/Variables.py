@@ -16,6 +16,7 @@ Examples
 from __future__ import absolute_import  # noreorder
 from __future__ import division
 
+import ast
 import os
 import re
 import types
@@ -156,14 +157,17 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
+            if not found_variable:
+                raise KeyError("Input string {} is not a key of the data dictionary.".format(variable))
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
 
     @pyaedt_function_handler()
     def __add__(self, other):
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        if self.number_of_columns != other.number_of_columns:
+            raise ValueError("Number of columns is inconsistent.")
+
         # Create a new object to return, avoiding changing the original inputs
         new_dataset = CSVDataset()
         # Add empty columns to new_dataset
@@ -198,7 +202,8 @@ class CSVDataset:
             for column in other.data:
                 self._data[column] = []
 
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        if self.number_of_columns != other.number_of_columns:
+            raise ValueError("Number of columns is inconsistent.")
 
         # Append the data from 'other'
         for column, row_data in other.data.items():
@@ -1056,7 +1061,7 @@ class VariableManager(object):
                     self._logger.clear_messages()
                     return
             except Exception:
-                pass
+                self._logger.debug("Something went wrong when deleting '{}'.".format(variable_name))
         else:
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
@@ -1188,7 +1193,7 @@ class VariableManager(object):
                 )
                 return True
             except Exception:
-                pass
+                self._logger.debug("Failed to change desktop object property.")
         return False
 
     @pyaedt_function_handler()
@@ -1229,7 +1234,7 @@ class VariableManager(object):
                     ]
                 )
             except Exception:  # pragma: no cover
-                pass
+                self._logger.debug("Failed to change desktop object property.")
             else:
                 self._cleanup_variables()
                 return True
@@ -1424,9 +1429,12 @@ class Variable(object):
             self._value = self._calculated_value
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
-            assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
-                specified_units, self._units
-            )
+            if self._units and self._units != specified_units:
+                raise RuntimeError(
+                    "The unit specification {} is inconsistent with the identified units {}.".format(
+                        specified_units, self._units
+                    )
+                )
             self._units = specified_units
 
         if not si_value and is_number(self._value):
@@ -1493,7 +1501,7 @@ class Variable(object):
                     break
                 i += 1
         except Exception:
-            pass
+            self._app.logger.debug("Failed to set property '{}' value.".format(prop))
 
     @pyaedt_function_handler()
     def _get_prop_val(self, prop):
@@ -1515,7 +1523,7 @@ class Variable(object):
                     name = "LocalVariables"
             return self._app.get_oo_object(self._aedt_obj, "{}/{}".format(name, self._variable_name)).GetPropValue(prop)
         except Exception:
-            pass
+            self._app.logger.debug("Failed to get property '{}' value.".format(prop))
 
     @property
     def name(self):
@@ -1724,7 +1732,7 @@ class Variable(object):
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
         if is_array(self._value):
-            return list(eval(self._value))
+            return list(ast.literal_eval(self._value))
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
             val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
@@ -1818,9 +1826,12 @@ class Variable(object):
 
         """
         new_unit_system = unit_system(units)
-        assert (
-            new_unit_system == self.unit_system
-        ), "New unit system {0} is inconsistent with the current unit system {1}."
+        if new_unit_system != self.unit_system:
+            raise ValueError(
+                "New unit system {} is inconsistent with the current unit system {}.".format(
+                    new_unit_system, self.unit_system
+                )
+            )
         self._units = units
         return self
 
@@ -1891,7 +1902,9 @@ class Variable(object):
                 >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Multiplier must be a scalar quantity or a variable.")
+
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1936,10 +1949,11 @@ class Variable(object):
         >>> assert result.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only add a variable with another variable."
-        assert (
-            self.unit_system == other.unit_system
-        ), "Only ``Variable`` objects with the same unit system can be added."
+        if not isinstance(other, Variable):
+            raise ValueError("You can only add a variable with another variable.")
+        if self.unit_system != other.unit_system:
+            raise ValueError("Only Variable objects with the same unit system can be added.")
+
         result_value = self.value + other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -1978,10 +1992,11 @@ class Variable(object):
         >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
-        assert (
-            self.unit_system == other.unit_system
-        ), "Only ``Variable`` objects with the same unit system can be subtracted."
+        if not isinstance(other, Variable):
+            raise ValueError("You can only subtract a variable from another variable.")
+        if self.unit_system != other.unit_system:
+            raise ValueError("Only Variable objects with the same unit system can be subtracted.")
+
         result_value = self.value - other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -2023,7 +2038,9 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Divisor must be a scalar quantity or a variable.")
+
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
