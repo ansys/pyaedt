@@ -98,7 +98,8 @@ class TestClass:
         panel_names = [panel.attrib["label"] for panel in panels]
         assert len(panel_names) == 1
 
-    def validate_file_exists_and_pyaedt_tabs_added(self, file_path):
+    @staticmethod
+    def validate_file_exists_and_pyaedt_tabs_added(file_path):
         assert os.path.isfile(file_path) is True
         assert ET.parse(file_path) is not None
         tree = ET.parse(file_path)
@@ -106,7 +107,12 @@ class TestClass:
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
         assert "Panel_PyAEDT" in panel_names
-        files_to_verify = ["images/large/pyansys.png", "images/gallery/PyAEDT.png"]
+        files_to_verify = [
+            "images/large/pyansys.png",
+            "images/gallery/console.png",
+            "images/gallery/run_script.png",
+            "images/gallery/toolkit_manager.png",
+        ]
         for file_name in files_to_verify:
             assert os.path.isfile(os.path.join(os.path.dirname(file_path), file_name))
         return root
