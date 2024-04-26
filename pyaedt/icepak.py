@@ -1983,6 +1983,7 @@ class Icepak(FieldAnalysis3D):
         )
         return filename
 
+    @pyaedt_function_handler(geometryType="geometry_type", variationlist="variation_list")
     def export_summary(
         self,
         output_dir=None,
@@ -1993,7 +1994,6 @@ class Icepak(FieldAnalysis3D):
         variation="",
         variation_list=None,
         filename="IPKsummaryReport",
-        **kwargs,
     ):
         """Export a fields summary of all objects.
 
@@ -2030,16 +2030,6 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditFieldsSummarySetting
         >>> oModule.ExportFieldsSummary
         """
-        if "geometryType" in kwargs:
-            warnings.warn("The 'geometryType' argument is deprecated. Use 'geometry_type' instead.", DeprecationWarning)
-
-        if "variationlist" in kwargs:
-            warnings.warn(
-                "The 'variationlist' argument is deprecated. Use 'variation_list' instead.", DeprecationWarning
-            )
-
-        geometry_type = kwargs.get("geometryType", geometry_type)
-        variation_list = kwargs.get("variationlist", variation_list)
 
         if variation_list is None:
             variation_list = []
