@@ -465,13 +465,6 @@ class MeshSettings(object):
             for arg in self._aedt_20212_args:
                 del self._instance_settings[arg]
 
-    @pyaedt_function_handler()
-    def _dim_arg(self, value):
-        if isinstance(value, str):
-            return value
-        else:
-            return _dim_arg(value, getattr(self._mesh_class, "_model_units"))
-
     def parse_settings_as_args(self):
         """
         Parse mesh region settings.
@@ -485,7 +478,7 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = self._dim_arg(v)
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out.append(v)
         return out
 
@@ -499,18 +492,12 @@ class MeshSettings(object):
             Settings of the subregion.
         """
         out = {}
-        for k, v in self._instance_settings.items():
+        for k in self.keys():
+            v = self._instance_settings[k]
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = self._dim_arg(v)
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out[k] = v
         return out
-
-    def _key_in_dict(self, key):
-        if self._mesh_class.manual_settings:
-            ref_dict = self._manual_mesh_settings
-        else:
-            ref_dict = self._automatic_mesh_settings
-        return key in ref_dict or key in self._common_mesh_settings
 
     def keys(self):
         """
@@ -521,7 +508,10 @@ class MeshSettings(object):
         dict_keys
             Available settings keys.
         """
-        return self.parse_settings_as_dictionary().keys()
+        if self._mesh_class.manual_settings:
+            return {**self._manual_mesh_settings, **self._common_mesh_settings}.keys()
+        else:
+            return {**self._automatic_mesh_settings, **self._common_mesh_settings}.keys()
 
     def values(self):
         """
@@ -534,21 +524,32 @@ class MeshSettings(object):
         """
         return self.parse_settings_as_dictionary().values()
 
+    def items(self):
+        """
+        Get mesh region settings items.
+
+        Returns
+        -------
+        dict_items
+            Settings items.
+        """
+        return self.parse_settings_as_dictionary().items()
+
     def __repr__(self):
         return repr(self.parse_settings_as_dictionary())
 
     def __getitem__(self, key):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             return self._instance_settings[key]
         else:
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             if key == "MeshRegionResolution":
                 try:
                     value = int(value)
@@ -572,13 +573,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self._instance_settings.__iter__()
+        return self.keys().__iter__()
 
     def __len__(self):
-        return self._instance_settings.__len__()
+        return self.keys().__len__()
 
     def __contains__(self, x):
-        return self._instance_settings.__contains__(x)
+        return self.keys().__contains__(x)
 
 
 class MeshRegionCommon(object):
