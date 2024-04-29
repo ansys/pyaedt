@@ -217,7 +217,7 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
     ET.SubElement(
         panel,
         "button",
-        label="Console",
+        label="PyAEDT Console",
         script="PyAEDT/Console",
         isLarge="1",
         image=image_rel_path + "images/gallery/console.png",
