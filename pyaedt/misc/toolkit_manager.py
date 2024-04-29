@@ -29,7 +29,7 @@ else:
 
 
 def create_toolkit_page(frame, open_source_toolkits):
-    """Create page to install toolkit"""
+    """Create page to display toolkit on."""
     # Available toolkits
     toolkits = ["Custom"] + open_source_toolkits
     max_length = max(len(item) for item in toolkits)
@@ -107,6 +107,7 @@ def create_toolkit_page(frame, open_source_toolkits):
 
 
 def is_toolkit_installed(toolkit_name):
+    """Check if toolkit is installed."""
     if toolkit_name == "Custom":
         return False
     script_file = os.path.normpath(os.path.join(package_dir, available_toolkits[toolkit_name]["toolkit_script"]))
@@ -136,7 +137,7 @@ def __get_command_function(
 
 
 def toolkit_window(toolkit_level="Project"):
-    """Main window"""
+    """Create interactive toolkit window."""
     toolkit_window_var = tk.Toplevel(root)
     open_source_toolkits = []
     for toolkit_name, toolkit_info in available_toolkits.items():
@@ -161,8 +162,7 @@ def toolkit_window(toolkit_level="Project"):
 def button_is_clicked(
     install_action, toolkit_level, input_file, combo_toolkits, toolkit_name, install_button, uninstall_button
 ):
-    """Install/Uninstall button action"""
-    # installation_option = option_action.get()
+    """Set up a button for installing and uninstalling the toolkit."""
     file = input_file.get()
     selected_toolkit_name = combo_toolkits.get()
     name = toolkit_name.get()
