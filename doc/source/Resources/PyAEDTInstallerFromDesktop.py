@@ -119,6 +119,12 @@ def install_pyaedt():
         if args.version < "232":
             ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["TK_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".format(args.edt_root,
+                                                                                                      args.python_version.replace(
+                                                                                                          ".", "_"))
+        os.environ["TCL_LIBRARY"] = "{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(args.edt_root,
+                                                                                                       args.python_version.replace(
+                                                                                                           ".", "_"))
 
     if not os.path.exists(venv_dir):
 
@@ -139,7 +145,8 @@ def install_pyaedt():
                 zip_ref.extractall(unzipped_path)
 
             run_command(
-                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe, unzipped_path))
+                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
+                                                                                                   unzipped_path))
             run_command(
                 '"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
 
