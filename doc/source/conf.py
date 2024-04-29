@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 # Sphinx event hooks
 
 class PrettyPrintDirective(Directive):
-    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+    """Renders a constant using ``pprint.pformat`` and inserts it into the document."""
     required_arguments = 1
 
     def run(self):
@@ -77,13 +77,13 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
 
 
 def directory_size(directory_path):
-    """Compute the size (in mega bytes) of a directory."""
+    """Compute the size (in megabytes) of a directory."""
     res = 0
     for path, _, files in os.walk(directory_path):
         for f in files:
             fp = os.path.join(path, f)
             res += os.stat(fp).st_size
-    # Convert in mega bytes
+    # Convert in megabytes
     res /= 1e6
     return res
 
