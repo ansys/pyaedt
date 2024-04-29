@@ -1,5 +1,6 @@
 import copy
 
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 solutions_defaults = {
@@ -549,7 +550,8 @@ class DesignSolution(object):
         self._odesign = odesign
         self._aedt_version = aedt_version
         self.model_name = model_names[design_type]
-        assert design_type in solutions_types, "Wrong Design Type"
+        if not design_type in solutions_types:
+            raise ValueError("Design type is not valid.")
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])
         self._design_type = design_type
@@ -844,7 +846,7 @@ class Maxwell2DDesignSolution(DesignSolution, object):
                     opts = ""
                 self._odesign.SetSolutionType(self._solution_options[self._solution_type]["name"], opts)
             except Exception:
-                pass
+                logger.error("Failed to set solution type.")
 
 
 class IcepakDesignSolution(DesignSolution, object):
@@ -922,7 +924,7 @@ class IcepakDesignSolution(DesignSolution, object):
                 try:
                     self._odesign.SetSolutionType(options)
                 except Exception:
-                    pass
+                    logger.error("Failed to set solution type.")
 
 
 class RmXprtDesignSolution(DesignSolution, object):
@@ -943,7 +945,7 @@ class RmXprtDesignSolution(DesignSolution, object):
                 self._odesign.SetDesignFlow(self._design_type, solution_type)
                 self._solution_type = solution_type
             except Exception:
-                pass
+                logger.error("Failed to set design flow.")
 
     @property
     def design_type(self):

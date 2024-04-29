@@ -328,6 +328,8 @@ class PostProcessor(Post):
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
+        This method does not support streamlines plot.
+
         .. note::
            The PyVista module rebuilds the mesh and the overlap fields on the mesh.
 
@@ -392,8 +394,6 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        if self.field_plots[plot_name].field_type == "DC R/L Fields":
-            file_format = "fldplt"
         file_to_add = self.export_field_plot(plot_name, self._app.working_directory, file_format=file_format)
         model = self.get_model_plotter_geometries(
             generate_mesh=False,

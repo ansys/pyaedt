@@ -214,7 +214,9 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
 
-plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), quantity=drop_name)
+plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"),
+                                          quantity=drop_name,
+                                          intrinsics={"Freq": "1GHz"})
 
 q3d.post.plot_field_from_fieldplot(plot1.name, project_path=q3d.working_directory, mesh_plot=False, image_format="jpg",
                                    view="isometric", show=False, plot_cad_objs=False, log_scale=False)

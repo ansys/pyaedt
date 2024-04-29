@@ -200,79 +200,79 @@ class TestClass:
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
         assert not q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations=["r1:0.3mm"],
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations=[" r1 : 0.3 mm "],
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations="r1:0.3mm",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Original"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Test1"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Test1"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             coupling_limit_type=0,
-            res_limit="6Mohm",
             ind_limit="12nH",
+            res_limit="6Mohm",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34mm"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34mm"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34nounits"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34nounits"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             rise_time_value="1e-6",
             rise_time_unit="s",
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             rise_time_value="23",
             rise_time_unit="m",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="WELement"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="WELement"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model=q2d_q3d
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 

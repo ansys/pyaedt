@@ -287,7 +287,8 @@ class Primitives2D(GeometryModeler, object):
             Padding values to apply. If a list is not provided, the same
             value is applied to all padding directions. If a list of floats
             or strings is provided, the values are
-            interpreted as padding for ``["+X", "-X", "+Y", "-Y", "+Z", "-Z"]``.
+            interpreted as padding for ``["+X", "-X", "+Y", "-Y"]`` for XY geometry mode,
+            and ``["+R", "+Z", "-Z"]`` for RZ geometry mode.
         pad_type : str, optional
             Padding definition. The default is ``"Percentage Offset"``.
             Options are ``"Absolute Offset"``,
@@ -318,24 +319,26 @@ class Primitives2D(GeometryModeler, object):
             if kwarg.get("pad_percent", False):
                 pad_percent = kwarg["pad_percent"]
                 pad_value = pad_percent
-            if isinstance(pad_value, list) and len(pad_value) < 6:
-                pad_value = [pad_value[i // 2 + 3 * (i % 2)] for i in range(6)]
+            if isinstance(pad_value, list) and len(pad_value) == 4:
+                pad_value = [pad_value[i // 2 + 2 * (i % 2)] for i in range(4)]
             pad_type = ["Absolute Offset", "Percentage Offset"][int(is_percentage)]
 
         if isinstance(pad_type, bool):
             pad_type = ["Absolute Offset", "Percentage Offset"][int(pad_type)]
 
-        if not isinstance(pad_value, list):
-            pad_value = [pad_value] * 4
         if self._app.design_type == "2D Extractor" or (
             self._app.design_type == "Maxwell 2D" and self._app.odesign.GetGeometryMode() == "XY"
         ):
+            if not isinstance(pad_value, list):
+                pad_value = [pad_value] * 4
             if len(pad_value) != 4:
                 self.logger.error("Wrong padding list provided. Four values have to be provided.")
                 return False
             pad_value = [pad_value[0], pad_value[2], pad_value[1], pad_value[3], 0, 0]
         else:
-            if len(pad_value) < 3:
+            if not isinstance(pad_value, list):
+                pad_value = [pad_value] * 3
+            if len(pad_value) != 3:
                 self.logger.error("Wrong padding list provided. Three values have to be provided for RZ geometry.")
                 return False
             pad_value = [pad_value[0], 0, 0, 0, pad_value[1], pad_value[2]]

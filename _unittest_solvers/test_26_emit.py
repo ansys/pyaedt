@@ -7,6 +7,7 @@ from _unittest_solvers.conftest import config
 import pytest
 
 from pyaedt import Emit
+from pyaedt import generate_unique_project_name
 from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
@@ -373,7 +374,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_08_revision_generation(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         assert len(self.aedtapp.results.revisions) == 0
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
@@ -443,7 +444,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_09_manual_revision_access_test_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
@@ -512,7 +513,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_10_radio_band_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
         rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
         rad3, ant3 = self.aedtapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
@@ -729,7 +730,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_15_basic_run(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         assert len(self.aedtapp.results.revisions) == 0
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
@@ -811,7 +812,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2024.1",
     )
     def test_16_optimal_n_to_1_feature(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
@@ -867,7 +868,7 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     def test_17_availability_1_to_1(self, add_app):
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp.modeler.components.create_component("MD400C")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
