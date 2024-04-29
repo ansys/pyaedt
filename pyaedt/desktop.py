@@ -711,13 +711,13 @@ class Desktop(object):
         return get_pyaedt_app(projectname, designname, self)
 
     @pyaedt_function_handler()
-    def active_design(self, project_object, name=None, design_type=None):
+    def active_design(self, project_object=None, name=None, design_type=None):
         """Get the active design.
 
         Parameters
         ----------
-        project_object :
-            AEDT project object.
+        project_object : optional
+            AEDT project object. The default is ``None``, in which case the active project is used.
 
         name : str, optional
             Name of the design to make active.
@@ -733,6 +733,8 @@ class Desktop(object):
         >>> oProject.GetActiveDesign
         >>> oProject.SetActiveDesign
         """
+        if not project_object:
+            project_object = self.active_project()
         if not name:
             active_design = project_object.GetActiveDesign()
         else:
