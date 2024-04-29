@@ -46,7 +46,7 @@ tests = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.2",
+    "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
     "pyedb>=0.4.0,<0.9; python_version == '3.7'",
