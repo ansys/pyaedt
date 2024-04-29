@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import warnings
 
 from pyaedt import emit_core
-from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS
@@ -114,8 +113,6 @@ class Emit(Design, object):
         port=0,
         aedt_process_id=None,
     ):
-        if projectname is None:
-            projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
