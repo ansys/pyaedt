@@ -662,7 +662,7 @@ class Icepak(FieldAnalysis3D):
         thermal_dependent_dataset : str, optional
             Name of the dataset if a thermal dependent power source is to be assigned. The default is ``None``.
         input_power : str, float, or int, optional
-            Input power. The default is ``"0W"``.
+            Input power. The default is ``None``.
         thermal_condtion : str, optional
             Thermal condition. The default is ``"Total Power"``.
         surface_heat : str, optional
