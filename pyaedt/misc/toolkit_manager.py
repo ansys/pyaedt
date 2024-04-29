@@ -114,7 +114,7 @@ def is_toolkit_installed(toolkit_name):
 
 
 def open_window(window, window_name, open_source_toolkits):
-    """Open window action"""
+    """Open a window."""
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
@@ -217,9 +217,9 @@ def button_is_clicked(
                     executable_interpreter=executable_interpreter,
                 )
             else:
-                desktop.logger.info("PyAEDT environment is not installed")
+                desktop.logger.info("PyAEDT environment is not installed.")
         else:
-            desktop.logger.info("Uninstall {}".format(name))
+            desktop.logger.info("Uninstall {}.".format(name))
             desktop.remove_script_from_menu(name, product=toolkit_level)
 
     desktop.odesktop.CloseAllWindows()
