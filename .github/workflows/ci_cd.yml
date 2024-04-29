@@ -524,91 +524,10 @@ jobs:
           twine-username: "__token__"
           twine-token: ${{ secrets.PYPI_TOKEN }}
 
-      # TODO: Uncomment once PDF file generation is fixed in CICD
-      # - name: Release to GitHub
-      #   uses: ansys/actions/release-github@v4
-      #   with:
-      #     library-name: ${{ env.PACKAGE_NAME }}
-      - name: "Download all artifacts that got generated in the CI/CD"
-        uses: actions/download-artifact@v3
+      - name: Release to GitHub
+        uses: ansys/actions/release-github@v4
         with:
-          path: /tmp/artifacts
-
-      - name: "Generate a distribution folder that will contain the desired artifacts"
-        shell: bash
-        run: mkdir -p dist
-
-      - name: "Moving documentation artifacts to dist/documentation directory"
-        shell: bash
-        run: |
-          mkdir -p dist/documentation
-          mv /tmp/artifacts/documentation-examples-html dist/documentation/documentation-html
-
-      - name: "Compressing HTML documentation"
-        uses: vimtor/action-zip@v1.2
-        with:
-          files: dist/documentation/documentation-html
-          dest: dist/documentation/documentation-html.zip
-
-      - name: "Move wheelhouse artifacts to dist/wheelhouse directory"
-        shell: bash
-        run: |
-          mkdir -p dist/wheelhouse
-          mv /tmp/artifacts/**/*-wheelhouse-*.zip dist/wheelhouse/
-
-      - name: "Move wheel artifacts to dist/${{ env.PACKAGE_NAME }}-artifacts directory"
-        shell: bash
-        run: |
-          mv /tmp/artifacts/${{ env.PACKAGE_NAME }}-artifacts dist/${{ env.PACKAGE_NAME }}-artifacts
-
-      - name: "Display the structure of the 'dist/' folder"
-        shell: bash
-        run: ls -R dist/
-
-      - name: "Release to GitHub"
-        uses: softprops/action-gh-release@v2
-        with:
-          fail_on_unmatched_files: false
-          generate_release_notes: true 
-          files: |
-            # Include wheel and source distribution artifacts
-            dist/${{ inputs.library-name }}-artifacts/*.whl
-            dist/${{ inputs.library-name }}-artifacts/*.tar.gz
-
-            # Include wheelhouse artifacts
-            dist/wheelhouse/**/*-wheelhouse-*.zip
-
-            # Include HTML documentation artifacts
-            dist/documentation/documentation-html.zip
-
-  # FIXME: Dev doc is upload nightly as it takes too long to upload
-  # upload-dev-doc:
-  #   name: Upload dev documentation
-  #   if: github.ref == 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   needs: [package]
-  #   steps:
-  #     - name: Deploy the latest documentation
-  #       uses: ansys/actions/doc-deploy-dev@v4
-  #       with:
-  #         cname: ${{ env.DOCUMENTATION_CNAME }}
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         doc-artifact-name: 'documentation-no-examples-html'
-
-  # doc-index-dev:
-  #   name: "Deploy dev index docs"
-  #   if: github.ref == 'refs/heads/main'
-  #   runs-on: ubuntu-latest
-  #   needs: upload-dev-doc
-  #   steps:
-  #     - name: "Deploy the latest documentation index"
-  #       uses: ansys/actions/doc-deploy-index@v4
-  #       with:
-  #         cname: ${{ env.DOCUMENTATION_CNAME }}/version/dev
-  #         index-name: pyaedt-vdev
-  #         host-url: ${{ env.MEILISEARCH_HOST_URL }}
-  #         api-key: ${{ env.MEILISEARCH_API_KEY }}
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          library-name: ${{ env.PACKAGE_NAME }}
 
   upload-release-doc:
     name: Upload release documentation
@@ -621,7 +540,7 @@ jobs:
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          doc-artifact-name: 'documentation-examples-html'
+          doc-artifact-name: 'documentation-html'
 
   doc-index-stable:
     name: Deploy stable docs index
