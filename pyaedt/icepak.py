@@ -1623,6 +1623,7 @@ class Icepak(FieldAnalysis3D):
         default_solid="Al-Extruded",
         default_surface="Steel-oxidised-surface",
         export_monitor=False,
+        export_sherlock=False,
         export_directory=os.getcwd(),
         gauge_pressure=0,
         radiation_temperature=20,
@@ -1651,10 +1652,14 @@ class Icepak(FieldAnalysis3D):
         default_surface : str, optional
             Default surface material. The default is ``"Steel-oxidised-surface"``.
         export_monitor : bool, optional
-            Whether to use the default export directory for monitor point data.
+            Whether to export monitor data.
+            The default value is ``False``.
+        export_sherlock : bool, optional
+            Whether to export temperature data for Sherlock.
             The default value is ``False``.
         export_directory : str, optional
-            Default export directory for monitor point data. The default value is the current working directory.
+            Default export directory for monitor point and sherlock data.
+            The default value is the current working directory.
         gauge_pressure : float, str, optional
             Set the Gauge pressure. It can be a float (units will be "n_per_meter_sq") or a string with units.
             Default is ``0``.
@@ -1694,6 +1699,12 @@ class Icepak(FieldAnalysis3D):
             default_solid,
             "Default Surface Material:=",
             default_surface,
+            "SherlockExportOnSimulationComplete:=",
+            export_sherlock,
+            "SherlockExportAsFatigue:=",
+            True,
+            "SherlockExportDirectory:=",
+            export_directory,
             "AmbientPressure:=",
             self.value_with_units(gauge_pressure, "n_per_meter_sq"),
             "AmbientRadiationTemperature:=",
