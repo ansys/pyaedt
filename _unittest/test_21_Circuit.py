@@ -504,11 +504,14 @@ class TestClass:
         self.aedtapp.analyze()
         time.sleep(2)
         assert self.aedtapp.browse_log_file()
-        if not is_linux:
-            self.aedtapp.save_project()
-            assert self.aedtapp.browse_log_file()
-            assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
-            assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp.odesktop.CloseAllWindows()
+            self.circuitprj.odesktop.CloseAllWindows()
+        self.aedtapp.save_project()
+        assert self.aedtapp.browse_log_file()
+        assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
+        assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
 
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
@@ -711,10 +714,14 @@ class TestClass:
         assert "PortTest" in c.excitations
         c.excitation_objects["PortTest"].delete()
         assert len(c.excitation_objects) == 0
-        if not is_linux:
-            self.aedtapp.save_project()
-            c = add_app(application=Circuit, design_name="sources")
-            assert c.sources
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp.odesktop.CloseAllWindows()
+            self.circuitprj.odesktop.CloseAllWindows()
+            time.sleep(1)
+        self.aedtapp.save_project()
+        c = add_app(application=Circuit, design_name="sources")
+        assert c.sources
 
     def test_41_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
