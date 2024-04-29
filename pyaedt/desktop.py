@@ -1763,12 +1763,12 @@ class Desktop(object):
             venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
             python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
             pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
-            package_dir = os.path.join(venv_dir, "Lib", "site-packages")
+            package_dir = os.path.join(venv_dir, "Lib")
         else:
             venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
             python_exe = os.path.join(venv_dir, "bin", "python")
             pip_exe = os.path.join(venv_dir, "bin", "pip")
-            package_dir = os.path.join(venv_dir, "Lib", "site-packages")
+            package_dir = os.path.join(venv_dir, "lib")
             edt_root = os.path.normpath(self.odesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [
@@ -1792,7 +1792,14 @@ class Desktop(object):
             self.logger.info("Virtual environment created.")
 
         is_installed = False
-        script_file = os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))
+        script_file = None
+        if os.path.isdir(os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))):
+            script_file = os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))
+        else:
+            for dirpath, dirnames, _ in os.walk(package_dir):
+                if "site-packages" in dirnames:
+                    script_file = os.path.normpath(os.path.join(dirpath, "site-packages", toolkit["toolkit_script"]))
+                    break
         if os.path.isfile(script_file):
             is_installed = True
         if wheel_toolkit:
@@ -1835,13 +1842,10 @@ class Desktop(object):
 
         if install:
             if not os.path.exists(tool_dir):
-                script_path = os.path.join(
-                    venv_dir, "Lib", "site-packages", os.path.normpath(toolkit["toolkit_script"])
-                )
                 # Install toolkit inside AEDT
                 self.add_script_to_menu(
                     toolkit_name=toolkit_name,
-                    script_path=script_path,
+                    script_path=script_file,
                     script_image=script_image,
                     product=toolkit["installation_path"],
                     copy_to_personal_lib=False,
