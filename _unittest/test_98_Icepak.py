@@ -407,6 +407,7 @@ class TestClass:
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler["boxSource"].bottom_face_z.id,
+            input_power="0W",
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
@@ -429,6 +430,7 @@ class TestClass:
             voltage_current_choice="Current",
             voltage_current_value="1A",
         )
+        self.aedtapp.solution_type = "SteadyState"
         assert not self.aedtapp.assign_source(
             self.aedtapp.modeler["boxSource"].top_face_x.id,
             "Total Power",
