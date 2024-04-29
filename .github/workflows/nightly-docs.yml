@@ -49,11 +49,6 @@ jobs:
           sudo apt update
           sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
 
-      - name: Install doc build requirements
-        run: |
-          sudo apt update
-          sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
-
       # TODO: Update this step once pyaedt-examples is ready
       - name: Build HTML documentation without examples
         run: |
