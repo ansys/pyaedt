@@ -149,7 +149,7 @@ def install_toolkit(toolkit_dir, product, aedt_version, is_student_version=False
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter", "Run_Toolkit_Manager"]
-    # Remove hard-coded version number from Python virtual environment path, and replace it with the corresponding AEDT
+    # Remove hard-coded version number from Python virtual environment path and replace it with the corresponding AEDT
     # version's Python virtual environment.
     version_agnostic = False
     if aedt_version[2:6].replace(".", "") in sys.executable:
