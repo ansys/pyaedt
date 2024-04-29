@@ -3067,7 +3067,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-        Set vector potential = 0 boundary condition in Maxwell 2D.
+        Set vector potential to zero at the boundary edges in Maxwell 2D.
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
