@@ -23,6 +23,7 @@ import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
@@ -1635,7 +1636,7 @@ class Icepak(FieldAnalysis3D):
         gravity_dir : int, optional
             Gravity direction from -X to +Z. Options are ``0`` to ``5``.
             The default is ``0``.
-        ambient_temperature : float, str, optional
+        ambient_temperature : float, str, BoundaryDict or dict optional
             Ambient temperature. The default is ``20``.
             The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
         perform_validation : bool, optional
@@ -1683,34 +1684,44 @@ class Icepak(FieldAnalysis3D):
         if int(gravity_dir) > 2:
             gv_pos = True
         gva = ice_gravity[int(gravity_dir) - 3]
+        arg1 = [
+            "NAME:Design Settings Data",
+            "Perform Minimal validation:=",
+            perform_validation,
+            "Default Fluid Material:=",
+            default_fluid,
+            "Default Solid Material:=",
+            default_solid,
+            "Default Surface Material:=",
+            default_surface,
+            "AmbientPressure:=",
+            self.value_with_units(gauge_pressure, "n_per_meter_sq"),
+            "AmbientRadiationTemperature:=",
+            self.value_with_units(radiation_temperature, "cel"),
+            "Gravity Vector CS ID:=",
+            1,
+            "Gravity Vector Axis:=",
+            gva,
+            "Positive:=",
+            gv_pos,
+            "ExportOnSimulationComplete:=",
+            export_monitor,
+            "ExportDirectory:=",
+            export_directory,
+        ]
+        if not isinstance(ambient_temperature, (BoundaryDictionary, dict)):
+            arg1.append("AmbientTemperature:=")
+            arg1.append(self.value_with_units(ambient_temperature, "cel"))
+        else:
+            assignment = self._parse_variation_data(
+                "Ambient Temperature",
+                "Transient",
+                variation_value=ambient_temperature["Values"],
+                function=ambient_temperature["Function"],
+            )
+            _dict2arg(assignment, arg1)
         self._odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "Perform Minimal validation:=",
-                perform_validation,
-                "Default Fluid Material:=",
-                default_fluid,
-                "Default Solid Material:=",
-                default_solid,
-                "Default Surface Material:=",
-                default_surface,
-                "AmbientTemperature:=",
-                self.value_with_units(ambient_temperature, "cel"),
-                "AmbientPressure:=",
-                self.value_with_units(gauge_pressure, "n_per_meter_sq"),
-                "AmbientRadiationTemperature:=",
-                self.value_with_units(radiation_temperature, "cel"),
-                "Gravity Vector CS ID:=",
-                1,
-                "Gravity Vector Axis:=",
-                gva,
-                "Positive:=",
-                gv_pos,
-                "ExportOnSimulationComplete:=",
-                export_monitor,
-                "ExportDirectory:=",
-                export_directory,
-            ],
+            arg1,
             [
                 "NAME:Model Validation Settings",
                 "EntityCheckLevel:=",
@@ -3060,6 +3071,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Apply Icepak default design settings.
 
+        .. deprecated:: 0.8.9
+            Use ``edit_design_settins`` method.
+
         Parameters
         ----------
         ambienttemp : float, str, optional
@@ -3087,40 +3101,16 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.SetDesignSettings
         """
-        ambient_temperature = self.modeler._arg_with_dim(ambienttemp, "cel")
 
-        axes = ["X", "Y", "Z"]
-        GVPos = False
-        if int(gravityDir) > 2:
-            GVPos = True
-        gravity_axis = axes[int(gravityDir) - 3]
-        self.odesign.SetDesignSettings(
-            [
-                "NAME:Design Settings Data",
-                "Perform Minimal validation:=",
-                perform_minimal_val,
-                "Default Fluid Material:=",
-                default_fluid,
-                "Default Solid Material:=",
-                default_solid,
-                "Default Surface Material:=",
-                default_surface,
-                "AmbientTemperature:=",
-                ambient_temperature,
-                "AmbientPressure:=",
-                "0n_per_meter_sq",
-                "AmbientRadiationTemperature:=",
-                ambient_temperature,
-                "Gravity Vector CS ID:=",
-                1,
-                "Gravity Vector Axis:=",
-                gravity_axis,
-                "Positive:=",
-                GVPos,
-            ],
-            ["NAME:Model Validation Settings"],
+        warnings.warn("Use ``edit_design_settins`` method.", DeprecationWarning)
+        return self.edit_design_settings(
+            ambient_temperature=ambienttemp,
+            gravity_dir=gravityDir,
+            perform_validation=perform_minimal_val,
+            default_fluid=default_fluid,
+            default_solid=default_solid,
+            default_surface=default_surface,
         )
-        return True
 
     @pyaedt_function_handler()
     def assign_surface_material(self, obj, mat):

@@ -292,6 +292,9 @@ class TestClass:
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
         assert self.aedtapp.edit_design_settings(ambtemp=20)
         assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        self.aedtapp.solution_type = "Transient"
+        bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
+        assert self.aedtapp.edit_design_settings(ambtemp=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
