@@ -136,7 +136,7 @@ jobs:
 
   doc-build-with-examples:
     name: Documentation build with examples
-    # if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     runs-on: [ self-hosted, Windows, pyaedt ]
     needs: [doc-style]
     timeout-minutes: 720
@@ -210,23 +210,16 @@ jobs:
       - name: Upload HTML documentation with examples artifact
         uses: actions/upload-artifact@v3
         with:
-          name: documentation-examples-html
+          name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
       - name: Upload PDF documentation without examples artifact
         uses: actions/upload-artifact@v3
         with:
-          name: documentation-examples-pdf
-          path: doc/_build/latex/*.pdf
+          name: documentation-pdf
+          path: doc/_build/latex/PyAEDT-Documentation-*.pdf
           retention-days: 7
-
-      # - name: Upload PDF documentation with examples artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: documentation-pdf
-      #     path: doc/_build/latex/*.pdf
-      #     retention-days: 7
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
