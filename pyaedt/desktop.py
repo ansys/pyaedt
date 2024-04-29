@@ -1889,7 +1889,7 @@ class Desktop(object):
             it applies to all designs. You can also specify a product, such as ``"HFSS"``.
         copy_to_personal_lib : bool, optional
             Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
-        executable_interpreter : None, optional
+        executable_interpreter : str, optional
             Executable python path. The default is the one current interpreter.
 
         Returns

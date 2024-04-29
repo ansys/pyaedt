@@ -2,6 +2,9 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
+import PIL.Image
+import PIL.ImageTk
+
 from pyaedt import Desktop
 from pyaedt import is_windows
 from pyaedt.misc.install_extra_toolkits import available_toolkits
@@ -232,10 +235,11 @@ root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
 icon_path = os.path.join(os.path.dirname(__file__), "images", "large", "logo.png")
-icon = tk.PhotoImage(file=icon_path)
+im = PIL.Image.open(icon_path)
+photo = PIL.ImageTk.PhotoImage(im)
 
 # Set the icon for the main window
-root.iconphoto(True, icon)
+root.iconphoto(True, photo)
 
 # Configure style for ttk buttons
 style = ttk.Style()
