@@ -3015,6 +3015,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignBalloon
+
+
+        Examples
+        --------
+        Set balloon boundary condition in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_balloon(edge_list=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3054,6 +3065,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignVectorPotential
+
+
+        Examples
+        --------
+        Set vector potential to zero at the boundary edges in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_vector_potential(input_edge=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
