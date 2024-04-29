@@ -4050,6 +4050,7 @@ class DesignSettings:
 
     @property
     def available_properties(self):
+        """Available properties names for the current design."""
         return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
     def __repr__(self):
