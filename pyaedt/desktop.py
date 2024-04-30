@@ -697,9 +697,9 @@ class Desktop(object):
         else:
             return None
 
-        initial_oproject = self.odesktop.GetActiveProject()
+        initial_oproject = self.active_project()
         if initial_oproject.GetName() != projectname:
-            self.odesktop.SetActiveProject(projectname)
+            self.active_project(projectname)
 
         if isinstance(project_design_name[1], int) and project_design_name[1] < len(self.design_list()):
             designname = self.design_list()[project_design_name[1]]
@@ -709,6 +709,65 @@ class Desktop(object):
             return None
 
         return get_pyaedt_app(projectname, designname, self)
+
+    @pyaedt_function_handler()
+    def active_design(self, project_object=None, name=None, design_type=None):
+        """Get the active design.
+
+        Parameters
+        ----------
+        project_object : optional
+            AEDT project object. The default is ``None``, in which case the active project is used.
+
+        name : str, optional
+            Name of the design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        design_type : str, optional
+            Name of the active design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        References
+        ----------
+
+        >>> oProject.GetActiveDesign
+        >>> oProject.SetActiveDesign
+        """
+        if not project_object:
+            project_object = self.active_project()
+        if not name:
+            active_design = project_object.GetActiveDesign()
+        else:
+            active_design = project_object.SetActiveDesign(name)
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+        return active_design
+
+    @pyaedt_function_handler()
+    def active_project(self, name=None):
+        """Get the active project.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the active project to make active.
+            The default is ``None``, in which case the active project is returned.
+
+        References
+        ----------
+
+        >>> oDesktop.GetActiveProject
+        >>> oDesktop.SetActiveProject
+        """
+        if not name:
+            active_project = self.odesktop.GetActiveProject()
+        else:
+            active_project = self.odesktop.SetActiveProject(name)
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+        return active_project
 
     @property
     def install_path(self):
@@ -1142,14 +1201,14 @@ class Desktop(object):
             ``True`` when successful, ``False`` when failed.
         """
         if not project:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project)
+            oproject = self.active_project(project)
         if oproject:
             if not design:
                 oproject.AnalyzeAll()
             else:
-                odesign = oproject.SetActiveDesign(design)
+                odesign = self.active_design(oproject, design)
                 if odesign:
                     odesign.AnalyzeAll()
         return True
@@ -1217,21 +1276,21 @@ class Desktop(object):
             ``True`` when successful, ``False`` when failed.
         """
         if not project_name:  # pragma: no cover
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:  # pragma: no cover
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if oproject:  # pragma: no cover
             if not design_name:
-                odesign = oproject.GetActiveDesign()
+                odesign = self.active_design(oproject)
             else:
-                odesign = oproject.SetActiveDesign(design_name)
+                odesign = self.active_design(oproject, design_name)
             if odesign:
                 oproject.CopyDesign(design_name)
                 if not target_project:
                     oproject.Paste()
                     return True
                 else:
-                    oproject_target = self.odesktop.SetActiveProject(target_project)
+                    oproject_target = self.active_project(target_project)
                     if not oproject_target:
                         oproject_target = self.odesktop.NewProject(target_project)
                         oproject_target.Paste()
@@ -1255,9 +1314,9 @@ class Desktop(object):
 
         """
         if not project_name:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if oproject:
             return oproject.GetPath()
         return None
@@ -1280,9 +1339,9 @@ class Desktop(object):
 
         updateddeslist = []
         if not project:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project)
+            oproject = self.active_project(project)
         if oproject:
             deslist = list(oproject.GetTopDesignList())
             for el in deslist:
@@ -1309,15 +1368,15 @@ class Desktop(object):
             Design type.
         """
         if not project_name:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if not oproject:
             return ""
         if not design_name:
-            odesign = oproject.GetActiveDesign()
+            odesign = self.active_design(oproject)
         else:
-            odesign = oproject.SetActiveDesign(design_name)
+            odesign = self.active_design(oproject.design_name)
         if odesign:
             return odesign.GetDesignType()
         return ""
@@ -1428,11 +1487,11 @@ class Desktop(object):
 
         """
         if os.path.splitext(os.path.split(project_file)[-1])[0] in self.project_list():
-            proj = self.odesktop.SetActiveProject(os.path.splitext(os.path.split(project_file)[-1])[0])
+            proj = self.active_project(os.path.splitext(os.path.split(project_file)[-1])[0])
         else:
             proj = self.odesktop.OpenProject(project_file)
         if proj:
-            active_design = proj.GetActiveDesign()
+            active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:

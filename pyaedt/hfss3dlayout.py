@@ -707,8 +707,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             input_folder = os.path.join(input_folder, "edb.def")
         self.oimport_export.ImportEDB(input_folder)
         self._close_edb()
-        project_name = self.odesktop.GetActiveProject().GetName()
-        design_name = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[-1]
+        project_name = self.desktop_class.active_project().GetName()
+        design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
         self.__init__(projectname=project_name, designname=design_name)
         return True
 

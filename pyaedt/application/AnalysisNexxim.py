@@ -122,7 +122,7 @@ class FieldAnalysisCircuit(Analysis):
         else:
             out_name = component_name
         try:
-            self.oproject.SetActiveDesign(out_name)
+            self.desktop_class.active_design(self.oproject, out_name, self.design_type)
             self.__init__(projectname=self.project_name, designname=out_name)
         except Exception:  # pragma: no cover
             return False
@@ -139,7 +139,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
-            self.oproject.SetActiveDesign(parent_name)
+            self.desktop_class.active_design(self.oproject, parent_name, self.design_type)
             self.__init__(projectname=self.project_name, designname=parent_name)
         except Exception:
             return False

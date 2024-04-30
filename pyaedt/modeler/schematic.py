@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import random
 import re
+import time
 
+from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -533,7 +536,11 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        return self.layouteditor.GetActiveUnits()
+        active_units = self.layouteditor.GetActiveUnits()
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self._app.odesktop.CloseAllWindows()
+        return active_units
 
     @property
     def layout(self):
