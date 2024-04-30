@@ -60,10 +60,10 @@ def run_pyinstaller_from_c_python(oDesktop):
         # enable in debu mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
-        f.write("from pyaedt.misc.aedtlib_personalib_install import add_pyaedt_to_aedt\n")
+        f.write("from pyaedt.workflows.project.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
-            'add_pyaedt_to_aedt(aedt_version="{}", is_student_version={}, use_sys_lib=False, new_desktop_session=False, pers_dir=r"{}")\n'.format(
-                oDesktop.GetVersion()[:6], is_student_version(oDesktop), oDesktop.GetPersonalLibDirectory()))
+            'add_pyaedt_to_aedt(aedt_version="{}", student_version={}, new_desktop_session=False)\n'.format(
+                oDesktop.GetVersion()[:6], is_student_version(oDesktop)))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, command)

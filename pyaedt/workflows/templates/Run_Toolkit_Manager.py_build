@@ -40,7 +40,8 @@ def main():
         os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
         version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
-        os.environ["PYAEDT_STUDENT_VERSION"] = r"##PYAEDT_STUDENT_VERSION##"
+        if "Ansys Student" in str(oDesktop.GetExeDir()):
+            os.environ["PYAEDT_STUDENT_VERSION"] = True
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:

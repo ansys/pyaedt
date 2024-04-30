@@ -83,7 +83,7 @@ def add_automation_tab(
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
-            b = [button for button in buttons if button.attrib["label"] == toolkitname][0]
+            b = [button for button in buttons if button.attrib["label"] == name][0]
             panel.remove(b)
 
     file_name = os.path.basename(icon_file)
@@ -220,7 +220,8 @@ def add_script_to_menu(
     bool
 
     """
-    if not os.path.exists(script_file):
+
+    if script_file and not os.path.exists(script_file):
         desktop_object.logger.error("Script does not exists.")
         return False
 
@@ -236,7 +237,7 @@ def add_script_to_menu(
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
 
-    if copy_to_personal_lib:
+    if script_file and copy_to_personal_lib:
         dest_script_path = os.path.join(lib_dir, os.path.split(script_file)[-1])
         shutil.copy2(script_file, dest_script_path)
 
@@ -252,15 +253,19 @@ def add_script_to_menu(
 
     templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
 
-    # Console
     ipython_executable = executable_version_agnostic.replace("python" + __exe(), "ipython" + __exe())
+    jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
 
     with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
         file_name_dest = template_file.replace("_", " ")
         with open(os.path.join(tool_dir, file_name_dest + ".py"), "w") as out_file:
             build_file_data = build_file.read()
-            build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir).replace(
-                "##IPYTHON_EXE##", ipython_executable
+            build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+            build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
+            build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
+            build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
+            build_file_data = build_file_data.replace(
+                "##TOOLKIT_MANAGER_SCRIPT##", os.path.join(lib_dir, "project/toolkit_manager.py")
             )
             if not version_agnostic:
                 build_file_data = build_file_data.replace(" % version", "")

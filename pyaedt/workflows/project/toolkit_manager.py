@@ -256,7 +256,7 @@ root = tk.Tk()
 root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(__file__), "../misc/images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(__file__), "../../misc/images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 
