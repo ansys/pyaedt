@@ -1109,7 +1109,7 @@ class GeometryModeler(Modeler):
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if found_material.lower() == material:
+                    if found_material == material.lower():
                         obj_lst.append(obj)
                 elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)
