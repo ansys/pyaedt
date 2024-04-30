@@ -3261,7 +3261,19 @@ class FieldPlot:
         return True
 
     @pyaedt_function_handler()
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
+    def export_image(
+        self,
+        full_path=None,
+        width=1920,
+        height=1080,
+        orientation="isometric",
+        display_wireframe=True,
+        selections=None,
+        show_region=True,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+    ):
         """Export the active plot to an image file.
 
         .. note::
@@ -3279,7 +3291,22 @@ class FieldPlot:
             ``top``, ``bottom``, ``right``, ``left``, ``front``,
             ``back``, and any custom orientation.
         display_wireframe : bool, optional
-            Set to ``True`` if the objects has to be put in wireframe mode.
+            Whether the objects has to be put in wireframe mode. Default is ``True``.
+        selections : str or List[str], optional
+            Objects to fit for the zoom on the exported image.
+            Default is None in which case all the objects in the design will be shown.
+            One important note is that, if the fieldplot extension is larger than the
+            selection extension, the fieldplot extension will be the one considered
+            for the zoom of the exported image.
+        show_region : bool, optional
+            Whether to include the air region in the exported image. Default is ``True``.
+        show_grid : bool, optional
+            Whether to display the background grid in the exported image.
+            Default is ``True``.
+        show_axis : bool, optional
+            Whether to display the axis triad in the exported image. Default is ``True``.
+        show_ruler : bool, optional
+            Whether to display the ruler in the exported image. Default is ``True``.
 
         Returns
         -------
@@ -3304,6 +3331,11 @@ class FieldPlot:
             width=width,
             height=height,
             display_wireframe=display_wireframe,
+            selections=selections,
+            show_region=show_region,
+            show_axis=show_axis,
+            show_grid=show_grid,
+            show_ruler=show_ruler,
         )
         full_path = check_and_download_file(full_path)
         if status:
