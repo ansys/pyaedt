@@ -3300,7 +3300,6 @@ class FieldPlot:
             for the zoom of the exported image.
         show_region : bool, optional
             Whether to include the air region in the exported image. Default is ``True``.
-                        show_axis=show_axis,
         show_grid : bool, optional
             Whether to display the background grid in the exported image.
             Default is ``True``.
