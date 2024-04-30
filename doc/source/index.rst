@@ -39,8 +39,6 @@ enabling straightforward and efficient automation in your workflow.
 
 .. jinja:: main_toctree
 
-   .. grid:: 2
-
       {% if run_examples %}
       .. grid-item-card:: Examples :fa:`scroll`
          :link: examples/index
@@ -48,6 +46,7 @@ enabling straightforward and efficient automation in your workflow.
 
          Explore examples that show how to use PyAEDT to perform different types of simulations.
       
+      .. grid:: 2
       {% endif %}
 
       .. grid-item-card:: Contribute :fa:`people-group`
