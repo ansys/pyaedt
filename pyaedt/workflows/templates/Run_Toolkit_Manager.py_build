@@ -32,7 +32,6 @@ else:
 def main():
     try:
         # launch toolkit manager
-        version = oDesktop.GetVersion()[2:6].replace(".", "")
         python_exe = r"##PYTHON_EXE##" % version
         pyaedt_script = r"##TOOLKIT_MANAGER_SCRIPT##"
         check_file(python_exe)

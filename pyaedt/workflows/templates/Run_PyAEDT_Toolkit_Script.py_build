@@ -32,7 +32,6 @@ def main():
     try:
         oDesktop.AddMessage("", "", 0, "Toolkit launched. Please wait.")
         # launch file
-        version = oDesktop.GetVersion()[2:6].replace(".", "")
         python_exe = r"##PYTHON_EXE##" % version
         pyaedt_script = r"##PYTHON_SCRIPT##"
         check_file(python_exe)
