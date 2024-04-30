@@ -264,9 +264,7 @@ def add_script_to_menu(
             build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
             build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
             build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
-            build_file_data = build_file_data.replace(
-                "##TOOLKIT_MANAGER_SCRIPT##", os.path.join(lib_dir, "project/toolkit_manager.py")
-            )
+
             if not version_agnostic:
                 build_file_data = build_file_data.replace(" % version", "")
             out_file.write(build_file_data)

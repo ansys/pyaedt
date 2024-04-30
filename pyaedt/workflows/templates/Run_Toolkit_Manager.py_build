@@ -33,7 +33,7 @@ def main():
     try:
         # launch toolkit manager
         python_exe = r"##PYTHON_EXE##" % version
-        pyaedt_script = r"##TOOLKIT_MANAGER_SCRIPT##"
+        pyaedt_script = os.path.join(pyaedt_toolkit_dir, "toolkit_manager.py")
         check_file(python_exe)
         check_file(pyaedt_script)
         os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
