@@ -4020,14 +4020,10 @@ class Design(AedtObjects):
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
 
-    @pyaedt_function_handler()
-    def _manipulate_design_settings_inputs(self, k, v):
-        return v
-
     @property
     def design_settings(self):
         """Design settings for the AEDT app."""
-        return DesignSettings(self, self._manipulate_design_settings_inputs)
+        return DesignSettings(self)
 
 
 class DesignSettings:
@@ -4039,9 +4035,9 @@ class DesignSettings:
     >>> oDesign.GetChildObject("Design Settings")
     """
 
-    def __init__(self, app, manipulate_inputs):
+    def __init__(self, app):
         self._app = app
-        self._manipulate_inputs = manipulate_inputs
+        self.manipulate_inputs = None
         try:
             self.design_settings = self._app.odesign.GetChildObject("Design Settings")
         except GrpcApiError:  # pragma: no cover
@@ -4062,7 +4058,7 @@ class DesignSettings:
 
     def __setitem__(self, key, value):
         if key in self.available_properties:
-            value = self._manipulate_inputs(key, value)
+            value = self.manipulate_inputs.execute(key, value)
             key_choices = "{}/Choices".format(key)
             if key_choices in self.design_settings.GetPropNames():
                 value_choices = self.design_settings.GetPropValue(key_choices)

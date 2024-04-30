@@ -175,6 +175,7 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
+        self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation()
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -6425,8 +6426,9 @@ class Icepak(FieldAnalysis3D):
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
-    @pyaedt_function_handler()
-    def _manipulate_design_settings_inputs(self, k, v):
+
+class IcepakDesignSettingsManipulation:
+    def execute(self, k, v):
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.logger.error("Failed. Use `edit_design_settings` function.")
