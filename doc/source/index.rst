@@ -37,6 +37,14 @@ enabling straightforward and efficient automation in your workflow.
         This section contains descriptions of the functions and modules included in PyAEDT.
         It describes how the methods work and the parameters that can be used.
 
+    .. grid-item-card:: Contribute :fa:`people-group`
+        :link: Getting_started/Contributing
+        :link-type: doc
+
+        Learn how to contribute to the PyAEDT codebase or documentation.
+
+.. grid:: 2
+
 .. jinja:: main_toctree
 
       {% if run_examples %}
@@ -49,11 +57,6 @@ enabling straightforward and efficient automation in your workflow.
       .. grid:: 2
       {% endif %}
 
-      .. grid-item-card:: Contribute :fa:`people-group`
-         :link: Getting_started/Contributing
-         :link-type: doc
-
-         Learn how to contribute to the PyAEDT codebase or documentation.
 
 .. jinja:: main_toctree
 
