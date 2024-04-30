@@ -885,7 +885,7 @@ class UserDefinedComponent(object):
         new_project = [i for i in self._primitives._app.project_list if i not in project_list]
 
         if new_project:
-            project = self._primitives._app.odesktop.SetActiveProject(new_project[0])
+            project = self._primitives._app.desktop_class.active_project(new_project[0])
             # project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
             project.GetDesigns()[0].GetName()

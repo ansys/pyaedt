@@ -33,7 +33,7 @@ class Results:
         self.revisions = []
         """List of all result revisions. Only one loaded at a time"""
 
-        self.design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
+        self.design = emit_obj.desktop_class.active_design(emit_obj.odesktop.GetActiveProject())
         """Active design for the EMIT project."""
 
     @pyaedt_function_handler()
@@ -214,7 +214,9 @@ class Results:
         # no changes since last created revision, load it
         elif (
             self.revisions[-1].revision_number
-            == self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
+            == self.emit_project.desktop_class.active_design(
+                self.emit_project.desktop_class.active_project()
+            ).GetRevision()
         ):
             self.get_revision(self.revisions[-1].name)
         else:

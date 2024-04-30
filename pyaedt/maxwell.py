@@ -6,11 +6,14 @@ from collections import OrderedDict
 import io
 import os
 import re
+import time
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
@@ -1936,8 +1939,11 @@ class Maxwell(object):
         """
         if schematic_design_name not in self.design_list:
             return False
-        odesign = self.oproject.SetActiveDesign(schematic_design_name)
+        odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []
