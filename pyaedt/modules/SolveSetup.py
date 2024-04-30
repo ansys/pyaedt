@@ -1901,7 +1901,9 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
+        self.p_app.logger.info("Processing vias...")
         via_per_nets = self._get_via_position_per_net()
+        self.p_app.logger.info("Vias processing completed.")
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
@@ -1940,11 +1942,7 @@ class Setup3DLayout(CommonSetup):
                             if p in metal_object
                         ]
                     )
-                    # for p in aedtapp.modeler.get_bodynames_from_position(via_pos, None, False):
-                    #     if p in metal_object:
-                    #         obj_ind = aedtapp.modeler.objects[p].id
-                    #         if obj_ind not in obj_dict:
-                    #             obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
+
                     for lay_el in list(layers_elevation.values()):
                         pad_pos = via_pos[:2]
                         pad_pos.append(lay_el)
@@ -1955,18 +1953,15 @@ class Setup3DLayout(CommonSetup):
                                 if p in metal_object
                             ]
                         )
-                        # for pad_obj in pad_objs:
-                        #     if pad_obj in metal_object:
-                        #         pad_ind = aedtapp.modeler.objects[pad_obj].id
-                        #         if pad_ind not in obj_dict:
-                        #             obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
-            # obj_list = list(obj_dict.values())
+
             net = net.replace(".", "_")
+            net = net.replace("-", "m")
+            net = net.replace("+", "p")
+            net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
+            self.p_app.logger.info("Renaming primitives for net {}...".format(net_name))
             object_names = list(set(object_names))
             if len(object_names) == 1:
-                net = net.replace("-", "m")
-                net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
+
                 object_p = aedtapp.modeler[object_names[0]]
                 object_p.name = net_name
                 object_p.color = [randrange(255), randrange(255), randrange(255)]
@@ -1974,9 +1969,6 @@ class Setup3DLayout(CommonSetup):
                 united_object = aedtapp.modeler.unite(object_names, purge=True)
                 obj_ind = aedtapp.modeler.objects[united_object].id
                 if obj_ind:
-                    net = net.replace("-", "m")
-                    net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
                     aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
 
@@ -1999,14 +1991,16 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             self.p_app.logger.info("Processing net {}...".format(net))
             for prim in primitives:
-                # layer = edb.stackup.signal_layers[prim.layer_name]
-                # z = layer.lower_elevation + layer.thickness / 2
+
                 if prim.layer_name not in layers_elevation:
                     continue
                 z = layers_elevation[prim.layer_name]
                 if "EdbPath" in str(prim):
                     points = list(prim.center_line.Points)
                     pt = [points[0].X.ToDouble(), points[0].Y.ToDouble()]
+                    pt.append(z)
+                    next_p = int(len(points) / 4)
+                    pt = [points[next_p].X.ToDouble(), points[next_p].Y.ToDouble()]
                     pt.append(z)
                     primitive_dict[net].append(pt)
 
@@ -2016,7 +2010,7 @@ class Setup3DLayout(CommonSetup):
                         pdata_orig.GetArcData(), True
                     )
 
-                    pdata.Scale(0.97, pdata.GetBoundingCircleCenter())
+                    pdata.Scale(0.99, pdata.GetBoundingCircleCenter())
                     points = [[], []]
                     for point in list(pdata.Points):
                         points[0].append(point.X.ToDouble())
@@ -2033,11 +2027,7 @@ class Setup3DLayout(CommonSetup):
                     pt = [points[0][next_p], points[1][next_p]]
                     pt.append(z)
                     primitive_dict[net].append(pt)
-                    # pts = [[x,y,0] for x,y in zip(points[0], points[1])]
-                    # pt = GeometryOperators.get_polygon_centroid(pts)
-                    # if pt:
-                    #     pt[2] = z
-                    #     primitive_dict[net].append(pt)
+
                 else:
                     n = 0
                     while n < 1000:
