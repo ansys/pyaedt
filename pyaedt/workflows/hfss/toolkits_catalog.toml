@@ -1,0 +1,6 @@
+[AntennaWizard]
+name = "Antenna Wizard"
+script = "ansys/aedt/toolkits/antenna/run_toolkit.py"
+icon = "antenna.png"
+template = "Run_PyAEDT_Toolkit_Script"
+pip = "git+https://github.com/ansys/pyaedt-antenna-toolkit.git"

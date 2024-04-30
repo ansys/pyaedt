@@ -29,7 +29,10 @@ import PIL.ImageTk
 
 from pyaedt import Desktop
 from pyaedt import is_windows
-from pyaedt.misc.install_extra_toolkits import available_toolkits
+from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
+from pyaedt.workflows.customize_automation_tab import add_script_to_menu
+from pyaedt.workflows.customize_automation_tab import available_toolkits
+from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
 
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
@@ -53,11 +56,15 @@ else:
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
 
 
-def create_toolkit_page(frame, open_source_toolkits):
+def create_toolkit_page(frame, window_name, internal_toolkits):
     """Create page to display toolkit on."""
     # Available toolkits
-    toolkits = ["Custom"] + open_source_toolkits
-    max_length = max(len(item) for item in toolkits)
+    if window_name == "Project":
+        # Remove PyAEDT installer toolkits from the list
+        internal_toolkits = internal_toolkits[:-4]
+    toolkits = ["Custom"] + internal_toolkits
+
+    max_length = max(len(item) for item in toolkits) + 1
 
     # Pip or Offline radio options
     installation_option_action = tk.StringVar(value="Offline")
@@ -101,7 +108,7 @@ def create_toolkit_page(frame, open_source_toolkits):
             install_button.config(text="Install")
             uninstall_button.config(state="normal")
         else:
-            if is_toolkit_installed(selected_toolkit):
+            if is_toolkit_installed(selected_toolkit, window_name):
                 install_button.config(text="Update")
                 uninstall_button.config(state="normal")
             else:
@@ -131,21 +138,22 @@ def create_toolkit_page(frame, open_source_toolkits):
     return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
 
 
-def is_toolkit_installed(toolkit_name):
+def is_toolkit_installed(toolkit_name, window_name):
     """Check if toolkit is installed."""
     if toolkit_name == "Custom":
         return False
-    script_file = os.path.normpath(os.path.join(package_dir, available_toolkits[toolkit_name]["toolkit_script"]))
+    toolkits = available_toolkits()
+    script_file = os.path.normpath(os.path.join(package_dir, toolkits[window_name][toolkit_name]["script"]))
     return True if os.path.isfile(script_file) else False
 
 
-def open_window(window, window_name, open_source_toolkits):
+def open_window(window, window_name, internal_toolkits):
     """Open a window."""
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
         install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = create_toolkit_page(
-            window, open_source_toolkits
+            window, window_name, internal_toolkits
         )
         root.minsize(500, 250)
         return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
@@ -164,14 +172,18 @@ def __get_command_function(
 def toolkit_window(toolkit_level="Project"):
     """Create interactive toolkit window."""
     toolkit_window_var = tk.Toplevel(root)
-    open_source_toolkits = []
-    for toolkit_name, toolkit_info in available_toolkits.items():
-        if toolkit_info["installation_path"].lower() == toolkit_level.lower():
-            open_source_toolkits.append(toolkit_name)
+
+    toolkits = available_toolkits()
+
+    if toolkit_level not in toolkits:
+        install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = open_window(
+            toolkit_window_var, toolkit_level, []
+        )
+    else:
+        install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = open_window(
+            toolkit_window_var, toolkit_level, list(toolkits[toolkit_level].keys())
+        )
     toolkit_window_var.minsize(250, 150)
-    install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = open_window(
-        toolkit_window_var, toolkit_level, open_source_toolkits
-    )
 
     install_command = __get_command_function(
         True, toolkit_level, input_file, toolkits_combo, toolkit_name, install_button, uninstall_button
@@ -205,20 +217,20 @@ def button_is_clicked(
 
     if selected_toolkit_name != "Custom":
         desktop.logger.info("TEST: VENV {}".format(venv_dir))
-        if is_toolkit_installed(selected_toolkit_name) and install_action:
+        if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
             desktop.logger.info("Updating {}".format(selected_toolkit_name))
-            desktop.add_custom_toolkit(selected_toolkit_name, file)
+            add_custom_toolkit(selected_toolkit_name, file)
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
             desktop.logger.info("{} updated".format(selected_toolkit_name))
         elif install_action:
             desktop.logger.info("Installing {}".format(selected_toolkit_name))
-            desktop.add_custom_toolkit(selected_toolkit_name, file)
+            add_custom_toolkit(selected_toolkit_name, file)
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
-        elif is_toolkit_installed(selected_toolkit_name) and not install_action:
+        elif is_toolkit_installed(selected_toolkit_name, toolkit_level) and not install_action:
             desktop.logger.info("Uninstalling {}".format(selected_toolkit_name))
-            desktop.add_custom_toolkit(selected_toolkit_name, install=False)
+            add_custom_toolkit(selected_toolkit_name, install=False)
             install_button.config(text="Install")
             uninstall_button.config(state="disabled")
             desktop.logger.info("{} uninstalled".format(selected_toolkit_name))
@@ -235,9 +247,10 @@ def button_is_clicked(
                 pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if os.path.isfile(executable_interpreter):
-                desktop.add_script_to_menu(
-                    toolkit_name=name,
-                    script_path=file,
+                add_script_to_menu(
+                    desktop_object=desktop,
+                    name=name,
+                    script_file=file,
                     product=toolkit_level,
                     executable_interpreter=executable_interpreter,
                 )
@@ -245,7 +258,7 @@ def button_is_clicked(
                 desktop.logger.info("PyAEDT environment is not installed.")
         else:
             desktop.logger.info("Uninstall {}.".format(name))
-            desktop.remove_script_from_menu(name, product=toolkit_level)
+            remove_script_from_menu(desktop_object=desktop, toolkit_name=name, product=toolkit_level)
 
     desktop.odesktop.CloseAllWindows()
     desktop.odesktop.RefreshToolkitUI()
@@ -256,7 +269,7 @@ root = tk.Tk()
 root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(__file__), "../../misc/images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(__file__), "images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 
