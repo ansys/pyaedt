@@ -517,7 +517,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportExtracta(
             input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()
@@ -571,7 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportIPC(
             input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()

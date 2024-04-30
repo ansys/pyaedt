@@ -1924,15 +1924,6 @@ class Setup3DLayout(CommonSetup):
             for position in positions:
                 aedtapp_objs = [p for p in aedtapp.modeler.get_bodynames_from_position(position) if p in metal_object]
                 object_names.extend(aedtapp_objs)
-                # for name in aedtapp_objs:
-                #     prim = aedtapp.modeler.objects[name]
-                #     obj_dict[prim.id] = prim
-                # if aedtapp_objs:
-                #     for p in aedtapp.modeler.get_bodynames_from_position(position, None, False):
-                #         if p in metal_object:
-                #             obj_ind = aedtapp.modeler.objects[p].id
-                #             if obj_ind not in obj_dict:
-                #                 obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
             if net in via_per_nets:
                 for via_pos in via_per_nets[net]:
                     object_names.extend(

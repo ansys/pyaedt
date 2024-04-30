@@ -3056,7 +3056,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -3116,7 +3116,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -5407,7 +5407,11 @@ class FieldSummary:
             if pandas_output:
                 if pd is None:
                     raise ImportError("pandas package is needed.")
-                return pd.DataFrame.from_dict(out_dict)
+                df = pd.DataFrame.from_dict(out_dict)
+                for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
+                    if col in df.columns:
+                        df[col] = df[col].astype(float)
+                return df
         return out_dict
 
     @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")

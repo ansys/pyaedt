@@ -2644,12 +2644,12 @@ class Icepak(FieldAnalysis3D):
             source_project_path = kwargs["sourceProjectPath"]
 
         if source_project_name == self.project_name or source_project_name is None:
-            active_project = self._desktop.GetActiveProject()
+            active_project = self.desktop_class.active_project()
         else:
             self._desktop.OpenProject(source_project_path)
-            active_project = self._desktop.SetActiveProject(source_project_name)
+            active_project = self.desktop_class.active_project(source_project_name)
 
-        active_design = active_project.SetActiveDesign(source_design)
+        active_design = self.desktop_class.active_design(active_project, source_design)
         active_editor = active_design.SetActiveEditor("3D Modeler")
         active_editor.Copy(["NAME:Selections", "Selections:=", group_name])
 
@@ -3297,7 +3297,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> oDesign.ImportIDF
         """
-        active_design_name = self.oproject.GetActiveDesign().GetName()
+        active_design_name = self.desktop_class.active_design(self.oproject).GetName()
         if not library_path:
             if board_path.endswith(".emn"):
                 library_path = board_path[:-3] + "emp"
@@ -3389,7 +3389,7 @@ class Icepak(FieldAnalysis3D):
         )
         self.modeler.add_new_objects()
         if active_design_name:
-            self.oproject.SetActiveDesign(active_design_name)
+            self.desktop_class.active_design(self.oproject, active_design_name)
         return True
 
     @pyaedt_function_handler()

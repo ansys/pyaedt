@@ -1103,13 +1103,13 @@ class GeometryModeler(Modeler):
         if material is not None:
             for obj in self.object_list:
                 if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
-                    material = (
+                    found_material = (
                         self._app.odesign.GetChildObject("3D Modeler")
                         .GetChildObject(obj.name)
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if material.lower() == material:
+                    if found_material == material.lower():
                         obj_lst.append(obj)
                 elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)
