@@ -20,7 +20,7 @@ except ImportError:
     # to PyAEDT is created in the personal library.
     console_setup_dir = os.path.dirname(__file__)
     if "PersonalLib" in console_setup_dir:
-        sys.path.append(os.path.join(console_setup_dir, "..", "..", ".."))
+        sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
     import pyaedt
 
 

@@ -170,20 +170,23 @@ def install_toolkit(toolkit_dir, product, aedt_version, is_student_version=False
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
-                    .replace("##TOOLKIT_MANAGER_SCRIPT##", os.path.join(lib_dir, "toolkit_manager.py"))
+                    .replace("##TOOLKIT_MANAGER_SCRIPT##", os.path.join(lib_dir, "../workflows/toolkit_manager.py"))
                     .replace("##PYAEDT_STUDENT_VERSION##", str(is_student_version))
                 )
                 if not version_agnostic:
                     build_file_data = build_file_data.replace(" % version", "")
                 out_file.write(build_file_data)
-    shutil.copyfile(os.path.join(current_dir, "console_setup.py"), os.path.join(lib_dir, "console_setup.py"))
+    shutil.copyfile(
+        os.path.join(current_dir, "../workflows/project/console_setup.py"),
+        os.path.join(lib_dir, "../workflows/project/console_setup.py"),
+    )
     shutil.copyfile(
         os.path.join(current_dir, "jupyter_template.ipynb"),
         os.path.join(lib_dir, "jupyter_template.ipynb"),
     )
     shutil.copyfile(
-        os.path.join(current_dir, "toolkit_manager.py"),
-        os.path.join(lib_dir, "toolkit_manager.py"),
+        os.path.join(current_dir, "../workflows/toolkit_manager.py"),
+        os.path.join(lib_dir, "../workflows/toolkit_manager.py"),
     )
     if aedt_version >= "2023.2":
         write_tab_config(os.path.join(toolkit_dir, product), lib_dir)
