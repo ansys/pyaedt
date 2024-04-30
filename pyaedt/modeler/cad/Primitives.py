@@ -69,11 +69,11 @@ class Objects(dict):
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "p":
-                self.__parent.logger.info("Parsing design points. This operation can take time")
-                self.__parent.logger.reset_timer()
+                # self.__parent.logger.info("Parsing design points. This operation can take time")
+                # self.__parent.logger.reset_timer()
                 self.__parent.add_new_points()
                 self.__parent.cleanup_points()
-                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+                # self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "u":
                 self.__parent.add_new_user_defined_component()
 
