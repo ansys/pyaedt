@@ -3056,7 +3056,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -3116,7 +3116,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:

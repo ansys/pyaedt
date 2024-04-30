@@ -506,7 +506,6 @@ class TestClass:
         )
         assert com_0 and com_1
 
-    @pytest.mark.skipif(is_linux, reason="SPISIM in Linux is missing some DLLs")
     def test_09c_compute_com(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")

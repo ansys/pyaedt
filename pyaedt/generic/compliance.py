@@ -221,7 +221,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error("Project path has not been provided.")
             return False
         self._desktop_class.load_project(self._project_file)
-        project = self._desktop_class.odesktop.GetActiveProject()
+        project = self._desktop_class.active_project()
         self._project_name = project.GetName()
         self._output_folder = os.path.join(
             project.GetPath(), self._project_name + ".pyaedt", generate_unique_name(self._template_name)
