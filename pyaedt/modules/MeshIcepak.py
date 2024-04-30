@@ -509,9 +509,9 @@ class MeshSettings(object):
             Available settings keys.
         """
         if self._mesh_class.manual_settings:
-            return {**self._manual_mesh_settings, **self._common_mesh_settings}.keys()
+            return set(self._manual_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
         else:
-            return {**self._automatic_mesh_settings, **self._common_mesh_settings}.keys()
+            return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
         """
