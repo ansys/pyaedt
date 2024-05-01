@@ -1137,7 +1137,7 @@ class TestClass:
     )
     def test_23_result_categories(self, add_app):
         # set up project and run
-        self.aedtapp = add_app(application=Emit)
+        self.aedtapp = add_app(application=Emit )
         rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
         ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
