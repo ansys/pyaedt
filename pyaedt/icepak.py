@@ -1641,7 +1641,8 @@ class Icepak(FieldAnalysis3D):
             The default is ``0``.
         ambient_temperature : float, str, BoundaryDict or dict optional
             Ambient temperature. The default is ``20``.
-            The default unit is celsius for float or string including unit definition is accepted, e.g. ``325kel``.
+            The default unit is Celsius for a float or string value.
+            You can include a unit for a string value. For example, ``325kel``.
         perform_validation : bool, optional
             Whether to perform validation. The default is ``False``.
         check_level : str, optional
@@ -1655,16 +1656,16 @@ class Icepak(FieldAnalysis3D):
             Default surface material. The default is ``"Steel-oxidised-surface"``.
         export_monitor : bool, optional
             Whether to export monitor data.
-            The default value is ``False``.
+            The default is ``False``.
         export_sherlock : bool, optional
             Whether to export temperature data for Sherlock.
-            The default value is ``False``.
+            The default is ``False``.
         export_directory : str, optional
-            Default export directory for monitor point and sherlock data.
-            The default value is the current working directory.
+            Default export directory for monitor point and Sherlock data.
+            The default is the current working directory.
         gauge_pressure : float, str, optional
-            Set the Gauge pressure. It can be a float (units will be "n_per_meter_sq") or a string with units.
-            Default is ``0``.
+            Gauge pressure. It can be a float where "n_per_meter_sq" is
+            assumed as the units or a string with the units specified. The default is ``0``.
         radiation_temperature : float, str, optional
             Set the radiation temperature. It can be a float (units will be "cel") or a string with units.
             Default is ``20``.
@@ -1685,7 +1686,7 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.SetDesignSettings
         """
         #
-        # Configure design settings for gravity etc
+        # Configure design settings such as gravity
         ice_gravity = ["X", "Y", "Z"]
         gv_pos = False
         if int(gravity_dir) > 2:
@@ -3085,7 +3086,7 @@ class Icepak(FieldAnalysis3D):
         """Apply Icepak default design settings.
 
         .. deprecated:: 0.8.9
-            Use ``edit_design_settins`` method.
+            Use the ``edit_design_settins()`` method.
 
         Parameters
         ----------
@@ -3115,7 +3116,7 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.SetDesignSettings
         """
 
-        warnings.warn("Use ``edit_design_settins`` method.", DeprecationWarning)
+        warnings.warn("Use the ``edit_design_settings()`` method.", DeprecationWarning)
         return self.edit_design_settings(
             ambient_temperature=ambienttemp,
             gravity_dir=gravityDir,
@@ -3871,7 +3872,7 @@ class Icepak(FieldAnalysis3D):
         radiate_surf_mat="Steel-oxidised-surface",
         shell_conduction=False,
     ):
-        """Assign a surface wall boundary condition with specified heat transfer coefficient.
+        """Assign a surface wall boundary condition with a given heat transfer coefficient.
 
         Parameters
         ----------
@@ -6437,7 +6438,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")
                 return self.app.design_settings["AmbTemp"]
-                # Bug in native API. Uncomment when fixed
+                # FIXME: Bug in native API. Uncomment when fixed
                 # if not self.solution_type == "Transient":
                 #     self.logger.error("Transient assignment is supported only in transient designs.")
                 #     return False
