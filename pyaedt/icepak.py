@@ -176,7 +176,7 @@ class Icepak(FieldAnalysis3D):
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)
-        self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation()
+        self.design_settings.manipulate_inputs = IcepakDesignSettingsManipulation(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -6429,11 +6429,14 @@ class Icepak(FieldAnalysis3D):
 
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
+    def __init__(self, app):
+        self.app = app
+
     def execute(self, k, v):
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
-                self.logger.error("Failed. Use `edit_design_settings` function.")
-                return self.design_settings["AmbTemp"]
+                self.app.logger.error("Failed. Use `edit_design_settings` function.")
+                return self.app.design_settings["AmbTemp"]
                 # Bug in native API. Uncomment when fixed
                 # if not self.solution_type == "Transient":
                 #     self.logger.error("Transient assignment is supported only in transient designs.")
@@ -6450,18 +6453,18 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
                 #     self.logger.error("Transient dictionary is not valid.")
                 #     return False
             else:
-                return self.value_with_units(v, "cel")
+                return self.app.value_with_units(v, "cel")
         elif k == "AmbGaugePressure":
-            return self.value_with_units(v, "n_per_meter_sq")
+            return self.app.value_with_units(v, "n_per_meter_sq")
         elif k == "GravityVec":
             if isinstance(v, (float, int)):
-                self.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
+                self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
                 v = "Global::{}".format(["X", "Y", "Z"][v - v // 3 * 3])
                 return v
             else:
                 if len(v.split("::")) == 1 and len(v) < 3:
                     if v.startswith("+") or v.startswith("-"):
-                        self.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
+                        self.app.design_settings["GravityDir"] = ["Positive", "Negative"][int(v.startswith("-"))]
                         v = v[-1]
                     return "Global::{}".format(v)
                 else:
