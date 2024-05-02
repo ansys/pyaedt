@@ -1022,7 +1022,7 @@ class Design(AedtObjects):
             if not self._check_design_consistency():
                 count_consistent_designs = 0
                 for des in self.design_list:
-                    self._odesign = self._oproject.SetActiveDesign(des)
+                    self._odesign = self.desktop_class.active_design(self.oproject, des, self.design_type)
                     if self._check_design_consistency():
                         count_consistent_designs += 1
                         activedes = des
@@ -1065,7 +1065,7 @@ class Design(AedtObjects):
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
-                self._odesign = self.oproject.SetActiveDesign(activedes)
+                self._odesign = self.desktop_class.active_design(self.oproject, activedes, self.design_type)
                 self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
@@ -1098,7 +1098,7 @@ class Design(AedtObjects):
     @oproject.setter
     def oproject(self, proj_name=None):
         if not proj_name:
-            self._oproject = self.odesktop.GetActiveProject()
+            self._oproject = self.desktop_class.active_project()
             if self._oproject:
                 self.logger.info(
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
@@ -1106,7 +1106,7 @@ class Design(AedtObjects):
         else:
             prj_list = self.odesktop.GetProjectList()
             if prj_list and proj_name in list(prj_list):
-                self._oproject = self.odesktop.SetActiveProject(proj_name)
+                self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
             elif os.path.exists(proj_name) or (
@@ -1117,7 +1117,7 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.odesktop.GetActiveProject()
+                    self._oproject = self.desktop_class.active_project()
                     self._add_handler()
                     self.logger.info(
                         "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
@@ -1129,7 +1129,7 @@ class Design(AedtObjects):
                         project = proj_name[:-5] + ".aedt"
                     if os.path.exists(project) and self.check_if_project_is_loaded(project):
                         pname = self.check_if_project_is_loaded(project)
-                        self._oproject = self.odesktop.SetActiveProject(pname)
+                        self._oproject = self.desktop_class.active_project(pname)
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
@@ -1146,7 +1146,7 @@ class Design(AedtObjects):
                             oTool.ImportEDB(proj_name)
                         else:
                             oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                        self._oproject = self.odesktop.GetActiveProject()
+                        self._oproject = self.desktop_class.active_project()
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(
@@ -1154,13 +1154,16 @@ class Design(AedtObjects):
                         )
                 elif self.check_if_project_is_loaded(proj_name):
                     pname = self.check_if_project_is_loaded(proj_name)
-                    self._oproject = self.odesktop.SetActiveProject(pname)
+                    self._oproject = self.desktop_class.active_project(pname)
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
                     if is_project_locked(proj_name):
                         raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
+                    if not is_windows and settings.aedt_version:
+                        time.sleep(1)
+                        self.odesktop.CloseAllWindows()
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
@@ -1172,7 +1175,7 @@ class Design(AedtObjects):
                 if not self._oproject:
                     new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
                     if new_project_list:
-                        self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
+                        self._oproject = self.desktop_class.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
@@ -1185,7 +1188,7 @@ class Design(AedtObjects):
             if not self._oproject:
                 new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
                 if new_project_list:
-                    self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
+                    self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
@@ -3136,7 +3139,7 @@ class Design(AedtObjects):
             if self.design_type == "HFSS 3D Layout Design":
                 self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
-        oproj = self.odesktop.SetActiveProject(name)
+        oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
         proj_file = os.path.join(proj_path, name + ".aedt")
         if save_project:
@@ -3151,7 +3154,7 @@ class Design(AedtObjects):
             self._oproject = None
             self._odesign = None
         else:
-            self.odesktop.SetActiveProject(legacy_name)
+            self.desktop_class.active_project(legacy_name)
         AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
@@ -3326,10 +3329,14 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
+        if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+
         if new_design is None:  # pragma: no cover
-            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
-                self.logger.error("Fail to create new design.")
+                self.logger.error("Failed to create design.")
                 return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
@@ -3455,8 +3462,11 @@ class Design(AedtObjects):
         proj_from.CopyDesign(design_name)
         # paste in the destination project and get the name
         self._oproject.Paste()
-        new_designname = self._oproject.GetActiveDesign().GetName()
-        if self._oproject.GetActiveDesign().GetDesignType() == "HFSS 3D Layout Design":
+        new_designname = self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetName()
+        if (
+            self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetDesignType()
+            == "HFSS 3D Layout Design"
+        ):
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
         self.odesktop.CloseProject(proj_from_name)
@@ -3933,7 +3943,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler()
     def _assert_consistent_design_type(self, des_name):
         if des_name in self.design_list:
-            self._odesign = self._oproject.SetActiveDesign(des_name)
+            self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
                 if dtype != self._design_type:
@@ -3943,7 +3953,7 @@ class Design(AedtObjects):
             return True
         elif ":" in des_name:
             try:
-                self._odesign = self._oproject.SetActiveDesign(des_name)
+                self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
                 return True
             except Exception:
                 return des_name

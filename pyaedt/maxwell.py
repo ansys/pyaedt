@@ -6,11 +6,14 @@ from collections import OrderedDict
 import io
 import os
 import re
+import time
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
@@ -1936,8 +1939,11 @@ class Maxwell(object):
         """
         if schematic_design_name not in self.design_list:
             return False
-        odesign = self.oproject.SetActiveDesign(schematic_design_name)
+        odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []
@@ -3015,6 +3021,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignBalloon
+
+
+        Examples
+        --------
+        Set balloon boundary condition in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_balloon(edge_list=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3054,6 +3071,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignVectorPotential
+
+
+        Examples
+        --------
+        Set vector potential to zero at the boundary edges in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_vector_potential(input_edge=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
