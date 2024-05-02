@@ -8,6 +8,8 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from abc import ABC
+from abc import abstractmethod
 from collections import OrderedDict
 import gc
 import json
@@ -4082,3 +4084,9 @@ class DesignSettings:
         if item in self.available_properties:
             return True
         return False
+
+
+class DesignSettingsManipulation(ABC):
+    @abstractmethod
+    def execute(self, k, v):
+        pass

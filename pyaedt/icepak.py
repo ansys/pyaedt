@@ -9,6 +9,7 @@ import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import is_linux
+from pyaedt.application.Design import DesignSettingsManipulation
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -6427,7 +6428,7 @@ class Icepak(FieldAnalysis3D):
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
 
-class IcepakDesignSettingsManipulation:
+class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
     def execute(self, k, v):
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
