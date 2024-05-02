@@ -573,13 +573,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self.keys().__iter__()
+        return iter(self.keys())
 
     def __len__(self):
-        return self.keys().__len__()
+        return len(self.keys())
 
     def __contains__(self, x):
-        return self.keys().__contains__(x)
+        return x in self.keys()
 
 
 class MeshRegionCommon(object):
