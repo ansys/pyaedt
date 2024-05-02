@@ -276,6 +276,7 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
+        self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
@@ -4020,11 +4021,6 @@ class Design(AedtObjects):
         """
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
-
-    @property
-    def design_settings(self):
-        """Design settings for the AEDT app."""
-        return DesignSettings(self)
 
 
 class DesignSettings:
