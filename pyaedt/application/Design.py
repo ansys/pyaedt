@@ -4058,7 +4058,8 @@ class DesignSettings:
 
     def __setitem__(self, key, value):
         if key in self.available_properties:
-            value = self.manipulate_inputs.execute(key, value)
+            if self.manipulate_inputs is not None:
+                value = self.manipulate_inputs.execute(key, value)
             key_choices = "{}/Choices".format(key)
             if key_choices in self.design_settings.GetPropNames():
                 value_choices = self.design_settings.GetPropValue(key_choices)
@@ -4079,6 +4080,4 @@ class DesignSettings:
             return None
 
     def __contains__(self, item):
-        if item in self.available_properties:
-            return True
-        return False
+        return item in self.available_properties
