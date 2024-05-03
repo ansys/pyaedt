@@ -129,7 +129,6 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_jinja",
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
@@ -295,24 +294,6 @@ if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             #                         "from pyvista import set_plot_theme\n"
             #                         "set_plot_theme('document')"),
         }
-
-jinja_contexts = {
-    "main_toctree": {
-        "run_examples": config["run_examples"],
-    },
-}
-# def prepare_jinja_env(jinja_env) -> None:
-#     """
-#     Customize the jinja env.
-#
-#     Notes
-#     -----
-#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-#     """
-#     jinja_env.globals["project_name"] = project
-#
-#
-# autoapi_prepare_jinja_env = prepare_jinja_env
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
