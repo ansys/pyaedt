@@ -8,8 +8,10 @@ import math
 import os
 import re
 import shutil
+import time
 
 from pyaedt import Hfss3dLayout
+from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
@@ -17,6 +19,7 @@ from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.filesystem import search_files
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import CurrentSinSource
@@ -214,7 +217,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                         self[ppar] = pval
                         xpos = 0.0254
                     except Exception:
-                        pass
+                        self.logger.error("Failed to parse line '{}'.".format(line))
                 elif ".model" in line[:7].lower() or ".lib" in line[:4].lower():
                     model.append(line)
         if model:
@@ -649,6 +652,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self._desktop.CloseAllWindows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:
@@ -1609,9 +1615,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.logger.error(
                 "Failed to setup co-simulation settings, make sure the simulation setup is properly defined"
             )
-        active_project = hfss.odesktop.SetActiveProject(hfss.project_name)
+        active_project = hfss.desktop_class.active_project(hfss.project_name)
         active_project.CopyDesign(hfss.design_name)
-        active_project = self.odesktop.SetActiveProject(self.project_name)
+        active_project = hfss.desktop_class.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
         hfss.close_project(save_project=False)

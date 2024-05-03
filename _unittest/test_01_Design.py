@@ -10,10 +10,12 @@ from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import get_pyaedt_app
+from pyaedt.application.Design import DesignSettings
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
+from pyaedt.workflows import customize_automation_tab
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -397,17 +399,18 @@ class TestClass:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):
-        assert desktop.get_available_toolkits()
+        assert customize_automation_tab.available_toolkits
 
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
-        assert desktop.add_script_to_menu(
-            "test_toolkit",
-            file,
+        assert customize_automation_tab.add_script_to_menu(
+            desktop_object=self.aedtapp.desktop_class, name="test_toolkit", script_file=file
         )
-        assert desktop.remove_script_from_menu("test_toolkit")
+        assert customize_automation_tab.remove_script_from_menu(
+            desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
+        )
 
     def test_39_load_project(self, desktop):
         new_project = os.path.join(self.local_scratch.path, "new.aedt")
@@ -418,9 +421,9 @@ class TestClass:
 
     def test_40_get_design_settings(self, add_app):
         ipk = add_app(application=Icepak)
-        design_settings_dict = ipk.design_settings()
+        design_settings_dict = ipk.design_settings
 
-        assert isinstance(design_settings_dict, dict)
+        assert isinstance(design_settings_dict, DesignSettings)
         assert "AmbTemp" in design_settings_dict
         assert "AmbRadTemp" in design_settings_dict
         assert "GravityVec" in design_settings_dict

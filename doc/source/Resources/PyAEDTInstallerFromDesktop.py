@@ -60,10 +60,10 @@ def run_pyinstaller_from_c_python(oDesktop):
         # enable in debu mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
-        f.write("from pyaedt.misc.aedtlib_personalib_install import add_pyaedt_to_aedt\n")
+        f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
-            'add_pyaedt_to_aedt(aedt_version="{}", is_student_version={}, use_sys_lib=False, new_desktop_session=False, pers_dir=r"{}")\n'.format(
-                oDesktop.GetVersion()[:6], is_student_version(oDesktop), oDesktop.GetPersonalLibDirectory()))
+            'add_pyaedt_to_aedt(aedt_version="{}", student_version={}, new_desktop_session=False)\n'.format(
+                oDesktop.GetVersion()[:6], is_student_version(oDesktop)))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, command)
@@ -119,6 +119,14 @@ def install_pyaedt():
         if args.version < "232":
             ld_library_path_dirs_to_add.append("{}/Delcross".format(args.edt_root))
         os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["TK_LIBRARY"] = ("{}/commonfiles/CPython/{}/linx64/Release/python/lib/tk8.5".
+                                    format(args.edt_root,
+                                           args.python_version.replace(
+                                               ".", "_")))
+        os.environ["TCL_LIBRARY"] = ("{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".
+                                     format(args.edt_root,
+                                            args.python_version.replace(
+                                                ".", "_")))
 
     if not os.path.exists(venv_dir):
 
@@ -139,7 +147,8 @@ def install_pyaedt():
                 zip_ref.extractall(unzipped_path)
 
             run_command(
-                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe, unzipped_path))
+                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
+                                                                                                   unzipped_path))
             run_command(
                 '"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
 
@@ -147,14 +156,11 @@ def install_pyaedt():
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
-            # run_command('"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
+            # run_command(
+            # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
-            # User can uncomment these lines to install Pyside6 modules
-            # run_command('"{}" --default-timeout=1000 install pyside6==6.4.0'.format(pip_exe))
-            # run_command('"{}" --default-timeout=1000 install pyqtgraph'.format(pip_exe))
-            # run_command('"{}" --default-timeout=1000 install qdarkstyle'.format(pip_exe))
 
         if args.version == "231":
             run_command('"{}" uninstall -y pywin32'.format(pip_exe))
@@ -176,20 +182,6 @@ def install_pyaedt():
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
         else:
             run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
-
-    # if is_windows:
-    #     pyaedt_setup_script = "{}/Lib/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(venv_dir)
-    # else:
-    #     pyaedt_setup_script = "{}/lib/python{}/site-packages/pyaedt/misc/aedtlib_personalib_install.py".format(
-    #         venv_dir, args.python_version)
-    #
-    # if not os.path.isfile(pyaedt_setup_script):
-    #     sys.exit("[ERROR] PyAEDT was not setup properly since {} file does not exist.".format(pyaedt_setup_script))
-    #
-    # command = '"{}" "{}" --version={}'.format(python_exe, pyaedt_setup_script, args.version)
-    # if args.student:
-    #     command += " --student"
-    # run_command(command)
     sys.exit(0)
 
 

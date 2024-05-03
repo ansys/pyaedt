@@ -877,7 +877,7 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, import_solids=True):
+    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, **kwargs):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
 
@@ -890,17 +890,46 @@ class Modeler3D(Primitives3D):
         lines_thickness : float, optional
             Whether to thicken lines after creation and it's default value.
             Every line will be parametrized with a design variable called ``xsection_linename``.
-        import_solids : bool, optional
-            Whether to import the solids or only triangles. Default is ``True``.
 
         Returns
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
+
+        def _write_solid_stl(triangle, nas_to_dict):
+            try:
+                points = [nas_to_dict["Points"][id] for id in triangle]
+            except KeyError:
+                return
+            fc = GeometryOperators.get_polygon_centroid(points)
+            v1 = points[0]
+            v2 = points[1]
+            cv1 = GeometryOperators.v_points(fc, v1)
+            cv2 = GeometryOperators.v_points(fc, v2)
+            if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                n = [0, 0, 1]
+            elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                n = [0, 1, 0]
+            elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                n = [1, 0, 0]
+            else:
+                n = GeometryOperators.v_cross(cv1, cv2)
+
+            normal = GeometryOperators.normalize_vector(n)
+            if normal:
+                f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                f.write("  outer loop\n")
+                f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                f.write("  endloop\n")
+                f.write(" endfacet\n")
+
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": [], "Lines": {}, "Solids": {}}
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
+        el_ids = []
         with open_file(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
@@ -927,22 +956,11 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = grid_id
                         id += 1
                     else:
-                        if tria_id in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id].append(
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            )
-                        else:
-                            nas_to_dict["Triangles"][tria_id] = [
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            ]
+                        tri = [int(n1), int(n2), int(n3)]
+                        tri.sort()
+                        if tri not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"].append(tri)
+
                 elif line_type in ["GRID*", "CTRIA3*"]:
                     grid_id = int(line[8:24])
                     if line_type == "CTRIA3*":
@@ -955,7 +973,7 @@ class Modeler3D(Primitives3D):
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
-                    if not n3 or n3 == "*":
+                    if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
                     if "-" in n3[1:]:
@@ -965,46 +983,60 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
                     else:
-                        if tria_id in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id].append(
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            )
-                        else:
-                            nas_to_dict["Triangles"][tria_id] = [
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            ]
+                        tri = [int(n1), int(n2), int(n3)]
+                        tri.sort()
+                        if tri not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"].append(tri)
+
                 elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
-                    obj_id = int(line[16:24])
-                    n1 = int(line[24:32])
-                    n2 = int(line[32:40])
-                    n3 = int(line[40:48])
-                    n4 = int(line[48:56])
-                    obj_list = [line_type, n1, n2, n3, n4]
+                    obj_id = line[16:24].strip()
+                    n = []
+                    el_id = line[24:32].strip()
+                    # n = [int(line[24:32])]
+                    n.append(int(line[32:40]))
+                    n.append(int(line[40:48]))
+                    n.append(int(line[48:56]))
                     if line_type == "CPENTA":
-                        n5 = int(line[56:64])
-                        n6 = int(line[64:72])
-                        obj_list.extend([n5, n6])
+                        n.append(int(line[56:64]))
+                        n.append(int(line[64:72]))
 
                     if line_type == "CHEXA":
-                        n5 = int(line[56:64])
-                        n6 = int(line[64:72])
+                        n.append(int(line[56:64]))
+                        n.append(int(line[64:72]))
                         lk += 1
-                        n7 = int(lines[lk][8:16].strip())
-                        n8 = int(lines[lk][16:24].strip())
+                        n.append(int(lines[lk][8:16].strip()))
+                        n.append(int(lines[lk][16:24].strip()))
+                    from itertools import combinations
 
-                        obj_list.extend([n5, n6, n7, n8])
-                    if obj_id in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][obj_id].append(obj_list)
-                    else:
-                        nas_to_dict["Solids"][obj_id] = [[i for i in obj_list]]
+                    tris = []
+                    for k in list(combinations(n, 3)):
+                        tri = [int(k[0]), int(k[1]), int(k[2])]
+                        tris.append(tri)
+                    nas_to_dict["Solids"]["{}_{}".format(el_id, obj_id)] = tris
+                    if el_id not in el_ids:
+                        el_ids.append(el_id)
+                elif line_type in ["CTETRA*"]:
+                    obj_id = line[8:24].strip()
+                    n = []
+                    el_id = line[24:40].strip()
+                    # n.append(line[24:40].strip())
+                    n.append(line[40:56].strip())
+
+                    n.append(line[56:72].strip())
+                    lk += 1
+                    n.extend([lines[lk][i : i + 16] for i in range(16, len(lines[lk]), 16)])
+
+                    from itertools import combinations
+
+                    tris = []
+                    for k in list(combinations(n, 3)):
+                        tri = [int(k[0]), int(k[1]), int(k[2])]
+                        tris.append(tri)
+
+                    nas_to_dict["Solids"]["{}_{}".format(el_id, obj_id)] = tris
+                    if el_id not in el_ids:
+                        el_ids.append(el_id)
+
                 elif line_type in ["CROD", "CBEAM"]:
                     obj_id = int(line[16:24])
                     n1 = int(line[24:32])
@@ -1021,40 +1053,21 @@ class Modeler3D(Primitives3D):
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
             f.write("solid PyaedtStl\n")
-            for triangles in nas_to_dict["Triangles"].values():
-                for triangle in triangles:
-                    try:
-                        points = [nas_to_dict["Points"][id] for id in triangle]
-                    except KeyError:
-                        continue
-                    fc = GeometryOperators.get_polygon_centroid(points)
-                    v1 = points[0]
-                    v2 = points[1]
-                    cv1 = GeometryOperators.v_points(fc, v1)
-                    cv2 = GeometryOperators.v_points(fc, v2)
-                    if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                        n = [0, 0, 1]
-                    elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                        n = [0, 1, 0]
-                    elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                        n = [1, 0, 0]
-                    else:
-                        n = GeometryOperators.v_cross(cv1, cv2)
-
-                    normal = GeometryOperators.normalize_vector(n)
-                    if normal:
-                        f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                        f.write("  outer loop\n")
-                        f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                        f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                        f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                        f.write("  endloop\n")
-                        f.write(" endfacet\n")
+            for triangle in nas_to_dict["Triangles"]:
+                _write_solid_stl(triangle, nas_to_dict)
 
             f.write("endsolid\n")
+            for solidid, solid_triangles in nas_to_dict["Solids"].items():
+                f.write("solid Solid_{}\n".format(solidid))
+                for triangle in solid_triangles:
+                    _write_solid_stl(triangle, nas_to_dict)
+                f.write("endsolid\n")
             f.close()
             self.logger.info("STL file created")
             self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
+            for el in el_ids:
+                obj_names = [i for i in self.solid_names if i.startswith("Solid_{}_".format(el))]
+                self.create_group(obj_names, group_name=el)
             self.logger.info_timer("Faces imported")
 
         if import_lines:
@@ -1086,48 +1099,6 @@ class Modeler3D(Primitives3D):
                     out_poly = self.unite(polys, purge=not lines_thickness)
                     if not lines_thickness and out_poly:
                         self.generate_object_history(out_poly)
-
-        if import_solids and nas_to_dict["Solids"]:
-            self.logger.reset_timer()
-            self.logger.info("Loading solids")
-            for solid_pid in nas_to_dict["Solids"]:
-                for solid in nas_to_dict["Solids"][solid_pid]:
-                    points = [nas_to_dict["Points"][id] for id in solid[1:]]
-                    if solid[0] == "CPENTA":
-                        element1 = self._app.modeler.create_polyline(
-                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
-                        )
-                        element2 = self._app.modeler.create_polyline(
-                            points=[points[3], points[4], points[5]], cover_surface=True, close_surface=True
-                        )
-                        self._app.modeler.connect([element1.name, element2.name])
-                        element1.group_name = "PID_" + str(solid_pid)
-                    elif solid[0] == "CHEXA":
-                        element1 = self._app.modeler.create_polyline(
-                            points=[points[0], points[1], points[2], points[3]], cover_surface=True, close_surface=True
-                        )
-                        element2 = self._app.modeler.create_polyline(
-                            points=[points[4], points[5], points[6], points[7]], cover_surface=True, close_surface=True
-                        )
-                        self._app.modeler.connect([element1.name, element2.name])
-                        element1.group_name = "PID_" + str(solid_pid)
-                    elif solid[0] == "CTETRA":
-                        element1 = self._app.modeler.create_polyline(
-                            points=[points[0], points[1], points[2]], cover_surface=True, close_surface=True
-                        )
-                        element2 = self._app.modeler.create_polyline(
-                            points=[points[0], points[1], points[3]], cover_surface=True, close_surface=True
-                        )
-                        element3 = self._app.modeler.create_polyline(
-                            points=[points[0], points[2], points[3]], cover_surface=True, close_surface=True
-                        )
-                        element4 = self._app.modeler.create_polyline(
-                            points=[points[1], points[2], points[3]], cover_surface=True, close_surface=True
-                        )
-                        self._app.modeler.unite([element1.name, element2.name, element3.name, element4.name])
-                        element1.group_name = "PID_" + str(solid_pid)
-
-            self.logger.info_timer("Solids loaded")
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]

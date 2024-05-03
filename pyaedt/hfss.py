@@ -1970,7 +1970,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props = OrderedDict({"Objects": [assignment], "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
 
-    @pyaedt_function_handler(face="assignment", nummodes="modes", portname="name", renorm="renormalize")
+    @pyaedt_function_handler(
+        face="assignment", nummodes="modes", portname="name", renorm="renormalize", deembed_dist="deembed_distance"
+    )
     def create_floquet_port(
         self,
         assignment,

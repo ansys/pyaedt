@@ -119,20 +119,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-        elif not inside_desktop:
-            if self._app.project_timestamp_changed:
-                if self._edb:
-                    self._edb.close_edb()
-                from pyedb import Edb
 
-                self._edb = Edb(
-                    self._edb_folder,
-                    self._app.design_name,
-                    True,
-                    self._app._aedt_version,
-                    isaedtowned=True,
-                    oproject=self._app.oproject,
-                )
         return self._edb
 
     @property
@@ -530,7 +517,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportExtracta(
             input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()
@@ -584,7 +571,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self._oimportexport.ImportIPC(
             input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()

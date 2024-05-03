@@ -110,7 +110,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         ]
         if any(exc in trace for exc in exceptions):
             continue
-        # if func.__name__ in trace:
         for el in trace.split("\n"):
             _write_mes(el)
     for trace in tb_trace:
@@ -118,14 +117,10 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             continue
         tblist = trace.split("\n")
         for el in tblist:
-            # if func.__name__ in el:
-            _write_mes(el)
+            if el:
+                _write_mes(el)
 
     _write_mes("{} on {}".format(message, func.__name__))
-    # try:
-    #     _write_mes(ex_info[1].args[0])
-    # except (IndexError, AttributeError):
-    #     pass
 
     message_to_print = ""
     messages = ""
@@ -138,7 +133,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             pass
     if "error" in messages:
         message_to_print = messages[messages.index("[error]") :]
-    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
         _write_mes("Last Electronics Desktop Message - " + message_to_print)
@@ -253,7 +247,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
                 msg += "{} is deprecated, use {} instead.".format(alias, new)
                 raise TypeError(msg)
             pyaedt_logger.warning(
-                '`{}` is deprecated as an argument to `{}`; use" f" `{}` instead.'.format(alias, func_name, new)
+                "Argument `{}` is deprecated for method `{}`; use `{}` instead.".format(alias, func_name, new)
             )
             kwargs[new] = kwargs.pop(alias)
 

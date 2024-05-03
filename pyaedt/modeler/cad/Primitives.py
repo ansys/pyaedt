@@ -69,11 +69,11 @@ class Objects(dict):
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "p":
-                self.__parent.logger.info("Parsing design points. This operation can take time")
-                self.__parent.logger.reset_timer()
+                # self.__parent.logger.info("Parsing design points. This operation can take time")
+                # self.__parent.logger.reset_timer()
                 self.__parent.add_new_points()
                 self.__parent.cleanup_points()
-                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+                # self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "u":
                 self.__parent.add_new_user_defined_component()
 
@@ -1103,13 +1103,13 @@ class GeometryModeler(Modeler):
         if material is not None:
             for obj in self.object_list:
                 if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
-                    material = (
+                    found_material = (
                         self._app.odesign.GetChildObject("3D Modeler")
                         .GetChildObject(obj.name)
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if material.lower() == material:
+                    if found_material == material.lower():
                         obj_lst.append(obj)
                 elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)

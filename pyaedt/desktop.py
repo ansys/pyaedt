@@ -697,9 +697,9 @@ class Desktop(object):
         else:
             return None
 
-        initial_oproject = self.odesktop.GetActiveProject()
+        initial_oproject = self.active_project()
         if initial_oproject.GetName() != projectname:
-            self.odesktop.SetActiveProject(projectname)
+            self.active_project(projectname)
 
         if isinstance(project_design_name[1], int) and project_design_name[1] < len(self.design_list()):
             designname = self.design_list()[project_design_name[1]]
@@ -709,6 +709,65 @@ class Desktop(object):
             return None
 
         return get_pyaedt_app(projectname, designname, self)
+
+    @pyaedt_function_handler()
+    def active_design(self, project_object=None, name=None, design_type=None):
+        """Get the active design.
+
+        Parameters
+        ----------
+        project_object : optional
+            AEDT project object. The default is ``None``, in which case the active project is used.
+
+        name : str, optional
+            Name of the design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        design_type : str, optional
+            Name of the active design to make active.
+            The default is ``None``, in which case the active design is returned.
+
+        References
+        ----------
+
+        >>> oProject.GetActiveDesign
+        >>> oProject.SetActiveDesign
+        """
+        if not project_object:
+            project_object = self.active_project()
+        if not name:
+            active_design = project_object.GetActiveDesign()
+        else:
+            active_design = project_object.SetActiveDesign(name)
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+        return active_design
+
+    @pyaedt_function_handler()
+    def active_project(self, name=None):
+        """Get the active project.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the active project to make active.
+            The default is ``None``, in which case the active project is returned.
+
+        References
+        ----------
+
+        >>> oDesktop.GetActiveProject
+        >>> oDesktop.SetActiveProject
+        """
+        if not name:
+            active_project = self.odesktop.GetActiveProject()
+        else:
+            active_project = self.odesktop.SetActiveProject(name)
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
+        return active_project
 
     @property
     def install_path(self):
@@ -1142,14 +1201,14 @@ class Desktop(object):
             ``True`` when successful, ``False`` when failed.
         """
         if not project:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project)
+            oproject = self.active_project(project)
         if oproject:
             if not design:
                 oproject.AnalyzeAll()
             else:
-                odesign = oproject.SetActiveDesign(design)
+                odesign = self.active_design(oproject, design)
                 if odesign:
                     odesign.AnalyzeAll()
         return True
@@ -1217,21 +1276,21 @@ class Desktop(object):
             ``True`` when successful, ``False`` when failed.
         """
         if not project_name:  # pragma: no cover
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:  # pragma: no cover
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if oproject:  # pragma: no cover
             if not design_name:
-                odesign = oproject.GetActiveDesign()
+                odesign = self.active_design(oproject)
             else:
-                odesign = oproject.SetActiveDesign(design_name)
+                odesign = self.active_design(oproject, design_name)
             if odesign:
                 oproject.CopyDesign(design_name)
                 if not target_project:
                     oproject.Paste()
                     return True
                 else:
-                    oproject_target = self.odesktop.SetActiveProject(target_project)
+                    oproject_target = self.active_project(target_project)
                     if not oproject_target:
                         oproject_target = self.odesktop.NewProject(target_project)
                         oproject_target.Paste()
@@ -1255,9 +1314,9 @@ class Desktop(object):
 
         """
         if not project_name:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if oproject:
             return oproject.GetPath()
         return None
@@ -1280,9 +1339,9 @@ class Desktop(object):
 
         updateddeslist = []
         if not project:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project)
+            oproject = self.active_project(project)
         if oproject:
             deslist = list(oproject.GetTopDesignList())
             for el in deslist:
@@ -1309,15 +1368,15 @@ class Desktop(object):
             Design type.
         """
         if not project_name:
-            oproject = self.odesktop.GetActiveProject()
+            oproject = self.active_project()
         else:
-            oproject = self.odesktop.SetActiveProject(project_name)
+            oproject = self.active_project(project_name)
         if not oproject:
             return ""
         if not design_name:
-            odesign = oproject.GetActiveDesign()
+            odesign = self.active_design(oproject)
         else:
-            odesign = oproject.SetActiveDesign(design_name)
+            odesign = self.active_design(oproject.design_name)
         if odesign:
             return odesign.GetDesignType()
         return ""
@@ -1402,7 +1461,8 @@ class Desktop(object):
         tblist = tb_trace[0].split("\n")
         self.logger.error(str(ex_value))
         for el in tblist:
-            self.logger.error(el)
+            if el:
+                self.logger.error(el)
 
         return str(ex_value)
 
@@ -1428,11 +1488,11 @@ class Desktop(object):
 
         """
         if os.path.splitext(os.path.split(project_file)[-1])[0] in self.project_list():
-            proj = self.odesktop.SetActiveProject(os.path.splitext(os.path.split(project_file)[-1])[0])
+            proj = self.active_project(os.path.splitext(os.path.split(project_file)[-1])[0])
         else:
             proj = self.odesktop.OpenProject(project_file)
         if proj:
-            active_design = proj.GetActiveDesign()
+            active_design = self.active_design(proj)
             if design_name and design_name in proj.GetChildNames():  # pragma: no cover
                 return self[[proj.GetName(), design_name]]
             elif active_design:
@@ -1684,172 +1744,6 @@ class Desktop(object):
         from pyaedt.misc.install_extra_toolkits import available_toolkits
 
         return list(available_toolkits.keys())
-
-    @pyaedt_function_handler()
-    def add_custom_toolkit(self, toolkit_name):  # pragma: no cover
-        """Add toolkit to AEDT Automation Tab.
-
-        Parameters
-        ----------
-        toolkit_name : str
-            Name of toolkit to add.
-
-        Returns
-        -------
-        bool
-        """
-        from pyaedt.misc.install_extra_toolkits import available_toolkits
-
-        toolkit = available_toolkits[toolkit_name]
-        toolkit_name = toolkit_name.replace("_", "")
-
-        def install(package_path, package_name=None):
-            executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
-
-            commands = []
-            if package_path.startswith("git") and package_name:
-                commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
-
-            commands.append([executable, "-m", "pip", "install", "--upgrade", package_path])
-
-            if self.aedt_version_id == "2023.1" and is_windows and "AnsysEM" in sys.base_prefix:
-                commands.append([executable, "-m", "pip", "uninstall", "--yes", "pywin32"])
-
-            for command in commands:
-                if is_linux:
-                    p = subprocess.Popen(command)
-                else:
-                    p = subprocess.Popen(" ".join(command))
-                p.wait()
-
-        install(toolkit["pip"], toolkit.get("package_name", None))
-        import site
-
-        packages = site.getsitepackages()
-        full_path = None
-        for pkg in packages:
-            if os.path.exists(os.path.join(pkg, toolkit["toolkit_script"])):
-                full_path = os.path.join(pkg, toolkit["toolkit_script"])
-                break
-        if not full_path:
-            raise FileNotFoundError("Error finding the package.")
-        self.add_script_to_menu(
-            toolkit_name=toolkit_name,
-            script_path=full_path,
-            script_image=toolkit,
-            product=toolkit["installation_path"],
-            copy_to_personal_lib=False,
-            add_pyaedt_desktop_init=False,
-        )
-
-    @pyaedt_function_handler()
-    def add_script_to_menu(
-        self,
-        toolkit_name,
-        script_path,
-        script_image=None,
-        product="Project",
-        copy_to_personal_lib=True,
-        add_pyaedt_desktop_init=True,
-    ):
-        """Add a script to the ribbon menu.
-
-        .. note::
-           This method is available in AEDT 2023 R2 and later. PyAEDT must be installed
-           in AEDT to allow this method to run. For more information, see `Installation
-           <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html>`_.
-
-        Parameters
-        ----------
-        toolkit_name : str
-            Name of the toolkit to appear in AEDT.
-        script_path : str
-            Full path to the script file. The script will be moved to Personal Lib.
-        script_image : str, optional
-            Full path to the image logo (a 30x30 pixel PNG file) to add to the UI.
-            The default is ``None``.
-        product : str, optional
-            Product to which the toolkit applies. The default is ``"Project"``, in which case
-            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
-        copy_to_personal_lib : bool, optional
-            Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
-
-        Returns
-        -------
-        bool
-
-        """
-        if not os.path.exists(script_path):
-            self.logger.error("Script does not exists.")
-            return False
-        from pyaedt.misc.install_extra_toolkits import write_toolkit_config
-
-        toolkit_dir = os.path.join(self.personallib, "Toolkits")
-        aedt_version = self.aedt_version_id
-        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
-        lib_dir = os.path.join(tool_dir, "Lib")
-        toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
-        if is_linux and aedt_version <= "2023.1":
-            toolkit_rel_lib_dir = os.path.join("Lib", toolkit_name)
-            lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
-            toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
-        os.makedirs(lib_dir, exist_ok=True)
-        os.makedirs(tool_dir, exist_ok=True)
-        dest_script_path = script_path
-        if copy_to_personal_lib:
-            dest_script_path = os.path.join(lib_dir, os.path.split(script_path)[-1])
-            shutil.copy2(script_path, dest_script_path)
-        files_to_copy = ["Run_PyAEDT_Toolkit_Script"]
-        executable_version_agnostic = sys.executable
-        for file_name in files_to_copy:
-            src = os.path.join(pathname, "misc", file_name + ".py_build")
-            dst = os.path.join(tool_dir, file_name.replace("_", " ") + ".py")
-            if not os.path.isfile(src):
-                raise FileNotFoundError("File not found: {}".format(src))
-            with open_file(src, "r") as build_file:
-                with open_file(dst, "w") as out_file:
-                    self.logger.info("Building to " + dst)
-                    build_file_data = build_file.read()
-                    build_file_data = (
-                        build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
-                        .replace("##PYTHON_EXE##", executable_version_agnostic)
-                        .replace("##PYTHON_SCRIPT##", dest_script_path)
-                    )
-                    build_file_data = build_file_data.replace(" % version", "")
-                    out_file.write(build_file_data)
-        if aedt_version >= "2023.2":
-            if not script_image:
-                script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", "pyansys.png")
-            write_toolkit_config(os.path.join(toolkit_dir, product), lib_dir, toolkit_name, toolkit=script_image)
-        self.logger.info("{} toolkit installed.".format(toolkit_name))
-        return True
-
-    @pyaedt_function_handler()
-    def remove_script_from_menu(self, toolkit_name, product="Project"):
-        """Remove a toolkit script from the menu.
-
-        Parameters
-        ----------
-        toolkit_name : str
-            Name of the toolkit to remove.
-        product : str, optional
-            Product to which the toolkit applies. The default is ``"Project"``, in which case
-            it applies to all designs. You can also specify a product, such as ``"HFSS"``.
-
-        Returns
-        -------
-        bool
-        """
-        from pyaedt.misc.install_extra_toolkits import remove_toolkit_config
-
-        toolkit_dir = os.path.join(self.personallib, "Toolkits")
-        aedt_version = self.aedt_version_id
-        tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
-        shutil.rmtree(tool_dir, ignore_errors=True)
-        if aedt_version >= "2023.2":
-            remove_toolkit_config(os.path.join(toolkit_dir, product), toolkit_name)
-        self.logger.info("{} toolkit removed successfully.".format(toolkit_name))
-        return True
 
     @pyaedt_function_handler()
     def submit_job(

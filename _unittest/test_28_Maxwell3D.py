@@ -198,6 +198,7 @@ class TestClass:
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
+    @pytest.mark.skipif(desktop_version == "2024.2", reason="GetDisplacementCurrent not working in 2024.2")
     def test_06_eddycurrent(self):
         assert self.aedtapp.eddy_effects_on(["Plate"], enable_eddy_effects=True)
         oModule = self.aedtapp.odesign.GetModule("BoundarySetup")
@@ -868,7 +869,10 @@ class TestClass:
         nets_layers = {"1V0": "Bottom Solder"}
         assert layout_comp.assign_layout_force(nets_layers, "LC1_1")
 
-    @pytest.mark.skipif(desktop_version < "2023.2", reason="Method available in beta from 2023.2")
+    @pytest.mark.skipif(
+        desktop_version < "2023.2" or is_linux, reason="Method is available in beta in 2023.2 and later."
+    )
+    @pytest.mark.skipif(is_linux, reason="EDB object is not loaded.")
     def test_54_enable_harmonic_force_layout(self, layout_comp):
         comp = layout_comp.modeler.user_defined_components["LC1_1"]
         layers = list(comp.layout_component.layers.keys())

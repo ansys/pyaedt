@@ -492,10 +492,10 @@ class TestClass:
         self.aedtapp.delete_setup(setup_name)
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
-    def test_19A_validate(self):
+    def test_19a_validate(self):
         assert self.aedtapp.validate_full_design()
 
-    def test_19D_export_to_hfss(self):
+    def test_19d_export_to_hfss(self):
         self.aedtapp.save_project()
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
@@ -503,9 +503,11 @@ class TestClass:
         file_fullname2 = os.path.join(self.local_scratch.path, filename2)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_hfss(output_file=file_fullname)
-        assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
+        if not is_linux:
+            # TODO: EDB failing in Linux
+            assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
 
-    def test_19E_export_to_q3d(self):
+    def test_19e_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
@@ -652,9 +654,9 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_linux, reason="PyEDB is failing in Linux.")
     def test_42_post_processing(self, add_app):
         test_post1 = add_app(project_name=test_post, application=Maxwell3d, subfolder=test_subfolder)
-
         assert test_post1.post.create_fieldplot_layers(
             [],
             "Mag_H",
@@ -693,6 +695,11 @@ class TestClass:
             plot_name="Test_Layers4",
         )
         assert test_post2.post.create_fieldplot_layers(
+            ["TOP"],
+            "Mag_E",
+            intrinsics={"Freq": "1GHz", "Phase": "0deg"},
+        )
+        assert test_post2.post.create_fieldplot_layers(
             ["TOP", "UNNAMED_004"],
             "Mag_E",
             intrinsics={"Freq": "1GHz", "Phase": "0deg"},
@@ -701,6 +708,7 @@ class TestClass:
         self.aedtapp.close_project(test_post2.project_name)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.2", reason="Working only from 2023 R2")
+    @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
     def test_42_post_processing_3d_layout(self, add_app):
         test = add_app(
             project_name="test_post_3d_layout_solved_23R2", application=Hfss3dLayout, subfolder=test_subfolder
@@ -816,6 +824,7 @@ class TestClass:
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
 
+    @pytest.mark.skipif(is_linux, reason="PyEDB failing in Linux")
     def test_96_2_report_design(self):
         report = AnsysReport()
         report.create()
