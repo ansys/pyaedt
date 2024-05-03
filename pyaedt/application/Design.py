@@ -8,6 +8,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from abc import abstractmethod
 from collections import OrderedDict
 import gc
 import json
@@ -39,6 +40,7 @@ from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -274,6 +276,7 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
+        self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
@@ -4029,33 +4032,65 @@ class Design(AedtObjects):
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
 
-    @pyaedt_function_handler()
-    def design_settings(self):
-        """Get design settings for the current AEDT app.
 
-        Returns
-        -------
-        dict
-            Dictionary of valid design settings.
+class DesignSettings:
+    """Get design settings for the current AEDT app.
 
-        References
-        ----------
+    References
+    ----------
 
-        >>> oDesign.GetChildObject("Design Settings")
-        """
+    >>> oDesign.GetChildObject("Design Settings")
+    """
+
+    def __init__(self, app):
+        self._app = app
+        self.manipulate_inputs = None
         try:
-            design_settings = self._odesign.GetChildObject("Design Settings")
-        except Exception:  # pragma: no cover
-            self.logger.error("Failed to retrieve design settings.")
-            return False
+            self.design_settings = self._app.odesign.GetChildObject("Design Settings")
+        except GrpcApiError:  # pragma: no cover
+            self._app.logger.error("Failed to retrieve design settings.")
+            self.design_settings = None
 
-        prop_name_list = design_settings.GetPropNames()
-        design_settings_dict = {}
-        for prop in prop_name_list:
-            try:
-                design_settings_dict[prop] = design_settings.GetPropValue(prop)
-            except Exception:  # pragma: no cover
-                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
-                design_settings_dict[prop] = None
+    @property
+    def available_properties(self):
+        """Available properties names for the current design."""
+        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
-        return design_settings_dict
+    def __repr__(self):
+        lines = ["{"]
+        for prop in self.available_properties:
+            lines.append("\t{}: {}".format(prop, self.design_settings.GetPropValue(prop)))
+        lines.append("}")
+        return "\n".join(lines)
+
+    def __setitem__(self, key, value):
+        if key in self.available_properties:
+            if self.manipulate_inputs is not None:
+                value = self.manipulate_inputs.execute(key, value)
+            key_choices = "{}/Choices".format(key)
+            if key_choices in self.design_settings.GetPropNames():
+                value_choices = self.design_settings.GetPropValue(key_choices)
+                if value not in value_choices:
+                    self._app.logger.error(
+                        "{} is not a valid choice. Possible choices are: {}".format(value, ", ".join(value_choices))
+                    )
+                    return False
+            self.design_settings.SetPropValue(key, value)
+        else:
+            self._app.logger.error("{} property is not available in design settings.".format(key))
+
+    def __getitem__(self, key):
+        if key in self.available_properties:
+            return self.design_settings.GetPropValue(key)
+        else:
+            self._app.logger.error("{} property is not available in design settings.".format(key))
+            return None
+
+    def __contains__(self, item):
+        return item in self.available_properties
+
+
+class DesignSettingsManipulation:
+    @abstractmethod
+    def execute(self, k, v):
+        pass
