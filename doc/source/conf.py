@@ -147,7 +147,6 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_jinja",
     "sphinx.ext.graphviz",
     "sphinx.ext.mathjax",
     "sphinx.ext.inheritance_diagram",
@@ -310,12 +309,6 @@ if run_examples:
     if not use_gif:
         gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"
         sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + gif_ignore_pattern
-
-jinja_contexts = {
-    "main_toctree": {
-        "run_examples": run_examples,
-    },
-}
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"

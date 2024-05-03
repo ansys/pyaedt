@@ -37,18 +37,13 @@ enabling straightforward and efficient automation in your workflow.
         This section contains descriptions of the functions and modules included in PyAEDT.
         It describes how the methods work and the parameters that can be used.
 
-.. jinja:: main_toctree
-
-   .. grid:: 2
-
-    {% if run_examples %}
     .. grid-item-card:: Examples :fa:`scroll`
         :link: examples/index
         :link-type: doc
 
         Explore examples that show how to use PyAEDT to perform different types of simulations.
 
-    {% endif %}
+.. grid:: 2
 
     .. grid-item-card:: Contribute :fa:`people-group`
         :link: Getting_started/Contributing
@@ -56,15 +51,11 @@ enabling straightforward and efficient automation in your workflow.
 
         Learn how to contribute to the PyAEDT codebase or documentation.
 
-.. jinja:: main_toctree
+.. toctree::
+    :hidden:
 
-    .. toctree::
-       :hidden:
 
-       Getting_started/index
-       User_guide/index
-       API/index
-
-       {% if run_examples %}
-       examples/index
-       {% endif %}
+    Getting_started/index
+    User_guide/index
+    API/index
+    examples/index
