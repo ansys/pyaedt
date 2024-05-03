@@ -292,6 +292,9 @@ class TestClass:
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
         assert self.aedtapp.edit_design_settings(ambtemp=20)
         assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        self.aedtapp.solution_type = "Transient"
+        bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
+        assert self.aedtapp.edit_design_settings(ambtemp=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -404,6 +407,7 @@ class TestClass:
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler["boxSource"].bottom_face_z.id,
+            input_power="0W",
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
@@ -426,6 +430,7 @@ class TestClass:
             voltage_current_choice="Current",
             voltage_current_value="1A",
         )
+        self.aedtapp.solution_type = "SteadyState"
         assert not self.aedtapp.assign_source(
             self.aedtapp.modeler["boxSource"].top_face_x.id,
             "Total Power",
@@ -950,7 +955,6 @@ class TestClass:
             thickness="0mm",
             material="Al-Extruded",
             htc=10,
-            htc_dataset=None,
             ref_temperature="AmbientTemp",
             ht_correlation=True,
             ht_correlation_type="Forced Convection",
@@ -966,7 +970,7 @@ class TestClass:
             name=None,
             thickness="0mm",
             material="Al-Extruded",
-            htc_dataset="ds1",
+            htc="ds1",
             ref_temperature="AmbientTemp",
             ht_correlation=False,
         )
@@ -1583,3 +1587,25 @@ class TestClass:
     def test_75_native_component_load(self, add_app):
         app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
         assert len(app.native_components) == 1
+
+    def test_76_design_settings(self):
+        d = self.aedtapp.design_settings
+        d["AmbTemp"] = 5
+        assert d["AmbTemp"] == "5cel"
+        d["AmbTemp"] = "5kel"
+        assert d["AmbTemp"] == "5kel"
+        d["AmbTemp"] = {"1": "2"}
+        assert d["AmbTemp"] == "5kel"
+        d["AmbGaugePressure"] = 5
+        assert d["AmbGaugePressure"] == "5n_per_meter_sq"
+        d["GravityVec"] = 1
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = 4
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Negative"
+        d["GravityVec"] = "+X"
+        assert d["GravityVec"] == "Global::X"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = "Global::Y"
+        assert d["GravityVec"] == "Global::Y"
