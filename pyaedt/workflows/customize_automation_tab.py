@@ -380,6 +380,8 @@ def __tab_map(product):  # pragma: no cover
         return "2DExtractor"
     elif product.lower() == "q3d":
         return "Q3DExtractor"
+    elif product.lower() == "simplorer":
+        return "TwinBuilder"
     else:
         return product
 
