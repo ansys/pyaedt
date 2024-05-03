@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+* * * This script is meant to run in IronPython within AEDT. * * *
 The script provides for choosing the Python script to execute.
 
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
@@ -18,6 +18,7 @@ import sys
 from System.Windows.Forms import MessageBox
 from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
+from System.Windows.Forms import OpenFileDialog
 
 is_linux = os.name == "posix"
 script_name = os.path.splitext(os.path.basename(__file__))[0]
@@ -30,19 +31,24 @@ else:
 
 def main():
     try:
-        oDesktop.AddMessage("", "", 0, "Toolkit launched. Please wait.")
-        # launch file
         version = oDesktop.GetVersion()[2:6].replace(".", "")
+        # launch toolkit manager
         python_exe = r"##PYTHON_EXE##" % version
-        pyaedt_script = r"##PYTHON_SCRIPT##"
+        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+        pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+        pyaedt_script = os.path.join(pyaedt_toolkit_dir, "toolkit_manager.py")
         check_file(python_exe)
         check_file(pyaedt_script)
         os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
-        version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
+        if "Ansys Student" in str(oDesktop.GetExeDir()):
+            os.environ["PYAEDT_STUDENT_VERSION"] = "True"
+        else:
+            os.environ["PYAEDT_STUDENT_VERSION"] = "False"
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:
+
             edt_root = os.path.normpath(oDesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [
@@ -57,28 +63,23 @@ def main():
             command = [
                 python_exe,
                 pyaedt_script,
-                str(oDesktop.GetProcessID()),
-                str(oDesktop.GetVersion()[:6]),
             ]
             my_env = os.environ.copy()
-            subprocess.Popen(command, env=my_env)
+            subprocess.Popen(command, env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         else:
-            CREATE_NO_WINDOW = 0x08000000
             command = [
                 '"{}"'.format(python_exe),
                 '"{}"'.format(pyaedt_script),
-                str(oDesktop.GetProcessID()),
-                str(oDesktop.GetVersion()[:6]),
             ]
             my_env = os.environ.copy()
-            subprocess.Popen(" ".join(command), env=my_env, creationflags=CREATE_NO_WINDOW)
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
     except Exception as e:
         show_error(str(e))
 
 
 def check_file(file_path):
     if not os.path.isfile(file_path):
-        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
+        show_error('"{}" does not exist. Click the "Install PyAEDT" button in the Automation ribbon.'.format(
             file_path))
 
 
@@ -86,6 +87,11 @@ def show_error(msg):
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
+
+
+def debug(msg):
+    print("[debug] {}: {}".format(script_name, str(msg)))
+    LogDebug("{}: {}\n".format(script_name, str(msg)))
 
 
 if __name__ == "__main__":
