@@ -33,6 +33,8 @@ def main():
     try:
         # launch toolkit manager
         python_exe = r"##PYTHON_EXE##" % version
+        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+        pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
         pyaedt_script = os.path.join(pyaedt_toolkit_dir, "toolkit_manager.py")
         check_file(python_exe)
         check_file(pyaedt_script)
@@ -40,7 +42,9 @@ def main():
         version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
         if "Ansys Student" in str(oDesktop.GetExeDir()):
-            os.environ["PYAEDT_STUDENT_VERSION"] = True
+            os.environ["PYAEDT_STUDENT_VERSION"] = "True"
+        else:
+            os.environ["PYAEDT_STUDENT_VERSION"] = "False"
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:

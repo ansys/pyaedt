@@ -22,6 +22,7 @@
 
 import os
 import shutil
+import subprocess
 import sys
 from xml.dom.minidom import parseString
 import xml.etree.ElementTree as ET
@@ -29,6 +30,7 @@ from xml.etree.ElementTree import ParseError
 
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+import pyaedt.workflows
 import pyaedt.workflows.templates
 
 """Methods to add new automation tabs in AEDT."""
@@ -357,15 +359,25 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     -------
     bool
     """
-    toolkit = available_toolkits[toolkit_name]
+    toolkits = available_toolkits()
+    toolkit_info = None
+    product_name = None
+    for product in toolkits.keys():
+        if toolkit_name in toolkits[product]:
+            toolkit_info = toolkits[product][toolkit_name]
+            product_name = product
+            break
+    if not toolkit_info:
+        desktop_object.logger.error("Toolkit does not exist.")
+        return False
 
     # Set Python version based on AEDT version
-    python_version = "3.10" if self.aedt_version_id > "2023.1" else "3.7"
+    python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
 
-    if is_windows:
+    if not is_linux:
         base_venv = os.path.normpath(
             os.path.join(
-                self.install_path,
+                desktop_object.install_path,
                 "commonfiles",
                 "CPython",
                 python_version.replace(".", "_"),
@@ -378,7 +390,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     else:
         base_venv = os.path.normpath(
             os.path.join(
-                self.install_path,
+                desktop_object.install_path,
                 "commonfiles",
                 "CPython",
                 python_version.replace(".", "_"),
@@ -388,8 +400,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 "runpython",
             )
         )
-
-    desktop_object.logger.info(base_venv)
 
     def run_command(command):
         try:
@@ -406,9 +416,9 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             print("Exception occurred:", str(e))
             return 1  # Return non-zero exit code for indicating an error
 
-    version = self.odesktop.GetVersion()[2:6].replace(".", "")
+    version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
-    if is_windows:
+    if not is_linux:
         venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
@@ -438,12 +448,12 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     is_installed = False
     script_file = None
-    if os.path.isdir(os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))):
-        script_file = os.path.normpath(os.path.join(package_dir, toolkit["toolkit_script"]))
+    if os.path.isdir(os.path.normpath(os.path.join(package_dir, toolkit_info["script"]))):
+        script_file = os.path.normpath(os.path.join(package_dir, toolkit_info["script"]))
     else:
         for dirpath, dirnames, _ in os.walk(package_dir):
             if "site-packages" in dirnames:
-                script_file = os.path.normpath(os.path.join(dirpath, "site-packages", toolkit["toolkit_script"]))
+                script_file = os.path.normpath(os.path.join(dirpath, "site-packages", toolkit_info["script"]))
                 break
     if os.path.isfile(script_file):
         is_installed = True
@@ -464,7 +474,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         with zipfile.ZipFile(wheel_toolkit, "r") as zip_ref:
             zip_ref.extractall(unzipped_path)
 
-        package_name = available_toolkits[toolkit_name]["package_name"]
+        package_name = toolkit_info["package_name"]
         run_command(
             '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
         )
@@ -473,7 +483,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit["package_name"]))
+        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit_info["package_name"]))
     elif install and is_installed:
         # Update toolkit
         run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
@@ -483,7 +493,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
     tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
-    script_image = os.path.join(os.path.dirname(__file__), "misc", "images", "large", toolkit["image"])
+    script_image = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", toolkit["image"])
 
     if install:
         if not os.path.exists(tool_dir):
@@ -499,12 +509,12 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 executable_interpreter=python_exe,
             )
     else:
-        toolkit_dir = os.path.join(self.personallib, "Toolkits")
+        toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
         tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
 
         if os.path.exists(tool_dir):
             # Install toolkit inside AEDT
-            self.remove_script_from_menu(
+            remove_script_from_menu(
                 toolkit_name=toolkit_name,
                 product=toolkit["installation_path"],
             )

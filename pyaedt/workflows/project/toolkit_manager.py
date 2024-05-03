@@ -33,6 +33,7 @@ from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
+import pyaedt.workflows.project
 
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
@@ -41,7 +42,7 @@ if all(var in os.environ for var in env_vars):
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
 else:
-    version = "2024.1"
+    version = "24.1"
     port = 0
     student_version = False
 
@@ -216,21 +217,20 @@ def button_is_clicked(
     desktop.odesktop.CloseAllWindows()
 
     if selected_toolkit_name != "Custom":
-        desktop.logger.info("TEST: VENV {}".format(venv_dir))
         if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
             desktop.logger.info("Updating {}".format(selected_toolkit_name))
-            add_custom_toolkit(selected_toolkit_name, file)
+            add_custom_toolkit(desktop, selected_toolkit_name, file)
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
             desktop.logger.info("{} updated".format(selected_toolkit_name))
         elif install_action:
             desktop.logger.info("Installing {}".format(selected_toolkit_name))
-            add_custom_toolkit(selected_toolkit_name, file)
+            add_custom_toolkit(desktop, selected_toolkit_name, file)
             install_button.config(text="Update")
             uninstall_button.config(state="normal")
         elif is_toolkit_installed(selected_toolkit_name, toolkit_level) and not install_action:
             desktop.logger.info("Uninstalling {}".format(selected_toolkit_name))
-            add_custom_toolkit(selected_toolkit_name, install=False)
+            add_custom_toolkit(desktop, selected_toolkit_name, install=False)
             install_button.config(text="Install")
             uninstall_button.config(state="disabled")
             desktop.logger.info("{} uninstalled".format(selected_toolkit_name))
@@ -246,6 +246,7 @@ def button_is_clicked(
             else:
                 pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
+
             if os.path.isfile(executable_interpreter):
                 add_script_to_menu(
                     desktop_object=desktop,
@@ -269,7 +270,7 @@ root = tk.Tk()
 root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(__file__), "images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(pyaedt.workflows.project.__file__), "images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 
