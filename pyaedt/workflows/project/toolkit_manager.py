@@ -42,7 +42,7 @@ if all(var in os.environ for var in env_vars):
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
 else:
-    version = "24.1"
+    version = "241"
     port = 0
     student_version = False
 

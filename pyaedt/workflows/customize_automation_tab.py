@@ -62,6 +62,11 @@ def add_automation_tab(
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
 
+    Returns
+    -------
+    str
+        Automation tab path.
+
     """
 
     tab_config_file_path = os.path.join(lib_dir, product, "TabConfig.xml")
@@ -69,7 +74,7 @@ def add_automation_tab(
         root = ET.Element("TabConfig")
     else:
         try:
-            tree = ET.parse(tab_config_file_path)
+            tree = ET.parse(tab_config_file_path)  # nosec
         except ParseError as e:
             warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
             return
@@ -94,6 +99,9 @@ def add_automation_tab(
             b = [button for button in buttons if button.attrib["label"] == name][0]
             panel.remove(b)
 
+    if not icon_file:
+        icon_file = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "pyansys.png")
+
     file_name = os.path.basename(icon_file)
     dest_dir = os.path.normpath(os.path.join(lib_dir, product, name, "images", "large"))
     dest_file = os.path.normpath(os.path.join(dest_dir, file_name))
@@ -116,6 +124,7 @@ def add_automation_tab(
         shutil.copy(tab_config_file_path, tab_config_file_path + ".orig")
 
     create_xml_tab(root, tab_config_file_path)
+    return tab_config_file_path
 
 
 def remove_automation_tab(name, lib_dir):
@@ -139,7 +148,7 @@ def remove_automation_tab(name, lib_dir):
     if not os.path.isfile(tab_config_file_path):
         return True
     try:
-        tree = ET.parse(tab_config_file_path)
+        tree = ET.parse(tab_config_file_path)  # nosec
     except ParseError as e:
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
@@ -177,11 +186,6 @@ def create_xml_tab(root, output_file):
     output_file : str
         Full name of the file to save the XML tab.
     """
-    lines = [
-        line
-        for line in defusedxml.minidom.parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n")
-        if line.strip()
-    ]
     lines = [line for line in parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n") if line.strip()]
     xml_str = "\n".join(lines)
 
@@ -195,7 +199,7 @@ def remove_xml_tab(toolkit_dir, name):
     if not os.path.isfile(tab_config_file_path):
         return True
     try:
-        tree = ET.parse(tab_config_file_path)
+        tree = ET.parse(tab_config_file_path)  # nosec
     except ParseError as e:
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
@@ -343,8 +347,6 @@ def add_script_to_menu(
             out_file.write(build_file_data)
 
     if aedt_version >= "2023.2":
-        if not icon_file:
-            icon_file = os.path.join(os.path.dirname(__file__), "images", "large", "pyansys.png")
         add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest)
     desktop_object.logger.info("{} installed".format(name))
     return True

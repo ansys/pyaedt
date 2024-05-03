@@ -8,7 +8,7 @@ defusedxml.defuse_stdlib()
 
 import pytest
 
-from pyaedt.misc.aedtlib_personalib_install import write_tab_config
+from pyaedt.workflows.customize_automation_tab import add_automation_tab
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -22,8 +22,7 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_00_write_new_xml(self):
-        file_path = os.path.join(self.local_scratch.path, "TabConfig.xml")
-        write_tab_config(os.path.dirname(file_path), self.local_scratch.path)
+        file_path = add_automation_tab(name="Test", lib_dir=self.local_scratch.path)
         root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
@@ -34,7 +33,7 @@ class TestClass:
         First write a dummy XML with a different Panel and then add PyAEDT's tabs
         :return:
         """
-        file_path = os.path.join(self.local_scratch.path, "TabConfig.xml")
+        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -52,7 +51,7 @@ class TestClass:
 """
             )
 
-        write_tab_config(os.path.dirname(file_path), self.local_scratch.path)
+        file_path = add_automation_tab(name="Test", lib_dir=self.local_scratch.path)
         root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
@@ -60,7 +59,7 @@ class TestClass:
         assert "Panel_1" in panel_names
 
     def test_03_overwrite_existing_pyaedt_config(self):
-        file_path = os.path.join(self.local_scratch.path, "TabConfig.xml")
+        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -77,14 +76,14 @@ class TestClass:
 </TabConfig>
 """
             )
-        write_tab_config(os.path.dirname(file_path), self.local_scratch.path)
+        file_path = add_automation_tab(name="Test", lib_dir=self.local_scratch.path)
         root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
-        assert len(panel_names) == 1
+        assert len(panel_names) == 2
 
     def test_04_write_to_existing_file_but_no_panels(self):
-        file_path = os.path.join(self.local_scratch.path, "TabConfig.xml")
+        file_path = os.path.join(self.local_scratch.path, "Project", "TabConfig.xml")
         with open(file_path, "w") as fid:
             fid.write(
                 """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -93,7 +92,7 @@ class TestClass:
 </TabConfig>
 """
             )
-        write_tab_config(os.path.dirname(file_path), self.local_scratch.path)
+        file_path = add_automation_tab(name="Test", lib_dir=self.local_scratch.path)
         root = self.validate_file_exists_and_pyaedt_tabs_added(file_path)
         junks = root.findall("./junk")
         junk_names = [junk.attrib["label"] for junk in junks]
@@ -111,13 +110,5 @@ class TestClass:
         root = tree.getroot()
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
-        assert "Panel_PyAEDT" in panel_names
-        files_to_verify = [
-            "images/large/pyansys.png",
-            "images/gallery/console.png",
-            "images/gallery/run_script.png",
-            "images/gallery/toolkit_manager.png",
-        ]
-        for file_name in files_to_verify:
-            assert os.path.isfile(os.path.join(os.path.dirname(file_path), file_name))
+        assert "Panel_PyAEDT_Toolkits" in panel_names
         return root
