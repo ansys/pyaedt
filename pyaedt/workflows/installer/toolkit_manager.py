@@ -102,7 +102,13 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
 
     def update_page(event=None):
         selected_toolkit = toolkits_combo.get()
-        if selected_toolkit == "Custom":
+
+        toolkits = available_toolkits()
+        selected_toolkit_info = {}
+        if window_name in toolkits and selected_toolkit in toolkits[window_name]:
+            selected_toolkit_info = toolkits[window_name][selected_toolkit]
+
+        if selected_toolkit == "Custom" or not selected_toolkit_info.get("pip"):
             install_button.config(text="Install")
             uninstall_button.config(state="normal")
         else:
@@ -113,7 +119,11 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
                 install_button.config(text="Install")
                 uninstall_button.config(state="disabled")
 
-        if installation_option_action.get() == "Pip" and selected_toolkit != "Custom":
+        if (
+            installation_option_action.get() == "Pip"
+            and selected_toolkit != "Custom"
+            and selected_toolkit_info.get("pip")
+        ):
             toolkit_name.config(state="disabled")
             input_file_label.config(text="Enter wheelhouse path:")
             input_file.config(state="disabled")
@@ -124,6 +134,9 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
             input_file_label.config(text="Enter script path:")
             input_file.config(state="normal")
             installation_option_action.set("Offline")
+        elif not selected_toolkit_info.get("pip") and selected_toolkit != "Custom":
+            input_file.config(state="disabled")
+            toolkit_name.config(state="disabled")
         else:
             toolkit_name.config(state="disabled")
             input_file_label.config(text="Enter wheelhouse path:")
@@ -213,7 +226,18 @@ def button_is_clicked(
 
     desktop.odesktop.CloseAllWindows()
 
-    if selected_toolkit_name != "Custom":
+    toolkits = available_toolkits()
+    selected_toolkit_info = {}
+    icon = None
+    if toolkit_level in toolkits and selected_toolkit_name in toolkits[toolkit_level]:
+        selected_toolkit_info = toolkits[toolkit_level][selected_toolkit_name]
+        if not selected_toolkit_info.get("pip"):
+            product_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), toolkit_level.lower())
+            file = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("script")))
+            name = selected_toolkit_info.get("name")
+            icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
+
+    if selected_toolkit_name != "Custom" and selected_toolkit_info.get("pip"):
         if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
             desktop.logger.info("Updating {}".format(selected_toolkit_name))
             add_custom_toolkit(desktop, selected_toolkit_name, file)
@@ -250,6 +274,7 @@ def button_is_clicked(
                     name=name,
                     script_file=file,
                     product=toolkit_level,
+                    icon_file=icon,
                     executable_interpreter=executable_interpreter,
                 )
             else:

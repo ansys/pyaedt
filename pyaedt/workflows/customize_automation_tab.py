@@ -77,6 +77,8 @@ def add_automation_tab(
 
     """
 
+    product = __tab_map(product)
+
     tab_config_file_path = os.path.join(lib_dir, product, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path) or overwrite:
         root = ET.Element("TabConfig")
@@ -315,7 +317,8 @@ def add_script_to_menu(
 
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
     aedt_version = desktop_object.aedt_version_id
-    tool_dir = os.path.join(toolkit_dir, product, name)
+    tool_map = __tab_map(product)
+    tool_dir = os.path.join(toolkit_dir, tool_map, name)
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
     if is_linux and aedt_version <= "2023.1":
@@ -365,6 +368,20 @@ def add_script_to_menu(
         )
     desktop_object.logger.info("{} installed".format(name))
     return True
+
+
+def __tab_map(product):  # pragma: no cover
+    """Map exceptions in AEDT applications."""
+    if product.lower() == "hfss3dlayout":
+        return "HFSS3DLayoutDesign"
+    elif product.lower() == "circuit":
+        return "CircuitDesign"
+    elif product.lower() == "q2d":
+        return "2DExtractor"
+    elif product.lower() == "q3d":
+        return "Q3DExtractor"
+    else:
+        return product
 
 
 def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
@@ -563,7 +580,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     -------
     bool
     """
-
+    product = __tab_map(product)
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
     aedt_version = desktop_object.aedt_version_id
     tool_dir = os.path.join(toolkit_dir, product, name)
