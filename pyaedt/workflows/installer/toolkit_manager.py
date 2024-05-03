@@ -38,7 +38,6 @@ from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
-    version = version[2:6].replace(".", "")
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
 else:
@@ -54,7 +53,7 @@ if is_windows:
 else:
     venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
     python_exe = os.path.join(venv_dir, "bin", "python")
-    package_dir = os.path.join(venv_dir, "Lib", "site-packages")
+    package_dir = os.path.join(venv_dir, "lib", "site-packages")
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -155,7 +154,19 @@ def is_toolkit_installed(toolkit_name, window_name):
         return False
     toolkits = available_toolkits()
     script_file = os.path.normpath(os.path.join(package_dir, toolkits[window_name][toolkit_name]["script"]))
-    return True if os.path.isfile(script_file) else False
+    if os.path.isfile(script_file):
+        return True
+    else:
+        lib_dir = os.path.dirname(package_dir)
+        for dirpath, dirnames, _ in os.walk(lib_dir):
+            if "site-packages" in dirnames:
+                script_file = os.path.normpath(
+                    os.path.join(dirpath, "site-packages", toolkits[window_name][toolkit_name]["script"])
+                )
+                if os.path.isfile(script_file):
+                    return True
+                break
+    return False
 
 
 def open_window(window, window_name, internal_toolkits):

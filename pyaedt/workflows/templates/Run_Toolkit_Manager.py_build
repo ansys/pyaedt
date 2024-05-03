@@ -31,6 +31,7 @@ else:
 
 def main():
     try:
+        version = oDesktop.GetVersion()[2:6].replace(".", "")
         # launch toolkit manager
         python_exe = r"##PYTHON_EXE##" % version
         current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
@@ -39,7 +40,6 @@ def main():
         check_file(python_exe)
         check_file(pyaedt_script)
         os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
-        version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
         if "Ansys Student" in str(oDesktop.GetExeDir()):
             os.environ["PYAEDT_STUDENT_VERSION"] = "True"
@@ -48,6 +48,7 @@ def main():
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:
+
             edt_root = os.path.normpath(oDesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [

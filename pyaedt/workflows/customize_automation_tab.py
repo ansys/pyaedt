@@ -120,12 +120,14 @@ def add_automation_tab(
         os.makedirs(dest_dir)
     shutil.copy(icon_file, dest_file)
 
+    relative_image_path = os.path.relpath(dest_file, os.path.join(lib_dir, product))
+
     ET.SubElement(
         panel_element,
         "button",
         label=name,
         isLarge="1",
-        image=dest_file,
+        image=relative_image_path,
         script="{}/{}".format(name, template),
     )
 
