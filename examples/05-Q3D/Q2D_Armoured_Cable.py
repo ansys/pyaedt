@@ -135,17 +135,17 @@ mat_pp.update()
 
 mod2D.create_coordinate_system(['c_strand_xy_coord', 'c_strand_xy_coord', '0mm'], name='CS_c_strand_1')
 mod2D.set_working_coordinate_system('CS_c_strand_1')
-c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', matname='copper')
+c1_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'c_strand_radius', name='c_strand_1', material='copper')
 c2_id = c1_id.duplicate_along_line(vector=['0mm', '2.0*c_strand_radius', '0mm'], nclones=2)
 mod2D.duplicate_around_axis(c2_id, axis="Z", angle=360 / core_n_strands, clones=6)
 c_unite_name = mod2D.unite(q2d.get_all_conductors_names())
 
 fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius', name='c_strand_fill',
-                              matname='plastic_pp_carbon_fiber')
+                              material='plastic_pp_carbon_fiber')
 fill_id.color = (255, 255, 0)
 xlpe_id = mod2D.create_circle(['0mm', '0mm', '0mm'], '3*c_strand_radius+' + str(core_xlpe_ins_thickness) + 'mm',
                               name='c_strand_xlpe',
-                              matname='plastic_pe_cable_grade')
+                              material='plastic_pe_cable_grade')
 xlpe_id.color = (0, 128, 128)
 
 mod2D.set_working_coordinate_system('Global')
@@ -158,7 +158,7 @@ cond_names = q2d.get_all_conductors_names()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 filling_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'filling_radius', name='Filling',
-                                 matname='plastic_pp_carbon_fiber')
+                                 material='plastic_pp_carbon_fiber')
 filling_id.color = (255, 255, 180)
 
 #####################################################################################
@@ -166,7 +166,7 @@ filling_id.color = (255, 255, 180)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 inner_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'inner_sheath_radius', name='InnerSheath',
-                                     matname='PVC plastic')
+                                     material='PVC plastic')
 inner_sheath_id.color = (0, 0, 0)
 
 #####################################################################################
@@ -174,7 +174,7 @@ inner_sheath_id.color = (0, 0, 0)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 arm_fill_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'armour_radius', name='ArmourFilling',
-                                  matname='plastic_pp_carbon_fiber')
+                                  material='plastic_pp_carbon_fiber')
 arm_fill_id.color = (255, 255, 255)
 
 #####################################################################################
@@ -182,7 +182,7 @@ arm_fill_id.color = (255, 255, 255)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 outer_sheath_id = mod2D.create_circle(['0mm', '0mm', '0mm'], 'outer_sheath_radius', name='OuterSheath',
-                                     matname='PVC plastic')
+                                     material='PVC plastic')
 outer_sheath_id.color = (0, 0, 0)
 
 #####################################################################################
@@ -190,9 +190,9 @@ outer_sheath_id.color = (0, 0, 0)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 arm_strand_1_id = mod2D.create_circle(['0mm', 'armour_centre_pos', '0mm'], '1.1mm', name='arm_strand_1',
-                                      matname='steel_stainless')
+                                      material='steel_stainless')
 arm_strand_1_id.color = (128, 128, 64)
-arm_strand_1_id.duplicate_around_axis('Z', '360deg/n_arm_strands', nclones='n_arm_strands')
+arm_strand_1_id.duplicate_around_axis('Z', '360deg/n_arm_strands', clones='n_arm_strands')
 arm_strand_names = mod2D.get_objects_w_string('arm_strand')
 
 #####################################################################################
@@ -218,9 +218,8 @@ mod2D.fit_all()
 # ~~~~~~~~~~~~~~~~~~~~~~
 
 lumped_length = "100m"
-q2d_des_settings = q2d.design_settings()
+q2d_des_settings = q2d.design_settings
 q2d_des_settings['LumpedLength'] = lumped_length
-q2d.change_design_settings(q2d_des_settings)
 
 ##########################################################
 # Insert setup and frequency sweep
