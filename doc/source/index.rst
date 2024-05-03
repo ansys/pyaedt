@@ -45,27 +45,16 @@ enabling straightforward and efficient automation in your workflow.
 
 .. grid:: 2
 
-.. jinja:: main_toctree
+    .. grid-item-card:: Examples :fa:`scroll`
+        :link: examples/index
+        :link-type: doc
 
-      {% if run_examples %}
-      .. grid-item-card:: Examples :fa:`scroll`
-         :link: examples/index
-         :link-type: doc
+        Explore examples that show how to use PyAEDT to perform different types of simulations.
 
-         Explore examples that show how to use PyAEDT to perform different types of simulations.
-      
-      .. grid:: 2
-      {% endif %}
+.. toctree::
+    :hidden:
 
-
-.. jinja:: main_toctree
-
-    .. toctree::
-       :hidden:
-
-       Getting_started/index
-       User_guide/index
-       API/index
-       {% if run_examples %}
-       examples/index
-       {% endif %}
+    Getting_started/index
+    User_guide/index
+    API/index
+    examples/index
