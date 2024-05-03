@@ -5416,6 +5416,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         sphere=None,
         variations=None,
         overwrite=True,
+        link_to_hfss=True,
     ):
         """Export antennas parameters to Far Field Data (FFD) files and return an
         instance of
@@ -5436,12 +5437,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Variation dictionary.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
+        link_to_hfss : bool, optional
+            If this is set to ``False`` then return an instance of
+            :class:`pyaedt.modules.solutions.FfdSolutionData` which is independent from the
+            running HFSS instance. The default is ``True`` which returns an instance of
+            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` which requires a connection
+            to an instance of the :class:`Hfss`` class.
 
         Returns
         -------
         :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
+        from pyaedt.modules.solutions import FfdSolutionData
         from pyaedt.modules.solutions import FfdSolutionDataExporter
 
         if not variations:
@@ -5468,7 +5476,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        return FfdSolutionDataExporter(
+        ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
             setup_name=setup,
@@ -5476,6 +5484,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             variations=variations,
             overwrite=overwrite,
         )
+        if link_to_hfss:
+            return ffd
+        else:
+            eep_file = ffd.eep_files
+            frequencies = ffd.frequencies
+            return FfdSolutionData(frequencies=frequencies, eep_files=eep_file)
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=100000):

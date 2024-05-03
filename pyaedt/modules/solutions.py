@@ -8,6 +8,8 @@ import shutil
 import sys
 import time
 
+import matplotlib.pyplot as plt
+
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
@@ -24,7 +26,6 @@ from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
-from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
@@ -1529,12 +1530,14 @@ class FfdSolutionData(object):
             quantity="RealizedGain",
             phi=0,
             theta=0,
+            size=None,
             title=None,
             quantity_format="dB10",
             image_path=None,
             levels=64,
             show=True,
             polar=True,
+            max_theta=180,
             **kwargs,
     ):
         # fmt: on
@@ -1550,6 +1553,9 @@ class FfdSolutionData(object):
             Phi scan angle in degrees. The default is ``0``.
         theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
+        size : tuple, optional
+            Image size in pixel (width, height). Default is ``None`` in which case resolution
+            is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
@@ -1563,10 +1569,17 @@ class FfdSolutionData(object):
         show : bool, optional
             Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
             instance of the plot is shown.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            will be rectangular.
+        max_theta : float or int, optional
+            Maxmum theta angle for plotting. The default is ``180`` which plots the far-field for
+            all angles. Setting ``max_theta`` to 90 will limit the displayed data to the upper
+            hemisphere, that is (0 < theta < 90).
 
         Returns
         -------
-        :class:`matplotlib.pyplot.figure`
+        :class:`matplotlib.pyplot.Figure`
 
         Examples
         --------
@@ -1580,7 +1593,7 @@ class FfdSolutionData(object):
 
         """
         if not title:
-            title = "Polar Plot" if polar else "Rectangular Plot"
+            title = quantity
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1597,25 +1610,54 @@ class FfdSolutionData(object):
         if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
+        select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
-        data_to_plot = data[quantity]
+        data_to_plot = data[quantity][select, :]
         data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
-        data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
-        th, ph = np.meshgrid(data["Theta"], data["Phi"])
-        return plot_contour(
-            x=th,
-            y=ph,
-            qty_to_plot=data_to_plot,
-            xlabel="Theta (degree)",
-            ylabel="Phi (degree)",
-            title=title,
+        ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
+        ph = ph * np.pi/180 if polar else ph
+        # Convert to radians for polar plot.
+
+        # TODO: Is it necessary to set the plot size?
+
+        default_figsize = plt.rcParams["figure.figsize"]
+        if size:  # Retain this code to remain consistent with other plotting methods.
+            dpi = 100.0
+            figsize = (size[0] / dpi, size[1] / dpi)
+            plt.rcParams["figure.figsize"] = figsize
+        else:
+            figsize = default_figsize
+
+        projection = 'polar' if polar else 'rectilinear'
+        fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
+
+        fig.suptitle(title)
+        ax.set_xlabel("$\phi$ (Degrees)")
+        if polar:
+            ax.set_rticks(np.linspace(0, max_theta, 3))
+        else:
+            ax.set_ylabel("$\\theta (Degrees")
+
+        plt.contourf(
+            ph,
+            th,
+            data_to_plot,
             levels=levels,
-            snapshot_path=image_path,
-            show=show,
+            cmap="jet",
         )
+        cbar = plt.colorbar()
+        cbar.set_label(quantity_format, rotation=270, labelpad=20)
+
+        if image_path:
+            plt.savefig(image_path)
+        if show:
+            plt.show()
+
+        plt.rcParams["figure.figsize"] = default_figsize
+        return fig
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
