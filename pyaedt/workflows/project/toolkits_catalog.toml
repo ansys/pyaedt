@@ -1,0 +1,6 @@
+[GenerateReport]
+name = "Generate report"
+script = "create_report.py"
+icon = "images/large/pdf.png"
+template = "Run_PyAEDT_Script"
+pip = ""

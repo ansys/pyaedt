@@ -29,11 +29,11 @@ import PIL.ImageTk
 
 from pyaedt import Desktop
 from pyaedt import is_windows
+import pyaedt.workflows
 from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
-import pyaedt.workflows.installer
 
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
@@ -292,7 +292,7 @@ root = tk.Tk()
 root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(pyaedt.workflows.installer.__file__), "images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 
