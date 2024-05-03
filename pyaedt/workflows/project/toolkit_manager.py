@@ -259,7 +259,7 @@ def button_is_clicked(
                 desktop.logger.info("PyAEDT environment is not installed.")
         else:
             desktop.logger.info("Uninstall {}.".format(name))
-            remove_script_from_menu(desktop_object=desktop, toolkit_name=name, product=toolkit_level)
+            remove_script_from_menu(desktop_object=desktop, name=name, product=toolkit_level)
 
     desktop.odesktop.CloseAllWindows()
     desktop.odesktop.RefreshToolkitUI()

@@ -515,19 +515,19 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             # Install toolkit inside AEDT
             remove_script_from_menu(
                 desktop_object=desktop_object,
-                toolkit_name=toolkit_name,
+                name=toolkit_info["name"],
                 product=product_name,
             )
 
 
-def remove_script_from_menu(desktop_object, toolkit_name, product="Project"):
+def remove_script_from_menu(desktop_object, name, product="Project"):
     """Remove a toolkit script from the menu.
 
     Parameters
     ----------
     desktop_object : :class:pyaedt.desktop.Desktop
         Desktop object.
-    toolkit_name : str
+    name : str
         Name of the toolkit to remove.
     product : str, optional
         Product to which the toolkit applies. The default is ``"Project"``, in which case
@@ -540,11 +540,11 @@ def remove_script_from_menu(desktop_object, toolkit_name, product="Project"):
 
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
     aedt_version = desktop_object.aedt_version_id
-    tool_dir = os.path.join(toolkit_dir, product, toolkit_name)
+    tool_dir = os.path.join(toolkit_dir, product, name)
     shutil.rmtree(tool_dir, ignore_errors=True)
     if aedt_version >= "2023.2":
-        remove_xml_tab(os.path.join(toolkit_dir, product), toolkit_name)
-    desktop_object.logger.info("{} toolkit removed successfully.".format(toolkit_name))
+        remove_xml_tab(os.path.join(toolkit_dir, product), name)
+    desktop_object.logger.info("{} toolkit removed successfully.".format(name))
     return True
 
 
