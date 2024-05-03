@@ -2,7 +2,7 @@
 Transformer leakage inductance calculation in Maxwell 2D Magnetostatic
 ----------------------------------------------------------------------
 This example shows how you can use pyAEDT to create a Maxwell 2D
-magnetostatic analysis analysis to calculate transformer leakage
+magnetostatic analysis to calculate transformer leakage
 inductance and reactance.
 The analysis based on this document form page 8 on:
 https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf
