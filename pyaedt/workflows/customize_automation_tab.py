@@ -24,16 +24,16 @@ import os
 import shutil
 import subprocess  # nosec
 import sys
+import xml.etree.ElementTree as ET  # nosec
 
-import defusedxml.ElementTree as ET
 import defusedxml.minidom
 
 defusedxml.defuse_stdlib()
 
 import warnings
-from xml.dom.minidom import parseString
 
 from defusedxml.ElementTree import ParseError
+from defusedxml.minidom import parseString
 
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
