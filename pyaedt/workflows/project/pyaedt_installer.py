@@ -90,8 +90,8 @@ def add_pyaedt_to_aedt(
     if pid and new_desktop_session:
         try:
             os.kill(pid, 9)
-        except Exception:
-            pass
+        except Exception:  # pragma: no cover
+            return False
 
 
 def __add_pyaedt_tabs(desktop_object):

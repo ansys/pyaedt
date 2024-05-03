@@ -22,18 +22,23 @@
 
 import os
 import shutil
-import subprocess
+import subprocess  # nosec
 import sys
+
+import defusedxml.ElementTree as ET
+import defusedxml.minidom
+
+defusedxml.defuse_stdlib()
+
+import warnings
 from xml.dom.minidom import parseString
-import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import ParseError
+
+from defusedxml.ElementTree import ParseError
 
 from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
 import pyaedt.workflows
 import pyaedt.workflows.templates
-
-"""Methods to add new automation tabs in AEDT."""
 
 
 def add_automation_tab(
@@ -156,7 +161,7 @@ def remove_automation_tab(name, lib_dir):
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
-            b = [button for button in buttons if button.attrib["label"] == toolkitname][0]
+            b = [button for button in buttons if button.attrib["label"] == name][0]
             panel.remove(b)
 
     create_xml_tab(root, tab_config_file_path)
@@ -172,7 +177,11 @@ def create_xml_tab(root, output_file):
     output_file : str
         Full name of the file to save the XML tab.
     """
-
+    lines = [
+        line
+        for line in defusedxml.minidom.parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n")
+        if line.strip()
+    ]
     lines = [line for line in parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n") if line.strip()]
     xml_str = "\n".join(lines)
 
@@ -293,7 +302,7 @@ def add_script_to_menu(
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
     if is_linux and aedt_version <= "2023.1":
-        toolkit_rel_lib_dir = os.path.join("Lib", toolkit_name)
+        toolkit_rel_lib_dir = os.path.join("Lib", name)
         lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
         toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
     os.makedirs(lib_dir, exist_ok=True)
@@ -362,7 +371,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     toolkits = available_toolkits()
     toolkit_info = None
     product_name = None
-    for product in toolkits.keys():
+    for product in toolkits:
         if toolkit_name in toolkits[product]:
             toolkit_info = toolkits[product][toolkit_name]
             product_name = product
