@@ -362,18 +362,18 @@ class ScatteringMethods(object):
         )
 
 
-def array_element_phase(m, n, theta_name="theta_scan", phi_name="phi_scan"):
-    """Return an expression for the phase angle in an array excitation.
+def phase_expression(m, n, theta_name="theta_scan", phi_name="phi_scan"):
+    """Return an expression for the source phase angle in a rectangular antenna array.
 
     Parameters
     ----------
     m : int, required
-        Index of a rectangular antenna array element in the x-direction.
+        Index of the rectangular antenna array element in the x-direction.
     n : int, required
-        Index of a rectangular antenna array element in the y-direction.
+        Index of the rectangular antenna array element in the y-direction.
     theta_name : str, optional
-        Post-processing variable name in HFSS to be used to generate
-        the theta component of the phase angle expression. Default is ``"theta_scan"``.
+        Post-processing variable name in HFSS that is used for the
+        theta component of the phase angle expression. Default is ``"theta_scan"``.
     phi_name : str, optional
         Post-processing variable name in HFSS to be used to generate
         the phi component of the phase angle expression. Default is ``"phi_scan"``
@@ -381,8 +381,8 @@ def array_element_phase(m, n, theta_name="theta_scan", phi_name="phi_scan"):
     Returns
     -------
     str
-        The phase angle expression that will be imposed on the (m,n) element of
-        the antenna array.
+        The phase angle expression for the (m,n) source of
+        the (m,n) antenna array element.
 
     """
     # px is the term for the phase variation in the x-direction

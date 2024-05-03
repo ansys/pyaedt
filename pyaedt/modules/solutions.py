@@ -1088,18 +1088,21 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Contains information from the far field solution data.
+    """Antenna array far-field data class.
 
-    Load far field data from the element pattern files.
+    Read embedded element patterns generated in HFSS and provide the Python interface
+    to plot and analyze the array far-field data.
 
     Parameters
     ----------
     eep_files : list or str
-        List of element pattern files for each frequency.
-        If the input is string, it is assumed to be a single frequency.
+        List of embedded element pattern files for each frequency.
+        If data is only provided for a single frequency, then a string may be passed
+        instead of a 1-element list.
     frequencies : list, str, int, or float
         List of frequencies.
-        If the input is not a list, it is assumed to be a single frequency.
+        If data is only available for a single frequency, then a float or int may be passed
+        instead of a 1-element list.
 
     Examples
     --------
@@ -1526,12 +1529,13 @@ class FfdSolutionData(object):
             quantity="RealizedGain",
             phi=0,
             theta=0,
-            title="RectangularPlot",
+            title=None,
             quantity_format="dB10",
             image_path=None,
             levels=64,
             show=True,
-            **kwargs
+            polar=True,
+            **kwargs,
     ):
         # fmt: on
         """Create a contour plot of a specified quantity.
@@ -1562,15 +1566,12 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`matplotlib.pyplot.figure`
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1578,6 +1579,8 @@ class FfdSolutionData(object):
         >>> data.plot_farfield_contour()
 
         """
+        if not title:
+            title = "Polar Plot" if polar else "Rectangular Plot"
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1602,19 +1605,17 @@ class FfdSolutionData(object):
             return False
         data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
         th, ph = np.meshgrid(data["Theta"], data["Phi"])
-        if show:
-            return plot_contour(
-                x=th,
-                y=ph,
-                qty_to_plot=data_to_plot,
-                xlabel="Theta (degree)",
-                ylabel="Phi (degree)",
-                title=title,
-                levels=levels,
-                snapshot_path=image_path,
-            )
-        else:
-            return data_to_plot
+        return plot_contour(
+            x=th,
+            y=ph,
+            qty_to_plot=data_to_plot,
+            xlabel="Theta (degree)",
+            ylabel="Phi (degree)",
+            title=title,
+            levels=levels,
+            snapshot_path=image_path,
+            show=show,
+        )
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -2420,7 +2421,19 @@ class FfdSolutionData(object):
 
 
 class FfdSolutionDataExporter(FfdSolutionData):
-    """Export far field solution data.
+    """Class to enable export of embedded element pattern data from HFSS.
+
+    An instance of this class is returned from the method
+    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data`. This method allows creation of
+    the embedded
+    element pattern (eep) files for an antenna array that has been solved in HFSS. The
+    ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
+    instantiate an instance of :class:`pyaedt.modules.solutions.FfdSolutionData` for
+    subsequent analysis and post-processing of the array data.
+
+    Note that this class is derived from :class:`FfdSolutionData` and can be used directly for
+    far-field postprocessing and array analysis, but remains a property of the
+    :class:`pyaedt.Hfss` application.
 
     Parameters
     ----------

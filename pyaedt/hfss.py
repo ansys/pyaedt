@@ -5235,13 +5235,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
-        """Add or edit a 3D component array from a JSON file or TOML file.
+        """Add or edit a 3D component array from a JSON file, TOML file or dict.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
         ----------
         input_data : str, dict
-            Full path to either the JSON file or dictionary containing the array information.
+            Full path to either the JSON file, TOML file or the dictionary
+            containing the array information.
         name : str, optional
              Name of the boundary to add or edit.
 
@@ -5416,7 +5417,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         variations=None,
         overwrite=True,
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
+        """Export antennas parameters to Far Field Data (FFD) files and return an
+        instance of
+        ``FfdSolutionDataExporter`` object.
 
         For phased array cases, only one phased array is calculated.
 
