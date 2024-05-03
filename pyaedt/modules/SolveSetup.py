@@ -1901,8 +1901,9 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _get_net_names(self, app, file_fullname):
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
+        self.p_app.logger.info("Processing vias...")
         via_per_nets = self._get_via_position_per_net()
-        pass
+        self.p_app.logger.info("Vias processing completed.")
         layers_elevation = {
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
@@ -1918,49 +1919,49 @@ class Setup3DLayout(CommonSetup):
             for obj in aedtapp.modeler.solid_objects
             if not obj.material_name in aedtapp.modeler.materials.dielectrics
         ]
-        for net, primitives in primitives_3d_pts_per_nets.items():
-            obj_dict = {}
-            for position in primitives_3d_pts_per_nets[net]:
+        for net, positions in primitives_3d_pts_per_nets.items():
+            object_names = []
+            for position in positions:
                 aedtapp_objs = [p for p in aedtapp.modeler.get_bodynames_from_position(position) if p in metal_object]
-                if aedtapp_objs:
-                    for p in aedtapp.modeler.get_bodynames_from_position(position, None, False):
-                        if p in metal_object:
-                            obj_ind = aedtapp.modeler.objects[p].id
-                            if obj_ind not in obj_dict:
-                                obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
+                object_names.extend(aedtapp_objs)
             if net in via_per_nets:
                 for via_pos in via_per_nets[net]:
-                    for p in aedtapp.modeler.get_bodynames_from_position(via_pos, None, False):
-                        if p in metal_object:
-                            obj_ind = aedtapp.modeler.objects[p].id
-                            if obj_ind not in obj_dict:
-                                obj_dict[obj_ind] = aedtapp.modeler.objects[obj_ind]
-                        for lay_el in list(layers_elevation.values()):
-                            pad_pos = via_pos[:2]
-                            pad_pos.append(lay_el)
-                            pad_objs = aedtapp.modeler.get_bodynames_from_position(pad_pos, None, False)
-                            for pad_obj in pad_objs:
-                                if pad_obj in metal_object:
-                                    pad_ind = aedtapp.modeler.objects[pad_obj].id
-                                    if pad_ind not in obj_dict:
-                                        obj_dict[pad_ind] = aedtapp.modeler.objects[pad_ind]
-            obj_list = list(obj_dict.values())
+                    object_names.extend(
+                        [
+                            p
+                            for p in aedtapp.modeler.get_bodynames_from_position(via_pos, None, False)
+                            if p in metal_object
+                        ]
+                    )
+
+                    for lay_el in list(layers_elevation.values()):
+                        pad_pos = via_pos[:2]
+                        pad_pos.append(lay_el)
+                        object_names.extend(
+                            [
+                                p
+                                for p in aedtapp.modeler.get_bodynames_from_position(pad_pos, None, False)
+                                if p in metal_object
+                            ]
+                        )
+
             net = net.replace(".", "_")
-            if len(obj_list) == 1:
-                net = net.replace("-", "m")
-                net = net.replace("+", "p")
-                net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
-                obj_list[0].name = net_name
-                obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
-            elif len(obj_list) > 1:
-                united_object = aedtapp.modeler.unite(obj_list, purge=True)
+            net = net.replace("-", "m")
+            net = net.replace("+", "p")
+            net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
+            self.p_app.logger.info("Renaming primitives for net {}...".format(net_name))
+            object_names = list(set(object_names))
+            if len(object_names) == 1:
+
+                object_p = aedtapp.modeler[object_names[0]]
+                object_p.name = net_name
+                object_p.color = [randrange(255), randrange(255), randrange(255)]  # nosec
+            elif len(object_names) > 1:
+                united_object = aedtapp.modeler.unite(object_names, purge=True)
                 obj_ind = aedtapp.modeler.objects[united_object].id
                 if obj_ind:
-                    net = net.replace("-", "m")
-                    net = net.replace("+", "p")
-                    net_name = re.sub("[^a-zA-Z0-9 .\n]", "_", net)
                     aedtapp.modeler.objects[obj_ind].name = net_name
-                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]  # nosec
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
@@ -1973,21 +1974,61 @@ class Setup3DLayout(CommonSetup):
             return
         net_primitives = edb.modeler.primitives_by_net
         primitive_dict = {}
+        layers_elevation = {
+            lay.name: lay.lower_elevation + lay.thickness / 2
+            for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
+        }
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
-            n = 0
-            while len(primitive_dict[net]) < len(net_primitives[net]):
-                if n > 1000:  # adding 1000 as maximum value to prevent infinite loop
-                    return
-                n += 10
-                primitive_dict[net] = []
-                for prim in primitives:
-                    layer = edb.stackup.signal_layers[prim.layer_name]
-                    z = layer.lower_elevation + layer.thickness / 2
-                    pt = self._get_point_inside_primitive(prim, n)
-                    if pt:
-                        pt.append(z)
-                        primitive_dict[net].append(pt)
+            self.p_app.logger.info("Processing net {}...".format(net))
+            for prim in primitives:
+
+                if prim.layer_name not in layers_elevation:
+                    continue
+                z = layers_elevation[prim.layer_name]
+                if "EdbPath" in str(prim):
+                    points = list(prim.center_line.Points)
+                    pt = [points[0].X.ToDouble(), points[0].Y.ToDouble()]
+                    pt.append(z)
+                    next_p = int(len(points) / 4)
+                    pt = [points[next_p].X.ToDouble(), points[next_p].Y.ToDouble()]
+                    pt.append(z)
+                    primitive_dict[net].append(pt)
+
+                elif "EdbPolygon" in str(prim):
+                    pdata_orig = prim.polygon_data.edb_api
+                    pdata = self.p_app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
+                        pdata_orig.GetArcData(), True
+                    )
+
+                    pdata.Scale(0.99, pdata.GetBoundingCircleCenter())
+                    points = [[], []]
+                    for point in list(pdata.Points):
+                        points[0].append(point.X.ToDouble())
+                        points[1].append(point.Y.ToDouble())
+                    # points = prim.points()
+                    pt = [points[0][0], points[1][0]]
+                    pt.append(z)
+                    primitive_dict[net].append(pt)
+                    next_p = int(len(points[0]) / 4)
+                    pt = [points[0][next_p], points[1][next_p]]
+                    pt.append(z)
+                    primitive_dict[net].append(pt)
+                    next_p = int(len(points[0]) / 2)
+                    pt = [points[0][next_p], points[1][next_p]]
+                    pt.append(z)
+                    primitive_dict[net].append(pt)
+
+                else:
+                    n = 0
+                    while n < 1000:
+                        n += 10
+                        pt = self._get_point_inside_primitive(prim, n)
+                        if pt:
+                            pt.append(z)
+                            primitive_dict[net].append(pt)
+                            break
+        self.p_app.logger.info("Net processing completed.")
         return primitive_dict
 
     @pyaedt_function_handler()
@@ -2013,14 +2054,6 @@ class Setup3DLayout(CommonSetup):
             for y in ycoords:
                 if GeometryOperators.point_in_polygon([x, y], [primitive_x_points, primitive_y_points]) == 1:
                     return [x, y]
-
-    @pyaedt_function_handler()
-    def _get_polygon_centroid(self, arcs=None):
-        if arcs:
-            k = len(arcs[0])
-            x = sum(arcs[0]) / k
-            y = sum(arcs[1]) / k
-            return [x, y]
 
     @pyaedt_function_handler()
     def _convert_edb_to_aedt_units(self, input_dict=None, output_unit=0.001):

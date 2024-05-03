@@ -1673,7 +1673,7 @@ class ConfigurationsIcepak(Configurations):
     def _export_mesh_operations(self, dict_out):
         dict_out["mesh"] = {}
         args = ["NAME:Settings"]
-        args += self._app.mesh.global_mesh_region.settings.parse_settings()
+        args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
         mop = OrderedDict({})
         _arg2dict(args, mop)
         dict_out["mesh"]["Settings"] = mop["Settings"]
@@ -1683,7 +1683,7 @@ class ConfigurationsIcepak(Configurations):
                     args = ["NAME:Settings"]
                 else:
                     args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
-                args += mesh.settings.parse_settings()
+                args += mesh.settings.parse_settings_as_args()
                 args += getattr(mesh, "_parse_assignment_value")()
                 args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = OrderedDict({})

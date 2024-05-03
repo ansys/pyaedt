@@ -274,7 +274,8 @@ class CommonRegion(object):
     @name.setter
     def name(self, value):
         try:
-            self._app.modeler.objects_by_name[self._name].name = value
+            if self._app.modeler.objects_by_name[self._name].name != value:
+                self._app.modeler.objects_by_name[self._name].name = value
         except KeyError:
             if self._app.modeler.objects_by_name[value].history().command == "CreateSubRegion":
                 self._name = value
@@ -408,6 +409,13 @@ class SubRegion(CommonRegion):
 
 
 class MeshSettings(object):
+    """
+    Class for managing mesh settings.
+
+    It can be used like a dictionary. Available keys change according
+    to the type of settings chosen (manual or automatic).
+    """
+
     _automatic_mesh_settings = {"MeshRegionResolution": 3}  # min: 1, max: 5
     _common_mesh_settings = {
         "ProximitySizeFunction": True,
@@ -457,58 +465,91 @@ class MeshSettings(object):
             for arg in self._aedt_20212_args:
                 del self._instance_settings[arg]
 
-    @pyaedt_function_handler()
-    def _dim_arg(self, value):
-        if isinstance(value, str):
-            return value
-        else:
-            return _dim_arg(value, getattr(self._mesh_class, "_model_units"))
+    def parse_settings_as_args(self):
+        """
+        Parse mesh region settings.
 
-    def parse_settings(self):
+        Returns
+        -------
+        List
+            Arguments to pass to native APIs.
+        """
+        out = []
+        for k, v in self._instance_settings.items():
+            out.append(k + ":=")
+            if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+            out.append(v)
+        return out
+
+    def parse_settings_as_dictionary(self):
         """
         Parse mesh region settings.
 
         Returns
         -------
         dict
-            List of strings containing all the parts that must be included in the subregion.
+            Settings of the subregion.
         """
-        out = []
-        for k, v in self._instance_settings.items():
-            out.append(k + ":=")
+        out = {}
+        for k in self.keys():
+            v = self._instance_settings[k]
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = self._dim_arg(v)
-            out.append(v)
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
+            out[k] = v
         return out
 
-    def _key_in_dict(self, key):
-        if self._mesh_class.manual_settings:
-            ref_dict = self._manual_mesh_settings
-        else:
-            ref_dict = self._automatic_mesh_settings
-        return key in ref_dict or key in self._common_mesh_settings
-
     def keys(self):
-        return self.parse_settings().keys()
+        """
+        Get mesh region settings keys.
+
+        Returns
+        -------
+        dict_keys
+            Available settings keys.
+        """
+        if self._mesh_class.manual_settings:
+            return set(self._manual_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
+        else:
+            return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
-        return self.parse_settings().values()
+        """
+        Get mesh region settings values.
+
+        Returns
+        -------
+        dict_values
+            Settings values.
+        """
+        return self.parse_settings_as_dictionary().values()
+
+    def items(self):
+        """
+        Get mesh region settings items.
+
+        Returns
+        -------
+        dict_items
+            Settings items.
+        """
+        return self.parse_settings_as_dictionary().items()
 
     def __repr__(self):
-        return repr(self.parse_settings())
+        return repr(self.parse_settings_as_dictionary())
 
     def __getitem__(self, key):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             return self._instance_settings[key]
         else:
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             if key == "MeshRegionResolution":
                 try:
                     value = int(value)
@@ -532,13 +573,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self._instance_settings.__iter__()
+        return iter(self.keys())
 
     def __len__(self):
-        return self._instance_settings.__len__()
+        return len(self.keys())
 
     def __contains__(self, x):
-        return self._instance_settings.__contains__(x)
+        return x in self.keys()
 
 
 class MeshRegionCommon(object):
@@ -628,7 +669,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         >>> oModule.EditGlobalMeshRegion
         """
         args = ["NAME:Settings"]
-        args += self.settings.parse_settings()
+        args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
@@ -754,7 +795,7 @@ class MeshRegion(MeshRegionCommon):
         >>> oModule.EditMeshRegion
         """
         args = ["NAME:" + self.name, "Enable:=", self.enable]
-        args += self.settings.parse_settings()
+        args += self.settings.parse_settings_as_args()
         args += self._parse_assignment_value()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         try:
@@ -854,7 +895,7 @@ class MeshRegion(MeshRegionCommon):
             self._app.logger.error("Cannot create a new mesh region with this Name")
             return False
         args = ["NAME:" + self.name, "Enable:=", self.enable]
-        args += self.settings.parse_settings()
+        args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", not self.manual_settings]
         args += self._parse_assignment_value()
         self._app.omeshmodule.AssignMeshRegion(args)
