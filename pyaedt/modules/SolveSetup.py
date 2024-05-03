@@ -1955,13 +1955,13 @@ class Setup3DLayout(CommonSetup):
 
                 object_p = aedtapp.modeler[object_names[0]]
                 object_p.name = net_name
-                object_p.color = [randrange(255), randrange(255), randrange(255)]
+                object_p.color = [randrange(255), randrange(255), randrange(255)]  # nosec
             elif len(object_names) > 1:
                 united_object = aedtapp.modeler.unite(object_names, purge=True)
                 obj_ind = aedtapp.modeler.objects[united_object].id
                 if obj_ind:
                     aedtapp.modeler.objects[obj_ind].name = net_name
-                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]  # nosec
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
