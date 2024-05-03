@@ -1461,7 +1461,8 @@ class Desktop(object):
         tblist = tb_trace[0].split("\n")
         self.logger.error(str(ex_value))
         for el in tblist:
-            self.logger.error(el)
+            if el:
+                self.logger.error(el)
 
         return str(ex_value)
 
