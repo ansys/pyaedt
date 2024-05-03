@@ -463,7 +463,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit["pip"]))
+            run_command('"{}" uninstall --yes {}'.format(pip_exe, toolkit_info["pip"]))
         import zipfile
 
         unzipped_path = os.path.join(
@@ -474,49 +474,49 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         with zipfile.ZipFile(wheel_toolkit, "r") as zip_ref:
             zip_ref.extractall(unzipped_path)
 
-        package_name = toolkit_info["package_name"]
+        package_name = toolkit_info["package"]
         run_command(
             '"{}" install --no-cache-dir --no-index --find-links={} {}'.format(pip_exe, unzipped_path, package_name)
         )
     elif install and not is_installed:
         # Install the specified package
-        run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit["pip"]))
+        run_command('"{}" --default-timeout=1000 install {}'.format(pip_exe, toolkit_info["pip"]))
     elif not install and is_installed:
         # Uninstall toolkit
-        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit_info["package_name"]))
+        run_command('"{}" --default-timeout=1000 uninstall -y {}'.format(pip_exe, toolkit_info["package"]))
     elif install and is_installed:
         # Update toolkit
-        run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit["pip"]))
+        run_command('"{}" --default-timeout=1000 install {} -U'.format(pip_exe, toolkit_info["pip"]))
     else:
         desktop_object.logger.info("Incorrect input")
         return
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
-    tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
+    tool_dir = os.path.join(toolkit_dir, product_name, toolkit_info["name"])
 
-    script_image = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", toolkit["image"])
+    script_image = os.path.abspath(
+        os.path.join(os.path.dirname(pyaedt.workflows.__file__), product_name.lower(), toolkit_info["icon"])
+    )
 
     if install:
         if not os.path.exists(tool_dir):
             # Install toolkit inside AEDT
             add_script_to_menu(
                 desktop_object=desktop_object,
-                name=toolkit_name,
+                name=toolkit_info["name"],
                 script_file=script_file,
                 icon_file=script_image,
-                product=toolkit["installation_path"],
+                product=product_name,
                 template_file="Run_PyAEDT_Toolkit_Script",
-                copy_to_personal_lib=False,
+                copy_to_personal_lib=True,
                 executable_interpreter=python_exe,
             )
     else:
-        toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
-        tool_dir = os.path.join(toolkit_dir, toolkit["installation_path"], toolkit_name)
-
         if os.path.exists(tool_dir):
             # Install toolkit inside AEDT
             remove_script_from_menu(
+                desktop_object=desktop_object,
                 toolkit_name=toolkit_name,
-                product=toolkit["installation_path"],
+                product=product_name,
             )
 
 
