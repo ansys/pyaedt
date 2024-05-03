@@ -897,7 +897,7 @@ class Modeler3D(Primitives3D):
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": [], "Lines": {}, "Solids": {}}
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
@@ -927,22 +927,11 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = grid_id
                         id += 1
                     else:
-                        if tria_id in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id].append(
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            )
-                        else:
-                            nas_to_dict["Triangles"][tria_id] = [
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            ]
+                        tri = [int(n1), int(n2), int(n3)]
+                        tri.sort()
+                        if tri not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"].append(tri)
+
                 elif line_type in ["GRID*", "CTRIA3*"]:
                     grid_id = int(line[8:24])
                     if line_type == "CTRIA3*":
@@ -955,7 +944,7 @@ class Modeler3D(Primitives3D):
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
-                    if not n3 or n3 == "*":
+                    if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
                     if "-" in n3[1:]:
@@ -965,22 +954,11 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
                     else:
-                        if tria_id in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id].append(
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            )
-                        else:
-                            nas_to_dict["Triangles"][tria_id] = [
-                                [
-                                    int(n1),
-                                    int(n2),
-                                    int(n3),
-                                ]
-                            ]
+                        tri = [int(n1), int(n2), int(n3)]
+                        tri.sort()
+                        if tri not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"].append(tri)
+
                 elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
                     obj_id = int(line[16:24])
                     n1 = int(line[24:32])
@@ -1005,6 +983,30 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["Solids"][obj_id].append(obj_list)
                     else:
                         nas_to_dict["Solids"][obj_id] = [[i for i in obj_list]]
+                elif line_type in ["CTETRA*"]:
+                    obj_id = int(line[8:24])
+                    n = []
+
+                    n.append(line[24:40].strip())
+                    n.append(line[40:56].strip())
+
+                    n.append(line[56:72].strip())
+                    lk += 1
+                    n.extend([lines[lk][i : i + 16] for i in range(16, len(lines[lk]), 16)])
+
+                    # if obj_id in nas_to_dict["Solids"]:
+                    #     nas_to_dict["Solids"][obj_id].append(obj_list)
+                    # else:
+                    #     nas_to_dict["Solids"][obj_id] = [[i for i in obj_list]]
+
+                    from itertools import combinations
+
+                    for k in list(combinations(n, 3)):
+                        tri = [int(k[0]), int(k[1]), int(k[2])]
+                        tri.sort()
+                        if tri not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"].append(tri)
+
                 elif line_type in ["CROD", "CBEAM"]:
                     obj_id = int(line[16:24])
                     n1 = int(line[24:32])
@@ -1021,35 +1023,34 @@ class Modeler3D(Primitives3D):
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
             f.write("solid PyaedtStl\n")
-            for triangles in nas_to_dict["Triangles"].values():
-                for triangle in triangles:
-                    try:
-                        points = [nas_to_dict["Points"][id] for id in triangle]
-                    except KeyError:
-                        continue
-                    fc = GeometryOperators.get_polygon_centroid(points)
-                    v1 = points[0]
-                    v2 = points[1]
-                    cv1 = GeometryOperators.v_points(fc, v1)
-                    cv2 = GeometryOperators.v_points(fc, v2)
-                    if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                        n = [0, 0, 1]
-                    elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                        n = [0, 1, 0]
-                    elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                        n = [1, 0, 0]
-                    else:
-                        n = GeometryOperators.v_cross(cv1, cv2)
+            for triangle in nas_to_dict["Triangles"]:
+                try:
+                    points = [nas_to_dict["Points"][id] for id in triangle]
+                except KeyError:
+                    continue
+                fc = GeometryOperators.get_polygon_centroid(points)
+                v1 = points[0]
+                v2 = points[1]
+                cv1 = GeometryOperators.v_points(fc, v1)
+                cv2 = GeometryOperators.v_points(fc, v2)
+                if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                    n = [0, 0, 1]
+                elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [0, 1, 0]
+                elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [1, 0, 0]
+                else:
+                    n = GeometryOperators.v_cross(cv1, cv2)
 
-                    normal = GeometryOperators.normalize_vector(n)
-                    if normal:
-                        f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                        f.write("  outer loop\n")
-                        f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                        f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                        f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                        f.write("  endloop\n")
-                        f.write(" endfacet\n")
+                normal = GeometryOperators.normalize_vector(n)
+                if normal:
+                    f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                    f.write("  outer loop\n")
+                    f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                    f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                    f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                    f.write("  endloop\n")
+                    f.write(" endfacet\n")
 
             f.write("endsolid\n")
             f.close()
