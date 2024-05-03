@@ -33,7 +33,7 @@ from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
-import pyaedt.workflows.project
+import pyaedt.workflows.installer
 
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
@@ -60,9 +60,6 @@ else:
 def create_toolkit_page(frame, window_name, internal_toolkits):
     """Create page to display toolkit on."""
     # Available toolkits
-    if window_name == "Project":
-        # Remove PyAEDT installer toolkits from the list
-        internal_toolkits = internal_toolkits[:-4]
     toolkits = ["Custom"] + internal_toolkits
 
     max_length = max(len(item) for item in toolkits) + 1
@@ -270,7 +267,7 @@ root = tk.Tk()
 root.title("AEDT Toolkit Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(pyaedt.workflows.project.__file__), "images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(pyaedt.workflows.installer.__file__), "images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 

@@ -42,7 +42,13 @@ import pyaedt.workflows.templates
 
 
 def add_automation_tab(
-    name, lib_dir, icon_file=None, product="Project", template="Run PyAEDT Toolkit Script", overwrite=False
+    name,
+    lib_dir,
+    icon_file=None,
+    product="Project",
+    template="Run PyAEDT Toolkit Script",
+    overwrite=False,
+    panel="Panel_PyAEDT_Toolkits",
 ):
     """Add an automation tab in AEDT.
 
@@ -61,6 +67,8 @@ def add_automation_tab(
     overwrite : bool, optional
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
 
     Returns
     -------
@@ -82,22 +90,22 @@ def add_automation_tab(
 
     panels = root.findall("./panel")
     if panels:
-        panel_names = [panel.attrib["label"] for panel in panels]
-        if "Panel_PyAEDT_Toolkits" in panel_names:
+        panel_names = [panel_element.attrib["label"] for panel_element in panels]
+        if panel in panel_names:
             # Remove previously existing PyAEDT panel and update with newer one.
-            panel = [panel for panel in panels if panel.attrib["label"] == "Panel_PyAEDT_Toolkits"][0]
+            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
         else:
-            panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+            panel_element = ET.SubElement(root, "panel", label=panel)
     else:
-        panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+        panel_element = ET.SubElement(root, "panel", label=panel)
 
-    buttons = panel.findall("./button")
+    buttons = panel_element.findall("./button")
     if buttons:
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
             b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel.remove(b)
+            panel_element.remove(b)
 
     if not icon_file:
         icon_file = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "pyansys.png")
@@ -111,7 +119,7 @@ def add_automation_tab(
     shutil.copy(icon_file, dest_file)
 
     ET.SubElement(
-        panel,
+        panel_element,
         "button",
         label=name,
         isLarge="1",
@@ -127,7 +135,7 @@ def add_automation_tab(
     return tab_config_file_path
 
 
-def remove_automation_tab(name, lib_dir):
+def remove_automation_tab(name, lib_dir, panel="Panel_PyAEDT_Toolkits"):
     """Remove automation tab in AEDT.
 
     Parameters
@@ -136,6 +144,8 @@ def remove_automation_tab(name, lib_dir):
         Toolkit name.
     lib_dir : str
         Path to the library directory.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
 
     Returns
     -------
@@ -156,22 +166,22 @@ def remove_automation_tab(name, lib_dir):
 
     panels = root.findall("./panel")
     if panels:
-        panel_names = [panel.attrib["label"] for panel in panels]
-        if "Panel_PyAEDT_Toolkits" in panel_names:
+        panel_names = [panel_element.attrib["label"] for panel_element in panels]
+        if panel in panel_names:
             # Remove previously existing PyAEDT panel and update with newer one.
-            panel = [panel for panel in panels if panel.attrib["label"] == "Panel_PyAEDT_Toolkits"][0]
+            panel_element = [panel_element for panel_element in panels if panel.attrib["label"] == panel][0]
         else:
-            panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+            panel_element = ET.SubElement(root, "panel", label=panel)
     else:
-        panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+        panel_element = ET.SubElement(root, "panel", label=panel)
 
-    buttons = panel.findall("./button")
+    buttons = panel_element.findall("./button")
     if buttons:
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
             b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel.remove(b)
+            panel_element.remove(b)
 
     create_xml_tab(root, tab_config_file_path)
 
@@ -193,7 +203,7 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def remove_xml_tab(toolkit_dir, name):
+def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Toolkits"):
     """Remove a toolkit configuration file."""
     tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path):
@@ -207,22 +217,22 @@ def remove_xml_tab(toolkit_dir, name):
 
     panels = root.findall("./panel")
     if panels:
-        panel_names = [panel.attrib["label"] for panel in panels]
-        if "Panel_PyAEDT_Toolkits" in panel_names:
+        panel_names = [panel_element.attrib["label"] for panel_element in panels]
+        if panel in panel_names:
             # Remove previously existing PyAEDT panel and update with newer one.
-            panel = [panel for panel in panels if panel.attrib["label"] == "Panel_PyAEDT_Toolkits"][0]
+            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
         else:
-            panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+            panel_element = ET.SubElement(root, "panel", label=panel)
     else:
-        panel = ET.SubElement(root, "panel", label="Panel_PyAEDT_Toolkits")
+        panel_element = ET.SubElement(root, "panel", label=panel)
 
-    buttons = panel.findall("./button")
+    buttons = panel_element.findall("./button")
     if buttons:
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
             b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel.remove(b)
+            panel_element.remove(b)
 
     create_xml_tab(root, tab_config_file_path)
 
@@ -261,6 +271,7 @@ def add_script_to_menu(
     product="Project",
     copy_to_personal_lib=True,
     executable_interpreter=None,
+    panel="Panel_PyAEDT_Toolkits",
 ):
     """Add a script to the ribbon menu.
 
@@ -289,6 +300,8 @@ def add_script_to_menu(
         Whether to copy the script to Personal Lib or link the original script. Default is ``True``.
     executable_interpreter : str, optional
         Executable python path. The default is the one current interpreter.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
 
     Returns
     -------
@@ -347,7 +360,9 @@ def add_script_to_menu(
             out_file.write(build_file_data)
 
     if aedt_version >= "2023.2":
-        add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest)
+        add_automation_tab(
+            name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest, panel=panel
+        )
     desktop_object.logger.info("{} installed".format(name))
     return True
 

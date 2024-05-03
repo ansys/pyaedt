@@ -120,4 +120,5 @@ def __add_pyaedt_tabs(desktop_object):
                 product="Project",
                 copy_to_personal_lib=True,
                 executable_interpreter=None,
+                panel="Panel_PyAEDT_Installer",
             )
