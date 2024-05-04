@@ -3,10 +3,12 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?= -j auto --color
+SPHINXOPTS    ?= -j auto --color -w build_errors.txt
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = _build
+LINKCHECKDIR  = $(BUILDDIR)/linkcheck
+LINKCHECKOPTS = -d $(BUILDDIR)/.doctrees -W --keep-going --color
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -14,41 +16,67 @@ help:
 
 .PHONY: help Makefile
 
-clean:
+.install-deps:
+	@pip freeze | grep -q "vtk-osmesa" && is_vtk_osmesa_installed="yes" || is_vtk_osmesa_installed="no"
+	@if [ "${ON_CI}" = "True" ] && [ "$$is_vtk_osmesa_installed" != "yes" ]; then \
+		@echo "Removing package(s) to avoid conflicts with package(s) needed for CI/CD"; \
+		pip uninstall --yes vtk; \
+		@echo "Installing CI/CD required package(s)"; \
+		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0; \
+	fi
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: .install-deps Makefile
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+clean: .install-deps
+	@echo "Cleaning everything."
 	rm -rf $(BUILDDIR)/*
 	rm -rf examples/
 	find . -type d -name "_autosummary" -exec rm -rf {} +
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+# FIXME: currently linkcheck freezes and further investigation must be performed
+# linkcheck:
+# 	@echo "Checking links."
+# 	@$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) -vv
+# 	@echo
+# 	@echo "Check finished. Report is in $(LINKCHECKDIR)."
 
-# build html docs in parallel using all available CPUs
-# WARNING: this is a resource hog
-phtml:
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
+html-no-examples: .install-deps
+	@echo "Building HTML pages without examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="0"
+	export PYAEDT_DOC_USE_GIF="1"
+	@# FIXME: currently linkcheck freezes and further investigation must be performed
+	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
-phtml-no-examples:
-	export PYAEDT_SKIP_EXAMPLE="1"
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto
+html: .install-deps
+	@echo "Building HTML pages with examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="1"
+	export PYAEDT_DOC_USE_GIF="1"
+	@# FIXME: currently linkcheck freezes and further investigation must be performed
+	@# @$(SPHINXBUILD) -M linkcheck "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(LINKCHECKOPTS) $(O)
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)."
 
-# Build pdf docs.
-pdf:
+pdf-no-examples: .install-deps
+	@echo "Building PDF pages without examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="0"
+	export PYAEDT_DOC_USE_GIF="0"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
+	@echo "Build finished. The PDF pages are in $(BUILDDIR)."
 
-pdf-no-examples:
-	export PYAEDT_SKIP_EXAMPLE="1"
+pdf: .install-deps
+	@echo "Building PDF pages with examples."
+	export PYAEDT_DOC_RUN_EXAMPLES="1"
+	export PYAEDT_DOC_USE_GIF="0"
 	@$(SPHINXBUILD) -M latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	cd $(BUILDDIR)/latex && latexmk -r latexmkrc -pdf *.tex -interaction=nonstopmode || true
 	(test -f $(BUILDDIR)/latex/PyAEDT-Documentation-*.pdf && echo pdf exists) || exit 1
-
-# build docs like the CI build
-cibuild:
-	mkdir source/examples -p
-	echo 'Examples' > source/examples/index.rst
-	echo '========' >> source/examples/index.rst
-	$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) -j auto -w build_errors.txt -N
-	python print_errors.py
+	@echo "Build finished. The PDF pages are in $(BUILDDIR)."

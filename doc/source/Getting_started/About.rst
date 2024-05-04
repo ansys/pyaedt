@@ -26,7 +26,7 @@ and mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
-.. image:: https://images.ansys.com/is/image/ansys/ansys-electronics-technology-collage?wid=941&op_usm=0.9,1.0,20,0&fit=constrain,0
+.. image:: ../Resources/aedt_collage.jpg
   :width: 800
   :alt: AEDT Applications
   :target: https://www.ansys.com/products/electronics
