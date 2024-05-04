@@ -39,7 +39,8 @@ Here's a simple overview of how you can start making contributions:
 
 **Push Your Changes:** After committing your changes, "push" them to your forked repository on GitHub with `git push origin <branch-name>`.
 
-**Create a Pull Request:** A Pull Request (PR) lets us know you have changes you think should be included in the main project. Go to your forked repository on GitHub and click on the 'Pull request' button.
+**Create a Pull Request:** A Pull Request (PR) lets us know you have changes you think should be included in the main project. Go to your forked repository on GitHub and click on the 'Pull request' button. The title of your
+'Pull request' must follow the `conventional commits standard <https://github.com/commitizen/conventional-commit-types/blob/master/index.json>`_ where the type field is expected to be defined with upper cases.
 
 Following these steps ensures that your contributions will be easily reviewed and potentially included in the project much faster.
 
