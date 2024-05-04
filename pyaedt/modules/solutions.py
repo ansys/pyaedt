@@ -1538,8 +1538,7 @@ class FfdSolutionData(object):
             show=True,
             polar=True,
             max_theta=180,
-            **kwargs,
-    ):
+            **kwargs):
         # fmt: on
         """Create a contour plot of a specified quantity.
 
