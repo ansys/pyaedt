@@ -3,6 +3,8 @@ import pkgutil
 import sys
 import warnings
 
+from pyaedt.aedt_logger import pyaedt_logger as logger
+
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
@@ -49,7 +51,7 @@ else:
         is_clr = True
 
     except Exception:
-        pass
+        logger.error("An error occurred while loading clr.")
 
 
 try:  # work around a number formatting bug in the EDB API for non-English locales
