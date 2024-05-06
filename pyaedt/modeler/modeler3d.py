@@ -930,7 +930,7 @@ class Modeler3D(Primitives3D):
                 f.write("  endloop\n")
                 f.write(" endfacet\n")
 
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": [], "Lines": {}, "Solids": {}}
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
@@ -945,8 +945,10 @@ class Modeler3D(Primitives3D):
                     continue
                 elif line_type in ["GRID", "CTRIA3"]:
                     grid_id = int(line[8:16])
-                    # if line_type == "CTRIA3":
-                    #     tria_id = int(line[16:24])
+                    if line_type == "CTRIA3":
+                        tria_id = int(line[16:24])
+                        if tria_id not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[24:32].strip()
                     if "-" in n1[1:]:
                         n1 = n1[0] + n1[1:].replace("-", "e-")
@@ -962,12 +964,14 @@ class Modeler3D(Primitives3D):
                         id += 1
                     else:
                         tri = [int(n1), int(n2), int(n3)]
-                        nas_to_dict["Triangles"].append(tri)
+                        nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in ["GRID*", "CTRIA3*"]:
                     grid_id = int(line[8:24])
-                    # if line_type == "CTRIA3*":
-                    #     tria_id = int(line[24:40])
+                    if line_type == "CTRIA3*":
+                        tria_id = int(line[24:40])
+                        if tria_id not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[40:56].strip()
                     if "-" in n1[1:]:
                         n1 = n1[0] + n1[1:].replace("-", "e-")
@@ -987,7 +991,7 @@ class Modeler3D(Primitives3D):
                         id += 1
                     else:
                         tri = (int(n1), int(n2), int(n3))
-                        nas_to_dict["Triangles"].append(tri)
+                        nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
                     # obj_id = line[16:24].strip()
@@ -1053,11 +1057,11 @@ class Modeler3D(Primitives3D):
             self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
-            f.write("solid PyaedtStl\n")
-            for triangle in nas_to_dict["Triangles"]:
-                _write_solid_stl(triangle, nas_to_dict)
-
-            f.write("endsolid\n")
+            for tri_id, triangles in nas_to_dict["Triangles"].items():
+                f.write("solid Sheet_{}\n".format(tri_id))
+                for triangle in triangles:
+                    _write_solid_stl(triangle, nas_to_dict)
+                f.write("endsolid\n")
             for solidid, solid_triangles in nas_to_dict["Solids"].items():
                 f.write("solid Solid_{}\n".format(solidid))
                 import pandas as pd
@@ -1074,8 +1078,11 @@ class Modeler3D(Primitives3D):
                 create_lightweigth_part=import_as_light_weight,
             )
             for el in nas_to_dict["Solids"].keys():
-                obj_names = [i for i in self.solid_names if i.startswith("Solid_{}".format(el))]
-                self.create_group(obj_names, group_name=el)
+                obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
+                self.create_group(obj_names, group_name=str(el))
+            for el in nas_to_dict["Triangles"].keys():
+                obj_names = [i for i in self.object_names if i.startswith("Sheet_{}".format(el))]
+                self.create_group(obj_names, group_name=str(el))
             self.logger.info_timer("Faces imported")
 
         if import_lines:
