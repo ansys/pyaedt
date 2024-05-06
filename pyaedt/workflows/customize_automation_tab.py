@@ -342,16 +342,15 @@ def add_script_to_menu(
         dest_script_path = os.path.join(lib_dir, os.path.split(script_file)[-1])
         shutil.copy2(script_file, dest_script_path)
 
-    version_agnostic = False
+    version_agnostic = True
     if aedt_version[2:6].replace(".", "") in sys.executable:
         executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
-        version_agnostic = True
+        version_agnostic = False
     else:
         executable_version_agnostic = sys.executable
 
     if executable_interpreter:
         executable_version_agnostic = executable_interpreter
-        version_agnostic = True
 
     templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
 

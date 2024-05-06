@@ -289,6 +289,7 @@ def button_is_clicked(
                     personal_lib=desktop.personallib,
                     aedt_version=desktop.aedt_version_id,
                 )
+                desktop.logger.info("{} installed".format(name))
             else:
                 desktop.logger.info("PyAEDT environment is not installed.")
         else:
