@@ -281,13 +281,15 @@ def button_is_clicked(
 
             if os.path.isfile(executable_interpreter):
                 add_script_to_menu(
-                    desktop_object=desktop,
                     name=name,
                     script_file=file,
                     product=toolkit_level,
                     icon_file=icon,
                     executable_interpreter=executable_interpreter,
+                    personal_lib=desktop.personallib,
+                    aedt_version=desktop.aedt_version_id,
                 )
+                desktop.logger.info("{} installed".format(name))
             else:
                 desktop.logger.info("PyAEDT environment is not installed.")
         else:
