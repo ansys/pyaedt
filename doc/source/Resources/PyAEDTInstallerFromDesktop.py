@@ -52,7 +52,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         oDesktop.AddMessage("", "", 2, err_msg)
         return
     else:
-        oDesktop.AddMessage("", "", 0, "PyAEDT setup complete.")
+        oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
     if is_linux:
         for dirpath, dirnames, _ in os.walk(venv_dir):
@@ -61,8 +61,7 @@ def run_pyinstaller_from_c_python(oDesktop):
                     os.path.join(dirpath, "site-packages", "pyaedt")
                 )
                 if os.path.isdir(pyaedt_path):
-                    return True
-                break
+                    break
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
     if os.path.exists(pers1):
