@@ -368,7 +368,7 @@ def add_script_to_menu(
             if dest_script_path:
                 build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", dest_script_path)
 
-            if not version_agnostic:
+            if version_agnostic:
                 build_file_data = build_file_data.replace(" % version", "")
             out_file.write(build_file_data)
 
@@ -427,7 +427,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         return False
 
     # Set Python version based on AEDT version
-    python_version = "3.10" if aedt_version > "2023.1" else "3.7"
+    python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
 
     if not is_linux:
         base_venv = os.path.normpath(
@@ -566,6 +566,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
+            desktop_object.logger.info("{} installed".format(toolkit_info["name"]))
     else:
         if os.path.exists(tool_dir):
             # Install toolkit inside AEDT
@@ -574,6 +575,8 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 name=toolkit_info["name"],
                 product=product_name,
             )
+            desktop_object.logger.info("Installing dependencies")
+            desktop_object.logger.info("{} uninstalled".format(toolkit_info["name"]))
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):
