@@ -6,8 +6,6 @@ import json
 import os.path
 import warnings
 
-from line_profiler_pycharm import profile
-
 from pyaedt.application.Variables import generate_validation_errors
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
@@ -879,7 +877,6 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    @profile
     def import_nastran(self, file_path, import_lines=True, lines_thickness=0, import_as_light_weight=False, **kwargs):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
