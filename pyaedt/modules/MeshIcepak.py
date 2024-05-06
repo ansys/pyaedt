@@ -1067,8 +1067,12 @@ class IcepakMesh(object):
                                 "Icepak",
                             )
                         )
-        except Exception as e:
-            self._app.logger.error(e)
+        except TypeError:
+            # design_properties not loaded, maybe there are mesh op, we need to warn the user
+            self._app.logger.warning("No mesh operation found.")
+        except KeyError:
+            # design_properties loaded, mesh op keys missing, no need to warn the user
+            pass
 
         return meshops
 
@@ -1104,8 +1108,9 @@ class IcepakMesh(object):
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
-        except Exception as e:
-            self._app.logger.error(e)
+        except TypeError:
+            # design_properties not loaded, maybe there are mesh op, we need to warn the user
+            self._app.logger.warning("No mesh region found.")
 
         return meshops
 
