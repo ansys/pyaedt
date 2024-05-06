@@ -24,77 +24,28 @@
 
 import os
 
-from pyaedt import is_windows
-from pyaedt import pyaedt_path
 from pyaedt.generic.general_methods import read_toml
 from pyaedt.workflows import customize_automation_tab
 
 
 def add_pyaedt_to_aedt(
-    aedt_version="2024.1",
-    student_version=False,
-    new_desktop_session=False,
-    non_graphical=False,
+    aedt_version,
+    personallib,
 ):
     """Add PyAEDT tabs in AEDT.
 
     Parameters
     ----------
-    aedt_version : str, optional
+    aedt_version : str
         AEDT release.
-    student_version : bool, optional
-        Whether to use the student version of AEDT. The default
-        is ``False``.
-    new_desktop_session : bool, optional
-        Whether to create a new AEDT session. The default
-        is ``False``
-    non_graphical : bool, optional
-        Whether to run AEDT in non-graphical mode. The default
-        is ``False``.
+    personallib : str
+        AEDT Personal Lib folder.
     """
 
-    from pyaedt import Desktop
-    from pyaedt.generic.general_methods import grpc_active_sessions
-    from pyaedt.generic.settings import settings
-
-    sessions = grpc_active_sessions(aedt_version, student_version)
-    close_on_exit = True
-    if not sessions:
-        if not new_desktop_session:
-            print("Launching a new AEDT desktop session.")
-        new_desktop_session = True
-    else:
-        close_on_exit = False
-    settings.use_grpc_api = True
-    with Desktop(
-        specified_version=aedt_version,
-        non_graphical=non_graphical,
-        new_desktop_session=new_desktop_session,
-        student_version=student_version,
-        close_on_exit=close_on_exit,
-    ) as d:
-        personal_lib_dir = d.odesktop.GetPersonalLibDirectory()
-        pers1 = os.path.join(personal_lib_dir, "pyaedt")
-        pid = d.odesktop.GetProcessID()
-        # Linking pyaedt in PersonalLib for IronPython compatibility.
-        if os.path.exists(pers1):
-            d.logger.info("PersonalLib already mapped.")
-        else:
-            if is_windows:
-                os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
-            else:
-                os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
-
-        __add_pyaedt_tabs(d)
-
-    if pid and new_desktop_session:
-        try:
-            os.kill(pid, 9)
-        except Exception:  # pragma: no cover
-            return False
+    __add_pyaedt_tabs(personallib, aedt_version)
 
 
-def __add_pyaedt_tabs(desktop_object):
+def __add_pyaedt_tabs(personallib, aedt_version):
     """Add PyAEDT tabs in AEDT."""
 
     pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ToolkitManager"]
@@ -112,7 +63,6 @@ def __add_pyaedt_tabs(desktop_object):
             icon_file = os.path.join(project_workflows_dir, "images", "large", toolkit_info["icon"])
             template_name = toolkit_info["template"]
             customize_automation_tab.add_script_to_menu(
-                desktop_object,
                 toolkit_info["name"],
                 script_path,
                 template_name,
@@ -121,4 +71,6 @@ def __add_pyaedt_tabs(desktop_object):
                 copy_to_personal_lib=True,
                 executable_interpreter=None,
                 panel="Panel_PyAEDT_Installer",
+                personal_lib=personallib,
+                aedt_version=aedt_version,
             )

@@ -19,7 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import logging
 import os
 import shutil
 import subprocess  # nosec
@@ -267,7 +267,6 @@ def available_toolkits():
 
 
 def add_script_to_menu(
-    desktop_object,
     name,
     script_file,
     template_file="Run_PyAEDT_Toolkit_Script",
@@ -276,6 +275,8 @@ def add_script_to_menu(
     copy_to_personal_lib=True,
     executable_interpreter=None,
     panel="Panel_PyAEDT_Toolkits",
+    personal_lib=None,
+    aedt_version="",
 ):
     """Add a script to the ribbon menu.
 
@@ -286,8 +287,6 @@ def add_script_to_menu(
 
     Parameters
     ----------
-    desktop_object : :class:pyaedt.desktop.Desktop
-        Desktop object.
     name : str
         Name of the toolkit to appear in AEDT.
     script_file : str
@@ -306,19 +305,28 @@ def add_script_to_menu(
         Executable python path. The default is the one current interpreter.
     panel : str, optional
         Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+    personal_lib : str, optional
+    aedt_version : str, optional
 
     Returns
     -------
     bool
 
     """
+    logger = logging.getLogger("Global")
+    if not personal_lib or not aedt_version:
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
 
+        if not _desktop_sessions:
+            logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
+            return False
+        d = list(_desktop_sessions.values())[0]
+        personal_lib = d.personallib
+        aedt_version = d.aedt_version_id
     if script_file and not os.path.exists(script_file):
-        desktop_object.logger.error("Script does not exists.")
+        logger.error("Script does not exists.")
         return False
-
-    toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
-    aedt_version = desktop_object.aedt_version_id
+    toolkit_dir = os.path.join(personal_lib, "Toolkits")
     tool_map = __tab_map(product)
     tool_dir = os.path.join(toolkit_dir, tool_map, name)
     lib_dir = os.path.join(tool_dir, "Lib")
@@ -368,7 +376,7 @@ def add_script_to_menu(
         add_automation_tab(
             name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest, panel=panel
         )
-    desktop_object.logger.info("{} installed".format(name))
+    logger.info("{} installed".format(name))
     return True
 
 
@@ -419,7 +427,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         return False
 
     # Set Python version based on AEDT version
-    python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
+    python_version = "3.10" if aedt_version > "2023.1" else "3.7"
 
     if not is_linux:
         base_venv = os.path.normpath(
@@ -548,7 +556,6 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         if not os.path.exists(tool_dir):
             # Install toolkit inside AEDT
             add_script_to_menu(
-                desktop_object=desktop_object,
                 name=toolkit_info["name"],
                 script_file=script_file,
                 icon_file=script_image,
@@ -556,6 +563,8 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 template_file="Run_PyAEDT_Toolkit_Script",
                 copy_to_personal_lib=True,
                 executable_interpreter=python_exe,
+                personal_lib=desktop_object.personallib,
+                aedt_version=desktop_object.aedt_version_id,
             )
     else:
         if os.path.exists(tool_dir):

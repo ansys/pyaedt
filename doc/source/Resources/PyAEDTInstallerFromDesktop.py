@@ -53,7 +53,28 @@ def run_pyinstaller_from_c_python(oDesktop):
         return
     else:
         oDesktop.AddMessage("", "", 0, "PyAEDT setup complete.")
-
+    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
+    if is_linux:
+        for dirpath, dirnames, _ in os.walk(venv_dir):
+            if "site-packages" in dirnames:
+                pyaedt_path = os.path.normpath(
+                    os.path.join(dirpath, "site-packages", "pyaedt")
+                )
+                if os.path.isdir(pyaedt_path):
+                    return True
+                break
+    personal_lib_dir = oDesktop.GetPersonalLibDirectory()
+    pers1 = os.path.join(personal_lib_dir, "pyaedt")
+    if os.path.exists(pers1):
+        oDesktop.AddMessage("", "", 2, "PersonalLib already mapped.")
+    else:
+        if is_windows:
+            command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
+        else:
+            command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
+        ret_code = os.system(command)
+        if ret_code != 0:
+            oDesktop.AddMessage("", "", 2, "Error configuring symbolic link to pyaedt in PersonalLib.")
     import tempfile
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
     with open(python_script, "w") as f:
@@ -62,8 +83,8 @@ def run_pyinstaller_from_c_python(oDesktop):
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
-            'add_pyaedt_to_aedt(aedt_version="{}", student_version={}, new_desktop_session=False)\n'.format(
-                oDesktop.GetVersion()[:6], is_student_version(oDesktop)))
+            'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
+                oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, command)
