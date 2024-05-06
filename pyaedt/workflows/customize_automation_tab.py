@@ -350,6 +350,7 @@ def add_script_to_menu(
         executable_version_agnostic = sys.executable
 
     if executable_interpreter:
+        version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
     templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
