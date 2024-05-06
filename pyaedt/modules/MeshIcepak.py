@@ -1068,11 +1068,12 @@ class IcepakMesh(object):
                             )
                         )
         except TypeError:
-            # design_properties not loaded, maybe there are mesh op, we need to warn the user
+            # design_properties not loaded, maybe there are mesh region, we need to warn the user
             self._app.logger.warning("No mesh operation found.")
+            self._app.logger.debug("Failed to get mesh operation from `design_properties`.")
         except KeyError:
-            # design_properties loaded, mesh op keys missing, no need to warn the user
-            pass
+            # design_properties loaded, mesh region related keys missing, no need to warn the user
+            self._app.logger.debug("Failed to get mesh operation.")
 
         return meshops
 
@@ -1109,11 +1110,12 @@ class IcepakMesh(object):
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
         except TypeError:
-            # design_properties not loaded, maybe there are mesh op, we need to warn the user
+            # design_properties not loaded, maybe there are mesh region, we need to warn the user
             self._app.logger.warning("No mesh region found.")
+            self._app.logger.debug("Failed to get mesh region from `design_properties`.")
         except KeyError:
-            # design_properties loaded, mesh op keys missing, no need to warn the user
-            pass
+            # design_properties loaded, mesh region related keys missing, no need to warn the user
+            self._app.logger.debug("Failed to get mesh region.")
 
         return meshops
 
