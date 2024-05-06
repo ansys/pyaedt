@@ -20,7 +20,6 @@ jobs:
   doc-build:
     name: Documentation build without examples
     runs-on: ubuntu-latest
-    needs: [doc-style]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@v4
@@ -87,7 +86,7 @@ jobs:
   upload-dev-doc:
     name: Upload dev documentation
     runs-on: ubuntu-latest
-    needs: [doc-build]
+    needs: doc-build
     steps:
       - name: Upload development documentation
         uses: ansys/actions/doc-deploy-dev@v4
