@@ -15,7 +15,6 @@ import json
 import math
 import os
 import re
-import secrets
 import string
 import sys
 import tempfile
@@ -676,6 +675,7 @@ def get_filename_without_extension(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
+# FIXME: Remove usage of random module once IronPython compatibility is removed
 @pyaedt_function_handler()
 def generate_unique_name(rootname, suffix="", n=6):
     """Generate a new name given a root name and optional suffix.
@@ -696,7 +696,15 @@ def generate_unique_name(rootname, suffix="", n=6):
 
     """
     alphabet = string.ascii_uppercase + string.digits
-    uName = "".join(secrets.choice(alphabet) for _ in range(n))
+    if is_ironpython:
+        import random
+
+        uName = "".join(random.choice(alphabet) for _ in range(n))  # nosec B311
+    else:
+        import secrets
+
+        uName = "".join(secrets.choice(alphabet) for _ in range(n))
+
     unique_name = rootname + "_" + uName
     if suffix:
         unique_name += "_" + suffix
@@ -1887,6 +1895,7 @@ def _arg2dict(arg, dict_out):
         raise ValueError("Incorrect data argument format")
 
 
+# FIXME: Remove usage of random module once IronPython compatibility is removed
 def _uname(name=None):
     """Append a 6-digit hash code to a specified name.
 
@@ -1901,8 +1910,15 @@ def _uname(name=None):
 
     """
     alphabet = string.ascii_uppercase + string.digits
-    generator = secrets.SystemRandom()
-    unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
+    if is_ironpython:
+        import random
+
+        unique_name = "".join(random.sample(alphabet, 6))  # nosec B311
+    else:
+        import secrets
+
+        generator = secrets.SystemRandom()
+        unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
     if name:
         return name + unique_name
     else:
