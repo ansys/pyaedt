@@ -5,7 +5,7 @@ icon = "images/large/pdf.png"
 template = "Run_PyAEDT_Script"
 pip = ""
 
-[GenerateReport]
+[ImportNastran]
 name = "Import Nastran"
 script = "import_nastran.py"
 icon = "images/large/cad3d.png"
