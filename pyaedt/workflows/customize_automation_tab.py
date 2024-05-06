@@ -561,13 +561,15 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 script_file=script_file,
                 icon_file=script_image,
                 product=product_name,
-                template_file="Run_PyAEDT_Toolkit_Script",
+                template_file=toolkit_info.get("template", "Run_PyAEDT_Toolkit_Script"),
                 copy_to_personal_lib=True,
                 executable_interpreter=python_exe,
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
             desktop_object.logger.info("{} installed".format(toolkit_info["name"]))
+            if version > "232":
+                desktop_object.odesktop.RefreshToolkitUI()
     else:
         if os.path.exists(tool_dir):
             # Install toolkit inside AEDT

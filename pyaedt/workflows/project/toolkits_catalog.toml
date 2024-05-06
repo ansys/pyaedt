@@ -2,12 +2,12 @@
 name = "Generate report"
 script = "create_report.py"
 icon = "images/large/pdf.png"
-template = "Run_PyAEDT_Script"
+template = "Run_PyAEDT_Toolkit_Script"
 pip = ""
 
 [ImportNastran]
 name = "Import Nastran"
 script = "import_nastran.py"
 icon = "images/large/cad3d.png"
-template = "Run_PyAEDT_Script"
+template = "Run_PyAEDT_Toolkit_Script"
 pip = ""
