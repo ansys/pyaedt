@@ -8,8 +8,6 @@ import shutil
 import sys
 import time
 
-import matplotlib.pyplot as plt
-
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
@@ -46,6 +44,10 @@ if not is_ironpython:
         import pyvista as pv
     except ImportError:
         pv = None
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        plt = None
 
 
 class SolutionData(object):
