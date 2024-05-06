@@ -1111,6 +1111,9 @@ class IcepakMesh(object):
         except TypeError:
             # design_properties not loaded, maybe there are mesh op, we need to warn the user
             self._app.logger.warning("No mesh region found.")
+        except KeyError:
+            # design_properties loaded, mesh op keys missing, no need to warn the user
+            pass
 
         return meshops
 
