@@ -215,7 +215,7 @@ class Modeler3D(Primitives3D):
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
-            if not native_components and native_objs:
+            if not native_components and native_objs and not auxiliary_dict:
                 self.logger.warning(
                     "Native component objects cannot be exported. Use native_components argument to"
                     " export an auxiliary dictionary file containing 3D components information"
