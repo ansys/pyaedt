@@ -405,8 +405,15 @@ class TestClass:
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
+        assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)
+        assert customize_automation_tab.remove_script_from_menu(
+            desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
+        )
         assert customize_automation_tab.add_script_to_menu(
-            desktop_object=self.aedtapp.desktop_class, name="test_toolkit", script_file=file
+            name="test_toolkit",
+            script_file=file,
+            personal_lib=self.aedtapp.desktop_class.personallib,
+            aedt_version=self.aedtapp.desktop_class.aedt_version_id,
         )
         assert customize_automation_tab.remove_script_from_menu(
             desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
