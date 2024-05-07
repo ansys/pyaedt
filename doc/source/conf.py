@@ -353,17 +353,16 @@ html_theme_options = {
     },
 }
 
-# Only add button to download PDF in dev mode as the building PDF for the full documentation is too long
-if switcher_version == "dev":
-    html_theme_options["icon_links"].append(
-        {
-            "name": "Download documentation in PDF",
-            # NOTE: Changes to this URL must be reflected in CICD documentation build
-            "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
-            # noqa: E501
-            "icon": "fa fa-file-pdf fa-fw",
-        }
-    )
+# Add button to download PDF
+html_theme_options["icon_links"].append(
+    {
+        "name": "Download documentation in PDF",
+        # NOTE: Changes to this URL must be reflected in CICD documentation build
+        "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
+        # noqa: E501
+        "icon": "fa fa-file-pdf fa-fw",
+    }
+)
 
 html_static_path = ["_static"]
 
