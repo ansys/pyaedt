@@ -84,7 +84,7 @@ stackups
 stripline
 subcircuit
 [Tt]oolkits
-Toolkit Manager
+[Tt]oolkit [Mm]anager
 Twin Builder
 Uncomment
 vias
