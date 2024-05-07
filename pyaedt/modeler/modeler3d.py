@@ -1050,7 +1050,7 @@ class Modeler3D(Primitives3D):
 
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
-        if nas_to_dict["Triangles"]:
+        if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
@@ -1069,7 +1069,9 @@ class Modeler3D(Primitives3D):
                     _write_solid_stl(triangle, nas_to_dict)
                 f.write("endsolid\n")
             f.close()
-            self.logger.info("STL file created")
+            self.logger.info_timer("STL file created")
+            self.logger.reset_timer()
+            self.logger.info("Importing STL in 3D Modeler")
             self.import_3d_cad(
                 os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"),
                 create_lightweigth_part=import_as_light_weight,
@@ -1080,7 +1082,7 @@ class Modeler3D(Primitives3D):
             for el in nas_to_dict["Triangles"].keys():
                 obj_names = [i for i in self.object_names if i.startswith("Sheet_{}".format(el))]
                 self.create_group(obj_names, group_name=str(el))
-            self.logger.info_timer("Faces imported")
+            self.logger.info_timer("Model imported")
 
         if import_lines:
             for line_name, lines in nas_to_dict["Lines"].items():
