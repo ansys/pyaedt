@@ -305,6 +305,7 @@ if run_examples:
         "image_scrapers": ("pyvista", "matplotlib"),
         "ignore_pattern": r"flycheck.*",
         "thumbnail_size": (350, 350),
+        'remove_config_comments': True,
     }
     if not use_gif:
         gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"

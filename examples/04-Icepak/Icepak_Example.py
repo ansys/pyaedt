@@ -4,6 +4,8 @@ Icepak: graphic card thermal analysis
 This example shows how you can use PyAEDT to create a graphic card setup in Icepak and postprocess results.
 The example file is an Icepak project with a model that is already created and has materials assigned.
 """
+# sphinx_gallery_thumbnail_path = '_static/thumbnails/icepak_graphic_card_example.png'
+
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
