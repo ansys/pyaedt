@@ -39,7 +39,6 @@ def main():
         if is_linux:
             term = get_linux_terminal()
             if term is None:
-                self.logger.critical("Error: No xterm found.  Unable to start Toolkit.")
                 oDesktop.AddMessage("", "", 0, "Error: No xterm found.  Unable to start Toolkit.")
                 return False
             edt_root = os.path.normpath(oDesktop.GetExeDir())
@@ -94,6 +93,23 @@ def show_error(msg):
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
+
+def which(program):
+    # http://stackoverflow.com/a/377028
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
 
 if __name__ == "__main__":
     main()
