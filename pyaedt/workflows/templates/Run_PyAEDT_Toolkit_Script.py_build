@@ -56,9 +56,9 @@ def main():
             os.environ["TCL_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5")
             os.environ["TK_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
             os.environ["TKPATH"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
-			my_env = dict(os.environ.copy())
-			cmds = ['-hold', '-e', python_exe, '"{}"'.format(pyaedt_script)]
-			os.spawnve(os.P_NOWAIT, term, cmds, my_env)
+            my_env = dict(os.environ.copy())
+            cmds = ['-hold', '-e', python_exe, '"{}"'.format(pyaedt_script)]
+            os.spawnve(os.P_NOWAIT, term, cmds, my_env)
         else:
             runme = generate_unique_name("run_script", ".cmd", n=3)
             edt_temp = oDesktop.GetTempDirectory()
@@ -86,12 +86,12 @@ def generate_unique_name(rootname, suffix="", n=6):
 
 
 def get_linux_terminal():
-	if is_linux:
-		for terminal in ["xterm"]:
-			term = which(terminal)
-			if term:
-				return term
-	return None
+    if is_linux:
+        for terminal in ["xterm"]:
+            term = which(terminal)
+            if term:
+                return term
+    return None
 
 
 def check_file(file_path):
