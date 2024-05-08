@@ -124,7 +124,7 @@ def is_float(istring):
     try:
         return float(istring.strip())
     except Exception:
-        warnings.warn("Unable to convert '" + isring.strip() + "' to a float.")
+        warnings.warn("Unable to convert '" + istring.strip() + "' to a float.")
         return 0
 
 
