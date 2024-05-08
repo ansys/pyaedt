@@ -877,7 +877,7 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, **kwargs):
+    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, import_as_light_weight=False, **kwargs):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
 
@@ -890,6 +890,8 @@ class Modeler3D(Primitives3D):
         lines_thickness : float, optional
             Whether to thicken lines after creation and it's default value.
             Every line will be parametrized with a design variable called ``xsection_linename``.
+        import_as_light_weight : bool, optional
+            Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
 
         Returns
         -------
@@ -925,7 +927,7 @@ class Modeler3D(Primitives3D):
                 f.write("  endloop\n")
                 f.write(" endfacet\n")
 
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": [], "Lines": {}, "Solids": {}}
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
@@ -942,6 +944,8 @@ class Modeler3D(Primitives3D):
                     grid_id = int(line[8:16])
                     if line_type == "CTRIA3":
                         tria_id = int(line[16:24])
+                        if tria_id not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[24:32].strip()
                     if "-" in n1[1:]:
                         n1 = n1[0] + n1[1:].replace("-", "e-")
@@ -957,14 +961,14 @@ class Modeler3D(Primitives3D):
                         id += 1
                     else:
                         tri = [int(n1), int(n2), int(n3)]
-                        tri.sort()
-                        if tri not in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"].append(tri)
+                        nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in ["GRID*", "CTRIA3*"]:
                     grid_id = int(line[8:24])
                     if line_type == "CTRIA3*":
                         tria_id = int(line[24:40])
+                        if tria_id not in nas_to_dict["Triangles"]:
+                            nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[40:56].strip()
                     if "-" in n1[1:]:
                         n1 = n1[0] + n1[1:].replace("-", "e-")
@@ -983,16 +987,16 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
                     else:
-                        tri = [int(n1), int(n2), int(n3)]
-                        tri.sort()
-                        if tri not in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"].append(tri)
+                        tri = (int(n1), int(n2), int(n3))
+                        nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
-                    obj_id = line[16:24].strip()
+                    # obj_id = line[16:24].strip()
                     n = []
                     el_id = line[24:32].strip()
-                    # n = [int(line[24:32])]
+                    if el_id not in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][el_id] = []
+
                     n.append(int(line[32:40]))
                     n.append(int(line[40:48]))
                     n.append(int(line[48:56]))
@@ -1008,17 +1012,18 @@ class Modeler3D(Primitives3D):
                         n.append(int(lines[lk][16:24].strip()))
                     from itertools import combinations
 
-                    tris = []
                     for k in list(combinations(n, 3)):
                         tri = [int(k[0]), int(k[1]), int(k[2])]
-                        tris.append(tri)
-                    nas_to_dict["Solids"]["{}_{}".format(el_id, obj_id)] = tris
-                    if el_id not in el_ids:
-                        el_ids.append(el_id)
+                        tri.sort()
+                        tri = tuple(tri)
+                        nas_to_dict["Solids"][el_id].append(tri)
+
                 elif line_type in ["CTETRA*"]:
-                    obj_id = line[8:24].strip()
+                    # obj_id = line[8:24].strip()
                     n = []
                     el_id = line[24:40].strip()
+                    if el_id not in nas_to_dict["Solids"]:
+                        nas_to_dict["Solids"][el_id] = []
                     # n.append(line[24:40].strip())
                     n.append(line[40:56].strip())
 
@@ -1028,14 +1033,11 @@ class Modeler3D(Primitives3D):
 
                     from itertools import combinations
 
-                    tris = []
                     for k in list(combinations(n, 3)):
                         tri = [int(k[0]), int(k[1]), int(k[2])]
-                        tris.append(tri)
-
-                    nas_to_dict["Solids"]["{}_{}".format(el_id, obj_id)] = tris
-                    if el_id not in el_ids:
-                        el_ids.append(el_id)
+                        tri.sort()
+                        tri = tuple(tri)
+                        nas_to_dict["Solids"][el_id].append(tri)
 
                 elif line_type in ["CROD", "CBEAM"]:
                     obj_id = int(line[16:24])
@@ -1048,27 +1050,39 @@ class Modeler3D(Primitives3D):
 
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
-        if nas_to_dict["Triangles"]:
+        if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
-            f.write("solid PyaedtStl\n")
-            for triangle in nas_to_dict["Triangles"]:
-                _write_solid_stl(triangle, nas_to_dict)
-
-            f.write("endsolid\n")
+            for tri_id, triangles in nas_to_dict["Triangles"].items():
+                f.write("solid Sheet_{}\n".format(tri_id))
+                for triangle in triangles:
+                    _write_solid_stl(triangle, nas_to_dict)
+                f.write("endsolid\n")
             for solidid, solid_triangles in nas_to_dict["Solids"].items():
                 f.write("solid Solid_{}\n".format(solidid))
-                for triangle in solid_triangles:
+                import pandas as pd
+
+                df = pd.Series(solid_triangles)
+                undulicated_values = df.drop_duplicates(keep=False).to_list()
+                for triangle in undulicated_values:
                     _write_solid_stl(triangle, nas_to_dict)
                 f.write("endsolid\n")
             f.close()
-            self.logger.info("STL file created")
-            self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
-            for el in el_ids:
-                obj_names = [i for i in self.solid_names if i.startswith("Solid_{}_".format(el))]
-                self.create_group(obj_names, group_name=el)
-            self.logger.info_timer("Faces imported")
+            self.logger.info_timer("STL file created")
+            self.logger.reset_timer()
+            self.logger.info("Importing STL in 3D Modeler")
+            self.import_3d_cad(
+                os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"),
+                create_lightweigth_part=import_as_light_weight,
+            )
+            for el in nas_to_dict["Solids"].keys():
+                obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
+                self.create_group(obj_names, group_name=str(el))
+            for el in nas_to_dict["Triangles"].keys():
+                obj_names = [i for i in self.object_names if i.startswith("Sheet_{}".format(el))]
+                self.create_group(obj_names, group_name=str(el))
+            self.logger.info_timer("Model imported")
 
         if import_lines:
             for line_name, lines in nas_to_dict["Lines"].items():
