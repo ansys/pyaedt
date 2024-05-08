@@ -60,7 +60,8 @@ def main():
             cmds = ['-hold', '-e', python_exe, '"{}"'.format(pyaedt_script)]
             os.spawnve(os.P_NOWAIT, term, cmds, my_env)
         else:
-            runme = generate_unique_name("run_script", ".cmd", n=3)
+            toolkit_name = r"##TOOLKIT_NAME##"
+            runme = "run_pyaedt_toolkit_{0}.cmd".format(toolkit_name)
             edt_temp = oDesktop.GetTempDirectory()
             cmd = '"{0}"'.format(pyaedt_script)
             target = os.path.join(edt_temp, runme)
@@ -72,18 +73,6 @@ def main():
             oDesktop.RunProgram(runme, edt_temp, edt_temp, "")
     except Exception as e:
         show_error(str(e))
-
-
-def generate_unique_name(rootname, suffix="", n=6):
-    import random
-    import string
-
-    char_set = string.ascii_uppercase + string.digits
-    unique_name = rootname + "_" + "".join(random.choice(char_set) for _ in range(n))
-    if suffix:
-        unique_name += suffix
-    return unique_name
-
 
 def get_linux_terminal():
     if is_linux:
