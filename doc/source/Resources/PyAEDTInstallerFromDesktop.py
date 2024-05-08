@@ -177,8 +177,8 @@ def install_pyaedt():
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
-            run_command(
-            '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@fix/issue_launch_toolkit_from_aedt'.format(pip_exe))
+            # run_command(
+            # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@fix/main'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
