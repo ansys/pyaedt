@@ -615,37 +615,18 @@ class TestClass:
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
-        out = _parse_aedtplt(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_vector.aedtplt",
-            )
-        )
+        out = _parse_aedtplt(os.path.join(local_path, "example_models", test_subfolder, "test_vector.aedtplt"))
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_vector_no_solutions.aedtplt",
-            )
+            os.path.join(local_path, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        out = _parse_streamline(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_streamline.fldplt",
-            )
-        )
+        out = _parse_streamline(os.path.join(local_path, "example_models", test_subfolder, "test_streamline.fldplt"))
         assert isinstance(out, list)
 
     def test_61_export_mesh(self):
@@ -653,14 +634,7 @@ class TestClass:
 
     def test_67_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        dict_vals = read_json(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "Modal_Report_Simple.json",
-            )
-        )
+        dict_vals = read_json(os.path.join(local_path, "example_models", "report_json", "Modal_Report_Simple.json"))
         assert self.aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
 
     @pytest.mark.skipif(
@@ -669,12 +643,7 @@ class TestClass:
     def test_70_sweep_from_json(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert self.aedtapp.post.create_report_from_configuration(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "Modal_Report.json",
-            )
+            os.path.join(local_path, "example_models", "report_json", "Modal_Report.json")
         )
 
     def test_74_dynamic_update(self):
