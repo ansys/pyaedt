@@ -477,37 +477,18 @@ class TestClass:
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
-        out = _parse_aedtplt(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_vector.aedtplt",
-            )
-        )
+        out = _parse_aedtplt(os.path.join(local_path, "example_models", test_subfolder, "test_vector.aedtplt"))
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
         assert _parse_aedtplt(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_vector_no_solutions.aedtplt",
-            )
+            os.path.join(local_path, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        out = _parse_streamline(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                "test_streamline.fldplt",
-            )
-        )
+        out = _parse_streamline(os.path.join(local_path, "example_models", test_subfolder, "test_streamline.fldplt"))
         assert isinstance(out, list)
 
     def test_61_export_mesh(self, q3dtest):
@@ -558,12 +539,7 @@ class TestClass:
     def test_65_eye_from_json(self, eye_test):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "EyeDiagram_Report_simple.json",
-            ),
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="QuickEyeAnalysis",
         )
 
@@ -571,12 +547,7 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         circuit_test.analyze_setup("Transient")
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "Spectral_Report_Simple.json",
-            ),
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
         )
 
@@ -586,12 +557,7 @@ class TestClass:
     def test_68_eye_from_json(self, eye_test):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "EyeDiagram_Report.toml",
-            ),
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report.toml"),
             solution_name="QuickEyeAnalysis",
         )
 
@@ -602,31 +568,13 @@ class TestClass:
         local_path = os.path.dirname(os.path.realpath(__file__))
         circuit_test.analyze_setup("Transient")
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                "report_json",
-                "Spectral_Report.json",
-            ),
-            solution_name="Transient",
+            os.path.join(local_path, "example_models", "report_json", "Spectral_Report.json"), solution_name="Transient"
         )
 
     def test_70_far_field_data(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        eep_file1 = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "eep",
-            "eep.txt",
-        )
-        eep_file2 = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "eep",
-            "eep.txt",
-        )
+        eep_file1 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
+        eep_file2 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
         frequencies = [0.9e9, "0.9GHz"]
         eep_files = [eep_file1, eep_file2]
 
