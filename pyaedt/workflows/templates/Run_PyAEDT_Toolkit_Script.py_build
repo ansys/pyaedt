@@ -22,6 +22,8 @@ from System.Windows.Forms import MessageBoxIcon
 is_linux = os.name == "posix"
 script_name = os.path.splitext(os.path.basename(__file__))[0]
 
+if is_linux:
+    import subprocessdotnet as subprocess
 
 def main():
     try:
@@ -37,10 +39,6 @@ def main():
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:
-            term = get_linux_terminal()
-            if term is None:
-                oDesktop.AddMessage("", "", 0, "Error: No xterm found.  Unable to start Toolkit.")
-                return False
             edt_root = os.path.normpath(oDesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [
@@ -56,8 +54,8 @@ def main():
             os.environ["TK_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
             os.environ["TKPATH"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
             my_env = dict(os.environ.copy())
-            cmds = ['-hold', '-e', python_exe, '"{}"'.format(pyaedt_script)]
-            os.spawnve(os.P_NOWAIT, term, cmds, my_env)
+            command = [python_exe, pyaedt_script]
+            subprocess.Popen(command, env=my_env)
         else:
             toolkit_name = r"##TOOLKIT_NAME##"
             runme = "run_pyaedt_toolkit_{0}.cmd".format(toolkit_name)
@@ -73,14 +71,6 @@ def main():
     except Exception as e:
         show_error(str(e))
 
-def get_linux_terminal():
-    if is_linux:
-        for terminal in ["xterm"]:
-            term = which(terminal)
-            if term:
-                return term
-    return None
-
 
 def check_file(file_path):
     if not os.path.isfile(file_path):
@@ -93,23 +83,6 @@ def show_error(msg):
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
 
-
-def which(program):
-    # http://stackoverflow.com/a/377028
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-    return None
 
 if __name__ == "__main__":
     main()
