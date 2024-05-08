@@ -539,7 +539,7 @@ class TestClass:
     def test_65_eye_from_json(self, eye_test):
         local_path = os.path.dirname(os.path.realpath(__file__))
         assert eye_test.post.create_report_from_configuration(
-            os.path.join(local_path, "example_models", "report_json", "Spectral_Report_Simple.json"),
+            os.path.join(local_path, "example_models", "report_json", "EyeDiagram_Report_simple.json"),
             solution_name="QuickEyeAnalysis",
         )
 
