@@ -38,10 +38,10 @@ def main():
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:
             term = get_linux_terminal()
-			if term is None:
-				self.logger.critical("Error: No xterm found.  Unable to start Toolkit.")
-				oDesktop.AddMessage("", "", 0, "Error: No xterm found.  Unable to start Toolkit.")
-				return False
+            if term is None:
+                self.logger.critical("Error: No xterm found.  Unable to start Toolkit.")
+                oDesktop.AddMessage("", "", 0, "Error: No xterm found.  Unable to start Toolkit.")
+                return False
             edt_root = os.path.normpath(oDesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
             ld_library_path_dirs_to_add = [
@@ -64,6 +64,7 @@ def main():
             edt_temp = oDesktop.GetTempDirectory()
             cmd = '"{0}"'.format(pyaedt_script)
             target = os.path.join(edt_temp, runme)
+            my_env = dict(os.environ.copy())
             with open(target, 'w') as cmdfile:
                 for env in my_env:
                     cmdfile.write('SET {0}={1}\n'.format(env, my_env[env]))

@@ -86,7 +86,7 @@ def run_pyinstaller_from_c_python(oDesktop):
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
-    oDesktop.AddMessage("", "", 0, command)
+    oDesktop.AddMessage("", "", 0, "Configuring PyAEDT Tabs.")
     ret_code = os.system(command)
     if ret_code != 0:
         oDesktop.AddMessage("", "", 2, "Error configuring the configuration Tab.")
@@ -97,9 +97,11 @@ def run_pyinstaller_from_c_python(oDesktop):
     if is_linux:
         msg += " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv" \
                " argument) to take advantage of the new toolkits."
-    from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
-    oDesktop.AddMessage("", "", 0, msg)
-    MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+    if "GetIsNonGraphical" in oDesktop.__dir__() and not oDesktop.GetIsNonGraphical():
+        from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
+        oDesktop.AddMessage("", "", 0, msg)
+        MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
 
 
 def parse_arguments_for_pyaedt_installer(args=None):
