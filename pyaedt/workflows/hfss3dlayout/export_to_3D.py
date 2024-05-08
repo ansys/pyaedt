@@ -65,7 +65,7 @@ mainloop()
 suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = os.environ["PYAEDT_SCRIPT_PORT"]
+    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
 else:
     port = 0

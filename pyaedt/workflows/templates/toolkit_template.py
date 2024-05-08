@@ -28,7 +28,7 @@ import pyaedt
 from pyaedt import get_pyaedt_app
 
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = os.environ["PYAEDT_SCRIPT_PORT"]
+    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
 else:
     port = 0
