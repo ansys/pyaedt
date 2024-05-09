@@ -884,10 +884,7 @@ class TestClass:
             design=self.aedtapp.design_list[1], parameters=self.aedtapp.available_variations.nominal_w_values_dict
         )
         example_project = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            diff_proj_name + ".aedt",
+            local_path, "../_unittest/example_models", test_subfolder, diff_proj_name + ".aedt"
         )
         example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
@@ -1187,9 +1184,7 @@ class TestClass:
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_47_convert_near_field(self):
-        example_project = os.path.join(
-            local_path, "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models", "nf_test"
-        )
+        example_project = os.path.join(local_path, "../_unittest/example_models", "nf_test")
         assert os.path.exists(convert_nearfield_data(example_project, output_folder=self.local_scratch.path))
 
     def test_48_traces(self):
@@ -1255,34 +1250,18 @@ class TestClass:
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
-                os.path.join(
-                    local_path,
-                    "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                    test_subfolder,
-                    "array_simple_232.json",
-                )
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple_232.json")
             )
             dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                component,
+                local_path, "../_unittest/example_models", test_subfolder, component
             )
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
         else:
             dict_in = read_json(
-                os.path.join(
-                    local_path,
-                    "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                    test_subfolder,
-                    "array_simple.json",
-                )
+                os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_simple.json")
             )
             dict_in["Circ_Patch_5GHz1"] = os.path.join(
-                local_path,
-                "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-                test_subfolder,
-                component,
+                local_path, "../_unittest/example_models", test_subfolder, component
             )
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 
@@ -1319,18 +1298,8 @@ class TestClass:
 
     def test_53_import_source_excitation(self, add_app):
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
-        freq_domain = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "S Parameter Table 1.csv",
-        )
-        time_domain = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "Sinusoidal.csv",
-        )
+        freq_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "S Parameter Table 1.csv")
+        time_domain = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "Sinusoidal.csv")
 
         box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
         aedtapp.wave_port(assignment=box1.bottom_face_x, create_port_sheet=False, name="Port1")
@@ -1427,18 +1396,8 @@ class TestClass:
 
     def test_59_test_nastran(self):
         self.aedtapp.insert_design("Nas_teest")
-        example_project = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "test_cad.nas",
-        )
-        example_project2 = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "test_cad_2.nas",
-        )
+        example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
+        example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
@@ -1522,9 +1481,7 @@ class TestClass:
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_64_import_dxf(self):
         self.aedtapp.insert_design("dxf")
-        dxf_file = os.path.join(
-            local_path, "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models", "cad", "DXF", "dxf2.dxf"
-        )
+        dxf_file = os.path.join(local_path, "example_models", "cad", "DXF", "dxf2.dxf")
         dxf_layers = self.aedtapp.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert self.aedtapp.import_dxf(dxf_file, dxf_layers)
@@ -1634,12 +1591,7 @@ class TestClass:
         array.coordinate_system = "Corner"
         array.coordinate_system = "Global"
 
-        array_csv = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            test_subfolder,
-            "array_info.csv",
-        )
+        array_csv = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "array_info.csv")
         array_info = array.parse_array_info_from_csv(array_csv)
         assert len(array_info) == 4
         assert array_info["component"][1] == "02_Patch1"
@@ -1677,18 +1629,10 @@ class TestClass:
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_68_import_gds_3d(self):
         self.aedtapp.insert_design("gds_import_H3D")
-        gds_file = os.path.join(
-            local_path, "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models", "cad", "GDS", "gds1.gds"
-        )
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
         assert self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
         assert self.aedtapp.import_gds_3d(gds_file, {7: (0, 0), 9: (0, 0)})
         assert self.aedtapp.import_gds_3d(gds_file, {7: (100e-3, 10e-3), 9: (110e-3, 5e-3)}, "mm", 0)
         assert not self.aedtapp.import_gds_3d(gds_file, {})
-        gds_file = os.path.join(
-            local_path,
-            "../../../../../../../AnsysDev/repos/pyaedt/_unittest/example_models",
-            "cad",
-            "GDS",
-            "gds1not.gds",
-        )
+        gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
