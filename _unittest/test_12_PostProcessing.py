@@ -637,6 +637,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -659,7 +660,10 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
@@ -686,6 +690,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -725,6 +730,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata1.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 

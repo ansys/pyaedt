@@ -1655,7 +1655,7 @@ class FfdSolutionData(object):
 
         if image_path:
             plt.savefig(image_path)
-        if show:
+        if show:  # pragma: no cover
             plt.show()
 
         plt.rcParams["figure.figsize"] = default_figsize
@@ -1910,7 +1910,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:
+        if show:  # pragma: no cover
             plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path)
         else:
             return x, y, z
