@@ -647,7 +647,6 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
@@ -656,16 +655,12 @@ class TestClass:
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
-            convert_to_db=True,
-            show=False,
+            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
