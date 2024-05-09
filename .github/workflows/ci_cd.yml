@@ -130,9 +130,9 @@ jobs:
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
           retention-days: 7
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
+ # =================================================================================================
+ # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+ # =================================================================================================
 
   doc-build-with-examples:
     name: Documentation build with examples
