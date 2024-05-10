@@ -387,7 +387,6 @@ class CommonSetup(PropsManager, object):
             Specify a subdesign ID to export a Touchstone file of this subdesign to.
             This parameter is valid only for a circuit.
             The default value is ``None``.
-        context : str, optional
         sweep : str, optional
             Name of the sweep adaptive setup to get solutions from. The default is ``LastAdaptive``.
 
@@ -2320,6 +2319,36 @@ class SetupHFSS(Setup, object):
         self.auto_update = True
         return self.update()
 
+    @pyaedt_function_handler()
+    def set_tuning_offset(self, offsets):
+        """Set derivative vaialb
+
+        Parameters
+        ----------
+        offsets : dict
+            Dictionary containing the variable name and it's offset value.
+
+        Returns
+        -------
+        bool
+        """
+        variables = self.get_derivative_variables()
+        for v in variables:
+            if v not in offsets:
+                offsets[v] = 0
+        arg = []
+        for k, v in offsets.items():
+            arg.append("DeltaOffset({})".format(k))
+            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * (-0.1)))
+            arg.append("{}".format(v))
+            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * 0.1))
+        if self.is_solved:
+            self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
+            return True
+        else:
+            self._app.logger.error("Setup {} is not solved. Solve it before tuning variables.".format(self.name))
+            return False
+
     @pyaedt_function_handler(freqstart="start_frequency", freqstop="stop_frequency", sweepname="name")
     def create_frequency_sweep(
         self,
@@ -2916,6 +2945,36 @@ class SetupHFSSAuto(Setup, object):
         self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_variables()
         self.auto_update = True
         return self.update()
+
+    @pyaedt_function_handler()
+    def set_tuning_offset(self, offsets):
+        """Set derivative vaialb
+
+        Parameters
+        ----------
+        offsets : dict
+            Dictionary containing the variable name and it's offset value.
+
+        Returns
+        -------
+        bool
+        """
+        variables = self.get_derivative_variables()
+        for v in variables:
+            if v not in offsets:
+                offsets[v] = 0
+        arg = []
+        for k, v in offsets.items():
+            arg.append("DeltaOffset({})".format(k))
+            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * (-0.1)))
+            arg.append("{}".format(v))
+            arg.append("{}".format(abs(self._app.variable_manager[k].numeric_value) * 0.1))
+        if self.is_solved:
+            self._app.osolution.SetTuningOffsets(["TuningRanges:=", arg])
+            return True
+        else:
+            self._app.logger.error("Setup {} is not solved. Solve it before tuning variables.".format(self.name))
+            return False
 
     @pyaedt_function_handler(rangetype="range_type")
     def add_subrange(self, range_type, start, end=None, count=None, unit="GHz", clear=False):

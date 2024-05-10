@@ -4708,6 +4708,27 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
+    def set_tuning_offset(self, setup, offsets):
+        """Set derivative vaialb
+
+        Parameters
+        ----------
+        setup : str
+            Setup name.
+        offsets : dict
+            Dictionary containing the variable name and it's offset value.
+
+        Returns
+        -------
+        bool
+        """
+        setup_obj = self._app.get_setup(setup)
+        if setup_obj and "set_tuning_offset" in dir(setup_obj):
+            return setup_obj.set_tuning_offset(offsets)
+        self.logger.error("Tuning offset applies only to solved setup with derivatives enabled.")
+        return False
+
 
 class CircuitPostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT Nexxim postprocessing functions.
