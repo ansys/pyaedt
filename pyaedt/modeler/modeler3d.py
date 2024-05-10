@@ -947,13 +947,13 @@ class Modeler3D(Primitives3D):
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[24:32].strip()
-                    if "-" in n1[1:]:
+                    if "-" in n1[1:] and "e" not in n1[1:].lower():
                         n1 = n1[0] + n1[1:].replace("-", "e-")
                     n2 = line[32:40].strip()
-                    if "-" in n2[1:]:
+                    if "-" in n2[1:] and "e" not in n2[1:].lower():
                         n2 = n2[0] + n2[1:].replace("-", "e-")
                     n3 = line[40:48].strip()
-                    if "-" in n3[1:]:
+                    if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID":
                         nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
@@ -970,20 +970,23 @@ class Modeler3D(Primitives3D):
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[40:56].strip()
-                    if "-" in n1[1:]:
+                    if "-" in n1[1:] and "e" not in n1[1:].lower():
                         n1 = n1[0] + n1[1:].replace("-", "e-")
                     n2 = line[56:72].strip()
-                    if "-" in n2[1:]:
+                    if "-" in n2[1:] and "e" not in n2[1:].lower():
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
                     if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
-                    if "-" in n3[1:]:
+                    if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
-                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        try:
+                            nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        except:
+                            pass
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
                     else:
@@ -1070,6 +1073,7 @@ class Modeler3D(Primitives3D):
                 f.write("endsolid\n")
             f.close()
             self.logger.info_timer("STL file created")
+            self._app.odesktop.CloseAllWindows()
             self.logger.reset_timer()
             self.logger.info("Importing STL in 3D Modeler")
             self.import_3d_cad(
@@ -1116,6 +1120,7 @@ class Modeler3D(Primitives3D):
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]
+        self._app.oproject.SetActiveDesign(self._app.design_name)
         return new_objects
 
     @pyaedt_function_handler()
