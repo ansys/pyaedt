@@ -14,7 +14,6 @@ import itertools
 import json
 import math
 import os
-import random
 import re
 import string
 import sys
@@ -29,19 +28,10 @@ from pyaedt.generic.settings import settings
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
 is_windows = not is_linux
-_pythonver = sys.version_info[0]
-_python_current_release = sys.version_info[1]
 inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
     import psutil
-
-try:
-    import xml.etree.cElementTree as ET
-
-    ET.VERSION
-except ImportError:
-    ET = None
 
 
 class GrpcApiError(Exception):
@@ -110,7 +100,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         ]
         if any(exc in trace for exc in exceptions):
             continue
-        # if func.__name__ in trace:
         for el in trace.split("\n"):
             _write_mes(el)
     for trace in tb_trace:
@@ -118,14 +107,10 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             continue
         tblist = trace.split("\n")
         for el in tblist:
-            # if func.__name__ in el:
-            _write_mes(el)
+            if el:
+                _write_mes(el)
 
     _write_mes("{} on {}".format(message, func.__name__))
-    # try:
-    #     _write_mes(ex_info[1].args[0])
-    # except (IndexError, AttributeError):
-    #     pass
 
     message_to_print = ""
     messages = ""
@@ -138,12 +123,10 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             pass
     if "error" in messages:
         message_to_print = messages[messages.index("[error]") :]
-    # _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
 
     if message_to_print:
         _write_mes("Last Electronics Desktop Message - " + message_to_print)
 
-    args_name = []
     try:
         args_dict = _get_args_dicts(func, args, kwargs)
         first_time_log = True
@@ -155,12 +138,12 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                     first_time_log = False
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except Exception:
-        pass
-    args = [func.__name__] + [i for i in args_name if i not in ["self"]]
+        pyaedt_logger.error("An error occurred while parsing and logging an error with method {}.")
+
     if not func.__name__.startswith("_"):
         _write_mes(
             "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-                "+".join(args)
+                func.__name__
             )
         )
     _write_mes(header)
@@ -692,6 +675,7 @@ def get_filename_without_extension(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
 
+# FIXME: Remove usage of random module once IronPython compatibility is removed
 @pyaedt_function_handler()
 def generate_unique_name(rootname, suffix="", n=6):
     """Generate a new name given a root name and optional suffix.
@@ -711,8 +695,16 @@ def generate_unique_name(rootname, suffix="", n=6):
         Newly generated name.
 
     """
-    char_set = string.ascii_uppercase + string.digits
-    uName = "".join(random.choice(char_set) for _ in range(n))
+    alphabet = string.ascii_uppercase + string.digits
+    if is_ironpython:
+        import random
+
+        uName = "".join(random.choice(alphabet) for _ in range(n))  # nosec B311
+    else:
+        import secrets
+
+        uName = "".join(secrets.choice(alphabet) for _ in range(n))
+
     unique_name = rootname + "_" + uName
     if suffix:
         unique_name += "_" + suffix
@@ -805,7 +797,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         if function.__name__ == "InvokeAedtObjMethod":
             func_name = args[1]
     except Exception:
-        pass
+        pyaedt_logger.debug("An error occurred while accessing the arguments of a function " "called multiple times.")
     retry = 0
     ret_val = None
     inclusion_list = [
@@ -1415,7 +1407,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                     return_dict[p.pid] = i.laddr.port
                                     break
         except Exception:
-            pass
+            pyaedt_logger.error("An error occurred while retrieving information for the active AEDT sessions")
     return return_dict
 
 
@@ -1903,6 +1895,7 @@ def _arg2dict(arg, dict_out):
         raise ValueError("Incorrect data argument format")
 
 
+# FIXME: Remove usage of random module once IronPython compatibility is removed
 def _uname(name=None):
     """Append a 6-digit hash code to a specified name.
 
@@ -1916,8 +1909,16 @@ def _uname(name=None):
     str
 
     """
-    char_set = string.ascii_uppercase + string.digits
-    unique_name = "".join(random.sample(char_set, 6))
+    alphabet = string.ascii_uppercase + string.digits
+    if is_ironpython:
+        import random
+
+        unique_name = "".join(random.sample(alphabet, 6))  # nosec B311
+    else:
+        import secrets
+
+        generator = secrets.SystemRandom()
+        unique_name = "".join(secrets.SystemRandom.sample(generator, alphabet, 6))
     if name:
         return name + unique_name
     else:
@@ -2001,7 +2002,7 @@ def _check_installed_version(install_path, long_version):
                 if install_version == long_version:
                     return True
         except Exception:
-            pass
+            pyaedt_logger.debug("An error occurred while parsing installation version")
     return False
 
 
@@ -2021,9 +2022,9 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
         Whether to install the package or uninstall the package.
     """
     if is_linux and is_ironpython:
-        import subprocessdotnet as subprocess
+        import subprocessdotnet as subprocess  # nosec B404
     else:
-        import subprocess
+        import subprocess  # nosec B404
     executable = '"{}"'.format(sys.executable) if is_windows else sys.executable
 
     commands = []

@@ -1,0 +1,23 @@
+[Console]
+name = "PyAEDT Console"
+script = "console_setup.py"
+icon = "console.png"
+template = "PyAEDT_Console"
+
+[Jupyter]
+name = "Jupyter Notebook"
+script = "jupyter_template.ipynb"
+icon = "jupyter.png"
+template = "Jupyter"
+
+[Run_Script]
+name = "Run PyAEDT Script"
+script = ""
+icon = "run_script.png"
+template = "Run_PyAEDT_Script"
+
+[ToolkitManager]
+name = "Toolkit Manager"
+script = "toolkit_manager.py"
+icon = "toolkit_manager.png"
+template = "Run_Toolkit_Manager"

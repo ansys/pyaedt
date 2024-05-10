@@ -29,8 +29,7 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0,<0.10; python_version == '3.7'",
-    "pyedb>=0.5.0; python_version > '3.7'",
+    "pyedb>=0.4.0",
     "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
 ]
@@ -49,8 +48,6 @@ tests = [
     "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyedb>=0.4.0,<0.10; python_version == '3.7'",
-    "pyedb>=0.5.0,<0.10; python_version > '3.7'",
     "pyvista>=0.38.0,<0.44",
     "scikit-learn>=1.0.0,<1.5",
     "scikit-rf>=0.30.0,<1.1",
@@ -93,7 +90,6 @@ doc = [
     #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.17",
-    "sphinx-jinja>=2.0,<2.1",
     #"sphinx-notfound-page",
     "sphinx_design>=0.4.0,<0.6",
     #"sphinxcontrib-websupport",
@@ -101,12 +97,12 @@ doc = [
     "utm",
     "vtk==9.2.6",
 ]
-doc-noexamples = [
+doc-no-examples = [
     "ansys-sphinx-theme>=0.10.0,<0.16",
     "imageio>=2.30.0,<2.35",
     #"imageio-ffmpeg",
     "numpydoc>=1.5.0,<1.8",
-    # "recommonmark",
+    "recommonmark",
     "Sphinx==5.3.0; python_version == '3.7'",
     "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
     "sphinx-autobuild==2021.3.14; python_version == '3.7'",
@@ -118,7 +114,6 @@ doc-noexamples = [
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.6",
-    "sphinx-jinja>=2.0,<2.1",
 ]
 all = [
     "imageio>=2.30.0,<2.35",
