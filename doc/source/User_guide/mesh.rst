@@ -16,7 +16,7 @@ All mesh operations are conveniently listed within the mesh object:
     my_mesh_op.update()
 
 
-.. image:: ../Resources/Mesh_Operations.png
+.. image:: ../Resources/Mesh_Operations.webp
   :width: 800
   :alt: Mesh object List
 
