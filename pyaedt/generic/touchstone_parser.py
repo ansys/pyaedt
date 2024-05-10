@@ -526,9 +526,14 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
             cmd.append("-checkpassivity")
         if causality:
             cmd.append("-checkcausality")
+
         cmd.append(sNpFiles[snpf])
-        output_str = str(subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0])
+        my_env = os.environ.copy()
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        output = p.communicate()
+        output_str = str(output[0])
         output_lst = output_str.split("\\r\\n")
+
         if len(output_lst) == 1:
             output_lst = output_str.splitlines()
         for line in output_lst:
