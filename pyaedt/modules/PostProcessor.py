@@ -4710,7 +4710,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, setup, offsets):
-        """Set derivative vaialb
+        """Set derivative variable to a specific offset value.
 
         Parameters
         ----------
