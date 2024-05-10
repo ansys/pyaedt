@@ -2321,7 +2321,7 @@ class SetupHFSS(Setup, object):
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets):
-        """Set derivative vaialb
+        """Set derivative variable to a specific offset value.
 
         Parameters
         ----------
@@ -2948,7 +2948,7 @@ class SetupHFSSAuto(Setup, object):
 
     @pyaedt_function_handler()
     def set_tuning_offset(self, offsets):
-        """Set derivative vaialb
+        """Set derivative variable to a specific offset value.
 
         Parameters
         ----------
