@@ -2537,11 +2537,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:  # pragma: no cover
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:  # pragma: no cover
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
@@ -2719,11 +2720,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         export_options = [
             "NAME:ExportOption",
@@ -2870,11 +2872,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)

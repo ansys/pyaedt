@@ -403,6 +403,8 @@ class CircuitComponents(object):
 
         if not model_name:
             model_name = os.path.splitext(os.path.basename(input_file))[0]
+            if "." in model_name:
+                model_name = model_name.replace(".", "_")
         if model_name in list(self.o_model_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
         num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
