@@ -77,10 +77,12 @@ class SpiSim:
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             command.append("&")
             with open_file(out_processing, "w") as outfile:
-                subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
+                subprocess.Popen(command, shell=True, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
             with open_file(out_processing, "w") as outfile:
-                subprocess.Popen(" ".join(command), env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
+                subprocess.Popen(
+                    " ".join(command), shell=True, env=my_env, stdout=outfile, stderr=outfile
+                ).wait()  # nosec
         return out_processing
 
     @pyaedt_function_handler()
