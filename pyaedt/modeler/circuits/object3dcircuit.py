@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from collections import OrderedDict
 import math
+import time
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
@@ -870,6 +871,36 @@ class CircuitComponent(object):
                 self._oeditor.ChangeProperty(vOut)
             return self._oeditor.ChangeProperty(vOut)
         return False
+
+    @pyaedt_function_handler()
+    def enforce_touchstone_model_passive(self):
+        """Enforce touchstone model passive.
+
+         Returns
+         -------
+         bool
+
+         References
+         ----------
+
+         >>> oModelManager.EditWithComps
+        """
+        props = self.model_data.props
+        passive = OrderedDict([('DCOption', -1), ('InterpOption', 1),
+                               ('ExtrapOption', 3), ('Convolution', 0),
+                               ('Passivity', 6), ('Reciprocal', False),
+                               ('ModelOption', ''), ('DataType', 2)])
+        props["NexximCustomization"] = passive
+        props["ModTime"] = int(time.time())
+        try:
+            arg = []
+            _dict2arg(props, arg)
+            arg.insert(0, "Name:{}".format(self.model_name))
+            self._circuit_components.o_model_manager.EditWithComps(self.model_name, arg, [])
+            return True
+        except Exception:
+            self._circuit_components.logger.warning("Failed to enforce % touchstone model passive ", self.model_name)
+            return False
 
 
 class Wire(object):
