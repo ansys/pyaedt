@@ -876,20 +876,28 @@ class CircuitComponent(object):
     def enforce_touchstone_model_passive(self):
         """Enforce touchstone model passive.
 
-         Returns
-         -------
-         bool
+        Returns
+        -------
+        bool
 
-         References
-         ----------
+        References
+        ----------
 
-         >>> oModelManager.EditWithComps
+        >>> oModelManager.EditWithComps
         """
         props = self.model_data.props
-        passive = OrderedDict([('DCOption', -1), ('InterpOption', 1),
-                               ('ExtrapOption', 3), ('Convolution', 0),
-                               ('Passivity', 6), ('Reciprocal', False),
-                               ('ModelOption', ''), ('DataType', 2)])
+        passive = OrderedDict(
+            [
+                ("DCOption", -1),
+                ("InterpOption", 1),
+                ("ExtrapOption", 3),
+                ("Convolution", 0),
+                ("Passivity", 6),
+                ("Reciprocal", False),
+                ("ModelOption", ""),
+                ("DataType", 2),
+            ]
+        )
         props["NexximCustomization"] = passive
         props["ModTime"] = int(time.time())
         try:
