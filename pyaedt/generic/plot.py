@@ -634,12 +634,12 @@ def plot_contour(
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Color map levels. Default is `64`.
+        Color map levels. The default is ``64``.
     snapshot_path : str, optional
-        Full path to image to save. Default is None.
-    show : Bool, optional
-        Set to ``True`` if the figure should be rendered.
-        Default is ``True``.
+        Full path to save the image save. The default is ``None``.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If
+        ``False``, the image is not drawn.
 
     Returns
     -------
