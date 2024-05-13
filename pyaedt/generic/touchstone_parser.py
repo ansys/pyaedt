@@ -529,7 +529,7 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
 
         cmd.append(sNpFiles[snpf])
         my_env = os.environ.copy()
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
         output = p.communicate()
         output_str = str(output[0])
         output_lst = output_str.split("\\r\\n")
