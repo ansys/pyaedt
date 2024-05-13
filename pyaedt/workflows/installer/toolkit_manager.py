@@ -34,6 +34,7 @@ from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
+import pyaedt.workflows.templates
 
 env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
 if all(var in os.environ for var in env_vars):
@@ -278,7 +279,8 @@ def button_is_clicked(
             else:
                 pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
-
+            if not file:
+                file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "toolkit_template.py")
             if os.path.isfile(executable_interpreter):
                 add_script_to_menu(
                     name=name,
