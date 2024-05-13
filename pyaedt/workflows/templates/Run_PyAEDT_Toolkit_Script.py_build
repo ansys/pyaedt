@@ -24,9 +24,6 @@ script_name = os.path.splitext(os.path.basename(__file__))[0]
 
 if is_linux:
     import subprocessdotnet as subprocess
-else:
-    import subprocess
-
 
 def main():
     try:
@@ -41,6 +38,7 @@ def main():
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
         if version > "2022.2":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+
         if is_linux:
             edt_root = os.path.normpath(oDesktop.GetExeDir())
             os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
@@ -53,24 +51,31 @@ def main():
             ]
             os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv(
                 "LD_LIBRARY_PATH", "")
-            command = [
-                python_exe,
-                pyaedt_script,
-                str(oDesktop.GetProcessID()),
-                str(oDesktop.GetVersion()[:6]),
-            ]
-            my_env = os.environ.copy()
+
+            if version > "2023.1":
+                os.environ["TCL_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5")
+                os.environ["TK_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5")
+                os.environ["TKPATH"] = os.path.join("{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5")
+            else:
+                os.environ["TCL_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5")
+                os.environ["TK_LIBRARY"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
+                os.environ["TKPATH"] = os.path.join("{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5")
+
+            my_env = dict(os.environ.copy())
+            command = [python_exe, pyaedt_script]
             subprocess.Popen(command, env=my_env)
         else:
-            CREATE_NO_WINDOW = 0x08000000
-            command = [
-                '"{}"'.format(python_exe),
-                '"{}"'.format(pyaedt_script),
-                str(oDesktop.GetProcessID()),
-                str(oDesktop.GetVersion()[:6]),
-            ]
-            my_env = os.environ.copy()
-            subprocess.Popen(" ".join(command), env=my_env, creationflags=CREATE_NO_WINDOW)
+            toolkit_name = r"##TOOLKIT_NAME##"
+            runme = "run_pyaedt_toolkit_{0}.cmd".format(toolkit_name)
+            edt_temp = oDesktop.GetTempDirectory()
+            cmd = '"{0}"'.format(pyaedt_script)
+            target = os.path.join(edt_temp, runme)
+            my_env = dict(os.environ.copy())
+            with open(target, 'w') as cmdfile:
+                for env in my_env:
+                    cmdfile.write('SET {0}={1}\n'.format(env, my_env[env]))
+                cmdfile.write('"{0}" {1}\n'.format(python_exe, cmd))
+            oDesktop.RunProgram(runme, edt_temp, edt_temp, "")
     except Exception as e:
         show_error(str(e))
 

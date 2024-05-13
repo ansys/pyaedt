@@ -2537,11 +2537,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:  # pragma: no cover
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:  # pragma: no cover
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
@@ -2719,11 +2720,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         export_options = [
             "NAME:ExportOption",
@@ -2870,11 +2872,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)
@@ -4707,6 +4710,27 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.ray_box = ray_box
         vrt.create()
         return vrt
+
+    @pyaedt_function_handler()
+    def set_tuning_offset(self, setup, offsets):
+        """Set derivative variable to a specific offset value.
+
+        Parameters
+        ----------
+        setup : str
+            Setup name.
+        offsets : dict
+            Dictionary containing the variable name and it's offset value.
+
+        Returns
+        -------
+        bool
+        """
+        setup_obj = self._app.get_setup(setup)
+        if setup_obj and "set_tuning_offset" in dir(setup_obj):
+            return setup_obj.set_tuning_offset(offsets)
+        self.logger.error("Tuning offset applies only to solved setup with derivatives enabled.")
+        return False
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
