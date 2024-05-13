@@ -80,7 +80,7 @@ class SpiSim:
             if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
                 my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
             if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
-                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".LOG")
+                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
             with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
