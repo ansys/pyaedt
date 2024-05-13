@@ -900,15 +900,8 @@ class CircuitComponent(object):
         )
         props["NexximCustomization"] = passive
         props["ModTime"] = int(time.time())
-        try:
-            arg = []
-            _dict2arg(props, arg)
-            arg.insert(0, "Name:{}".format(self.model_name))
-            self._circuit_components.o_model_manager.EditWithComps(self.model_name, arg, [])
-            return True
-        except Exception:
-            self._circuit_components.logger.warning("Failed to enforce % touchstone model passive ", self.model_name)
-            return False
+        self.model_data.props = props
+        self.model_data.update()
 
 
 class Wire(object):
