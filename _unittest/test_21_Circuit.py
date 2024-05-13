@@ -18,7 +18,7 @@ else:
     diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
-touchstone = "SSN_ssn.s6p"
+touchstone = "SSN_1.5_ssn.s6p"
 touchstone_custom = "SSN_custom.s6p"
 touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
@@ -317,7 +317,7 @@ class TestClass:
 
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
-        touch = os.path.join(local_path, "example_models", test_subfolder, "SSN_ssn.s6p")
+        touch = os.path.join(local_path, "example_models", test_subfolder, touchstone)
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
@@ -898,3 +898,18 @@ class TestClass:
             design_name="AMI",
         )
         assert result
+
+    def test_50_enforce_touchstone_passive(self):
+        self.aedtapp.insert_design("Touchstone_passive")
+        self.aedtapp.modeler.schematic_units = "mil"
+        s_parameter_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        assert s_parameter_component.enforce_touchstone_model_passive()
+        nexxim_customization = s_parameter_component.model_data.props["NexximCustomization"]
+        assert -1 == nexxim_customization["DCOption"]
+        assert 1 == nexxim_customization["InterpOption"]
+        assert 3 == nexxim_customization["ExtrapOption"]
+        assert 0 == nexxim_customization["Convolution"]
+        assert 6 == nexxim_customization["Passivity"]
+        assert not nexxim_customization["Reciprocal"]
+        assert "" == nexxim_customization["ModelOption"]
+        assert 2 == nexxim_customization["DataType"]

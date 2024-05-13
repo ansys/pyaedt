@@ -29,8 +29,7 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0,<0.10; python_version == '3.7'",
-    "pyedb>=0.5.0; python_version > '3.7'",
+    "pyedb>=0.4.0",
     "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
 ]
@@ -49,8 +48,6 @@ tests = [
     "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyedb>=0.4.0,<0.10; python_version == '3.7'",
-    "pyedb>=0.5.0,<0.11; python_version > '3.7'",
     "pyvista>=0.38.0,<0.44",
     "scikit-learn>=1.0.0,<1.5",
     "scikit-rf>=0.30.0,<1.1",

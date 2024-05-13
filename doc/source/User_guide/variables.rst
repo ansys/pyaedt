@@ -13,7 +13,7 @@ for the variable name, a project-wide variable is created:
          hfss["$dim"] = "1mm"  # project variable
 
 
-.. image:: ../Resources/aedt_variables.png
+.. image:: ../Resources/aedt_variables.webp
   :width: 800
   :alt: Variable Management
 
@@ -36,7 +36,7 @@ access the ``variable_manager`` object for a more comprehensive set of functions
         '34 * $PrjVar1/$PrjVar2'
 
 
-.. image:: ../Resources/variables_advanced.png
+.. image:: ../Resources/variables_advanced.webp
   :width: 600
   :alt: Variable Management
 
@@ -54,7 +54,7 @@ optimetrics setups by allowing you to read existing configurations, make edits, 
     m3d.parametrics.add("Rload", 0.1, 1, 0.1)
 
 
-.. image:: ../Resources/Optimetrics_Parametric.png
+.. image:: ../Resources/Optimetrics_Parametric.webp
   :width: 800
   :alt: Optimetrics creation
 

@@ -215,7 +215,7 @@ class Modeler3D(Primitives3D):
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
-            if not native_components and native_objs:
+            if not native_components and native_objs and not auxiliary_dict:
                 self.logger.warning(
                     "Native component objects cannot be exported. Use native_components argument to"
                     " export an auxiliary dictionary file containing 3D components information"
@@ -947,13 +947,13 @@ class Modeler3D(Primitives3D):
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[24:32].strip()
-                    if "-" in n1[1:]:
+                    if "-" in n1[1:] and "e" not in n1[1:].lower():
                         n1 = n1[0] + n1[1:].replace("-", "e-")
                     n2 = line[32:40].strip()
-                    if "-" in n2[1:]:
+                    if "-" in n2[1:] and "e" not in n2[1:].lower():
                         n2 = n2[0] + n2[1:].replace("-", "e-")
                     n3 = line[40:48].strip()
-                    if "-" in n3[1:]:
+                    if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID":
                         nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
@@ -970,20 +970,23 @@ class Modeler3D(Primitives3D):
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
                     n1 = line[40:56].strip()
-                    if "-" in n1[1:]:
+                    if "-" in n1[1:] and "e" not in n1[1:].lower():
                         n1 = n1[0] + n1[1:].replace("-", "e-")
                     n2 = line[56:72].strip()
-                    if "-" in n2[1:]:
+                    if "-" in n2[1:] and "e" not in n2[1:].lower():
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
                     if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
-                    if "-" in n3[1:]:
+                    if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
-                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        try:
+                            nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                        except Exception:  # nosec
+                            continue
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
                     else:
@@ -1050,7 +1053,7 @@ class Modeler3D(Primitives3D):
 
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
-        if nas_to_dict["Triangles"]:
+        if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
@@ -1069,7 +1072,10 @@ class Modeler3D(Primitives3D):
                     _write_solid_stl(triangle, nas_to_dict)
                 f.write("endsolid\n")
             f.close()
-            self.logger.info("STL file created")
+            self.logger.info_timer("STL file created")
+            self._app.odesktop.CloseAllWindows()
+            self.logger.reset_timer()
+            self.logger.info("Importing STL in 3D Modeler")
             self.import_3d_cad(
                 os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"),
                 create_lightweigth_part=import_as_light_weight,
@@ -1080,7 +1086,7 @@ class Modeler3D(Primitives3D):
             for el in nas_to_dict["Triangles"].keys():
                 obj_names = [i for i in self.object_names if i.startswith("Sheet_{}".format(el))]
                 self.create_group(obj_names, group_name=str(el))
-            self.logger.info_timer("Faces imported")
+            self.logger.info_timer("Model imported")
 
         if import_lines:
             for line_name, lines in nas_to_dict["Lines"].items():
@@ -1114,6 +1120,7 @@ class Modeler3D(Primitives3D):
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]
+        self._app.oproject.SetActiveDesign(self._app.design_name)
         return new_objects
 
     @pyaedt_function_handler()

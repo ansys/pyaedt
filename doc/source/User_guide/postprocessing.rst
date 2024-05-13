@@ -15,7 +15,7 @@ To use PyAEDT to create a report in AEDT, you can follow this general structure:
     hfss.post.create_report(["db(S11)", "db(S12)"])
 
 
-.. image:: ../Resources/sparams.jpg
+.. image:: ../Resources/sparams.webp
   :width: 800
   :alt: AEDT report
 
@@ -34,7 +34,7 @@ You can also generate reports in Matplotlib:
     plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 
 
-.. image:: ../Resources/sparams_w_matplotlib.jpg
+.. image:: ../Resources/sparams_w_matplotlib.webp
   :width: 800
   :alt: S-Parameters report created with Matplotlib
 
@@ -97,7 +97,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
         )
 
 
-.. image:: ../Resources/pyvista_plot.jpg
+.. image:: ../Resources/pyvista_plot.webp
   :width: 800
   :alt: Postprocessing features
 

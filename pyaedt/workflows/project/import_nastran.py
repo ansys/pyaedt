@@ -20,11 +20,11 @@ def browseFiles():
 
 nas_input = browseFiles()
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = os.environ["PYAEDT_SCRIPT_PORT"]
+    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
 else:
     port = 0
-    version = "2024.2"
+    version = "2024.1"
 if os.path.exists(nas_input):
     with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
         proj = d.active_project()
