@@ -980,7 +980,7 @@ class IbisReader(object):
 
                     pin = self.make_diff_pin_object(pin_info, component, ibis)
                     component.pins[pin.name] = pin
-            except Exception as error:
+            except Exception as error:  # pragma: no cover
                 logger.warning("Cannot find Diff Pin. Ignore it. Exception message: {}".format(error))
             ibis.components[component.name] = component
 
