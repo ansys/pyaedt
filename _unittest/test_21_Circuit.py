@@ -911,5 +911,5 @@ class TestClass:
         assert 0 == nexxim_customization["Convolution"]
         assert 6 == nexxim_customization["Passivity"]
         assert False == nexxim_customization["Reciprocal"]
-        assert '' == nexxim_customization["ModelOption"]
+        assert "" == nexxim_customization["ModelOption"]
         assert 2 == nexxim_customization["DataType"]
