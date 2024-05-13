@@ -59,10 +59,7 @@ class SpiSim:
         if touchstone_file != "":
             cfgCmmd = cfgCmmd + '-i "%s"' % touchstone_file
         if config_file != "":
-            if is_linux:
-                cfgCmmd = "-v CFGFILE=%s" % config_file
-            else:
-                cfgCmmd = '-v CFGFILE="%s"' % config_file
+            cfgCmmd = '-v, CFGFILE="%s"' % config_file
         if out_file:
             cfgCmmd += ', -o "%s"' % out_file
         command = [spisimExe, parameter, cfgCmmd]
