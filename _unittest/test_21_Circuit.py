@@ -899,7 +899,7 @@ class TestClass:
         )
         assert result
 
-    def test_49_enforce_touchstone_passive(self):
+    def test_50_enforce_touchstone_passive(self):
         self.aedtapp.insert_design("Touchstone_passive")
         self.aedtapp.modeler.schematic_units = "mil"
         s_parameter_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
