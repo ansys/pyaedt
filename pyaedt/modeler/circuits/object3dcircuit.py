@@ -901,7 +901,7 @@ class CircuitComponent(object):
         props["NexximCustomization"] = passive
         props["ModTime"] = int(time.time())
         self.model_data.props = props
-        self.model_data.update()
+        return self.model_data.update()
 
 
 class Wire(object):

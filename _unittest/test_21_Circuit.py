@@ -903,7 +903,7 @@ class TestClass:
         self.aedtapp.insert_design("Touchstone_passive")
         self.aedtapp.modeler.schematic_units = "mil"
         s_parameter_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
-        s_parameter_component.enforce_touchstone_model_passive()
+        assert s_parameter_component.enforce_touchstone_model_passive()
         nexxim_customization = s_parameter_component.model_data.props["NexximCustomization"]
         assert -1 == nexxim_customization["DCOption"]
         assert 1 == nexxim_customization["InterpOption"]
