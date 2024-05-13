@@ -40,7 +40,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 version = __version__
 
 #
