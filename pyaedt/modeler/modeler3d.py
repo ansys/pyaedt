@@ -985,7 +985,7 @@ class Modeler3D(Primitives3D):
                     if line_type == "GRID*":
                         try:
                             nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
-                        except Exception:
+                        except Exception:  # nosec
                             continue
                         nas_to_dict["PointsId"][grid_id] = id
                         id += 1
