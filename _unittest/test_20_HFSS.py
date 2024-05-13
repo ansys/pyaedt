@@ -213,7 +213,7 @@ class TestClass:
         assert self.aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401)
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            unit="GHz",
+            units="GHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
@@ -221,7 +221,7 @@ class TestClass:
         )
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            unit="MHz",
+            units="MHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
@@ -229,7 +229,7 @@ class TestClass:
         )
         assert self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            unit="MHz",
+            units="MHz",
             start_frequency=1.1e3,
             stop_frequency=1200.1,
             num_of_freq_points=1234,
@@ -241,7 +241,7 @@ class TestClass:
         units = "MHz"
         sweep = self.aedtapp.create_linear_count_sweep(
             setup="MySetup",
-            unit="MHz",
+            units="MHz",
             start_frequency=freq_start,
             stop_frequency=freq_stop,
             num_of_freq_points=num_points,
@@ -255,7 +255,7 @@ class TestClass:
         with pytest.raises(AttributeError) as execinfo:
             self.aedtapp.create_linear_count_sweep(
                 setup="MySetup",
-                unit="MHz",
+                units="MHz",
                 start_frequency=1.1e3,
                 stop_frequency=1200.1,
                 num_of_freq_points=1234,
@@ -269,15 +269,17 @@ class TestClass:
         self.aedtapp["der_var2"] = "2mm"
         setup2 = self.aedtapp.create_setup("MySetup_2", setup_type=0)
         assert setup2.add_derivatives("der_var")
+        assert not setup2.set_tuning_offset({"der_var": 0.05})
         assert "der_var" in setup2.get_derivative_variables()
         assert setup2.add_derivatives("der_var2")
         assert "der_var2" in setup2.get_derivative_variables()
         assert "der_var" in setup2.get_derivative_variables()
         setup2.delete()
-        setup3 = self.aedtapp.create_setup("MySetup_3", setup_type=0)
+        setup3 = self.aedtapp.create_setup("MySetup_3", setup_type=1)
         assert setup3.add_derivatives("der_var")
         assert "der_var" in setup3.get_derivative_variables()
         assert setup3.add_derivatives("der_var2")
+        assert not self.aedtapp.post.set_tuning_offset(setup3.name, {"der_var": 0.05})
         assert "der_var2" in setup3.get_derivative_variables()
         assert "der_var" in setup3.get_derivative_variables()
         setup3.delete()
