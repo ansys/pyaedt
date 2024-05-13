@@ -18,7 +18,7 @@ else:
     diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
-touchstone = "SSN_ssn.s6p"
+touchstone = "SSN_1.5_ssn.s6p"
 touchstone_custom = "SSN_custom.s6p"
 touchstone2 = "Galileo_V3P3S0.ts"
 ami_project = "AMI_Example"
@@ -317,7 +317,7 @@ class TestClass:
 
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
-        touch = os.path.join(local_path, "example_models", test_subfolder, "SSN_ssn.s6p")
+        touch = os.path.join(local_path, "example_models", test_subfolder, touchstone)
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
