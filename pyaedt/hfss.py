@@ -5237,13 +5237,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
-        """Add or edit a 3D component array from a JSON file, TOML file or dict.
+        """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
         ----------
         input_data : str, dict
-            Full path to either the JSON file, TOML file or the dictionary
+            Full path to either the JSON file, TOML file, or the dictionary
             containing the array information.
         name : str, optional
              Name of the boundary to add or edit.
@@ -5420,8 +5420,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         overwrite=True,
         link_to_hfss=True,
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return an
-        instance of
+        """Export the antenna parameters to Far Field Data (FFD) files and return an
+        instance of the
         ``FfdSolutionDataExporter`` object.
 
         For phased array cases, only one phased array is calculated.
@@ -5440,11 +5440,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
-            If this is set to ``False`` then return an instance of
-            :class:`pyaedt.modules.solutions.FfdSolutionData` which is independent from the
-            running HFSS instance. The default is ``True`` which returns an instance of
-            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` which requires a connection
-            to an instance of the :class:`Hfss`` class.
+            Whether to return an instance of the
+            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
+            independent from the running HFSS instance.
 
         Returns
         -------

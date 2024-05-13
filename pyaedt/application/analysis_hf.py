@@ -368,25 +368,25 @@ def phase_expression(m, n, theta_name="theta_scan", phi_name="phi_scan"):
     Parameters
     ----------
     m : int, required
-        Index of the rectangular antenna array element in the x-direction.
+        Index of the rectangular antenna array element in the x direction.
     n : int, required
-        Index of the rectangular antenna array element in the y-direction.
+        Index of the rectangular antenna array element in the y direction.
     theta_name : str, optional
-        Post-processing variable name in HFSS that is used for the
-        theta component of the phase angle expression. Default is ``"theta_scan"``.
+        Postprocessing variable name in HFSS to use for the
+        theta component of the phase angle expression. The default is ``"theta_scan"``.
     phi_name : str, optional
-        Post-processing variable name in HFSS to be used to generate
-        the phi component of the phase angle expression. Default is ``"phi_scan"``
+        Postprocessing variable name in HFSS to use to generate
+        the phi component of the phase angle expression. The default is ``"phi_scan"``
 
     Returns
     -------
     str
-        The phase angle expression for the (m,n) source of
+        Phase angle expression for the (m,n) source of
         the (m,n) antenna array element.
 
     """
-    # px is the term for the phase variation in the x-direction
-    # py is the term for the phase variation in the y-direction.
+    # px is the term for the phase variation in the x direction.
+    # py is the term for the phase variation in the y direction.
 
     if n > 0:
         add_char = " + "

@@ -51,7 +51,7 @@ if not is_ironpython:
             "Install with \n\npip install matplotlib\n\nRequires CPython."
         )
     except Exception:
-        warnings.warn("Unknown error while attempting to import matplotlib.")
+        warnings.warn("Unknown error occurred while attempting to import Matplotlib.")
 
 
 # Override default settings for matplotlib
@@ -322,7 +322,7 @@ def _parse_streamline(filepath):
 def plot_polar_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
-    """Create a matplotlib polar plot based on a list of data.
+    """Create a Matplotlib polar plot based on a list of data.
 
     Parameters
     ----------
@@ -338,17 +338,17 @@ def plot_polar_chart(
     ylabel : str
         Plot Y label.
     title : str
-        Plot Title label.
+        Plot title label.
     snapshot_path : str
-        Full path to image file if a snapshot is needed.
-    show : Bool
-        Set to ``True`` if the figure should be rendered. Default is ``True``, otherwise
+        Full path to the image file if a snapshot is needed.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
         figure is not drawn.
 
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
-        Matplotlib fig object.
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -386,7 +386,7 @@ def plot_polar_chart(
 @pyaedt_function_handler()
 @update_plot_settings
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib 3D plot based on a list of data.
+    """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
     ----------
@@ -407,7 +407,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
-        Matplotlib fig object.
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -440,7 +440,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 @pyaedt_function_handler()
 @update_plot_settings
 def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib plot based on a list of data.
+    """Create a Matplotlib plot based on a list of data.
     Parameters
     ----------
     plot_data : list of list
@@ -463,7 +463,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
-        Matplotlib fig object.
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -615,7 +615,7 @@ def plot_matplotlib(
 def plot_contour(
     qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None, show=True
 ):
-    """Create a matplotlib contour plot.
+    """Create a Matplotlib contour plot.
 
     Parameters
     ----------
@@ -644,7 +644,7 @@ def plot_contour(
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
-        Matplotlib fig object.
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)

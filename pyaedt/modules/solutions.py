@@ -1091,21 +1091,21 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Antenna array far-field data class.
+    """Provides antenna array far-field data.
 
-    Read embedded element patterns generated in HFSS and provide the Python interface
+    Read embedded element patterns generated in HFSS and return the Python interface
     to plot and analyze the array far-field data.
 
     Parameters
     ----------
     eep_files : list or str
         List of embedded element pattern files for each frequency.
-        If data is only provided for a single frequency, then a string may be passed
-        instead of a 1-element list.
+        If data is only provided for a single frequency, then a string can be passed
+        instead of a one-element list.
     frequencies : list, str, int, or float
         List of frequencies.
-        If data is only available for a single frequency, then a float or int may be passed
-        instead of a 1-element list.
+        If data is only available for a single frequency, then a float or integer may be passed
+        instead of a one-element list.
 
     Examples
     --------
@@ -1556,7 +1556,7 @@ class FfdSolutionData(object):
         theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
         size : tuple, optional
-            Image size in pixel (width, height). Default is ``None`` in which case resolution
+            Image size in pixel (width, height). The default is ``None``, in which case resolution
             is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
@@ -1573,10 +1573,10 @@ class FfdSolutionData(object):
             instance of the plot is shown.
         polar : bool, optional
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
-            will be rectangular.
+            generated is rectangular.
         max_theta : float or int, optional
-            Maxmum theta angle for plotting. The default is ``180`` which plots the far-field for
-            all angles. Setting ``max_theta`` to 90 will limit the displayed data to the upper
+            Maxmum theta angle for plotting. The default is ``180``, which plots the far-field data for
+            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
         Returns
@@ -2467,16 +2467,16 @@ class FfdSolutionData(object):
 class FfdSolutionDataExporter(FfdSolutionData):
     """Class to enable export of embedded element pattern data from HFSS.
 
-    An instance of this class is returned from the method
-    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data`. This method allows creation of
+    An instance of this class is returned from the
+    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
     the embedded
-    element pattern (eep) files for an antenna array that has been solved in HFSS. The
+    element pattern (EEP) files for an antenna array that have been solved in HFSS. The
     ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
-    instantiate an instance of :class:`pyaedt.modules.solutions.FfdSolutionData` for
-    subsequent analysis and post-processing of the array data.
+    instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
+    subsequent analysis and postprocessing of the array data.
 
-    Note that this class is derived from :class:`FfdSolutionData` and can be used directly for
-    far-field postprocessing and array analysis, but remains a property of the
+    Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
+    far-field postprocessing and array analysis, but it remains a property of the
     :class:`pyaedt.Hfss` application.
 
     Parameters
