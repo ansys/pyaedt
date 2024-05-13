@@ -974,11 +974,14 @@ class IbisReader(object):
                 pin = self.make_pin_object(pin_info, component.name, ibis)
                 component.pins[pin.name] = pin
 
-            diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
-            for pin_info in diff_pin_list:
+            try:
+                diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
+                for pin_info in diff_pin_list:
 
-                pin = self.make_diff_pin_object(pin_info, component, ibis)
-                component.pins[pin.name] = pin
+                    pin = self.make_diff_pin_object(pin_info, component, ibis)
+                    component.pins[pin.name] = pin
+            except Exception as error:
+                logger.warning("Cannot find Diff Pin. Ignore it. Exception message: {}".format(error))
             ibis.components[component.name] = component
 
     @classmethod
