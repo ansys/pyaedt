@@ -38,7 +38,7 @@ def main():
         version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
         if version > "2023.1":
-            os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())\
+            os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         else:
             os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
 
