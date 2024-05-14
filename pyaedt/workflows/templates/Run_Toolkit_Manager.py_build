@@ -45,7 +45,7 @@ def main():
             os.environ["PYAEDT_STUDENT_VERSION"] = "True"
         else:
             os.environ["PYAEDT_STUDENT_VERSION"] = "False"
-        if version > "2023.1":
+        if version > "231":
             os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
         if is_linux:
 
