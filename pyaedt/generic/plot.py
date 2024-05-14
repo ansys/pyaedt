@@ -38,13 +38,37 @@ if not is_ironpython:
         from matplotlib.path import Path
         import matplotlib.pyplot as plt
 
+        rc_params = {
+            "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
+            "axes.labelsize": 20,  # Apply the settings only in this module.
+            "xtick.labelsize": 18,
+            "ytick.labelsize": 18,
+        }
+
     except ImportError:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install matplotlib\n\nRequires CPython."
         )
     except Exception:
-        pass
+        warnings.warn("Unknown error occurred while attempting to import Matplotlib.")
+
+
+# Override default settings for matplotlib
+def update_plot_settings(func, *args, **kwargs):
+    if callable(func):
+
+        def wrapper(*args, **kwargs):
+            default_rc_params = plt.rcParams.copy()
+            plt.rcParams.update(rc_params)  # Apply new settings.
+            out = func(*args, **kwargs)
+            plt.rcParams.update(default_rc_params)
+            return out
+
+    else:
+        wrapper = None
+        raise TypeError("First argument must be callable.")
+    return wrapper
 
 
 @pyaedt_function_handler()
@@ -100,6 +124,7 @@ def is_float(istring):
     try:
         return float(istring.strip())
     except Exception:
+        warnings.warn("Unable to convert '" + istring.strip() + "' to a float.")
         return 0
 
 
@@ -293,10 +318,11 @@ def _parse_streamline(filepath):
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_polar_chart(
-    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
-    """Create a matplotlib polar plot based on a list of data.
+    """Create a Matplotlib polar plot based on a list of data.
 
     Parameters
     ----------
@@ -312,9 +338,17 @@ def plot_polar_chart(
     ylabel : str
         Plot Y label.
     title : str
-        Plot Title label.
+        Plot title label.
     snapshot_path : str
-        Full path to image file if a snapshot is needed.
+        Full path to the image file if a snapshot is needed.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
+
+    Returns
+    -------
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -344,14 +378,15 @@ def plot_polar_chart(
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show:
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib 3D plot based on a list of data.
+    """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
     ----------
@@ -371,8 +406,8 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -403,9 +438,9 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib plot based on a list of data.
-
+    """Create a Matplotlib plot based on a list of data.
     Parameters
     ----------
     plot_data : list of list
@@ -427,8 +462,8 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -460,6 +495,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_matplotlib(
     plot_data,
     size=(2000, 1000),
@@ -511,8 +547,8 @@ def plot_matplotlib(
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib Figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -569,14 +605,17 @@ def plot_matplotlib(
 
     if snapshot_path:
         plt.savefig(snapshot_path)
-    elif show:
+    if show:
         plt.show()
-    return plt
+    return fig
 
 
 @pyaedt_function_handler()
-def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
-    """Create a matplotlib contour plot.
+@update_plot_settings
+def plot_contour(
+    qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None, show=True
+):
+    """Create a Matplotlib contour plot.
 
     Parameters
     ----------
@@ -595,14 +634,17 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Color map levels. Default is `64`.
+        Color map levels. The default is ``64``.
     snapshot_path : str, optional
-        Full path to image to save. Default is None.
+        Full path to save the image save. The default is ``None``.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If
+        ``False``, the image is not drawn.
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -625,9 +667,9 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     plt.colorbar()
     if snapshot_path:
         plt.savefig(snapshot_path)
-    else:
+    if show:
         plt.show()
-    return plt
+    return fig
 
 
 class ObjClass(object):
