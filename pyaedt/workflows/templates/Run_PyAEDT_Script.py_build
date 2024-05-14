@@ -52,6 +52,8 @@ def main():
             os.environ["PYAEDT_SCRIPT_VERSION"] = version
             if version > "2023.1":
                 os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+            else:
+                os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
             if is_linux:
                 edt_root = os.path.normpath(oDesktop.GetExeDir())
                 os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root

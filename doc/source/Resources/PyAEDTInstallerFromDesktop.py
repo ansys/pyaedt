@@ -76,10 +76,8 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Create PyAEDT symbolic link in PersonalLib
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
-    if os.path.exists(pers1) and os.path.islink(pers1):
-        os.unlink(pers1)
-        if os.path.exists(pers1):
-            shutil.rmtree(pers1, ignore_errors=True)
+    if os.path.exists(pers1):
+        shutil.rmtree(pers1, ignore_errors=True)
 
     if is_windows:
         command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)

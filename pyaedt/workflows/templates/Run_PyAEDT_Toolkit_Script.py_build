@@ -25,6 +25,7 @@ script_name = os.path.splitext(os.path.basename(__file__))[0]
 if is_linux:
     import subprocessdotnet as subprocess
 
+
 def main():
     try:
         oDesktop.AddMessage("", "", 0, "Toolkit launched. Please wait.")
@@ -37,7 +38,9 @@ def main():
         version = str(oDesktop.GetVersion()[:6])
         os.environ["PYAEDT_SCRIPT_VERSION"] = version
         if version > "2023.1":
-            os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+            os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())\
+        else:
+            os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
 
         if is_linux:
             edt_root = os.path.normpath(oDesktop.GetExeDir())
