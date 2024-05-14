@@ -27,6 +27,8 @@ import os
 import pyaedt
 from pyaedt import get_pyaedt_app
 
+aedt_process_id = None
+
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
@@ -34,7 +36,10 @@ else:
     port = 0
     version = "2024.1"
 
-app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
+if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+
+app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
 
 active_project = app.odesktop.GetActiveProject()
 active_design = active_project.GetActiveDesign()

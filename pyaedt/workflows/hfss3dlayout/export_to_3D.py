@@ -64,6 +64,8 @@ mainloop()
 
 suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
+aedt_process_id = None
+
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
@@ -71,7 +73,16 @@ else:
     port = 0
     version = "2024.1"
 
-with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
+if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+
+with Desktop(
+    new_desktop_session=False,
+    close_on_exit=False,
+    specified_version=version,
+    port=port,
+    aedt_process_id=aedt_process_id,
+) as d:
     proj = d.active_project()
     des = d.active_design()
     projname = proj.GetName()
