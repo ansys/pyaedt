@@ -374,10 +374,7 @@ def add_script_to_menu(
                 build_file_data = build_file_data.replace(" % version", "")
             out_file.write(build_file_data)
 
-    if aedt_version >= "2023.2":
-        add_automation_tab(
-            name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest, panel=panel
-        )
+    add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest, panel=panel)
     logger.info("{} installed".format(name))
     return True
 
