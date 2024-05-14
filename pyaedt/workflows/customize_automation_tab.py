@@ -476,12 +476,16 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+        venv_dir = os.path.join(
+            os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
+        )
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         package_dir = os.path.join(venv_dir, "Lib")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+        venv_dir = os.path.join(
+            os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
+        )
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         package_dir = os.path.join(venv_dir, "lib")

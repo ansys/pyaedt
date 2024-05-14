@@ -46,15 +46,26 @@ else:
     port = 0
     student_version = False
 
+# Set Python version based on AEDT version
+python_version = "3.10" if version > "231" else "3.7"
+
 if is_windows:
-    venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+    venv_dir = os.path.join(
+        os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
+    )
     python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
+    pyaedt_venv_dir = os.path.join(
+        os.environ["APPDATA"], "pyaedt_env_ide", "{}".format(python_version.replace(".", "_"))
+    )
 
 else:
-    venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+    venv_dir = os.path.join(
+        os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
+    )
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
+    pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "{}".format(python_version.replace(".", "_")))
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -274,10 +285,8 @@ def button_is_clicked(
         if install_action:
             desktop.logger.info("Install {}".format(name))
             if is_windows:
-                pyaedt_venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "Scripts", "python.exe")
             else:
-                pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if not file:
                 file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "toolkit_template.py")
