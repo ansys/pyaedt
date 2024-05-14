@@ -36,22 +36,22 @@ freq_curve_csv_400kHz = downloads.download_file("core_loss_transformer", "mf3_40
 freq_curve_csv_700kHz = downloads.download_file("core_loss_transformer", "mf3_700kHz.csv", temp_folder)
 freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer", "mf3_1MHz.csv", temp_folder)
 
-data = read_csv_pandas(filename=freq_curve_csv_25kHz)
+data = read_csv_pandas(file_name=freq_curve_csv_25kHz)
 curves_csv_25kHz = list(zip(data[data.columns[0]],
                             data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_100kHz)
+data = read_csv_pandas(file_name=freq_curve_csv_100kHz)
 curves_csv_100kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_200kHz)
+data = read_csv_pandas(file_name=freq_curve_csv_200kHz)
 curves_csv_200kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_400kHz)
+data = read_csv_pandas(file_name=freq_curve_csv_400kHz)
 curves_csv_400kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_700kHz)
+data = read_csv_pandas(file_name=freq_curve_csv_700kHz)
 curves_csv_700kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_1MHz)
+data = read_csv_pandas(file_name=freq_curve_csv_1MHz)
 curves_csv_1MHz = list(zip(data[data.columns[0]],
                            data[data.columns[1]]))
 

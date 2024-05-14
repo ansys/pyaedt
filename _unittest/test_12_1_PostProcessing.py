@@ -457,7 +457,7 @@ class TestClass:
         symbols = new_report.traces[0].SYMBOLSTYLE
 
         assert new_report.traces[0].set_trace_properties(
-            trace_style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+            style=style.Dot, width=5, type=trace.Digital, color=(0, 255, 0)
         )
         assert new_report.traces[0].set_symbol_properties(
             show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)

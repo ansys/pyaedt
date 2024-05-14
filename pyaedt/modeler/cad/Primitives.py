@@ -8657,7 +8657,7 @@ class PrimitivesBuilder(object):
 
                 from pyaedt.generic.general_methods import read_csv_pandas
 
-                csv_data = read_csv_pandas(filename=input_file)
+                csv_data = read_csv_pandas(file_name=input_file)
                 primitive_type = csv_data.columns[0]
                 primitive_type_cleaned = re.sub(r"^#\s*", "", primitive_type)
 

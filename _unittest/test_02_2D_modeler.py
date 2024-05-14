@@ -135,12 +135,12 @@ class TestClass:
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
         assert ellipse2.solve_inside
         assert ellipse2.model
         assert ellipse2.material_name == "copper"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])

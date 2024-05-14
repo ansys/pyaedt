@@ -369,7 +369,7 @@ for i in range(len(dataset)):
     data[i].insert(0, header[1])
     ziplist = zip(line_length, data[i])
     file_path = os.path.join(temp_dir.name, str(dataset[i]) + ".csv")
-    write_csv(output=file_path, list_data=ziplist)
+    write_csv(output_file=file_path, list_data=ziplist)
 
 ################################################################################
 # Create rectangular plots and import test data into report

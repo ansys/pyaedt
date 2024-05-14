@@ -92,7 +92,7 @@ hfss.wave_port(via_outer.bottom_face_z, name="P1")
 # Multiple options are available to partially select objects, cs, boundaries and mesh operations.
 # Furthermore, encrypted 3d comp can be created too.
 
-component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test")+".aedbcomp")
+component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test") + ".aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
 ##########################################################
@@ -170,5 +170,5 @@ hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.j
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized")+".aedt"))
+hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized") + ".aedt"))
 hfss2.release_desktop()

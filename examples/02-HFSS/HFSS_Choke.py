@@ -12,7 +12,8 @@ import json
 import os
 import pyaedt
 
-project_name = pyaedt.generate_unique_project_name(rootname=r"C:\Data\Support\Test", folder_name="choke", project_name="choke")
+project_name = pyaedt.generate_unique_project_name(root_name=r"C:\Data\Support\Test", folder_name="choke",
+                                                   project_name="choke")
 
 ##########################################################
 # Set AEDT version
