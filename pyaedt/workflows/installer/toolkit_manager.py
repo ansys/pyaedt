@@ -46,6 +46,10 @@ else:
     port = 0
     student_version = False
 
+aedt_process_id = None
+if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+
 # Set Python version based on AEDT version
 python_version = "3.10" if version > "231" else "3.7"
 
@@ -245,6 +249,7 @@ def button_is_clicked(
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
+        aedt_process_id=aedt_process_id,
     )
 
     desktop.odesktop.CloseAllWindows()
