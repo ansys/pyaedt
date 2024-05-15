@@ -257,8 +257,8 @@ class Trace(object):
         )
         return True
 
-    @pyaedt_function_handler(trace_style="style", trace_type="type")
-    def set_trace_properties(self, style=None, width=None, type=None, color=None):
+    @pyaedt_function_handler(trace_style="style")
+    def set_trace_properties(self, style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
         Parameters
@@ -268,7 +268,7 @@ class Trace(object):
             the ``LINESTYLE`` property.
         width : int, optional
             Width of the trace line. The default is ``None``.
-        type : str
+        trace_type : str
             Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
             property.
         color : tuple, list
@@ -285,8 +285,8 @@ class Trace(object):
             props.append(["NAME:Line Style", "Value:=", style])
         if width and isinstance(width, (int, float, str)):
             props.append(["NAME:Line Width", "Value:=", str(width)])
-        if type:
-            props.append(["NAME:Trace Type", "Value:=", type])
+        if trace_type:
+            props.append(["NAME:Trace Type", "Value:=", trace_type])
         if color and isinstance(color, (list, tuple)) and len(color) == 3:
             props.append(["NAME:Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
         return self._change_property(props)
@@ -523,7 +523,9 @@ class CommonReport(object):
                 symbol_arrows = _props_with_default(trace_val, "show_arrows", None)
                 symbol_fill = _props_with_default(trace_val, "symbol_fill", False)
                 symbol_color = _props_with_default(trace_val, "symbol_color", None)
-                trace.set_trace_properties(style=trace_style, width=trace_width, type=trace_type, color=trace_color)
+                trace.set_trace_properties(
+                    style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                )
                 if self.report_category in ["Eye Diagram", "Spectrum"]:
                     continue
                 trace.set_symbol_properties(
