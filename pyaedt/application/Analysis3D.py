@@ -1003,25 +1003,28 @@ class FieldAnalysis3D(Analysis, object):
         return Stackup3D(self)
 
     @pyaedt_function_handler(component_name="components")
-    def flatten_3d_components(self, components=None, purge_history=True, password=""):
+    def flatten_3d_components(self, components=None, purge_history=True, password=None):
         """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
         This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
         ----------
         components : str, list, optional
-            List of user defined components. Default is `None` for all 3d Components.
+            List of user defined components. The Default is ``None`` for all 3d Components.
         purge_history : bool, optional
             Define if the 3D Component will be purged before copied.
             This is needed when more than 1 component with the same definition is present.
         password : str, optional
             Password for encrypted 3d component.
+            The Default is ``None``.
 
         Returns
         -------
         bool
             `True` if succeeded.
         """
+        if not password:
+            password = ""
         native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
         if not components:
             components = [
