@@ -133,11 +133,12 @@ def FilterSolutions(
 ):
 
     from pyaedt.filtersolutions import FilterSolutions as app
-    return app(
-    projectname=projectname,
-    implementation_type=implementation_type,
 
+    return app(
+        projectname=projectname,
+        implementation_type=implementation_type,
     )
+
 
 def Hfss(
     projectname=None,

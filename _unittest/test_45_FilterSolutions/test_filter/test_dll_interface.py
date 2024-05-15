@@ -1,7 +1,7 @@
 import fspy
-import pytest
 from fspy.filter_design import FilterType
 from fspy.ideal_design import IdealDesign
+import pytest
 
 
 def test_string_to_enum():

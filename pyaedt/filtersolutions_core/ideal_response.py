@@ -1,4 +1,3 @@
-import math
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_bool
@@ -6,6 +5,7 @@ from ctypes import c_char_p
 from ctypes import c_double
 from ctypes import c_int
 from enum import Enum
+import math
 
 import pyaedt.filtersolutions_core as fspy
 from pyaedt.filtersolutions_core.graph_setup import GraphSetup

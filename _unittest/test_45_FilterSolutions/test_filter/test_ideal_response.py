@@ -1,11 +1,11 @@
 from resource import resource_path
 
-import pytest
 from fspy.ideal_design import IdealDesign
 from fspy.ideal_response import FrequencyResponseColumn
 from fspy.ideal_response import PoleZerosResponseColumn
 from fspy.ideal_response import SParametersResponseColumn
 from fspy.ideal_response import TimeResponseColumn
+import pytest
 
 
 def test_frequency_response_getter():

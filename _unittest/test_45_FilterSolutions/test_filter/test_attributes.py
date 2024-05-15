@@ -1,4 +1,3 @@
-import pytest
 from fspy.attributes import BesselRipplePercentage
 from fspy.attributes import GaussianBesselReflection
 from fspy.attributes import GaussianTransition
@@ -9,6 +8,7 @@ from fspy.attributes import StopbandDefinition
 from fspy.filter_design import FilterClass
 from fspy.filter_design import FilterType
 from fspy.ideal_design import IdealDesign
+import pytest
 
 
 def test_order():

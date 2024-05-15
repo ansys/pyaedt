@@ -1,14 +1,7 @@
-import sys
-import pyaedt
-import pyaedt.filtersolutions_core
 from pyaedt.filtersolutions_core.attributes import Attributes
-from pyaedt.filtersolutions_core.attributes import FilterClass
-from pyaedt.filtersolutions_core.attributes import FilterType
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
-from pyaedt.filtersolutions_core.multiple_bands_table import MultipleBandsTable
-from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn 
-from pyaedt.filtersolutions_core.ideal_response import IdealResponse 
-from pyaedt.filtersolutions_core.graph_setup import GraphSetup 
+from pyaedt.filtersolutions_core.graph_setup import GraphSetup
+from pyaedt.filtersolutions_core.ideal_response import IdealResponse
 from pyaedt.filtersolutions_core.lumped_nodes_and_leads import LumpedNodesandLeads
 from pyaedt.filtersolutions_core.lumped_parasitics import LumpedParasitics
 from pyaedt.filtersolutions_core.lumped_termination_impedance import LumpedTerminationImpedance
@@ -17,12 +10,9 @@ from pyaedt.filtersolutions_core.lumped_topology import LumpedTopology
 from pyaedt.filtersolutions_core.multiple_bands_table import MultipleBandsTable
 from pyaedt.filtersolutions_core.transmission_zeros import TableFormat
 from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
-from pyaedt.filtersolutions_core.attributes import DiplexerType
-from pyaedt.filtersolutions_core.attributes import StopbandDefinition
 
 
-
-class FilterSolutions():
+class FilterSolutions:
     """Provides the FilterSolutions application interface.
 
     This class allows you to create an instance of FilterSolutions and
@@ -56,19 +46,14 @@ class FilterSolutions():
     >>> )
     """
 
-    def __init__(
-        self,
-        projectname=None,
-        implementation_type=None
-    ):
-        projectname=projectname
-        implementation_type=implementation_type
+    def __init__(self, projectname=None, implementation_type=None):
+        projectname = projectname
+        implementation_type = implementation_type
         if implementation_type == FilterImplementation.LUMPED:
             self._init_lumped_design()
         else:
             raise RuntimeError("The " + str(implementation_type) + " is not supported on this release.")
-        
- 
+
     def _init_lumped_design(self):
         """Provides the FilterSolutions application interface.
 

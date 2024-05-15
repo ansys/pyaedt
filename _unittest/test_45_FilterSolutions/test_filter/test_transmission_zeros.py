@@ -1,5 +1,5 @@
-import pytest
 from fspy.ideal_design import IdealDesign
+import pytest
 
 
 def test_row_count():

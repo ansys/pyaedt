@@ -1,7 +1,7 @@
-import pytest
 from fspy.lumped_design import LumpedDesign
 from fspy.lumped_termination_impedance import ComplexReactanceType
 from fspy.lumped_termination_impedance import ComplexTerminationDefinition
+import pytest
 
 
 def test_row_count():

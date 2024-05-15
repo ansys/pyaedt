@@ -534,7 +534,7 @@ class LumpedTopology:
     def complex_element_tune_enabled(self, complex_element_tune_enabled: bool):
         status = self._dll.setLumpedComplexElementTuneEnabled(complex_element_tune_enabled)
         fspy._dll_interface().raise_error(status)
- 
+
     def circuit_response(self):
         """Execute real filter synthesis"""
         size = c_int()

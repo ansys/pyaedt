@@ -7,6 +7,7 @@ from enum import Enum
 
 import pyaedt.filtersolutions_core as fspy
 
+
 class FilterType(Enum):
     """Selects type of filter with the associated mathematical formulation.
 

@@ -1,9 +1,8 @@
 import ctypes
+from enum import Enum
 import os
-import sys
 import threading
 import time
-from enum import Enum
 from typing import Callable
 
 
