@@ -214,7 +214,7 @@ class QExtractor(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variations="", mesh_path=None):
+    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
