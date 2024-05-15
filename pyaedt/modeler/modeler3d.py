@@ -998,18 +998,18 @@ class Modeler3D(Primitives3D):
                     "CPYRAM",
                     "CPYRA",
                 ]:
-                    # obj_id = line[16:24].strip()
+                    # obj_id = line[8:16].strip()
                     n = []
-                    el_id = line[24:32].strip()
+                    el_id = line[16:24].strip()
                     if el_id not in nas_to_dict["Solids"]:
                         nas_to_dict["Solids"][el_id] = []
 
+                    n.append(int(line[24:32]))
                     n.append(int(line[32:40]))
                     n.append(int(line[40:48]))
                     n.append(int(line[48:56]))
-                    n.append(int(line[56:64]))
                     if line_type in ["CPYRA", "CPYRAM"]:
-                        n.append(int(line[64:72]))
+                        n.append(int(line[56:64]))
 
                     from itertools import combinations
 
