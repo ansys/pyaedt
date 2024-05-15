@@ -297,7 +297,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         str
-            File path.
+            File path to the mesh statistics file.
 
         References
         ----------
@@ -977,7 +977,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         bool
-            `True` if Delete operation succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         if isinstance(variations, str):
             variations = [variations]
@@ -1021,7 +1021,7 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         bool
-            `True` if succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         if not password:
             password = ""
