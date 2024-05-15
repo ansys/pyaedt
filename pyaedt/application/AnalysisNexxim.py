@@ -376,7 +376,6 @@ class FieldAnalysisCircuit(Analysis):
             For more information, see
             :doc:`../SetupTemplatesCircuit`.
 
-
         Returns
         -------
         :class:`pyaedt.modules.SolveSetup.SetupCircuit`

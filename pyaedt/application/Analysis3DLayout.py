@@ -174,6 +174,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         arg = ["NAME:options"]
         for key, value in settings.items():
@@ -198,7 +199,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         str
-            File Path.
+            Path to the mesh statistics file.
 
         References
         ----------

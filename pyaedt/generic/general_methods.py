@@ -1268,13 +1268,13 @@ def _create_json_file(json_dict, full_json_path):
     return True
 
 
-@pyaedt_function_handler(dict_in="data", full_path="output_file")
-def write_configuration_file(data, output_file):
+@pyaedt_function_handler(dict_in="input_data", full_path="output_file")
+def write_configuration_file(input_data, output_file):
     """Create a configuration file in JSON or TOML format from a dictionary.
 
     Parameters
     ----------
-    data : dict
+    input_data : dict
         Dictionary to write the file to.
     output_file : str
         Full path to the file, including its extension.
@@ -1286,9 +1286,9 @@ def write_configuration_file(data, output_file):
     """
     ext = os.path.splitext(output_file)[1]
     if ext == ".json":
-        return _create_json_file(data, output_file)
+        return _create_json_file(input_data, output_file)
     elif ext == ".toml":
-        return _create_toml_file(OrderedDict(data), output_file)
+        return _create_toml_file(OrderedDict(input_data), output_file)
 
 
 # @pyaedt_function_handler()
@@ -1559,14 +1559,16 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
     return return_list
 
 
-@pyaedt_function_handler()
-def compute_fft(time_vals, value):  # pragma: no cover
+@pyaedt_function_handler(time_vals="time_values", value="data_values")
+def compute_fft(time_values, data_values):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
     ----------
-    time_vals : `pandas.Series`
-    value : `pandas.Series`
+    time_values : `pandas.Series`
+        Time points corresponding to the x axis of the input transient data.
+    data_values : `pandas.Series`
+        Points corresponding to the y axis.
 
     Returns
     -------
@@ -1579,9 +1581,9 @@ def compute_fft(time_vals, value):  # pragma: no cover
         pyaedt_logger.error("NumPy is not available. Install it.")
         return False
 
-    deltaT = time_vals[-1] - time_vals[0]
-    num_points = len(time_vals)
-    valueFFT = np.fft.fft(value, num_points)
+    deltaT = time_values[-1] - time_values[0]
+    num_points = len(time_values)
+    valueFFT = np.fft.fft(data_values, num_points)
     Npoints = int(len(valueFFT) / 2)
     valueFFT = valueFFT[1 : Npoints + 1]
     valueFFT = valueFFT / len(valueFFT)
