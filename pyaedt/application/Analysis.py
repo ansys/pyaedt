@@ -203,7 +203,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        List[:class:`pyaedt.modules.SolveSetup.Setup`]
             Setups in the project.
 
         """
