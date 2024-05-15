@@ -71,6 +71,7 @@ from pyaedt.generic.design_types import Circuit
 from pyaedt.generic.design_types import Desktop
 from pyaedt.generic.design_types import Edb
 from pyaedt.generic.design_types import Emit
+from pyaedt.generic.design_types import FilterSolutions
 from pyaedt.generic.design_types import Hfss
 from pyaedt.generic.design_types import Icepak
 from pyaedt.generic.design_types import Maxwell2d
