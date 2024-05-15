@@ -1254,16 +1254,16 @@ class Maxwell(object):
         >>> m3d = Maxwell3d()
         >>> iron_object = m3d.modeler.create_box([0, 0, 0],[2, 10, 10],name="iron")
         >>> magnet_object = m3d.modeler.create_box([10, 0, 0],[2, 10, 10],name="magnet")
-        >>> m3d.assign_material(iron_object, "iron")
-        >>> m3d.assign_material(magnet_object, "NdFe30")
+        >>> m3d.assign_material(iron_object,"iron")
+        >>> m3d.assign_material(magnet_object,"NdFe30")
         >>> m3d.assign_force("iron",is_virtual=True,force_name="force_iron")
 
         Assign Lorentz force to a conductor:
 
         >>> conductor1 = m3d.modeler.create_box([0, 0, 0],[1, 1, 10],name="conductor1")
         >>> conductor2 = m3d.modeler.create_box([10, 0, 0],[1, 1, 10],name="conductor2")
-        >>> m3d.assign_material(conductor1, "copper")
-        >>> m3d.assign_material(conductor2, "copper")
+        >>> m3d.assign_material(conductor1,"copper")
+        >>> m3d.assign_material(conductor2,"copper")
         >>> m3d.assign_force("conductor1",is_virtual=False,force_name="force_copper") # conductor, use Lorentz force
         >>> m3d.release_desktop(True, True)
         """

@@ -234,7 +234,7 @@ l2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "model.jpg"), plot_air_objects=False)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "model.jpg"), plot_air_objects=False)
 
 ################################################################################
 # Published measurement results are included with this script via the list below.

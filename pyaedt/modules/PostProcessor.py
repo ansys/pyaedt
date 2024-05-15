@@ -5102,7 +5102,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         --------
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setup_name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
 
         """
 

@@ -131,7 +131,7 @@ poly.set_crosssection_properties(type="Circle", width="0.5mm")
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Add Maxwell 3D setup

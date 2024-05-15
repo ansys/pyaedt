@@ -168,14 +168,14 @@ class TestClass:
         )
         obj = self.aedtapp.plot(
             show=False,
-            export_path=os.path.join(self.local_scratch.path, "image.jpg"),
-            show_bounding=True,
+            output_file=os.path.join(self.local_scratch.path, "image.jpg"),
             show_grid=True,
+            show_bounding=True,
         )
         assert os.path.exists(obj.image_file)
-        obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
+        obj2 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
         assert os.path.exists(obj2.image_file)
-        obj3 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
+        obj3 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
         assert filecmp.cmp(obj.image_file, obj3.image_file)
 
     def test_10_edit_menu_commands(self):

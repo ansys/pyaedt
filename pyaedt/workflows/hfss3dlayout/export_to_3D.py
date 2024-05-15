@@ -100,12 +100,7 @@ with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=v
         elif choice == "Export to Icepak":
             app2 = Icepak(projectname=app.project_name)
         if app2:
-            app2.copy_solid_bodies_from(
-                app,
-                no_vacuum=False,
-                no_pec=False,
-                include_sheets=True,
-            )
+            app2.copy_solid_bodies_from(app, vacuum=False, pec=False, include_sheets=True)
             app2.delete_design(app.design_name)
             app2.save_project()
     d.logger.info("Project generated correctly.")

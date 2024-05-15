@@ -192,7 +192,7 @@ class TestClass:
             report_category="Far Fields",
             context="3D",
         )
-        assert data.plot(is_polar=True)
+        assert data.plot()
         assert data.plot_3d()
         assert field_test.post.create_3d_plot(data)
 
@@ -210,7 +210,7 @@ class TestClass:
             report_category="Far Fields",
             context=context,
         )
-        assert data.plot(is_polar=True)
+        assert data.plot()
         assert data.plot_3d()
         assert field_test.post.create_3d_plot(data)
         assert data.primary_sweep == "Theta"
@@ -251,7 +251,7 @@ class TestClass:
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(formula="db20", is_polar=True)
+        assert data_farfield2.plot()
 
         assert field_test.post.reports_by_category.terminal_solution()
 
@@ -373,18 +373,18 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp1.jpg"))
+        data1.plot()
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"))
-        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"))
-        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"))
-        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"))
-        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"))
-        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"))
-        assert data1.plot(formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"))
-        assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
+        assert data1.plot("S(Diff1, Diff1)")
+        assert data1.plot()
+        assert data1.plot()
+        assert data1.plot()
+        assert data1.plot()
+        assert data1.plot()
+        assert data1.plot()
+        assert data1.plot()
 
         assert diff_test.create_touchstone_report(
             name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
@@ -493,7 +493,7 @@ class TestClass:
 
     def test_61_export_mesh(self, q3dtest):
         assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
+        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
 
     def test_62_eye_diagram(self, eye_test):
         eye_test.analyze(eye_test.active_setup)

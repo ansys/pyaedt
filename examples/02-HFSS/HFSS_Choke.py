@@ -207,7 +207,7 @@ hfss.create_linear_count_sweep(setup=setup.name, units="MHz", start_frequency=0.
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

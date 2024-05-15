@@ -161,7 +161,7 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 # Save the project.
 
 hfss2.modeler.fit_all()
-hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss2.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT

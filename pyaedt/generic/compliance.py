@@ -400,7 +400,7 @@ class VirtualCompliance:
             "config": config_file,
             "design_name": design_name,
             "traces": traces,
-            "setup_name": setup_name,
+            "name": setup_name,
             "pass_fail": pass_fail,
         }
         self._reports[name] = ReportTemplate(new_rep)
