@@ -365,7 +365,10 @@ for i, level in enumerate(toolkit_levels):
     col_num = i % 4
     if level:
         toolkit_button = ttk.Button(
-            root, text=level, command=lambda l=level: toolkit_window(l), style="Toolbutton.TButton"
+            root,
+            text=level,
+            command=lambda toolkit_level=level: toolkit_window(toolkit_level),
+            style="Toolbutton.TButton",
         )
         toolkit_button.grid(row=row_num, column=col_num, padx=10, pady=10)
 
