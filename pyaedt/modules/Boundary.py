@@ -113,7 +113,10 @@ class BoundaryCommon(PropsManager):
         except Exception:
             pass
         try:
-            if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
+            if (
+                "ModelSetup" in self._app.design_properties
+                and "MotionSetupList" in self._app.design_properties["ModelSetup"]
+            ):
                 motion_list = "MotionSetupList"
                 setup = "ModelSetup"
                 # check moving part
