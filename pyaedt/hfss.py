@@ -3608,20 +3608,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         file_name : str
             Full name of the input file.
         is_time_domain : bool, optional
-            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+            Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
-            Scaling factor for x axis. This argument will be ignored if the algoritmm will
-             identify the format from the file header.
+            Scaling factor for the x axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         y_scale : float, optional
-            Scaling factor for y axis. This argument will be ignored if the algoritmm will
-             identify the format from the file header.
+            Scaling factor for the y axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
-            Either `"Power"`, `"Current"` or `"Voltage"`. This argument will be ignored if the algoritmm will
-             identify the format from the file header.
+            Data format. Options are ``"Current"``, ``"Power"``, and ``"Voltage"``. This
+            argument is ignored if the algoritmm identifies the format from the
+            file header.
         encoding : str, optional
-            Csv file encoding.
+            CSV file encoding.
 
 
         Returns
