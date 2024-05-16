@@ -327,6 +327,32 @@ class NativeComponentObject(BoundaryCommon, object):
         return True
 
 
+class NativeComponentPCB(NativeComponentObject, object):
+    """Manages Native Component PCB data and execution.
+
+    Parameters
+    ----------
+    app : object
+        AEDT application from the ``pyaedt.application`` class.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
+    Examples
+    --------
+    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
+    >>> from pyaedt import Icepak
+    >>> ipk = Icepak(solution_type="SBR+")
+    >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
+    """
+
+    def __init__(self, app, component_type, component_name, props):
+        NativeComponentObject.__init__(self, app, component_type, component_name, props)
+
+
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
 

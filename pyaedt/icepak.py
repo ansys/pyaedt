@@ -38,6 +38,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import ExponentialDictionary
 from pyaedt.modules.Boundary import LinearDictionary
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NativeComponentPCB
 from pyaedt.modules.Boundary import NetworkObject
 from pyaedt.modules.Boundary import PieceWiseLinearDictionary
 from pyaedt.modules.Boundary import PowerLawDictionary
@@ -2386,7 +2387,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+        :class:`pyaedt.modules.Boundary.NativeComponentPCB`
             NativeComponentObject object.
 
         References
@@ -2481,7 +2482,7 @@ class Icepak(FieldAnalysis3D):
             # compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         native_props["TargetCS"] = PCB_CS
-        native = NativeComponentObject(self, "PCB", compName, native_props)
+        native = NativeComponentPCB(self, "PCB", compName, native_props)
         if native.create():
             user_defined_component = UserDefinedComponent(
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "PCB"
