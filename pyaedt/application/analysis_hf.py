@@ -124,7 +124,6 @@ class ScatteringMethods(object):
         """
         if drivers is None:
             drivers = [i for i in list(self._app.excitations)]
-
         if receivers is None:
             receivers = [i for i in list(self._app.excitations)]
         if drivers_prefix_name:
