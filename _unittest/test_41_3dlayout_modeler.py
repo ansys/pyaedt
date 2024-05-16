@@ -313,6 +313,8 @@ class TestClass:
         assert self.aedtapp.edit_source_from_file(
             port_wave.name, time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
+        self.aedtapp.boundaries[0].object_properties.props["Boundary Type"] = "PEC"
+        assert list(self.aedtapp.oboundary.GetAllBoundariesList())[0] == self.aedtapp.boundaries[0].name
 
     def test_14a_create_coaxial_port(self):
         port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
