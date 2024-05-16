@@ -908,12 +908,25 @@ class CircuitComponent(object):
 class Wire(object):
     """Creates and manipulates a wire."""
 
-    def __init__(self, modeler):
+    def __init__(self, modeler, composed_name=None):
+        self.composed_name = composed_name
         self._app = modeler._app
         self._modeler = modeler
         self.name = ""
         self.id = 0
-        self.points_in_segment = {}
+        self._points_in_segment = {}
+
+    @property
+    def points_in_segment(self):
+        """Points in segment."""
+        if not self.composed_name:
+            return {}
+        for segment in self._app.oeditor.GetWireSegments(self.composed_name):
+            key = int(segment.split(" ")[3])
+            point1 = [float(x) for x in segment.split(" ")[1].split(",")]
+            point2 = [float(x) for x in segment.split(" ")[2].split(",")]
+            self._points_in_segment[key] = [point1, point2]
+        return self._points_in_segment
 
     @property
     def _oeditor(self):
@@ -961,23 +974,26 @@ class Wire(object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            wire_exists = False
-            for wire in self.wires:
-                if name == wire.split("@")[1].split(";")[0]:
-                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
-                    wire_exists = True
-                    break
-                else:
-                    continue
-            if not wire_exists:
-                raise ValueError("Invalid wire name provided.")
-
+            if name:
+                wire_exists = False
+                for wire in self.wires:
+                    if name == wire.split("@")[1].split(";")[0]:
+                        wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                        wire_exists = True
+                        break
+                    else:
+                        continue
+                if not wire_exists:
+                    raise ValueError("Invalid wire name provided.")
+                composed_name = "Wire@{};{};{}".format(name, wire_id, 1)
+            else:
+                composed_name = self.composed_name
             self._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:PropDisplayPropTab",
-                        ["NAME:PropServers", "Wire@{};{};{}".format(name, wire_id, 1)],
+                        ["NAME:PropServers", composed_name],
                         [
                             "NAME:NewProps",
                             ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
