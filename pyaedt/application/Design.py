@@ -966,7 +966,7 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = os.path.join(self.toolkit_directory, name)
+        working_directory = os.path.join(os.path.normpath(self.toolkit_directory), name)
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
