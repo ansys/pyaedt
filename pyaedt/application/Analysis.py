@@ -1091,7 +1091,7 @@ class Analysis(Design, object):
             Returns
             -------
             dict
-                Dictionary of nominal variations with values.
+                Dictionary of nominal variations with expressions.
 
             References
             ----------

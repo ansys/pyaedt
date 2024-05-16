@@ -198,7 +198,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         str
-            File Path.
+            Path to the mesh statistics file.
 
         References
         ----------
