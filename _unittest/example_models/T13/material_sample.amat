@@ -1,7 +1,7 @@
 $begin '$base_index$'
   $begin 'properties'
     all_levels=000000000000
-    time(year=000000002024, month=000000000005, day=000000000015, hour=000000000014, min=000000000051, sec=000000000012)
+    time(year=000000002022, month=000000000004, day=000000000026, hour=000000000014, min=000000000052, sec=000000000029)
     version=000000000000
   $end 'properties'
   $begin '$base_index$'
@@ -79,4 +79,3 @@ $begin '$index$'
 		$index$(pos=2021, lin=72, lvl=0)
 	$end '$index$'
 $end '$index$'
-$index$'          

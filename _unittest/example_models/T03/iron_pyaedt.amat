@@ -1,13 +1,3 @@
-$begin '$base_index$'
-  $begin 'properties'
-    all_levels=000000000000
-    time(year=000000002024, month=000000000005, day=000000000015, hour=000000000014, min=000000000051, sec=000000000012)
-    version=000000000000
-  $end 'properties'
-  $begin '$base_index$'
-    $index$(pos=000000004267, lin=000000000001, lvl=000000000000)
-  $end '$base_index$'
-$end '$base_index$'
 
 $begin 'iron_pyaedt'
 	$begin 'MaterialDef'
@@ -105,10 +95,4 @@ GUID: 04b3107f-45c5-4e7c-bdd6-3bf3cffc2ef2'
 	Y('0.996931', '1.09554', '1.17332', '1.23238', '1.27806', '1.31149', '1.33712', '1.3594', '1.37946', '1.40174', '1.43406', '1.53657')
 	$end '$Thermal_expansion_coefficient_with_temperature_1'
 	$end 'RefDatasets'
-$end 'iron_pyaedt'$begin '$index$'
-	$begin '$index$'
-		iron_pyaedt(pos=370, lin=11, lvl=0)
-		$base_index$(pos=0, lin=1, lvl=0)
-		$index$(pos=4267, lin=1, lvl=0)
-	$end '$index$'
-$end '$index$'
+$end 'iron_pyaedt'
