@@ -77,7 +77,13 @@ def run_pyinstaller_from_c_python(oDesktop):
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
     if os.path.exists(pers1):
-        shutil.rmtree(pers1, ignore_errors=True)
+        if is_windows:
+            command = 'rmdir "{}"'.format(pers1)
+        else:
+            command = 'rm "{}"'.format(pers1)
+        ret_code = os.system(command)
+        if ret_code != 0:
+            oDesktop.AddMessage("", "", 2, "Error removing symbolic link to pyaedt in PersonalLib.")
 
     if is_windows:
         command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
