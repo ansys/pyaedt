@@ -993,26 +993,24 @@ class Modeler3D(Primitives3D):
                         tri = (int(n1), int(n2), int(n3))
                         nas_to_dict["Triangles"][tria_id].append(tri)
 
-                elif line_type in ["CPENTA", "CHEXA", "CTETRA"]:
-                    # obj_id = line[16:24].strip()
+                elif line_type in [
+                    "CTETRA",
+                    "CPYRAM",
+                    "CPYRA",
+                ]:
+                    # obj_id = line[8:16].strip()
                     n = []
-                    el_id = line[24:32].strip()
+                    el_id = line[16:24].strip()
                     if el_id not in nas_to_dict["Solids"]:
                         nas_to_dict["Solids"][el_id] = []
 
+                    n.append(int(line[24:32]))
                     n.append(int(line[32:40]))
                     n.append(int(line[40:48]))
                     n.append(int(line[48:56]))
-                    if line_type == "CPENTA":
+                    if line_type in ["CPYRA", "CPYRAM"]:
                         n.append(int(line[56:64]))
-                        n.append(int(line[64:72]))
 
-                    if line_type == "CHEXA":
-                        n.append(int(line[56:64]))
-                        n.append(int(line[64:72]))
-                        lk += 1
-                        n.append(int(lines[lk][8:16].strip()))
-                        n.append(int(lines[lk][16:24].strip()))
                     from itertools import combinations
 
                     for k in list(combinations(n, 3)):
@@ -1021,7 +1019,11 @@ class Modeler3D(Primitives3D):
                         tri = tuple(tri)
                         nas_to_dict["Solids"][el_id].append(tri)
 
-                elif line_type in ["CTETRA*"]:
+                elif line_type in [
+                    "CTETRA*",
+                    "CPYRAM*",
+                    "CPYRA*",
+                ]:
                     # obj_id = line[8:24].strip()
                     n = []
                     el_id = line[24:40].strip()
@@ -1036,11 +1038,25 @@ class Modeler3D(Primitives3D):
 
                     from itertools import combinations
 
-                    for k in list(combinations(n, 3)):
-                        tri = [int(k[0]), int(k[1]), int(k[2])]
-                        tri.sort()
-                        tri = tuple(tri)
-                        nas_to_dict["Solids"][el_id].append(tri)
+                    if line_type == "CTETRA*":
+                        for k in list(combinations(n, 3)):
+                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri.sort()
+                            tri = tuple(tri)
+                            nas_to_dict["Solids"][el_id].append(tri)
+                    else:
+                        spli1 = [n[0], n[1], n[2], n[4]]
+                        for k in list(combinations(spli1, 3)):
+                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri.sort()
+                            tri = tuple(tri)
+                            nas_to_dict["Solids"][el_id].append(tri)
+                        spli1 = [n[0], n[2], n[3], n[4]]
+                        for k in list(combinations(spli1, 3)):
+                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri.sort()
+                            tri = tuple(tri)
+                            nas_to_dict["Solids"][el_id].append(tri)
 
                 elif line_type in ["CROD", "CBEAM"]:
                     obj_id = int(line[16:24])
