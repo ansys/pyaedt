@@ -325,7 +325,7 @@ class Design(AedtObjects):
             bb = list(self.oboundary.GetBoundaries())
         elif "GetAllBoundariesList" in self.oboundary.__dir__() and self.design_type == "HFSS 3D Layout Design":
             bb = list(self.oboundary.GetAllBoundariesList())
-            bb = [elem for sublist in zip(bb, ["LayoutBoundary"] * len(bb)) for elem in sublist]
+            bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
         if "GetHybridRegions" in self.oboundary.__dir__():
@@ -343,7 +343,7 @@ class Design(AedtObjects):
             bb.extend(ff)
         elif "Excitations" in self.get_oo_name(self.odesign) and self.design_type == "HFSS 3D Layout Design":
             ee = self.get_oo_name(self.odesign, "Excitations")
-            ee = [elem for sublist in zip(ee, ["LayoutExcitation"] * len(ee)) for elem in sublist]
+            ee = [elem for sublist in zip(ee, ["Port"] * len(ee)) for elem in sublist]
             current_excitations = ee[::2]
             current_excitation_types = ee[1::2]
 
