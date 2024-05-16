@@ -30,9 +30,14 @@ def main():
     current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
     pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
     python_exe = r"##IPYTHON_EXE##" % version
+    python_exe = check_interpreter(python_exe, version)
     pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
-    check_file(python_exe)
-    check_file(pyaedt_script)
+    python_exe_flag = check_file(python_exe)
+    if not python_exe_flag:
+        return
+    pyaedt_script_flag = check_file(pyaedt_script)
+    if not pyaedt_script_flag:
+        return
     if is_linux:
         term = get_linux_terminal()
         if not term:
@@ -98,14 +103,26 @@ def which(program):
 
 def check_file(file_path):
     if not os.path.isfile(file_path):
-        show_error('"{}" does not exist. Please click on the "Install PyAEDT" button in the Automation ribbon.'.format(
-            file_path))
+        show_error(
+            '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT documentation.'.
+            format(file_path))
+        return False
+    return True
 
 
 def show_error(msg):
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
+
+
+def check_interpreter(interpreter_path, version):
+    python_version = "3_10" if version > "231" else "3_7"
+    if version > "231" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_7", "3_10")
+    elif version <= "231" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_10", "3_7")
+    return interpreter_path
 
 
 if __name__ == "__main__":
