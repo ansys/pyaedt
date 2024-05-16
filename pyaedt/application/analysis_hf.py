@@ -295,9 +295,9 @@ class ScatteringMethods(object):
             setup = self._app.setups[0].name
 
         if self._app.design_type != "Circuit Design" and not sweep:
-            for setup in self._app.setups:
-                if setup.name == setup:
-                    sweep = setup.sweeps[0].name
+            for s in self._app.setups:
+                if s.name == setup:
+                    sweep = s.sweeps[0].name
             solution = "{} : {}".format(setup, sweep)
         else:
             solution = setup
