@@ -11,8 +11,16 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 import json
 import os
 import pyaedt
+import tempfile
 
-project_name = pyaedt.generate_unique_project_name(root_name=r"C:\Data\Support\Test", folder_name="choke",
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, folder_name="choke",
                                                    project_name="choke")
 
 ##########################################################

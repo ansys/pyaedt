@@ -991,13 +991,13 @@ def read_csv(file_name, encoding="utf-8"):
     return lines
 
 
-@pyaedt_function_handler(filename="file_name")
-def read_csv_pandas(file_name, encoding="utf-8"):
+@pyaedt_function_handler(filename="input_file")
+def read_csv_pandas(input_file, encoding="utf-8"):
     """Read information from a CSV file and return a list.
 
     Parameters
     ----------
-    file_name : str
+    input_file : str
             Full path and name for the CSV file.
     encoding : str, optional
             File encoding for the CSV file. The default is ``"utf-8"``.
@@ -1007,11 +1007,11 @@ def read_csv_pandas(file_name, encoding="utf-8"):
     :class:`pandas.DataFrame`
         CSV file content.
     """
-    file_name = check_and_download_file(file_name)
+    input_file = check_and_download_file(input_file)
     try:
         import pandas as pd
 
-        return pd.read_csv(file_name, encoding=encoding, header=0, na_values=".")
+        return pd.read_csv(input_file, encoding=encoding, header=0, na_values=".")
     except ImportError:
         pyaedt_logger.error("Pandas is not available. Install it.")
         return None

@@ -379,12 +379,6 @@ class TestClass:
         assert len(data1.data_magnitude()) == 5
         assert data1.plot("S(Diff1, Diff1)")
         assert data1.plot()
-        assert data1.plot()
-        assert data1.plot()
-        assert data1.plot()
-        assert data1.plot()
-        assert data1.plot()
-        assert data1.plot()
 
         assert diff_test.create_touchstone_report(
             name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
