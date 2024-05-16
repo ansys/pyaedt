@@ -333,7 +333,7 @@ class NativeComponentPCB(NativeComponentObject, object):
     Parameters
     ----------
     app : object
-        An AEDT application from ``pyaedt.application``.
+        AEDT application from the ``pyaedt.application`` class.
     component_type : str
         Type of the component.
     component_name : str
@@ -343,7 +343,7 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     Examples
     --------
-    in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
+    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
     >>> from pyaedt import Icepak
     >>> ipk = Icepak(solution_type="SBR+")
     >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
