@@ -34,6 +34,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NativeComponentPCB
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.SolveSetup import Setup
@@ -955,7 +956,10 @@ class Analysis(Design, object):
                     if isinstance(ds, (OrderedDict, dict)):
                         component_type = ds["NativeComponentDefinitionProvider"]["Type"]
                         component_name = ds["BasicComponentInfo"]["ComponentName"]
-                        native_component_object = NativeComponentObject(self, component_type, component_name, ds)
+                        if component_type == "PCB":
+                            native_component_object = NativeComponentPCB(self, component_type, component_name, ds)
+                        else:
+                            native_component_object = NativeComponentObject(self, component_type, component_name, ds)
                         boundaries.append(native_component_object)
                 except Exception:
                     msg = "Failed to add native component object."
