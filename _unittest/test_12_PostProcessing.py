@@ -637,6 +637,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -686,6 +687,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -695,6 +697,7 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
@@ -703,6 +706,7 @@ class TestClass:
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            show=False,
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
@@ -725,6 +729,7 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata1.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
             convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 

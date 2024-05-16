@@ -24,7 +24,6 @@ from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
-from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
@@ -45,6 +44,10 @@ if not is_ironpython:
         import pyvista as pv
     except ImportError:
         pv = None
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        plt = None
 
 
 class SolutionData(object):
@@ -1088,18 +1091,21 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Contains information from the far field solution data.
+    """Provides antenna array far-field data.
 
-    Load far field data from the element pattern files.
+    Read embedded element patterns generated in HFSS and return the Python interface
+    to plot and analyze the array far-field data.
 
     Parameters
     ----------
     eep_files : list or str
-        List of element pattern files for each frequency.
-        If the input is string, it is assumed to be a single frequency.
+        List of embedded element pattern files for each frequency.
+        If data is only provided for a single frequency, then a string can be passed
+        instead of a one-element list.
     frequencies : list, str, int, or float
         List of frequencies.
-        If the input is not a list, it is assumed to be a single frequency.
+        If data is only available for a single frequency, then a float or integer may be passed
+        instead of a one-element list.
 
     Examples
     --------
@@ -1526,11 +1532,14 @@ class FfdSolutionData(object):
             quantity="RealizedGain",
             phi=0,
             theta=0,
-            title="RectangularPlot",
+            size=None,
+            title=None,
             quantity_format="dB10",
             image_path=None,
             levels=64,
             show=True,
+            polar=True,
+            max_theta=180,
             **kwargs
     ):
         # fmt: on
@@ -1546,6 +1555,9 @@ class FfdSolutionData(object):
             Phi scan angle in degrees. The default is ``0``.
         theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
+        size : tuple, optional
+            Image size in pixel (width, height). The default is ``None``, in which case resolution
+            is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
@@ -1559,18 +1571,22 @@ class FfdSolutionData(object):
         show : bool, optional
             Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
             instance of the plot is shown.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
+        max_theta : float or int, optional
+            Maxmum theta angle for plotting. The default is ``180``, which plots the far-field data for
+            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            hemisphere, that is (0 < theta < 90).
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`matplotlib.pyplot.Figure`
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1578,6 +1594,8 @@ class FfdSolutionData(object):
         >>> data.plot_farfield_contour()
 
         """
+        if not title:
+            title = quantity
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1594,27 +1612,54 @@ class FfdSolutionData(object):
         if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
+        select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
-        data_to_plot = data[quantity]
+        data_to_plot = data[quantity][select, :]
         data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
-        data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
-        th, ph = np.meshgrid(data["Theta"], data["Phi"])
-        if show:
-            return plot_contour(
-                x=th,
-                y=ph,
-                qty_to_plot=data_to_plot,
-                xlabel="Theta (degree)",
-                ylabel="Phi (degree)",
-                title=title,
-                levels=levels,
-                snapshot_path=image_path,
-            )
+        ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
+        ph = ph * np.pi/180 if polar else ph
+        # Convert to radians for polar plot.
+
+        # TODO: Is it necessary to set the plot size?
+
+        default_figsize = plt.rcParams["figure.figsize"]
+        if size:  # Retain this code to remain consistent with other plotting methods.
+            dpi = 100.0
+            figsize = (size[0] / dpi, size[1] / dpi)
+            plt.rcParams["figure.figsize"] = figsize
         else:
-            return data_to_plot
+            figsize = default_figsize
+
+        projection = 'polar' if polar else 'rectilinear'
+        fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
+
+        fig.suptitle(title)
+        ax.set_xlabel("$\phi$ (Degrees)")
+        if polar:
+            ax.set_rticks(np.linspace(0, max_theta, 3))
+        else:
+            ax.set_ylabel("$\\theta (Degrees")
+
+        plt.contourf(
+            ph,
+            th,
+            data_to_plot,
+            levels=levels,
+            cmap="jet",
+        )
+        cbar = plt.colorbar()
+        cbar.set_label(quantity_format, rotation=270, labelpad=20)
+
+        if image_path:
+            plt.savefig(image_path)
+        if show:  # pragma: no cover
+            plt.show()
+
+        plt.rcParams["figure.figsize"] = default_figsize
+        return fig
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1865,7 +1910,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:
+        if show:  # pragma: no cover
             plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path)
         else:
             return x, y, z
@@ -2420,7 +2465,19 @@ class FfdSolutionData(object):
 
 
 class FfdSolutionDataExporter(FfdSolutionData):
-    """Export far field solution data.
+    """Class to enable export of embedded element pattern data from HFSS.
+
+    An instance of this class is returned from the
+    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
+    the embedded
+    element pattern (EEP) files for an antenna array that have been solved in HFSS. The
+    ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
+    instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
+    subsequent analysis and postprocessing of the array data.
+
+    Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
+    far-field postprocessing and array analysis, but it remains a property of the
+    :class:`pyaedt.Hfss` application.
 
     Parameters
     ----------

@@ -18,7 +18,7 @@ The following code creates a box and changes the color to red:
 
 
 
-.. image:: ../Resources/aedt_box.png
+.. image:: ../Resources/aedt_box.webp
   :width: 800
   :alt: Modeler Object
 

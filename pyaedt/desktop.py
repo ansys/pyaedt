@@ -1376,7 +1376,7 @@ class Desktop(object):
         if not design_name:
             odesign = self.active_design(oproject)
         else:
-            odesign = self.active_design(oproject.design_name)
+            odesign = self.active_design(oproject, design_name)
         if odesign:
             return odesign.GetDesignType()
         return ""
