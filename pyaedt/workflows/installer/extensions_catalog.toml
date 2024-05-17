@@ -16,7 +16,7 @@ script = ""
 icon = "run_script.png"
 template = "Run_PyAEDT_Script"
 
-[ToolkitManager]
+[ExtensionManager]
 name = "Extension Manager"
 script = "extension_manager.py"
 icon = "extension_manager.png"

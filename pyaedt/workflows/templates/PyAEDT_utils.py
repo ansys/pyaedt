@@ -27,6 +27,10 @@ It contains common methods for the PyAEDT panels.
 """
 import os
 
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
+from System.Windows.Forms import MessageBoxIcon
+
 is_linux = os.name == "posix"
 
 
