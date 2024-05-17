@@ -756,9 +756,11 @@ class TestClass:
 
     def test_43_display_wire_properties(self):
         self.aedtapp.set_active_design("CreateWireTest")
-        assert self.aedtapp.modeler.wire.display_wire_properties(
+        wire = self.aedtapp.modeler.components.get_wire_by_name("wire_name_test")
+        assert wire.display_wire_properties(
             name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
         )
+
         assert not self.aedtapp.modeler.wire.display_wire_properties(
             name="invalid", property_to_display="NetName", visibility="Value", location="Top"
         )

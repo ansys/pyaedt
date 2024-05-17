@@ -499,21 +499,27 @@ class CircuitComponent(object):
         if self._parameters:
             return self._parameters
         _parameters = {}
-        if self._circuit_components._app.design_type == "Circuit Design":
-            tab = "PassedParameterTab"
+        if self._circuit_components._app.design_type == "Circuit Design" or self.name in [
+            "CompInst@FML_INIT",
+            "CompInst@Measurement",
+        ]:
+            tabs = ["PassedParameterTab"]
         elif self._circuit_components._app.design_type == "Maxwell Circuit":
-            tab = "PassedParameterTab"
+            tabs = ["PassedParameterTab"]
         else:
-            tab = "Quantities"
-        try:
-            proparray = self._oeditor.GetProperties(tab, self.composed_name)
-        except Exception:
-            proparray = []
+            tabs = ["Quantities", "PassedParameterTab"]
+        proparray = {}
+        for tab in tabs:
+            try:
+                proparray[tab] = self._oeditor.GetProperties(tab, self.composed_name)
+            except Exception:
+                proparray[tab] = []
 
-        for j in proparray:
-            propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
-            _parameters[j] = propval
-        self._parameters = ComponentParameters(self, tab, _parameters)
+        for tab, props in proparray.items():
+            for j in props:
+                propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
+                _parameters[j] = propval
+            self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
 
     @property
@@ -652,6 +658,12 @@ class CircuitComponent(object):
                 if "Angle=" in info:
                     self._angle = float(info[6:])
                     break
+        else:
+            self._angle = float(
+                self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Angle").replace(
+                    "deg", ""
+                )
+            )
         return self._angle
 
     @angle.setter
@@ -908,12 +920,28 @@ class CircuitComponent(object):
 class Wire(object):
     """Creates and manipulates a wire."""
 
-    def __init__(self, modeler):
+    def __init__(self, modeler, composed_name=None):
+        self.composed_name = composed_name
         self._app = modeler._app
         self._modeler = modeler
         self.name = ""
         self.id = 0
-        self.points_in_segment = {}
+        self._points_in_segment = {}
+
+    @property
+    def points_in_segment(self):
+        """Points in segment."""
+        if not self.composed_name:
+            return {}
+        for segment in self._app.oeditor.GetWireSegments(self.composed_name):
+            key = segment.split(" ")[3]
+            point1 = [float(x) for x in segment.split(" ")[1].split(",")]
+            point2 = [float(x) for x in segment.split(" ")[2].split(",")]
+            if key in self._points_in_segment:
+                self._points_in_segment[key].extend([point1, point2])
+            else:
+                self._points_in_segment[key] = [point1, point2]
+        return self._points_in_segment
 
     @property
     def _oeditor(self):
@@ -961,23 +989,26 @@ class Wire(object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            wire_exists = False
-            for wire in self.wires:
-                if name == wire.split("@")[1].split(";")[0]:
-                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
-                    wire_exists = True
-                    break
-                else:
-                    continue
-            if not wire_exists:
-                raise ValueError("Invalid wire name provided.")
-
+            if name:
+                wire_exists = False
+                for wire in self.wires:
+                    if name == wire.split("@")[1].split(";")[0]:
+                        wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                        wire_exists = True
+                        break
+                    else:
+                        continue
+                if not wire_exists:
+                    raise ValueError("Invalid wire name provided.")
+                composed_name = "Wire@{};{};{}".format(name, wire_id, 1)
+            else:
+                composed_name = self.composed_name
             self._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:PropDisplayPropTab",
-                        ["NAME:PropServers", "Wire@{};{};{}".format(name, wire_id, 1)],
+                        ["NAME:PropServers", composed_name],
                         [
                             "NAME:NewProps",
                             ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
