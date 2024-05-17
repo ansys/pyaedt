@@ -289,9 +289,8 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
-@pyaedt_function_handler(path_to_check="path")
-def _check_path(path):
-    return path.replace("\\", "/") if path[0] != "\\" else path
+def _check_path(path_to_check):
+    return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
 
 
 @pyaedt_function_handler()
