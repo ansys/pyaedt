@@ -276,7 +276,8 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        self.design_settings = DesignSettings(self)
+        if not self._design_type == "Maxwell Circuit":
+            self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
