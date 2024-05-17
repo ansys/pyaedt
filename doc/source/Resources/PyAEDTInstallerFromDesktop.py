@@ -96,13 +96,15 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Create Toolkits in PersonalLib
     import tempfile
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
+    if os.path.isfile(python_script):
+        os.remove(python_script)
     with open(python_script, "w") as f:
         # enable in debu mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
-            'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
+            'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
