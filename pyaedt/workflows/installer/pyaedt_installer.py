@@ -22,15 +22,18 @@
 
 """Methods to add PyAEDT in AEDT."""
 
+import logging
 import os
+import shutil
 
 from pyaedt.generic.general_methods import read_toml
 from pyaedt.workflows import customize_automation_tab
+import pyaedt.workflows.templates
 
 
 def add_pyaedt_to_aedt(
     aedt_version,
-    personallib,
+    personal_lib,
 ):
     """Add PyAEDT tabs in AEDT.
 
@@ -38,14 +41,33 @@ def add_pyaedt_to_aedt(
     ----------
     aedt_version : str
         AEDT release.
-    personallib : str
+    personal_lib : str
         AEDT Personal Lib folder.
     """
 
-    __add_pyaedt_tabs(personallib, aedt_version)
+    logger = logging.getLogger("Global")
+    if not personal_lib or not aedt_version:
+        from pyaedt.generic.desktop_sessions import _desktop_sessions
+
+        if not _desktop_sessions:
+            logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
+            return False
+        d = list(_desktop_sessions.values())[0]
+        personal_lib = d.personallib
+        aedt_version = d.aedt_version_id
+
+    toolkit_dir = os.path.join(personal_lib, "Toolkits")
+    os.makedirs(toolkit_dir, exist_ok=True)
+
+    templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
+    script_file = os.path.join(templates_dir, "PyAEDT_utils.py")
+    dest_script_path = os.path.join(toolkit_dir, "PyAEDT_utils.py")
+    shutil.copy2(script_file, dest_script_path)
+
+    __add_pyaedt_tabs(personal_lib, aedt_version)
 
 
-def __add_pyaedt_tabs(personallib, aedt_version):
+def __add_pyaedt_tabs(personal_lib, aedt_version):
     """Add PyAEDT tabs in AEDT."""
 
     pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ToolkitManager"]
@@ -71,6 +93,6 @@ def __add_pyaedt_tabs(personallib, aedt_version):
                 copy_to_personal_lib=True,
                 executable_interpreter=None,
                 panel="Panel_PyAEDT_Installer",
-                personal_lib=personallib,
+                personal_lib=personal_lib,
                 aedt_version=aedt_version,
             )
