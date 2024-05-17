@@ -58,11 +58,53 @@ class CircuitComponents(object):
         self.oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
-        self.wires = {}
         self.refresh_all_ids()
         self.current_position = [0, 0]
         self.increment_mils = [1000, 1000]
         self.limits_mils = 20000
+
+    @pyaedt_function_handler()
+    def get_wire_by_name(self, name):
+        """Wire class by name.
+
+                Parameters
+                ----------
+                name : str
+                    Wire name.
+
+                Returns
+                -------
+                :class:`pyaedt.modeler.circuits.object3dcircuit.Wire`
+        `
+        """
+        for _, w in self.wires.items():
+            if w.name == name:
+                return w
+            wname = w.name.split(";")[0].split("@")[0]
+            if name == wname:
+                return w
+
+    @property
+    def wires(self):
+        """All schematic wires in the design.
+
+        Returns
+        dict
+            Wires.
+        """
+        wire_names = {}
+        for wire in self.oeditor.GetAllElements():
+            if "Wire" in wire:
+                w = Wire(self, composed_name=wire)
+                if ":" in wire.split(";")[1]:
+                    wire_id = int(wire.split(";")[1].split(":")[0])
+                else:
+                    wire_id = int(wire.split(";")[1])
+                name = wire.split(";")[0].split("@")[1]
+                w.id = wire_id
+                w.name = name
+                wire_names[wire_id] = w
+        return wire_names
 
     @property
     def o_definition_manager(self):
@@ -335,7 +377,7 @@ class CircuitComponents(object):
 
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
-
+        angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
             ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
@@ -1180,12 +1222,7 @@ class CircuitComponents(object):
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
             wire_id = self.oeditor.CreateWire(arg1, arg2)
-            w = Wire(self._modeler)
-            for segment in self._app.oeditor.GetWireSegments(wire_id):
-                key = "SegmentID_{}".format(segment.split(" ")[3])
-                point1 = [float(x) for x in segment.split(" ")[1].split(",")]
-                point2 = [float(x) for x in segment.split(" ")[2].split(",")]
-                w.points_in_segment[key] = [point1, point2]
+            w = Wire(self._modeler, composed_name=wire_id)
             if ":" in wire_id.split(";")[1]:
                 wire_id = int(wire_id.split(";")[1].split(":")[0])
             else:
@@ -1194,7 +1231,6 @@ class CircuitComponents(object):
                 name = generate_unique_name("Wire")
             w.name = name
             w.id = int(wire_id)
-            self.wires[w.id] = w
             return w
         except Exception:
             return False
