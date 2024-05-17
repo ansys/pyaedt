@@ -30,10 +30,6 @@ The ``console_setup.py`` launches an interactive Python session.
 import os
 import sys
 
-from System.Windows.Forms import MessageBox
-from System.Windows.Forms import MessageBoxButtons
-from System.Windows.Forms import MessageBoxIcon
-
 is_linux = os.name == "posix"
 
 if is_linux:
@@ -51,7 +47,7 @@ import PyAEDT_utils
 def main():
     # Get AEDT version
     version_short = oDesktop.GetVersion()[2:6].replace(".", "")
-    # Toolkit directory
+    # Extension directory
     current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
     pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
     # CPython interpreter

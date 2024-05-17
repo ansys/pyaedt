@@ -64,7 +64,7 @@ def main():
         if not pyaedt_script_flag:
             return
         # Add environment variables
-        PyAEDT_utils.environment_variables()
+        PyAEDT_utils.environment_variables(oDesktop)
         # Open extension manager
         if is_linux:
             command = [

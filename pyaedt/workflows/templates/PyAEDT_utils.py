@@ -129,3 +129,11 @@ def environment_variables(oDesktop):
             os.environ["TKPATH"] = os.path.join(
                 "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
+
+
+def generate_unique_name(rootname, suffix="", n=6):
+    char_set = string.ascii_uppercase + string.digits
+    unique_name = rootname + "_" + "".join(random.choice(char_set) for _ in range(n))
+    if suffix:
+        unique_name += suffix
+    return unique_name
