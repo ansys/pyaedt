@@ -1024,7 +1024,6 @@ class Mesh(object):
         names="assignment",
         skindepth="skin_depth",
         maxelements="maximum_elements",
-        triangulation_max_length="0.1mm",
         numlayers="layers_number",
         meshop_name="name",
     )
