@@ -349,7 +349,7 @@ toolkit_levels = [
     "Mechanical",
     "Circuit",
     "EMIT",
-    "Twinbuilder",
+    "TwinBuilder",
     "",
 ]
 

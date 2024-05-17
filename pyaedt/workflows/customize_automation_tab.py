@@ -255,7 +255,7 @@ def available_toolkits():
         "Project",
         "Q2D",
         "Q3D",
-        "Simplorer",
+        "TwinBuilder",
     ]
 
     product_toolkits = {}
