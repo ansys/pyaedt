@@ -69,7 +69,7 @@ def main():
     if not pyaedt_script_flag:
         return
     # Add environment variables
-    PyAEDT_utils.environment_variables()
+    PyAEDT_utils.environment_variables(oDesktop)
     # Call console script
     if is_linux:
         term = PyAEDT_utils.get_linux_terminal()

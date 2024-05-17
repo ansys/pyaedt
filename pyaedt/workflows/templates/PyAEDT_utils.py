@@ -86,7 +86,7 @@ def show_error(msg):
     sys.exit()
 
 
-def environment_variables():
+def environment_variables(oDesktop):
     os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
     version = str(oDesktop.GetVersion()[:6])
     os.environ["PYAEDT_SCRIPT_VERSION"] = version
@@ -129,8 +129,3 @@ def environment_variables():
             os.environ["TKPATH"] = os.path.join(
                 "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
             )
-
-
-def debug(msg):
-    print("[debug] {}: {}".format(script_name, str(msg)))
-    LogDebug("{}: {}\n".format(script_name, str(msg)))

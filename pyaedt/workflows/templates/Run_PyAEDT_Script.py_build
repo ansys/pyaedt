@@ -51,7 +51,6 @@ def main():
     file_dialog.InitialDirectory = oProject.GetPath()
     file_dialog.Filter = "python files (*.py)|*.py"
     ret = file_dialog.ShowDialog()
-    debug("ret: " + repr(ret))
 
     try:
         if ret == ret.OK:
@@ -92,8 +91,7 @@ def main():
                 ]
                 my_env = os.environ.copy()
                 subprocess.Popen(" ".join(command), env=my_env)
-        else:
-            PyAEDT_utils.debug("ret didn't pass the equivalence. ret:" + repr(ret))
+
     except Exception as e:
         PyAEDT_utils.show_error(str(e))
 
