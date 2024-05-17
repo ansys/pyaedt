@@ -77,7 +77,7 @@ class CircuitComponents(object):
                 :class:`pyaedt.modeler.circuits.object3dcircuit.Wire`
         `
         """
-        for k, w in self.wires.items():
+        for _, w in self.wires.items():
             if w.name == name:
                 return w
             wname = w.name.split(";")[0].split("@")[0]
