@@ -22,32 +22,25 @@
 
 """
 * * * This script is meant to run in IronPython within AEDT. * * *
-The script provides for choosing the Python script to execute.
 
-It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
-
-It then uses this Python interpreter to execute the script.
-See the declaration of the command variable to see the order in which arguments are passed to the script.
-
-The commands allow the launched script to still reference the project and design that was active when the script
-was launched as well as the AEDT instance that has them open.
+The script allows the user choose a PyAEDT script to execute.
 
 """
 import os
 import sys
 
-from System.Windows.Forms import MessageBox
-from System.Windows.Forms import MessageBoxButtons
-from System.Windows.Forms import MessageBoxIcon
-from System.Windows.Forms import OpenFileDialog
-
 is_linux = os.name == "posix"
-script_name = os.path.splitext(os.path.basename(__file__))[0]
 
 if is_linux:
     import subprocessdotnet as subprocess
 else:
     import subprocess
+
+toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.append(toolkits_dir)
+
+import PyAEDT_utils
 
 
 def main():
@@ -62,36 +55,26 @@ def main():
 
     try:
         if ret == ret.OK:
-            # launch file
-            version = oDesktop.GetVersion()[2:6].replace(".", "")
+            # Get AEDT version
+            version_short = oDesktop.GetVersion()[2:6].replace(".", "")
+            # CPython interpreter
             python_exe = r"##PYTHON_EXE##" % version
-            python_exe = check_interpreter(python_exe, version)
+            # Check if CPython interpreter and AEDT release match
+            python_exe = PyAEDT_utils.check_interpreter(python_exe, version_short)
+            # Python script
             pyaedt_script = file_dialog.FileName
-            python_exe_flag = check_file(python_exe)
+            # Check python executable
+            python_exe_flag = PyAEDT_utils.check_file(python_exe)
             if not python_exe_flag:
                 return
-            pyaedt_script_flag = check_file(pyaedt_script)
+            # Check script file
+            pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script)
             if not pyaedt_script_flag:
                 return
-            os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
-            version = str(oDesktop.GetVersion()[:6])
-            os.environ["PYAEDT_SCRIPT_VERSION"] = version
-            if version > "2023.1":
-                os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
-            else:
-                os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
+            # Add environment variables
+            PyAEDT_utils.environment_variables()
+            # Run script
             if is_linux:
-                edt_root = os.path.normpath(oDesktop.GetExeDir())
-                os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
-                ld_library_path_dirs_to_add = [
-                    "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
-                    "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
-                    "{}/common/mono/Linux64/lib64".format(edt_root),
-                    "{}/Delcross".format(edt_root),
-                    "{}".format(edt_root),
-                ]
-                os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv(
-                    "LD_LIBRARY_PATH", "")
                 command = [
                     python_exe,
                     pyaedt_script,
@@ -110,38 +93,9 @@ def main():
                 my_env = os.environ.copy()
                 subprocess.Popen(" ".join(command), env=my_env)
         else:
-            debug("ret didn't pass the equivalence. ret:" + repr(ret))
+            PyAEDT_utils.debug("ret didn't pass the equivalence. ret:" + repr(ret))
     except Exception as e:
-        show_error(str(e))
-
-
-def check_file(file_path):
-    if not os.path.isfile(file_path):
-        show_error(
-            '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT documentation.'.
-            format(file_path))
-        return False
-    return True
-
-
-def show_error(msg):
-    oDesktop.AddMessage("", "", 2, str(msg))
-    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-    sys.exit()
-
-
-def check_interpreter(interpreter_path, version):
-    python_version = "3_10" if version > "231" else "3_7"
-    if version > "231" and python_version not in interpreter_path:
-        interpreter_path = interpreter_path.replace("3_7", "3_10")
-    elif version <= "231" and python_version not in interpreter_path:
-        interpreter_path = interpreter_path.replace("3_10", "3_7")
-    return interpreter_path
-
-
-def debug(msg):
-    print("[debug] {}: {}".format(script_name, str(msg)))
-    LogDebug("{}: {}\n".format(script_name, str(msg)))
+        PyAEDT_utils.show_error(str(e))
 
 
 if __name__ == "__main__":

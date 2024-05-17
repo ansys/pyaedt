@@ -28,3 +28,105 @@ It contains common methods for the PyAEDT panels.
 import os
 
 is_linux = os.name == "posix"
+
+
+def check_interpreter(interpreter_path, version):
+    python_version = "3_10" if version > "231" else "3_7"
+    if version > "231" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_7", "3_10")
+    elif version <= "231" and python_version not in interpreter_path:
+        interpreter_path = interpreter_path.replace("3_10", "3_7")
+    return interpreter_path
+
+
+def check_file(file_path):
+    if not os.path.isfile(file_path):
+        show_error(
+            '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
+            "documentation.".format(file_path)
+        )
+        return False
+    return True
+
+
+def get_linux_terminal():
+    for terminal in ["x-terminal-emulator", "konsole", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
+        term = which(terminal)
+        if term:
+            return term
+    return None
+
+
+def which(program):
+    # http://stackoverflow.com/a/377028
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+def show_error(msg):
+    oDesktop.AddMessage("", "", 2, str(msg))
+    MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+    sys.exit()
+
+
+def environment_variables():
+    os.environ["PYAEDT_SCRIPT_PROCESS_ID"] = str(oDesktop.GetProcessID())
+    version = str(oDesktop.GetVersion()[:6])
+    os.environ["PYAEDT_SCRIPT_VERSION"] = version
+    if version > "2023.1":
+        os.environ["PYAEDT_SCRIPT_PORT"] = str(oDesktop.GetGrpcServerPort())
+    else:
+        os.environ["PYAEDT_SCRIPT_PORT"] = str(0)
+    if "Ansys Student" in str(oDesktop.GetExeDir()):
+        os.environ["PYAEDT_STUDENT_VERSION"] = "True"
+    else:
+        os.environ["PYAEDT_STUDENT_VERSION"] = "False"
+    if is_linux:
+        edt_root = os.path.normpath(oDesktop.GetExeDir())
+        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        ld_library_path_dirs_to_add = [
+            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+            "{}/common/mono/Linux64/lib64".format(edt_root),
+            "{}/Delcross".format(edt_root),
+            "{}".format(edt_root),
+        ]
+        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        if version > "2023.1":
+            os.environ["TCL_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tcl8.5"
+            )
+            os.environ["TK_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+            os.environ["TKPATH"] = os.path.join(
+                "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+        else:
+            os.environ["TCL_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tcl8.5"
+            )
+            os.environ["TK_LIBRARY"] = os.path.join(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+            os.environ["TKPATH"] = os.path.join(
+                "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root), "tk8.5"
+            )
+
+
+def debug(msg):
+    print("[debug] {}: {}".format(script_name, str(msg)))
+    LogDebug("{}: {}\n".format(script_name, str(msg)))
