@@ -100,7 +100,7 @@ if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
 else:
     port = 0
-    version = "2023.2"
+    version = "2024.1"
 
 if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
     aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))

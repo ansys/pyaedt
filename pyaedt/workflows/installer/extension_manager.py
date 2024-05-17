@@ -42,7 +42,7 @@ if all(var in os.environ for var in env_vars):
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
 else:
-    version = "241"
+    version = "2024.1"
     port = 0
     student_version = False
 
@@ -51,7 +51,7 @@ if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
     aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
 
 # Set Python version based on AEDT version
-python_version = "3.10" if version > "231" else "3.7"
+python_version = "3.10" if version > "2023.1" else "3.7"
 
 if is_windows:
     venv_dir = os.path.join(
