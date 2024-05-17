@@ -56,12 +56,12 @@ def add_pyaedt_to_aedt(
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
 
-    toolkit_dir = os.path.join(personal_lib, "Toolkits")
-    os.makedirs(toolkit_dir, exist_ok=True)
+    extensions_dir = os.path.join(personal_lib, "Toolkits")
+    os.makedirs(extensions_dir, exist_ok=True)
 
     templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
     script_file = os.path.join(templates_dir, "PyAEDT_utils.py")
-    dest_script_path = os.path.join(toolkit_dir, "PyAEDT_utils.py")
+    dest_script_path = os.path.join(extensions_dir, "PyAEDT_utils.py")
     shutil.copy2(script_file, dest_script_path)
 
     __add_pyaedt_tabs(personal_lib, aedt_version)
@@ -70,22 +70,22 @@ def add_pyaedt_to_aedt(
 def __add_pyaedt_tabs(personal_lib, aedt_version):
     """Add PyAEDT tabs in AEDT."""
 
-    pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ToolkitManager"]
+    pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
 
-    toolkits_catalog = read_toml(os.path.join(os.path.dirname(__file__), "toolkits_catalog.toml"))
+    extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
 
     project_workflows_dir = os.path.dirname(__file__)
 
-    for toolkit in pyaedt_tabs:
-        if toolkit in toolkits_catalog.keys():
-            toolkit_info = toolkits_catalog[toolkit]
+    for extension in pyaedt_tabs:
+        if extension in extensions_catalog.keys():
+            extension_info = extensions_catalog[extension]
             script_path = None
-            if toolkit_info["script"]:
-                script_path = os.path.join(project_workflows_dir, toolkit_info["script"])
-            icon_file = os.path.join(project_workflows_dir, "images", "large", toolkit_info["icon"])
-            template_name = toolkit_info["template"]
+            if extension_info["script"]:
+                script_path = os.path.join(project_workflows_dir, extension_info["script"])
+            icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
+            template_name = extension_info["template"]
             customize_automation_tab.add_script_to_menu(
-                toolkit_info["name"],
+                extension_info["name"],
                 script_path,
                 template_name,
                 icon_file=icon_file,

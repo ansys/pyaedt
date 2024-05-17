@@ -44,14 +44,14 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
   :alt: PyAEDT toolkit buttons available in AEDT
 
 
-Toolkit Manager
-~~~~~~~~~~~~~~~
-The user can install or uninstall automated workflows using the toolkit manager.
+Extension Manager
+~~~~~~~~~~~~~~~~~
+The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 
 - Custom PyAEDT scripts.
 
-- Internal PyAEDT scripts. Existing workflows in the PyAEDT library.
+- PyAEDT workflows. Existing workflows in the PyAEDT library.
 
 - Open source PyAEDT toolkits. Open source PyAEDT toolkits following the `common library <https://aedt.common.toolkit.docs.pyansys.com/>`_ standard.
 

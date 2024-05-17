@@ -49,7 +49,7 @@ def add_automation_tab(
     product="Project",
     template="Run PyAEDT Toolkit Script",
     overwrite=False,
-    panel="Panel_PyAEDT_Toolkits",
+    panel="Panel_PyAEDT_Extensions",
 ):
     """Add an automation tab in AEDT.
 
@@ -69,7 +69,7 @@ def add_automation_tab(
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
     panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
 
     Returns
     -------
@@ -140,7 +140,7 @@ def add_automation_tab(
     return tab_config_file_path
 
 
-def remove_automation_tab(name, lib_dir, panel="Panel_PyAEDT_Toolkits"):
+def remove_automation_tab(name, lib_dir, panel="Panel_PyAEDT_Extensions"):
     """Remove automation tab in AEDT.
 
     Parameters
@@ -150,7 +150,7 @@ def remove_automation_tab(name, lib_dir, panel="Panel_PyAEDT_Toolkits"):
     lib_dir : str
         Path to the library directory.
     panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
 
     Returns
     -------
@@ -208,7 +208,7 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Toolkits"):
+def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration file."""
     tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path):
@@ -275,7 +275,7 @@ def add_script_to_menu(
     product="Project",
     copy_to_personal_lib=True,
     executable_interpreter=None,
-    panel="Panel_PyAEDT_Toolkits",
+    panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
     aedt_version="",
 ):
@@ -305,7 +305,7 @@ def add_script_to_menu(
     executable_interpreter : str, optional
         Executable python path. The default is the one current interpreter.
     panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
     aedt_version : str, optional
 
