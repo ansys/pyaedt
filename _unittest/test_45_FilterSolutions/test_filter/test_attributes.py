@@ -1,18 +1,94 @@
-from fspy.attributes import BesselRipplePercentage
-from fspy.attributes import GaussianBesselReflection
-from fspy.attributes import GaussianTransition
-from fspy.attributes import PassbandDefinition
-from fspy.attributes import RippleConstrictionBandSelect
-from fspy.attributes import SinglePointRippleInfZeros
-from fspy.attributes import StopbandDefinition
-from fspy.filter_design import FilterClass
-from fspy.filter_design import FilterType
-from fspy.ideal_design import IdealDesign
 import pytest
+
+import pyaedt
+from pyaedt.filtersolutions_core.attributes import BesselRipplePercentage
+from pyaedt.filtersolutions_core.attributes import DiplexerType
+from pyaedt.filtersolutions_core.attributes import FilterClass
+from pyaedt.filtersolutions_core.attributes import FilterImplementation
+from pyaedt.filtersolutions_core.attributes import FilterType
+from pyaedt.filtersolutions_core.attributes import GaussianBesselReflection
+from pyaedt.filtersolutions_core.attributes import GaussianTransition
+from pyaedt.filtersolutions_core.attributes import PassbandDefinition
+from pyaedt.filtersolutions_core.attributes import RippleConstrictionBandSelect
+from pyaedt.filtersolutions_core.attributes import SinglePointRippleInfZeros
+from pyaedt.filtersolutions_core.attributes import StopbandDefinition
+
+
+def test_filter_type():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    assert design.attributes.filter_type == FilterType.BUTTERWORTH
+
+    assert len(FilterType) == 8
+
+    for fimp in [FilterImplementation.LUMPED]:
+        design.attributes.filter_implementation = fimp
+        for ftype in FilterType:
+            design.attributes.filter_type = ftype
+            assert design.attributes.filter_type == ftype
+
+
+def test_filter_class():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    assert design.attributes.filter_class == FilterClass.LOW_PASS
+
+    # Only lumped supports all classes
+    # TODO: Confirm proper exceptions are raised when setting unsupported filter class for each implementation.
+
+    assert len(FilterClass) == 10
+    for index, fclass in enumerate(FilterClass):
+        if index > 5:
+            design.attributes.filter_multiple_bands_enabled = True
+        design.attributes.filter_class = fclass
+        assert design.attributes.filter_class == fclass
+
+
+def test_filter_multiple_bands_enabled():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    assert design.attributes.filter_multiple_bands_enabled is False
+    design.attributes.filter_multiple_bands_enabled = True
+    assert design.attributes.filter_multiple_bands_enabled
+
+
+def test_filter_multiple_bands_low_pass_frequency():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
+    design.attributes.filter_class = FilterClass.LOW_BAND
+    assert design.attributes.filter_multiple_bands_low_pass_frequency == "1G"
+    design.attributes.filter_multiple_bands_low_pass_frequency = "500M"
+    assert design.attributes.filter_multiple_bands_low_pass_frequency == "500M"
+
+
+def test_filter_multiple_bands_high_pass_frequency():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
+    design.attributes.filter_class = FilterClass.BAND_HIGH
+    assert design.attributes.filter_multiple_bands_high_pass_frequency == "1G"
+    design.attributes.filter_multiple_bands_high_pass_frequency = "500M"
+    assert design.attributes.filter_multiple_bands_high_pass_frequency == "500M"
+
+
+def test_filter_implementation():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    assert len(FilterImplementation) == 5
+    for fimplementation in FilterImplementation:
+        design.attributes.filter_implementation = fimplementation
+        assert design.attributes.filter_implementation == fimplementation
+
+
+def test_diplexer_type():
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    assert len(DiplexerType) == 6
+    for index, diplexer_type in enumerate(DiplexerType):
+        if index < 3:
+            design.attributes.filter_class = FilterClass.DIPLEXER_1
+        elif index > 2:
+            design.attributes.filter_class = FilterClass.DIPLEXER_2
+        design.attributes.diplexer_type = diplexer_type
+        assert design.attributes.diplexer_type == diplexer_type
 
 
 def test_order():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.order == 5
 
     with pytest.raises(RuntimeError) as info:
@@ -29,29 +105,29 @@ def test_order():
 
 
 def test_minimum_order_stop_band_att():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.minimum_order_stop_band_attenuation_db == "60 dB"
     design.attributes.minimum_order_stop_band_attenuation_db = "40 dB"
     assert design.attributes.minimum_order_stop_band_attenuation_db == "40 dB"
 
 
 def test_minimum_order_stop_band_freq():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.minimum_order_stop_band_frequency == "10 GHz"
     design.attributes.minimum_order_stop_band_frequency = "500 MHz"
     assert design.attributes.minimum_order_stop_band_frequency == "500 MHz"
 
 
 def test_minimum_order():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.order == 5
     design.attributes.ideal_minimum_order
     assert design.attributes.order == 3
 
 
 def test_pass_band_definition():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     assert len(PassbandDefinition) == 2
     assert design.attributes.pass_band_definition == PassbandDefinition.CENTER_FREQUENCY
     for pbd in PassbandDefinition:
@@ -60,23 +136,23 @@ def test_pass_band_definition():
 
 
 def test_pass_band_center_frequency():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.pass_band_center_frequency == "1G"
     design.attributes.pass_band_center_frequency = "500M"
     assert design.attributes.pass_band_center_frequency == "500M"
 
 
 def test_pass_band_frequency():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     assert design.attributes.pass_band_width_frequency == "200M"
     design.attributes.pass_band_width_frequency = "500M"
     assert design.attributes.pass_band_width_frequency == "500M"
 
 
 def test_lower_frequency():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
     assert design.attributes.lower_frequency == "905 M"
     design.attributes.lower_frequency = "800M"
@@ -84,8 +160,8 @@ def test_lower_frequency():
 
 
 def test_upper_frequency():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.pass_band_definition = PassbandDefinition.CORNER_FREQUENCIES
     assert design.attributes.upper_frequency == "1.105 G"
     design.attributes.upper_frequency = "1.2 G"
@@ -93,8 +169,8 @@ def test_upper_frequency():
 
 
 def test_stop_band_definition():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert len(StopbandDefinition) == 3
     assert design.attributes.stop_band_definition == StopbandDefinition.RATIO
     for sbd in StopbandDefinition:
@@ -103,16 +179,16 @@ def test_stop_band_definition():
 
 
 def test_stop_band_ratio():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert design.attributes.stop_band_ratio == "1.2"
     design.attributes.stop_band_ratio = "1.5"
     assert design.attributes.stop_band_ratio == "1.5"
 
 
 def test_stop_band_frequency():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.stop_band_definition = StopbandDefinition.FREQUENCY
     assert design.attributes.stop_band_frequency == "1.2 G"
     design.attributes.stop_band_frequency = "1.5 G"
@@ -120,8 +196,8 @@ def test_stop_band_frequency():
 
 
 def test_stop_band_attenuation():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.stop_band_definition = StopbandDefinition.ATTENUATION_DB
     assert design.attributes.stop_band_attenuation_db == "60"
     design.attributes.stop_band_attenuation_db = "40 dB"
@@ -129,14 +205,14 @@ def test_stop_band_attenuation():
 
 
 def test_standard_pass_band_attenuation():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.standard_pass_band_attenuation
     design.attributes.standard_pass_band_attenuation = False
     assert design.attributes.standard_pass_band_attenuation is False
 
 
 def test_standard_pass_band_attenuation_value_db():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.standard_pass_band_attenuation = False
     assert design.attributes.standard_pass_band_attenuation_value_db == "3.01"
     design.attributes.standard_pass_band_attenuation_value_db = "4"
@@ -144,16 +220,16 @@ def test_standard_pass_band_attenuation_value_db():
 
 
 def test_bessel_normalized_delay():
-    design = IdealDesign()
-    design.filter_type = FilterType.BESSEL
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.BESSEL
     assert design.attributes.bessel_normalized_delay is False
     design.attributes.bessel_normalized_delay = True
     assert design.attributes.bessel_normalized_delay
 
 
 def test_bessel_normalized_delay_period():
-    design = IdealDesign()
-    design.filter_type = FilterType.BESSEL
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.BESSEL
     design.attributes.bessel_normalized_delay = True
     assert design.attributes.bessel_normalized_delay_period == "2"
     design.attributes.bessel_normalized_delay_period = "3"
@@ -161,8 +237,8 @@ def test_bessel_normalized_delay_period():
 
 
 def test_bessel_normalized_delay_percentage():
-    design = IdealDesign()
-    design.filter_type = FilterType.BESSEL
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.BESSEL
     design.attributes.bessel_normalized_delay = True
     assert len(BesselRipplePercentage) == 6
     for bessel_normalized_delay_percentage in BesselRipplePercentage:
@@ -171,33 +247,33 @@ def test_bessel_normalized_delay_percentage():
 
 
 def test_pass_band_ripple():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert design.attributes.pass_band_ripple == ".05"
     design.attributes.pass_band_ripple = ".03"
     assert design.attributes.pass_band_ripple == ".03"
 
 
 def test_arith_symmetry():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
+    design.attributes.filter_class = FilterClass.BAND_PASS
     assert design.attributes.arith_symmetry is False
     design.attributes.arith_symmetry = True
     assert design.attributes.arith_symmetry
 
 
 def test_asymmetric():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     assert design.attributes.asymmetric is False
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric
 
 
 def test_asymmetric_low_order():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_low_order == 5
 
@@ -215,8 +291,8 @@ def test_asymmetric_low_order():
 
 
 def test_asymmetric_high_order():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_high_order == 5
 
@@ -234,9 +310,9 @@ def test_asymmetric_high_order():
 
 
 def test_asymmetric_low_stop_band_ratio():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_low_stop_band_ratio == "1.2"
     design.attributes.asymmetric_low_stop_band_ratio = "1.5"
@@ -244,9 +320,9 @@ def test_asymmetric_low_stop_band_ratio():
 
 
 def test_asymmetric_high_stop_band_ratio():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_high_stop_band_ratio == "1.2"
     design.attributes.asymmetric_high_stop_band_ratio = "1.5"
@@ -254,9 +330,9 @@ def test_asymmetric_high_stop_band_ratio():
 
 
 def test_asymmetric_low_stop_band_attenuation_db():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_low_stop_band_attenuation_db == "60"
     design.attributes.asymmetric_low_stop_band_attenuation_db = "40"
@@ -264,9 +340,9 @@ def test_asymmetric_low_stop_band_attenuation_db():
 
 
 def test_asymmetric_high_stop_band_attenuation_db():
-    design = IdealDesign()
-    design.filter_class = FilterClass.BAND_PASS
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_class = FilterClass.BAND_PASS
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.asymmetric = True
     assert design.attributes.asymmetric_high_stop_band_attenuation_db == "60"
     design.attributes.asymmetric_high_stop_band_attenuation_db = "40"
@@ -274,8 +350,8 @@ def test_asymmetric_high_stop_band_attenuation_db():
 
 
 def test_gaussian_transition():
-    design = IdealDesign()
-    design.filter_type = FilterType.GAUSSIAN
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.GAUSSIAN
     assert len(GaussianTransition) == 6
     for gaussian_transition in GaussianTransition:
         design.attributes.gaussian_transition = gaussian_transition
@@ -283,8 +359,8 @@ def test_gaussian_transition():
 
 
 def test_gaussian_bessel_reflection():
-    design = IdealDesign()
-    design.filter_type = FilterType.BESSEL
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.BESSEL
     assert len(GaussianBesselReflection) == 3
     for gaussian_bessel_reflection in GaussianBesselReflection:
         design.attributes.gaussian_bessel_reflection = gaussian_bessel_reflection
@@ -292,8 +368,8 @@ def test_gaussian_bessel_reflection():
 
 
 def test_even_order():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.order = 4
     assert design.attributes.even_order
     design.attributes.even_order = False
@@ -301,8 +377,8 @@ def test_even_order():
 
 
 def test_even_order_refl_zero():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.order = 4
     assert design.attributes.even_order_refl_zero
     design.attributes.even_order_refl_zero = False
@@ -310,8 +386,8 @@ def test_even_order_refl_zero():
 
 
 def test_even_order_trn_zero():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.order = 4
     assert design.attributes.even_order_trn_zero
     design.attributes.even_order_trn_zero = False
@@ -319,32 +395,32 @@ def test_even_order_trn_zero():
 
 
 def test_constrict_ripple():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert design.attributes.constrict_ripple is False
     design.attributes.constrict_ripple = True
     assert design.attributes.constrict_ripple
 
 
 def test_single_point_ripple():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert design.attributes.single_point_ripple is False
     design.attributes.single_point_ripple = True
     assert design.attributes.single_point_ripple
 
 
 def test_half_band_ripple():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     assert design.attributes.half_band_ripple is False
     design.attributes.half_band_ripple = True
     assert design.attributes.half_band_ripple
 
 
 def test_constrict_ripple_percent():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.constrict_ripple = True
     assert design.attributes.constrict_ripple_percent == "50%"
     design.attributes.constrict_ripple_percent = "40%"
@@ -352,8 +428,8 @@ def test_constrict_ripple_percent():
 
 
 def test_ripple_constriction_band():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.constrict_ripple = True
     assert len(RippleConstrictionBandSelect) == 3
     for ripple_constriction_band in RippleConstrictionBandSelect:
@@ -362,8 +438,8 @@ def test_ripple_constriction_band():
 
 
 def test_single_point_ripple_inf_zeros():
-    design = IdealDesign()
-    design.filter_type = FilterType.ELLIPTIC
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_type = FilterType.ELLIPTIC
     design.attributes.single_point_ripple = True
     assert len(SinglePointRippleInfZeros) == 2
     for single_point_ripple_inf_zeros in SinglePointRippleInfZeros:
@@ -372,14 +448,14 @@ def test_single_point_ripple_inf_zeros():
 
 
 def test_delay_equalizer():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.attributes.delay_equalizer is False
     design.attributes.delay_equalizer = True
     assert design.attributes.delay_equalizer
 
 
 def test_delay_equalizer_order():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.delay_equalizer = True
     assert design.attributes.delay_equalizer_order == 2
 
@@ -393,7 +469,7 @@ def test_delay_equalizer_order():
 
 
 def test_standard_delay_equ_pass_band_attenuation():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.delay_equalizer = True
     assert design.attributes.standard_delay_equ_pass_band_attenuation
     design.attributes.standard_delay_equ_pass_band_attenuation = False
@@ -401,7 +477,7 @@ def test_standard_delay_equ_pass_band_attenuation():
 
 
 def test_standard_delay_equ_pass_band_attenuation_value_db():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.delay_equalizer = True
     design.attributes.standard_delay_equ_pass_band_attenuation = False
     assert design.attributes.standard_delay_equ_pass_band_attenuation_value_db == "3.01"

@@ -1,25 +1,27 @@
-from fspy.lumped_design import LumpedDesign
-from fspy.lumped_termination_impedance import ComplexReactanceType
-from fspy.lumped_termination_impedance import ComplexTerminationDefinition
 import pytest
+
+import pyaedt
+from pyaedt.filtersolutions_core.attributes import FilterImplementation
+from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexReactanceType
+from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexTerminationDefinition
 
 
 def test_row_count():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     assert lumpdesign.source_impedance_table.row_count == 3
     assert lumpdesign.load_impedance_table.row_count == 3
 
 
 def test_row():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     assert lumpdesign.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
     assert lumpdesign.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
 
 
 def test_update_row():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     with pytest.raises(RuntimeError) as info:
         lumpdesign.source_impedance_table.update_row(0)
@@ -42,7 +44,7 @@ def test_update_row():
 
 
 def test_append_row():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     lumpdesign.source_impedance_table.append_row("100M", "10", "20")
     assert lumpdesign.source_impedance_table.row_count == 4
@@ -54,7 +56,7 @@ def test_append_row():
 
 
 def test_insert_row():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     lumpdesign.source_impedance_table.insert_row(0, "2G", "50", "0")
     assert lumpdesign.source_impedance_table.row(0) == ("2G", "50", "0")
@@ -63,7 +65,7 @@ def test_insert_row():
 
 
 def test_remove_row():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     lumpdesign.source_impedance_table.remove_row(0)
     assert lumpdesign.source_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
@@ -78,7 +80,7 @@ def test_remove_row():
 
 
 def test_complex_definition():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     assert len(ComplexTerminationDefinition) == 4
     assert lumpdesign.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
@@ -92,7 +94,7 @@ def test_complex_definition():
 
 
 def test_reactance_type():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     assert len(ComplexReactanceType) == 3
     assert lumpdesign.source_impedance_table.reactance_type == ComplexReactanceType.REAC
@@ -106,7 +108,7 @@ def test_reactance_type():
 
 
 def test_compensation_enabled():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     assert lumpdesign.source_impedance_table.compensation_enabled is False
     lumpdesign.source_impedance_table.compensation_enabled = True
@@ -117,7 +119,7 @@ def test_compensation_enabled():
 
 
 def test_compensation_order():
-    lumpdesign = LumpedDesign()
+    lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
     lumpdesign.source_impedance_table.compensation_enabled = True
     assert lumpdesign.source_impedance_table.compensation_order == 2

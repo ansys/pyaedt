@@ -4,7 +4,7 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class LumpedNodesandLeads:
@@ -27,8 +27,8 @@ class LumpedNodesandLeads:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_nodes_and_leads_dll_functions()
 
     def _define_nodes_and_leads_dll_functions(self):
@@ -180,13 +180,13 @@ class LumpedNodesandLeads:
         """
         c_node_compensate = c_bool()
         status = self._dll.getLumpedCNodeLedComensate(byref(c_node_compensate))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(c_node_compensate.value)
 
     @c_node_compensate.setter
     def c_node_compensate(self, c_node_compensate: bool):
         status = self._dll.setLumpedCNodeLedComensate(c_node_compensate)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def l_node_compensate(self) -> bool:
@@ -199,10 +199,10 @@ class LumpedNodesandLeads:
         """
         l_node_compensate = c_bool()
         status = self._dll.getLumpedLNodeLedComensate(byref(l_node_compensate))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(l_node_compensate.value)
 
     @l_node_compensate.setter
     def l_node_compensate(self, l_node_compensate: bool):
         status = self._dll.setLumpedLNodeLedComensate(l_node_compensate)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)

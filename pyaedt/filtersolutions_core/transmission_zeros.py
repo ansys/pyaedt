@@ -6,7 +6,7 @@ from ctypes import c_int
 from ctypes import create_string_buffer
 from enum import Enum
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class TableFormat(Enum):
@@ -42,8 +42,8 @@ class TransmissionZeros:
     """
 
     def __init__(self, table_format):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_transmission_zeros_dll_functions()
         self.table_format = table_format
 
@@ -116,7 +116,7 @@ class TransmissionZeros:
         """
         table_row_count = c_int()
         status = self._dll.getTransmissionZerosTableRowCount(byref(table_row_count), self.table_format_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -144,7 +144,7 @@ class TransmissionZeros:
             self.table_format_to_bool(),
             100,
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         zero_value_string = zero_value_buffer.value.decode("utf-8")
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
@@ -171,7 +171,7 @@ class TransmissionZeros:
             position_bytes_value,
             self.table_format_to_bool(),
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, zero, position=""):
         """Append ratios or frequencies at the end row of transmission zeros table.
@@ -188,7 +188,7 @@ class TransmissionZeros:
         status = self._dll.appendTransmissionZerosTableRow(
             zero_bytes_value, position_bytes_value, self.table_format_to_bool()
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, zero, position=""):
         """Insert ratios or frequencies at given index of the transmission zeros table.
@@ -210,7 +210,7 @@ class TransmissionZeros:
             position_bytes_value,
             self.table_format_to_bool(),
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def remove_row(self, row_index):
         """Remove ratios or frequencies at given index of the transmission zeros table.
@@ -221,14 +221,14 @@ class TransmissionZeros:
             The row index on transmission zeros table. Starting value is 0 and maximum value is 9.
         """
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def clear_row(self):
         """Clear all entries of the transmission zeros table."""
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def default_position(self):
         """Restore default position of transmissison zeros."""
         status = self._dll.defaultPositionEnabled(self.table_format_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)

@@ -1,15 +1,17 @@
 from resource import resource_path
 
-from fspy.ideal_design import IdealDesign
-from fspy.ideal_response import FrequencyResponseColumn
-from fspy.ideal_response import PoleZerosResponseColumn
-from fspy.ideal_response import SParametersResponseColumn
-from fspy.ideal_response import TimeResponseColumn
 import pytest
+
+import pyaedt
+from pyaedt.filtersolutions_core.attributes import FilterImplementation
+from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn
+from pyaedt.filtersolutions_core.ideal_response import PoleZerosResponseColumn
+from pyaedt.filtersolutions_core.ideal_response import SParametersResponseColumn
+from pyaedt.filtersolutions_core.ideal_response import TimeResponseColumn
 
 
 def test_frequency_response_getter():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
 
     mag_db = design.ideal_response._frequency_response_getter(FrequencyResponseColumn.MAGNITUDE_DB)
     assert len(mag_db) == 500
@@ -64,7 +66,7 @@ def test_frequency_response_getter():
 
 
 def test_time_response_getter():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     step_response = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
     assert len(step_response) == 300
     assert step_response[100] == pytest.approx(1.0006647872833518)
@@ -103,7 +105,7 @@ def test_time_response_getter():
 
 
 def test_sparameters_response_getter():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     s11_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
     assert len(s11_response_db) == 500
     assert s11_response_db[100] == pytest.approx(-41.93847819973562)
@@ -132,7 +134,7 @@ def test_sparameters_response_getter():
 
 
 def test_pole_zeros_response_getter():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
     assert len(pole_zero_den_x) == 5
     assert pole_zero_den_x[0] == pytest.approx(-1000000000.0)
@@ -236,14 +238,14 @@ def test_pole_zeros_response_getter():
 
 
 def test_filter_vsg_analysis_enabled():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.ideal_response.vsg_analysis_enabled is False
     design.ideal_response.vsg_analysis_enabled = True
     assert design.ideal_response.vsg_analysis_enabled
 
 
 def test_frequency_response():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     freq, mag_db = design.ideal_response.frequency_response(
         y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
         minimum_frequency="200 MHz",
@@ -261,7 +263,7 @@ def test_frequency_response():
 
 
 def test_time_response():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     time, step_response = design.ideal_response.time_response(
         y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
         minimum_time="0 ns",
@@ -280,7 +282,7 @@ def test_time_response():
 
 
 def test_s_parameters():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     freq, s21_db = design.ideal_response.s_parameters(
         y_axis_parameter=SParametersResponseColumn.S21_DB,
         minimum_frequency="200 MHz",
@@ -297,7 +299,7 @@ def test_s_parameters():
 
 
 def test_pole_zero_locations():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     tx_zero_den_x, tx_zero_den_y = design.ideal_response.pole_zero_locations(
         x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
         y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
@@ -317,7 +319,7 @@ def test_pole_zero_locations():
 
 
 def test_transfer_function_response():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     list = design.ideal_response.transfer_function_response()
     list_file = open(resource_path("transferfunction.ckt"))
     lines_list = list.splitlines()

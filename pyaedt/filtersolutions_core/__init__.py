@@ -1,14 +1,14 @@
 import sys
 
-import fspy.dll_interface
+from pyaedt.filtersolutions_core.dll_interface import DllInterface
 
 _this = sys.modules[__name__]
 _this._internal_dll_interface = None
 
 
-def _dll_interface() -> fspy.dll_interface.DllInterface:
+def _dll_interface() -> DllInterface:
     if _this._internal_dll_interface is None:
-        _this._internal_dll_interface = fspy.dll_interface.DllInterface(show_gui=False)
+        _this._internal_dll_interface = DllInterface(show_gui=False)
     return _this._internal_dll_interface
 
 

@@ -6,7 +6,7 @@ from ctypes import c_int
 from ctypes import create_string_buffer
 from enum import Enum
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class ComplexTerminationDefinition(Enum):
@@ -71,8 +71,8 @@ class LumpedTerminationImpedance:
     """
 
     def __init__(self, table_type):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_termination_impedance_dll_functions()
         self.table_type = table_type
 
@@ -166,7 +166,7 @@ class LumpedTerminationImpedance:
         """
         table_row_count = c_int()
         status = self._dll.getComplexTableRowCount(byref(table_row_count), self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -198,7 +198,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         frequency_value_string = frequency_value_buffer.value.decode("utf-8")
         real_value_string = real_value_buffer.value.decode("utf-8")
         imag_value_string = imag_value_buffer.value.decode("utf-8")
@@ -230,7 +230,7 @@ class LumpedTerminationImpedance:
             imag_bytes_value,
             self.table_type_to_bool(),
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, frequency, real, imag):
         """Append frequencies and complex impedances at the end row of the source and load complex tables.
@@ -252,7 +252,7 @@ class LumpedTerminationImpedance:
             imag_bytes_value,
             self.table_type_to_bool(),
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, frequency, real, imag):
         """Insert frequencies and complex impedances at given index of the complex impedances tables.
@@ -277,7 +277,7 @@ class LumpedTerminationImpedance:
             imag_bytes_value,
             self.table_type_to_bool(),
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def remove_row(self, row_index):
         """Remove frequencies and complex impedances at given indexof the complex impedances tables.
@@ -288,7 +288,7 @@ class LumpedTerminationImpedance:
             The row index on complex impedances tables. Starting value is 0 and maximum value is 99.
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
@@ -305,7 +305,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexTerminationDefinition, type_string)
 
@@ -314,7 +314,7 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(complex_definition)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexDefinition(string_bytes_value, self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def reactance_type(self) -> ComplexReactanceType:
@@ -332,7 +332,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexReactanceType, type_string)
 
@@ -341,7 +341,7 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(reactance_type)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexReactanceType(string_bytes_value, self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def compensation_enabled(self) -> bool:
@@ -354,13 +354,13 @@ class LumpedTerminationImpedance:
         """
         compensation_enabled = c_bool()
         status = self._dll.getLumpedComplexImpCompensateEnabled(byref(compensation_enabled), self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(compensation_enabled.value)
 
     @compensation_enabled.setter
     def compensation_enabled(self, compensation_enabled: bool):
         status = self._dll.setLumpedComplexImpCompensateEnabled(compensation_enabled, self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def compensation_order(self) -> int:
@@ -373,10 +373,10 @@ class LumpedTerminationImpedance:
         """
         compensation_order = c_int()
         status = self._dll.getLumpedComplexCompOrder(byref(compensation_order), self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(compensation_order.value)
 
     @compensation_order.setter
     def compensation_order(self, compensation_order: int):
         status = self._dll.setLumpedComplexCompOrder(compensation_order, self.table_type_to_bool())
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)

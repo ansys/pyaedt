@@ -5,7 +5,7 @@ from ctypes import c_char_p
 from ctypes import c_int
 from enum import Enum
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class FilterType(Enum):
@@ -209,8 +209,9 @@ class Attributes:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
+        self._dll_interface.restore_defaults()
         self._define_attributes_dll_functions()
 
     def _define_attributes_dll_functions(self):
@@ -550,13 +551,13 @@ class Attributes:
         """
         filter_multiple_bands_enabled = c_bool()
         status = self._dll.getMultipleBandsEnabled(byref(filter_multiple_bands_enabled))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(filter_multiple_bands_enabled.value)
 
     @filter_multiple_bands_enabled.setter
     def filter_multiple_bands_enabled(self, filter_multiple_bands_enabled: bool):
         status = self._dll.setMultipleBandsEnabled(filter_multiple_bands_enabled)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def filter_multiple_bands_low_pass_frequency(self) -> str:
@@ -608,13 +609,13 @@ class Attributes:
         """
         order = c_int()
         status = self._dll.getOrder(byref(order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(order.value)
 
     @order.setter
     def order(self, order: int):
         status = self._dll.setOrder(order)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def minimum_order_stop_band_attenuation_db(self) -> str:
@@ -668,7 +669,7 @@ class Attributes:
         """
         minimum_order = c_int()
         status = self._dll.setIdealMinimumOrder(byref(minimum_order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(minimum_order.value)
 
     @property
@@ -683,14 +684,14 @@ class Attributes:
         index = c_int()
         pass_band_definition = list(PassbandDefinition)
         status = self._dll.getPassbandDef(byref(index))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         pass_band_definition = pass_band_definition[index.value]
         return pass_band_definition
 
     @pass_band_definition.setter
     def pass_band_definition(self, column: PassbandDefinition):
         status = self._dll.setPassbandDef(column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def pass_band_center_frequency(self) -> str:
@@ -768,14 +769,14 @@ class Attributes:
         index = c_int()
         stop_band_definition = list(StopbandDefinition)
         status = self._dll.getStopbandDef(byref(index))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         stop_band_definition = stop_band_definition[index.value]
         return stop_band_definition
 
     @stop_band_definition.setter
     def stop_band_definition(self, column: StopbandDefinition):
         status = self._dll.setStopbandDef(column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def stop_band_ratio(self) -> str:
@@ -836,13 +837,13 @@ class Attributes:
         """
         standard_pass_band_attenuation = c_bool()
         status = self._dll.getStandardCutoffEnabled(byref(standard_pass_band_attenuation))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(standard_pass_band_attenuation.value)
 
     @standard_pass_band_attenuation.setter
     def standard_pass_band_attenuation(self, standard_pass_band_attenuation: bool):
         status = self._dll.setStandardCutoffEnabled(standard_pass_band_attenuation)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def standard_pass_band_attenuation_value_db(self) -> str:
@@ -876,13 +877,13 @@ class Attributes:
         """
         bessel_normalized_delay = c_bool()
         status = self._dll.getBesselNormalizedDelay(byref(bessel_normalized_delay))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(bessel_normalized_delay.value)
 
     @bessel_normalized_delay.setter
     def bessel_normalized_delay(self, bessel_normalized_delay: bool):
         status = self._dll.setBesselNormalizedDelay(bessel_normalized_delay)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def bessel_normalized_delay_period(self) -> str:
@@ -915,14 +916,14 @@ class Attributes:
         index = c_int()
         bessel_normalized_delay_percentage = list(BesselRipplePercentage)
         status = self._dll.getBesselRipplePercentage(byref(index))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         bessel_normalized_delay_percentage_string = bessel_normalized_delay_percentage[index.value]
         return bessel_normalized_delay_percentage_string
 
     @bessel_normalized_delay_percentage.setter
     def bessel_normalized_delay_percentage(self, column: BesselRipplePercentage):
         status = self._dll.setBesselRipplePercentage(column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def pass_band_ripple(self) -> str:
@@ -951,13 +952,13 @@ class Attributes:
         """
         arith_symmetry = c_bool()
         status = self._dll.getArithSymmetry(byref(arith_symmetry))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(arith_symmetry.value)
 
     @arith_symmetry.setter
     def arith_symmetry(self, arith_symmetry: bool):
         status = self._dll.setArithSymmetry(arith_symmetry)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def asymmetric(self) -> bool:
@@ -970,13 +971,13 @@ class Attributes:
         """
         asymmetric = c_bool()
         status = self._dll.getAsymmetric(byref(asymmetric))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(asymmetric.value)
 
     @asymmetric.setter
     def asymmetric(self, asymmetric: bool):
         status = self._dll.setAsymmetric(asymmetric)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def asymmetric_low_order(self) -> int:
@@ -989,13 +990,13 @@ class Attributes:
         """
         asymmetric_low_order = c_int()
         status = self._dll.getAsymmetricLowOrder(byref(asymmetric_low_order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(asymmetric_low_order.value)
 
     @asymmetric_low_order.setter
     def asymmetric_low_order(self, asymmetric_low_order: int):
         status = self._dll.setAsymmetricLowOrder(asymmetric_low_order)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def asymmetric_high_order(self) -> int:
@@ -1008,13 +1009,13 @@ class Attributes:
         """
         asymmetric_high_order = c_int()
         status = self._dll.getAsymmetricHighOrder(byref(asymmetric_high_order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(asymmetric_high_order.value)
 
     @asymmetric_high_order.setter
     def asymmetric_high_order(self, asymmetric_high_order: int):
         status = self._dll.setAsymmetricHighOrder(asymmetric_high_order)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def asymmetric_low_stop_band_ratio(self) -> str:
@@ -1128,14 +1129,14 @@ class Attributes:
         index = c_int()
         gaussian_bessel_reflection = list(GaussianBesselReflection)
         status = self._dll.getGaussianBesselReflection(byref(index))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         gaussian_bessel_reflection = gaussian_bessel_reflection[index.value]
         return gaussian_bessel_reflection
 
     @gaussian_bessel_reflection.setter
     def gaussian_bessel_reflection(self, column: GaussianBesselReflection):
         status = self._dll.setGaussianBesselReflection(column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def even_order(self) -> bool:
@@ -1148,13 +1149,13 @@ class Attributes:
         """
         even_order = c_bool()
         status = self._dll.getEvenOrderMode(byref(even_order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(even_order.value)
 
     @even_order.setter
     def even_order(self, even_order: bool):
         status = self._dll.setEvenOrderMode(even_order)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def even_order_refl_zero(self) -> bool:
@@ -1167,13 +1168,13 @@ class Attributes:
         """
         even_order_refl_zero = c_bool()
         status = self._dll.getEvenReflZeroTo0(byref(even_order_refl_zero))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(even_order_refl_zero.value)
 
     @even_order_refl_zero.setter
     def even_order_refl_zero(self, even_order_refl_zero: bool):
         status = self._dll.setEvenReflZeroTo0(even_order_refl_zero)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def even_order_trn_zero(self) -> bool:
@@ -1186,13 +1187,13 @@ class Attributes:
         """
         even_order_trn_zero = c_bool()
         status = self._dll.getEvenTrnZeroToInf(byref(even_order_trn_zero))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(even_order_trn_zero.value)
 
     @even_order_trn_zero.setter
     def even_order_trn_zero(self, even_order_trn_zero: bool):
         status = self._dll.setEvenTrnZeroToInf(even_order_trn_zero)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def constrict_ripple(self) -> bool:
@@ -1205,13 +1206,13 @@ class Attributes:
         """
         constrict_ripple = c_bool()
         status = self._dll.getConstrictRipple(byref(constrict_ripple))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(constrict_ripple.value)
 
     @constrict_ripple.setter
     def constrict_ripple(self, constrict_ripple: bool):
         status = self._dll.setConstrictRipple(constrict_ripple)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def single_point_ripple(self) -> bool:
@@ -1224,7 +1225,7 @@ class Attributes:
         """
         single_point_ripple = c_bool()
         status = self._dll.getSinglePointRipple(byref(single_point_ripple))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(single_point_ripple.value)
 
     @single_point_ripple.setter
@@ -1242,13 +1243,13 @@ class Attributes:
         """
         half_band_point_ripple = c_bool()
         status = self._dll.getHalfBandRipple(byref(half_band_point_ripple))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(half_band_point_ripple.value)
 
     @half_band_ripple.setter
     def half_band_ripple(self, half_band_ripple: bool):
         status = self._dll.setHalfBandRipple(half_band_ripple)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def constrict_ripple_percent(self) -> str:
@@ -1312,7 +1313,7 @@ class Attributes:
         """
         delay_equalizer = c_bool()
         status = self._dll.getDelayEqualizer(byref(delay_equalizer))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(delay_equalizer.value)
 
     @delay_equalizer.setter
@@ -1330,13 +1331,13 @@ class Attributes:
         """
         delay_equalizer_order = c_int()
         status = self._dll.getDelayEqualizerOrder(byref(delay_equalizer_order))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(delay_equalizer_order.value)
 
     @delay_equalizer_order.setter
     def delay_equalizer_order(self, delay_equalizer_order: int):
         status = self._dll.setDelayEqualizerOrder(delay_equalizer_order)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def standard_delay_equ_pass_band_attenuation(self) -> bool:
@@ -1349,13 +1350,13 @@ class Attributes:
         """
         standard_dealy_equ_cut = c_bool()
         status = self._dll.getStandardDelayEquCut(byref(standard_dealy_equ_cut))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(standard_dealy_equ_cut.value)
 
     @standard_delay_equ_pass_band_attenuation.setter
     def standard_delay_equ_pass_band_attenuation(self, standard_delay_equ_pass_band_attenuation: bool):
         status = self._dll.setStandardDelayEquCut(standard_delay_equ_pass_band_attenuation)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def standard_delay_equ_pass_band_attenuation_value_db(self) -> str:

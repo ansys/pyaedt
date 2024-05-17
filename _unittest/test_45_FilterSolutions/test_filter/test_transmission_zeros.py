@@ -1,15 +1,17 @@
-from fspy.ideal_design import IdealDesign
 import pytest
+
+import pyaedt
+from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
 
 def test_row_count():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.transmission_zeros_frequency.row_count == 0
     assert design.transmission_zeros_ratio.row_count == 0
 
 
 def test_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
         design.transmission_zeros_frequency.row(0)
     assert info.value.args[0] == "This filter has no transmission zero at row 0"
@@ -19,7 +21,7 @@ def test_row():
 
 
 def test_update_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
         design.transmission_zeros_frequency.update_row(0, zero="1.3G", position="2")
     assert info.value.args[0] == "This filter has no transmission zero at row 0 to update"
@@ -29,7 +31,7 @@ def test_update_row():
 
 
 def test_append_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
         design.transmission_zeros_frequency.append_row(zero="", position="")
     assert info.value.args[0] == "The input value is blank"
@@ -50,7 +52,7 @@ def test_append_row():
 
 
 def test_insert_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
         design.transmission_zeros_frequency.insert_row(6, zero="1.3G", position="2")
     assert info.value.args[0] == "The given index 6 is larger than zeros order"
@@ -75,7 +77,7 @@ def test_insert_row():
 
 
 def test_remove_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
         design.transmission_zeros_frequency.remove_row(2)
     assert info.value.args[0] == "The given index 2 is larger than zeros order"
@@ -87,7 +89,7 @@ def test_remove_row():
 
 
 def test_clear_row():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.transmission_zeros_frequency.insert_row(0, zero="1600M", position="2")
     assert design.transmission_zeros_frequency.row(0) == ("1600M", "2")
     design.transmission_zeros_frequency.clear_row()
@@ -103,7 +105,7 @@ def test_clear_row():
 
 
 def test_default_position():
-    design = IdealDesign()
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.transmission_zeros_frequency.insert_row(0, zero="1600M", position="2")
     design.transmission_zeros_frequency.default_position()
     assert design.transmission_zeros_frequency.row(0) == ("1600M", "3")

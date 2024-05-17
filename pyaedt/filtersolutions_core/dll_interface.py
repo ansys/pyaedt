@@ -20,7 +20,7 @@ class DllInterface:
 
     def _init_dll_path(self):
         """Set DLL path and print to screen the status of DLL access."""
-        relative_path = "../../../../build_output/64Debug/nuhertz/FilterSolutionsAPI.dll"
+        relative_path = "../../../build_output/64Release/nuhertz/FilterSolutionsAPI.dll"
         self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
         if not os.path.isfile(self.dll_path):
             self.dll_path = os.path.join(

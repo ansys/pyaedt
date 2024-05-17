@@ -7,7 +7,7 @@ from ctypes import c_int
 from enum import Enum
 import math
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 from pyaedt.filtersolutions_core.graph_setup import GraphSetup
 
 
@@ -141,8 +141,8 @@ class IdealResponse:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_response_dll_functions()
         self.graph_setup = GraphSetup()
 
@@ -197,10 +197,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealFrequencyResponseSize(byref(size))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealFrequencyResponse(array, size.value, column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -219,10 +219,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealTimeResponseSize(byref(size))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealTimeResponse(array, size.value, column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -241,10 +241,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealSParamatersResponseSize(byref(size))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealSParamatersResponse(array, size.value, column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -263,10 +263,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealPoleZerosResponseSize(byref(size), column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealPoleZerosResponse(array, size.value, column.value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -280,7 +280,7 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         transfer_function_response_string = self._dll_interface.get_string(
             self._dll.getIdealTransferFunctionResponse, max_size=size.value
         )
@@ -297,13 +297,13 @@ class IdealResponse:
 
         vsg_analysis_enabled = c_bool()
         status = self._dll.getVSGAnalsyis(byref(vsg_analysis_enabled))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(vsg_analysis_enabled.value)
 
     @vsg_analysis_enabled.setter
     def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool):
         status = self._dll.setVSGAnalsyis(filter_vsg_analysis_enabled)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def frequency_response(
         self,

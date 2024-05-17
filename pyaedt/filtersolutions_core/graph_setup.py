@@ -1,7 +1,7 @@
 from ctypes import c_char_p
 from ctypes import c_int
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class GraphSetup:
@@ -21,8 +21,8 @@ class GraphSetup:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_graph_dll_functions()
 
     def _define_graph_dll_functions(self):

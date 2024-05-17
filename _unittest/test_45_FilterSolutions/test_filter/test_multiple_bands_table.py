@@ -1,22 +1,24 @@
-from fspy.ideal_design import IdealDesign
 import pytest
+
+import pyaedt
+from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
 
 def test_row_count():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     assert design.multiple_bands_table.row_count == 2
 
 
 def test_row():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     assert design.multiple_bands_table.row(0) == ("2G", "3G")
 
 
 def test_update_row():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     with pytest.raises(RuntimeError) as info:
         design.multiple_bands_table.update_row(0)
     assert info.value.args[0] == "It is not possible to update table with an empty value"
@@ -29,8 +31,8 @@ def test_update_row():
 
 
 def test_append_row():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     design.multiple_bands_table.append_row("100M", "500M")
     assert design.multiple_bands_table.row_count == 3
     assert design.multiple_bands_table.row(2) == ("100M", "500M")
@@ -43,8 +45,8 @@ def test_append_row():
 
 
 def test_insert_row():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     design.multiple_bands_table.insert_row(0, "200M", "5G")
     assert design.multiple_bands_table.row(0) == ("200M", "5G")
     design.multiple_bands_table.insert_row(0, lower_frequency="500M", upper_frequency="2G")
@@ -55,8 +57,8 @@ def test_insert_row():
 
 
 def test_remove_row():
-    design = IdealDesign()
-    design.filter_multiple_bands_enabled = True
+    design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
+    design.attributes.filter_multiple_bands_enabled = True
     design.multiple_bands_table.remove_row(0)
     assert design.multiple_bands_table.row(0) == ("4G", "5G")
     with pytest.raises(RuntimeError) as info:

@@ -4,7 +4,7 @@ from ctypes import c_char_p
 from ctypes import c_int
 from ctypes import create_string_buffer
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class MultipleBandsTable:
@@ -26,8 +26,8 @@ class MultipleBandsTable:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_multiple_bands_dll_functions()
 
     def _define_multiple_bands_dll_functions(self):
@@ -61,7 +61,7 @@ class MultipleBandsTable:
         """
         table_row_count = c_int()
         status = self._dll.getMultipleBandsTableRowCount(byref(table_row_count))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -83,7 +83,7 @@ class MultipleBandsTable:
         lower_value_buffer = create_string_buffer(100)
         upper_value_buffer = create_string_buffer(100)
         status = self._dll.getMultipleBandsTableRow(row_index, lower_value_buffer, upper_value_buffer, 100)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         lower_value_string = lower_value_buffer.value.decode("utf-8")
         upper_value_string = upper_value_buffer.value.decode("utf-8")
         return lower_value_string, upper_value_string
@@ -103,7 +103,7 @@ class MultipleBandsTable:
         lower_bytes_value = bytes(lower_frequency, "ascii")
         upper_bytes_value = bytes(upper_frequency, "ascii")
         status = self._dll.updateMultipleBandsTableRow(row_index, lower_bytes_value, upper_bytes_value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, lower_frequency, upper_frequency):
         """Append lower and upper frequencies at the end row of multiple bands table.
@@ -116,7 +116,7 @@ class MultipleBandsTable:
         lower_bytes_value = bytes(lower_frequency, "ascii")
         upper_bytes_value = bytes(upper_frequency, "ascii")
         status = self._dll.appendMultipleBandsTableRow(lower_bytes_value, upper_bytes_value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, lower_frequency, upper_frequency):
         """Insert lower and upper frequencies at given index.
@@ -131,7 +131,7 @@ class MultipleBandsTable:
         lower_bytes_value = bytes(lower_frequency, "ascii")
         upper_bytes_value = bytes(upper_frequency, "ascii")
         status = self._dll.insertMultipleBandsTableRow(row_index, lower_bytes_value, upper_bytes_value)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def remove_row(self, row_index):
         """Remove lower and upper frequencies at given index.
@@ -142,4 +142,4 @@ class MultipleBandsTable:
             The row index on multiple bands table. Starting value is 0 and maximum value is 6.
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)

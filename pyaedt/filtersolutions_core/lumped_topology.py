@@ -4,7 +4,7 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 
-import pyaedt.filtersolutions_core as fspy
+import pyaedt
 
 
 class LumpedTopology:
@@ -28,8 +28,8 @@ class LumpedTopology:
     """
 
     def __init__(self):
-        self._dll = fspy._dll_interface()._dll
-        self._dll_interface = fspy._dll_interface()
+        self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
+        self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_topology_dll_functions()
 
     def _define_topology_dll_functions(self):
@@ -184,13 +184,13 @@ class LumpedTopology:
         """
         current_source = c_bool()
         status = self._dll.getLumpedCurrentSource(byref(current_source))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(current_source.value)
 
     @current_source.setter
     def current_source(self, current_source: bool):
         status = self._dll.setLumpedCurrentSource(current_source)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def first_shunt(self) -> bool:
@@ -204,13 +204,13 @@ class LumpedTopology:
         """
         first_shunt = c_bool()
         status = self._dll.getLumpedFirstElementShunt(byref(first_shunt))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(first_shunt.value)
 
     @first_shunt.setter
     def first_shunt(self, first_shunt: bool):
         status = self._dll.setLumpedFirstElementShunt(first_shunt)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def bridge_t(self) -> bool:
@@ -223,13 +223,13 @@ class LumpedTopology:
         """
         bridge_t = c_bool()
         status = self._dll.getLumpedBridgeT(byref(bridge_t))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(bridge_t.value)
 
     @bridge_t.setter
     def bridge_t(self, bridge_t: bool):
         status = self._dll.setLumpedBridgeT(bridge_t)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def bridge_t_low(self) -> bool:
@@ -242,13 +242,13 @@ class LumpedTopology:
         """
         bridge_t_low = c_bool()
         status = self._dll.getLumpedBridgeTLow(byref(bridge_t_low))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(bridge_t_low.value)
 
     @bridge_t_low.setter
     def bridge_t_low(self, bridge_t_low: bool):
         status = self._dll.setLumpedBridgeTLow(bridge_t_low)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def bridge_t_high(self) -> bool:
@@ -261,13 +261,13 @@ class LumpedTopology:
         """
         bridge_t_high = c_bool()
         status = self._dll.getLumpedBridgeTHigh(byref(bridge_t_high))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(bridge_t_high.value)
 
     @bridge_t_high.setter
     def bridge_t_high(self, bridge_t_high: bool):
         status = self._dll.setLumpedBridgeTHigh(bridge_t_high)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def equal_inductors(self) -> bool:
@@ -280,13 +280,13 @@ class LumpedTopology:
         """
         equal_inductors = c_bool()
         status = self._dll.getLumpedEqualInductors(byref(equal_inductors))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(equal_inductors.value)
 
     @equal_inductors.setter
     def equal_inductors(self, equal_inductors: bool):
         status = self._dll.setLumpedEqualInductors(equal_inductors)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def equal_capacitors(self) -> bool:
@@ -299,13 +299,13 @@ class LumpedTopology:
         """
         equal_capacitors = c_bool()
         status = self._dll.getLumpedEqualCapacitors(byref(equal_capacitors))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(equal_capacitors.value)
 
     @equal_capacitors.setter
     def equal_capacitors(self, equal_capacitors: bool):
         status = self._dll.setLumpedEqualCapacitors(equal_capacitors)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def equal_legs(self) -> bool:
@@ -318,13 +318,13 @@ class LumpedTopology:
         """
         equal_legs = c_bool()
         status = self._dll.getLumpedEqualLegs(byref(equal_legs))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(equal_legs.value)
 
     @equal_legs.setter
     def equal_legs(self, equal_legs: bool):
         status = self._dll.setLumpedEqualLegs(equal_legs)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def high_low_pass(self) -> bool:
@@ -337,13 +337,13 @@ class LumpedTopology:
         """
         high_low_pass = c_bool()
         status = self._dll.getLumpedHighLowPass(byref(high_low_pass))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(high_low_pass.value)
 
     @high_low_pass.setter
     def high_low_pass(self, high_low_pass: bool):
         status = self._dll.setLumpedHighLowPass(high_low_pass)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def high_low_pass_min_ind(self) -> bool:
@@ -356,13 +356,13 @@ class LumpedTopology:
         """
         high_low_pass_min_ind = c_bool()
         status = self._dll.getLumpedHighLowPassMinInd(byref(high_low_pass_min_ind))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(high_low_pass_min_ind.value)
 
     @high_low_pass_min_ind.setter
     def high_low_pass_min_ind(self, high_low_pass_min_ind: bool):
         status = self._dll.setLumpedHighLowPassMinInd(high_low_pass_min_ind)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def zig_zag(self) -> bool:
@@ -375,13 +375,13 @@ class LumpedTopology:
         """
         zig_zag = c_bool()
         status = self._dll.getLumpedZigZag(byref(zig_zag))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(zig_zag.value)
 
     @zig_zag.setter
     def zig_zag(self, zig_zag: bool):
         status = self._dll.setLumpedZigZag(zig_zag)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def min_ind(self) -> bool:
@@ -394,13 +394,13 @@ class LumpedTopology:
         """
         min_ind = c_bool()
         status = self._dll.getLumpedMinInd(byref(min_ind))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(min_ind.value)
 
     @min_ind.setter
     def min_ind(self, min_ind: bool):
         status = self._dll.setLumpedMinInd(min_ind)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def min_cap(self) -> bool:
@@ -413,13 +413,13 @@ class LumpedTopology:
         """
         min_cap = c_bool()
         status = self._dll.getLumpedMinCap(byref(min_cap))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(min_cap.value)
 
     @min_cap.setter
     def min_cap(self, min_cap: bool):
         status = self._dll.setLumpedMinCap(min_cap)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def set_source_res(self) -> bool:
@@ -432,13 +432,13 @@ class LumpedTopology:
         """
         set_source_res = c_bool()
         status = self._dll.getLumpedSourceRes(byref(set_source_res))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(set_source_res.value)
 
     @set_source_res.setter
     def set_source_res(self, set_source_res: bool):
         status = self._dll.setLumpedSourceRes(set_source_res)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def trap_topology(self) -> bool:
@@ -451,13 +451,13 @@ class LumpedTopology:
         """
         trap_topology = c_bool()
         status = self._dll.getLumpedTrapTopology(byref(trap_topology))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(trap_topology.value)
 
     @trap_topology.setter
     def trap_topology(self, trap_topology: bool):
         status = self._dll.setLumpedTrapTopology(trap_topology)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def node_cap_ground(self) -> bool:
@@ -470,13 +470,13 @@ class LumpedTopology:
         """
         node_cap_ground = c_bool()
         status = self._dll.getLumpedNodeCapGround(byref(node_cap_ground))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(node_cap_ground.value)
 
     @node_cap_ground.setter
     def node_cap_ground(self, node_cap_ground: bool):
         status = self._dll.setLumpedNodeCapGround(node_cap_ground)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def match_impedance(self) -> bool:
@@ -489,13 +489,13 @@ class LumpedTopology:
         """
         match_impedance = c_bool()
         status = self._dll.getLumpedMatchImpedance(byref(match_impedance))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(match_impedance.value)
 
     @match_impedance.setter
     def match_impedance(self, match_impedance: bool):
         status = self._dll.setLumpedMatchImpedance(match_impedance)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def complex_termination(self) -> bool:
@@ -508,13 +508,13 @@ class LumpedTopology:
         """
         complex_termination = c_bool()
         status = self._dll.getLumpedComplexTermination(byref(complex_termination))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(complex_termination.value)
 
     @complex_termination.setter
     def complex_termination(self, complex_termination: bool):
         status = self._dll.setLumpedComplexTermination(complex_termination)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def complex_element_tune_enabled(self) -> bool:
@@ -527,19 +527,19 @@ class LumpedTopology:
         """
         complex_element_tune_enabled = c_bool()
         status = self._dll.getLumpedComplexElementTuneEnabled(byref(complex_element_tune_enabled))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(complex_element_tune_enabled.value)
 
     @complex_element_tune_enabled.setter
     def complex_element_tune_enabled(self, complex_element_tune_enabled: bool):
         status = self._dll.setLumpedComplexElementTuneEnabled(complex_element_tune_enabled)
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def circuit_response(self):
         """Execute real filter synthesis"""
         size = c_int()
         status = self._dll.getLumpedCircuitResponseSize(byref(size))
-        fspy._dll_interface().raise_error(status)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         circuit_response_string = self._dll_interface.get_string(
             self._dll.getLumpedCircuitResponse, max_size=size.value
         )
