@@ -329,6 +329,7 @@ class Design(AedtObjects):
             bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        bb = list(bb)
         if "GetHybridRegions" in self.oboundary.__dir__():
             hybrid_regions = self.oboundary.GetHybridRegions()
             for region in hybrid_regions:
