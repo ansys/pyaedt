@@ -989,23 +989,26 @@ class Wire(object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            wire_exists = False
-            for wire in self.wires:
-                if name == wire.split("@")[1].split(";")[0]:
-                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
-                    wire_exists = True
-                    break
-                else:
-                    continue
-            if not wire_exists:
-                raise ValueError("Invalid wire name provided.")
-
+            if name:
+                wire_exists = False
+                for wire in self.wires:
+                    if name == wire.split("@")[1].split(";")[0]:
+                        wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                        wire_exists = True
+                        break
+                    else:
+                        continue
+                if not wire_exists:
+                    raise ValueError("Invalid wire name provided.")
+                composed_name = "Wire@{};{};{}".format(name, wire_id, 1)
+            else:
+                composed_name = self.composed_name
             self._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:PropDisplayPropTab",
-                        ["NAME:PropServers", "Wire@{};{};{}".format(name, wire_id, 1)],
+                        ["NAME:PropServers", composed_name],
                         [
                             "NAME:NewProps",
                             ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
