@@ -89,7 +89,7 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     offline_installation_radio.grid(row=1, column=1, padx=5, pady=5)
 
     # Combobox with available toolkit options
-    toolkits_combo_label = tk.Label(frame, text="Toolkit:", width=max_length)
+    toolkits_combo_label = tk.Label(frame, text="Extension:", width=max_length)
     toolkits_combo_label.grid(row=2, column=0, padx=5, pady=5)
 
     toolkits_combo = ttk.Combobox(
@@ -126,7 +126,9 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
         if selected_toolkit == "Custom" or not selected_toolkit_info.get("pip"):
             install_button.config(text="Install")
             uninstall_button.config(state="normal")
+            toolkits_combo_label.config(text="Extension")
         else:
+            toolkits_combo_label.config(text="Toolkit")
             if is_toolkit_installed(selected_toolkit, window_name):
                 install_button.config(text="Update")
                 uninstall_button.config(state="normal")
@@ -318,7 +320,7 @@ def button_is_clicked(
 
 
 root = tk.Tk()
-root.title("AEDT Toolkit Manager")
+root.title("Extension Manager")
 
 # Load the logo for the main window
 icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")

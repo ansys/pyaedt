@@ -28,6 +28,7 @@ The script allows the user choose a PyAEDT script to execute.
 """
 import os
 import sys
+from System.Windows.Forms import OpenFileDialog
 
 is_linux = os.name == "posix"
 
@@ -63,11 +64,11 @@ def main():
             # Python script
             pyaedt_script = file_dialog.FileName
             # Check python executable
-            python_exe_flag = PyAEDT_utils.check_file(python_exe)
+            python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
             if not python_exe_flag:
                 return
             # Check script file
-            pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script)
+            pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
             if not pyaedt_script_flag:
                 return
             # Add environment variables
@@ -93,7 +94,7 @@ def main():
                 subprocess.Popen(" ".join(command), env=my_env)
 
     except Exception as e:
-        PyAEDT_utils.show_error(str(e))
+        PyAEDT_utils.show_error(str(e), oDesktop)
 
 
 if __name__ == "__main__":

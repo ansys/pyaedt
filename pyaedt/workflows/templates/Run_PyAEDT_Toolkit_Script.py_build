@@ -53,11 +53,11 @@ def main():
         # Check if CPython interpreter and AEDT release match
         python_exe = PyAEDT_utils.check_interpreter(python_exe, short_version)
         # Check python executable
-        python_exe_flag = PyAEDT_utils.check_file(python_exe)
+        python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
         if not python_exe_flag:
             return
         # Check script file
-        pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script)
+        pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
         if not pyaedt_script_flag:
             return
         # Add environment variables
@@ -80,7 +80,7 @@ def main():
                 cmdfile.write('"{0}" {1}\n'.format(python_exe, cmd))
             oDesktop.RunProgram(runme, edt_temp, edt_temp, "")
     except Exception as e:
-        PyAEDT_utils.show_error(str(e))
+        PyAEDT_utils.show_error(str(e), oDesktop)
 
 
 if __name__ == "__main__":

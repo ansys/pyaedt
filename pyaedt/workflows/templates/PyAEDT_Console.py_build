@@ -57,11 +57,11 @@ def main():
     # Console launcher
     pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
     # Check python executable
-    python_exe_flag = PyAEDT_utils.check_file(python_exe)
+    python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
     if not python_exe_flag:
         return
     # Check console launcher file
-    pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script)
+    pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
     if not pyaedt_script_flag:
         return
     # Add environment variables
@@ -70,7 +70,7 @@ def main():
     if is_linux:
         term = PyAEDT_utils.get_linux_terminal()
         if not term:
-            PyAEDT_utils.show_error("No Terminals found.")
+            PyAEDT_utils.show_error("No Terminals found.", oDesktop)
 
         command = [
             term,

@@ -26,6 +26,9 @@
 It contains common methods for the PyAEDT panels.
 """
 import os
+import random
+import string
+import sys
 
 from System.Windows.Forms import MessageBox
 from System.Windows.Forms import MessageBoxButtons
@@ -43,11 +46,12 @@ def check_interpreter(interpreter_path, version):
     return interpreter_path
 
 
-def check_file(file_path):
+def check_file(file_path, oDesktop):
     if not os.path.isfile(file_path):
         show_error(
             '"{}" does not exist. Install PyAEDT using the Python script installer from the PyAEDT '
-            "documentation.".format(file_path)
+            "documentation.".format(file_path),
+            oDesktop,
         )
         return False
     return True
@@ -80,7 +84,7 @@ def which(program):
     return None
 
 
-def show_error(msg):
+def show_error(msg, oDesktop):
     oDesktop.AddMessage("", "", 2, str(msg))
     MessageBox.Show(str(msg), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
     sys.exit()
@@ -131,9 +135,9 @@ def environment_variables(oDesktop):
             )
 
 
-def generate_unique_name(rootname, suffix="", n=6):
+def generate_unique_name(root_name, suffix="", n=6):
     char_set = string.ascii_uppercase + string.digits
-    unique_name = rootname + "_" + "".join(random.choice(char_set) for _ in range(n))
+    unique_name = root_name + "_" + "".join(random.choice(char_set) for _ in range(n))
     if suffix:
         unique_name += suffix
     return unique_name

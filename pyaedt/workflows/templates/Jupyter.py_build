@@ -28,8 +28,6 @@ directory and launches it.
 
 """
 import os
-import random
-import string
 import sys
 
 is_linux = os.name == "posix"
@@ -61,10 +59,10 @@ def main():
     template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
     target = os.path.join(proj_dir, PyAEDT_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
     # Check executable
-    jupyter_exe_flag = PyAEDT_utils.check_file(jupyter_exe)
+    jupyter_exe_flag = PyAEDT_utils.check_file(jupyter_exe, oDesktop)
     if not jupyter_exe_flag:
         return
-    pyaedt_script_flag = PyAEDT_utils.check_file(template)
+    pyaedt_script_flag = PyAEDT_utils.check_file(template, oDesktop)
     if not pyaedt_script_flag:
         return
 
