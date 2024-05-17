@@ -377,7 +377,7 @@ class CircuitComponents(object):
 
         xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
-
+        angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
             ["NAME:GroundProps", "Id:=", id],
             ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
