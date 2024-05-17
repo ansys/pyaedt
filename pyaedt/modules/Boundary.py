@@ -113,7 +113,10 @@ class BoundaryCommon(PropsManager):
         except Exception:
             pass
         try:
-            if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
+            if (
+                "ModelSetup" in self._app.design_properties
+                and "MotionSetupList" in self._app.design_properties["ModelSetup"]
+            ):
                 motion_list = "MotionSetupList"
                 setup = "ModelSetup"
                 # check moving part
@@ -1845,6 +1848,15 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
         if child_object:
             return BinaryTreeNode(self.name, child_object, False)
+
+        if "Boundaries" in self._app.odesign.GetChildNames():
+            cc = self._app.odesign.GetChildObject("Boundaries")
+            if self.name in cc.GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+            elif self.name in self._app.odesign.GetChildObject("Boundaries").GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+            if child_object:
+                return BinaryTreeNode(self.name, child_object, False)
         return False
 
     @property
