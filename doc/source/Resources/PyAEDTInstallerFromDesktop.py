@@ -10,7 +10,7 @@ is_windows = not is_linux
 
 
 def run_pyinstaller_from_c_python(oDesktop):
-    # Iron python script to create the virtual environment and install PyAEDT
+    # Iron Python script to create the virtual environment and install PyAEDT
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
     # From AEDT 2023.2 the installed CPython version is 3.10
