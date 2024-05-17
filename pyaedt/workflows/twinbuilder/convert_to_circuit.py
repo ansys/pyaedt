@@ -1,5 +1,6 @@
 import math
 import os
+import sys
 
 import pyaedt
 from pyaedt import Circuit
@@ -15,8 +16,15 @@ else:
     version = "2024.1"
 
 with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
-
-    tb = TwinBuilder(designname="Component")
+    proj = d.active_project()
+    des = d.active_design()
+    projname = proj.GetName()
+    if des.GetDesignType() in ["Twin Builder"]:
+        desname = des.GetName().split(";")[1]
+        tb = TwinBuilder(designname=desname, projectname=projname)
+    else:
+        d.logger.error("An active TwinBuilder Design is needed.")
+        sys.exit()
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
     cir = Circuit(designname=tb.design_name + "_Translated")
