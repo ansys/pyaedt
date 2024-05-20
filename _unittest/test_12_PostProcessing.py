@@ -255,8 +255,9 @@ class TestClass:
 
         assert field_test.post.reports_by_category.terminal_solution()
 
-        assert not field_test.post.get_solution_data_per_variation(
-            solution_type="Far Fields", expressions="RealizedGainTotal"
+        assert (
+            field_test.post.get_solution_data_per_variation(solution_type="Far Fields", expressions="RealizedGainTotal")
+            is None
         )
 
     def test_09b_export_report_A(self, circuit_test):
