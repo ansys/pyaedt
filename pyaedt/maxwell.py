@@ -1920,10 +1920,10 @@ class Maxwell(object):
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
 
-    @pyaedt_function_handler
-    def edit_external_circuit(self, netlist_file_path, schematic_design_name):
+    @pyaedt_function_handler()
+    def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
         """
-        Edit the external circuit for the winding.
+        Edit the external circuit for the winding and allow edit circuit parameter.
 
         Parameters
         ----------
@@ -1931,6 +1931,13 @@ class Maxwell(object):
             Circuit netlist file path.
         schematic_design_name : str
             Name of the schematic design.
+        parameters : dict, optional
+            Name and value of the circuit parameters.
+            It has to be provided as a dictionary where key is the parameter name
+            and value is the parameter value.
+            If the dictionary is provided the ``netlist_file_path`` is automatically
+            set to an empty string.
+            The default is ``None``.
 
         Returns
         -------
@@ -1967,7 +1974,14 @@ class Maxwell(object):
                     sources_type_array.append(2)
                 elif source_type == "SPEED":
                     sources_type_array.append(3)
-        self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
+        if parameters:
+            names = list(parameters.keys())
+            values = list(parameters.values())
+            netlist_file_path = ""
+        else:
+            names = []
+            values = []
+        self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, names, values)
         return True
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
