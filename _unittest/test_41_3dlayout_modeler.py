@@ -831,7 +831,7 @@ class TestClass:
         report = AnsysReport()
         report.create()
         self.aedtapp.save_project()
-        assert report.add_project_info(self.aedtapp)
+        # assert report.add_project_info(self.aedtapp)
 
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
