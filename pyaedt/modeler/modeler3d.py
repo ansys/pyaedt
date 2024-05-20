@@ -951,11 +951,9 @@ class Modeler3D(Primitives3D):
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
-        el_ids = []
         pid = 0
         with open_file(file_path, "r") as f:
             lines = f.read().splitlines()
-            id = 0
             for lk in range(len(lines)):
                 line = lines[lk]
                 line_type = line[:8].strip()
@@ -1122,28 +1120,38 @@ class Modeler3D(Primitives3D):
 
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
+
         if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
+
+            def decimate(points_in, faces_in, points_out, faces_out):
+                if 0 < decimation < 1:
+                    try:
+                        import fast_simplification
+
+                        aggressivity = 4
+                        if 0.7 > decimation > 0.3:
+                            aggressivity = 6
+                        elif decimation >= 0.7:
+                            aggressivity = 8
+                        points_out, faces_out = fast_simplification.simplify(
+                            points_in, faces_in, decimation, agg=aggressivity
+                        )
+                        self.logger.info("Decimation completed.")
+                    except Exception:
+                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Please install it using pip.")
+                return points_out, faces_out
+
             for tri_id, triangles in nas_to_dict["Triangles"].items():
                 tri_out = triangles
                 p_out = nas_to_dict["Points"]
-                if 0 < decimation < 1:
-                    import fast_simplification
 
-                    aggressivity = 4
-                    if 0.7 > decimation > 0.3:
-                        aggressivity = 6
-                    elif decimation >= 0.7:
-                        aggressivity = 8
-                    p_out, tri_out = fast_simplification.simplify(
-                        nas_to_dict["Points"], triangles, decimation, agg=aggressivity
-                    )
-
+                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
                 f.write("solid Sheet_{}\n".format(tri_id))
-                # for triangle in triangles:
-                #     _write_solid_stl(triangle, nas_to_dict["Points"])
+
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
@@ -1153,18 +1161,9 @@ class Modeler3D(Primitives3D):
 
                 df = pd.Series(solid_triangles)
                 tri_out = df.drop_duplicates(keep=False).to_list()
-                import fast_simplification
-
                 p_out = nas_to_dict["Points"]
-                if 0 < decimation < 1:
-                    aggressivity = 4
-                    if 0.7 > decimation > 0.3:
-                        aggressivity = 6
-                    elif decimation >= 0.7:
-                        aggressivity = 8
-                    p_out, tri_out = fast_simplification.simplify(
-                        nas_to_dict["Points"], tri_out, decimation, agg=aggressivity
-                    )
+                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")

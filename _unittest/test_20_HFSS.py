@@ -1403,7 +1403,7 @@ class TestClass:
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
-        assert self.aedtapp.modeler.import_nastran(example_project2)
+        assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
