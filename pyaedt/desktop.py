@@ -253,7 +253,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         elif close_desktop:
             try:
-                os.kill(pid, 9)
+                if settings.use_lsf_scheduler:
+                    list(_desktop_sessions.values())[0].odesktop.QuitApplication()
+                else:
+                    os.kill(pid, 9)
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:

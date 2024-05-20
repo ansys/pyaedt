@@ -877,7 +877,16 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def import_nastran(self, file_path, import_lines=True, lines_thickness=0, import_as_light_weight=False, **kwargs):
+    def import_nastran(
+        self,
+        file_path,
+        import_lines=True,
+        lines_thickness=0,
+        import_as_light_weight=False,
+        decimation=0,
+        group_parts=True,
+        **kwargs,
+    ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
 
@@ -892,15 +901,26 @@ class Modeler3D(Primitives3D):
             Every line will be parametrized with a design variable called ``xsection_linename``.
         import_as_light_weight : bool, optional
             Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
+        decimation : float, optional
+            Fraction of the original mesh to remove.  If set to ``0.9``,
+            this function will try to reduce the data set to 10% of its
+            original size and will remove 90% of the input triangles.
+        group_parts : bool, optional
+            Whether to group imported parts by object id or not. Default is ``True``.
 
         Returns
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
+        autosave = (
+            True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
+        )
+        self._app.odesktop.EnableAutoSave(False)
 
         def _write_solid_stl(triangle, nas_to_dict):
             try:
-                points = [nas_to_dict["Points"][id] for id in triangle]
+                # points = [nas_to_dict["Points"][id] for id in triangle]
+                points = [nas_to_dict[id] for id in triangle]
             except KeyError:
                 return
             fc = GeometryOperators.get_polygon_centroid(points)
@@ -927,11 +947,12 @@ class Modeler3D(Primitives3D):
                 f.write("  endloop\n")
                 f.write(" endfacet\n")
 
-        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
+        nas_to_dict = {"Points": [], "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
 
         self.logger.reset_timer()
         self.logger.info("Loading file")
         el_ids = []
+        pid = 0
         with open_file(file_path, "r") as f:
             lines = f.read().splitlines()
             id = 0
@@ -956,11 +977,15 @@ class Modeler3D(Primitives3D):
                     if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID":
-                        nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
-                        nas_to_dict["PointsId"][grid_id] = grid_id
-                        id += 1
+                        nas_to_dict["PointsId"][grid_id] = pid
+                        nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
+                        pid += 1
                     else:
-                        tri = [int(n1), int(n2), int(n3)]
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in ["GRID*", "CTRIA3*"]:
@@ -984,13 +1009,17 @@ class Modeler3D(Primitives3D):
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
                         try:
-                            nas_to_dict["Points"][grid_id] = [float(n1), float(n2), float(n3)]
+                            nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
                         except Exception:  # nosec
                             continue
-                        nas_to_dict["PointsId"][grid_id] = id
-                        id += 1
+                        nas_to_dict["PointsId"][grid_id] = pid
+                        pid += 1
                     else:
-                        tri = (int(n1), int(n2), int(n3))
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
 
                 elif line_type in [
@@ -1014,7 +1043,12 @@ class Modeler3D(Primitives3D):
                     from itertools import combinations
 
                     for k in list(combinations(n, 3)):
-                        tri = [int(k[0]), int(k[1]), int(k[2])]
+                        # tri = [int(k[0]), int(k[1]), int(k[2])]
+                        tri = [
+                            nas_to_dict["PointsId"][int(k[0])],
+                            nas_to_dict["PointsId"][int(k[1])],
+                            nas_to_dict["PointsId"][int(k[2])],
+                        ]
                         tri.sort()
                         tri = tuple(tri)
                         nas_to_dict["Solids"][el_id].append(tri)
@@ -1040,20 +1074,35 @@ class Modeler3D(Primitives3D):
 
                     if line_type == "CTETRA*":
                         for k in list(combinations(n, 3)):
-                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            # tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri = [
+                                nas_to_dict["PointsId"][int(k[0])],
+                                nas_to_dict["PointsId"][int(k[1])],
+                                nas_to_dict["PointsId"][int(k[2])],
+                            ]
                             tri.sort()
                             tri = tuple(tri)
                             nas_to_dict["Solids"][el_id].append(tri)
                     else:
                         spli1 = [n[0], n[1], n[2], n[4]]
                         for k in list(combinations(spli1, 3)):
-                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            # tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri = [
+                                nas_to_dict["PointsId"][int(k[0])],
+                                nas_to_dict["PointsId"][int(k[1])],
+                                nas_to_dict["PointsId"][int(k[2])],
+                            ]
                             tri.sort()
                             tri = tuple(tri)
                             nas_to_dict["Solids"][el_id].append(tri)
                         spli1 = [n[0], n[2], n[3], n[4]]
                         for k in list(combinations(spli1, 3)):
-                            tri = [int(k[0]), int(k[1]), int(k[2])]
+                            # tri = [int(k[0]), int(k[1]), int(k[2])]
+                            tri = [
+                                nas_to_dict["PointsId"][int(k[0])],
+                                nas_to_dict["PointsId"][int(k[1])],
+                                nas_to_dict["PointsId"][int(k[2])],
+                            ]
                             tri.sort()
                             tri = tuple(tri)
                             nas_to_dict["Solids"][el_id].append(tri)
@@ -1063,9 +1112,13 @@ class Modeler3D(Primitives3D):
                     n1 = int(line[24:32])
                     n2 = int(line[32:40])
                     if obj_id in nas_to_dict["Lines"]:
-                        nas_to_dict["Lines"][obj_id].append([n1, n2])
+                        nas_to_dict["Lines"][obj_id].append(
+                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
+                        )
                     else:
-                        nas_to_dict["Lines"][obj_id] = [[n1, n2]]
+                        nas_to_dict["Lines"][obj_id] = [
+                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
+                        ]
 
         self.logger.info_timer("File loaded")
         objs_before = [i for i in self.object_names]
@@ -1074,18 +1127,46 @@ class Modeler3D(Primitives3D):
             self.logger.info("Creating STL file with detected faces")
             f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
             for tri_id, triangles in nas_to_dict["Triangles"].items():
+                tri_out = triangles
+                p_out = nas_to_dict["Points"]
+                if 0 < decimation < 1:
+                    import fast_simplification
+
+                    aggressivity = 4
+                    if 0.7 > decimation > 0.3:
+                        aggressivity = 6
+                    elif decimation >= 0.7:
+                        aggressivity = 8
+                    p_out, tri_out = fast_simplification.simplify(
+                        nas_to_dict["Points"], triangles, decimation, agg=aggressivity
+                    )
+
                 f.write("solid Sheet_{}\n".format(tri_id))
-                for triangle in triangles:
-                    _write_solid_stl(triangle, nas_to_dict)
+                # for triangle in triangles:
+                #     _write_solid_stl(triangle, nas_to_dict["Points"])
+                for triangle in tri_out:
+                    _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             for solidid, solid_triangles in nas_to_dict["Solids"].items():
                 f.write("solid Solid_{}\n".format(solidid))
                 import pandas as pd
 
                 df = pd.Series(solid_triangles)
-                undulicated_values = df.drop_duplicates(keep=False).to_list()
-                for triangle in undulicated_values:
-                    _write_solid_stl(triangle, nas_to_dict)
+                tri_out = df.drop_duplicates(keep=False).to_list()
+                import fast_simplification
+
+                p_out = nas_to_dict["Points"]
+                if 0 < decimation < 1:
+                    aggressivity = 4
+                    if 0.7 > decimation > 0.3:
+                        aggressivity = 6
+                    elif decimation >= 0.7:
+                        aggressivity = 8
+                    p_out, tri_out = fast_simplification.simplify(
+                        nas_to_dict["Points"], tri_out, decimation, agg=aggressivity
+                    )
+                for triangle in tri_out:
+                    _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             f.close()
             self.logger.info_timer("STL file created")
@@ -1096,15 +1177,21 @@ class Modeler3D(Primitives3D):
                 os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"),
                 create_lightweigth_part=import_as_light_weight,
             )
-            for el in nas_to_dict["Solids"].keys():
-                obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
-                self.create_group(obj_names, group_name=str(el))
-            for el in nas_to_dict["Triangles"].keys():
-                obj_names = [i for i in self.object_names if i.startswith("Sheet_{}".format(el))]
-                self.create_group(obj_names, group_name=str(el))
-            self.logger.info_timer("Model imported")
+            self.logger.info("Model imported")
 
-        if import_lines:
+            if group_parts:
+                self.logger.reset_timer()
+                for el in nas_to_dict["Solids"].keys():
+                    obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
+                    self.create_group(obj_names, group_name=str(el))
+                objs = self.object_names[::]
+                for el in nas_to_dict["Triangles"].keys():
+                    obj_names = [i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))]
+                    self.create_group(obj_names, group_name=str(el))
+                self.logger.info_timer("Parts grouped")
+
+        if import_lines and nas_to_dict["Lines"]:
+            self.logger.reset_timer()
             for line_name, lines in nas_to_dict["Lines"].items():
                 if lines_thickness:
                     self._app["x_section_{}".format(line_name)] = lines_thickness
@@ -1133,10 +1220,13 @@ class Modeler3D(Primitives3D):
                     out_poly = self.unite(polys, purge=not lines_thickness)
                     if not lines_thickness and out_poly:
                         self.generate_object_history(out_poly)
+            self.logger.info_timer("Lines imported")
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]
         self._app.oproject.SetActiveDesign(self._app.design_name)
+        self._app.odesktop.EnableAutoSave(autosave)
+
         return new_objects
 
     @pyaedt_function_handler()
