@@ -399,7 +399,7 @@ class TestClass:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):
-        assert customize_automation_tab.available_toolkits
+        assert customize_automation_tab.available_toolkits()
 
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
