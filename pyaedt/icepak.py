@@ -5983,7 +5983,7 @@ class Icepak(FieldAnalysis3D):
                 "Radiate": True,
                 "RadiateTo - High": "AllObjects - High",
                 "Surface Material - High": high_side_rad_material,
-            }            
+            }
         else:
             props["LowSide"] = {"Radiate": False}
         props["Shell Conduction"] = shell_conduction
