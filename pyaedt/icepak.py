@@ -5975,17 +5975,17 @@ class Icepak(FieldAnalysis3D):
         if thermal_specification == "Thickness":
             props["Solid Material"] = solid_material
         if low_side_rad_material is not None:
-            props["LowSide"] = {"Radiate": False}
-        else:
             props["LowSide"] = {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_side_rad_material}
-        if high_side_rad_material is not None:
-            props["LowSide"] = {"Radiate": False}
         else:
+            props["LowSide"] = {"Radiate": False}
+        if high_side_rad_material is not None:
             props["HighSide"] = {
                 "Radiate": True,
                 "RadiateTo - High": "AllObjects - High",
                 "Surface Material - High": high_side_rad_material,
-            }
+            }            
+        else:
+            props["LowSide"] = {"Radiate": False}
         props["Shell Conduction"] = shell_conduction
         if not boundary_name:
             boundary_name = generate_unique_name("Plate")
