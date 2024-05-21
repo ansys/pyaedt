@@ -902,7 +902,7 @@ class Modeler3D(Primitives3D):
         import_as_light_weight : bool, optional
             Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
         decimation : float, optional
-            Fraction of the original mesh to remove.  If set to ``0.9``,
+            Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
             this function will try to reduce the data set to 10% of its
             original size and will remove 90% of the input triangles.
         group_parts : bool, optional
@@ -917,10 +917,10 @@ class Modeler3D(Primitives3D):
         )
         self._app.odesktop.EnableAutoSave(False)
 
-        def _write_solid_stl(triangle, nas_to_dict):
+        def _write_solid_stl(triangle, pp):
             try:
                 # points = [nas_to_dict["Points"][id] for id in triangle]
-                points = [nas_to_dict[id] for id in triangle]
+                points = [pp[i] for i in triangle]
             except KeyError:
                 return
             fc = GeometryOperators.get_polygon_centroid(points)
@@ -1118,68 +1118,89 @@ class Modeler3D(Primitives3D):
                             [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
                         ]
 
-        self.logger.info_timer("File loaded")
+        self.logger.info("File loaded")
         objs_before = [i for i in self.object_names]
 
         if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
-            self.logger.reset_timer()
             self.logger.info("Creating STL file with detected faces")
-            f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
+            tria_stl = False
+            if nas_to_dict["Triangles"]:
+                f = open(os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl"), "w")
+                tria_stl = True
 
             def decimate(points_in, faces_in, points_out, faces_out):
                 if 0 < decimation < 1:
-                    try:
-                        import fast_simplification
 
-                        aggressivity = 4
-                        if 0.7 > decimation > 0.3:
-                            aggressivity = 6
-                        elif decimation >= 0.7:
-                            aggressivity = 8
-                        points_out, faces_out = fast_simplification.simplify(
-                            points_in, faces_in, decimation, agg=aggressivity
-                        )
-                        self.logger.info("Decimation completed.")
-                    except Exception:
-                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
-                        self.logger.error("Please install it using pip.")
+                    aggressivity = 2
+                    if 0.7 > decimation > 0.3:
+                        aggressivity = 3
+                    elif decimation >= 0.7:
+                        aggressivity = 5
+                    points_out, faces_out = fast_simplification.simplify(
+                        points_in, faces_in, decimation, agg=aggressivity
+                    )
+
                 return points_out, faces_out
 
             for tri_id, triangles in nas_to_dict["Triangles"].items():
                 tri_out = triangles
-                p_out = nas_to_dict["Points"]
+                p_out = nas_to_dict["Points"][::]
+                if decimation > 0:
+                    try:
+                        import fast_simplification
 
-                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                    except Exception:
+                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Please install it using pip.")
                 f.write("solid Sheet_{}\n".format(tri_id))
 
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
+            if nas_to_dict["Triangles"]:
+                f.close()
+            solid_stl = False
+            if nas_to_dict["Solids"]:
+                solid_stl = True
+                f = open(os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl"), "w")
             for solidid, solid_triangles in nas_to_dict["Solids"].items():
                 f.write("solid Solid_{}\n".format(solidid))
                 import pandas as pd
 
                 df = pd.Series(solid_triangles)
                 tri_out = df.drop_duplicates(keep=False).to_list()
-                p_out = nas_to_dict["Points"]
-                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                p_out = nas_to_dict["Points"][::]
+                if decimation > 0:
+                    try:
+                        import fast_simplification
 
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                    except Exception:
+                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Please install it using pip.")
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             f.close()
-            self.logger.info_timer("STL file created")
+            self.logger.info("STL file created")
             self._app.odesktop.CloseAllWindows()
-            self.logger.reset_timer()
             self.logger.info("Importing STL in 3D Modeler")
-            self.import_3d_cad(
-                os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"),
-                create_lightweigth_part=import_as_light_weight,
-            )
+            if tria_stl:
+                self.import_3d_cad(
+                    os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl"),
+                    create_lightweigth_part=import_as_light_weight,
+                    healing=False,
+                )
+            if solid_stl:
+                self.import_3d_cad(
+                    os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl"),
+                    create_lightweigth_part=import_as_light_weight,
+                    healing=False,
+                )
             self.logger.info("Model imported")
 
             if group_parts:
-                self.logger.reset_timer()
                 for el in nas_to_dict["Solids"].keys():
                     obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
                     self.create_group(obj_names, group_name=str(el))
@@ -1187,10 +1208,9 @@ class Modeler3D(Primitives3D):
                 for el in nas_to_dict["Triangles"].keys():
                     obj_names = [i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))]
                     self.create_group(obj_names, group_name=str(el))
-                self.logger.info_timer("Parts grouped")
+                self.logger.info("Parts grouped")
 
         if import_lines and nas_to_dict["Lines"]:
-            self.logger.reset_timer()
             for line_name, lines in nas_to_dict["Lines"].items():
                 if lines_thickness:
                     self._app["x_section_{}".format(line_name)] = lines_thickness
@@ -1219,13 +1239,13 @@ class Modeler3D(Primitives3D):
                     out_poly = self.unite(polys, purge=not lines_thickness)
                     if not lines_thickness and out_poly:
                         self.generate_object_history(out_poly)
-            self.logger.info_timer("Lines imported")
+            self.logger.info("Lines imported")
 
         objs_after = [i for i in self.object_names]
         new_objects = [self[i] for i in objs_after if i not in objs_before]
         self._app.oproject.SetActiveDesign(self._app.design_name)
         self._app.odesktop.EnableAutoSave(autosave)
-
+        self.logger.info_timer("Nastran model correctly imported.")
         return new_objects
 
     @pyaedt_function_handler()
