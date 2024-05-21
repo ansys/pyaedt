@@ -903,10 +903,10 @@ class Modeler3D(Primitives3D):
             Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
         decimation : float, optional
             Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
-            this function will try to reduce the data set to 10% of its
-            original size and will remove 90% of the input triangles.
+            this function tries to reduce the data set to 10% of its
+            original size and removes 90% of the input triangles.
         group_parts : bool, optional
-            Whether to group imported parts by object id or not. Default is ``True``.
+            Whether to group imported parts by object ID. The default is ``True``.
 
         Returns
         -------
