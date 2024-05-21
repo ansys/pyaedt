@@ -16,7 +16,7 @@ SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 
 @pyaedt_function_handler(deprecated_arg="trigger_exception")
 def foo(trigger_exception=True):
-    """Some dummy function used for testing"""
+    """Some dummy function used for testing."""
     if trigger_exception:
         raise Exception("Dummy message.")
 
