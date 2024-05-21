@@ -378,14 +378,14 @@ def plot_polar_chart(
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    if show:
+    if show and not is_notebook():
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
@@ -403,6 +403,9 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
@@ -432,14 +435,16 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show and not is_notebook():
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_2d_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+):
     """Create a Matplotlib plot based on a list of data.
     Parameters
     ----------
@@ -459,6 +464,9 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
         The default value is ``None``.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
@@ -489,7 +497,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    if show:
         fig.show()
     return fig
 
@@ -542,7 +550,8 @@ def plot_matplotlib(
         List of annotations to add to the plot. The format is [x, y, string, dictionary of font options].
         Default is `None`.
     show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
 
     Returns
@@ -638,8 +647,8 @@ def plot_contour(
     snapshot_path : str, optional
         Full path to save the image save. The default is ``None``.
     show : bool, optional
-        Whether to render the figure. The default is ``True``. If
-        ``False``, the image is not drawn.
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
