@@ -8,6 +8,11 @@ from pyaedt import is_ironpython
 from pyaedt.misc.misc import installed_versions
 
 if not is_ironpython:
+    # Use matplotlib Agg backend (non-interactive) when the CI is running.
+    if os.getenv("ON_CI", "False") == "True":  # pragma: no cover
+        import matplotlib
+
+        matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import numpy as np
     import skrf as rf

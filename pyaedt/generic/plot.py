@@ -36,6 +36,12 @@ if not is_ironpython:
     try:
         from matplotlib.patches import PathPatch
         from matplotlib.path import Path
+
+        # Use matplotlib Agg backend (non-interactive) when the CI is running.
+        if os.getenv("ON_CI", "False") == "True":  # pragma: no cover
+            import matplotlib
+
+            matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
         rc_params = {
