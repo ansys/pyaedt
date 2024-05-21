@@ -1392,18 +1392,18 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def create_coordinate_system(
-            self,
-            origin=None,
-            reference_cs="Global",
-            name=None,
-            mode="axis",
-            view="iso",
-            x_pointing=None,
-            y_pointing=None,
-            psi=0,
-            theta=0,
-            phi=0,
-            u=None,
+        self,
+        origin=None,
+        reference_cs="Global",
+        name=None,
+        mode="axis",
+        view="iso",
+        x_pointing=None,
+        y_pointing=None,
+        psi=0,
+        theta=0,
+        phi=0,
+        u=None,
     ):
         """Create a coordinate system.
 
@@ -1503,7 +1503,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def create_face_coordinate_system(
-            self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
+        self, face, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
         """Create a face coordinate system.
 
@@ -1577,15 +1577,15 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(obj="assignment")
     def create_object_coordinate_system(
-            self,
-            assignment,
-            origin,
-            x_axis,
-            y_axis,
-            move_to_end=True,
-            reverse_x_axis=False,
-            reverse_y_axis=False,
-            name=None,
+        self,
+        assignment,
+        origin,
+        x_axis,
+        y_axis,
+        move_to_end=True,
+        reverse_x_axis=False,
+        reverse_y_axis=False,
+        name=None,
     ):
         """Create an object coordinate system.
 
@@ -1939,8 +1939,8 @@ class GeometryModeler(Modeler):
                 if cs.props["Origin"]["PositionType"] == "FaceCenter":
                     origin = [f for f in obj.faces if f.id == cs.props["Origin"]["EntityID"]][0]
                 elif (
-                        cs.props["Origin"]["PositionType"] == "EdgeCenter"
-                        or cs.props["Origin"]["PositionType"] == "ArcCenter"
+                    cs.props["Origin"]["PositionType"] == "EdgeCenter"
+                    or cs.props["Origin"]["PositionType"] == "ArcCenter"
                 ):
                     origin = [e for e in obj.edges if e.id == cs.props["Origin"]["EntityID"]][0]
                 elif cs.props["Origin"]["PositionType"] == "OnVertex":
@@ -1955,8 +1955,8 @@ class GeometryModeler(Modeler):
                 if cs.props["xAxisPos"]["PositionType"] == "FaceCenter":
                     x_axis = [f for f in obj.faces if f.id == cs.props["xAxisPos"]["EntityID"]][0]
                 elif (
-                        cs.props["xAxisPos"]["PositionType"] == "EdgeCenter"
-                        or cs.props["xAxisPos"]["PositionType"] == "ArcCenter"
+                    cs.props["xAxisPos"]["PositionType"] == "EdgeCenter"
+                    or cs.props["xAxisPos"]["PositionType"] == "ArcCenter"
                 ):
                     x_axis = [e for e in obj.edges if e.id == cs.props["xAxisPos"]["EntityID"]][0]
                 elif cs.props["xAxisPos"]["PositionType"] == "OnVertex":
@@ -1971,8 +1971,8 @@ class GeometryModeler(Modeler):
                 if cs.props["yAxisPos"]["PositionType"] == "FaceCenter":
                     y_axis = [f for f in obj.faces if f.id == cs.props["yAxisPos"]["EntityID"]][0]
                 elif (
-                        cs.props["yAxisPos"]["PositionType"] == "EdgeCenter"
-                        or cs.props["yAxisPos"]["PositionType"] == "ArcCenter"
+                    cs.props["yAxisPos"]["PositionType"] == "EdgeCenter"
+                    or cs.props["yAxisPos"]["PositionType"] == "ArcCenter"
                 ):
                     y_axis = [e for e in obj.edges if e.id == cs.props["yAxisPos"]["EntityID"]][0]
                 elif cs.props["yAxisPos"]["PositionType"] == "OnVertex":
@@ -2541,7 +2541,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(objects="assignment")
     def split(
-            self, assignment, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True
+        self, assignment, plane=None, sides="Both", tool=None, split_crossing_objs=False, delete_invalid_objs=True
     ):
         """Split a list of objects.
         In case of 3D design possible splitting options are plane, Face Primitive, Edge Primitive or Polyline.
@@ -2698,12 +2698,12 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(objid="assignment", position="origin")
     def duplicate_and_mirror(
-            self,
-            assignment,
-            origin,
-            vector,
-            is_3d_comp=False,
-            duplicate_assignment=True,
+        self,
+        assignment,
+        origin,
+        vector,
+        is_3d_comp=False,
+        duplicate_assignment=True,
     ):
         """Duplicate and mirror a selection.
 
@@ -2843,14 +2843,14 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(objid="assignment", cs_axis="axis", nclones="clones")
     def duplicate_around_axis(
-            self,
-            assignment,
-            axis,
-            angle=90,
-            clones=2,
-            create_new_objects=True,
-            is_3d_comp=False,
-            duplicate_assignment=True,
+        self,
+        assignment,
+        axis,
+        angle=90,
+        clones=2,
+        create_new_objects=True,
+        is_3d_comp=False,
+        duplicate_assignment=True,
     ):
         """Duplicate a selection around an axis.
 
@@ -2918,13 +2918,13 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(objid="assignment", nclones="clones", attachObject="attach")
     def duplicate_along_line(
-            self,
-            assignment,
-            vector,
-            clones=2,
-            attach=False,
-            is_3d_comp=False,
-            duplicate_assignment=True,
+        self,
+        assignment,
+        vector,
+        clones=2,
+        attach=False,
+        is_3d_comp=False,
+        duplicate_assignment=True,
     ):
         """Duplicate a selection along a line.
 
@@ -3109,13 +3109,13 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(objid="assignment")
     def sweep_along_path(
-            self,
-            assignment,
-            sweep_object,
-            draft_angle=0,
-            draft_type="Round",
-            is_check_face_intersection=False,
-            twist_angle=0,
+        self,
+        assignment,
+        sweep_object,
+        draft_angle=0,
+        draft_type="Round",
+        is_check_face_intersection=False,
+        twist_angle=0,
     ):
         """Sweep the selection along a path.
 
@@ -3439,9 +3439,9 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(tool_list="assignment")
     def imprint_normal_projection(
-            self,
-            assignment,
-            keep_originals=True,
+        self,
+        assignment,
+        keep_originals=True,
     ):
         """Imprint the normal projection of objects over a sheet.
 
@@ -3467,11 +3467,11 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(tool_list="assignment")
     def imprint_vector_projection(
-            self,
-            assignment,
-            vector_points,
-            distance,
-            keep_originals=True,
+        self,
+        assignment,
+        vector_points,
+        distance,
+        keep_originals=True,
     ):
         """Imprint the projection of objects over a sheet with a specified vector and distance.
 
@@ -4601,17 +4601,17 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(filename="input_file")
     def import_3d_cad(
-            self,
-            input_file,
-            healing=False,
-            refresh_all_ids=True,
-            import_materials=False,
-            create_lightweigth_part=False,
-            group_by_assembly=False,
-            create_group=True,
-            separate_disjoints_lumped_object=False,
-            import_free_surfaces=False,
-            point_coicidence_tolerance=1e-6,
+        self,
+        input_file,
+        healing=False,
+        refresh_all_ids=True,
+        import_materials=False,
+        create_lightweigth_part=False,
+        group_by_assembly=False,
+        create_group=True,
+        separate_disjoints_lumped_object=False,
+        import_free_surfaces=False,
+        point_coicidence_tolerance=1e-6,
     ):
         """Import a CAD model.
 
@@ -4950,7 +4950,7 @@ class GeometryModeler(Modeler):
                         0,
                         "PropFlag2:=",
                         1,
-                    ]
+                    ],
                 ],
                 [
                     "NAME:Options",
@@ -5044,7 +5044,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        0
+                        0,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5057,7 +5057,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        1
+                        1,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5083,7 +5083,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         1,
                         "PropFlag2:=",
-                        1
+                        1,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5096,7 +5096,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5109,7 +5109,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5120,7 +5120,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         3,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5133,7 +5133,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5144,7 +5144,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         3,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5157,7 +5157,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5170,7 +5170,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5183,7 +5183,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5196,7 +5196,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5209,7 +5209,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5222,7 +5222,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5235,7 +5235,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5248,7 +5248,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         0,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5261,7 +5261,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5274,7 +5274,7 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
+                        8,
                     ],
                     [
                         "NAME:UDMParam",
@@ -5287,8 +5287,8 @@ class GeometryModeler(Modeler):
                         "PropType2:=",
                         5,
                         "PropFlag2:=",
-                        8
-                    ]
+                        8,
+                    ],
                 ],
                 ["NAME:GeometryParams"],
                 "DllName:=",
