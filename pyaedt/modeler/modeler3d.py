@@ -1130,14 +1130,13 @@ class Modeler3D(Primitives3D):
 
             def decimate(points_in, faces_in, points_out, faces_out):
                 if 0 < decimation < 1:
-
-                    aggressivity = 2
+                    aggressivity = 3
                     if 0.7 > decimation > 0.3:
-                        aggressivity = 3
-                    elif decimation >= 0.7:
                         aggressivity = 5
+                    elif decimation >= 0.7:
+                        aggressivity = 7
                     points_out, faces_out = fast_simplification.simplify(
-                        points_in, faces_in, decimation, agg=aggressivity
+                        points_in, faces_in, decimation, agg=aggressivity, verbose=True
                     )
 
                 return points_out, faces_out

@@ -4684,7 +4684,7 @@ class GeometryModeler(Modeler):
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(
-            0.05 if input_file.endswith(".stl") and merge_planar_faces else -1
+            0.02 if input_file.endswith(".stl") and merge_planar_faces else -1
         )
         if input_file.endswith(".stl"):
             vArg1.append("HealSTL:="), vArg1.append(heal_stl)
