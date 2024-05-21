@@ -138,7 +138,8 @@ PyAEDT supports AEDT versions 2022 R1 or newer.
 
 See the [PyAnsys develoeprs guide](https://dev.docs.pyansys.com) for detailed information about contributing to the PyAnsys project. 
 
-Note that PyAEDT uses sematic naming for pull requests (PR). This convention greatly simplifies
+Note that PyAEDT uses semantic naming for pull requests (PR). This convention greatly simplifies
+
 the review process by providing meaningful information in the PR title. The
 following prefixes should be used for pull requests:
 
