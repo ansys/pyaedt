@@ -352,6 +352,150 @@ class NativeComponentPCB(NativeComponentObject, object):
     def __init__(self, app, component_type, component_name, props):
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
 
+    @property
+    def footprint_filter(self):
+        return self.filters["FootPrint"]["Value"]
+
+    @footprint_filter.setter
+    def footprint_filter(self, minimum_footprint):
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        if "FootPrint" in new_filters:
+            new_filters.remove("FootPrint")
+        if minimum_footprint is not None:
+            new_filters.append("FootPrint")
+            self.props["NativeComponentDefinitionProvider"]["FootPrint"] = minimum_footprint
+        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+
+    @property
+    def power_filter(self):
+        return self.filters["Power"]["Value"]
+
+    @power_filter.setter
+    def power_filter(self, minimum_power):
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        if "Power" in new_filters:
+            new_filters.remove("Power")
+        if minimum_power is not None:
+            new_filters.append("Power")
+            self.props["NativeComponentDefinitionProvider"]["PowerVal"] = minimum_power
+        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+
+    @property
+    def type_filters(self):
+        return self.filters["Types"]
+
+    @type_filters.setter
+    def type_filters(self, object_type):
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        for f in ["Height", "HeightExclude2D"]:
+            if f in new_filters:
+                new_filters.remove(f)
+        if not isinstance(object_type, list):
+            object_type = [object_type]
+        new_filters += object_type
+        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+
+    @property
+    def height_filter(self):
+        return self.filters["Height"]
+
+    @height_filter.setter
+    def height_filter(self, minimum_height, include_2d_objects=False):
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        for f in ["Height", "HeightExclude2D"]:
+            if f in new_filters:
+                new_filters.remove(f)
+        if minimum_height is not None:
+            new_filters.append("Height")
+            if include_2d_objects:
+                new_filters.append("HeightExclude2D")
+            self.props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
+        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+
+    @property
+    def filters(self):
+        out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
+        filters = self.props["NativeComponentDefinitionProvider"].get("Filters", None)
+        filter_map2type = {
+            "Cap": "Type",
+            "FootPrint": "FootPrint",
+            "Height": "Height",
+            "HeightExclude2D": None,
+            "Ind": "Type",
+            "Power": "Power",
+            "Res": "Type",
+        }
+        filter_map2val = {"FootPrint": "FootPrint", "Height": "HeightVal", "Power": "PowerVal"}
+        filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
+        for f in filters:
+            if filter_map2type[f] == "Type":
+                out_filters["Type"][filter_map2name[f]] = True
+            elif filter_map2type[f] is not None:
+                out_filters[f] = {"Value": filter_map2val[f]}
+        if "HeightExclude2D" in filters:
+            out_filters["Height"]["Include2DObjects"] = True
+        return out_filters
+
+    @property
+    def overridden_components(self):
+        override_component = (
+            self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
+        )
+        return {o["overrideName"]: o["overrideProps"] for o in override_component}
+
+    def override_component(
+        self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
+    ):
+        override_component = (
+            self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
+        )
+        for o in override_component:
+            if o["overrideName"] == reference_designator:
+                override_component.remove(o)
+        if filter_component or any(override_val is not None for override_val in [power, r_jb, r_jc, height]):
+            override_component.append(
+                OrderedDict(
+                    {
+                        "overrideName": reference_designator,
+                        "overrideProps": OrderedDict(
+                            {
+                                "isFiltered": filter_component,
+                                "isOverridePower": power is not None,
+                                "isOverrideThetaJb": r_jb is not None,
+                                "isOverrideThetaJc": r_jc is not None,
+                                "isOverrideHeight": height is not None,
+                                "powerOverride": power if power is not None else "nan",
+                                "thetaJbOverride": r_jb if r_jb is not None else "nan",
+                                "thetaJcOverride": r_jc if r_jc is not None else "nan",
+                            }
+                        ),
+                    }
+                )
+            )
+        self.props["NativeComponentDefinitionProvider"]["instanceOverridesMap"] = {"oneOverrideBlk": override_component}
+        return True
+
+    def set_parts(self, parts_choice, simplify_parts=False, surface_material="Steel-oxidised-surface"):
+        if isinstance(parts_choice, str):
+            parts_choice = ["None", "Device Parts", "Package Parts"].index(parts_choice)
+        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = parts_choice
+        self.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = simplify_parts
+        self.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = surface_material
+        return True
+
+    def set_board_settings(
+        self, extent_type=None, extent_polygon=None, board_cutouts_material="air", via_holes_material="air"
+    ):
+        if extent_type is None and extent_polygon is None:
+            self.props["NativeComponentDefinitionProvider"]["Use3DLayoutExtents"] = True
+        else:
+            self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
+        if extent_polygon is not None:
+            self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
+        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = board_cutouts_material
+        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = via_holes_material
+        return True
+
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
