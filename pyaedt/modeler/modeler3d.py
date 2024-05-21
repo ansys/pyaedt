@@ -1142,7 +1142,7 @@ class Modeler3D(Primitives3D):
             for tri_id, triangles in nas_to_dict["Triangles"].items():
                 tri_out = triangles
                 p_out = nas_to_dict["Points"][::]
-                if decimation > 0:
+                if decimation > 0 and len(triangles) > 20:
                     try:
                         import fast_simplification
 
@@ -1168,7 +1168,7 @@ class Modeler3D(Primitives3D):
                 df = pd.Series(solid_triangles)
                 tri_out = df.drop_duplicates(keep=False).to_list()
                 p_out = nas_to_dict["Points"][::]
-                if decimation > 0:
+                if decimation > 0 and len(solid_triangles) > 20:
                     try:
                         import fast_simplification
 

@@ -1407,7 +1407,7 @@ class TestClass:
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
 
-        out = simplify_stl(example_project, decimation=80, aggressiveness=5)
+        out = simplify_stl(example_project, decimation=0.8, aggressiveness=5)
         assert os.path.exists(out)
 
     def test_60_set_variable(self):
