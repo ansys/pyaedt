@@ -34,7 +34,7 @@ def browse_nastran():
 
     master.geometry("700x200")
 
-    master.title("Import Nastran")
+    master.title("Import Nastran or STL file")
 
     # Load the logo for the main window
     icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
@@ -72,8 +72,8 @@ def browse_nastran():
     def browseFiles():
         filename = filedialog.askopenfilename(
             initialdir="/",
-            title="Select a Nastran File",
-            filetypes=(("Nastran", "*.nas*"), ("all files", "*.*")),
+            title="Select a Nastran or stl File",
+            filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
         )
         text.insert(END, filename)
         # # Change label contents
@@ -99,15 +99,6 @@ def browse_nastran():
     mainloop()
 
 
-# Function for opening the
-# file explorer window
-# def browseFiles():
-#     filename = filedialog.askopenfilename(
-#         initialdir="/", title="Select a File", filetypes=(("Nastran files", "*.nas*"), ("all files", "*.*"))
-#     )
-#
-#     # Change label contents
-#     return filename
 browse_nastran()
 
 # nas_input = browseFiles()
@@ -124,8 +115,14 @@ if os.path.exists(file_path):
         projname = proj.GetName()
         desname = des.GetName()
         app = get_pyaedt_app(projname, desname)
-        app.modeler.import_nastran(file_path, import_as_light_weight=lightweight, decimation=decimate)
+        if file_path.endswith(".nas"):
+            app.modeler.import_nastran(file_path, import_as_light_weight=lightweight, decimation=decimate)
+        else:
+            from pyaedt.modules.solutions import simplify_stl
+
+            outfile = simplify_stl(file_path, decimation=decimate, aggressiveness=5)
+            app.modeler.import_3d_cad(outfile, healing=False, create_lightweigth_part=lightweight)
         d.logger.info("Nastran imported correctly.")
 else:
     with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
-        d.odesktop.AddMessage("", "", 3, "Wrong file selected. Select a .nas file")
+        d.odesktop.AddMessage("", "", 3, "Wrong file selected. Select a .nas or .stl file")

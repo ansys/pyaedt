@@ -1126,9 +1126,30 @@ class Modeler3D(Primitives3D):
                 output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
                 f = open(output_stl, "w")
 
+            def decimate(points_in, faces_in, points_out, faces_out):
+                if 0 < decimation < 1:
+                    aggressivity = 3
+                    if 0.7 > decimation > 0.3:
+                        aggressivity = 5
+                    elif decimation >= 0.7:
+                        aggressivity = 7
+                    points_out, faces_out = fast_simplification.simplify(
+                        points_in, faces_in, decimation, agg=aggressivity
+                    )
+
+                return points_out, faces_out
+
             for tri_id, triangles in nas_to_dict["Triangles"].items():
                 tri_out = triangles
                 p_out = nas_to_dict["Points"][::]
+                if decimation > 0:
+                    try:
+                        import fast_simplification
+
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                    except Exception:
+                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Please install it using pip.")
                 f.write("solid Sheet_{}\n".format(tri_id))
 
                 for triangle in tri_out:
@@ -1136,15 +1157,6 @@ class Modeler3D(Primitives3D):
                 f.write("endsolid\n")
             if nas_to_dict["Triangles"]:
                 f.close()
-                if decimation > 0:
-                    from pyaedt.modules.solutions import simplify_stl
-
-                    aggressivity = 3
-                    if 0.7 > decimation > 0.3:
-                        aggressivity = 5
-                    elif decimation >= 0.7:
-                        aggressivity = 7
-                    output_stl = simplify_stl(output_stl, decimation=decimation, aggressiveness=aggressivity)
             output_solid = ""
             if nas_to_dict["Solids"]:
                 output_solid = os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl")
@@ -1156,20 +1168,19 @@ class Modeler3D(Primitives3D):
                 df = pd.Series(solid_triangles)
                 tri_out = df.drop_duplicates(keep=False).to_list()
                 p_out = nas_to_dict["Points"][::]
+                if decimation > 0:
+                    try:
+                        import fast_simplification
+
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                    except Exception:
+                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Please install it using pip.")
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             if output_solid:
                 f.close()
-                if decimation > 0:
-                    from pyaedt.modules.solutions import simplify_stl
-
-                    aggressivity = 3
-                    if 0.7 > decimation > 0.3:
-                        aggressivity = 5
-                    elif decimation >= 0.7:
-                        aggressivity = 7
-                    output_solid = simplify_stl(output_solid, decimation=decimation, aggressiveness=aggressivity)
             self.logger.info("STL file created")
             self._app.odesktop.CloseAllWindows()
             self.logger.info("Importing STL in 3D Modeler")
