@@ -1136,7 +1136,7 @@ class Modeler3D(Primitives3D):
                     elif decimation >= 0.7:
                         aggressivity = 7
                     points_out, faces_out = fast_simplification.simplify(
-                        points_in, faces_in, decimation, agg=aggressivity, verbose=True
+                        points_in, faces_in, decimation, agg=aggressivity
                     )
 
                 return points_out, faces_out
