@@ -1974,13 +1974,12 @@ class Maxwell(object):
                     sources_type_array.append(2)
                 elif source_type == "SPEED":
                     sources_type_array.append(3)
+        names = []
+        values = []
         if parameters:
             names = list(parameters.keys())
             values = list(parameters.values())
             netlist_file_path = ""
-        else:
-            names = []
-            values = []
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, names, values)
         return True
 
