@@ -906,7 +906,7 @@ class Modeler3D(Primitives3D):
             this function tries to reduce the data set to 10% of its
             original size and removes 90% of the input triangles.
         group_parts : bool, optional
-            Whether to group imported parts by object id or not. Default is ``True``.
+            Whether to group imported parts by object ID. The default is ``True``.
 
         Returns
         -------
