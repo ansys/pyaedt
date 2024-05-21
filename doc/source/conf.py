@@ -277,11 +277,16 @@ if run_examples:
     # Must be less than or equal to the XVFB window size
     pyvista.global_theme["window_size"] = np.array([1024, 768])
 
-    # suppress annoying matplotlib bug
+    # Suppress annoying matplotlib bug
     warnings.filterwarnings(
         "ignore",
         category=UserWarning,
         message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
+    )
+    warnings.filterwarnings(
+        "ignore",
+        category=UserWarning,
+        message="FigureCanvasAgg is non-interactive, and thus cannot be shown",
     )
 
     extensions.append("sphinx_gallery.gen_gallery")
