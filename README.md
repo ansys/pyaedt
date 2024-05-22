@@ -33,7 +33,8 @@ Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
 tools like HFSS 3D Layout. The Ansys Electronics Database 
 ([EDB](https://edb.docs.pyansys.com/version/stable/)) is included
 with PyAEDT as a dependency and is recommended for any automated manipulation and 
-setup of layout data for PCBs, electronic packages and integrated circuits. 
+setup of layout data for PCBs, electronic packages, and integrated circuits. 
+
 The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
 the API.
@@ -136,7 +137,8 @@ PyAEDT supports AEDT versions 2022 R1 or newer.
 
 ## Contributing
 
-See the [PyAnsys develoeprs guide](https://dev.docs.pyansys.com) for detailed information about contributing to the PyAnsys project. 
+For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com). 
+
 
 Note that PyAEDT uses semantic naming for pull requests (PR). This convention greatly simplifies
 
