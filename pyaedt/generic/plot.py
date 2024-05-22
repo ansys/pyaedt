@@ -99,13 +99,14 @@ def is_notebook():
     bool
     """
     try:
+        from IPython import get_ipython
+
         shell = get_ipython().__class__.__name__
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        else:
-            return False
+        # Check if shell is Jupyter notebook or QTconsole
+        return shell == "ZMQInteractiveShell"
+    # Probably standard Python interpreter
     except NameError:
-        return False  # Probably standard Python interpreter
+        return False
 
 
 def is_float(istring):
@@ -385,7 +386,7 @@ def plot_polar_chart(
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
@@ -403,6 +404,9 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Plot Title label.
     snapshot_path : str
         Full path to image file if a snapshot is needed.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
@@ -432,14 +436,16 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show:
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_2d_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+):
     """Create a Matplotlib plot based on a list of data.
     Parameters
     ----------
@@ -459,6 +465,9 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
         The default value is ``None``.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
@@ -489,7 +498,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    if show:
         fig.show()
     return fig
 
@@ -540,9 +549,10 @@ def plot_matplotlib(
         Default is `False`.
     annotations : list, optional
         List of annotations to add to the plot. The format is [x, y, string, dictionary of font options].
-        Default is `None`.
+        The default is ``None``.
     show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
 
     Returns
@@ -636,10 +646,10 @@ def plot_contour(
     levels : int, optional
         Color map levels. The default is ``64``.
     snapshot_path : str, optional
-        Full path to save the image save. The default is ``None``.
+        Full path to save the image to. The default is ``None``.
     show : bool, optional
-        Whether to render the figure. The default is ``True``. If
-        ``False``, the image is not drawn.
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
 
     Returns
     -------
