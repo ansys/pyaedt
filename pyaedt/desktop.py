@@ -261,32 +261,11 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-        elif _desktop_sessions and len(_desktop_sessions) > 1 and not desktop_class.parent_desktop_id:
-            pyaedt_logger.error("Release is not allowed when multiple desktop sessions are available.")
-            pyaedt_logger.error("Closing Desktop session.")
-            try:
-                os.kill(pid, 9)
-                if _desktop_sessions:
-                    for v in _desktop_sessions.values():
-                        if pid in v.parent_desktop_id:
-                            del v.parent_desktop_id[v.parent_desktop_id.index(pid)]
-                return True
-            except Exception:  # pragma: no cover
-                warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-        elif _desktop_sessions and len(_desktop_sessions) > 1:
-            pyaedt_logger.error("A child desktop session is linked to this session.")
-            pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
-            return False
         else:
-            try:
-                import pyaedt.generic.grpc_plugin as python_grpc_wrapper
-
-                python_grpc_wrapper.AedtAPI.ReleaseAll()
-                return True
-            except Exception:  # pragma: no cover
-                warnings.warn(
-                    "Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`."
-                )
+            for k, d in _desktop_sessions.items():
+                if k == pid:
+                    d.grpc_plugin.Release()
+                    return True
     elif not inside_desktop:
         if close_desktop:
             try:
@@ -455,16 +434,17 @@ class Desktop(object):
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
-        if settings.use_multi_desktop and is_windows and not inside_desktop and new_desktop_session:
+        if settings.use_multi_desktop and not inside_desktop and new_desktop_session:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
-            if settings.use_multi_desktop and is_windows and (port or aedt_process_id):
+            if settings.use_multi_desktop and (port or aedt_process_id):
                 for el in list(_desktop_sessions.values()):
                     if (el.port != 0 and el.port == port) or (
                         el.aedt_process_id and el.aedt_process_id == aedt_process_id
                     ):
                         return el
+                return object.__new__(cls)
             sessions = list(_desktop_sessions.keys())
             try:
                 process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
@@ -491,7 +471,7 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
-        if _desktop_sessions and (specified_version is None or not settings.use_grpc_api):
+        if _desktop_sessions and specified_version is None:
             specified_version = list(_desktop_sessions.values())[-1].aedt_version_id
         if aedt_process_id:  # pragma no cover
             aedt_process_id = int(aedt_process_id)
@@ -502,7 +482,7 @@ class Desktop(object):
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
         self.parent_desktop_id = []
-
+        self._odesktop = None
         self._connected_app_instances = 0
 
         """Initialize desktop."""
@@ -998,40 +978,27 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(settings.aedt_install_dir, "PythonFiles", "DesktopPlugin")
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+            from pyaedt.generic.grpc_plugin_dll_class import AEDT
 
-            if _desktop_sessions:
-                last_session = list(_desktop_sessions.values())[-1]
-                all_desktop = [i for i in last_session.odesktop.GetRunningInstancesMgr().GetAllRunningInstances()]
-                for desktop in all_desktop:
-                    try:
-                        if port and desktop.GetGrpcServerPort() == port:
-                            self.isoutsideDesktop = True
-                            self.odesktop = desktop
-                            self.aedt_process_id = self.odesktop.GetProcessID()
-                            self.is_grpc_api = True
-                            last_session.parent_desktop_id.append(self.aedt_process_id)
-                            return True
-                    except Exception:
-                        messages = desktop.GetMessages("", "", 0)
-                        for message in messages:
-                            if "gRPC server running on port: " in message and str(port) in message:
-                                self.isoutsideDesktop = True
-                                self.odesktop = desktop
-                                self.aedt_process_id = self.odesktop.GetProcessID()
-                                self.is_grpc_api = True
-                                last_session.parent_desktop_id.append(self.aedt_process_id)
-                                return True
-            if new_session:
-                self.launched_by_pyaedt = new_session
-            oapp = python_grpc_wrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
+            self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
+            oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
 
             self.isoutsideDesktop = True
-            self.odesktop = oapp.GetAppDesktop()
             self.aedt_process_id = self.odesktop.GetProcessID()
             self.is_grpc_api = True
         return True
+
+    @property
+    def odesktop(self):
+        try:
+            return self.grpc_plugin.odesktop
+        except:
+            return self._odesktop
+
+    @odesktop.setter
+    def odesktop(self, val):
+        self._odesktop = val
 
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         if settings.remote_rpc_session:  # pragma: no cover
@@ -1571,7 +1538,6 @@ class Desktop(object):
         for a in props:
             self.__dict__.pop(a, None)
 
-        self.odesktop = None
         gc.collect()
         return result
 
