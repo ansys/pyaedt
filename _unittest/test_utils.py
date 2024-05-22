@@ -23,7 +23,7 @@ def foo(trigger_exception=True):
 
 @patch("pyaedt.generic.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception(mock_sessions):
-    """Test handler while activating/deactivating error handler."""
+    """Test handler while activating or deactivating error handler."""
     mock_session = MagicMock()
     mock_sessions.values.return_value = [mock_session]
     settings.enable_error_handler = True
