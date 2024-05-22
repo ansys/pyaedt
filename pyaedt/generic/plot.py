@@ -378,7 +378,7 @@ def plot_polar_chart(
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    if show and not is_notebook():
+    if show:
         fig.show()
     return fig
 
