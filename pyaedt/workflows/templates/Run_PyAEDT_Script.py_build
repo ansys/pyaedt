@@ -23,7 +23,7 @@
 """
 * * * This script is meant to run in IronPython within AEDT. * * *
 
-The script allows the user choose a PyAEDT script to execute.
+The script provides for choosing the PyAEDT script to execute.
 
 """
 import os
@@ -63,7 +63,7 @@ def main():
             python_exe = PyAEDT_utils.check_interpreter(python_exe, version_short)
             # Python script
             pyaedt_script = file_dialog.FileName
-            # Check python executable
+            # Check Python executable
             python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
             if not python_exe_flag:
                 return

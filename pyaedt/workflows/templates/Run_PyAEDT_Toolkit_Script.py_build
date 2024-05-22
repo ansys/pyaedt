@@ -23,7 +23,7 @@
 """
 * * * This script is meant to run in IronPython within AEDT. * * *
 
-The script allows to execute PyAEDT workflow.
+The script executes the PyAEDT workflow.
 
 """
 import os
@@ -45,7 +45,7 @@ def main():
     try:
         # Get AEDT version
         short_version = oDesktop.GetVersion()[2:6].replace(".", "")
-        oDesktop.AddMessage("", "", 0, "Toolkit launched. Please wait.")
+        oDesktop.AddMessage("", "", 0, "Toolkit launched. Wait.")
         # CPython interpreter
         python_exe = r"##PYTHON_EXE##"
         # Python script

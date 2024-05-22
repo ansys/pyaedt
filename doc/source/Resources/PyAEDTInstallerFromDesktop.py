@@ -27,8 +27,8 @@ def run_pyinstaller_from_c_python(oDesktop):
         python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version.replace(".", "_"),
                                                    "linx64", "Release", "python", "runpython"))
 
-    # Launch this script again from the CPython interpreter, this will call install_pyaedt method
-    # This method is creating a virtual environment and installing pyaedt and its dependencies
+    # Launch this script again from the CPython interpreter. This calls the ``install_pyaedt()`` method,
+    # which creates a virtual environment and installs PyAEDT and its dependencies
     command = ['"{}"'.format(python_exe), '"{}"'.format(os.path.normpath(__file__)), "--version=" + version]
     if is_student_version(oDesktop):
         command.append("--student")
@@ -57,7 +57,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         oDesktop.AddMessage("", "", 0, "PyAEDT virtual environment created.")
 
     # Add PyAEDT tabs in AEDT
-    # Virtual environment path and python executable
+    # Virtual environment path and Python executable
     if is_windows:
         venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", python_version.replace(".", "_"))
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
@@ -83,7 +83,7 @@ def run_pyinstaller_from_c_python(oDesktop):
             command = 'rm "{}"'.format(pers1)
         ret_code = os.system(command)
         if ret_code != 0:
-            oDesktop.AddMessage("", "", 2, "Error removing symbolic link to pyaedt in PersonalLib.")
+            oDesktop.AddMessage("", "", 2, "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
 
     if is_windows:
         command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
@@ -91,7 +91,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
     ret_code = os.system(command)
     if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error configuring symbolic link to pyaedt in PersonalLib.")
+        oDesktop.AddMessage("", "", 2, "Error occurred while configuring the symbolic link to PyAEDT in 'PersonalLib'.")
 
     # Create Toolkits in PersonalLib
     import tempfile
@@ -111,7 +111,7 @@ def run_pyinstaller_from_c_python(oDesktop):
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
     ret_code = os.system(command)
     if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error configuring the PyAEDT panels.")
+        oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
         return
     # Refresh UI
     oDesktop.CloseAllWindows()
@@ -126,7 +126,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
         oDesktop.AddMessage("", "", 0, msg)
         MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
-    oDesktop.AddMessage("", "", 0, "Create a new project if PyAEDT panel is not visible.")
+    oDesktop.AddMessage("", "", 0, "Create a project if the PyAEDT panel is not visible.")
 
 
 def parse_arguments_for_pyaedt_installer(args=None):
@@ -195,7 +195,7 @@ def install_pyaedt():
             if os.path.exists(unzipped_path):
                 shutil.rmtree(unzipped_path, ignore_errors=True)
             with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
-                # Extract all contents to a directory (you can specify a different extraction path if needed)
+                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
             run_command(
@@ -228,7 +228,7 @@ def install_pyaedt():
             if os.path.exists(unzipped_path):
                 shutil.rmtree(unzipped_path, ignore_errors=True)
             with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
-                # Extract all contents to a directory (you can specify a different extraction path if needed)
+                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
@@ -255,7 +255,7 @@ def run_command(command):
 if __name__ == "__main__":
 
     if is_iron_python:
-        # Check if wheelhouse defined, wheelhouse is created for Windows only
+        # Check if wheelhouse defined. Wheelhouse is created for Windows only.
         wheelpyaedt = []
         # Retrieve the script arguments
         script_args = ScriptArgument.split()

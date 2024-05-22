@@ -42,7 +42,7 @@ def add_pyaedt_to_aedt(
     aedt_version : str
         AEDT release.
     personal_lib : str
-        AEDT Personal Lib folder.
+        AEDT personal library folder.
     """
 
     logger = logging.getLogger("Global")
@@ -50,7 +50,7 @@ def add_pyaedt_to_aedt(
         from pyaedt.generic.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:
-            logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
+            logger.error("'personal_lib' or AEDT version is not provided. There is no available desktop session.")
             return False
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib

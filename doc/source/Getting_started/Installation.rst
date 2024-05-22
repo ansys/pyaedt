@@ -51,9 +51,9 @@ There are three options:
 
 - Custom PyAEDT scripts.
 
-- PyAEDT workflows. Existing workflows in the PyAEDT library.
+- Existing workflows in the PyAEDT library.
 
-- Open source PyAEDT toolkits. Open source PyAEDT toolkits following the `common library <https://aedt.common.toolkit.docs.pyansys.com/>`_ standard.
+- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit <https://aedt.common.toolkit.docs.pyansys.com/>`_ documentation.
 
 .. image:: ../Resources/toolkit_manager_1.webp
   :width: 800
