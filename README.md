@@ -140,10 +140,12 @@ PyAEDT supports AEDT versions 2022 R1 or newer.
 For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com). 
 
 
-Note that PyAEDT uses semantic naming for pull requests (PR). This convention greatly simplifies
-
-the review process by providing meaningful information in the PR title. The
-following prefixes should be used for pull requests:
+Note that PyAEDT uses semantic naming for pull requests (PR). This convention 
+greatly simplifies the review process by providing meaningful
+information in the PR title. The
+following 
+[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+should be used for pull request name:
 
 - "BUILD"
 - "CHORE"
@@ -156,7 +158,6 @@ following prefixes should be used for pull requests:
 - "REVERT"
 - "STYLE"
 - "TEST"
-
 
 
 ## Student version
