@@ -510,7 +510,7 @@ class UserDefinedComponent(object):
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(position="origin")
     def mirror(self, origin, vector):
         """Mirror a selection.
 
