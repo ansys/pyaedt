@@ -27,6 +27,7 @@ import sys
 import tempfile
 import time
 
+import matplotlib
 import pytest
 
 from pyaedt.generic.settings import settings
@@ -219,3 +220,9 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+
+@pytest.fixture(autouse=True)
+def matplotlib_use_agg():
+    """Configure Matplotlib to use 'Agg' backend for all tests."""
+    matplotlib.use("Agg")

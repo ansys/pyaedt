@@ -45,11 +45,6 @@ if not is_ironpython:
     except ImportError:
         pv = None
     try:
-        # Use matplotlib Agg backend (non-interactive) when the CI is running.
-        if os.getenv("ON_CI", "False") == "True":  # pragma: no cover
-            import matplotlib
-
-            matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ImportError:
         plt = None
