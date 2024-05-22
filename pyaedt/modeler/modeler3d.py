@@ -885,7 +885,6 @@ class Modeler3D(Primitives3D):
         import_as_light_weight=False,
         decimation=0,
         group_parts=True,
-        **kwargs,
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
