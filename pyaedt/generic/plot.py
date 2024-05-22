@@ -548,7 +548,7 @@ def plot_matplotlib(
         Default is `False`.
     annotations : list, optional
         List of annotations to add to the plot. The format is [x, y, string, dictionary of font options].
-        Default is `None`.
+        The default is ``None``.
     show : bool, optional
         Whether to render the figure. The default is ``True``. If ``False``, the
         figure is not drawn.
@@ -645,7 +645,7 @@ def plot_contour(
     levels : int, optional
         Color map levels. The default is ``64``.
     snapshot_path : str, optional
-        Full path to save the image save. The default is ``None``.
+        Full path to save the image to. The default is ``None``.
     show : bool, optional
         Whether to render the figure. The default is ``True``. If ``False``, the
         figure is not drawn.

@@ -780,7 +780,7 @@ class SolutionData(object):
         is_polar=False,
         show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a Matplotlib plot based on a list of data.
 
         Parameters
         ----------
@@ -806,9 +806,9 @@ class SolutionData(object):
         title : str
             Plot title label.
         snapshot_path : str
-            Full path to image file if a snapshot is needed.
+            Full path to the image file if a snapshot is needed.
         is_polar : bool, optional
-            Set to `True` if this is a polar plot.
+            Whether this is a polar plot. The default is ``False``.
         show : bool, optional
             Whether to render the figure. The default is ``True``. If ``False``, the
             figure is not drawn.
