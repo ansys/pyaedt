@@ -99,13 +99,14 @@ def is_notebook():
     bool
     """
     try:
+        from IPython import get_ipython
+
         shell = get_ipython().__class__.__name__
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        else:
-            return False
+        # Check if shell is Jupyter notebook or QTconsole
+        return shell == "ZMQInteractiveShell"
+    # Probably standard Python interpreter
     except NameError:
-        return False  # Probably standard Python interpreter
+        return False
 
 
 def is_float(istring):
