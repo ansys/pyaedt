@@ -1981,8 +1981,7 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             self.p_app.logger.info("Processing net {}...".format(net))
             for prim in primitives:
-
-                if prim.layer_name not in layers_elevation:
+                if prim.type == "Bondwire" or prim.layer_name not in layers_elevation:
                     continue
                 z = layers_elevation[prim.layer_name]
                 if "EdbPath" in str(prim):
