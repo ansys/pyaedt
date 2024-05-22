@@ -435,7 +435,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    if show and not is_notebook():
+    if show:
         fig.show()
     return fig
 
