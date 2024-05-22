@@ -1451,12 +1451,12 @@ class Object3d(object):
         return self._primitives.split(self.name, plane, sides)
 
     @pyaedt_function_handler()
-    def mirror(self, position, vector, duplicate=False):
+    def mirror(self, origin, vector, duplicate=False):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : list of int or float
+        origin : list of int or float
             Cartesian ``[x, y, z]`` coordinates or
             the ``Application.Position`` object of a point in the plane used for the mirror operation.
         vector : list of float
@@ -1477,7 +1477,7 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        if self._primitives.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
+        if self._primitives.mirror(self.id, origin=origin, vector=vector, duplicate=duplicate):
             return self
         return False
 
