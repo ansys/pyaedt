@@ -1450,7 +1450,7 @@ class Object3d(object):
         """
         return self._primitives.split(self.name, plane, sides)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(position="origin")
     def mirror(self, origin, vector, duplicate=False):
         """Mirror a selection.
 
