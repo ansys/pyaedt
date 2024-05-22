@@ -12,13 +12,14 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
+ERROR_MESSAGE = "Dummy message."
 
 
 @pyaedt_function_handler(deprecated_arg="trigger_exception")
 def foo(trigger_exception=True):
     """Some dummy function used for testing."""
     if trigger_exception:
-        raise Exception("Dummy message.")
+        raise Exception(ERROR_MESSAGE)
 
 
 @patch("pyaedt.generic.desktop_sessions._desktop_sessions")
@@ -49,8 +50,9 @@ def test_handler_enable_error_handler():
     assert foo() == False
 
     settings.enable_error_handler = False
-    with pytest.raises(Exception):
+    with pytest.raises(Exception) as exec_info:
         foo()
+    assert str(exec_info.value) == ERROR_MESSAGE
 
     # Teardown
     settings.enable_error_handler = SETTINGS_ENABLE_ERROR_HANDLER
