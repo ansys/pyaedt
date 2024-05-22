@@ -511,12 +511,12 @@ class UserDefinedComponent(object):
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
     @pyaedt_function_handler()
-    def mirror(self, position, vector):
+    def mirror(self, origin, vector):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : list, Position
+        origin : list, Position
             List of the ``[x, y, z]`` coordinates or
             the Application.Position object for the selection.
         vector : float
@@ -534,11 +534,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
-            if self._primitives.mirror(self.name, position=position, vector=vector):
+            if self._primitives.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.mirror(part, position=position, vector=vector)
+                self._primitives.mirror(part, origin=origin, vector=vector)
             return self
         return False
 
