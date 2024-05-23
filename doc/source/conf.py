@@ -28,7 +28,7 @@ import shutil
 # Additionally, when documenting images in formats other than the supported ones, 
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
