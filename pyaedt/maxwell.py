@@ -1933,8 +1933,8 @@ class Maxwell(object):
             Name of the schematic design.
         parameters : dict, optional
             Name and value of the circuit parameters.
-            It must be provided as a dictionary, where the key is the parameter name
-            and value is the parameter value.
+            Parameters must be provided as a dictionary, where the key is the parameter name
+            and the value is the parameter value.
             If the dictionary is provided, the ``netlist_file_path`` parameter is automatically
             set to an empty string.
             The default is ``None``.
