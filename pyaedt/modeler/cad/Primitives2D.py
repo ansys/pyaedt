@@ -127,7 +127,8 @@ class Primitives2D(GeometryModeler, object):
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
         non_model : bool, optional
-             Either if create the new object as model or non-model. The default is ``False``.
+             Whether to create the object as a non-model. The default is ``False``, in which
+             case the object is created as a model.
         segments : int, optional
             Number of segments to apply to create the segmented geometry.
             The default is ``0``.
