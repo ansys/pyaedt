@@ -811,7 +811,13 @@ class PostProcessor(Post):
 
     @pyaedt_function_handler()
     def create_3d_plot(
-        self, solution_data, nominal_sweep=None, nominal_value=None, primary_sweep="Theta", secondary_sweep="Phi"
+        self,
+        solution_data,
+        nominal_sweep=None,
+        nominal_value=None,
+        primary_sweep="Theta",
+        secondary_sweep="Phi",
+        show=True,
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -827,17 +833,20 @@ class PostProcessor(Post):
             Primary sweep. The default is ``"Theta"``.
         secondary_sweep : str, optional
             Secondary sweep. The default is ``"Phi"``.
+        show : bool, optional
+            Whether to render the figure. The default is ``True``. If ``False``, the
+            figure is not drawn.
 
         Returns
         -------
-         bool
-             ``True`` when successful, ``False`` when failed.
+        :class:`matplotlib.plt`
+            Matplotlib fig object.
         """
         if nominal_value:
             solution_data.intrinsics[nominal_sweep] = nominal_value
         if nominal_value:
             solution_data.primary_sweep = primary_sweep
-        return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
+        return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep, show=show)
 
     @pyaedt_function_handler(frames_list="frames", output_gif_path="gif_path")
     def plot_scene(
