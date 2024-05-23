@@ -112,7 +112,6 @@ class TestClass:
             intrinsics={"Freq": "5GHz", "Phase": "0deg"},
             variation_variable="Phase",
             variations=phases,
-            show=False,
             export_gif=True,
             export_path=self.local_scratch.path,
         )
@@ -127,7 +126,6 @@ class TestClass:
             variations=phases,
             project_path="",
             export_gif=False,
-            show=False,
         )
         model_gif2.gif_file = os.path.join(self.aedtapp.working_directory, "test2.gif")
         model_gif2.camera_position = [0, 50, 200]
@@ -514,7 +512,6 @@ class TestClass:
             image_format="jpg",
             view="xy",
             plot_label=plot1.name + " label",
-            show=False,
         )
         assert os.path.exists(plot_obj.image_file)
         os.unlink(plot_obj.image_file)
@@ -539,7 +536,6 @@ class TestClass:
             image_format="jpg",
             view="xy",
             plot_label=plot1.name + " label",
-            show=False,
             file_format="aedtplt",
         )
         assert os.path.exists(plot_obj.image_file)
@@ -566,7 +562,6 @@ class TestClass:
             intrinsics=intrinsic,
             mesh_on_fields=False,
             view="isometric",
-            show=False,
             export_path=self.local_scratch.path,
             image_format="jpg",
         )
@@ -574,12 +569,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):
-        obj = self.aedtapp.post.plot_model_obj(
-            show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg")
-        )
+        obj = self.aedtapp.post.plot_model_obj(export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
         obj2 = self.aedtapp.post.plot_model_obj(
-            show=False, export_path=os.path.join(self.local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+            export_path=os.path.join(self.local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
         )
         assert os.path.exists(obj2.image_file)
 

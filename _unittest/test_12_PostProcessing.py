@@ -415,7 +415,7 @@ class TestClass:
         )
         assert os.path.exists(frames_list)
         sbr_test.post.plot_scene(
-            frames_list, os.path.join(sbr_test.working_directory, "animation.gif"), norm_index=5, dy_rng=35, show=False
+            frames_list, os.path.join(sbr_test.working_directory, "animation.gif"), norm_index=5, dy_rng=35
         )
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation.gif"))
         sbr_test.post.plot_scene(
@@ -423,7 +423,6 @@ class TestClass:
             os.path.join(sbr_test.working_directory, "animation2.gif"),
             norm_index=5,
             dy_rng=35,
-            show=False,
             convert_fields_in_db=True,
             log_multiplier=20.0,
         )
@@ -605,23 +604,22 @@ class TestClass:
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
         ffdata.plot_2d_cut(image_path=img3)
         assert os.path.exists(img3)
-        curve_2d = ffdata.plot_2d_cut(show=False)
+        curve_2d = ffdata.plot_2d_cut()
         assert len(curve_2d[0]) == 3
-        data = ffdata.polar_plot_3d(show=False)
+        data = ffdata.polar_plot_3d()
         assert len(data) == 3
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.polar_plot_3d_pyvista(
             quantity="RealizedGain",
             image_path=img4,
-            show=False,
             background=[255, 0, 0],
             show_geometry=False,
             convert_to_db=True,
         )
         assert os.path.exists(img4)
         data_pyvista = ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False, convert_to_db=True
+            quantity="RealizedGain", background=[255, 0, 0], show_geometry=False, convert_to_db=True
         )
         assert data_pyvista
 
@@ -637,7 +635,6 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
-            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -667,13 +664,12 @@ class TestClass:
         ffdata.polar_plot_3d_pyvista(
             quantity="RealizedGain",
             image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
             convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
 
         try:
-            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", show=False, convert_to_db=True)
+            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", convert_to_db=True)
             assert isinstance(p, object)
         except Exception:
             assert True
@@ -687,7 +683,6 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
             convert_to_db=True,
-            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
 
@@ -697,7 +692,6 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
@@ -706,7 +700,6 @@ class TestClass:
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
@@ -719,7 +712,6 @@ class TestClass:
         ffdata.polar_plot_3d_pyvista(
             quantity="RealizedGain",
             image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
             convert_to_db=True,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
@@ -729,7 +721,6 @@ class TestClass:
             title="Contour at {}Hz".format(ffdata1.frequency),
             image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
             convert_to_db=True,
-            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 

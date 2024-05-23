@@ -167,15 +167,14 @@ class TestClass:
             position=[0, 0, 0], start_point=[0, 0, 2], num_sides=3, name="MyPolygon", material="Copper"
         )
         obj = self.aedtapp.plot(
-            show=False,
             export_path=os.path.join(self.local_scratch.path, "image.jpg"),
             show_bounding=True,
             show_grid=True,
         )
         assert os.path.exists(obj.image_file)
-        obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
+        obj2 = self.aedtapp.plot(export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
         assert os.path.exists(obj2.image_file)
-        obj3 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
+        obj3 = self.aedtapp.plot(export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
         assert filecmp.cmp(obj.image_file, obj3.image_file)
 
     def test_10_edit_menu_commands(self):
