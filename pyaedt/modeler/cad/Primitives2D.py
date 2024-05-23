@@ -133,8 +133,8 @@ class Primitives2D(GeometryModeler, object):
             Number of segments to apply to create the segmented geometry.
             The default is ``0``.
         **kwargs : optional
-            Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            Additional keyword arguments to pass to set properties when creating the primitive.
+           For more information, see ``pyaedt.modeler.cad.object3d.Object3d``.
 
 
         Returns
