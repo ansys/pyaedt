@@ -94,7 +94,7 @@ class Primitives2D(GeometryModeler, object):
         vArg2 = self._default_object_attributes(name=name, matname=material, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
-    
+
     # fmt: off
     @pyaedt_function_handler(position="origin", matname="material")
     def create_ellipse(
