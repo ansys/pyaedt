@@ -106,7 +106,7 @@ class Primitives2D(GeometryModeler, object):
         material=None,
         non_model=False,
         segments=0,
-        **kwargs,
+        **kwargs  # noqa
     ):
         """Create an ellipse.
 
