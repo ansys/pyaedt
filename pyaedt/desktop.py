@@ -477,6 +477,10 @@ class Desktop(object):
         if aedt_process_id:  # pragma no cover
             aedt_process_id = int(aedt_process_id)
         if getattr(self, "_initialized", None) is not None and self._initialized:
+            try:
+                self.grpc_plugin.recreate_application(True)
+            except Exception:
+                pass
             return
         else:
             self._initialized = True
