@@ -139,20 +139,20 @@ use_gif = bool(int(os.getenv("PYAEDT_DOC_USE_GIF", "1")))
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.intersphinx",
+    "ansys_sphinx_theme.extension.linkcode",
+    "numpydoc",
+    "recommonmark",
     "sphinx.ext.autodoc",
-    "sphinx.ext.todo",
     "sphinx.ext.autosummary",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.imgconverter",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx.ext.graphviz",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.inheritance_diagram",
-    "numpydoc",
-    "ansys_sphinx_theme.extension.linkcode",
-    "recommonmark",
 ]
 
 # Intersphinx mapping
