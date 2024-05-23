@@ -157,7 +157,6 @@ class AedtPropServer(AedtObjWrapper):
         self.__dict__["__propNames__"] = None
 
     def __GetPropAttributes(self):
-
         if self.__propMap__ == None:
             propMap = {}
             propNames = self.GetPropNames()
@@ -176,7 +175,7 @@ class AedtPropServer(AedtObjWrapper):
 
     def __dir__(self):
         ret = super().__dir__().copy()
-        for attrName in self.__GetPropAttributes().keys():
+        for attrName, _ in self.__GetPropAttributes():
             ret.append(attrName)
         return ret
 
@@ -200,7 +199,7 @@ class AedtPropServer(AedtObjWrapper):
             if attrName in propMap:
                 self.SetPropValue(propMap[attrName], val)
                 return
-        except:
+        except Exception:
             pass
         super().__setattr__(attrName, val)
 
@@ -335,7 +334,7 @@ class AEDT:
             try:
                 self.aedt.GetAppDesktop().GetProcessID()
                 return self.aedt
-            except:
+            except Exception:
                 return run()
 
     def InvokeAedtObjMethod(self, objectID, funcName, argv):
@@ -365,11 +364,11 @@ class AEDT:
             self,
         )
 
-    def CreateAedtBlockObj(self, list):
-        count = len(list)
+    def CreateAedtBlockObj(self, list_in):
+        count = len(list_in)
         if count > 1:
-            if isinstance(list[0], str):
-                toks = list[0].split(":")
+            if isinstance(list_in[0], str):
+                toks = list_in[0].split(":")
                 if len(toks) == 2:
                     start = -1
                     if count % 2 == 0:
@@ -381,8 +380,8 @@ class AEDT:
                     if start > 0:
                         isBlock = True
                         for i in range(start, count - 1, 2):
-                            if isinstance(list[i], str):
-                                toks = list[i].split(":")
+                            if isinstance(list_in[i], str):
+                                toks = list_in[i].split(":")
                                 if len(toks) != 2 or toks[1] != "=":
                                     isBlock = False
                                     break
@@ -390,8 +389,8 @@ class AEDT:
                                 isBlock = False
                                 break
                         if isBlock:
-                            return AedtBlockObj(list)
-        return list
+                            return AedtBlockObj(list_in)
+        return list_in
 
     def GetAedtObjId(self, obj):
         if isinstance(obj, AedtObjWrapper):

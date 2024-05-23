@@ -1012,7 +1012,7 @@ class Desktop(object):
         """
         try:
             return self.grpc_plugin.odesktop
-        except:
+        except Exception:
             return self._odesktop
 
     @odesktop.setter
