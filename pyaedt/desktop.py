@@ -1000,6 +1000,16 @@ class Desktop(object):
 
     @property
     def odesktop(self):
+        """AEDT instance containing all projects and designs.
+
+        Examples
+        --------
+        Get the COM object representing the desktop.
+
+        >>> from pyaedt import Desktop
+        >>> d = Desktop()
+        >>> d.odesktop
+        """
         try:
             return self.grpc_plugin.odesktop
         except:
