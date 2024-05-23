@@ -48,14 +48,14 @@ class AedtBlockObj(list):
                 if isinstance(oldItem, str):
                     toks = oldItem.split(":")
                     if len(toks) == 2 and (toks[1] == "=" or toks[0] == "NAME"):
-                        raise GrpcApiError("The element is a key should not be overwritten!")
+                        raise GrpcApiError("The element is a key. It should not be overwritten.")
             return super().__setitem__(idxOrKey, newVal)
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
             if idx != None:
                 return super().__setitem__(idx, newVal)
-            raise GrpcApiError("Key not found")
-        raise GrpcApiError("Must be key name or index")
+            raise GrpcApiError("Key is not found.")
+        raise GrpcApiError("Must be a key name or index.")
 
     def keys(self):
         arr = []
@@ -97,7 +97,7 @@ class AedtObjWrapper:
                 ret.AedtAPI = self.AedtAPI
             return ret
         except Exception:  # pragma: no cover
-            raise GrpcApiError("Failed to execute grpc AEDT command: {}".format(funcName))
+            raise GrpcApiError("Failed to execute gRPC AEDT command: {}".format(funcName))
 
     def __dir__(self):
         return self.__methodNames__
@@ -110,7 +110,7 @@ class AedtObjWrapper:
 
             return types.MethodType(DynamicFunc, self)
         except (AttributeError, GrpcApiError):
-            raise GrpcApiError("This Aedt object has no attribute '" + funcName + "'")
+            raise GrpcApiError("This AEDT object has no attribute '" + funcName + "'")
 
     def __getattr__(self, funcName):
         try:
@@ -118,13 +118,13 @@ class AedtObjWrapper:
                 return self.objectID
             return self.__GetObjMethod__(funcName)
         except Exception:
-            raise GrpcApiError("Failed to get grpc API AEDT attribute {}".format(funcName))
+            raise GrpcApiError("Failed to get gRPC API AEDT attribute {}".format(funcName))
 
     def __setattr__(self, attrName, val):
         if attrName == "objectID" or attrName == "__methodNames__":
-            raise GrpcApiError("Modify this attribute is not allowed")
+            raise GrpcApiError("This attribute cannot be modified.")
         elif attrName in self.__methodNames__:
-            raise GrpcApiError(attrName + " is a function name")
+            raise GrpcApiError(attrName + " is a function name.")
         else:
             super().__setattr__(attrName, val)
 
@@ -188,7 +188,7 @@ class AedtPropServer(AedtObjWrapper):
             propMap = self.__GetPropAttributes()
             if attrName in propMap:
                 return self.GetPropValue(propMap[attrName])
-            raise GrpcApiError("Failed to retrieve attribute {} from GRPC API".format(attrName))
+            raise GrpcApiError("Failed to retrieve attribute {} from gRPC API".format(attrName))
 
     def __setattr__(self, attrName, val):
         if attrName in self.__dict__:
