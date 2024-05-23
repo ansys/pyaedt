@@ -7,6 +7,7 @@ import os
 import shutil
 import sys
 import time
+import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
@@ -48,6 +49,46 @@ if not is_ironpython:
         import matplotlib.pyplot as plt
     except ImportError:
         plt = None
+
+
+def simplify_stl(input_file, output_file=None, decimation=0.5, aggressiveness=7):
+    """Import and simplify a stl file using pyvista and fast-simplification.
+
+    Parameters
+    ----------
+    input_file : str
+        Input stl file.
+    output_file : str, optional
+        Output stl file.
+    decimation : float, optional
+        Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
+        this function will try to reduce the data set to 10% of its
+        original size and will remove 90% of the input triangles.
+    aggressiveness : int, optional
+        Controls how aggressively to decimate the mesh.  A value of 10
+        will result in a fast decimation at the expense of mesh
+        quality and shape.  A value of 0 will attempt to preserve the
+        original mesh geometry at the expense of time.  Setting a low
+        value may result in being unable to reach the
+        ``decimation``.
+
+    Returns
+    -------
+    str
+        Full path to output stl.
+    """
+    try:
+        import fast_simplification
+    except Exception:
+        warnings.warn("Package fast-decimation is needed to perform model simplification.")
+        warnings.warn("Please install it using pip.")
+        return False
+    mesh = pv.read(input_file)
+    if not output_file:
+        output_file = os.path.splitext(input_file)[0] + "_output.stl"
+    simple = fast_simplification.simplify_mesh(mesh, target_reduction=decimation, agg=aggressiveness, verbose=True)
+    simple.save(output_file)
+    return output_file
 
 
 class SolutionData(object):
@@ -778,8 +819,9 @@ class SolutionData(object):
         title="",
         snapshot_path=None,
         is_polar=False,
+        show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a Matplotlib plot based on a list of data.
 
         Parameters
         ----------
@@ -805,9 +847,12 @@ class SolutionData(object):
         title : str
             Plot title label.
         snapshot_path : str
-            Full path to image file if a snapshot is needed.
+            Full path to the image file if a snapshot is needed.
         is_polar : bool, optional
-            Set to `True` if this is a polar plot.
+            Whether this is a polar plot. The default is ``False``.
+        show : bool, optional
+            Whether to render the figure. The default is ``True``. If ``False``, the
+            figure is not drawn.
 
         Returns
         -------
@@ -852,9 +897,9 @@ class SolutionData(object):
         if len(data_plot) > 15:
             show_legend = False
         if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
         else:
-            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
@@ -868,6 +913,7 @@ class SolutionData(object):
         formula=None,
         size=(2000, 1000),
         snapshot_path=None,
+        show=True,
     ):
         """Create a matplotlib 3d plot based on a list of data.
 
@@ -894,6 +940,9 @@ class SolutionData(object):
         snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
             The default is ``None``.
+        show : bool, optional
+            Whether to render the figure. The default is ``True``. If ``False``, the
+            figure is not drawn.
 
         Returns
         -------
@@ -944,7 +993,7 @@ class SolutionData(object):
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path)
+        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
