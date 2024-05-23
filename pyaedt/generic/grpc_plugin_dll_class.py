@@ -82,7 +82,8 @@ class AedtObjWrapper:
         if settings.enable_debug_grpc_api_logger:
             settings.logger.debug("{} {}".format(funcName, argv))
         try:
-            if settings.use_multi_desktop:
+            funclist = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
+            if settings.use_multi_desktop and funcName not in funclist:
                 self.dllapi.recreate_application()
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,
@@ -193,10 +194,6 @@ class AedtPropServer(AedtObjWrapper):
         if attrName in self.__dict__:
             self.__dict__[attrName] = val
             return
-
-        # if AedtAPI.IsAedtObjPropName(self.objectID, attrName, True):
-        #    self.SetPropValue(attrName, val)
-        #    return
         propMap = self.__GetPropAttributes()
         try:
             if attrName in propMap:
@@ -306,7 +303,6 @@ class AEDT:
 
     def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
         self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
-        self.pathdir = os.environ["DesktopPluginPyAEDT"]
         self.machine = machine
         if port == 0:
             self.port = self.aedt.GetAppDesktop().GetGrpcServerPort()
@@ -321,15 +317,25 @@ class AEDT:
             self.aedt = self.recreate_application()
         return self.aedt.GetAppDesktop()
 
-    def recreate_application(self):
-        self.ReleaseAedtObject(self.aedt.objectID)
-        port = self.port
-        machine = self.machine
-        self.__init__(self.original_path)
-        self.port = port
-        self.machine = machine
-        self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, False, False)
-        return self.aedt
+    def recreate_application(self, force=False):
+        def run():
+            self.ReleaseAedtObject(self.aedt.objectID)
+            port = self.port
+            machine = self.machine
+            self.__init__(self.original_path)
+            self.port = port
+            self.machine = machine
+            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, False, False)
+            return self.aedt
+
+        if force:
+            return run()
+        else:
+            try:
+                self.aedt.GetAppDesktop().GetProcessID()
+                return self.aedt
+            except:
+                return run()
 
     def InvokeAedtObjMethod(self, objectID, funcName, argv):
         return self.AedtAPI.InvokeAedtObjMethod(objectID, funcName, argv)

@@ -264,6 +264,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
         else:
             for k, d in _desktop_sessions.items():
                 if k == pid:
+                    d.grpc_plugin.recreate_application(True)
                     d.grpc_plugin.Release()
                     return True
     elif not inside_desktop:
@@ -980,6 +981,10 @@ class Desktop(object):
             self.logger.info(launch_msg)
             from pyaedt.generic.grpc_plugin_dll_class import AEDT
 
+            if settings.use_multi_desktop:
+                os.environ["DesktopPluginPyAEDT"] = os.path.join(
+                    list(installed_versions().values())[0], "PythonFiles", "DesktopPlugin"
+                )
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
@@ -1019,11 +1024,11 @@ class Desktop(object):
             socket.getfqdn(),
             socket.getfqdn().split(".")[0],
         ]:
-            self.machine = ""
+            self.machine = "127.0.0.1"
         else:
             settings.remote_api = True
         if not self.port:
-            if self.machine:
+            if self.machine and self.machine != "127.0.0.1":
                 self.logger.error("New Session of AEDT cannot be started on remote machine from Desktop Class.")
                 self.logger.error("Either use port argument or start an rpc session to start AEDT on remote machine.")
                 self.logger.error("Use client = pyaedt.common_rpc.client(machinename) to start a remote session.")
