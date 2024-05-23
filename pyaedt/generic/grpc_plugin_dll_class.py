@@ -72,6 +72,7 @@ class AedtObjWrapper:
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
         self.__dict__["__methodNames__"] = listFuncs
         self.dllapi = AedtAPI
+        self.is_linux = True if os.name == "posix" else False
 
     # print(self.objectID)
 
@@ -84,7 +85,7 @@ class AedtObjWrapper:
         try:
             funclist = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
             if settings.use_multi_desktop and funcName not in funclist:
-                self.dllapi.recreate_application()
+                self.dllapi.recreate_application(True if self.is_linux else False)
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,
                 self.dllapi.AedtAPI.InvokeAedtObjMethod,
