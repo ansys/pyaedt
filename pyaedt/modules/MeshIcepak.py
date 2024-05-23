@@ -1284,12 +1284,37 @@ class IcepakMesh(object):
         return True
 
     @pyaedt_function_handler()
-    def assign_priorities(self, assignment, skip_first_level=True):
+    def assign_priorities(self, assignment):
+        """Set objects priorities.
+
+        Parameters
+        ----------
+        assignment : List[List[Union[Object3d, UserDefinedComponent, str]
+            List of lists of objects. Each list corresponds to one priority level from low to high.
+            This means that the first list will have the lowest priority while the last list will
+            have the higher priority. Objects not explicitly passed in the lists will be assigned
+            to a priority level lower than the objects in the first list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+
+        References
+        ----------
+
+        >>> oEditor.UpdatePriorityList
+
+        Examples
+        --------
+
+        >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
+        """
         if not isinstance(assignment[0], list):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
         for level, objects in enumerate(assignment):
-            level += int(skip_first_level) + 1
+            level += 1
             if isinstance(objects[0], str):
                 objects = [
                     self.modeler.objects_by_name.get(o, self.modeler.user_defined_components.get(o, None))
@@ -1324,7 +1349,7 @@ class IcepakMesh(object):
                 level_2d = {
                     "EntityList": ", ".join([o.name for o in obj_2d]),
                     "PriorityNumber": level,
-                    "PriorityListType": "3D",
+                    "PriorityListType": "2D",
                 }
                 if all(isinstance(o, Object3d) for o in obj_2d):
                     level_2d["EntityType"] = "Object"
@@ -1342,6 +1367,9 @@ class IcepakMesh(object):
     @pyaedt_function_handler(obj_list="assignment", comp_name="component")
     def add_priority(self, entity_type, assignment=None, component=None, priority=3):
         """Add priority to objects.
+
+        .. deprecated:: 0.9.1
+        Use :func:`assign_priorities` method instead.
 
         Parameters
         ----------
@@ -1374,6 +1402,7 @@ class IcepakMesh(object):
         >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
         >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
         """
+        warnings.warn("Use :func:`assign_priorities` method instead.", DeprecationWarning)
         i = priority
 
         args = ["NAME:UpdatePriorityListData"]
