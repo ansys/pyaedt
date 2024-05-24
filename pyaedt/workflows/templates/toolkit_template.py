@@ -30,9 +30,13 @@ from pyaedt import get_pyaedt_app
 if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
     port = int(os.environ["PYAEDT_SCRIPT_PORT"])
     version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
+else:  # pragma: no cover
     port = 0
     version = "2024.1"
+
+is_test = False
+if "PYAEDT_TEST_CONFIG" in os.environ:
+    is_test = True
 
 app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
 
