@@ -1291,8 +1291,8 @@ class IcepakMesh(object):
         ----------
         assignment : List[List[Union[Object3d, UserDefinedComponent, str]
             List of lists of objects. Each list corresponds to one priority level from low to high.
-            This means that the first list will have the lowest priority while the last list will
-            have the higher priority. Objects not explicitly passed in the lists will be assigned
+            This means that the first list has the lowest priority while the last list
+            has the highest priority. Objects not explicitly passed in the lists are assigned
             to a priority level lower than the objects in the first list.
 
         Returns
