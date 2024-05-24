@@ -819,8 +819,9 @@ class SolutionData(object):
         title="",
         snapshot_path=None,
         is_polar=False,
+        show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a matplotlib figure based on a list of data.
 
         Parameters
         ----------
@@ -893,9 +894,9 @@ class SolutionData(object):
         if len(data_plot) > 15:
             show_legend = False
         if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
         else:
-            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
@@ -909,8 +910,9 @@ class SolutionData(object):
         formula=None,
         size=(2000, 1000),
         snapshot_path=None,
+        show=True,
     ):
-        """Create a matplotlib 3d plot based on a list of data.
+        """Create a matplotlib 3D figure based on a list of data.
 
         Parameters
         ----------
@@ -985,7 +987,7 @@ class SolutionData(object):
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path)
+        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
