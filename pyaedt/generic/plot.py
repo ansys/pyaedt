@@ -385,7 +385,7 @@ def plot_polar_chart(
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
