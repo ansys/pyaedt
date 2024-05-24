@@ -1298,7 +1298,7 @@ class IcepakMesh(object):
         Returns
         -------
         bool
-            ``True`` when successful.
+            ``True`` when successful, "False" when failed.
 
         References
         ----------
