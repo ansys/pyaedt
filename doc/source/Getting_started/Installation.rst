@@ -53,7 +53,7 @@ There are three options:
 
 - Existing workflows in the PyAEDT library.
 
-- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit <https://aedt.common.toolkit.docs.pyansys.com/>`_ documentation.
+- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
 
 .. image:: ../Resources/toolkit_manager_1.webp
   :width: 800
