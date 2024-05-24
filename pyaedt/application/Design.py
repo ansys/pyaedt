@@ -1169,9 +1169,11 @@ class Design(AedtObjects):
                     if is_project_locked(proj_name):
                         raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
-                    if not is_windows and settings.aedt_version:
-                        time.sleep(1)
-                        self.odesktop.CloseAllWindows()
+                    # if not is_windows and settings.aedt_version:
+                    #     time.sleep(1)
+                    #     self.odesktop.CloseAllWindows()
+                    if not is_windows:
+                        self.desktop_class.grpc_plugin.recreate_application(True)
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
@@ -3337,10 +3339,11 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
-        if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
-            time.sleep(1)
-            self.odesktop.CloseAllWindows()
-
+        # if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
+        #     time.sleep(1)
+        #     self.odesktop.CloseAllWindows()
+        if not is_windows:
+            self.desktop_class.grpc_plugin.recreate_application(True)
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
