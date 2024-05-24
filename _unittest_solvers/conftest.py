@@ -18,6 +18,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import json
+import matplotlib
 import os
 import shutil
 import sys
@@ -206,3 +207,8 @@ def add_edb(local_scratch):
         )
 
     return _method
+
+@pytest.fixture(autouse=True)
+def matplotlib_use_agg():
+    """Configure Matplotlib to use 'Agg' backend for all tests."""
+    matplotlib.use("Agg")
