@@ -67,6 +67,9 @@ class AedtBlockObj(list):
         return arr
 
 
+exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
+
+
 class AedtObjWrapper:
     def __init__(self, objID, listFuncs, AedtAPI=None):
         self.__dict__["objectID"] = objID  # avoid derive class overwrite __setattr__
@@ -83,8 +86,7 @@ class AedtObjWrapper:
         if settings.enable_debug_grpc_api_logger:
             settings.logger.debug("{} {}".format(funcName, argv))
         try:
-            funclist = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
-            if settings.use_multi_desktop and funcName not in funclist:
+            if settings.use_multi_desktop and funcName not in exclude_list:
                 self.dllapi.recreate_application(True if self.is_linux else False)
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,
