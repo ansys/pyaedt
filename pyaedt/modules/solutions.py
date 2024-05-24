@@ -1739,6 +1739,7 @@ class FfdSolutionData(object):
             image_path=None,
             show=True,
             is_polar=False,
+            show_legend=True,
             **kwargs
     ):
         # fmt: on
@@ -1772,6 +1773,8 @@ class FfdSolutionData(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -1849,9 +1852,9 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        show_legend = show
-        if len(curves) > 15:
-            show_legend = False
+        # FIXME: See if we need to keep this check on the curves length
+        # if len(curves) > 15:
+        #     show_legend = False
         if is_polar:
             return plot_polar_chart(
                 curves,
