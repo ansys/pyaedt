@@ -19,7 +19,7 @@ essential components of the simulation process:
     new_setup = m3d.create_setup("New_Setup")
 
 
-.. image:: ../Resources/Setups.webp
+.. image:: ../Resources/Setups.png
   :width: 800
   :alt: Setup Editing and Creation
 
