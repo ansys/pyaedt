@@ -95,10 +95,20 @@ class Primitives2D(GeometryModeler, object):
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
+    # fmt: off
     @pyaedt_function_handler(position="origin", matname="material")
     def create_ellipse(
-        self, origin, major_radius, ratio, is_covered=True, name=None, material=None, non_model=False, **kwargs
-    ):
+        self,
+        origin,
+        major_radius,
+        ratio,
+        is_covered=True,
+        name=None,
+        material=None,
+        non_model=False,
+        segments=0,
+        **kwargs
+    ):  # fmt: on
         """Create an ellipse.
 
         Parameters
@@ -118,10 +128,14 @@ class Primitives2D(GeometryModeler, object):
              Name of the material. The default is ``None``. If ``None``,
              the default material is assigned.
         non_model : bool, optional
-             Either if create the new object as model or non-model. The default is ``False``.
+             Whether to create the object as a non-model. The default is ``False``, in which
+             case the object is created as a model.
+        segments : int, optional
+            Number of segments to apply to create the segmented geometry.
+            The default is ``0``.
         **kwargs : optional
-            Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            Additional keyword arguments to pass to set properties when creating the primitive.
+           For more information, see ``pyaedt.modeler.cad.object3d.Object3d``.
 
 
         Returns
@@ -151,6 +165,7 @@ class Primitives2D(GeometryModeler, object):
         vArg1.append("MajRadius:="), vArg1.append(self._arg_with_dim(major_radius))
         vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
+        vArg1.append("NumSegments:="), vArg1.append(segments)
 
         vArg2 = self._default_object_attributes(name=name, matname=material, flags="NonModel#" if non_model else "")
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)

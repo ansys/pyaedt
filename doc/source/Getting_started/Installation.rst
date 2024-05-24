@@ -33,13 +33,13 @@ In order to do that you can:
     Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
     and higher requires the Python 3.10 wheelhouse.
 
-.. image:: ../Resources/wheelhouse_installation.webp
+.. image:: ../Resources/wheelhouse_installation.png
   :width: 800
   :alt: PyAEDT run script
 
 Starting from 2023R2, buttons are available in the Automation Tab as in the example below.
 
-.. image:: ../Resources/toolkits_ribbon.webp
+.. image:: ../Resources/toolkits_ribbon.png
   :width: 800
   :alt: PyAEDT toolkit buttons available in AEDT
 
@@ -55,13 +55,13 @@ There are three options:
 
 - Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
 
-.. image:: ../Resources/toolkit_manager_1.webp
+.. image:: ../Resources/toolkit_manager_1.png
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
 The user can select the AEDT application to install the specific workflow.
 
-.. image:: ../Resources/toolkit_manager_2.webp
+.. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
