@@ -4920,7 +4920,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
-        version = settings.aedt_version[-4:].replace(".","")
+        version = settings.aedt_version[-4:].replace(".", "")
 
         aedt_install_dir = os.environ.get("ANSYSEM_ROOT{}".format(version), "")
         ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
