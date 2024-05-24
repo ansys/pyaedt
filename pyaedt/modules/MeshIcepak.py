@@ -1369,7 +1369,7 @@ class IcepakMesh(object):
         """Add priority to objects.
 
         .. deprecated:: 0.9.1
-        Use :func:`assign_priorities` method instead.
+        Use :func:`assign_priorities` function instead.
 
         Parameters
         ----------
