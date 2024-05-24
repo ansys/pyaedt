@@ -34,21 +34,16 @@ from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_student
 import pyaedt.workflows.templates
 
-env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
-if all(var in os.environ for var in env_vars):
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
-else:
-    version = "2024.1"
-    port = 0
-    student_version = False
-
-aedt_process_id = None
-if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
-    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+student_version = is_student()
 
 # Set Python version based on AEDT version
 python_version = "3.10" if version > "2023.1" else "3.7"

@@ -18,6 +18,9 @@ from pyaedt import Icepak
 from pyaedt import Maxwell3d
 from pyaedt import Q3d
 import pyaedt.workflows.hfss3dlayout
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
 
 master = Tk()
 
@@ -64,17 +67,9 @@ mainloop()
 
 suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
-aedt_process_id = None
-
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
-
-if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
-    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
 
 with Desktop(
     new_desktop_session=False,

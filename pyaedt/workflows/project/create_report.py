@@ -6,18 +6,14 @@ import os
 from pyaedt import Desktop
 from pyaedt import get_pyaedt_app
 from pyaedt.generic.pdf import AnsysReport
+from pyaedt.misc import get_process_id
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
 
-aedt_process_id = None
-
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
-
-if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
-    aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
 
 with Desktop(
     new_desktop_session=False,
