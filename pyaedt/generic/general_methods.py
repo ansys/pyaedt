@@ -182,7 +182,7 @@ def _check_types(arg):
     return ""
 
 
-def raise_exception(e):
+def raise_exception_or_return_false(e):
     if not settings.enable_error_handler:
         if settings.release_on_exception:
             from pyaedt.generic.desktop_sessions import _desktop_sessions
@@ -216,13 +216,13 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
                 pyaedt_logger.error("")
             if settings.enable_file_logs:
                 settings.error(message)
-            raise_exception(e)
+            return raise_exception_or_return_false(e)
         except GrpcApiError as e:
             _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
-            raise_exception(e)
+            return raise_exception_or_return_false(e)
         except BaseException as e:
             _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
-            raise_exception(e)
+            return raise_exception_or_return_false(e)
 
     return wrapper
 

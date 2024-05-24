@@ -17,7 +17,7 @@ You can initiate AEDT in non-graphical mode from Python using this code:
 
 The preceding code launches AEDT and initializes a new Circuit design.
 
-.. image:: ../Resources/aedt_first_page.webp
+.. image:: ../Resources/aedt_first_page.png
   :width: 800
   :alt: AEDT launched
 
