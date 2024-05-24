@@ -439,8 +439,10 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a Matplotlib plot based on a list of data.
+def plot_2d_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+):
+    """Create a Matplotlib figure based on a list of data.
 
     Parameters
     ----------
