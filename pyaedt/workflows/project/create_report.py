@@ -6,7 +6,6 @@ import os
 from pyaedt import Desktop
 from pyaedt import get_pyaedt_app
 from pyaedt.generic.pdf import AnsysReport
-from pyaedt.misc import get_process_id
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
