@@ -332,7 +332,7 @@ class AEDT:
             return run()
         else:
             try:
-                self.aedt.GetAppDesktop().GetProcessID()
+                self.aedt.GetAppDesktop()
                 return self.aedt
             except Exception:
                 return run()
