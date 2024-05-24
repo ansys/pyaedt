@@ -80,6 +80,10 @@ def add_automation_tab(
 
     product = __tab_map(product)
 
+    toolkit_name = name
+    if "/" in name:
+        toolkit_name = name.replace("/", "_")
+
     tab_config_file_path = os.path.join(lib_dir, product, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path) or overwrite:
         root = ET.Element("TabConfig")
@@ -114,7 +118,8 @@ def add_automation_tab(
         icon_file = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "pyansys.png")
 
     file_name = os.path.basename(icon_file)
-    dest_dir = os.path.normpath(os.path.join(lib_dir, product, name, "images", "large"))
+
+    dest_dir = os.path.normpath(os.path.join(lib_dir, product, toolkit_name, "images", "large"))
     dest_file = os.path.normpath(os.path.join(dest_dir, file_name))
     os.makedirs(os.path.dirname(dest_dir), exist_ok=True)
     if not os.path.exists(dest_dir):
@@ -129,7 +134,7 @@ def add_automation_tab(
         label=name,
         isLarge="1",
         image=relative_image_path,
-        script="{}/{}".format(name, template),
+        script="{}/{}".format(toolkit_name, template),
     )
 
     # Backup any existing file if present
@@ -329,11 +334,14 @@ def add_script_to_menu(
         return False
     toolkit_dir = os.path.join(personal_lib, "Toolkits")
     tool_map = __tab_map(product)
-    tool_dir = os.path.join(toolkit_dir, tool_map, name)
+    file_name = name
+    if "/" in file_name:
+        file_name = file_name.replace("/", "_")
+    tool_dir = os.path.join(toolkit_dir, tool_map, file_name)
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
     if is_linux and aedt_version <= "2023.1":
-        toolkit_rel_lib_dir = os.path.join("Lib", name)
+        toolkit_rel_lib_dir = os.path.join("Lib", file_name)
         lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
         toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
     os.makedirs(lib_dir, exist_ok=True)
@@ -367,7 +375,7 @@ def add_script_to_menu(
             build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
             build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
             build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
-            build_file_data = build_file_data.replace("##TOOLKIT_NAME##", name)
+            build_file_data = build_file_data.replace("##TOOLKIT_NAME##", file_name)
             if dest_script_path:
                 build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", dest_script_path)
 

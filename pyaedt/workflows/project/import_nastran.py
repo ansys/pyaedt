@@ -108,7 +108,7 @@ port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
 
-if os.path.exists(nas_input):
+if os.path.exists(file_path):
     with Desktop(
         new_desktop_session=False,
         close_on_exit=False,

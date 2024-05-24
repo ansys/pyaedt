@@ -61,7 +61,7 @@ def main():
         if not pyaedt_script_flag:
             return
         # Add environment variables
-            PyAEDT_utils.environment_variables(oDesktop)
+        PyAEDT_utils.environment_variables(oDesktop)
         # Run workflow
         if PyAEDT_utils.is_linux:
             my_env = dict(os.environ.copy())
