@@ -31,6 +31,7 @@ cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.
 prism_primitive_csv_file = "prism_geometry_creation.csv"
 prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
 prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
+disco = "input.dsco"
 
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
@@ -69,6 +70,8 @@ def examples(local_scratch):
     test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
+    discovery_file = os.path.join(local_path, "example_models", test_subfolder, disco)
+    discovery_file = local_scratch.copyfile(discovery_file)
     return (
         scdoc_file,
         step_file,
@@ -77,6 +80,7 @@ def examples(local_scratch):
         test_98_project,
         test_99_project,
         layout_component,
+        discovery_file,
     )
 
 
@@ -93,6 +97,7 @@ class TestClass:
         self.test_98_project = examples[4]
         self.test_99_project = examples[5]
         self.layout_component = examples[6]
+        self.discovery_file = examples[7]
 
     def create_copper_box(self, name=None):
         if not name:
@@ -1976,3 +1981,8 @@ class TestClass:
         out_obj = box.detach_faces([box.top_face_z.id, box.bottom_face_z.id])
         assert len(out_obj) == 3
         assert all(isinstance(o, Object3d) for o in out_obj)
+
+    def test_93_import_discovery(self):
+        self.aedtapp.insert_design("DiscoImport")
+        assert self.aedtapp.modeler.discovery_import(self.discovery_file)
+        assert len(self.aedtapp.modeler.objects) == 1
