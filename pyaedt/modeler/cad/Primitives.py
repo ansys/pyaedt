@@ -4612,6 +4612,11 @@ class GeometryModeler(Modeler):
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
         point_coicidence_tolerance=1e-6,
+        heal_stl=True,
+        reduce_stl=False,
+        reduce_percentage=0,
+        reduce_error=0,
+        merge_planar_faces=True,
     ):
         """Import a CAD model.
 
@@ -4643,6 +4648,16 @@ class GeometryModeler(Modeler):
             Either to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
+        heal_stl : bool, optional
+            Whether to heal the stl file on import or not. Default is ``True``.
+        reduce_stl : bool, optional
+            Whether to reduce the stl file on import or not. Default is ``True``.
+        reduce_percentage : int, optional
+            Stl reduce percentage. Default is  ``0``.
+        reduce_error : int, optional
+            Stl error percentage during reduce operation. Default is  ``0``.
+        merge_planar_faces : bool, optional
+            Stl automatic planar face merge during import. Default is ``True``.
 
         Returns
         -------
@@ -4668,7 +4683,14 @@ class GeometryModeler(Modeler):
         vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
-        vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
+        vArg1.append("MergeFacesAngle:="), vArg1.append(
+            0.02 if input_file.endswith(".stl") and merge_planar_faces else -1
+        )
+        if input_file.endswith(".stl"):
+            vArg1.append("HealSTL:="), vArg1.append(heal_stl)
+            vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
+            vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
+            vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)

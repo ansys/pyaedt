@@ -12,7 +12,7 @@ updates:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "MAINT"
+      prefix: "CHORE"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -26,4 +26,4 @@ updates:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "MAINT"
+      prefix: "CHORE"
