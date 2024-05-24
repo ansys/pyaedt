@@ -852,8 +852,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:  # pragma: no cover
             return False
@@ -938,8 +938,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.figure.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:
             return False  # pragma: no cover
@@ -1640,6 +1640,7 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
@@ -1772,11 +1773,8 @@ class FfdSolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
-
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
@@ -1849,30 +1847,29 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        if show:
-            show_legend = True
-            if len(curves) > 15:
-                show_legend = False
-            if is_polar:
-                return plot_polar_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
-            else:
-                return plot_2d_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
+        show_legend = show
+        if len(curves) > 15:
+            show_legend = False
+        if is_polar:
+            return plot_polar_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
         else:
-            return curves
+            return plot_2d_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1913,14 +1910,12 @@ class FfdSolutionData(object):
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
+            If ``False``, the Matplotlib instance of the plot is not shown.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
@@ -1968,10 +1963,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:  # pragma: no cover
-            plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path)
-        else:
-            return x, y, z
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
@@ -2028,8 +2020,7 @@ class FfdSolutionData(object):
         Returns
         -------
         bool or :class:`Pyvista.Plotter`
-            ``True`` when successful. The :class:`Pyvista.Plotter` is returned when ``show`` and
-            ``export_image_path`` are ``False``.
+            ``False`` when the method fails, Pyvista plotter object otherwise.
 
         Examples
         --------
@@ -2208,10 +2199,8 @@ class FfdSolutionData(object):
 
         if image_path:
             p.show(screenshot=image_path)
-            return True
-        elif show:  # pragma: no cover
+        if show:  # pragma: no cover
             p.show()
-            return True
         return p
 
     @pyaedt_function_handler()
