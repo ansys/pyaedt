@@ -885,6 +885,7 @@ class Modeler3D(Primitives3D):
         import_as_light_weight=False,
         decimation=0,
         group_parts=True,
+        enable_planar_merge="Auto",
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
@@ -906,6 +907,8 @@ class Modeler3D(Primitives3D):
             original size and removes 90% of the input triangles.
         group_parts : bool, optional
             Whether to group imported parts by object ID. The default is ``True``.
+        enable_planar_merge : str, optional
+            Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
 
         Returns
         -------
@@ -1156,6 +1159,7 @@ class Modeler3D(Primitives3D):
         if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.info("Creating STL file with detected faces")
             output_stl = ""
+            enable_stl_merge = False if enable_planar_merge == "False" else True
             if nas_to_dict["Triangles"]:
                 output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
                 f = open(output_stl, "w")
@@ -1185,13 +1189,15 @@ class Modeler3D(Primitives3D):
                         self.logger.error("Package fast-decimation is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
                 f.write("solid Sheet_{}\n".format(tri_id))
-
+                if enable_planar_merge == "Auto" and len(tri_out) > 20000:
+                    enable_stl_merge = False
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             if nas_to_dict["Triangles"]:
                 f.close()
             output_solid = ""
+            enable_solid_merge = False if enable_planar_merge == "False" else True
             if nas_to_dict["Solids"]:
                 output_solid = os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl")
                 f = open(output_solid, "w")
@@ -1210,6 +1216,8 @@ class Modeler3D(Primitives3D):
                     except Exception:
                         self.logger.error("Package fast-decimation is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
+                if enable_planar_merge == "Auto" and len(tri_out) > 20000:
+                    enable_solid_merge = False
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
@@ -1223,12 +1231,14 @@ class Modeler3D(Primitives3D):
                     output_stl,
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    merge_planar_faces=enable_stl_merge,
                 )
             if output_solid:
                 self.import_3d_cad(
                     output_solid,
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    merge_planar_faces=enable_solid_merge,
                 )
             self.logger.info("Model imported")
 
