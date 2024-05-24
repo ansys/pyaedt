@@ -958,9 +958,9 @@ class Modeler3D(Primitives3D):
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
-                elif line_type in ["GRID", "CTRIA3"]:
+                elif line_type in ["GRID", "CTRIA3", "CQUAD4"]:
                     grid_id = int(line[8:16])
-                    if line_type == "CTRIA3":
+                    if line_type in ["CTRIA3", "CQUAD4"]:
                         tria_id = int(line[16:24])
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
@@ -977,17 +977,32 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = pid
                         nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
                         pid += 1
-                    else:
+                    elif line_type == "CTRIA3":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
                             nas_to_dict["PointsId"][int(n2)],
                             nas_to_dict["PointsId"][int(n3)],
                         ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
-
-                elif line_type in ["GRID*", "CTRIA3*"]:
+                    elif line_type == "CQUAD4":
+                        n4 = line[48:56].strip()
+                        if "-" in n4[1:] and "e" not in n4[1:].lower():
+                            n4 = n4[0] + n4[1:].replace("-", "e-")
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n3)],
+                            nas_to_dict["PointsId"][int(n4)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                elif line_type in ["GRID*", "CTRIA3*", "CQUAD4*"]:
                     grid_id = int(line[8:24])
-                    if line_type == "CTRIA3*":
+                    if line_type in ["CTRIA3*", "CQUAD4*"]:
                         tria_id = int(line[24:40])
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
@@ -999,9 +1014,11 @@ class Modeler3D(Primitives3D):
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
+                    idx = 88
                     if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
+                        idx = 24
                     if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
@@ -1011,14 +1028,32 @@ class Modeler3D(Primitives3D):
                             continue
                         nas_to_dict["PointsId"][grid_id] = pid
                         pid += 1
-                    else:
+                    elif line_type == "CTRIA3*":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
                             nas_to_dict["PointsId"][int(n2)],
                             nas_to_dict["PointsId"][int(n3)],
                         ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
-
+                    elif line_type == "CQUAD4*":
+                        n4 = lines[lk][idx : idx + 16].strip()
+                        if not n4 or n4.startswith("*"):
+                            lk += 1
+                            n4 = lines[lk][8:24].strip()
+                        if "-" in n4[1:] and "e" not in n4[1:].lower():
+                            n4 = n4[0] + n4[1:].replace("-", "e-")
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n3)],
+                            nas_to_dict["PointsId"][int(n4)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
                 elif line_type in [
                     "CTETRA",
                     "CPYRAM",
