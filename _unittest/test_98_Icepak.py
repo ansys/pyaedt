@@ -1037,7 +1037,7 @@ class TestClass:
     def test_56_mesh_priority(self):
         self.aedtapp.insert_design("mesh_priority")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
-        self.aedtapp.create_ipk_3dcomponent_pcb(
+        board = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board",
             link_data,
             solution_freq,
@@ -1050,6 +1050,9 @@ class TestClass:
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, component=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
+        fan = self.aedtapp.create_fan(name="TestFan", is_2d=True)
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+        assert self.aedtapp.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
     def test_57_update_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
