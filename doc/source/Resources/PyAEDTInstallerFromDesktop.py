@@ -17,14 +17,15 @@ def run_pyinstaller_from_c_python(oDesktop):
     python_version = "3.10"
     if version <= "231":
         python_version = "3.7"
+    python_version_new = python_version.replace(".", "_")
     # AEDT installation root
     edt_root = os.path.normpath(oDesktop.GetExeDir())
     # CPython interpreter executable
     if is_windows:
-        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version.replace(".", "_"),
+        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version_new,
                                                    "winx64", "Release", "python", "python.exe"))
     else:
-        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version.replace(".", "_"),
+        python_exe = os.path.normpath(os.path.join(edt_root, "commonfiles", "CPython", python_version_new,
                                                    "linx64", "Release", "python", "runpython"))
 
     # Launch this script again from the CPython interpreter. This calls the ``install_pyaedt()`` method,
@@ -59,10 +60,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", python_version.replace(".", "_"))
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", python_version_new)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", python_version.replace(".", "_"))
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
     if is_linux:
@@ -154,11 +155,11 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", python_version)
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", python_version)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", python_version)
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", python_version)
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
@@ -207,8 +208,8 @@ def install_pyaedt():
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
-            # run_command(
-            # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
+            run_command(
+            '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@feat/installer_venv_python_version'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
             run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))

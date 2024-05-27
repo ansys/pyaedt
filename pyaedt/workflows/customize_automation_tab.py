@@ -436,14 +436,14 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     # Set Python version based on AEDT version
     python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
-
+    python_version_new = python_version.replace(".", "_")
     if not is_linux:
         base_venv = os.path.normpath(
             os.path.join(
                 desktop_object.install_path,
                 "commonfiles",
                 "CPython",
-                python_version.replace(".", "_"),
+                python_version_new,
                 "winx64",
                 "Release",
                 "python",
@@ -456,7 +456,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 desktop_object.install_path,
                 "commonfiles",
                 "CPython",
-                python_version.replace(".", "_"),
+                python_version_new,
                 "linx64",
                 "Release",
                 "python",
@@ -482,23 +482,19 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(
-            os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
-        )
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         package_dir = os.path.join(venv_dir, "Lib")
     else:
-        venv_dir = os.path.join(
-            os.environ["HOME"], "pyaedt_env_ide", "toolkits_{}".format(python_version.replace(".", "_"))
-        )
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         package_dir = os.path.join(venv_dir, "lib")
         edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
         os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version.replace(".", "_")),
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version_new),
             "{}/common/mono/Linux64/lib64".format(edt_root),
             "{}".format(edt_root),
         ]
