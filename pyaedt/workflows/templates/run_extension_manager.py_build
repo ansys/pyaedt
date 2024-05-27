@@ -79,7 +79,7 @@ def main():
                 '"{}"'.format(pyaedt_script),
             ]
             my_env = os.environ.copy()
-            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)
 
