@@ -74,6 +74,7 @@ def run_pyinstaller_from_c_python(oDesktop):
                 )
                 if os.path.isdir(pyaedt_path):
                     break
+                    
     # Create PyAEDT symbolic link in PersonalLib
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
@@ -84,9 +85,12 @@ def run_pyinstaller_from_c_python(oDesktop):
             oDesktop.AddMessage("", "", 2,
                                 "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
 
-    try:
-        os.symlink(pyaedt_path, pers1)
-    except Exception:
+    if is_windows:
+        command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
+    else:
+        command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
+    ret_code = os.system(command)
+    if ret_code != 0:
         oDesktop.AddMessage("", "", 2, "Error occurred while configuring the symbolic link to PyAEDT in 'PersonalLib'.")
 
     # Create Toolkits in PersonalLib
