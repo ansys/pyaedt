@@ -612,22 +612,22 @@ class NativeComponentPCB(NativeComponentObject, object):
             ``True`` if successful. ``False`` otherwise.
         """
         if extent_type is None:
+            self.props["NativeComponentDefinitionProvider"]["Use3DLayoutExtents"] = True
+        else:
             allowed_extent_types = ["Bounding Box", "Polygon"]
             if extent_type not in allowed_extent_types:
-                self._app.logger(
+                self._app.logger.error(
                     "Accepted argument for ``extent_type`` are: {}. {} provided".format(
                         ", ".join(allowed_extent_types), extent_type
                     )
                 )
                 return False
-            self.props["NativeComponentDefinitionProvider"]["Use3DLayoutExtents"] = True
-        else:
             self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
             if extent_type == "Polygon":
                 if extent_polygon is not None:
                     self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
                 else:
-                    self._app.logger(
+                    self._app.logger.error(
                         'If ``extent_type`` is ``"Polygon"``, then an argument for ``extent_polygon`` must be provided.'
                     )
                     return False

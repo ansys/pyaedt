@@ -81,14 +81,28 @@ class TestClass:
         assert not cmp.set_parts("Device Pt")
         assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
         assert cmp.height_filter is None
+        assert cmp.footprint_filter is None
+        assert cmp.power_filter is None
+        assert not cmp.objects_2d_filter
         cmp.height_filter = "1mm"
-        cmp.footprint_filter = "0.5mm2"
         cmp.objects_2d_filter = True
-        cmp.objects_2d_filter = False
         cmp.power_filter = "4mW"
-        cmp.set_board_settings("Bounding Box")
         cmp.type_filters = "Resistors"
-        a = 1
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = "0.5mm2"
+        f = cmp.filters
+        assert len(f.keys()) >= 4  # 5 if version 2024.2
+        assert f["Type"]["Resistors"]
+        assert not cmp.set_board_settings("Polygon")
+        assert not cmp.set_board_settings("Bounding Domain")
+        cmp.set_board_settings("Bounding Box")
+        cmp.power_filter = None
+        cmp.height_filter = None
+        cmp.objects_2d_filter = False
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = None
+        f = cmp.filters
+        assert len(f.keys()) == 1
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
