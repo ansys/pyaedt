@@ -110,5 +110,5 @@ class TestClass:
         root = tree.getroot()
         panels = root.findall("./panel")
         panel_names = [panel.attrib["label"] for panel in panels]
-        assert "Panel_PyAEDT_Toolkits" in panel_names
+        assert "Panel_PyAEDT_Extensions" in panel_names
         return root
