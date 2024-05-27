@@ -885,7 +885,7 @@ class Modeler3D(Primitives3D):
         import_as_light_weight=False,
         decimation=0,
         group_parts=True,
-        enable_planar_merge="Auto",
+        enable_planar_merge="True",
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
@@ -909,6 +909,7 @@ class Modeler3D(Primitives3D):
             Whether to group imported parts by object ID. The default is ``True``.
         enable_planar_merge : str, optional
             Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
+            ``"Auto"`` will disable the planar merge if stl contains more than 20.000 triangles.
 
         Returns
         -------
