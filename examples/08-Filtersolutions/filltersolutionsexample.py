@@ -1,5 +1,5 @@
 import pyaedt
-
+import matplotlib
 from pyaedt.filtersolutions_core.attributes import FilterType
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 from pyaedt.filtersolutions_core.attributes import StopbandDefinition

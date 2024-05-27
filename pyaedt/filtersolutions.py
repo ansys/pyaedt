@@ -21,28 +21,26 @@ class FilterSolutions:
 
     Parameters
     ----------
-    filter_name: str, optional
-        Name of the filter to select. The default is ``FilterSolutions API Session``.
-    filter_class: str, optional
-        The class (band definition) of filter. The full list of classes are listed in FilterClass enum.
-        The default is `LOW_PASS`.
-    filter_type: str, optional
-        The type (mathematical formulation) of filter. The full list of types are listed in FilterType enum.
-        The default is `BUTTERWORTH`.
+    projectname: str, optional
+        Name of the projest to select. The default is ``FilterSolutions API Session``.
+    implementation_type: FilterImplementation, optional
+        The technology used to implement the filter.
+        The full list of implementations are listed in FilterImplementation enum.
+        The default is `LUMPED`.
 
+        Returns
+        -------
+        :enum:'FilterImplementation'
 
     Examples
     --------
     Create an instance of FilterSolutions with a band pass elliptic ideal filter.
 
-    >>> from pyaedt import fspy.ideal_filters
-    >>> from fspy.filter_design import FilterClass
-    >>> from fspy.filter_design import FilterType
+    >>> import pyaedt
+    >>> from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
-    >>> design = fspy.ideal_filters.IdealDesign(
-    >>> filter_name = "filter_design",
-    >>> filter_class = FilterClass.BAND_PASS,
-    >>> filter_type = FilterType.ELLIPTIC,
+    >>> design = pyaedt.FilterSolutions(projectname= "fs1",
+    >>> implementation_type= FilterImplementation.LUMPED,
     >>> )
     """
 
@@ -60,32 +58,6 @@ class FilterSolutions:
         This class allows you to create an instance of FilterSolutions and
         define the parameters for a lumped filter. The class has access to ideal
         and lumped filter attributes and calcultaed output parameters.
-
-        Parameters
-        ----------
-        filter_name: str, optional
-            Name of the filter to select. The default is ``FilterSolutions API Session``.
-        filter_class: str, optional
-            The class (band definition) of filter. The full list of classes are listed in FilterClass enum.
-            The default is `LOW_PASS`.
-        filter_type: str, optional
-            The type (mathematical formulation) of filter. The full list of types are listed in FilterType enum.
-            The default is `BUTTERWORTH`.
-
-
-        Examples
-        --------
-        Create an instance of FilterSolutions with a band pass elliptic lumped filter.
-
-        >>> from pyaedt import fspy.lumped_filters
-        >>> from fspy.filter_design import FilterClass
-        >>> from fspy.filter_design import FilterType
-
-        >>> design = fspy.ideal_filters.LumpedDesign(
-        >>> filter_name = "filter_design",
-        >>> filter_class = FilterClass.BAND_PASS,
-        >>> filter_type = FilterType.ELLIPTIC,
-        >>> )
         """
 
         self.attributes = Attributes()
