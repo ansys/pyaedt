@@ -1998,6 +1998,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         encoding="utf-8",
         include_post_effects=True,
         incident_voltage=True,
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -2026,7 +2027,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             Either if include or not post-processing effects. Default is `True`,
         incident_voltage : bool, optional
             Either if include or incident or total voltage. Default is `True`, for incident voltage.
-
+        window :str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
@@ -2042,6 +2044,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
         ds_name_mag = "ds_" + source.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + source.replace(":", "_mode_") + "_Angle"
