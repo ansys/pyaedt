@@ -8,15 +8,15 @@ is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
+os.environ["VENV_DIR_PREFIX"] = ".pyaedt_env"
+
 
 def run_pyinstaller_from_c_python(oDesktop):
     # Iron Python script to create the virtual environment and install PyAEDT
     # Get AEDT information
     version = oDesktop.GetVersion()[2:6].replace(".", "")
     # From AEDT 2023.2 the installed CPython version is 3.10
-    python_version = "3.10"
-    if version <= "231":
-        python_version = "3.7"
+    python_version = "3.10" if version > "231" else "3.7"
     python_version_new = python_version.replace(".", "_")
     # AEDT installation root
     edt_root = os.path.normpath(oDesktop.GetExeDir())
@@ -60,10 +60,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", python_version_new)
+        venv_dir = os.path.join(os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], python_version_new)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", python_version_new)
+        venv_dir = os.path.join(os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
     if is_linux:
@@ -78,20 +78,15 @@ def run_pyinstaller_from_c_python(oDesktop):
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
     if os.path.exists(pers1):
-        if is_windows:
-            command = 'rmdir "{}"'.format(pers1)
-        else:
-            command = 'rm "{}"'.format(pers1)
-        ret_code = os.system(command)
-        if ret_code != 0:
-            oDesktop.AddMessage("", "", 2, "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
+        try:
+            shutil.rmtree(pers1)
+        except Exception:
+            oDesktop.AddMessage("", "", 2,
+                                "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
 
-    if is_windows:
-        command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
-    else:
-        command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
-    ret_code = os.system(command)
-    if ret_code != 0:
+    try:
+        os.symlink(pyaedt_path, pers1)
+    except Exception:
         oDesktop.AddMessage("", "", 2, "Error occurred while configuring the symbolic link to PyAEDT in 'PersonalLib'.")
 
     # Create Toolkits in PersonalLib
@@ -155,11 +150,11 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", python_version)
+        venv_dir = os.path.join(os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], python_version)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", python_version)
+        venv_dir = os.path.join(os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], python_version)
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root

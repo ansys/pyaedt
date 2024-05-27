@@ -48,19 +48,27 @@ student_version = is_student()
 # Set Python version based on AEDT version
 python_version = "3.10" if version > "2023.1" else "3.7"
 
+os.environ["VENV_DIR_PREFIX"] = ".pyaedt_env"
+
 if is_windows:
     venv_dir = os.path.join(
-        os.environ["APPDATA"], ".pyaedt_env", "toolkits_{}".format(python_version.replace(".", "_"))
+        os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], "toolkits_{}".format(python_version.replace(".", "_"))
     )
     python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", "{}".format(python_version.replace(".", "_")))
+    pyaedt_venv_dir = os.path.join(
+        os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], "{}".format(python_version.replace(".", "_"))
+    )
 
 else:
-    venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "toolkits_{}".format(python_version.replace(".", "_")))
+    venv_dir = os.path.join(
+        os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], "toolkits_{}".format(python_version.replace(".", "_"))
+    )
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
-    pyaedt_venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "{}".format(python_version.replace(".", "_")))
+    pyaedt_venv_dir = os.path.join(
+        os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], "{}".format(python_version.replace(".", "_"))
+    )
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
