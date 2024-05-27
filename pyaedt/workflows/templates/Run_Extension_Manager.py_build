@@ -40,7 +40,7 @@ extensions_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '
 
 sys.path.append(extensions_dir)
 
-import PyAEDT_utils
+import pyaedt_utils
 
 
 def main():
@@ -54,17 +54,17 @@ def main():
         pyaedt_extensions_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
         pyaedt_script = os.path.join(pyaedt_extensions_dir, "extension_manager.py")
         # Check if CPython interpreter and AEDT release match
-        python_exe = PyAEDT_utils.check_interpreter(python_exe, version_short)
+        python_exe = pyaedt_utils.check_interpreter(python_exe, version_short)
         # Check python executable
-        python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
+        python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
         if not python_exe_flag:
             return
         # Check script file
-        pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
+        pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
         if not pyaedt_script_flag:
             return
         # Add environment variables
-        PyAEDT_utils.environment_variables(oDesktop)
+        pyaedt_utils.environment_variables(oDesktop)
         # Open extension manager
         if is_linux:
             command = [
@@ -81,7 +81,7 @@ def main():
             my_env = os.environ.copy()
             subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
     except Exception as e:
-        PyAEDT_utils.show_error(str(e), oDesktop)
+        pyaedt_utils.show_error(str(e), oDesktop)
 
 
 if __name__ == "__main__":

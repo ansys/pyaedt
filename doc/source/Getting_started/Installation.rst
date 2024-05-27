@@ -19,7 +19,7 @@ using the CPython interpreter included in the AEDT installation.
 
 In order to do that you can:
 
-- Download the following file: :download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+- Download the following file: :download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`
 
 - Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
 

@@ -41,7 +41,7 @@ toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 
 sys.path.append(toolkits_dir)
 
-import PyAEDT_utils
+import pyaedt_utils
 
 
 def main():
@@ -53,24 +53,24 @@ def main():
     # CPython interpreter
     python_exe = r"##IPYTHON_EXE##" % version
     # Check if CPython interpreter and AEDT release match
-    python_exe = PyAEDT_utils.check_interpreter(python_exe, version_short)
+    python_exe = pyaedt_utils.check_interpreter(python_exe, version_short)
     # Console launcher
     pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
     # Check python executable
-    python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
+    python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
     if not python_exe_flag:
         return
     # Check console launcher file
-    pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
+    pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
     if not pyaedt_script_flag:
         return
     # Add environment variables
-    PyAEDT_utils.environment_variables(oDesktop)
+    pyaedt_utils.environment_variables(oDesktop)
     # Call console script
     if is_linux:
-        term = PyAEDT_utils.get_linux_terminal()
+        term = pyaedt_utils.get_linux_terminal()
         if not term:
-            PyAEDT_utils.show_error("No Terminals found.", oDesktop)
+            pyaedt_utils.show_error("No Terminals found.", oDesktop)
 
         command = [
             term,

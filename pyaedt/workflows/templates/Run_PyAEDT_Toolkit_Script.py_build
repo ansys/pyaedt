@@ -38,7 +38,7 @@ toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 
 sys.path.append(toolkits_dir)
 
-import PyAEDT_utils
+import pyaedt_utils
 
 
 def main():
@@ -51,19 +51,19 @@ def main():
         # Python script
         pyaedt_script = r"##PYTHON_SCRIPT##"
         # Check if CPython interpreter and AEDT release match
-        python_exe = PyAEDT_utils.check_interpreter(python_exe, short_version)
+        python_exe = pyaedt_utils.check_interpreter(python_exe, short_version)
         # Check python executable
-        python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
+        python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
         if not python_exe_flag:
             return
         # Check script file
-        pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
+        pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
         if not pyaedt_script_flag:
             return
         # Add environment variables
-        PyAEDT_utils.environment_variables(oDesktop)
+        pyaedt_utils.environment_variables(oDesktop)
         # Run workflow
-        if PyAEDT_utils.is_linux:
+        if pyaedt_utils.is_linux:
             my_env = dict(os.environ.copy())
             command = [python_exe, pyaedt_script]
             subprocess.Popen(command, env=my_env)
@@ -80,7 +80,7 @@ def main():
                 cmdfile.write('"{0}" {1}\n'.format(python_exe, cmd))
             oDesktop.RunProgram(runme, edt_temp, edt_temp, "")
     except Exception as e:
-        PyAEDT_utils.show_error(str(e), oDesktop)
+        pyaedt_utils.show_error(str(e), oDesktop)
 
 
 if __name__ == "__main__":

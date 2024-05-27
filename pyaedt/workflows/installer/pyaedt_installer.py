@@ -60,8 +60,8 @@ def add_pyaedt_to_aedt(
     os.makedirs(extensions_dir, exist_ok=True)
 
     templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
-    script_file = os.path.join(templates_dir, "PyAEDT_utils.py")
-    dest_script_path = os.path.join(extensions_dir, "PyAEDT_utils.py")
+    script_file = os.path.join(templates_dir, "pyaedt_utils.py.py")
+    dest_script_path = os.path.join(extensions_dir, "pyaedt_utils.py.py")
     shutil.copy2(script_file, dest_script_path)
 
     __add_pyaedt_tabs(personal_lib, aedt_version)

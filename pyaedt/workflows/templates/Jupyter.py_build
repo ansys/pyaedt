@@ -41,7 +41,7 @@ toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 
 sys.path.append(toolkits_dir)
 
-import PyAEDT_utils
+import pyaedt_utils
 
 
 def main():
@@ -55,14 +55,14 @@ def main():
     # Jupyter interpreter
     jupyter_exe = r"##JUPYTER_EXE##" % version
     # Check if Jupyter version and AEDT release match
-    python_exe = PyAEDT_utils.check_interpreter(jupyter_exe, version_short)
+    python_exe = pyaedt_utils.check_interpreter(jupyter_exe, version_short)
     template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
-    target = os.path.join(proj_dir, PyAEDT_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
+    target = os.path.join(proj_dir, pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
     # Check executable
-    jupyter_exe_flag = PyAEDT_utils.check_file(jupyter_exe, oDesktop)
+    jupyter_exe_flag = pyaedt_utils.check_file(jupyter_exe, oDesktop)
     if not jupyter_exe_flag:
         return
-    pyaedt_script_flag = PyAEDT_utils.check_file(template, oDesktop)
+    pyaedt_script_flag = pyaedt_utils.check_file(template, oDesktop)
     if not pyaedt_script_flag:
         return
 
@@ -77,7 +77,7 @@ def main():
                 t.write(line)
 
     # Add environment variables
-    PyAEDT_utils.environment_variables(oDesktop)
+    pyaedt_utils.environment_variables(oDesktop)
 
     if is_linux:
         if notebook_dir:

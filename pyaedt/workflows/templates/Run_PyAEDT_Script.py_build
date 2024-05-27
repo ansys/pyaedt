@@ -41,7 +41,7 @@ toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 
 sys.path.append(toolkits_dir)
 
-import PyAEDT_utils
+import pyaedt_utils
 
 
 def main():
@@ -60,19 +60,19 @@ def main():
             # CPython interpreter
             python_exe = r"##PYTHON_EXE##" % version
             # Check if CPython interpreter and AEDT release match
-            python_exe = PyAEDT_utils.check_interpreter(python_exe, version_short)
+            python_exe = pyaedt_utils.check_interpreter(python_exe, version_short)
             # Python script
             pyaedt_script = file_dialog.FileName
             # Check Python executable
-            python_exe_flag = PyAEDT_utils.check_file(python_exe, oDesktop)
+            python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
             if not python_exe_flag:
                 return
             # Check script file
-            pyaedt_script_flag = PyAEDT_utils.check_file(pyaedt_script, oDesktop)
+            pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
             if not pyaedt_script_flag:
                 return
             # Add environment variables
-            PyAEDT_utils.environment_variables(oDesktop)
+            pyaedt_utils.environment_variables(oDesktop)
             # Run script
             if is_linux:
                 command = [
@@ -94,7 +94,7 @@ def main():
                 subprocess.Popen(" ".join(command), env=my_env)
 
     except Exception as e:
-        PyAEDT_utils.show_error(str(e), oDesktop)
+        pyaedt_utils.show_error(str(e), oDesktop)
 
 
 if __name__ == "__main__":
