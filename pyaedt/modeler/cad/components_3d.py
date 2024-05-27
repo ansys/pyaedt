@@ -820,7 +820,7 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password="", output_file=""):
+    def update_definition(self, password="", output_file="", local_update=False):
         """Update 3d component definition.
 
         Parameters
@@ -830,6 +830,8 @@ class UserDefinedComponent(object):
         output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
+        local_update : bool, optional
+            Whether to update the file only locally. Default is ``False``.
 
         Returns
         -------
@@ -841,7 +843,7 @@ class UserDefinedComponent(object):
             [
                 "NAME:UpdateDefinitionData",
                 "ForLocalEdit:=",
-                False,
+                local_update,
                 "DefinitionNames:=",
                 self.definition_name,
                 "Passwords:=",
