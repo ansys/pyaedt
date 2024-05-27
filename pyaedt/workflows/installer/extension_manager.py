@@ -34,27 +34,37 @@ from pyaedt.workflows.customize_automation_tab import add_custom_toolkit
 from pyaedt.workflows.customize_automation_tab import add_script_to_menu
 from pyaedt.workflows.customize_automation_tab import available_toolkits
 from pyaedt.workflows.customize_automation_tab import remove_script_from_menu
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_student
 import pyaedt.workflows.templates
 
-env_vars = ["PYAEDT_SCRIPT_VERSION", "PYAEDT_SCRIPT_PORT", "PYAEDT_STUDENT_VERSION"]
-if all(var in os.environ for var in env_vars):
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
-else:
-    version = "241"
-    port = 0
-    student_version = False
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+student_version = is_student()
+
+# Set Python version based on AEDT version
+python_version = "3.10" if version > "2023.1" else "3.7"
+
+VENV_DIR_PREFIX = ".pyaedt_env"
 
 if is_windows:
-    venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+    venv_dir = os.path.join(
+        os.environ["APPDATA"], VENV_DIR_PREFIX, "toolkits_{}".format(python_version.replace(".", "_"))
+    )
     python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     package_dir = os.path.join(venv_dir, "Lib", "site-packages")
+    pyaedt_venv_dir = os.path.join(
+        os.environ["APPDATA"], VENV_DIR_PREFIX, "{}".format(python_version.replace(".", "_"))
+    )
 
 else:
-    venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+    venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, "toolkits_{}".format(python_version.replace(".", "_")))
     python_exe = os.path.join(venv_dir, "bin", "python")
     package_dir = os.path.join(venv_dir, "lib", "site-packages")
+    pyaedt_venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, "{}".format(python_version.replace(".", "_")))
 
 
 def create_toolkit_page(frame, window_name, internal_toolkits):
@@ -74,7 +84,7 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     offline_installation_radio.grid(row=1, column=1, padx=5, pady=5)
 
     # Combobox with available toolkit options
-    toolkits_combo_label = tk.Label(frame, text="Toolkit:", width=max_length)
+    toolkits_combo_label = tk.Label(frame, text="Extension:", width=max_length)
     toolkits_combo_label.grid(row=2, column=0, padx=5, pady=5)
 
     toolkits_combo = ttk.Combobox(
@@ -111,7 +121,9 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
         if selected_toolkit == "Custom" or not selected_toolkit_info.get("pip"):
             install_button.config(text="Install")
             uninstall_button.config(state="normal")
+            toolkits_combo_label.config(text="Extension")
         else:
+            toolkits_combo_label.config(text="Toolkit")
             if is_toolkit_installed(selected_toolkit, window_name):
                 install_button.config(text="Update")
                 uninstall_button.config(state="normal")
@@ -234,6 +246,7 @@ def button_is_clicked(
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
+        aedt_process_id=aedt_process_id,
     )
 
     desktop.odesktop.CloseAllWindows()
@@ -274,10 +287,8 @@ def button_is_clicked(
         if install_action:
             desktop.logger.info("Install {}".format(name))
             if is_windows:
-                pyaedt_venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "Scripts", "python.exe")
             else:
-                pyaedt_venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "v{}".format(version))
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if not file:
                 file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "toolkit_template.py")
@@ -304,7 +315,7 @@ def button_is_clicked(
 
 
 root = tk.Tk()
-root.title("AEDT Toolkit Manager")
+root.title("Extension Manager")
 
 # Load the logo for the main window
 icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
@@ -333,7 +344,7 @@ toolkit_levels = [
     "Mechanical",
     "Circuit",
     "EMIT",
-    "Twinbuilder",
+    "TwinBuilder",
     "",
 ]
 
@@ -351,7 +362,10 @@ for i, level in enumerate(toolkit_levels):
     col_num = i % 4
     if level:
         toolkit_button = ttk.Button(
-            root, text=level, command=lambda l=level: toolkit_window(l), style="Toolbutton.TButton"
+            root,
+            text=level,
+            command=lambda toolkit_level=level: toolkit_window(toolkit_level),
+            style="Toolbutton.TButton",
         )
         toolkit_button.grid(row=row_num, column=col_num, padx=10, pady=10)
 
