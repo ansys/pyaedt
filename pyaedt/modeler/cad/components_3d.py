@@ -510,13 +510,13 @@ class UserDefinedComponent(object):
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
-    @pyaedt_function_handler()
-    def mirror(self, position, vector):
+    @pyaedt_function_handler(position="origin")
+    def mirror(self, origin, vector):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : list, Position
+        origin : list, Position
             List of the ``[x, y, z]`` coordinates or
             the Application.Position object for the selection.
         vector : float
@@ -534,11 +534,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
-            if self._primitives.mirror(self.name, position=position, vector=vector):
+            if self._primitives.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.mirror(part, position=position, vector=vector)
+                self._primitives.mirror(part, origin=origin, vector=vector)
             return self
         return False
 
@@ -820,7 +820,7 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password="", output_file=""):
+    def update_definition(self, password="", output_file="", local_update=False):
         """Update 3d component definition.
 
         Parameters
@@ -830,6 +830,8 @@ class UserDefinedComponent(object):
         output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
+        local_update : bool, optional
+            Whether to update the file only locally. Default is ``False``.
 
         Returns
         -------
@@ -841,7 +843,7 @@ class UserDefinedComponent(object):
             [
                 "NAME:UpdateDefinitionData",
                 "ForLocalEdit:=",
-                False,
+                local_update,
                 "DefinitionNames:=",
                 self.definition_name,
                 "Passwords:=",

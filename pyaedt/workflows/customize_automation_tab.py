@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 import logging
 import os
 import shutil
@@ -48,7 +49,7 @@ def add_automation_tab(
     product="Project",
     template="Run PyAEDT Toolkit Script",
     overwrite=False,
-    panel="Panel_PyAEDT_Toolkits",
+    panel="Panel_PyAEDT_Extensions",
 ):
     """Add an automation tab in AEDT.
 
@@ -68,7 +69,7 @@ def add_automation_tab(
         Whether to overwrite the existing automation tab. The default is ``False``, in
         which case is adding new tabs to the existing ones.
     panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
 
     Returns
     -------
@@ -78,6 +79,10 @@ def add_automation_tab(
     """
 
     product = __tab_map(product)
+
+    toolkit_name = name
+    if "/" in name:
+        toolkit_name = name.replace("/", "_")
 
     tab_config_file_path = os.path.join(lib_dir, product, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path) or overwrite:
@@ -113,7 +118,8 @@ def add_automation_tab(
         icon_file = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "pyansys.png")
 
     file_name = os.path.basename(icon_file)
-    dest_dir = os.path.normpath(os.path.join(lib_dir, product, name, "images", "large"))
+
+    dest_dir = os.path.normpath(os.path.join(lib_dir, product, toolkit_name, "images", "large"))
     dest_file = os.path.normpath(os.path.join(dest_dir, file_name))
     os.makedirs(os.path.dirname(dest_dir), exist_ok=True)
     if not os.path.exists(dest_dir):
@@ -128,7 +134,7 @@ def add_automation_tab(
         label=name,
         isLarge="1",
         image=relative_image_path,
-        script="{}/{}".format(name, template),
+        script="{}/{}".format(toolkit_name, template),
     )
 
     # Backup any existing file if present
@@ -156,7 +162,7 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Toolkits"):  # pragma: no cover
+def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration file."""
     tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
     if not os.path.isfile(tab_config_file_path):
@@ -203,7 +209,7 @@ def available_toolkits():
         "Project",
         "Q2D",
         "Q3D",
-        "Simplorer",
+        "TwinBuilder",
     ]
 
     product_toolkits = {}
@@ -218,12 +224,12 @@ def available_toolkits():
 def add_script_to_menu(
     name,
     script_file,
-    template_file="Run_PyAEDT_Toolkit_Script",
+    template_file="run_pyaedt_toolkit_script",
     icon_file=None,
     product="Project",
     copy_to_personal_lib=True,
     executable_interpreter=None,
-    panel="Panel_PyAEDT_Toolkits",
+    panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
     aedt_version="",
 ):
@@ -241,7 +247,7 @@ def add_script_to_menu(
     script_file : str
         Full path to the script file. The script will be moved to Personal Lib.
     template_file : str
-        Script template name to use. The default is ``"Run_PyAEDT_Toolkit_Script"``.
+        Script template name to use. The default is ``"run_pyaedt_toolkit_script"``.
     icon_file : str, optional
         Full path to the icon (a 30x30 pixel PNG file) to add to the UI.
         The default is ``None``.
@@ -253,7 +259,7 @@ def add_script_to_menu(
     executable_interpreter : str, optional
         Executable python path. The default is the one current interpreter.
     panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Toolkits"``.
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
     aedt_version : str, optional
 
@@ -277,11 +283,14 @@ def add_script_to_menu(
         return False
     toolkit_dir = os.path.join(personal_lib, "Toolkits")
     tool_map = __tab_map(product)
-    tool_dir = os.path.join(toolkit_dir, tool_map, name)
+    file_name = name
+    if "/" in file_name:
+        file_name = file_name.replace("/", "_")
+    tool_dir = os.path.join(toolkit_dir, tool_map, file_name)
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
     if is_linux and aedt_version <= "2023.1":
-        toolkit_rel_lib_dir = os.path.join("Lib", name)
+        toolkit_rel_lib_dir = os.path.join("Lib", file_name)
         lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
         toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
     os.makedirs(lib_dir, exist_ok=True)
@@ -308,14 +317,13 @@ def add_script_to_menu(
     jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
 
     with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
-        file_name_dest = template_file.replace("_", " ")
-        with open(os.path.join(tool_dir, file_name_dest + ".py"), "w") as out_file:
+        with open(os.path.join(tool_dir, template_file + ".py"), "w") as out_file:
             build_file_data = build_file.read()
             build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
             build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
             build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
             build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
-            build_file_data = build_file_data.replace("##TOOLKIT_NAME##", name)
+            build_file_data = build_file_data.replace("##TOOLKIT_NAME##", file_name)
             if dest_script_path:
                 build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", dest_script_path)
 
@@ -323,10 +331,7 @@ def add_script_to_menu(
                 build_file_data = build_file_data.replace(" % version", "")
             out_file.write(build_file_data)
 
-    if aedt_version >= "2023.2":
-        add_automation_tab(
-            name, toolkit_dir, icon_file=icon_file, product=product, template=file_name_dest, panel=panel
-        )
+    add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=template_file, panel=panel)
     logger.info("{} installed".format(name))
     return True
 
@@ -379,14 +384,14 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     # Set Python version based on AEDT version
     python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
-
+    python_version_new = python_version.replace(".", "_")
     if not is_linux:
         base_venv = os.path.normpath(
             os.path.join(
                 desktop_object.install_path,
                 "commonfiles",
                 "CPython",
-                python_version.replace(".", "_"),
+                python_version_new,
                 "winx64",
                 "Release",
                 "python",
@@ -399,7 +404,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 desktop_object.install_path,
                 "commonfiles",
                 "CPython",
-                python_version.replace(".", "_"),
+                python_version_new,
                 "linx64",
                 "Release",
                 "python",
@@ -425,19 +430,19 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(os.environ["APPDATA"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
         package_dir = os.path.join(venv_dir, "Lib")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], "pyaedt_env_ide", "toolkits_v{}".format(version))
+        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", "toolkits_{}".format(python_version_new))
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         package_dir = os.path.join(venv_dir, "lib")
         edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
         os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
         ld_library_path_dirs_to_add = [
-            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version.replace(".", "_")),
+            "{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(edt_root, python_version_new),
             "{}/common/mono/Linux64/lib64".format(edt_root),
             "{}".format(edt_root),
         ]
@@ -511,7 +516,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 script_file=script_file,
                 icon_file=script_image,
                 product=product_name,
-                template_file=toolkit_info.get("template", "Run_PyAEDT_Toolkit_Script"),
+                template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
                 executable_interpreter=python_exe,
                 personal_lib=desktop_object.personallib,

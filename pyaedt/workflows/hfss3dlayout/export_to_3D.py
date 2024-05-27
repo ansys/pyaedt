@@ -1,4 +1,3 @@
-import json
 import os
 from tkinter import Button
 from tkinter import Label
@@ -14,6 +13,9 @@ import PIL.ImageTk
 
 import pyaedt
 import pyaedt.workflows.hfss3dlayout
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
 
 choice = "Export to HFSS"
 
@@ -66,12 +68,9 @@ if not is_test:
 
 suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
 
 d = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
 

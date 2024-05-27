@@ -1,4 +1,3 @@
-import json
 import os.path
 from tkinter import Button
 
@@ -19,6 +18,9 @@ import PIL.ImageTk
 import pyaedt
 from pyaedt import Hfss
 import pyaedt.workflows
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
 
 choice = ""
 file_path = ""
@@ -90,43 +92,32 @@ def browse_port(port_selection):
     mainloop()
 
 
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = os.environ["PYAEDT_SCRIPT_PORT"]
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2023.2"
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
 
-is_test = False
-if "PYAEDT_TEST_CONFIG" in os.environ:
-    is_test = True
-    extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
-    file_path = extra_vars["file_path"]
-
-d = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
-
-active_project = d.active_project()
-active_design = d.active_design()
-
-projname = active_project.GetName()
-desname = active_design.GetName()
-
-hfss = Hfss(projname, desname)
-
-if is_test:
-    choice = hfss.excitations[0]
-else:  # pragma: no cover
-    browse_port(port_selection=hfss.excitations)
-
-if choice:
-    hfss.edit_source_from_file(
-        choice,
-        file_path,
-        is_time_domain=True,
-    )
-    d.logger.info("Excitation assigned correctly.")
-else:  # pragma: no cover
-    d.logger.error("Failed to select a port.")
+with Desktop(
+    new_desktop_session=False,
+    close_on_exit=False,
+    specified_version=version,
+    port=port,
+    aedt_process_id=aedt_process_id,
+) as d:
+    proj = d.active_project()
+    des = d.active_design()
+    projname = proj.GetName()
+    desname = des.GetName()
+    app = Hfss(projname, desname)
+    browse_port(port_selection=app.excitations)
+    if choice:
+        app.edit_source_from_file(
+            choice,
+            file_path,
+            is_time_domain=True,
+        )
+        d.logger.info("Excitation assigned correctly.")
+    else:
+        d.logger.error("Failed to select a port.")
 
 if not is_test:
     d.release_desktop(False, False)
