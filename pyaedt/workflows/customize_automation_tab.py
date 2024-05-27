@@ -368,7 +368,7 @@ def add_script_to_menu(
     jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
 
     with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
-        with open(os.path.join(tool_dir, file_name_dest + ".py"), "w") as out_file:
+        with open(os.path.join(tool_dir, template_file + ".py"), "w") as out_file:
             build_file_data = build_file.read()
             build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
             build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
