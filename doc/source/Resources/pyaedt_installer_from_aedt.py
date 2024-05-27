@@ -74,7 +74,7 @@ def run_pyinstaller_from_c_python(oDesktop):
                 )
                 if os.path.isdir(pyaedt_path):
                     break
-                    
+
     # Create PyAEDT symbolic link in PersonalLib
     personal_lib_dir = oDesktop.GetPersonalLibDirectory()
     pers1 = os.path.join(personal_lib_dir, "pyaedt")
