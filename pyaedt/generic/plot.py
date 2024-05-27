@@ -385,7 +385,7 @@ def plot_polar_chart(
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
@@ -439,8 +439,11 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
 @pyaedt_function_handler()
 @update_plot_settings
-def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a Matplotlib plot based on a list of data.
+def plot_2d_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+):
+    """Create a Matplotlib figure based on a list of data.
+
     Parameters
     ----------
     plot_data : list of list
@@ -470,10 +473,6 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     fig, ax = plt.subplots(figsize=figsize)
     label_id = 1
     for plo_obj in plot_data:
-        if len(plo_obj) == 3:
-            label = plo_obj[2]
-        else:
-            label = "Trace " + str(label_id)
         if isinstance(plo_obj[0], np.ndarray):
             x = plo_obj[0]
             y = plo_obj[1]
@@ -544,11 +543,10 @@ def plot_matplotlib(
     show : bool, optional
         Whether to show the plot or return the matplotlib object. Default is `True`.
 
-
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
-        Matplotlib Figure object.
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
