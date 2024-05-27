@@ -2,7 +2,9 @@ import os
 import sys
 
 from _unittest.conftest import config
+from matplotlib.figure import Figure
 import pytest
+from pyvista.plotting.plotter import Plotter
 
 from pyaedt import Circuit
 from pyaedt import Icepak
@@ -596,18 +598,18 @@ class TestClass:
         assert ffdata.origin == [0, 0, 1]
 
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1)
+        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
         assert os.path.exists(img1)
         img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2)
+        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
         assert os.path.exists(img2)
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(image_path=img3)
+        ffdata.plot_2d_cut(image_path=img3, show=False)
         assert os.path.exists(img3)
-        curve_2d = ffdata.plot_2d_cut()
-        assert len(curve_2d[0]) == 3
-        data = ffdata.polar_plot_3d()
-        assert len(data) == 3
+        curve_2d = ffdata.plot_2d_cut(show=False)
+        assert isinstance(curve_2d, Figure)
+        data = ffdata.polar_plot_3d(show=False)
+        assert isinstance(data, Figure)
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.polar_plot_3d_pyvista(
@@ -621,7 +623,7 @@ class TestClass:
         data_pyvista = ffdata.polar_plot_3d_pyvista(
             quantity="RealizedGain", background=[255, 0, 0], show_geometry=False, convert_to_db=True
         )
-        assert data_pyvista
+        assert isinstance(data_pyvista, Plotter)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
