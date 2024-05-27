@@ -885,6 +885,7 @@ class Modeler3D(Primitives3D):
         import_as_light_weight=False,
         decimation=0,
         group_parts=True,
+        enable_planar_merge="Auto",
     ):
         """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
         translated directly to AEDT format.
@@ -906,6 +907,8 @@ class Modeler3D(Primitives3D):
             original size and removes 90% of the input triangles.
         group_parts : bool, optional
             Whether to group imported parts by object ID. The default is ``True``.
+        enable_planar_merge : str, optional
+            Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
 
         Returns
         -------
@@ -958,9 +961,9 @@ class Modeler3D(Primitives3D):
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
-                elif line_type in ["GRID", "CTRIA3"]:
+                elif line_type in ["GRID", "CTRIA3", "CQUAD4"]:
                     grid_id = int(line[8:16])
-                    if line_type == "CTRIA3":
+                    if line_type in ["CTRIA3", "CQUAD4"]:
                         tria_id = int(line[16:24])
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
@@ -977,17 +980,32 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["PointsId"][grid_id] = pid
                         nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
                         pid += 1
-                    else:
+                    elif line_type == "CTRIA3":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
                             nas_to_dict["PointsId"][int(n2)],
                             nas_to_dict["PointsId"][int(n3)],
                         ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
-
-                elif line_type in ["GRID*", "CTRIA3*"]:
+                    elif line_type == "CQUAD4":
+                        n4 = line[48:56].strip()
+                        if "-" in n4[1:] and "e" not in n4[1:].lower():
+                            n4 = n4[0] + n4[1:].replace("-", "e-")
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n3)],
+                            nas_to_dict["PointsId"][int(n4)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                elif line_type in ["GRID*", "CTRIA3*", "CQUAD4*"]:
                     grid_id = int(line[8:24])
-                    if line_type == "CTRIA3*":
+                    if line_type in ["CTRIA3*", "CQUAD4*"]:
                         tria_id = int(line[24:40])
                         if tria_id not in nas_to_dict["Triangles"]:
                             nas_to_dict["Triangles"][tria_id] = []
@@ -999,9 +1017,11 @@ class Modeler3D(Primitives3D):
                         n2 = n2[0] + n2[1:].replace("-", "e-")
 
                     n3 = line[72:88].strip()
+                    idx = 88
                     if not n3 or n3.startswith("*"):
                         lk += 1
                         n3 = lines[lk][8:24].strip()
+                        idx = 24
                     if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID*":
@@ -1011,14 +1031,32 @@ class Modeler3D(Primitives3D):
                             continue
                         nas_to_dict["PointsId"][grid_id] = pid
                         pid += 1
-                    else:
+                    elif line_type == "CTRIA3*":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
                             nas_to_dict["PointsId"][int(n2)],
                             nas_to_dict["PointsId"][int(n3)],
                         ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
-
+                    elif line_type == "CQUAD4*":
+                        n4 = lines[lk][idx : idx + 16].strip()
+                        if not n4 or n4.startswith("*"):
+                            lk += 1
+                            n4 = lines[lk][8:24].strip()
+                        if "-" in n4[1:] and "e" not in n4[1:].lower():
+                            n4 = n4[0] + n4[1:].replace("-", "e-")
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n2)],
+                            nas_to_dict["PointsId"][int(n3)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
+                        tri = [
+                            nas_to_dict["PointsId"][int(n1)],
+                            nas_to_dict["PointsId"][int(n3)],
+                            nas_to_dict["PointsId"][int(n4)],
+                        ]
+                        nas_to_dict["Triangles"][tria_id].append(tri)
                 elif line_type in [
                     "CTETRA",
                     "CPYRAM",
@@ -1121,6 +1159,7 @@ class Modeler3D(Primitives3D):
         if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
             self.logger.info("Creating STL file with detected faces")
             output_stl = ""
+            enable_stl_merge = False if enable_planar_merge == "False" else True
             if nas_to_dict["Triangles"]:
                 output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
                 f = open(output_stl, "w")
@@ -1150,13 +1189,15 @@ class Modeler3D(Primitives3D):
                         self.logger.error("Package fast-decimation is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
                 f.write("solid Sheet_{}\n".format(tri_id))
-
+                if enable_planar_merge == "Auto" and len(tri_out) > 20000:
+                    enable_stl_merge = False
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
             if nas_to_dict["Triangles"]:
                 f.close()
             output_solid = ""
+            enable_solid_merge = False if enable_planar_merge == "False" else True
             if nas_to_dict["Solids"]:
                 output_solid = os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl")
                 f = open(output_solid, "w")
@@ -1175,6 +1216,8 @@ class Modeler3D(Primitives3D):
                     except Exception:
                         self.logger.error("Package fast-decimation is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
+                if enable_planar_merge == "Auto" and len(tri_out) > 20000:
+                    enable_solid_merge = False
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
@@ -1188,12 +1231,14 @@ class Modeler3D(Primitives3D):
                     output_stl,
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    merge_planar_faces=enable_stl_merge,
                 )
             if output_solid:
                 self.import_3d_cad(
                     output_solid,
                     create_lightweigth_part=import_as_light_weight,
                     healing=False,
+                    merge_planar_faces=enable_solid_merge,
                 )
             self.logger.info("Model imported")
 
