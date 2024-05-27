@@ -356,6 +356,8 @@ class NativeComponentPCB(NativeComponentObject, object):
     @property
     def footprint_filter(self):
         """Minimum component footprint for filtering."""
+        if self._app.settings.aedt_version < "2024.2":
+            return None
         return self.filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
@@ -367,7 +369,9 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
         """
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        if self._app.settings.aedt_version < "2024.2":
+            return False
+        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "FootPrint" in new_filters:
             new_filters.remove("FootPrint")
         if minimum_footprint is not None:
@@ -389,7 +393,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_power : str
             Value with unit of the minimum component power for filtering.
         """
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Power" in new_filters:
             new_filters.remove("Power")
         if minimum_power is not None:
@@ -417,7 +421,7 @@ class NativeComponentPCB(NativeComponentObject, object):
             self._app.logger.error(
                 "Accepted elements of the list are: {}".format(", ".join(list(self._filter_map2name.values())))
             )
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         map2arg = {v: k for k, v in self._filter_map2name.items()}
         for f in self._filter_map2name.keys():
             if f in new_filters:
@@ -439,7 +443,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_height : str
             Value with unit of the minimum component power for filtering.
         """
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Height" in new_filters:
             new_filters.remove("Height")
         if minimum_height is not None:
@@ -461,7 +465,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         filter : bool
             Whether 2d objects are filtered
         """
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "HeightExclude2D" in new_filters:
             new_filters.remove("HeightExclude2D")
         if filter:
@@ -472,7 +476,7 @@ class NativeComponentPCB(NativeComponentObject, object):
     def filters(self):
         """All active filters."""
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
-        filters = self.props["NativeComponentDefinitionProvider"].get("Filters", None)
+        filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         filter_map2type = {
             "Cap": "Type",
             "FootPrint": "FootPrint",

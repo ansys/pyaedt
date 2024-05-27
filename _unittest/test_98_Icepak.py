@@ -70,6 +70,26 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
+    def test_02b_PCB_filters(self):
+        component_name = "RadioBoard2"
+        cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
+            component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        )
+        f = cmp.filters
+        assert len(f.keys()) == 1
+        assert all(not v for v in f["Type"].values())
+        assert not cmp.set_parts("Device Pt")
+        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert cmp.height_filter is None
+        cmp.height_filter = "1mm"
+        cmp.footprint_filter = "0.5mm2"
+        cmp.objects_2d_filter = True
+        cmp.objects_2d_filter = False
+        cmp.power_filter = "4mW"
+        cmp.set_board_settings("Bounding Box")
+        cmp.type_filters = "Resistors"
+        a = 1
+
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
 
