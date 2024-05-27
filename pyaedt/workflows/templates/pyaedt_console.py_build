@@ -53,7 +53,7 @@ def main():
     # CPython interpreter
     python_exe = r"##IPYTHON_EXE##" % version
     # Check if CPython interpreter and AEDT release match
-    python_exe = pyaedt_utils.check_interpreter(python_exe, version_short)
+    python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
     # Console launcher
     pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
     # Check python executable

@@ -37,7 +37,7 @@ from System.Windows.Forms import MessageBoxIcon
 is_linux = os.name == "posix"
 
 
-def check_interpreter(interpreter_path, version):
+def sanitize_interpreter_path(interpreter_path, version):
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
         interpreter_path = interpreter_path.replace("3_7", "3_10")

@@ -55,7 +55,7 @@ def main():
     # Jupyter interpreter
     jupyter_exe = r"##JUPYTER_EXE##" % version
     # Check if Jupyter version and AEDT release match
-    python_exe = pyaedt_utils.check_interpreter(jupyter_exe, version_short)
+    python_exe = pyaedt_utils.sanitize_interpreter_path(jupyter_exe, version_short)
     template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
     target = os.path.join(proj_dir, pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
     # Check executable

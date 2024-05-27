@@ -51,7 +51,7 @@ def main():
         # Python script
         pyaedt_script = r"##PYTHON_SCRIPT##"
         # Check if CPython interpreter and AEDT release match
-        python_exe = pyaedt_utils.check_interpreter(python_exe, short_version)
+        python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, short_version)
         # Check python executable
         python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
         if not python_exe_flag:
