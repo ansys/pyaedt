@@ -351,13 +351,22 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     def __init__(self, app, component_type, component_name, props):
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
+        self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
 
     @property
     def footprint_filter(self):
-        return self.filters["FootPrint"]["Value"]
+        """Minimum component footprint for filtering."""
+        return self.filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
     def footprint_filter(self, minimum_footprint):
+        """Set minimum component footprint for filtering.
+
+        Parameters
+        ----------
+        minimum_footprint : str
+            Value with unit of the minimum component footprint for filtering.
+        """
         new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
         if "FootPrint" in new_filters:
             new_filters.remove("FootPrint")
@@ -368,10 +377,18 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @property
     def power_filter(self):
-        return self.filters["Power"]["Value"]
+        """Minimum component power for filtering."""
+        return self.filters.get("Power", {}).get("Value", None)
 
     @power_filter.setter
     def power_filter(self, minimum_power):
+        """Set minimum component power for filtering.
+
+        Parameters
+        ----------
+        minimum_power : str
+            Value with unit of the minimum component power for filtering.
+        """
         new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
         if "Power" in new_filters:
             new_filters.remove("Power")
@@ -382,38 +399,78 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @property
     def type_filters(self):
-        return self.filters["Types"]
+        """Types of component that are filtered."""
+        return self.filters.get("Types", None)
 
     @type_filters.setter
     def type_filters(self, object_type):
-        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
-        for f in ["Height", "HeightExclude2D"]:
-            if f in new_filters:
-                new_filters.remove(f)
+        """Set types of component to filter.
+
+        Parameters
+        ----------
+        object_type : str or list
+            Types of object to filter. Accepted types are ``"Capacitors"``, ``"Inductors"``, ``"Resistors"``.
+        """
         if not isinstance(object_type, list):
             object_type = [object_type]
-        new_filters += object_type
+        if not all(o in self._filter_map2name.values() for o in object_type):
+            self._app.logger.error(
+                "Accepted elements of the list are: {}".format(", ".join(list(self._filter_map2name.values())))
+            )
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        map2arg = {v: k for k, v in self._filter_map2name.items()}
+        for f in self._filter_map2name.keys():
+            if f in new_filters:
+                new_filters.remove(f)
+        new_filters += [map2arg[o] for o in object_type]
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     def height_filter(self):
-        return self.filters["Height"]
+        """Minimum component height for filtering."""
+        return self.filters.get("Height", {}).get("Value", None)
 
     @height_filter.setter
-    def height_filter(self, minimum_height, include_2d_objects=False):
+    def height_filter(self, minimum_height):
+        """Set minimum component height for filtering and whether to filter 2D objects.
+
+        Parameters
+        ----------
+        minimum_height : str
+            Value with unit of the minimum component power for filtering.
+        """
         new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
-        for f in ["Height", "HeightExclude2D"]:
-            if f in new_filters:
-                new_filters.remove(f)
+        if "Height" in new_filters:
+            new_filters.remove("Height")
         if minimum_height is not None:
             new_filters.append("Height")
-            if include_2d_objects:
-                new_filters.append("HeightExclude2D")
             self.props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    def objects_2d_filter(self):
+        """Whether 2d objects are filtered."""
+        return self.filters.get("Exclude2DObjects", False)
+
+    @objects_2d_filter.setter
+    def objects_2d_filter(self, filter):
+        """Set whether 2d objects are filtered.
+
+        Parameters
+        ----------
+        filter : bool
+            Whether 2d objects are filtered
+        """
+        new_filters = self.props["NativeComponentDefinitionProvider"]["Filters"]
+        if "HeightExclude2D" in new_filters:
+            new_filters.remove("HeightExclude2D")
+        if filter:
+            new_filters.append("HeightExclude2D")
+        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+
+    @property
     def filters(self):
+        """All active filters."""
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
         filters = self.props["NativeComponentDefinitionProvider"].get("Filters", None)
         filter_map2type = {
@@ -426,18 +483,18 @@ class NativeComponentPCB(NativeComponentObject, object):
             "Res": "Type",
         }
         filter_map2val = {"FootPrint": "FootPrint", "Height": "HeightVal", "Power": "PowerVal"}
-        filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
         for f in filters:
             if filter_map2type[f] == "Type":
-                out_filters["Type"][filter_map2name[f]] = True
+                out_filters["Type"][self._filter_map2name[f]] = True
             elif filter_map2type[f] is not None:
                 out_filters[f] = {"Value": filter_map2val[f]}
         if "HeightExclude2D" in filters:
-            out_filters["Height"]["Include2DObjects"] = True
+            out_filters["Exclude2DObjects"] = True
         return out_filters
 
     @property
     def overridden_components(self):
+        """All overridden components."""
         override_component = (
             self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
         )
@@ -446,6 +503,28 @@ class NativeComponentPCB(NativeComponentObject, object):
     def override_component(
         self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
     ):
+        """Set component override.
+
+        Parameters
+        ----------
+        reference_designator : str
+            Reference designator of the part to override.
+        filter_component : bool, optional
+            Whether to filter out the component. Default is ``False``.
+        power : str, optional
+            Override component power. Default is ``None``, in which case the power is not overridden.
+        r_jb : str, optional
+            Override component r_jb value. Default is ``None``, in which case the resistance is not overridden.
+        r_jc : str, optional
+            Override component r_jc value. Default is ``None``, in which case the resistance is not overridden.
+        height : str, optional
+            Override component height value. Default is ``None``, in which case the height is not overridden.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
         override_component = (
             self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
         )
@@ -476,8 +555,30 @@ class NativeComponentPCB(NativeComponentObject, object):
         return True
 
     def set_parts(self, parts_choice, simplify_parts=False, surface_material="Steel-oxidised-surface"):
-        if isinstance(parts_choice, str):
-            parts_choice = ["None", "Device Parts", "Package Parts"].index(parts_choice)
+        """Set how to include PCB parts.
+
+        Parameters
+        ----------
+        parts_choice : str
+            Parts to include: ``"None"``, ``"Device Parts"`` or ``"Package Parts"``.
+        simplify_parts : bool, optional
+            Whether to simplify parts as cuboid. Default is ``False``.
+        surface_material : str, optional
+            Surface material to apply to parts. Default is ``"Steel-oxidised-surface"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        allowed_inputs = ["None", "Device Parts", "Package Parts"]
+        try:
+            parts_choice = allowed_inputs.index(parts_choice)
+        except ValueError:
+            self._app.logger.error(
+                "{} is not a valid argument, only allowed input are {}.".format(parts_choice, ", ".join(allowed_inputs))
+            )
+            return False
         self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = parts_choice
         self.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = simplify_parts
         self.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = surface_material
@@ -486,12 +587,46 @@ class NativeComponentPCB(NativeComponentObject, object):
     def set_board_settings(
         self, extent_type=None, extent_polygon=None, board_cutouts_material="air", via_holes_material="air"
     ):
-        if extent_type is None and extent_polygon is None:
+        """Set board extent and material settings.
+
+        Parameters
+        ----------
+        extent_type : str, optional
+            Extent definition of the PCB. Default is ``None`` in which case the 3D Layout extent
+            will be used. Other possible options are: ``"Bounding Box"`` or ``"Polygon"``.
+        extent_polygon : str, optional
+            Polygon name to use in the extent definition of the PCB. Default is ``None``. This
+            argument is mandatory if ``extent_type`` is ``"Polygon"``.
+        board_cutouts_material : str, optional
+            Material to apply to cutouts regions. Default is ``"air"``.
+        via_holes_material : str, optional
+            Material to apply to via holes regions. Default is ``"air"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        if extent_type is None:
+            allowed_extent_types = ["Bounding Box", "Polygon"]
+            if extent_type not in allowed_extent_types:
+                self._app.logger(
+                    "Accepted argument for ``extent_type`` are: {}. {} provided".format(
+                        ", ".join(allowed_extent_types), extent_type
+                    )
+                )
+                return False
             self.props["NativeComponentDefinitionProvider"]["Use3DLayoutExtents"] = True
         else:
             self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
-        if extent_polygon is not None:
-            self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
+            if extent_type == "Polygon":
+                if extent_polygon is not None:
+                    self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
+                else:
+                    self._app.logger(
+                        'If ``extent_type`` is ``"Polygon"``, then an argument for ``extent_polygon`` must be provided.'
+                    )
+                    return False
         self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = board_cutouts_material
         self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = via_holes_material
         return True
