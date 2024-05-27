@@ -27,10 +27,15 @@
 PyAEDT is a Python library that interacts directly with the API for
 Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
 for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
-and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
+and Q3D Extractor), 2D tools, and Ansys Mechanical inside AEDT. PyAEDT also provides
 support for circuit tools like Nexxim and system simulation tools like
 Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
-tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
+tools like HFSS 3D Layout. The Ansys Electronics Database 
+([EDB](https://edb.docs.pyansys.com/version/stable/)) is included
+with PyAEDT as a dependency and is recommended for any automated manipulation and 
+setup of layout data for PCBs, electronic packages, and integrated circuits. 
+
+The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
 the API.
 
@@ -129,6 +134,31 @@ To reach the project support team, email [pyansys.core@ansys.com](mailto:pyansys
 
 To run PyAEDT, you must have a local licenced copy of AEDT.
 PyAEDT supports AEDT versions 2022 R1 or newer.
+
+## Contributing
+
+For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com). 
+
+
+Note that PyAEDT uses semantic naming for pull requests (PR). This convention 
+greatly simplifies the review process by providing meaningful
+information in the PR title. The
+following 
+[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+should be used for pull request name:
+
+- "BUILD"
+- "CHORE"
+- "CI"
+- "DOCS"
+- "FEAT"
+- "FIX"
+- "PERF"
+- "REFACTOR"
+- "REVERT"
+- "STYLE"
+- "TEST"
+
 
 ## Student version
 
