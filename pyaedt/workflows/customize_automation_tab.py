@@ -275,7 +275,7 @@ def available_toolkits():
 def add_script_to_menu(
     name,
     script_file,
-    template_file="Run_PyAEDT_Toolkit_Script",
+    template_file="run_pyaedt_toolkit_script",
     icon_file=None,
     product="Project",
     copy_to_personal_lib=True,
@@ -298,7 +298,7 @@ def add_script_to_menu(
     script_file : str
         Full path to the script file. The script will be moved to Personal Lib.
     template_file : str
-        Script template name to use. The default is ``"Run_PyAEDT_Toolkit_Script"``.
+        Script template name to use. The default is ``"run_pyaedt_toolkit_script"``.
     icon_file : str, optional
         Full path to the icon (a 30x30 pixel PNG file) to add to the UI.
         The default is ``None``.
@@ -568,7 +568,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 script_file=script_file,
                 icon_file=script_image,
                 product=product_name,
-                template_file=toolkit_info.get("template", "Run_PyAEDT_Toolkit_Script"),
+                template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
                 executable_interpreter=python_exe,
                 personal_lib=desktop_object.personallib,
