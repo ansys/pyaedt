@@ -1310,7 +1310,7 @@ class IcepakMesh(object):
 
         >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
         """
-        if not isinstance(assignment[0], list):
+        if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
         for level, objects in enumerate(assignment):
