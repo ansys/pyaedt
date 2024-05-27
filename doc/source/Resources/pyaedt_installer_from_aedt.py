@@ -8,7 +8,7 @@ is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
-os.environ["VENV_DIR_PREFIX"] = ".pyaedt_env"
+VENV_DIR_PRIX = ".pyaedt_env"
 
 
 def run_pyinstaller_from_c_python(oDesktop):
@@ -60,10 +60,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     # Add PyAEDT tabs in AEDT
     # Virtual environment path and Python executable
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], python_version_new)
+        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PRIX, python_version_new)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], python_version_new)
+        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PRIX, python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
     pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
     if is_linux:
@@ -158,11 +158,11 @@ def install_pyaedt():
         python_version = "3_7"
 
     if is_windows:
-        venv_dir = os.path.join(os.environ["APPDATA"], os.environ["VENV_DIR_PREFIX"], python_version)
+        venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PRIX, python_version)
         python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
         pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], os.environ["VENV_DIR_PREFIX"], python_version)
+        venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PRIX, python_version)
         python_exe = os.path.join(venv_dir, "bin", "python")
         pip_exe = os.path.join(venv_dir, "bin", "pip")
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
