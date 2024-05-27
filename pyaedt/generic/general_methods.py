@@ -1478,7 +1478,7 @@ def compute_fft(time_vals, value, window=None):  # pragma: no cover
     ----------
     time_vals : `pandas.Series`
     value : `pandas.Series`
-    window :str, optional
+    window : str, optional
         Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
 
     Returns
@@ -1615,7 +1615,7 @@ def parse_excitation_file(
         Csv file encoding.
     out_mag : str, optional
         Output magnitude format. It can be `"Voltage"` or `"Power"` depending on Hfss solution.
-    window :str, optional
+    window : str, optional
         Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
     Returns

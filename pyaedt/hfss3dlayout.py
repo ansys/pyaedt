@@ -2027,7 +2027,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             Either if include or not post-processing effects. Default is `True`,
         incident_voltage : bool, optional
             Either if include or incident or total voltage. Default is `True`, for incident voltage.
-        window :str, optional
+        window : str, optional
             Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns

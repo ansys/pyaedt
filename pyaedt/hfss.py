@@ -3624,7 +3624,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             file header.
         encoding : str, optional
             CSV file encoding.
-        window :str, optional
+        window : str, optional
             Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
