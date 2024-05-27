@@ -340,20 +340,17 @@ class PostProcessor(Post):
         project_path : str, optional
             Path for saving the image file. The default is ``""``.
         mesh_plot : bool, optional
-            Whether to create and plot the mesh over the fields. The
-            default is ``False``.
+            Whether to create and plot the mesh over the fields. The default is ``False``.
         image_format : str, optional
-            Format of the image file. Options are ``"jpg"``,
-            ``"png"``, ``"svg"``, and ``"webp"``. The default is
-            ``"jpg"``.
+            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and ``"webp"``.
+            The default is ``"jpg"``.
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
             Plot folder to update before exporting the field.
-            The default is ``None``, in which case all plot
-            folders are updated.
+            The default is ``None``, in which case all plot folders are updated.
         show : bool, optional
             Export Image without plotting on UI.
         scale_min : float, optional
@@ -497,9 +494,8 @@ class PostProcessor(Post):
         export_path : str, optional
             Image export path. Default is ``None`` to not export the image.
         image_format : str, optional
-            Format of the image file. Options are ``"jpg"``,
-            ``"png"``, ``"svg"``, and ``"webp"``. The default is
-            ``"jpg"``.
+            Format of the image file. Options are ``"jpg"``, ``"png"``, ``"svg"``, and ``"webp"``.
+            The default is ``"jpg"``.
         keep_plot_after_generation : bool, optional
             Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.
         dark_mode : bool, optional

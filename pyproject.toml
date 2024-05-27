@@ -50,7 +50,8 @@ tests = [
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista>=0.38.0,<0.44",
     "fast-simplification>=0.1.7",
-    "scikit-learn>=1.0.0,<1.5",
+    # Never directly imported but required when loading ML related file see #4713
+    "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
@@ -82,7 +83,6 @@ doc = [
     "pyvista>=0.38.0,<0.44",
     "fast-simplification>=0.1.7",
     "recommonmark",
-    #"scikit-learn",
     "scikit-rf>=0.30.0,<1.1",
     "Sphinx==5.3.0; python_version == '3.7'",
     "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
@@ -93,7 +93,7 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.17",
     #"sphinx-notfound-page",
-    "sphinx_design>=0.4.0,<0.6",
+    "sphinx_design>=0.4.0,<0.7",
     #"sphinxcontrib-websupport",
     "SRTM.py",
     "utm",
@@ -115,7 +115,7 @@ doc-no-examples = [
     "sphinx-gallery>=0.14.0,<0.17",
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
-    "sphinx_design>=0.4.0,<0.6",
+    "sphinx_design>=0.4.0,<0.7",
 ]
 all = [
     "imageio>=2.30.0,<2.35",
@@ -126,6 +126,8 @@ all = [
     "pandas>=1.1.0,<2.3",
     "pyvista>=0.38.0,<0.44",
     "fast-simplification>=0.1.7",
+    # Never directly imported but required when loading ML related file see #4713
+    "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
