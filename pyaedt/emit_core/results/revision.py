@@ -733,10 +733,10 @@ class Revision:
     def get_license_session(self):
         """Get a license session.
 
-        A license session can be started with checkout(), and ended with checkin().
-        The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
+        A license session can be started with checkout(), and ended with check in().
+        The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
 
-        Avoids having to wait for license checkin and checkout when doing many runs.
+        Avoids having to wait for license check in and checkout when doing many runs.
 
         Examples
         --------

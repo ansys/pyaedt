@@ -187,7 +187,7 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
-        if not self._materials:
+        if self._materials is None:
             self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 

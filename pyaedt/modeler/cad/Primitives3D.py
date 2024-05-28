@@ -834,7 +834,16 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler(cs_plane="orientation", position="origin", matname="material")
     def create_ellipse(
-            self, orientation, origin, major_radius, ratio, is_covered=True, name=None, material=None, **kwargs
+            self,
+            orientation,
+            origin,
+            major_radius,
+            ratio,
+            is_covered=True,
+            name=None,
+            material=None,
+            segments=0,
+            **kwargs
     ):
         """Create an ellipse.
 
@@ -859,6 +868,9 @@ class Primitives3D(GeometryModeler):
         material : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
+        segments : int, optional
+            Number of segments to apply to create the segmented geometry.
+            The default is ``0``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
             ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
@@ -896,8 +908,6 @@ class Primitives3D(GeometryModeler):
         >>> ellipse = aedtapp.modeler.create_ellipse(orientation='Z', origin=[0,0,0],
         ...                                          major_radius=2, ratio=2, is_covered=True, name="myell",
         ...                                          material="vacuum")
-
-
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(orientation)
         XStart, YStart, ZStart = self._pos_with_arg(origin)
@@ -912,6 +922,8 @@ class Primitives3D(GeometryModeler):
         vArg1.append("MajRadius:="), vArg1.append(MajorRadius)
         vArg1.append("Ratio:="), vArg1.append(ratio)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
+        vArg1.append("NumSegments:="), vArg1.append(segments)
+
         vArg2 = self._default_object_attributes(name=name, matname=material)
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
@@ -1275,20 +1287,20 @@ class Primitives3D(GeometryModeler):
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
-        rin = internal_radius * tan(dtheta / 2) * 2
-        x = rin
-        r = rin
+        r_in = internal_radius * tan(dtheta / 2) * 2
+        x = r_in
+        r = r_in
         for i in range(faces):
             r += 1
             theta += dtheta
             x = x + r * cos(theta)
-            dr = (width + spacing) / (x - rin)
+            dr = (width + spacing) / (x - r_in)
 
         for i in range(turns * faces - int(faces / 2) - 1):
-            rin += dr
+            r_in += dr
             theta += dtheta
             x0, y0 = pts[-1][:2]
-            x1, y1 = x0 + rin * cos(theta), y0 + rin * sin(theta)
+            x1, y1 = x0 + r_in * cos(theta), y0 + r_in * sin(theta)
             pts.append((x1, y1, elevation))
 
         pts.append((x1, 0, elevation))

@@ -323,6 +323,9 @@ class Design(AedtObjects):
         bb = []
         if "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
+        elif "GetAllBoundariesList" in self.oboundary.__dir__() and self.design_type == "HFSS 3D Layout Design":
+            bb = list(self.oboundary.GetAllBoundariesList())
+            bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
         if "GetHybridRegions" in self.oboundary.__dir__():
@@ -338,6 +341,11 @@ class Design(AedtObjects):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+        elif "Excitations" in self.get_oo_name(self.odesign) and self.design_type == "HFSS 3D Layout Design":
+            ee = self.get_oo_name(self.odesign, "Excitations")
+            ee = [elem for sublist in zip(ee, ["Port"] * len(ee)) for elem in sublist]
+            current_excitations = ee[::2]
+            current_excitation_types = ee[1::2]
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
@@ -3332,7 +3340,6 @@ class Design(AedtObjects):
         if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
             time.sleep(1)
             self.odesktop.CloseAllWindows()
-
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:

@@ -3596,6 +3596,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         impedance=50,
         data_format="Power",
         encoding="utf-8",
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -3623,7 +3624,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             file header.
         encoding : str, optional
             CSV file encoding.
-
+        window : str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
@@ -3692,6 +3694,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
         ds_name_mag = "ds_" + assignment.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + assignment.replace(":", "_mode_") + "_Angle"

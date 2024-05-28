@@ -22,19 +22,17 @@
 
 # Toolkit template if the user does not pass any valid script in the toolkit manager
 
-import os
-
 import pyaedt
 from pyaedt import get_pyaedt_app
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
 
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
 
-app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
+app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
 
 active_project = app.odesktop.GetActiveProject()
 active_design = active_project.GetActiveDesign()
