@@ -1,0 +1,88 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""
+* * * This script is meant to run in IronPython within AEDT. * * *
+
+The script executes the extension manager.
+
+"""
+import os
+import sys
+
+is_linux = os.name == "posix"
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+extensions_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.append(extensions_dir)
+
+import pyaedt_utils
+
+
+def main():
+    try:
+        # Get AEDT version
+        version_short = oDesktop.GetVersion()[2:6].replace(".", "")
+        # Launch extension manager
+        python_exe = r"##PYTHON_EXE##" % version
+        # Extensions directory
+        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+        pyaedt_extensions_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+        pyaedt_script = os.path.join(pyaedt_extensions_dir, "extension_manager.py")
+        # Check if CPython interpreter and AEDT release match
+        python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
+        # Check python executable
+        python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
+        if not python_exe_flag:
+            return
+        # Check script file
+        pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
+        if not pyaedt_script_flag:
+            return
+        # Add environment variables
+        pyaedt_utils.environment_variables(oDesktop)
+        # Open extension manager
+        if is_linux:
+            command = [
+                python_exe,
+                pyaedt_script,
+            ]
+            my_env = os.environ.copy()
+            subprocess.Popen(command, env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+        else:
+            command = [
+                '"{}"'.format(python_exe),
+                '"{}"'.format(pyaedt_script),
+            ]
+            my_env = os.environ.copy()
+            subprocess.Popen(" ".join(command), env=my_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    except Exception as e:
+        pyaedt_utils.show_error(str(e), oDesktop)
+
+
+if __name__ == "__main__":
+    main()

@@ -2,22 +2,22 @@
 name = "PyAEDT Console"
 script = "console_setup.py"
 icon = "console.png"
-template = "PyAEDT_Console"
+template = "pyaedt_console"
 
 [Jupyter]
 name = "Jupyter Notebook"
 script = "jupyter_template.ipynb"
 icon = "jupyter.png"
-template = "Jupyter"
+template = "jupyter"
 
 [Run_Script]
 name = "Run PyAEDT Script"
 script = ""
 icon = "run_script.png"
-template = "Run_PyAEDT_Script"
+template = "run_pyaedt_script"
 
-[ToolkitManager]
-name = "Toolkit Manager"
-script = "toolkit_manager.py"
-icon = "toolkit_manager.png"
-template = "Run_Toolkit_Manager"
+[ExtensionManager]
+name = "Extension Manager"
+script = "extension_manager.py"
+icon = "extension_manager.png"
+template = "run_extension_manager"

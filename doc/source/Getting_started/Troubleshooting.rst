@@ -50,7 +50,7 @@ run the Python command:
 
 
 Another option to install PyAEDT from the wheelhouse is to download the following file
-:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`.
+:download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`.
 Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
 

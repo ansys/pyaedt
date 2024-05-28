@@ -20,25 +20,40 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Toolkit template if the user does not pass any valid script in the toolkit manager
+"""Miscellaneous Methods for PyAEDT workflows."""
 
-import pyaedt
-from pyaedt import get_pyaedt_app
-from pyaedt.workflows.misc import get_aedt_version
-from pyaedt.workflows.misc import get_port
-from pyaedt.workflows.misc import get_process_id
+import os
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
+from pyaedt.misc import current_version
 
-app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
 
-active_project = app.odesktop.GetActiveProject()
-active_design = active_project.GetActiveDesign()
+def get_process_id():
+    """Get process ID from environment variable."""
+    aedt_process_id = None
+    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+        aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
+    return aedt_process_id
 
-aedtapp = get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
 
-# Your PyAEDT script
+def get_port():
+    """Get GRPC port from environment variable."""
+    port = 0
+    if "PYAEDT_SCRIPT_PORT" in os.environ:
+        port = int(os.environ["PYAEDT_SCRIPT_PORT"])
+    return port
 
-app.release_desktop(False, False)
+
+def get_aedt_version():
+    """Get AEDT release from environment variable."""
+    version = current_version()
+    if "PYAEDT_SCRIPT_VERSION" in os.environ:
+        version = os.environ["PYAEDT_SCRIPT_VERSION"]
+    return version
+
+
+def is_student():
+    """Get if AEDT student is opened from environment variable."""
+    student_version = False
+    if "PYAEDT_STUDENT_VERSION" in os.environ:
+        student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
+    return student_version

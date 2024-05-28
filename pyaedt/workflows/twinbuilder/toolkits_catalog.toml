@@ -2,5 +2,5 @@
 name = "Export to Circuit"
 script = "convert_to_circuit.py"
 icon = "images/large/export_to_circuit.png"
-template = "Run_PyAEDT_Toolkit_Script"
+template = "run_pyaedt_toolkit_script"
 pip = ""
