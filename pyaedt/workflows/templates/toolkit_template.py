@@ -40,7 +40,7 @@ def main():
         new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
     )
 
-    active_project = app.active_project()
+    # active_project = app.active_project()
     active_design = app.active_design()
 
     aedtapp = get_pyaedt_app(design_name=active_design.GetName(), desktop=app)

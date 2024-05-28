@@ -8,7 +8,7 @@ import sys
 import pyaedt
 from _unittest_solvers.conftest import local_path as solver_local_path
 from _unittest.conftest import local_path
-import subprocess
+import subprocess  # nosec
 
 import pyaedt.workflows
 
