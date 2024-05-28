@@ -289,6 +289,7 @@ def check_numeric_equivalence(a, b, relative_tolerance=1e-7):
     return True if reldiff < relative_tolerance else False
 
 
+@pyaedt_function_handler()
 def _check_path(path_to_check):
     return path_to_check.replace("\\", "/") if path_to_check[0] != "\\" else path_to_check
 
@@ -778,7 +779,6 @@ def generate_unique_project_name(root_name=None, folder_name=None, project_name=
     return prj
 
 
-@pyaedt_function_handler()
 def _retry_ntimes(n, function, *args, **kwargs):
     """
 
@@ -1559,7 +1559,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler(time_vals="time_values", value="data_values")
-def compute_fft(time_values, data_values):  # pragma: no cover
+def compute_fft(time_values, data_values, window=None):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
@@ -1568,6 +1568,10 @@ def compute_fft(time_values, data_values):  # pragma: no cover
         Time points corresponding to the x-axis of the input transient data.
     data_values : `pandas.Series`
         Points corresponding to the y-axis.
+    time_values : `pandas.Series`
+    data_values : `pandas.Series`
+    window : str, optional
+        Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
 
     Returns
     -------
@@ -1582,10 +1586,24 @@ def compute_fft(time_values, data_values):  # pragma: no cover
 
     deltaT = time_values[-1] - time_values[0]
     num_points = len(time_values)
-    valueFFT = np.fft.fft(data_values, num_points)
+    win = None
+    if window:
+
+        if window == "hamming":
+            win = np.hamming(num_points)
+        elif window == "hanning":
+            win = np.hanning(num_points)
+        elif window == "bartlett":
+            win = np.bartlett(num_points)
+        elif window == "blackman":
+            win = np.blackman(num_points)
+    if win is not None:
+        valueFFT = np.fft.fft(data_values * win, num_points)
+    else:
+        valueFFT = np.fft.fft(data_values, num_points)
     Npoints = int(len(valueFFT) / 2)
     valueFFT = valueFFT[1 : Npoints + 1]
-    valueFFT = valueFFT / len(valueFFT)
+    valueFFT = 2 * valueFFT / len(valueFFT)
     n = np.arange(num_points)
     freq = n / deltaT
     return freq, valueFFT
@@ -1668,6 +1686,7 @@ def parse_excitation_file(
     data_format="Power",
     encoding="utf-8",
     out_mag="Voltage",
+    window="hamming",
 ):
     """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
@@ -1689,6 +1708,8 @@ def parse_excitation_file(
         Csv file encoding.
     out_mag : str, optional
         Output magnitude format. It can be `"Voltage"` or `"Power"` depending on Hfss solution.
+    window : str, optional
+        Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
     Returns
     -------
@@ -1704,7 +1725,7 @@ def parse_excitation_file(
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
-        freq, fval = compute_fft(time, val)
+        freq, fval = compute_fft(time, val, window)
 
         if data_format.lower() == "current":
             if out_mag == "Voltage":

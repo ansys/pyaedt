@@ -19,7 +19,7 @@ using the CPython interpreter included in the AEDT installation.
 
 In order to do that you can:
 
-- Download the following file: :download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+- Download the following file: :download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`
 
 - Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
 
@@ -44,16 +44,16 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
   :alt: PyAEDT toolkit buttons available in AEDT
 
 
-Toolkit Manager
-~~~~~~~~~~~~~~~
-The user can install or uninstall automated workflows using the toolkit manager.
+Extension manager
+~~~~~~~~~~~~~~~~~
+The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 
 - Custom PyAEDT scripts.
 
-- Internal PyAEDT scripts. Existing workflows in the PyAEDT library.
+- Existing workflows in the PyAEDT library.
 
-- Open source PyAEDT toolkits. Open source PyAEDT toolkits following the `common library <https://aedt.common.toolkit.docs.pyansys.com/>`_ standard.
+- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
 
 .. image:: ../Resources/toolkit_manager_1.png
   :width: 800

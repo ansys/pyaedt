@@ -814,8 +814,9 @@ class SolutionData(object):
         title="",
         snapshot_path=None,
         is_polar=False,
+        show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a matplotlib figure based on a list of data.
 
         Parameters
         ----------
@@ -846,8 +847,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:  # pragma: no cover
             return False
@@ -887,9 +888,9 @@ class SolutionData(object):
         if len(data_plot) > 15:
             show_legend = False
         if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
         else:
-            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
@@ -903,8 +904,9 @@ class SolutionData(object):
         formula=None,
         size=(2000, 1000),
         snapshot_path=None,
+        show=True,
     ):
-        """Create a matplotlib 3d plot based on a list of data.
+        """Create a matplotlib 3D figure based on a list of data.
 
         Parameters
         ----------
@@ -932,8 +934,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.figure.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:
             return False  # pragma: no cover
@@ -979,7 +981,7 @@ class SolutionData(object):
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path)
+        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
@@ -1165,10 +1167,10 @@ class FfdSolutionData(object):
     >>> import pyaedt
     >>> from pyaedt.modules.solutions import FfdSolutionData
     >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
-    >>> name = "Setup1 : LastAdaptive"
+    >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> eep_files = data.eep_files
     >>> frequencies = data.frequencies
     >>> app.release_desktop()
@@ -1634,15 +1636,16 @@ class FfdSolutionData(object):
         Returns
         -------
         :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
         >>> import pyaedt
         >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
-        >>> name = "Setup1 : LastAdaptive"
+        >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_farfield_contour()
 
         """
@@ -1730,6 +1733,7 @@ class FfdSolutionData(object):
             image_path=None,
             show=True,
             is_polar=False,
+            show_legend=True,
             **kwargs
     ):
         # fmt: on
@@ -1763,11 +1767,13 @@ class FfdSolutionData(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
 
@@ -1775,10 +1781,10 @@ class FfdSolutionData(object):
         --------
         >>> import pyaedt
         >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
-        >>> name = "Setup1 : LastAdaptive"
+        >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_2d_cut(theta=20)
         """
         for k in kwargs:
@@ -1840,30 +1846,29 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        if show:
-            show_legend = True
-            if len(curves) > 15:
-                show_legend = False
-            if is_polar:
-                return plot_polar_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
-            else:
-                return plot_2d_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
+        # FIXME: See if we need to keep this check on the curves length
+        # if len(curves) > 15:
+        #     show_legend = False
+        if is_polar:
+            return plot_polar_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
         else:
-            return curves
+            return plot_2d_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1904,12 +1909,12 @@ class FfdSolutionData(object):
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
+            If ``False``, the Matplotlib instance of the plot is not shown.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
 
@@ -1917,10 +1922,10 @@ class FfdSolutionData(object):
         --------
         >>> import pyaedt
         >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
-        >>> name = "Setup1 : LastAdaptive"
+        >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
         """
         for k in kwargs:
@@ -1958,10 +1963,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:  # pragma: no cover
-            plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path)
-        else:
-            return x, y, z
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
@@ -2025,10 +2027,10 @@ class FfdSolutionData(object):
         --------
         >>> import pyaedt
         >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
-        >>> name = "Setup1 : LastAdaptive"
+        >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
         """
         for k in kwargs:
@@ -2197,10 +2199,8 @@ class FfdSolutionData(object):
 
         if image_path:
             p.show(screenshot=image_path)
-            return True
-        elif show:  # pragma: no cover
+        if show:  # pragma: no cover
             p.show()
-            return True
         return p
 
     @pyaedt_function_handler()
@@ -2545,10 +2545,10 @@ class FfdSolutionDataExporter(FfdSolutionData):
     --------
     >>> import pyaedt
     >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
-    >>> name = "Setup1 : LastAdaptive"
+    >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies,name,sphere)
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 

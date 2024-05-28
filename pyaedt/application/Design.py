@@ -3342,7 +3342,6 @@ class Design(AedtObjects):
         if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
             time.sleep(1)
             self.odesktop.CloseAllWindows()
-
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:

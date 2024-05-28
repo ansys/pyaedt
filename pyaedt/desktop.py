@@ -261,32 +261,12 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-        elif _desktop_sessions and len(_desktop_sessions) > 1 and not desktop_class.parent_desktop_id:
-            pyaedt_logger.error("Release is not allowed when multiple desktop sessions are available.")
-            pyaedt_logger.error("Closing Desktop session.")
-            try:
-                os.kill(pid, 9)
-                if _desktop_sessions:
-                    for v in _desktop_sessions.values():
-                        if pid in v.parent_desktop_id:
-                            del v.parent_desktop_id[v.parent_desktop_id.index(pid)]
-                return True
-            except Exception:  # pragma: no cover
-                warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
-        elif _desktop_sessions and len(_desktop_sessions) > 1:
-            pyaedt_logger.error("A child desktop session is linked to this session.")
-            pyaedt_logger.error("Multiple desktop sessions must be released in reverse order.")
-            return False
         else:
-            try:
-                import pyaedt.generic.grpc_plugin as python_grpc_wrapper
-
-                python_grpc_wrapper.AedtAPI.ReleaseAll()
-                return True
-            except Exception:  # pragma: no cover
-                warnings.warn(
-                    "Something went wrong releasing AEDT. Exception in `StandalonePyScriptWrapper.Release()`."
-                )
+            for k, d in _desktop_sessions.items():
+                if k == pid:
+                    d.grpc_plugin.recreate_application(True)
+                    d.grpc_plugin.Release()
+                    return True
     elif not inside_desktop:
         if close_desktop:
             try:
@@ -455,16 +435,17 @@ class Desktop(object):
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
-        if settings.use_multi_desktop and is_windows and not inside_desktop and new_desktop_session:
+        if settings.use_multi_desktop and not inside_desktop and new_desktop_session:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
-            if settings.use_multi_desktop and is_windows and (port or aedt_process_id):
+            if settings.use_multi_desktop and (port or aedt_process_id):
                 for el in list(_desktop_sessions.values()):
                     if (el.port != 0 and el.port == port) or (
                         el.aedt_process_id and el.aedt_process_id == aedt_process_id
                     ):
                         return el
+                return object.__new__(cls)
             sessions = list(_desktop_sessions.keys())
             try:
                 process_id = _desktop_sessions[sessions[0]].odesktop.GetProcessID()
@@ -491,18 +472,22 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
-        if _desktop_sessions and (specified_version is None or not settings.use_grpc_api):
+        if _desktop_sessions and specified_version is None:
             specified_version = list(_desktop_sessions.values())[-1].aedt_version_id
         if aedt_process_id:  # pragma no cover
             aedt_process_id = int(aedt_process_id)
         if getattr(self, "_initialized", None) is not None and self._initialized:
+            try:
+                self.grpc_plugin.recreate_application(True)
+            except Exception:
+                pass
             return
         else:
             self._initialized = True
         self._initialized_from_design = True if Desktop._invoked_from_design else False
         Desktop._invoked_from_design = False
         self.parent_desktop_id = []
-
+        self._odesktop = None
         self._connected_app_instances = 0
 
         """Initialize desktop."""
@@ -998,40 +983,41 @@ class Desktop(object):
             os.environ["DesktopPluginPyAEDT"] = os.path.join(settings.aedt_install_dir, "PythonFiles", "DesktopPlugin")
             launch_msg = "AEDT installation Path {}".format(base_path)
             self.logger.info(launch_msg)
-            import pyaedt.generic.grpc_plugin as python_grpc_wrapper
+            from pyaedt.generic.grpc_plugin_dll_class import AEDT
 
-            if _desktop_sessions:
-                last_session = list(_desktop_sessions.values())[-1]
-                all_desktop = [i for i in last_session.odesktop.GetRunningInstancesMgr().GetAllRunningInstances()]
-                for desktop in all_desktop:
-                    try:
-                        if port and desktop.GetGrpcServerPort() == port:
-                            self.isoutsideDesktop = True
-                            self.odesktop = desktop
-                            self.aedt_process_id = self.odesktop.GetProcessID()
-                            self.is_grpc_api = True
-                            last_session.parent_desktop_id.append(self.aedt_process_id)
-                            return True
-                    except Exception:
-                        messages = desktop.GetMessages("", "", 0)
-                        for message in messages:
-                            if "gRPC server running on port: " in message and str(port) in message:
-                                self.isoutsideDesktop = True
-                                self.odesktop = desktop
-                                self.aedt_process_id = self.odesktop.GetProcessID()
-                                self.is_grpc_api = True
-                                last_session.parent_desktop_id.append(self.aedt_process_id)
-                                return True
-            if new_session:
-                self.launched_by_pyaedt = new_session
-            oapp = python_grpc_wrapper.CreateAedtApplication(machine, port, non_graphical, new_session)
+            if settings.use_multi_desktop:
+                os.environ["DesktopPluginPyAEDT"] = os.path.join(
+                    list(installed_versions().values())[0], "PythonFiles", "DesktopPlugin"
+                )
+            self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
+            oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
 
             self.isoutsideDesktop = True
-            self.odesktop = oapp.GetAppDesktop()
             self.aedt_process_id = self.odesktop.GetProcessID()
             self.is_grpc_api = True
         return True
+
+    @property
+    def odesktop(self):
+        """AEDT instance containing all projects and designs.
+
+        Examples
+        --------
+        Get the COM object representing the desktop.
+
+        >>> from pyaedt import Desktop
+        >>> d = Desktop()
+        >>> d.odesktop
+        """
+        try:
+            return self.grpc_plugin.odesktop
+        except Exception:
+            return self._odesktop
+
+    @odesktop.setter
+    def odesktop(self, val):
+        self._odesktop = val
 
     def _init_grpc(self, non_graphical, new_aedt_session, version, student_version, version_key):
         if settings.remote_rpc_session:  # pragma: no cover
@@ -1052,12 +1038,12 @@ class Desktop(object):
             socket.getfqdn(),
             socket.getfqdn().split(".")[0],
         ]:
-            self.machine = ""
+            self.machine = "127.0.0.1"
         else:
             settings.remote_api = True
         if not self.port:
-            if self.machine:
-                self.logger.error("New Session of AEDT cannot be started on remote machine from Desktop Class.")
+            if self.machine and self.machine != "127.0.0.1":
+                self.logger.error("New session of AEDT cannot be started on remote machine from Desktop Class.")
                 self.logger.error("Either use port argument or start an rpc session to start AEDT on remote machine.")
                 self.logger.error("Use client = pyaedt.common_rpc.client(machinename) to start a remote session.")
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
@@ -1571,7 +1557,6 @@ class Desktop(object):
         for a in props:
             self.__dict__.pop(a, None)
 
-        self.odesktop = None
         gc.collect()
         return result
 
@@ -1769,20 +1754,29 @@ class Desktop(object):
         Parameters
         ----------
         project_file : str
-            Full path to the project.
+            Full path to the project. The path should be visible from the server where the
+            simulation will run.
+            If the client path is used then the
+            mapping between the client and server path must be specified in the `setting_file``.
         clustername : str
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, in which
-            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+            Full path to the AEDT executable file on the server. The default is ``None``, in which
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used. On linux
+            this path should point to the Linux executable ``"ansysedt"``.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
             Number of cores. The default is ``32``.
         wait_for_license : bool, optional
-             Whether to wait for the license to be validated. The default is ``True``.
+             Whether to wait for a license to become available. The default is ``True``.
         setting_file : str, optional
-            Name of the file to use as a template. The default value is ``None``.
+            Name of the "*.areg" file to use as a template. The default value
+            is ``None`` in which case a default template will be used.
+            If ``setting_file`` is passed it can be located either on the client or server.
+            If the "*.areg" file is on the client information from ``numcores`` and ``numnodes``
+            will be added. If the "*.areg" file is on the server it
+            will be applied without modifications.
 
         Returns
         -------
@@ -1816,8 +1810,7 @@ class Desktop(object):
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                return False
+                self.logger.warning("The AEDT executable path not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
@@ -1825,34 +1818,39 @@ class Desktop(object):
         destination_reg = os.path.join(project_path, "Job_settings.areg")
         if not setting_file:
             setting_file = os.path.join(path_file, "misc", "Job_Settings.areg")
-        shutil.copy(setting_file, destination_reg)
+        if os.path.exists(setting_file):
+            f1 = open_file(destination_reg, "w")
+            with open_file(setting_file) as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "\\	$begin" == line[:8]:
+                        lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
+                        f1.write(lin)
+                    elif "\\	$end" == line[:6]:
+                        lin = "\\	$end \\'{}\\'\\\n".format(clustername)
+                        f1.write(lin)
+                    elif "NumCores=" in line:
+                        lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
+                        f1.write(lin)
+                    elif "NumNodes=1" in line:
+                        lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                        f1.write(lin)
+                    elif "ProductPath" in line:
+                        lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
+                        f1.write(lin)
+                    elif "WaitForLicense" in line:
+                        lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                        f1.write(lin)
+                    else:
+                        f1.write(line)
+            f1.close()
+        else:
+            self.logger.warning("Setting file not found on client machine. Considering it as server path.")
+            destination_reg = setting_file
 
-        f1 = open_file(destination_reg, "w")
-        with open_file(setting_file) as f:
-            lines = f.readlines()
-            for line in lines:
-                if "\\	$begin" == line[:8]:
-                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "\\	$end" == line[:6]:
-                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "NumCores=" in line:
-                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
-                    f1.write(lin)
-                elif "NumNodes=1" in line:
-                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
-                    f1.write(lin)
-                elif "ProductPath" in line:
-                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
-                    f1.write(lin)
-                elif "WaitForLicense" in line:
-                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
-                    f1.write(lin)
-                else:
-                    f1.write(line)
-        f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+        job = self.odesktop.SubmitJob(destination_reg, project_file)
+        self.logger.info("Job submitted: {}".format(str(job)))
+        return job
 
     @pyaedt_function_handler()
     def submit_ansys_cloud_job(
