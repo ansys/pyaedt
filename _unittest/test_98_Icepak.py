@@ -106,11 +106,13 @@ class TestClass:
         cmp.power_filter = "4mW"
         cmp.type_filters = "Resistors"
         cmp.type_filters = "Register"  # should not be set
+        cmp.type_filters = "Inductors"
         if self.aedtapp.settings.aedt_version >= "2024.2":
             cmp.footprint_filter = "0.5mm2"
         f = cmp.filters
         assert len(f.keys()) >= 4  # 5 if version 2024.2
-        assert f["Type"]["Resistors"]
+        assert f["Type"]["Inductors"]
+        assert cmp.set_board_settings()
         assert not cmp.set_board_settings("Polygon")
         assert not cmp.set_board_settings("Bounding Domain")
         assert cmp2.set_board_settings("Polygon", "outline:poly_0")
