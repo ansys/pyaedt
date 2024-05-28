@@ -3,31 +3,39 @@ import os
 import sys
 
 import pyaedt
-from pyaedt import Circuit
-from pyaedt import Desktop
-from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import read_toml
+import pyaedt.workflows
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_test
 
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+test_dict = is_test()
 
-with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
-    proj = d.active_project()
-    des = d.active_design()
-    projname = proj.GetName()
-    if des.GetDesignType() in ["Twin Builder"]:
-        desname = des.GetName().split(";")[1]
-        tb = TwinBuilder(designname=desname, projectname=projname)
-    else:
-        d.logger.error("An active TwinBuilder Design is needed.")
+
+def main():
+    app = pyaedt.Desktop(
+        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+    )
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+
+    if active_design.GetDesignType() in ["Twin Builder"]:
+        design_name = active_design.GetName().split(";")[1]
+        tb = pyaedt.TwinBuilder(designname=design_name, projectname=project_name)
+    else:  # pragma: no cover
+        app.logger.error("An active TwinBuilder Design is needed.")
         sys.exit()
+
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
-    cir = Circuit(designname=tb.design_name + "_Translated")
+    cir = pyaedt.Circuit(designname=tb.design_name + "_Translated")
     from pyaedt.generic.constants import unit_converter
 
     pins_unconnected = []
@@ -102,3 +110,10 @@ with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=v
             if pin.net == "":
                 offsety = [-i for i in cpms[1]]
                 cir.modeler.move(cpms[0], offsety)
+
+    if not test_dict["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+
+
+if __name__ == "__main__":
+    main()

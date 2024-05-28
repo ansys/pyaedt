@@ -24,3 +24,4 @@ import pyaedt.workflows.hfss
 import pyaedt.workflows.hfss3dlayout
 import pyaedt.workflows.project
 import pyaedt.workflows.templates
+import pyaedt.workflows.twinbuilder

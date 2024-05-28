@@ -1,3 +1,5 @@
+import shutil
+
 import pytest
 import json
 import os
@@ -12,6 +14,7 @@ import pyaedt.workflows
 
 push_project = "push_excitation"
 export_3d_project = "export"
+twinbuilder_circuit = "twin_circuit"
 
 test_subfolder = "T45"
 
@@ -163,13 +166,15 @@ class TestClass:
         assert len(aedtapp.modeler.object_list) == 7
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_06_project_import_stl(self, add_app):
+    def test_06_project_import_stl(self, add_app, local_scratch):
         aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_stl")
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
 
+        file_path = shutil.copy(os.path.join(solver_local_path, "example_models", test_subfolder, "box.stl"),
+                                os.path.join(local_scratch.path, "box.stl"))
         test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "sphere.stl")
+            "file_path": file_path
         }
         os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
 
@@ -178,4 +183,21 @@ class TestClass:
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE).wait()
         assert len(aedtapp.modeler.object_list) == 1
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_07_twinbuilder_convert_circuit(self, add_app):
+        aedtapp = add_app(application=pyaedt.TwinBuilder,
+                          project_name=twinbuilder_circuit,
+                          subfolder=test_subfolder)
+
+        script_path = os.path.join(pyaedt.workflows.twinbuilder.__path__[0], "convert_to_circuit.py")
+
+        os.environ["PYAEDT_TEST_CONFIG"] = "1"
+
+        subprocess.Popen([sys.executable, script_path],
+                         env=os.environ.copy(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).wait()
+        circuit = pyaedt.Circuit()
+        assert len(circuit.modeler.schematic.components) == 3
         aedtapp.close_project(aedtapp.project_name)
