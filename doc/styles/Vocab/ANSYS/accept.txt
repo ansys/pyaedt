@@ -12,6 +12,7 @@ autosave
 busbar
 busbars
 Bz
+checkin
 [Cc]ircuit
 codecov
 [Cc]om
