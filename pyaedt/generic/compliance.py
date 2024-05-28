@@ -245,7 +245,7 @@ class VirtualCompliance:
 
     @property
     def parameters(self):
-        """Parameters available in the Virtual complaince.
+        """Parameters available in the Virtual compliance.
 
         Returns
         -------
