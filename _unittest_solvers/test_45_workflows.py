@@ -54,7 +54,7 @@ class TestClass:
         # Correct choice
         test_config = {
             "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
-            "choice": "Port1:1"
+            "choice": "1:1"
         }
         os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
 
