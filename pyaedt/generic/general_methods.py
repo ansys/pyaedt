@@ -1471,13 +1471,15 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time_vals, value):  # pragma: no cover
+def compute_fft(time_vals, value, window=None):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
     ----------
     time_vals : `pandas.Series`
     value : `pandas.Series`
+    window : str, optional
+        Fft window. Options are "hamming", "hanning", "blackman", "bartlett".
 
     Returns
     -------
@@ -1492,10 +1494,24 @@ def compute_fft(time_vals, value):  # pragma: no cover
 
     deltaT = time_vals[-1] - time_vals[0]
     num_points = len(time_vals)
-    valueFFT = np.fft.fft(value, num_points)
+    win = None
+    if window:
+
+        if window == "hamming":
+            win = np.hamming(num_points)
+        elif window == "hanning":
+            win = np.hanning(num_points)
+        elif window == "bartlett":
+            win = np.bartlett(num_points)
+        elif window == "blackman":
+            win = np.blackman(num_points)
+    if win is not None:
+        valueFFT = np.fft.fft(value * win, num_points)
+    else:
+        valueFFT = np.fft.fft(value, num_points)
     Npoints = int(len(valueFFT) / 2)
     valueFFT = valueFFT[1 : Npoints + 1]
-    valueFFT = valueFFT / len(valueFFT)
+    valueFFT = 2 * valueFFT / len(valueFFT)
     n = np.arange(num_points)
     freq = n / deltaT
     return freq, valueFFT
@@ -1577,6 +1593,7 @@ def parse_excitation_file(
     data_format="Power",
     encoding="utf-8",
     out_mag="Voltage",
+    window="hamming",
 ):
     """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
@@ -1598,6 +1615,8 @@ def parse_excitation_file(
         Csv file encoding.
     out_mag : str, optional
         Output magnitude format. It can be `"Voltage"` or `"Power"` depending on Hfss solution.
+    window : str, optional
+        Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
     Returns
     -------
@@ -1613,7 +1632,7 @@ def parse_excitation_file(
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
-        freq, fval = compute_fft(time, val)
+        freq, fval = compute_fft(time, val, window)
 
         if data_format.lower() == "current":
             if out_mag == "Voltage":
