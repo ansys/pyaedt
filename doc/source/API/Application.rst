@@ -3,7 +3,7 @@ Application and solvers
 The PyAEDT API includes classes for different applications available in Ansys Electronics Desktop (AEDT).
 You must initialize AEDT to get access to all PyAEDT modules and methods.
 
-.. image:: ../Resources/aedt_2.webp
+.. image:: ../Resources/aedt_2.png
   :width: 800
   :alt: Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
 

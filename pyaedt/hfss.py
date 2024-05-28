@@ -3596,6 +3596,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         impedance=50,
         data_format="Power",
         encoding="utf-8",
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -3608,23 +3609,78 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         file_name : str
             Full name of the input file.
         is_time_domain : bool, optional
-            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+            Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
-            Scaling factor for x axis.
+            Scaling factor for the x axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         y_scale : float, optional
-            Scaling factor for y axis.
+            Scaling factor for the y axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
-            Either `"Power"`, `"Current"` or `"Voltage"`.
+            Data format. Options are ``"Current"``, ``"Power"``, and ``"Voltage"``. This
+            argument is ignored if the algoritmm identifies the format from the
+            file header.
         encoding : str, optional
-            Csv file encoding.
-
+            CSV file encoding.
+        window : str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
         bool
         """
+
+        def find_scale(data, header_line):
+            for td in data.keys():
+                if td in header_line:
+                    return data[td]
+            return None
+
+        with open(file_name, "r") as f:
+            header = f.readlines()[0]
+            time_data = {"[ps]": 1e-12, "[ns]": 1e-9, "[us]": 1e-6, "[ms]": 1e-3, "[s]": 1}
+            curva_data_V = {
+                "[nV]": 1e-9,
+                "[pV]": 1e-12,
+                "[uV]": 1e-6,
+                "[mV]": 1e-3,
+                "[V]": 1,
+                "[kV]": 1e3,
+            }
+            curva_data_W = {
+                "[nW]": 1e-9,
+                "[pW]": 1e-12,
+                "[uW]": 1e-6,
+                "[mW]": 1e-3,
+                "[W]": 1,
+                "[kW]": 1e3,
+            }
+            curva_data_A = {
+                "[nA]": 1e-9,
+                "[pA]": 1e-12,
+                "[uA]": 1e-6,
+                "[mA]": 1e-3,
+                "[A]": 1,
+                "[kA]": 1e3,
+            }
+            scale = find_scale(time_data, header)
+            x_scale = scale if scale else x_scale
+            scale = find_scale(curva_data_V, header)
+            if scale:
+                y_scale = scale
+                data_format = "Voltage"
+            else:
+                scale = find_scale(curva_data_W, header)
+                if scale:
+                    y_scale = scale
+                    data_format = "Power"
+                else:
+                    scale = find_scale(curva_data_A, header)
+                    if scale:
+                        y_scale = scale
+                        data_format = "Current"
         if self.solution_type == "Modal":
             out = "Power"
         else:
@@ -3638,6 +3694,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
         ds_name_mag = "ds_" + assignment.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + assignment.replace(":", "_mode_") + "_Angle"

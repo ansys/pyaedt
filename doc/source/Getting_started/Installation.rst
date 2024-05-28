@@ -19,7 +19,7 @@ using the CPython interpreter included in the AEDT installation.
 
 In order to do that you can:
 
-- Download the following file: :download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
+- Download the following file: :download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`
 
 - Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
 
@@ -33,35 +33,35 @@ In order to do that you can:
     Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
     and higher requires the Python 3.10 wheelhouse.
 
-.. image:: ../Resources/wheelhouse_installation.webp
+.. image:: ../Resources/wheelhouse_installation.png
   :width: 800
   :alt: PyAEDT run script
 
 Starting from 2023R2, buttons are available in the Automation Tab as in the example below.
 
-.. image:: ../Resources/toolkits_ribbon.webp
+.. image:: ../Resources/toolkits_ribbon.png
   :width: 800
   :alt: PyAEDT toolkit buttons available in AEDT
 
 
-Toolkit Manager
-~~~~~~~~~~~~~~~
-The user can install or uninstall automated workflows using the toolkit manager.
+Extension manager
+~~~~~~~~~~~~~~~~~
+The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 
 - Custom PyAEDT scripts.
 
-- Internal PyAEDT scripts. Existing workflows in the PyAEDT library.
+- Existing workflows in the PyAEDT library.
 
-- Open source PyAEDT toolkits. Open source PyAEDT toolkits following the `common library <https://aedt.common.toolkit.docs.pyansys.com/>`_ standard.
+- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
 
-.. image:: ../Resources/toolkit_manager_1.webp
+.. image:: ../Resources/toolkit_manager_1.png
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
 The user can select the AEDT application to install the specific workflow.
 
-.. image:: ../Resources/toolkit_manager_2.webp
+.. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 

@@ -113,7 +113,10 @@ class BoundaryCommon(PropsManager):
         except Exception:
             pass
         try:
-            if "MotionSetupList" in self._app.design_properties["ModelSetup"]:
+            if (
+                "ModelSetup" in self._app.design_properties
+                and "MotionSetupList" in self._app.design_properties["ModelSetup"]
+            ):
                 motion_list = "MotionSetupList"
                 setup = "ModelSetup"
                 # check moving part
@@ -325,6 +328,32 @@ class NativeComponentObject(BoundaryCommon, object):
                 del self._app.modeler.user_defined_components[self.name]
                 self._app.modeler.cleanup_objects()
         return True
+
+
+class NativeComponentPCB(NativeComponentObject, object):
+    """Manages Native Component PCB data and execution.
+
+    Parameters
+    ----------
+    app : object
+        AEDT application from the ``pyaedt.application`` class.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
+    Examples
+    --------
+    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
+    >>> from pyaedt import Icepak
+    >>> ipk = Icepak(solution_type="SBR+")
+    >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
+    """
+
+    def __init__(self, app, component_type, component_name, props):
+        NativeComponentObject.__init__(self, app, component_type, component_name, props)
 
 
 class BoundaryObject(BoundaryCommon, object):
@@ -1819,6 +1848,15 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             child_object = self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
         if child_object:
             return BinaryTreeNode(self.name, child_object, False)
+
+        if "Boundaries" in self._app.odesign.GetChildNames():
+            cc = self._app.odesign.GetChildObject("Boundaries")
+            if self.name in cc.GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+            elif self.name in self._app.odesign.GetChildObject("Boundaries").GetChildNames():
+                child_object = self._app.odesign.GetChildObject("Boundaries").GetChildObject(self.name)
+            if child_object:
+                return BinaryTreeNode(self.name, child_object, False)
         return False
 
     @property
