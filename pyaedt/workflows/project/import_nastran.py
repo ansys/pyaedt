@@ -16,20 +16,26 @@ from tkinter import ttk
 import PIL.Image
 import PIL.ImageTk
 
-from pyaedt import Desktop
+import pyaedt
 from pyaedt import get_pyaedt_app
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_test
 
 decimate = 0.0
 
 lightweight = False
 file_path = ""
 
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+test_dict = is_test()
 
-def browse_nastran():
+
+def browse_nastran():  # pragma: no cover
     # Function for opening the
     # file explorer window
 
@@ -102,39 +108,43 @@ def browse_nastran():
     mainloop()
 
 
-browse_nastran()
+if not test_dict["is_test"]:  # pragma: no cover
+    browse_nastran()
+else:
+    file_path = test_dict["file_path"]
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
 
-if os.path.exists(file_path):
-    with Desktop(
-        new_desktop_session=False,
-        close_on_exit=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-    ) as d:
-        proj = d.active_project()
-        des = d.active_design()
-        projname = proj.GetName()
-        desname = des.GetName()
-        app = get_pyaedt_app(projname, desname)
+def main():
+    if os.path.exists(file_path):
+        app = pyaedt.Desktop(
+            new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+        )
+
+        active_project = app.active_project()
+        active_design = app.active_design()
+
+        project_name = active_project.GetName()
+        design_name = active_design.GetName()
+
+        aedtapp = get_pyaedt_app(project_name, design_name)
+
         if file_path.endswith(".nas"):
-            app.modeler.import_nastran(file_path, import_as_light_weight=lightweight, decimation=decimate)
+            aedtapp.modeler.import_nastran(file_path, import_as_light_weight=lightweight, decimation=decimate)
         else:
             from pyaedt.modules.solutions import simplify_stl
 
             outfile = simplify_stl(file_path, decimation=decimate, aggressiveness=5)
-            app.modeler.import_3d_cad(outfile, healing=False, create_lightweigth_part=lightweight)
-        d.logger.info("Nastran imported correctly.")
-else:
-    with Desktop(
-        new_desktop_session=False,
-        close_on_exit=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-    ) as d:
-        d.odesktop.AddMessage("", "", 3, "Wrong file selected. Select a .nas file")
+            aedtapp.modeler.import_3d_cad(outfile, healing=False, create_lightweigth_part=lightweight)
+        app.logger.info("Geometry imported correctly.")
+    else:
+        app = pyaedt.Desktop(
+            new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+        )
+        app.logger.debug("Wrong file selected. Select a .nas or .stl file")
+
+    if not test_dict["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+
+
+if __name__ == "__main__":
+    main()

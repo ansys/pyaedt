@@ -133,3 +133,49 @@ class TestClass:
                          stderr=subprocess.PIPE).wait()
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
         aedtapp.close_project(aedtapp.project_name)
+
+    def test_05_project_import_nastran(self, add_app):
+        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_nastran")
+
+        script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
+
+        # Non existing file
+        test_config = {
+            "file_path": os.path.join(local_path, "example_models", "T20", "test_cad_invented.nas")
+        }
+        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+
+        subprocess.Popen([sys.executable, script_path],
+                         env=os.environ.copy(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).wait()
+        assert len(aedtapp.modeler.object_list) == 0
+
+        test_config = {
+            "file_path": os.path.join(local_path, "example_models", "T20", "test_cad.nas")
+        }
+        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+
+        subprocess.Popen([sys.executable, script_path],
+                         env=os.environ.copy(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).wait()
+        assert len(aedtapp.modeler.object_list) == 7
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_06_project_import_stl(self, add_app):
+        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_stl")
+
+        script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
+
+        test_config = {
+            "file_path": os.path.join(local_path, "example_models", "T20", "sphere.stl")
+        }
+        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+
+        subprocess.Popen([sys.executable, script_path],
+                         env=os.environ.copy(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).wait()
+        assert len(aedtapp.modeler.object_list) == 1
+        aedtapp.close_project(aedtapp.project_name)
