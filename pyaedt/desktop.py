@@ -1754,20 +1754,29 @@ class Desktop(object):
         Parameters
         ----------
         project_file : str
-            Full path to the project.
+            Full path to the project. The path should be visible from the server where the
+            simulation will run.
+            If the client path is used then the
+            mapping between the client and server path must be specified in the `setting_file``.
         clustername : str
             Name of the cluster to submit the job to.
         aedt_full_exe_path : str, optional
-            Full path to the AEDT executable file. The default is ``None``, in which
-            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used.
+            Full path to the AEDT executable file on the server. The default is ``None``, in which
+            case ``"/clustername/AnsysEM/AnsysEM2x.x/Win64/ansysedt.exe"`` is used. On linux
+            this path should point to the Linux executable ``"ansysedt"``.
         numnodes : int, optional
             Number of nodes. The default is ``1``.
         numcores : int, optional
             Number of cores. The default is ``32``.
         wait_for_license : bool, optional
-             Whether to wait for the license to be validated. The default is ``True``.
+             Whether to wait for a license to become available. The default is ``True``.
         setting_file : str, optional
-            Name of the file to use as a template. The default value is ``None``.
+            Name of the "*.areg" file to use as a template. The default value
+            is ``None`` in which case a default template will be used.
+            If ``setting_file`` is passed it can be located either on the client or server.
+            If the "*.areg" file is on the client information from ``numcores`` and ``numnodes``
+            will be added. If the "*.areg" file is on the server it
+            will be applied without modifications.
 
         Returns
         -------
@@ -1801,8 +1810,7 @@ class Desktop(object):
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("AEDT shared path does not exist. Provide a full path.")
-                return False
+                self.logger.warning("The AEDT executable path not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
@@ -1810,34 +1818,39 @@ class Desktop(object):
         destination_reg = os.path.join(project_path, "Job_settings.areg")
         if not setting_file:
             setting_file = os.path.join(path_file, "misc", "Job_Settings.areg")
-        shutil.copy(setting_file, destination_reg)
+        if os.path.exists(setting_file):
+            f1 = open_file(destination_reg, "w")
+            with open_file(setting_file) as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "\\	$begin" == line[:8]:
+                        lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
+                        f1.write(lin)
+                    elif "\\	$end" == line[:6]:
+                        lin = "\\	$end \\'{}\\'\\\n".format(clustername)
+                        f1.write(lin)
+                    elif "NumCores=" in line:
+                        lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
+                        f1.write(lin)
+                    elif "NumNodes=1" in line:
+                        lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
+                        f1.write(lin)
+                    elif "ProductPath" in line:
+                        lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
+                        f1.write(lin)
+                    elif "WaitForLicense" in line:
+                        lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
+                        f1.write(lin)
+                    else:
+                        f1.write(line)
+            f1.close()
+        else:
+            self.logger.warning("Setting file not found on client machine. Considering it as server path.")
+            destination_reg = setting_file
 
-        f1 = open_file(destination_reg, "w")
-        with open_file(setting_file) as f:
-            lines = f.readlines()
-            for line in lines:
-                if "\\	$begin" == line[:8]:
-                    lin = "\\	$begin \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "\\	$end" == line[:6]:
-                    lin = "\\	$end \\'{}\\'\\\n".format(clustername)
-                    f1.write(lin)
-                elif "NumCores=" in line:
-                    lin = "\\	\\	\\	\\	NumCores={}\\\n".format(numcores)
-                    f1.write(lin)
-                elif "NumNodes=1" in line:
-                    lin = "\\	\\	\\	\\	NumNodes={}\\\n".format(numnodes)
-                    f1.write(lin)
-                elif "ProductPath" in line:
-                    lin = "\\	\\	ProductPath =\\'{}\\'\\\n".format(aedt_full_exe_path)
-                    f1.write(lin)
-                elif "WaitForLicense" in line:
-                    lin = "\\	\\	WaitForLicense={}\\\n".format(str(wait_for_license).lower())
-                    f1.write(lin)
-                else:
-                    f1.write(line)
-        f1.close()
-        return self.odesktop.SubmitJob(os.path.join(project_path, "Job_settings.areg"), project_file)
+        job = self.odesktop.SubmitJob(destination_reg, project_file)
+        self.logger.info("Job submitted: {}".format(str(job)))
+        return job
 
     @pyaedt_function_handler()
     def submit_ansys_cloud_job(
