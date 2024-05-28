@@ -22,6 +22,7 @@
 
 """Miscellaneous Methods for PyAEDT workflows."""
 
+import json
 import os
 
 from pyaedt.misc import current_version
@@ -57,3 +58,14 @@ def is_student():
     if "PYAEDT_STUDENT_VERSION" in os.environ:
         student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
     return student_version
+
+
+def is_test():
+    """Get if the workflow is a test from environment variable."""
+    test = {"is_test": False}
+    if "PYAEDT_TEST_CONFIG" in os.environ:
+        test["is_test"] = True
+        extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
+        if isinstance(extra_vars, dict):
+            test = {**test, **extra_vars}
+    return test

@@ -19,3 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+import pyaedt.workflows.hfss
+import pyaedt.workflows.hfss3dlayout
+import pyaedt.workflows.templates

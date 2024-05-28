@@ -16,18 +16,18 @@ import PIL.Image
 import PIL.ImageTk
 
 import pyaedt
-from pyaedt import Desktop
 from pyaedt import Hfss
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_test
 
 choice = ""
 file_path = ""
 
 
-def browse_port(port_selection):
+def browse_port(port_selection):  # pragma: no cover
     # Function for opening the
     # file explorer window
 
@@ -53,11 +53,9 @@ def browse_port(port_selection):
     label = Label(master, textvariable=var)
     var.set("Choose a port:")
     label.grid(row=0, column=0, pady=10)
-    # label.pack(pady=10)
     combo = Combobox(master, width=30)  # Set the width of the combobox
     combo["values"] = port_selection
     combo.current(0)
-    # combo.pack(pady=10)
     combo.grid(row=0, column=1, pady=10, padx=5)
     combo.focus_set()
     var2 = StringVar()
@@ -65,7 +63,6 @@ def browse_port(port_selection):
     var2.set("Browse file:")
     label2.grid(row=1, column=0, pady=10)
     text = Text(master, width=50, height=1)
-    # text.pack(pady=10)
     text.grid(row=1, column=1, pady=10, padx=5)
 
     def browseFiles():
@@ -91,7 +88,6 @@ def browse_port(port_selection):
         return True
 
     b = Button(master, text="Ok", width=40, command=callback)
-    # b.pack(pady=10)
     b.grid(row=2, column=1, pady=10)
 
     mainloop()
@@ -100,20 +96,26 @@ def browse_port(port_selection):
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
+test_dict = is_test()
 
-with Desktop(
-    new_desktop_session=False,
-    close_on_exit=False,
-    specified_version=version,
-    port=port,
-    aedt_process_id=aedt_process_id,
-) as d:
+
+def main():
+    d = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
+
     proj = d.active_project()
     des = d.active_design()
+
     projname = proj.GetName()
     desname = des.GetName()
+
     app = Hfss(projname, desname)
-    browse_port(port_selection=app.excitations)
+
+    if not test_dict["is_test"]:
+        browse_port(port_selection=app.excitations)
+    else:
+        choice = test_dict["choice"]
+        file_path = test_dict["file_path"]
+
     if choice:
         app.edit_source_from_file(
             choice,
@@ -123,3 +125,10 @@ with Desktop(
         d.logger.info("Excitation assigned correctly.")
     else:
         d.logger.error("Failed to select a port.")
+
+    if not is_test:  # pragma: no cover
+        d.release_desktop(False, False)
+
+
+if __name__ == "__main__":
+    main()

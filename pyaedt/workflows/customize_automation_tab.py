@@ -90,7 +90,7 @@ def add_automation_tab(
     else:
         try:
             tree = ET.parse(tab_config_file_path)  # nosec
-        except ParseError as e:
+        except ParseError as e:  # pragma: no cover
             warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
             return
         root = tree.getroot()
@@ -107,7 +107,7 @@ def add_automation_tab(
         panel_element = ET.SubElement(root, "panel", label=panel)
 
     buttons = panel_element.findall("./button")
-    if buttons:
+    if buttons:  # pragma: no cover
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
             # Remove previously existing PyAEDT panel and update with newer one.
@@ -143,57 +143,6 @@ def add_automation_tab(
 
     create_xml_tab(root, tab_config_file_path)
     return tab_config_file_path
-
-
-def remove_automation_tab(name, lib_dir, panel="Panel_PyAEDT_Extensions"):
-    """Remove automation tab in AEDT.
-
-    Parameters
-    ----------
-    name : str
-        Toolkit name.
-    lib_dir : str
-        Path to the library directory.
-    panel : str, optional
-        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
-
-    Returns
-    -------
-    float
-        Result of the dot product.
-
-    """
-
-    tab_config_file_path = os.path.join(lib_dir, "TabConfig.xml")
-    if not os.path.isfile(tab_config_file_path):
-        return True
-    try:
-        tree = ET.parse(tab_config_file_path)  # nosec
-    except ParseError as e:
-        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-        return
-    root = tree.getroot()
-
-    panels = root.findall("./panel")
-    if panels:
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        if panel in panel_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            panel_element = [panel_element for panel_element in panels if panel.attrib["label"] == panel][0]
-        else:
-            panel_element = ET.SubElement(root, "panel", label=panel)
-    else:
-        panel_element = ET.SubElement(root, "panel", label=panel)
-
-    buttons = panel_element.findall("./button")
-    if buttons:
-        button_names = [button.attrib["label"] for button in buttons]
-        if name in button_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel_element.remove(b)
-
-    create_xml_tab(root, tab_config_file_path)
 
 
 def create_xml_tab(root, output_file):

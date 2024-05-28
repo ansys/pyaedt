@@ -27,18 +27,30 @@ from pyaedt import get_pyaedt_app
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_test
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
+test_dict = is_test()
 
-app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
 
-active_project = app.odesktop.GetActiveProject()
-active_design = active_project.GetActiveDesign()
+def main():
+    app = pyaedt.Desktop(
+        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+    )
 
-aedtapp = get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+    active_project = app.active_project()
+    active_design = app.active_design()
 
-# Your PyAEDT script
+    aedtapp = get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
 
-app.release_desktop(False, False)
+    # Your PyAEDT script
+    aedtapp.modeler.create_sphere([0, 0, 0], 3)
+
+    if not test_dict["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+
+
+if __name__ == "__main__":
+    main()
