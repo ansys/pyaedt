@@ -18,8 +18,7 @@ test_subfolder = "T45"
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, desktop, local_scratch):
-        self.local_scratch = local_scratch
+    def init(self, desktop):
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
@@ -67,7 +66,7 @@ class TestClass:
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_export_3d_q3d(self, add_app, local_scratch):
+    def test_03_hfss3dlayout_export_3d_q3d(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
@@ -85,7 +84,7 @@ class TestClass:
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_export_3d_icepak(self, add_app, local_scratch):
+    def test_03_hfss3dlayout_export_3d_icepak(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
@@ -103,7 +102,7 @@ class TestClass:
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_export_3d_maxwell(self, add_app, local_scratch):
+    def test_03_hfss3dlayout_export_3d_maxwell(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
@@ -121,3 +120,16 @@ class TestClass:
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
         aedtapp.close_project(aedtapp.project_name)
 
+    def test_04_project_report(self, add_app):
+        aedtapp = add_app(application=pyaedt.Hfss3dLayout, project_name="workflow_pdf")
+
+        script_path = os.path.join(pyaedt.workflows.project.__path__[0], "create_report.py")
+
+        os.environ["PYAEDT_TEST_CONFIG"] = "1"
+
+        subprocess.Popen([sys.executable, script_path],
+                         env=os.environ.copy(),
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).wait()
+        assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
+        aedtapp.close_project(aedtapp.project_name)
