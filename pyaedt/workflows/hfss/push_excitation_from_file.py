@@ -100,34 +100,36 @@ test_dict = is_test()
 
 
 def main():
-    d = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
+    app = pyaedt.Desktop(
+        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+    )
 
-    proj = d.active_project()
-    des = d.active_design()
+    active_project = app.active_project()
+    active_design = app.active_design()
 
-    projname = proj.GetName()
-    desname = des.GetName()
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
 
-    app = Hfss(projname, desname)
+    hfss = Hfss(project_name, design_name)
 
     if not test_dict["is_test"]:
-        browse_port(port_selection=app.excitations)
+        browse_port(port_selection=hfss.excitations)
     else:
         choice = test_dict["choice"]
         file_path = test_dict["file_path"]
 
     if choice:
-        app.edit_source_from_file(
+        hfss.edit_source_from_file(
             choice,
             file_path,
             is_time_domain=True,
         )
-        d.logger.info("Excitation assigned correctly.")
+        app.logger.info("Excitation assigned correctly.")
     else:
-        d.logger.error("Failed to select a port.")
+        app.logger.error("Failed to select a port.")
 
-    if not is_test:  # pragma: no cover
-        d.release_desktop(False, False)
+    if not test_dict["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
 
 
 if __name__ == "__main__":

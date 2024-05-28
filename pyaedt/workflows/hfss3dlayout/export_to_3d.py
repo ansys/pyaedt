@@ -16,16 +16,16 @@ import pyaedt.workflows.hfss3dlayout
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_test
 
 choice = "Export to HFSS"
 
-is_test = False
-if "PYAEDT_TEST_CONFIG" in os.environ:
-    is_test = True
-    extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
-    choice = extra_vars["choice"]
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+test_dict = is_test()
 
-if not is_test:  # pragma: no cover
+if not test_dict["is_test"]:  # pragma: no cover
     master = Tk()
 
     master.geometry("400x150")
@@ -66,29 +66,28 @@ if not is_test:  # pragma: no cover
 
     mainloop()
 
-suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
+else:
+    choice = test_dict["choice"]
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
+suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
 
 def main():
-    d = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
+    app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
 
-    active_project = d.active_project()
-    active_design = d.active_design()
+    active_project = app.active_project()
+    active_design = app.active_design()
 
-    projname = active_project.GetName()
+    project_name = active_project.GetName()
 
     if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
-        desname = active_design.GetName().split(";")[1]
+        design_name = active_design.GetName().split(";")[1]
     else:  # pragma: no cover
-        d.odesktop.AddMessage("", "", 3, "Hfss 3D Layout project is needed.")
-        d.release_desktop(False, False)
+        app.logger.debug("Hfss 3D Layout project is needed.")
+        app.release_desktop(False, False)
         raise Exception("Hfss 3D Layout project is needed.")
 
-    h3d = pyaedt.Hfss3dLayout(projectname=projname, designname=desname)
+    h3d = pyaedt.Hfss3dLayout(projectname=project_name, designname=design_name)
     setup = h3d.create_setup()
     suffix = suffixes[choice]
 
@@ -100,24 +99,27 @@ def main():
     h3d.delete_setup(setup.name)
 
     if choice == "Export to Q3D":
-        app = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        _ = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
     else:
-        app = pyaedt.Hfss(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
-        app2 = None
+        aedtapp = pyaedt.Hfss(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        aedtapp2 = None
         if choice == "Export to Maxwell 3D":
-            app2 = pyaedt.Maxwell3d(projectname=app.project_name)
+            aedtapp2 = pyaedt.Maxwell3d(projectname=aedtapp.project_name)
         elif choice == "Export to Icepak":
-            app2 = pyaedt.Icepak(projectname=app.project_name)
-        if app2:
-            app2.copy_solid_bodies_from(
-                app,
+            aedtapp2 = pyaedt.Icepak(projectname=aedtapp.project_name)
+        if aedtapp2:
+            aedtapp2.copy_solid_bodies_from(
+                aedtapp,
                 no_vacuum=False,
                 no_pec=False,
                 include_sheets=True,
             )
-            app2.delete_design(app.design_name)
-            app2.save_project()
-    d.logger.info("Project generated correctly.")
+            aedtapp2.delete_design(app.design_name)
+            aedtapp2.save_project()
+    app.logger.info("Project generated correctly.")
+
+    if not test_dict["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
 
 
 if __name__ == "__main__":
