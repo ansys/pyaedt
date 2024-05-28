@@ -79,6 +79,7 @@ class TestClass:
             resolution,
             custom_x_resolution=400,
             custom_y_resolution=500,
+            extent_type="Polygon",
         )
         assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
         assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
@@ -88,6 +89,10 @@ class TestClass:
         assert cmp2.override_component("FCHIP", False)
         assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
         assert cmp2.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
@@ -115,7 +120,6 @@ class TestClass:
         assert cmp.set_board_settings()
         assert not cmp.set_board_settings("Polygon")
         assert not cmp.set_board_settings("Bounding Domain")
-        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
         cmp.set_board_settings("Bounding Box")
         cmp.power_filter = None
         cmp.height_filter = None

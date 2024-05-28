@@ -7,6 +7,7 @@ from collections import OrderedDict
 import copy
 import re
 
+from pyaedt import Hfss3dLayout
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
@@ -370,6 +371,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
 
     @property
+    @pyaedt_function_handler()
     def footprint_filter(self):
         """Minimum component footprint for filtering."""
         if self._app.settings.aedt_version < "2024.2":
@@ -377,6 +379,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
+    @pyaedt_function_handler()
     @disable_auto_update
     def footprint_filter(self, minimum_footprint):
         """Set minimum component footprint for filtering.
@@ -398,11 +401,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    @pyaedt_function_handler()
     def power_filter(self):
         """Minimum component power for filtering."""
         return self.filters.get("Power", {}).get("Value", None)
 
     @power_filter.setter
+    @pyaedt_function_handler()
     @disable_auto_update
     def power_filter(self, minimum_power):
         """Set minimum component power for filtering.
@@ -421,11 +426,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    @pyaedt_function_handler()
     def type_filters(self):
         """Types of component that are filtered."""
         return self.filters.get("Types", None)
 
     @type_filters.setter
+    @pyaedt_function_handler()
     @disable_auto_update
     def type_filters(self, object_type):
         """Set types of component to filter.
@@ -451,11 +458,13 @@ class NativeComponentPCB(NativeComponentObject, object):
             self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    @pyaedt_function_handler()
     def height_filter(self):
         """Minimum component height for filtering."""
         return self.filters.get("Height", {}).get("Value", None)
 
     @height_filter.setter
+    @pyaedt_function_handler()
     @disable_auto_update
     def height_filter(self, minimum_height):
         """Set minimum component height for filtering and whether to filter 2D objects.
@@ -474,11 +483,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    @pyaedt_function_handler()
     def objects_2d_filter(self):
         """Whether 2d objects are filtered."""
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
+    @pyaedt_function_handler()
     @disable_auto_update
     def objects_2d_filter(self, filter):
         """Set whether 2d objects are filtered.
@@ -496,6 +507,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
+    @pyaedt_function_handler()
     def filters(self):
         """All active filters."""
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
@@ -520,6 +532,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return out_filters
 
     @property
+    @pyaedt_function_handler()
     def overridden_components(self):
         """All overridden components."""
         override_component = (
@@ -616,6 +629,28 @@ class NativeComponentPCB(NativeComponentObject, object):
         return True
 
     @pyaedt_function_handler()
+    def identify_extent_poly(self):
+        prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
+        if prj == "This Project*":
+            prj = self._app.project_name
+        layout = Hfss3dLayout(
+            projectname=prj, designname=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
+        )
+        layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
+        outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
+        if len(outlines) > 1:
+            self._app.logger.info(
+                "{} automatically selected as ``extent_polygon``, pass ``extent_polygon`` argument explixitly to select"
+                " a different one. Available choices are: {}".format(
+                    outlines[0].name, ", ".join([o.name for o in outlines])
+                )
+            )
+        elif len(outlines) == 0:
+            self._app.logger.error("No polygon found in the Outline layer.")
+            return False
+        return outlines[0].name
+
+    @pyaedt_function_handler()
     @disable_auto_update
     def set_board_settings(
         self, extent_type=None, extent_polygon=None, board_cutouts_material="air", via_holes_material="air"
@@ -653,13 +688,11 @@ class NativeComponentPCB(NativeComponentObject, object):
                 return False
             self.props["NativeComponentDefinitionProvider"]["ExtentsType"] = extent_type
             if extent_type == "Polygon":
-                if extent_polygon is not None:
-                    self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
-                else:
-                    self._app.logger.error(
-                        'If ``extent_type`` is ``"Polygon"``, then an argument for ``extent_polygon`` must be provided.'
-                    )
-                    return False
+                if extent_polygon is None:
+                    extent_polygon = self.identify_extent_poly()
+                    if not extent_polygon:
+                        return False
+                self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
         self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = board_cutouts_material
         self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = via_holes_material
         return True
