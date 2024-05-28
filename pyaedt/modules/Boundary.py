@@ -327,6 +327,19 @@ class NativeComponentObject(BoundaryCommon, object):
         return True
 
 
+def disable_auto_update(func):
+    def wrapper(self, *args, **kwargs):
+        auto_update = self.auto_update
+        self.auto_update = False
+        out = func(self, *args, **kwargs)
+        self.update()
+        self.auto_update = auto_update
+        if out is not None:
+            return out
+
+    return wrapper
+
+
 class NativeComponentPCB(NativeComponentObject, object):
     """Manages Native Component PCB data and execution.
 
@@ -361,6 +374,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("FootPrint", {}).get("Value", None)
 
     @footprint_filter.setter
+    @disable_auto_update
     def footprint_filter(self, minimum_footprint):
         """Set minimum component footprint for filtering.
 
@@ -369,6 +383,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
         """
+        self.auto_update = False
         if self._app.settings.aedt_version < "2024.2":
             return False
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -385,6 +400,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("Power", {}).get("Value", None)
 
     @power_filter.setter
+    @disable_auto_update
     def power_filter(self, minimum_power):
         """Set minimum component power for filtering.
 
@@ -407,6 +423,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("Types", None)
 
     @type_filters.setter
+    @disable_auto_update
     def type_filters(self, object_type):
         """Set types of component to filter.
 
@@ -421,13 +438,14 @@ class NativeComponentPCB(NativeComponentObject, object):
             self._app.logger.error(
                 "Accepted elements of the list are: {}".format(", ".join(list(self._filter_map2name.values())))
             )
-        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
-        map2arg = {v: k for k, v in self._filter_map2name.items()}
-        for f in self._filter_map2name.keys():
-            if f in new_filters:
-                new_filters.remove(f)
-        new_filters += [map2arg[o] for o in object_type]
-        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        else:
+            new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+            map2arg = {v: k for k, v in self._filter_map2name.items()}
+            for f in self._filter_map2name.keys():
+                if f in new_filters:
+                    new_filters.remove(f)
+            new_filters += [map2arg[o] for o in object_type]
+            self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     def height_filter(self):
@@ -435,6 +453,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("Height", {}).get("Value", None)
 
     @height_filter.setter
+    @disable_auto_update
     def height_filter(self, minimum_height):
         """Set minimum component height for filtering and whether to filter 2D objects.
 
@@ -457,6 +476,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
+    @disable_auto_update
     def objects_2d_filter(self, filter):
         """Set whether 2d objects are filtered.
 
@@ -504,6 +524,8 @@ class NativeComponentPCB(NativeComponentObject, object):
         )
         return {o["overrideName"]: o["overrideProps"] for o in override_component}
 
+    @pyaedt_function_handler()
+    @disable_auto_update
     def override_component(
         self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
     ):
@@ -558,6 +580,8 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["instanceOverridesMap"] = {"oneOverrideBlk": override_component}
         return True
 
+    @pyaedt_function_handler()
+    @disable_auto_update
     def set_parts(self, parts_choice, simplify_parts=False, surface_material="Steel-oxidised-surface"):
         """Set how to include PCB parts.
 
@@ -588,6 +612,8 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = surface_material
         return True
 
+    @pyaedt_function_handler()
+    @disable_auto_update
     def set_board_settings(
         self, extent_type=None, extent_polygon=None, board_cutouts_material="air", via_holes_material="air"
     ):
