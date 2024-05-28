@@ -25,13 +25,14 @@ class TestClass:
 
     def test_01_template(self, add_app):
         script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "toolkit_template.py")
-        app = add_app(application=pyaedt.Hfss)
+        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
         os.environ["PYAEDT_TEST_CONFIG"] = "1"
         subprocess.Popen([sys.executable, script_path],
                          env=os.environ.copy(),
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE).wait()
-        assert len(app.modeler.object_list) == 1
+        assert len(aedtapp.modeler.object_list) == 1
+        aedtapp.close_project(aedtapp.project_name)
 
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
@@ -64,16 +65,15 @@ class TestClass:
                          stderr=subprocess.PIPE).wait()
         aedtapp.save_project()
         assert aedtapp.design_datasets
+        aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_export_3d(self, add_app, local_scratch):
+    def test_03_export_3d_q3d(self, add_app, local_scratch):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
-        aedtapp.desktop_class.active_design(project_object=aedtapp.oproject, name=aedtapp.design_name)
 
         script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
 
-        # Q3D
         test_config = {
             "choice": "Export to Q3D"
         }
@@ -82,13 +82,42 @@ class TestClass:
         subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
 
         assert os.path.isfile(aedtapp.project_file[:-5] + "_Q3D.aedt")
+        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
+        aedtapp.close_project(aedtapp.project_name)
 
-        # Icepak
-        aedtapp.desktop_class.active_design(project_object=aedtapp.oproject, name=aedtapp.design_name)
+    def test_03_export_3d_icepak(self, add_app, local_scratch):
+        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+                          project_name=export_3d_project,
+                          subfolder=test_subfolder)
+
+        script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
+
         test_config = {
             "choice": "Export to Icepak"
         }
         os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
 
-        # export_to_3D
-        assert os.path.isfile(aedtapp.project_file[:-5] + "_Icepak.aedt")
+        subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
+
+        assert os.path.isfile(aedtapp.project_file[:-5] + "_IPK.aedt")
+        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_03_export_3d_maxwell(self, add_app, local_scratch):
+        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+                          project_name=export_3d_project,
+                          subfolder=test_subfolder)
+
+        script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
+
+        test_config = {
+            "choice": "Export to Maxwell 3D"
+        }
+        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+
+        subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
+
+        assert os.path.isfile(aedtapp.project_file[:-5] + "_M3D.aedt")
+        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
+        aedtapp.close_project(aedtapp.project_name)
+

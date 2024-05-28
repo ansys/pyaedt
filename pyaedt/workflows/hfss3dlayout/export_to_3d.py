@@ -98,6 +98,8 @@ def main():
 
     h3d.delete_setup(setup.name)
 
+    h3d.save_project()
+
     if choice == "Export to Q3D":
         _ = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
     else:
@@ -114,11 +116,11 @@ def main():
                 no_pec=False,
                 include_sheets=True,
             )
-            aedtapp2.delete_design(app.design_name)
+            aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
-    app.logger.info("Project generated correctly.")
 
     if not test_dict["is_test"]:  # pragma: no cover
+        app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
 
 
