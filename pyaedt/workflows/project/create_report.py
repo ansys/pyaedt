@@ -1,5 +1,25 @@
-# Generate pdf report
-# ~~~~~~~~~~~~~~~~~~~
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # Generate a pdf report with output of simulation.
 import os
 
@@ -7,19 +27,24 @@ import pyaedt
 from pyaedt import get_pyaedt_app
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
-from pyaedt.workflows.misc import is_test
+from pyaedt.workflows.misc import is_student
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
-test_dict = is_test()
+is_student = is_student()
 
 
-def main():
+def main(extension_args):
     app = pyaedt.Desktop(
-        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
     )
 
     active_project = app.active_project()
@@ -48,9 +73,10 @@ def main():
     out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
     aedtapp.logger.info(f"Report Generated. {out}")
 
-    if not test_dict["is_test"]:  # pragma: no cover
+    if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
 
 
 if __name__ == "__main__":
-    main()
+    args = get_arguments()
+    main(args)
