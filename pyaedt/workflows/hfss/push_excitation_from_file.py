@@ -197,5 +197,5 @@ if __name__ == "__main__":
             for arg in extension_arguments:
                 args[arg] = output[cont]
                 cont += 1
-    # Call backend
+
     main(args)

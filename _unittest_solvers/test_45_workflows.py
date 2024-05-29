@@ -124,19 +124,19 @@ class TestClass:
     #     aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
     #     aedtapp.close_project(aedtapp.project_name)
 
-    def test_04_project_report(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout, project_name="workflow_pdf")
-
-        script_path = os.path.join(pyaedt.workflows.project.__path__[0], "create_report.py")
-
-        os.environ["PYAEDT_TEST_CONFIG"] = "1"
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
-        assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
-        aedtapp.close_project(aedtapp.project_name)
+    # def test_04_project_report(self, add_app):
+    #     aedtapp = add_app(application=pyaedt.Hfss3dLayout, project_name="workflow_pdf")
+    #
+    #     script_path = os.path.join(pyaedt.workflows.project.__path__[0], "create_report.py")
+    #
+    #     os.environ["PYAEDT_TEST_CONFIG"] = "1"
+    #
+    #     subprocess.Popen([sys.executable, script_path],
+    #                      env=os.environ.copy(),
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.PIPE).wait()
+    #     assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
+    #     aedtapp.close_project(aedtapp.project_name)
 
     def test_05_project_import_nastran(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_nastran")

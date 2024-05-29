@@ -70,6 +70,9 @@ def get_arguments(args=None, description=""):
     # Arguments passed from environment variables
     if "PYAEDT_TEST_CONFIG" in os.environ:
         output_args["is_test"] = True
+        # Load default
+        output_args = {**output_args, **args}
+        # Load new values
         extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
         if isinstance(extra_vars, dict):
             output_args = {**output_args, **extra_vars}
@@ -77,10 +80,14 @@ def get_arguments(args=None, description=""):
     # Argument passed in the script call. It overwrites previous configuration.
     parsed_args = __parse_arguments(args, description)
     output_args["is_batch"] = False
-    if len(sys.argv) != 1:
+    if len(sys.argv) != 1:  # pragma: no cover
         output_args["is_batch"] = True
         for k, v in parsed_args.__dict__.items():
             if v is not None:
+                if isinstance(v, str) and v.lower() in ("true", "1"):
+                    v = True
+                elif isinstance(v, str) and v.lower() in ("false", "0"):
+                    v = False
                 output_args[k] = v
     return output_args
 

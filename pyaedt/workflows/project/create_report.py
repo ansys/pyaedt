@@ -37,6 +37,10 @@ version = get_aedt_version()
 aedt_process_id = get_process_id()
 is_student = is_student()
 
+# Extension batch arguments
+extension_arguments = None
+extension_description = "Create report"
+
 
 def main(extension_args):
     app = pyaedt.Desktop(
@@ -78,5 +82,5 @@ def main(extension_args):
 
 
 if __name__ == "__main__":
-    args = get_arguments()
+    args = get_arguments(extension_arguments, extension_description)
     main(args)
