@@ -1092,7 +1092,7 @@ class Modeler3D(Primitives3D):
             try:
                 # points = [nas_to_dict["Points"][id] for id in triangle]
                 points = [pp[i] for i in triangle]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 return
             fc = GeometryOperators.get_polygon_centroid(points)
             v1 = points[0]
@@ -1100,11 +1100,11 @@ class Modeler3D(Primitives3D):
             cv1 = GeometryOperators.v_points(fc, v1)
             cv2 = GeometryOperators.v_points(fc, v2)
             if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                n = [0, 0, 1]
+                n = [0, 0, 1]  # pragma: no cover
             elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [0, 1, 0]
+                n = [0, 1, 0]  # pragma: no cover
             elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [1, 0, 0]
+                n = [1, 0, 0]  # pragma: no cover
             else:
                 n = GeometryOperators.v_cross(cv1, cv2)
 
