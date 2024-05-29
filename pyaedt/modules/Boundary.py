@@ -429,7 +429,7 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def type_filters(self):
         """Types of component that are filtered."""
-        return self.filters.get("Types", None)
+        return self.filters.get("Types")
 
     @type_filters.setter
     @pyaedt_function_handler()
