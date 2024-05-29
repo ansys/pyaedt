@@ -404,7 +404,7 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def power_filter(self):
         """Minimum component power for filtering."""
-        return self.filters.get("Power", {}).get("Value", None)
+        return self.filters.get("Power", {}).get("Value")
 
     @power_filter.setter
     @pyaedt_function_handler()
