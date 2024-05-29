@@ -426,3 +426,9 @@ class TestClass:
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+    def test_19_assign_thin_conductor(self, add_app):
+        q3d = add_app(application=Q3d, project_name="thin", just_open=True)
+        box = q3d.modeler.create_box([1,1,1], [10,10,10])
+        assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
+        rect =  q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
+        assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
