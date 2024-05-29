@@ -1,7 +1,5 @@
 import os.path
 from tkinter import Button
-
-# import filedialog module
 from tkinter import END
 from tkinter import Label
 from tkinter import StringVar
@@ -19,18 +17,42 @@ import pyaedt
 from pyaedt import Hfss
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
-from pyaedt.workflows.misc import is_test
+from pyaedt.workflows.misc import is_student
 
-choice = ""
-file_path = ""
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+is_student = is_student()
+
+# Extension batch arguments
+extension_arguments = ["file_path", "choice"]
+extension_description = "Push excitation from file"
 
 
-def browse_port(port_selection):  # pragma: no cover
-    # Function for opening the
-    # file explorer window
+def frontend():  # pragma: no cover
+    # Get ports
+    app = pyaedt.Desktop(
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
 
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
+
+    hfss = Hfss(project_name, design_name)
+
+    port_selection = hfss.excitations
+
+    # Create UI
     master = Tk()
 
     master.geometry("700x150")
@@ -72,12 +94,9 @@ def browse_port(port_selection):  # pragma: no cover
             filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
         )
         text.insert(END, filename)
-        # # Change label contents
-        # return filename
 
     b1 = Button(master, text="...", width=10, command=browseFiles)
     b1.grid(row=3, column=0)
-    # b1.pack(pady=10)
     b1.grid(row=1, column=2, pady=10)
 
     def callback():
@@ -85,23 +104,30 @@ def browse_port(port_selection):  # pragma: no cover
         choice = combo.get()
         file_path = text.get("1.0", END).strip()
         master.destroy()
-        return True
 
     b = Button(master, text="Ok", width=40, command=callback)
     b.grid(row=2, column=1, pady=10)
 
     mainloop()
 
+    if not file_path or not os.path.isfile(file_path):
+        app.logger.error("File does not exist.")
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-test_dict = is_test()
+    if not choice:
+        app.logger.error("Excitation not found.")
+
+    hfss.release_desktop(False, False)
+
+    return file_path, choice
 
 
-def main():
+def backend(extension_args):
     app = pyaedt.Desktop(
-        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
     )
 
     active_project = app.active_project()
@@ -112,13 +138,12 @@ def main():
 
     hfss = Hfss(project_name, design_name)
 
-    if not test_dict["is_test"]:
-        browse_port(port_selection=hfss.excitations)
-    else:
-        choice = test_dict["choice"]
-        file_path = test_dict["file_path"]
+    choice = extension_args["choice"]
+    file_path = extension_args["file_path"]
 
-    if choice:
+    if not os.path.isfile(file_path):
+        app.logger.error("File does not exist.")
+    elif choice:
         hfss.edit_source_from_file(
             choice,
             file_path,
@@ -128,9 +153,21 @@ def main():
     else:
         app.logger.error("Failed to select a port.")
 
-    if not test_dict["is_test"]:  # pragma: no cover
+    if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
 
 
 if __name__ == "__main__":
-    main()
+    args = get_arguments(extension_arguments, extension_description)
+
+    if not args["is_test"]:  # pragma: no cover
+        output = []
+        if len(args.items()) == 1 or len(args.items()) - 1 != len(extension_arguments):
+            output = frontend()
+        if output:
+            cont = 0
+            for arg in extension_arguments:
+                args[arg] = output[cont]
+                cont += 1
+
+    backend(args)

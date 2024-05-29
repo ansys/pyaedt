@@ -22,6 +22,7 @@
 
 """Miscellaneous Methods for PyAEDT workflows."""
 
+import argparse
 import json
 import os
 
@@ -60,12 +61,29 @@ def is_student():
     return student_version
 
 
-def is_test():
-    """Get if the workflow is a test from environment variable."""
-    test = {"is_test": False}
+def get_arguments(args=None, description=""):
+    """Get extension arguments."""
+
+    output_args = {"is_test": False}
+
     if "PYAEDT_TEST_CONFIG" in os.environ:
-        test["is_test"] = True
+        output_args["is_test"] = True
         extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
         if isinstance(extra_vars, dict):
-            test = {**test, **extra_vars}
-    return test
+            output_args = {**output_args, **extra_vars}
+
+    parsed_args = __parse_arguments(args, description)
+    for k, v in parsed_args.__dict__.items():
+        if v is not None:
+            output_args[k] = v
+    return output_args
+
+
+def __parse_arguments(args=None, description=""):
+    """Parse arguments."""
+    parser = argparse.ArgumentParser(description=description)
+    if args:
+        for arg in args:
+            parser.add_argument(f"--{arg}", default=None)
+    parsed_args = parser.parse_args()
+    return parsed_args
