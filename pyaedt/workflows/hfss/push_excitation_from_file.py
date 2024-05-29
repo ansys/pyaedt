@@ -129,6 +129,9 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_args):
+    choice = extension_args["choice"]
+    file_path = extension_args["file_path"]
+
     app = pyaedt.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -144,9 +147,6 @@ def main(extension_args):
     design_name = active_design.GetName()
 
     hfss = Hfss(project_name, design_name)
-
-    choice = extension_args["choice"]
-    file_path = extension_args["file_path"]
 
     if not os.path.isfile(file_path):  # pragma: no cover
         app.logger.error("File does not exist.")

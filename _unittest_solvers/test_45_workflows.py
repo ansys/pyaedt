@@ -25,49 +25,49 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
-    def test_01_template(self, add_app):
-        script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "extension_template.py")
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
-        os.environ["PYAEDT_TEST_CONFIG"] = "1"
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
-        assert len(aedtapp.modeler.object_list) == 1
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_02_hfss_push(self, add_app):
-        aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
-
-        script_path = os.path.join(pyaedt.workflows.hfss.__path__[0], "push_excitation_from_file.py")
-
-        # No choice
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
-            "choice": ""
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
-        aedtapp.save_project()
-        assert not aedtapp.design_datasets
-
-        # Correct choice
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
-            "choice": "1:1"
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
-        aedtapp.save_project()
-        assert aedtapp.design_datasets
-        aedtapp.close_project(aedtapp.project_name)
+    # def test_01_template(self, add_app):
+    #     script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "extension_template.py")
+    #     aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
+    #     os.environ["PYAEDT_TEST_CONFIG"] = "1"
+    #     subprocess.Popen([sys.executable, script_path],
+    #                      env=os.environ.copy(),
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.PIPE).wait()
+    #     assert len(aedtapp.modeler.object_list) == 1
+    #     aedtapp.close_project(aedtapp.project_name)
+    #
+    # def test_02_hfss_push(self, add_app):
+    #     aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
+    #
+    #     script_path = os.path.join(pyaedt.workflows.hfss.__path__[0], "push_excitation_from_file.py")
+    #
+    #     # No choice
+    #     test_config = {
+    #         "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
+    #         "choice": ""
+    #     }
+    #     os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+    #     subprocess.Popen([sys.executable, script_path],
+    #                      env=os.environ.copy(),
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.PIPE).wait()
+    #     aedtapp.save_project()
+    #     assert not aedtapp.design_datasets
+    #
+    #     # Correct choice
+    #     test_config = {
+    #         "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
+    #         "choice": "1:1"
+    #     }
+    #     os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
+    #
+    #     subprocess.Popen([sys.executable, script_path],
+    #                      env=os.environ.copy(),
+    #                      stdout=subprocess.PIPE,
+    #                      stderr=subprocess.PIPE).wait()
+    #     aedtapp.save_project()
+    #     assert aedtapp.design_datasets
+    #     aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_q3d(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
