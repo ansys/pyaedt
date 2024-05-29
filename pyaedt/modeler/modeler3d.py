@@ -1124,7 +1124,7 @@ class Modeler3D(Primitives3D):
         f = open(output_stl, "w")
 
         def decimate(points_in, faces_in, stl_id):
-            fin = [[3] + i for i in faces_in]
+            fin = [[3] + list(i) for i in faces_in]
             mesh = pv.PolyData(points_in, faces=fin)
             new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
             points_out = list(new_mesh.points)
