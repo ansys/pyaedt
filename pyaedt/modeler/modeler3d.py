@@ -877,78 +877,7 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def import_nastran(
-        self,
-        file_path,
-        import_lines=True,
-        lines_thickness=0,
-        import_as_light_weight=False,
-        decimation=0,
-        group_parts=True,
-        enable_planar_merge="True",
-    ):
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
-        translated directly to AEDT format.
-
-        Parameters
-        ----------
-        file_path : str
-            Path to .nas file.
-        import_lines : bool, optional
-            Whether to import the lines or only triangles. Default is ``True``.
-        lines_thickness : float, optional
-            Whether to thicken lines after creation and it's default value.
-            Every line will be parametrized with a design variable called ``xsection_linename``.
-        import_as_light_weight : bool, optional
-            Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
-        decimation : float, optional
-            Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
-            this function tries to reduce the data set to 10% of its
-            original size and removes 90% of the input triangles.
-        group_parts : bool, optional
-            Whether to group imported parts by object ID. The default is ``True``.
-        enable_planar_merge : str, optional
-            Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
-            ``"Auto"`` will disable the planar merge if stl contains more than 50000 triangles.
-
-        Returns
-        -------
-        List of :class:`pyaedt.modeler.Object3d.Object3d`
-        """
-        autosave = (
-            True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
-        )
-        self._app.odesktop.EnableAutoSave(False)
-
-        def _write_solid_stl(triangle, pp):
-            try:
-                # points = [nas_to_dict["Points"][id] for id in triangle]
-                points = [pp[i] for i in triangle]
-            except KeyError:
-                return
-            fc = GeometryOperators.get_polygon_centroid(points)
-            v1 = points[0]
-            v2 = points[1]
-            cv1 = GeometryOperators.v_points(fc, v1)
-            cv2 = GeometryOperators.v_points(fc, v2)
-            if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                n = [0, 0, 1]
-            elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [0, 1, 0]
-            elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [1, 0, 0]
-            else:
-                n = GeometryOperators.v_cross(cv1, cv2)
-
-            normal = GeometryOperators.normalize_vector(n)
-            if normal:
-                f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                f.write("  outer loop\n")
-                f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                f.write("  endloop\n")
-                f.write(" endfacet\n")
+    def _parse_nastran(self, file_path):
 
         nas_to_dict = {"Points": [], "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
 
@@ -1155,104 +1084,209 @@ class Modeler3D(Primitives3D):
                         ]
 
         self.logger.info("File loaded")
-        objs_before = [i for i in self.object_names]
+        return nas_to_dict
 
-        if nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]:
-            self.logger.info("Creating STL file with detected faces")
-            output_stl = ""
-            enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
-            if nas_to_dict["Triangles"]:
-                output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
-                f = open(output_stl, "w")
+    @pyaedt_function_handler()
+    def _write_stl(self, nas_to_dict, decimation, enable_planar_merge):
+        def _write_solid_stl(triangle, pp):
+            try:
+                # points = [nas_to_dict["Points"][id] for id in triangle]
+                points = [pp[i] for i in triangle]
+            except KeyError:
+                return
+            fc = GeometryOperators.get_polygon_centroid(points)
+            v1 = points[0]
+            v2 = points[1]
+            cv1 = GeometryOperators.v_points(fc, v1)
+            cv2 = GeometryOperators.v_points(fc, v2)
+            if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                n = [0, 0, 1]
+            elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                n = [0, 1, 0]
+            elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                n = [1, 0, 0]
+            else:
+                n = GeometryOperators.v_cross(cv1, cv2)
 
-            def decimate(points_in, faces_in, stl_id):
-                fin = [[3] + i for i in faces_in]
-                mesh = pv.PolyData(points_in, faces=fin)
-                new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
-                points_out = list(new_mesh.points)
-                faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
-                self.logger.info(
-                    "Final decimation on object {}: {}%".format(
-                        stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
-                    )
+            normal = GeometryOperators.normalize_vector(n)
+            if normal:
+                f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                f.write("  outer loop\n")
+                f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                f.write("  endloop\n")
+                f.write(" endfacet\n")
+
+        self.logger.info("Creating STL file with detected faces")
+        enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
+        output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
+        f = open(output_stl, "w")
+
+        def decimate(points_in, faces_in, stl_id):
+            fin = [[3] + i for i in faces_in]
+            mesh = pv.PolyData(points_in, faces=fin)
+            new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
+            points_out = list(new_mesh.points)
+            faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
+            self.logger.info(
+                "Final decimation on object {}: {}%".format(
+                    stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
                 )
-                return points_out, faces_out
+            )
+            return points_out, faces_out
 
-            for tri_id, triangles in nas_to_dict["Triangles"].items():
+        for tri_id, triangles in nas_to_dict["Triangles"].items():
+            tri_out = triangles
+            p_out = nas_to_dict["Points"][::]
+            if decimation > 0 and len(triangles) > 20:
+                try:
+                    import pyvista as pv
+
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
+                except Exception:
+                    self.logger.error("Package pyvista is needed to perform model simplification.")
+                    self.logger.error("Please install it using pip.")
+            f.write("solid Sheet_{}\n".format(tri_id))
+            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
+                enable_stl_merge = False
+            for triangle in tri_out:
+                _write_solid_stl(triangle, p_out)
+            f.write("endsolid\n")
+
+        for solidid, solid_triangles in nas_to_dict["Solids"].items():
+            f.write("solid Solid_{}\n".format(solidid))
+            import pandas as pd
+
+            df = pd.Series(solid_triangles)
+            tri_out = df.drop_duplicates(keep=False).to_list()
+            p_out = nas_to_dict["Points"][::]
+            if decimation > 0 and len(solid_triangles) > 20:
+                try:
+
+                    import pyvista as pv
+
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
+                except Exception:
+                    self.logger.error("Package pyvista is needed to perform model simplification.")
+                    self.logger.error("Please install it using pip.")
+            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
+                enable_stl_merge = False
+            for triangle in tri_out:
+                _write_solid_stl(triangle, p_out)
+            f.write("endsolid\n")
+        f.close()
+        self.logger.info("STL file created")
+        return output_stl, enable_stl_merge
+
+    @pyaedt_function_handler()
+    def import_nastran(
+        self,
+        file_path,
+        import_lines=True,
+        lines_thickness=0,
+        import_as_light_weight=False,
+        decimation=0,
+        group_parts=True,
+        enable_planar_merge="True",
+        save_only_stl=False,
+        preview=False,
+    ):
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
+        translated directly to AEDT format.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to .nas file.
+        import_lines : bool, optional
+            Whether to import the lines or only triangles. Default is ``True``.
+        lines_thickness : float, optional
+            Whether to thicken lines after creation and it's default value.
+            Every line will be parametrized with a design variable called ``xsection_linename``.
+        import_as_light_weight : bool, optional
+            Import the stl generatated as light weight. It works only on SBR+ and HFSS Regions. Default is ``False``.
+        decimation : float, optional
+            Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
+            this function tries to reduce the data set to 10% of its
+            original size and removes 90% of the input triangles.
+        group_parts : bool, optional
+            Whether to group imported parts by object ID. The default is ``True``.
+        enable_planar_merge : str, optional
+            Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
+            ``"Auto"`` will disable the planar merge if stl contains more than 50000 triangles.
+        save_only_stl : bool, optional
+            Whether to import the model in HFSS or only generate the stl file.
+        preview : bool, optional
+            Whether to preview the model in pyvista or skip it.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.Object3d`
+        """
+        autosave = (
+            True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
+        )
+        self._app.odesktop.EnableAutoSave(False)
+
+        nas_to_dict = self._parse_nastran(file_path)
+
+        objs_before = [i for i in self.object_names]
+        if not (nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]):
+            self.logger.error("Failed to import file. Check the model and retry")
+            return False
+        output_stl, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge)
+        if preview:
+            import pyvista as pv
+
+            pl = pv.Plotter(shape=(1, 2))
+            dargs = dict(show_edges=True, color=True)
+            p_out = nas_to_dict["Points"][::]
+            for triangles in nas_to_dict["Triangles"].values():
                 tri_out = triangles
-                p_out = nas_to_dict["Points"][::]
-                if decimation > 0 and len(triangles) > 20:
-                    try:
-                        import pyvista as pv
-
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
-                    except Exception:
-                        self.logger.error("Package pyvista is needed to perform model simplification.")
-                        self.logger.error("Please install it using pip.")
-                f.write("solid Sheet_{}\n".format(tri_id))
-                if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_stl_merge = False
-                for triangle in tri_out:
-                    _write_solid_stl(triangle, p_out)
-                f.write("endsolid\n")
-            if nas_to_dict["Triangles"]:
-                f.close()
-            output_solid = ""
-            enable_solid_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
-            if nas_to_dict["Solids"]:
-                output_solid = os.path.join(self._app.working_directory, self._app.design_name + "_solids.stl")
-                f = open(output_solid, "w")
-            for solidid, solid_triangles in nas_to_dict["Solids"].items():
-                f.write("solid Solid_{}\n".format(solidid))
+                fin = [[3] + list(i) for i in tri_out]
+                pl.add_mesh(pv.PolyData(p_out, faces=fin), **dargs)
+            for triangles in nas_to_dict["Solids"].values():
                 import pandas as pd
 
-                df = pd.Series(solid_triangles)
+                df = pd.Series(triangles)
                 tri_out = df.drop_duplicates(keep=False).to_list()
                 p_out = nas_to_dict["Points"][::]
-                if decimation > 0 and len(solid_triangles) > 20:
-                    try:
-
-                        import pyvista as pv
-
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
-                    except Exception:
-                        self.logger.error("Package pyvista is needed to perform model simplification.")
-                        self.logger.error("Please install it using pip.")
-                if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_solid_merge = False
-                for triangle in tri_out:
-                    _write_solid_stl(triangle, p_out)
-                f.write("endsolid\n")
-            if output_solid:
-                f.close()
-            self.logger.info("STL file created")
-            self._app.odesktop.CloseAllWindows()
-            self.logger.info("Importing STL in 3D Modeler")
+                fin = [[3] + list(i) for i in tri_out]
+                pl.add_mesh(pv.PolyData(p_out, faces=fin), **dargs)
+            pl.add_text("Input mesh", font_size=24)
+            pl.reset_camera()
+            pl.subplot(0, 1)
             if output_stl:
-                self.import_3d_cad(
-                    output_stl,
-                    create_lightweigth_part=import_as_light_weight,
-                    healing=False,
-                    merge_planar_faces=enable_stl_merge,
-                )
-            if output_solid:
-                self.import_3d_cad(
-                    output_solid,
-                    create_lightweigth_part=import_as_light_weight,
-                    healing=False,
-                    merge_planar_faces=enable_solid_merge,
-                )
-            self.logger.info("Model imported")
+                pl.add_mesh(pv.read(output_stl), **dargs)
+            pl.add_text("Decimated mesh", font_size=24)
+            pl.reset_camera()
+            pl.link_views()
+            if "PYTEST_CURRENT_TEST" not in os.environ:
+                pl.show()
+        self.logger.info("STL files created in {}".format(output_stl))
+        if save_only_stl:
+            return output_stl
 
-            if group_parts:
-                for el in nas_to_dict["Solids"].keys():
-                    obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
-                    self.create_group(obj_names, group_name=str(el))
-                objs = self.object_names[::]
-                for el in nas_to_dict["Triangles"].keys():
-                    obj_names = [i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))]
-                    self.create_group(obj_names, group_name=str(el))
-                self.logger.info("Parts grouped")
+        self._app.odesktop.CloseAllWindows()
+        self.logger.info("Importing STL in 3D Modeler")
+        if output_stl:
+            self.import_3d_cad(
+                output_stl,
+                create_lightweigth_part=import_as_light_weight,
+                healing=False,
+                merge_planar_faces=enable_stl_merge,
+            )
+        self.logger.info("Model imported")
+        if group_parts:
+            for el in nas_to_dict["Solids"].keys():
+                obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
+                self.create_group(obj_names, group_name=str(el))
+            objs = self.object_names[::]
+            for el in nas_to_dict["Triangles"].keys():
+                obj_names = [i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))]
+                self.create_group(obj_names, group_name=str(el))
+            self.logger.info("Parts grouped")
 
         if import_lines and nas_to_dict["Lines"]:
             for line_name, lines in nas_to_dict["Lines"].items():

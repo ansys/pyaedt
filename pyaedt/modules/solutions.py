@@ -50,7 +50,7 @@ if not is_ironpython:
         plt = None
 
 
-def simplify_stl(input_file, output_file=None, decimation=0.5):
+def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters
@@ -74,6 +74,19 @@ def simplify_stl(input_file, output_file=None, decimation=0.5):
         output_file = os.path.splitext(input_file)[0] + "_output.stl"
     simple = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
     simple.save(output_file)
+    if preview:
+        pl = pv.Plotter(shape=(1, 2))
+        dargs = dict(show_edges=True, color=True)
+        pl.add_mesh(mesh, **dargs)
+        pl.add_text("Input mesh", font_size=24)
+        pl.reset_camera()
+        pl.subplot(0, 1)
+        pl.add_mesh(simple, **dargs)
+        pl.add_text("Decimated mesh", font_size=24)
+        pl.reset_camera()
+        pl.link_views()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            pl.show()
     return output_file
 
 
