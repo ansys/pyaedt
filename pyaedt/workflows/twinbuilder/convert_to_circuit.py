@@ -30,19 +30,28 @@ from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
-from pyaedt.workflows.misc import is_test
+from pyaedt.workflows.misc import is_student
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
-test_dict = is_test()
+is_student = is_student()
+
+# Extension batch arguments
+extension_arguments = None
+extension_description = "Create Circuit design from Twin Builder design"
 
 
-def main():
+def main(extension_args):
     app = pyaedt.Desktop(
-        new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
     )
 
     active_project = app.active_project()
@@ -139,9 +148,10 @@ def main():
                 offsety = [-i for i in cpms[1]]
                 cir.modeler.move(cpms[0], offsety)
 
-    if not test_dict["is_test"]:  # pragma: no cover
+    if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
 
 
 if __name__ == "__main__":
-    main()
+    args = get_arguments(extension_arguments, extension_description)
+    main(args)
