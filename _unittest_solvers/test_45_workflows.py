@@ -26,7 +26,7 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
     def test_01_template(self, add_app):
-        script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "toolkit_template.py")
+        script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "extension_template.py")
         aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
         os.environ["PYAEDT_TEST_CONFIG"] = "1"
         subprocess.Popen([sys.executable, script_path],
