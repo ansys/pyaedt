@@ -28,7 +28,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = ["file_path", "choice"]
+extension_arguments = {"file_path": "", "choice": ""}
 extension_description = "Push excitation from file"
 
 
@@ -51,6 +51,11 @@ def frontend():  # pragma: no cover
     hfss = Hfss(project_name, design_name)
 
     port_selection = hfss.excitations
+
+    if not port_selection:
+        app.logger.error("No ports found.")
+        hfss.release_desktop(False, False)
+        return extension_arguments["file_path"], extension_arguments["choice"]
 
     # Create UI
     master = Tk()
@@ -100,9 +105,8 @@ def frontend():  # pragma: no cover
     b1.grid(row=1, column=2, pady=10)
 
     def callback():
-        global choice, file_path
-        choice = combo.get()
-        file_path = text.get("1.0", END).strip()
+        master.choice_ui = combo.get()
+        master.file_path_ui = text.get("1.0", END).strip()
         master.destroy()
 
     b = Button(master, text="Ok", width=40, command=callback)
@@ -110,18 +114,21 @@ def frontend():  # pragma: no cover
 
     mainloop()
 
-    if not file_path or not os.path.isfile(file_path):
+    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
+    choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
+
+    if not file_path_ui or not os.path.isfile(file_path_ui):
         app.logger.error("File does not exist.")
 
-    if not choice:
+    if not choice_ui:
         app.logger.error("Excitation not found.")
 
     hfss.release_desktop(False, False)
 
-    return file_path, choice
+    return file_path_ui, choice_ui
 
 
-def backend(extension_args):
+def main(extension_args):
     app = pyaedt.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -141,7 +148,7 @@ def backend(extension_args):
     choice = extension_args["choice"]
     file_path = extension_args["file_path"]
 
-    if not os.path.isfile(file_path):
+    if not os.path.isfile(file_path):  # pragma: no cover
         app.logger.error("File does not exist.")
     elif choice:
         hfss.edit_source_from_file(
@@ -160,14 +167,13 @@ def backend(extension_args):
 if __name__ == "__main__":
     args = get_arguments(extension_arguments, extension_description)
 
-    if not args["is_test"]:  # pragma: no cover
-        output = []
-        if len(args.items()) == 1 or len(args.items()) - 1 != len(extension_arguments):
-            output = frontend()
+    # Open UI
+    if not args["is_test"] and not args["is_batch"]:  # pragma: no cover
+        output = frontend()
         if output:
             cont = 0
             for arg in extension_arguments:
                 args[arg] = output[cont]
                 cont += 1
-
-    backend(args)
+    # Call backend
+    main(args)

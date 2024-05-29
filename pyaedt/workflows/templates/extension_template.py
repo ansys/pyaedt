@@ -36,11 +36,11 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = ["dummy_argument"]
+extension_arguments = {"dummy_argument": True}
 extension_description = "Extension template"
 
 
-def backend(extension_args):
+def main(extension_args):
     app = pyaedt.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -66,4 +66,4 @@ def backend(extension_args):
 
 if __name__ == "__main__":
     args = get_arguments(extension_arguments, extension_description)
-    backend(args)
+    main(args)

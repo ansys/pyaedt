@@ -25,6 +25,7 @@
 import argparse
 import json
 import os
+import sys
 
 from pyaedt.misc import current_version
 
@@ -66,16 +67,21 @@ def get_arguments(args=None, description=""):
 
     output_args = {"is_test": False}
 
+    # Arguments passed from environment variables
     if "PYAEDT_TEST_CONFIG" in os.environ:
         output_args["is_test"] = True
         extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
         if isinstance(extra_vars, dict):
             output_args = {**output_args, **extra_vars}
 
+    # Argument passed in the script call. It overwrites previous configuration.
     parsed_args = __parse_arguments(args, description)
-    for k, v in parsed_args.__dict__.items():
-        if v is not None:
-            output_args[k] = v
+    output_args["is_batch"] = False
+    if len(sys.argv) != 1:
+        output_args["is_batch"] = True
+        for k, v in parsed_args.__dict__.items():
+            if v is not None:
+                output_args[k] = v
     return output_args
 
 
@@ -84,6 +90,6 @@ def __parse_arguments(args=None, description=""):
     parser = argparse.ArgumentParser(description=description)
     if args:
         for arg in args:
-            parser.add_argument(f"--{arg}", default=None)
+            parser.add_argument(f"--{arg}", default=args[arg])
     parsed_args = parser.parse_args()
     return parsed_args
