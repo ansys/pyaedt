@@ -1165,17 +1165,17 @@ class Modeler3D(Primitives3D):
                 output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
                 f = open(output_stl, "w")
 
-            def decimate(points_in, faces_in, points_out, faces_out):
-                if 0 < decimation < 1:
-                    aggressivity = 3
-                    if 0.7 > decimation > 0.3:
-                        aggressivity = 5
-                    elif decimation >= 0.7:
-                        aggressivity = 7
-                    points_out, faces_out = fast_simplification.simplify(
-                        points_in, faces_in, decimation, agg=aggressivity
+            def decimate(points_in, faces_in, stl_id):
+                fin = [[3] + i for i in faces_in]
+                mesh = pv.PolyData(points_in, faces=fin)
+                new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
+                points_out = list(new_mesh.points)
+                faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
+                self.logger.info(
+                    "Final decimation on object {}: {}%".format(
+                        stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
                     )
-
+                )
                 return points_out, faces_out
 
             for tri_id, triangles in nas_to_dict["Triangles"].items():
@@ -1183,11 +1183,11 @@ class Modeler3D(Primitives3D):
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(triangles) > 20:
                     try:
-                        import fast_simplification
+                        import pyvista as pv
 
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
                     except Exception:
-                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Package pyvista is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
                 f.write("solid Sheet_{}\n".format(tri_id))
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
@@ -1211,11 +1211,12 @@ class Modeler3D(Primitives3D):
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(solid_triangles) > 20:
                     try:
-                        import fast_simplification
 
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, p_out, tri_out)
+                        import pyvista as pv
+
+                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
                     except Exception:
-                        self.logger.error("Package fast-decimation is needed to perform model simplification.")
+                        self.logger.error("Package pyvista is needed to perform model simplification.")
                         self.logger.error("Please install it using pip.")
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
                     enable_solid_merge = False

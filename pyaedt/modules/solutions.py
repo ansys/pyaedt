@@ -7,7 +7,6 @@ import os
 import shutil
 import sys
 import time
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
@@ -51,7 +50,7 @@ if not is_ironpython:
         plt = None
 
 
-def simplify_stl(input_file, output_file=None, decimation=0.5, aggressiveness=7):
+def simplify_stl(input_file, output_file=None, decimation=0.5):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
     Parameters
@@ -64,29 +63,16 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, aggressiveness=7)
         Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
         this function will try to reduce the data set to 10% of its
         original size and will remove 90% of the input triangles.
-    aggressiveness : int, optional
-        Controls how aggressively to decimate the mesh.  A value of 10
-        will result in a fast decimation at the expense of mesh
-        quality and shape.  A value of 0 will attempt to preserve the
-        original mesh geometry at the expense of time.  Setting a low
-        value may result in being unable to reach the
-        ``decimation``.
 
     Returns
     -------
     str
         Full path to output stl.
     """
-    try:
-        import fast_simplification
-    except Exception:
-        warnings.warn("Package fast-decimation is needed to perform model simplification.")
-        warnings.warn("Please install it using pip.")
-        return False
     mesh = pv.read(input_file)
     if not output_file:
         output_file = os.path.splitext(input_file)[0] + "_output.stl"
-    simple = fast_simplification.simplify_mesh(mesh, target_reduction=decimation, agg=aggressiveness, verbose=True)
+    simple = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
     simple.save(output_file)
     return output_file
 
