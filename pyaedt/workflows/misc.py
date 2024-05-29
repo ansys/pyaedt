@@ -71,7 +71,8 @@ def get_arguments(args=None, description=""):
     if "PYAEDT_TEST_CONFIG" in os.environ:
         output_args["is_test"] = True
         # Load default
-        output_args = {**output_args, **args}
+        if args:
+            output_args = {**output_args, **args}
         # Load new values
         extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
         if isinstance(extra_vars, dict):

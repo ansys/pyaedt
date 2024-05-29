@@ -172,8 +172,8 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
 
-        file_path = shutil.copy(os.path.join(solver_local_path, "example_models", test_subfolder, "box.stl"),
-                                os.path.join(local_scratch.path, "box.stl"))
+        file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "sphere.stl"),
+                                os.path.join(local_scratch.path, "sphere.stl"))
         test_config = {
             "file_path": file_path
         }
