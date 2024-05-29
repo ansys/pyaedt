@@ -432,3 +432,4 @@ class TestClass:
         assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
         rect =  q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
         assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
+        assert not q3d.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")

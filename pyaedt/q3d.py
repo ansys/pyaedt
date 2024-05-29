@@ -2004,7 +2004,7 @@ class Q3d(QExtractor, object):
             if isinstance(ass, int):
                 try:
                     new_ass.append(self.modeler.create_object_from_face(ass)._m_name)
-                except:
+                except Exception:  # pragma: no cover
                     self.logger.error("Thin conductor can be applied only to sheet objects or faces.")
             elif ass in self.modeler.sheet_names:
                 new_ass.append(ass)
@@ -2022,7 +2022,7 @@ class Q3d(QExtractor, object):
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
-        return False
+        return False  # pragma: no cover
 
 
 class Q2d(QExtractor, object):
