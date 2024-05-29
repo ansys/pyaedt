@@ -338,8 +338,7 @@ def disable_auto_update(func):
         out = func(self, *args, **kwargs)
         self.update()
         self.auto_update = auto_update
-        if out is not None:
-            return out
+        return out
 
     return wrapper
 
