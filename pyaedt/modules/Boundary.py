@@ -389,7 +389,6 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
         """
-        self.auto_update = False
         if self._app.settings.aedt_version < "2024.2":
             return False
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
