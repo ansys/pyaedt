@@ -1,8 +1,10 @@
 import math
 import os
 import sys
+import time
 
 import pyaedt
+from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
@@ -36,6 +38,10 @@ def main():
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
     cir = pyaedt.Circuit(designname=tb.design_name + "_Translated")
+    if is_linux:
+        time.sleep(1)
+        app.CloseAllWindows()
+
     from pyaedt.generic.constants import unit_converter
 
     pins_unconnected = []
