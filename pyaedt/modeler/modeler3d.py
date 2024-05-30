@@ -554,41 +554,49 @@ class Modeler3D(Primitives3D):
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        startingposition="origin",
+        innerradius="inner_radius",
+        outerradius="outer_radius",
+        dielradius="diel_radius",
+        matinner="mat_inner",
+        matouter="mat_outer",
+        matdiel="mat_diel",
+    )
     def create_coaxial(
         self,
-        startingposition,
+        origin,
         axis,
-        innerradius=1,
-        outerradius=2,
-        dielradius=1.8,
+        inner_radius=1,
+        outer_radius=2,
+        diel_radius=1.8,
         length=10,
-        matinner="copper",
-        matouter="copper",
-        matdiel="teflon_based",
+        mat_inner="copper",
+        mat_outer="copper",
+        mat_diel="teflon_based",
     ):
         """Create a coaxial.
 
         Parameters
         ----------
-        startingposition : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.AXIS` enumerator.
-        innerradius : float, optional
+        inner_radius : float, optional
             Inner coax radius. The default is ``1``.
-        outerradius : float, optional
+        outer_radius : float, optional
             Outer coax radius. The default is ``2``.
-        dielradius : float, optional
+        diel_radius : float, optional
             Dielectric coax radius. The default is ``1.8``.
         length : float, optional
             Coaxial length. The default is ``10``.
-        matinner : str, optional
+        mat_inner : str, optional
             Material for the inner coaxial. The default is ``"copper"``.
-        matouter : str, optional
+        mat_outer : str, optional
             Material for the outer coaxial. The default is ``"copper"``.
-        matdiel : str, optional
+        mat_diel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
         Returns
@@ -610,21 +618,20 @@ class Modeler3D(Primitives3D):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(
-        ...    position, app.AXIS.X, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
-        ... )
+        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
+        ... length=50)
 
         """
-        if not (outerradius > dielradius and dielradius > innerradius):
+        if not (outer_radius > diel_radius and diel_radius > inner_radius):
             raise ValueError("Error in coaxial radius.")
-        inner = self.create_cylinder(axis, startingposition, innerradius, length, 0)
-        outer = self.create_cylinder(axis, startingposition, outerradius, length, 0)
-        diel = self.create_cylinder(axis, startingposition, dielradius, length, 0)
+        inner = self.create_cylinder(axis, origin, inner_radius, length, 0)
+        outer = self.create_cylinder(axis, origin, outer_radius, length, 0)
+        diel = self.create_cylinder(axis, origin, diel_radius, length, 0)
         self.subtract(outer, inner)
         self.subtract(outer, diel)
-        inner.material_name = matinner
-        outer.material_name = matouter
-        diel.material_name = matdiel
+        inner.material_name = mat_inner
+        outer.material_name = mat_outer
+        diel.material_name = mat_diel
 
         return inner, outer, diel
 
@@ -810,6 +817,79 @@ class Modeler3D(Primitives3D):
             return wgbox, p1, p2
         else:
             return None
+
+    @pyaedt_function_handler()
+    def create_conical_rings(
+        self,
+        origin,
+        axis,
+        innerradius=1,
+        outerradius=2,
+        dielradius=1.8,
+        length=10,
+        matinner="copper",
+        matouter="copper",
+        matdiel="teflon_based",
+    ):
+        """Create thickened sheets in a conical shape.
+
+        Parameters
+        ----------
+        origin : list
+            List of ``[x, y, z]`` coordinates for the starting position.
+        axis : int
+            Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
+            the :class:`Application.AXIS` enumerator.
+        innerradius : float, optional
+            Inner coax radius. The default is ``1``.
+        outerradius : float, optional
+            Outer coax radius. The default is ``2``.
+        dielradius : float, optional
+            Dielectric coax radius. The default is ``1.8``.
+        length : float, optional
+            Coaxial length. The default is ``10``.
+        matinner : str, optional
+            Material for the inner coaxial. The default is ``"copper"``.
+        matouter : str, optional
+            Material for the outer coaxial. The default is ``"copper"``.
+        matdiel : str, optional
+            Material for the dielectric. The default is ``"teflon_based"``.
+
+        Returns
+        -------
+        tuple
+            Contains the inner, outer, and dielectric coax as
+            :class:`pyaedt.modeler.Object3d.Object3d` objects.
+
+        References
+        ----------
+
+        >>> oEditor.CreateCylinder
+        >>> oEditor.AssignMaterial
+
+        Examples
+        --------
+        This example shows how to create a Coaxial Along X Axis waveguide.
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0,0,0]
+        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
+        ... length=50)
+
+        """
+        if not (outerradius > dielradius and dielradius > innerradius):
+            raise ValueError("Error in coaxial radius.")
+        inner = self.create_cylinder(axis, startingposition, innerradius, length, 0)
+        outer = self.create_cylinder(axis, startingposition, outerradius, length, 0)
+        diel = self.create_cylinder(axis, startingposition, dielradius, length, 0)
+        self.subtract(outer, inner)
+        self.subtract(outer, diel)
+        inner.material_name = matinner
+        outer.material_name = matouter
+        diel.material_name = matdiel
+
+        return inner, outer, diel
 
     @pyaedt_function_handler()
     def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):
