@@ -1,6 +1,5 @@
 import pytest
 import os
-import sys
 import shutil
 
 import pyaedt
