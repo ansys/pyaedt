@@ -821,75 +821,101 @@ class Modeler3D(Primitives3D):
     @pyaedt_function_handler()
     def create_conical_rings(
         self,
-        origin,
         axis,
-        innerradius=1,
-        outerradius=2,
-        dielradius=1.8,
-        length=10,
-        matinner="copper",
-        matouter="copper",
-        matdiel="teflon_based",
+        origin,
+        bottom_radius=20,
+        top_radius=10,
+        cone_height=30,
+        name=None,
+        material=None,
+        ring_height=0.1,
+        thickness=None,
     ):
-        """Create thickened sheets in a conical shape.
+        """Create rings in a conical shape.
 
         Parameters
         ----------
-        origin : list
-            List of ``[x, y, z]`` coordinates for the starting position.
-        axis : int
-            Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
-            the :class:`Application.AXIS` enumerator.
-        innerradius : float, optional
-            Inner coax radius. The default is ``1``.
-        outerradius : float, optional
-            Outer coax radius. The default is ``2``.
-        dielradius : float, optional
-            Dielectric coax radius. The default is ``1.8``.
-        length : float, optional
-            Coaxial length. The default is ``10``.
-        matinner : str, optional
-            Material for the inner coaxial. The default is ``"copper"``.
-        matouter : str, optional
-            Material for the outer coaxial. The default is ``"copper"``.
-        matdiel : str, optional
-            Material for the dielectric. The default is ``"teflon_based"``.
+        axis : str or :class:`pyaedt.generic.constants.AXIS`
+            Coordinate system of the axis.
+        origin : list, optional
+            List of ``[x, y, z]`` coordinates for the center position
+            of the bottom of the cone.
+        bottom_radius : float
+            Bottom radius of the cone.
+        top_radius : float
+            Top radius of the cone.
+        cone_height : float
+            Height of the cone.
+        name : str, optional
+            Name of the cone. The default is ``None``, in which case
+            the default name is assigned.
+        material : str, optional
+            Name of the material. The default is ``None``, in which case
+            the default material is assigned.
+        ring_height : float, optional
+            Ring height. The default is ``0.1``.
+        thickness : float, optional
+            Ring thickness. The default is ``None``, in which case a 2D sheet is created.
 
         Returns
         -------
-        tuple
-            Contains the inner, outer, and dielectric coax as
-            :class:`pyaedt.modeler.Object3d.Object3d` objects.
+        list of :class:`pyaedt.modeler.object3d.Object3d`, bool
+            List of 3D object or ``False`` if it fails.
 
         References
         ----------
 
-        >>> oEditor.CreateCylinder
-        >>> oEditor.AssignMaterial
+        >>> oEditor.CreatePolyline
+        >>> oEditor.SweepAroundAxis
+        >>> oEditor.ThickenSheet
 
         Examples
         --------
-        This example shows how to create a Coaxial Along X Axis waveguide.
+        This example shows how to create rings along Z axis with a cone shape.
 
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
-        ... length=50)
+        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z',origin=[0, 0, 0],
+        ...                                           bottom_radius=2,top_radius=3,height=4,
+        ...                                           material="copper")
 
         """
-        if not (outerradius > dielradius and dielradius > innerradius):
-            raise ValueError("Error in coaxial radius.")
-        inner = self.create_cylinder(axis, startingposition, innerradius, length, 0)
-        outer = self.create_cylinder(axis, startingposition, outerradius, length, 0)
-        diel = self.create_cylinder(axis, startingposition, dielradius, length, 0)
-        self.subtract(outer, inner)
-        self.subtract(outer, diel)
-        inner.material_name = matinner
-        outer.material_name = matouter
-        diel.material_name = matdiel
+        if bottom_radius == top_radius:
+            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
+            return False
+        if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
+            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
+            return False
+        if isinstance(top_radius, (int, float)) and top_radius < 0:
+            self.logger.error("The ``top_radius`` argument must be greater than 0.")
+            return False
+        if isinstance(cone_height, (int, float)) and cone_height <= 0:
+            self.logger.error("The ``cone_height`` argument must be greater than 0.")
+            return False
+        if len(origin) != 3:
+            self.logger.error("The ``origin`` argument must be a valid three-element list.")
+            return False
 
-        return inner, outer, diel
+        if not name:
+            name = generate_unique_name("ring_cone")
+
+        n_strips = int(cone_height / ring_height)
+
+        solids = []
+        for strip in range(n_strips):
+            if strip % 2 == 0:
+                z = strip * ring_height
+                r_ini = top_radius + z * (bottom_radius - top_radius) / cone_height
+                r_end = top_radius + (z + ring_height) * (bottom_radius - top_radius) / cone_height
+
+                # Create polyline points
+                polyline_points = [[r_ini, 0, h - z], [r_end, 0, h - z - ht]]
+                # Create polyline
+                pol = aedtapp.modeler.create_polyline(polyline_points, name=name)
+                pol.sweep_around_axis(axis)
+                solids.append(aedtapp.modeler.thicken_sheet(pol.name, thickness=thickness))
+        return solids
 
     @pyaedt_function_handler()
     def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):

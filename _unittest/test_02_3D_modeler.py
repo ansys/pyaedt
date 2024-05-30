@@ -1112,3 +1112,8 @@ class TestClass:
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         assert len(dest2.modeler.objects) == 9
         assert "port1" in dest2.modeler.object_names
+
+    def test_63_create_conical_rings(self):
+        position = self.aedtapp.modeler.Position(0, 0, 0)
+        rings = self.aedtapp.modeler.create_conical_rings(self.aedtapp.AXIS.X, position)
+        assert isinstance(wg1, tuple)
