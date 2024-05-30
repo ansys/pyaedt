@@ -153,6 +153,6 @@ def main(extension_args):
     return True
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(extension_arguments, extension_description)
     main(args)

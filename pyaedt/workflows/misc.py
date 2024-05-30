@@ -61,15 +61,13 @@ def is_student():
     return student_version
 
 
-def get_arguments(args=None, description=""):
+def get_arguments(args=None, description=""):  # pragma: no cover
     """Get extension arguments."""
 
-    output_args = {}
+    output_args = {"is_batch": False, "is_test": False}
 
-    parsed_args = __parse_arguments(args, description)
-    output_args["is_batch"] = False
-    output_args["is_test"] = False
     if len(sys.argv) != 1:  # pragma: no cover
+        parsed_args = __parse_arguments(args, description)
         output_args["is_batch"] = True
         for k, v in parsed_args.__dict__.items():
             if v is not None:
@@ -77,7 +75,7 @@ def get_arguments(args=None, description=""):
     return output_args
 
 
-def __string_to_bool(v):
+def __string_to_bool(v):  # pragma: no cover
     """Change string to bool."""
     if isinstance(v, str) and v.lower() in ("true", "1"):
         v = True
@@ -86,7 +84,7 @@ def __string_to_bool(v):
     return v
 
 
-def __parse_arguments(args=None, description=""):
+def __parse_arguments(args=None, description=""):  # pragma: no cover
     """Parse arguments."""
     parser = argparse.ArgumentParser(description=description)
     if args:
