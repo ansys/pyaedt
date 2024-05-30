@@ -213,10 +213,7 @@ def install_pyaedt():
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+            run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
 
         if args.version == "231":
             run_command('"{}" uninstall -y pywin32'.format(pip_exe))
