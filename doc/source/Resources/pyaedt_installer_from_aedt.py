@@ -232,9 +232,9 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
-            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
-        else:
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe, unzipped_path))
+        else:
+            run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
     sys.exit(0)
 
 
