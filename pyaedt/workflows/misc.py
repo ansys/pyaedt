@@ -23,7 +23,6 @@
 """Miscellaneous Methods for PyAEDT workflows."""
 
 import argparse
-import json
 import os
 import sys
 
@@ -67,30 +66,25 @@ def get_arguments(args=None, description=""):
 
     output_args = {"is_test": False}
 
-    # Arguments passed from environment variables
-    if "PYAEDT_TEST_CONFIG" in os.environ:
-        output_args["is_test"] = True
-        # Load default
-        if args:
-            output_args = {**output_args, **args}
-        # Load new values
-        extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
-        if isinstance(extra_vars, dict):
-            output_args = {**output_args, **extra_vars}
+    args = {**args, **output_args}
 
-    # Argument passed in the script call. It overwrites previous configuration.
     parsed_args = __parse_arguments(args, description)
     output_args["is_batch"] = False
     if len(sys.argv) != 1:  # pragma: no cover
         output_args["is_batch"] = True
         for k, v in parsed_args.__dict__.items():
             if v is not None:
-                if isinstance(v, str) and v.lower() in ("true", "1"):
-                    v = True
-                elif isinstance(v, str) and v.lower() in ("false", "0"):
-                    v = False
-                output_args[k] = v
+                output_args[k] = __string_to_bool(v)
     return output_args
+
+
+def __string_to_bool(v):
+    """Change string to bool."""
+    if isinstance(v, str) and v.lower() in ("true", "1"):
+        v = True
+    elif isinstance(v, str) and v.lower() in ("false", "0"):
+        v = False
+    return v
 
 
 def __parse_arguments(args=None, description=""):
