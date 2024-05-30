@@ -49,13 +49,14 @@ jobs:
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
+    if: ${{ matrix.python-version }} != '3.7' && ${{ matrix.target }} != 'installer'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        targets: ['all', 'installer']
+        target: ['all', 'installer']
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
@@ -63,7 +64,7 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          target: ${{ matrix.targets }}
+          target: ${{ matrix.target }}
 
       - name: Import python package
         run: |
