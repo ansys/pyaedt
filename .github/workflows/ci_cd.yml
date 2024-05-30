@@ -58,7 +58,7 @@ jobs:
         target: ['all', 'installer']
         exclude:
           - python-version: '3.7'
-          - target: 'installer'
+            target: 'installer'
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
