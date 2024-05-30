@@ -193,7 +193,7 @@ def main(extension_args):
         else:
             from pyaedt.modules.solutions import simplify_stl
 
-            outfile = simplify_stl(file_path, decimation=decimate, aggressiveness=5)
+            outfile = simplify_stl(file_path, decimation=decimate)
             aedtapp.modeler.import_3d_cad(
                 outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
             )

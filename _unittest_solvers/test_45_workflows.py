@@ -119,7 +119,7 @@ class TestClass:
 
         assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
 
-        assert len(aedtapp.modeler.object_list) == 7
+        assert len(aedtapp.modeler.object_list) == 3
         aedtapp.close_project(aedtapp.project_name)
 
     def test_06_project_import_stl(self, add_app, local_scratch):
