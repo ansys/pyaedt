@@ -291,7 +291,7 @@ def button_is_clicked(
             else:
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if not file:
-                file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "toolkit_template.py")
+                file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "extension_template.py")
             if os.path.isfile(executable_interpreter):
                 add_script_to_menu(
                     name=name,
