@@ -148,7 +148,7 @@ installer = [
     "SRTM.py",
     "utm",
     "vtk==9.2.6",
-    "jupyterlab>=4.0.0,<4.3",
+    "jupyterlab>=3.6.0,<4.3",
     "ipython>=7.30.0,<8.25",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
