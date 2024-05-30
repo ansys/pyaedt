@@ -150,6 +150,7 @@ def main(extension_args):
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
+    return True
 
 
 if __name__ == "__main__":
