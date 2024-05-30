@@ -37,6 +37,7 @@ import PIL.Image
 import PIL.ImageTk
 
 import pyaedt
+from pyaedt import generate_unique_name
 from pyaedt import get_pyaedt_app
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
@@ -124,13 +125,14 @@ def frontend():  # pragma: no cover
         master.destroy()
 
     def preview():
+        design_name = generate_unique_name("Preview", n=2)
         app = pyaedt.Hfss(
             new_desktop_session=False,
             specified_version=version,
             port=port,
             aedt_process_id=aedt_process_id,
             student_version=is_student,
-            designname="Preview",
+            designname=design_name,
         )
         master.decimate_ui = float(check.get("1.0", END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
