@@ -29,11 +29,12 @@ class TestClass:
     def test_01_template(self, add_app):
         script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "extension_template.py")
         aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
-        os.environ["PYAEDT_TEST_CONFIG"] = "1"
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+
+        res = subprocess.Popen([sys.executable, script_path, "--is_test=1"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
@@ -43,29 +44,29 @@ class TestClass:
         script_path = os.path.join(pyaedt.workflows.hfss.__path__[0], "push_excitation_from_file.py")
 
         # No choice
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
-            "choice": ""
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--file_path=" + file_path,
+                                "--choice="""],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         aedtapp.save_project()
         assert not aedtapp.design_datasets
 
         # Correct choice
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv"),
-            "choice": "1:1"
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--file_path=" + file_path,
+                                "--choice=" + "1:1"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         aedtapp.save_project()
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
@@ -77,13 +78,14 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
 
-        test_config = {
-            "choice": "Export to Q3D"
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
-
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--choice=Export to Q3D"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert os.path.isfile(aedtapp.project_file[:-5] + "_Q3D.aedt")
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
@@ -95,13 +97,14 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
 
-        test_config = {
-            "choice": "Export to Icepak"
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
-
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--choice=Export to Icepak"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert os.path.isfile(aedtapp.project_file[:-5] + "_IPK.aedt")
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
         aedtapp.close_project(aedtapp.project_name)
@@ -113,13 +116,14 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.hfss3dlayout.__path__[0], "export_to_3d.py")
 
-        test_config = {
-            "choice": "Export to Maxwell 3D"
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path], env=os.environ.copy()).wait()
-
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--choice=Export to Maxwell 3D"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert os.path.isfile(aedtapp.project_file[:-5] + "_M3D.aedt")
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
         aedtapp.close_project(aedtapp.project_name)
@@ -129,12 +133,11 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "create_report.py")
 
-        os.environ["PYAEDT_TEST_CONFIG"] = "1"
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        res = subprocess.Popen([sys.executable, script_path, "--is_test=1"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
         aedtapp.close_project(aedtapp.project_name)
 
@@ -143,27 +146,29 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
 
-        # Non existing file
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "test_cad_invented.nas")
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        # Non-existing file
+        file_path = os.path.join(local_path, "example_models", "T20", "test_cad_invented.nas")
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--file_path=" + file_path
+                                ],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert len(aedtapp.modeler.object_list) == 0
 
-        test_config = {
-            "file_path": os.path.join(local_path, "example_models", "T20", "test_cad.nas")
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        file_path = os.path.join(local_path, "example_models", "T20", "test_cad.nas")
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--file_path=" + file_path
+                                ],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert len(aedtapp.modeler.object_list) == 7
         aedtapp.close_project(aedtapp.project_name)
 
@@ -172,17 +177,16 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
 
-        file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "sphere.stl"),
-                                os.path.join(local_scratch.path, "sphere.stl"))
-        test_config = {
-            "file_path": file_path
-        }
-        os.environ["PYAEDT_TEST_CONFIG"] = json.dumps(test_config)
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        file_path = os.path.join(local_path, "example_models", "T20", "sphere.stl")
+        res = subprocess.Popen([sys.executable,
+                                script_path,
+                                "--is_test=1",
+                                "--file_path=" + file_path
+                                ],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
@@ -194,12 +198,11 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.twinbuilder.__path__[0], "convert_to_circuit.py")
 
-        os.environ["PYAEDT_TEST_CONFIG"] = "1"
-
-        subprocess.Popen([sys.executable, script_path],
-                         env=os.environ.copy(),
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).wait()
+        res = subprocess.Popen([sys.executable, script_path, "--is_test=1"],
+                               env=os.environ.copy(),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE).wait()
+        assert 0 == res
         circuit = pyaedt.Circuit()
         assert len(circuit.modeler.schematic.components) == 3
         aedtapp.close_project(aedtapp.project_name)
