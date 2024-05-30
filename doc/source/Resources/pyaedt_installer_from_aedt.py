@@ -234,7 +234,7 @@ def install_pyaedt():
 
             run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
         else:
-            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe, unzipped_path))
     sys.exit(0)
 
 
