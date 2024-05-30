@@ -64,12 +64,11 @@ def is_student():
 def get_arguments(args=None, description=""):
     """Get extension arguments."""
 
-    output_args = {"is_test": False}
-
-    args = {**args, **output_args}
+    output_args = {}
 
     parsed_args = __parse_arguments(args, description)
     output_args["is_batch"] = False
+    output_args["is_test"] = False
     if len(sys.argv) != 1:  # pragma: no cover
         output_args["is_batch"] = True
         for k, v in parsed_args.__dict__.items():

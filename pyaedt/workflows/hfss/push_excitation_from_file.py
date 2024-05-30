@@ -147,7 +147,9 @@ def frontend():  # pragma: no cover
 
     hfss.release_desktop(False, False)
 
-    return file_path_ui, choice_ui
+    output_dict = {"choice": choice_ui, "file_path": file_path_ui}
+
+    return output_dict
 
 
 def main(extension_args):
@@ -194,9 +196,8 @@ if __name__ == "__main__":
     if not args["is_batch"]:  # pragma: no cover
         output = frontend()
         if output:
-            cont = 0
-            for arg in extension_arguments:
-                args[arg] = output[cont]
-                cont += 1
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
 
     main(args)

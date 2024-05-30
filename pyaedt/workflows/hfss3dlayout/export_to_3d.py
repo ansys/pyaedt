@@ -94,7 +94,10 @@ def frontend():  # pragma: no cover
 
     choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
 
-    return [choice_ui]
+    output_dict = {
+        "choice": choice_ui,
+    }
+    return output_dict
 
 
 def main(extension_args):
@@ -165,9 +168,8 @@ if __name__ == "__main__":
     if not args["is_batch"]:  # pragma: no cover
         output = frontend()
         if output:
-            cont = 0
-            for arg in extension_arguments:
-                args[arg] = output[cont]
-                cont += 1
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
 
     main(args)

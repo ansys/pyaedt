@@ -59,7 +59,7 @@ extension_description = "Import Nastran or STL file"
 def frontend():  # pragma: no cover
     master = Tk()
 
-    master.geometry("700x250")
+    master.geometry("750x250")
 
     master.title("Import Nastran or STL file")
 
@@ -142,10 +142,10 @@ def frontend():  # pragma: no cover
         app.release_desktop(False, False)
 
     b2 = Button(master, text="Preview", width=40, command=preview)
-    b2.grid(row=5, column=0, pady=10)
+    b2.grid(row=5, column=0, pady=10, padx=10)
 
     b3 = Button(master, text="Ok", width=40, command=callback)
-    b3.grid(row=5, column=1, pady=10)
+    b3.grid(row=5, column=1, pady=10, padx=10)
 
     mainloop()
 
@@ -154,7 +154,13 @@ def frontend():  # pragma: no cover
     planar_ui = getattr(master, "planar_ui", extension_arguments["planar"])
     file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
 
-    return decimate_ui, lightweight_ui, planar_ui, file_path_ui
+    output_dict = {
+        "decimate": decimate_ui,
+        "lightweight": lightweight_ui,
+        "planar": planar_ui,
+        "file_path": file_path_ui,
+    }
+    return output_dict
 
 
 def main(extension_args):
@@ -214,9 +220,7 @@ if __name__ == "__main__":
     if not args["is_batch"]:  # pragma: no cover
         output = frontend()
         if output:
-            cont = 0
-            for arg in extension_arguments:
-                args[arg] = output[cont]
-                cont += 1
-
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
     main(args)

@@ -110,14 +110,14 @@ class TestClass:
         # Non-existing file
         file_path = os.path.join(local_scratch.path, "test_cad_invented.nas")
 
-        assert main({"is_test": True, "file_path": file_path})
+        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
 
         assert len(aedtapp.modeler.object_list) == 0
 
         file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "test_cad.nas"),
                                 os.path.join(local_scratch.path, "test_cad.nas"))
 
-        assert main({"is_test": True, "file_path": file_path})
+        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
 
         assert len(aedtapp.modeler.object_list) == 7
         aedtapp.close_project(aedtapp.project_name)
