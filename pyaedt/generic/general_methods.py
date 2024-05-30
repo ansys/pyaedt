@@ -1646,7 +1646,7 @@ def parse_excitation_file(
             if out_mag == "Voltage":
                 fval = np.sqrt(fval * impedance)
         mag = list(np.abs(fval))
-        phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
+        phase = [math.atan2(j, i) for i, j in zip(list(fval.real), list(fval.imag))]
 
     else:
         freq = list(df[df.keys()[0]].values * x_scale)
@@ -1657,7 +1657,7 @@ def parse_excitation_file(
         else:
             mag = df[df.keys()[1]].values * y_scale
         mag = list(mag)
-        phase = list(df[df.keys()[2]].values)
+        phase = [i * math.pi / 180 for i in list(df[df.keys()[2]].values)]
     return freq, mag, phase
 
 

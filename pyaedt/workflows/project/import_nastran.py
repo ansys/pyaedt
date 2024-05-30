@@ -123,8 +123,27 @@ def frontend():  # pragma: no cover
         master.file_path_ui = text.get("1.0", END).strip()
         master.destroy()
 
-    b = Button(master, text="Ok", width=40, command=callback)
-    b.grid(row=5, column=1, pady=10)
+    def preview():
+        app = pyaedt.Hfss(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+            designname="Preview",
+        )
+        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.lightweight_ui = True if light.get() == 1 else False
+        master.planar_ui = True if planar.get() == 1 else False
+        master.file_path_ui = text.get("1.0", END).strip()
+        app.modeler.import_nastran(master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True)
+        app.release_desktop(False, False)
+
+    b2 = Button(master, text="Preview", width=40, command=preview)
+    b2.grid(row=5, column=0, pady=10)
+
+    b3 = Button(master, text="Ok", width=40, command=callback)
+    b3.grid(row=5, column=1, pady=10)
 
     mainloop()
 
