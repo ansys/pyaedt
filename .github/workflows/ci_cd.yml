@@ -60,8 +60,15 @@ jobs:
           - python-version: '3.7'
             target: 'installer'
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Build wheelhouse and perform smoke test
-        if: ${{ matrix.target == 'all' || matrix.target == 'installer' }}
         uses: ansys/actions/build-wheelhouse@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
@@ -70,7 +77,6 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Import python package
-        if: ${{ matrix.target == 'all' }}
         run: |
           python -c "import pyaedt; from pyaedt import __version__"
 
