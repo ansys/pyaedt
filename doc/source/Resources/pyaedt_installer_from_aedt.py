@@ -240,14 +240,14 @@ def install_pyaedt():
             with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
-            if args.version == "231":
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
+            if args.version <= "231":
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe,
                                                                                                                unzipped_path))
             else:
                 run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
                                                                                                               unzipped_path))
         else:
-            if args.version == "231":
+            if args.version <= "231":
                 run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
