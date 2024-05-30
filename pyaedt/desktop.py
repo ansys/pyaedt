@@ -429,20 +429,23 @@ class Desktop(object):
 
     def __new__(cls, *args, **kwargs):
         # The following commented lines will be useful when we will need to search among multiple saved desktop.
-        # specified_version = kwargs.get("specified_version") or None if not args else args[0]
+        specified_version = kwargs.get("specified_version") or None if (not args or len(args) < 1) else args[0]
         new_desktop_session = kwargs.get("new_desktop_session") or False if (not args or len(args) < 3) else args[2]
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
+        specified_version = get_string_version(specified_version)
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
         if settings.use_multi_desktop and not inside_desktop and new_desktop_session:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
         elif len(_desktop_sessions.keys()) > 0:
-            if settings.use_multi_desktop and (port or aedt_process_id):
+            if settings.use_multi_desktop and (port or aedt_process_id or specified_version):
                 for el in list(_desktop_sessions.values()):
-                    if (el.port != 0 and el.port == port) or (
-                        el.aedt_process_id and el.aedt_process_id == aedt_process_id
+                    if (
+                        (port != 0 and el.port == port)
+                        or (aedt_process_id and el.aedt_process_id == aedt_process_id)
+                        or (not port and not aedt_process_id and el.aedt_version_id == specified_version)
                     ):
                         return el
                 return object.__new__(cls)
