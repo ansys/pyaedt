@@ -2377,7 +2377,8 @@ class Icepak(FieldAnalysis3D):
             Type of the extent. Options are ``"Bounding Box"`` and ``"Polygon"``.
             The default is ``"Bounding Box"``.
         outline_polygon : str, optional
-            Name of the polygon if ``extentype="Polygon"``. The default is ``""``.
+            Name of the polygon if ``extentype="Polygon"``. The default is ``""``,
+            in which case the outline polygon is automatically identified.
         powerin : str, optional
             Power to dissipate if cosimulation is disabled. The default is ``"0W"``.
         custom_x_resolution
@@ -2491,6 +2492,10 @@ class Icepak(FieldAnalysis3D):
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
             self._native_components.append(native)
+            if extent_type == "Polygon" and not outline_polygon:
+                outline_polygon = native.identify_extent_poly()
+                if outline_polygon:
+                    native.set_board_settings("Polygon", outline_polygon)
             return native
         return False
 
