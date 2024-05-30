@@ -60,14 +60,6 @@ jobs:
           - python-version: '3.7'
             target: 'installer'
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
         with:
