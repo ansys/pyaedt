@@ -11,6 +11,7 @@ This example shows how you can use PyAEDT to create a dipole antenna in HFSS and
 
 import os
 import pyaedt
+
 project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
 ##########################################################
@@ -18,7 +19,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.2"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -39,7 +40,9 @@ d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
+
 hfss = pyaedt.Hfss(projectname=project_name, solution_type="Modal")
+
 ###############################################################################
 # Define variable
 # ~~~~~~~~~~~~~~~
