@@ -47,48 +47,48 @@ class TestClass:
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_q3d(self, add_app):
+    def test_03_hfss3dlayout_export_3d_q3d(self,local_scratch, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
-        aedtapp.save_project(aedtapp.project_file[:-5] + "_save_q3d.aedt")
+        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
 
         from pyaedt.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Q3D"})
 
-        assert os.path.isfile(aedtapp.project_file[:-5] + "_Q3D.aedt")
+        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d_Q3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_icepak(self, add_app):
+    def test_03_hfss3dlayout_export_3d_icepak(self,local_scratch, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
-        aedtapp.save_project(aedtapp.project_file[:-5] + "_save_icepak.aedt")
+        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
 
         from pyaedt.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Icepak"})
 
-        assert os.path.isfile(aedtapp.project_file[:-5] + "_IPK.aedt")
+        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak_IPK.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_maxwell(self, add_app):
+    def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
-        aedtapp.save_project(aedtapp.project_file[:-5] + "_save_maxwell.aedt")
+        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
 
         from pyaedt.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Maxwell 3D"})
 
-        assert os.path.isfile(aedtapp.project_file[:-5] + "_M3D.aedt")
+        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell_M3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
         aedtapp.close_project(aedtapp.project_name)
 
