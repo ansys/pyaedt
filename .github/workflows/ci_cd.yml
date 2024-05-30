@@ -61,6 +61,7 @@ jobs:
             target: 'installer'
     steps:
       - name: Build wheelhouse and perform smoke test
+        if: ${{ matrix.target == 'all' || matrix.target == 'installer' }}
         uses: ansys/actions/build-wheelhouse@v4
         with:
           library-name: ${{ env.PACKAGE_NAME }}
@@ -69,6 +70,7 @@ jobs:
           target: ${{ matrix.target }}
 
       - name: Import python package
+        if: ${{ matrix.target == 'all' }}
         run: |
           python -c "import pyaedt; from pyaedt import __version__"
 
