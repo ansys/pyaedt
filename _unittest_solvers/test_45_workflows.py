@@ -6,6 +6,7 @@ import os
 import sys
 
 import pyaedt
+from pyaedt import is_linux
 from _unittest_solvers.conftest import local_path as solver_local_path
 from _unittest.conftest import local_path
 import subprocess  # nosec
@@ -26,7 +27,7 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
     def test_01_template(self, add_app):
-        script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "toolkit_template.py")
+        script_path = os.path.join(pyaedt.workflows.templates.__path__[0], "extension_template.py")
         aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
         os.environ["PYAEDT_TEST_CONFIG"] = "1"
         subprocess.Popen([sys.executable, script_path],
@@ -171,8 +172,8 @@ class TestClass:
 
         script_path = os.path.join(pyaedt.workflows.project.__path__[0], "import_nastran.py")
 
-        file_path = shutil.copy(os.path.join(solver_local_path, "example_models", test_subfolder, "box.stl"),
-                                os.path.join(local_scratch.path, "box.stl"))
+        file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "sphere.stl"),
+                                os.path.join(local_scratch.path, "sphere.stl"))
         test_config = {
             "file_path": file_path
         }
@@ -185,6 +186,7 @@ class TestClass:
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
         aedtapp = add_app(application=pyaedt.TwinBuilder,
                           project_name=twinbuilder_circuit,

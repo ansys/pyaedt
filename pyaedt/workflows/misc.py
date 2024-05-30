@@ -22,8 +22,10 @@
 
 """Miscellaneous Methods for PyAEDT workflows."""
 
+import argparse
 import json
 import os
+import sys
 
 from pyaedt.misc import current_version
 
@@ -60,12 +62,42 @@ def is_student():
     return student_version
 
 
-def is_test():
-    """Get if the workflow is a test from environment variable."""
-    test = {"is_test": False}
+def get_arguments(args=None, description=""):
+    """Get extension arguments."""
+
+    output_args = {"is_test": False}
+
+    # Arguments passed from environment variables
     if "PYAEDT_TEST_CONFIG" in os.environ:
-        test["is_test"] = True
+        output_args["is_test"] = True
+        # Load default
+        if args:
+            output_args = {**output_args, **args}
+        # Load new values
         extra_vars = json.loads(os.environ["PYAEDT_TEST_CONFIG"])
         if isinstance(extra_vars, dict):
-            test = {**test, **extra_vars}
-    return test
+            output_args = {**output_args, **extra_vars}
+
+    # Argument passed in the script call. It overwrites previous configuration.
+    parsed_args = __parse_arguments(args, description)
+    output_args["is_batch"] = False
+    if len(sys.argv) != 1:  # pragma: no cover
+        output_args["is_batch"] = True
+        for k, v in parsed_args.__dict__.items():
+            if v is not None:
+                if isinstance(v, str) and v.lower() in ("true", "1"):
+                    v = True
+                elif isinstance(v, str) and v.lower() in ("false", "0"):
+                    v = False
+                output_args[k] = v
+    return output_args
+
+
+def __parse_arguments(args=None, description=""):
+    """Parse arguments."""
+    parser = argparse.ArgumentParser(description=description)
+    if args:
+        for arg in args:
+            parser.add_argument(f"--{arg}", default=args[arg])
+    parsed_args = parser.parse_args()
+    return parsed_args

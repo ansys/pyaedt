@@ -1,3 +1,25 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 from tkinter import Button
 from tkinter import Label
@@ -14,18 +36,24 @@ import PIL.ImageTk
 import pyaedt
 import pyaedt.workflows.hfss3dlayout
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
-from pyaedt.workflows.misc import is_test
-
-choice = "Export to HFSS"
+from pyaedt.workflows.misc import is_student
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
-test_dict = is_test()
+is_student = is_student()
 
-if not test_dict["is_test"]:  # pragma: no cover
+# Extension batch arguments
+extension_arguments = {"choice": "Export to HFSS"}
+extension_description = "Export layout to 3D Modeler"
+
+suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
+
+
+def frontend():  # pragma: no cover
     master = Tk()
 
     master.geometry("400x150")
@@ -56,24 +84,29 @@ if not test_dict["is_test"]:  # pragma: no cover
     combo.focus_set()
 
     def callback():
-        global choice
-        choice = combo.get()
+        master.choice_ui = combo.get()
         master.destroy()
-        return True
 
     b = Button(master, text="Export", width=40, command=callback)
     b.pack(pady=10)
 
     mainloop()
 
-else:
-    choice = test_dict["choice"]
+    choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
 
-suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
+    return [choice_ui]
 
 
-def main():
-    app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port)
+def main(extension_args):
+    choice = extension_args["choice"]
+
+    app = pyaedt.Desktop(
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
 
     active_project = app.active_project()
     active_design = app.active_design()
@@ -119,10 +152,21 @@ def main():
             aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
 
-    if not test_dict["is_test"]:  # pragma: no cover
+    if not extension_args["is_test"]:  # pragma: no cover
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
 
 
 if __name__ == "__main__":
-    main()
+    args = get_arguments(extension_arguments, extension_description)
+
+    # Open UI
+    if not args["is_test"] and not args["is_batch"]:  # pragma: no cover
+        output = frontend()
+        if output:
+            cont = 0
+            for arg in extension_arguments:
+                args[arg] = output[cont]
+                cont += 1
+
+    main(args)
