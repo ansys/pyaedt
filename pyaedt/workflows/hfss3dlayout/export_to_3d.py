@@ -21,17 +21,6 @@
 # SOFTWARE.
 
 import os
-from tkinter import Button
-from tkinter import Label
-from tkinter import RAISED
-from tkinter import StringVar
-from tkinter import Tk
-from tkinter import mainloop
-from tkinter import ttk
-from tkinter.ttk import Combobox
-
-import PIL.Image
-import PIL.ImageTk
 
 import pyaedt
 import pyaedt.workflows.hfss3dlayout
@@ -54,7 +43,14 @@ suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell
 
 
 def frontend():  # pragma: no cover
-    master = Tk()
+
+    import tkinter
+    from tkinter import ttk
+
+    import PIL.Image
+    import PIL.ImageTk
+
+    master = tkinter.Tk()
 
     master.geometry("400x150")
 
@@ -72,11 +68,11 @@ def frontend():  # pragma: no cover
     style = ttk.Style()
     style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
 
-    var = StringVar()
-    label = Label(master, textvariable=var, relief=RAISED)
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var, relief=tkinter.RAISED)
     var.set("Choose an option:")
     label.pack(pady=10)
-    combo = Combobox(master, width=40)  # Set the width of the combobox
+    combo = ttk.Combobox(master, width=40)  # Set the width of the combobox
     combo["values"] = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
     combo.current(0)
     combo.pack(pady=10)
@@ -87,10 +83,10 @@ def frontend():  # pragma: no cover
         master.choice_ui = combo.get()
         master.destroy()
 
-    b = Button(master, text="Export", width=40, command=callback)
+    b = tkinter.Button(master, text="Export", width=40, command=callback)
     b.pack(pady=10)
 
-    mainloop()
+    tkinter.mainloop()
 
     choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
 

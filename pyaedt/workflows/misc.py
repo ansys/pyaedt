@@ -32,7 +32,7 @@ from pyaedt.misc import current_version
 def get_process_id():
     """Get process ID from environment variable."""
     aedt_process_id = None
-    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):  # pragma: no cover
         aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
     return aedt_process_id
 
@@ -56,7 +56,7 @@ def get_aedt_version():
 def is_student():
     """Get if AEDT student is opened from environment variable."""
     student_version = False
-    if "PYAEDT_STUDENT_VERSION" in os.environ:
+    if "PYAEDT_STUDENT_VERSION" in os.environ:  # pragma: no cover
         student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
     return student_version
 

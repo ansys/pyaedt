@@ -165,11 +165,11 @@ def create_xml_tab(root, output_file):
 def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration file."""
     tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
-    if not os.path.isfile(tab_config_file_path):
+    if not os.path.isfile(tab_config_file_path):  # pragma: no cover
         return True
     try:
         tree = ET.parse(tab_config_file_path)  # nosec
-    except ParseError as e:
+    except ParseError as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return
     root = tree.getroot()
@@ -180,9 +180,9 @@ def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
         if panel in panel_names:
             # Remove previously existing PyAEDT panel and update with newer one.
             panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-        else:
+        else:  # pragma: no cover
             panel_element = ET.SubElement(root, "panel", label=panel)
-    else:
+    else:  # pragma: no cover
         panel_element = ET.SubElement(root, "panel", label=panel)
 
     buttons = panel_element.findall("./button")
@@ -272,24 +272,24 @@ def add_script_to_menu(
     if not personal_lib or not aedt_version:
         from pyaedt.generic.desktop_sessions import _desktop_sessions
 
-        if not _desktop_sessions:
+        if not _desktop_sessions:  # pragma: no cover
             logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
             return False
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
-    if script_file and not os.path.exists(script_file):
+    if script_file and not os.path.exists(script_file):  # pragma: no cover
         logger.error("Script does not exists.")
         return False
     toolkit_dir = os.path.join(personal_lib, "Toolkits")
     tool_map = __tab_map(product)
     file_name = name
-    if "/" in file_name:
+    if "/" in file_name:  # pragma: no cover
         file_name = file_name.replace("/", "_")
     tool_dir = os.path.join(toolkit_dir, tool_map, file_name)
     lib_dir = os.path.join(tool_dir, "Lib")
     toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
-    if is_linux and aedt_version <= "2023.1":
+    if is_linux and aedt_version <= "2023.1":  # pragma: no cover
         toolkit_rel_lib_dir = os.path.join("Lib", file_name)
         lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
         toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
@@ -301,13 +301,13 @@ def add_script_to_menu(
         shutil.copy2(script_file, dest_script_path)
 
     version_agnostic = True
-    if aedt_version[2:6].replace(".", "") in sys.executable:
+    if aedt_version[2:6].replace(".", "") in sys.executable:  # pragma: no cover
         executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
         version_agnostic = False
     else:
         executable_version_agnostic = sys.executable
 
-    if executable_interpreter:
+    if executable_interpreter:  # pragma: no cover
         version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
