@@ -9,7 +9,8 @@ from _unittest.conftest import local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
-twinbuilder_circuit = "twin_circuit"
+twinbuilder_circuit = "TB_test"
+report = "report"
 
 test_subfolder = "T45"
 
@@ -46,7 +47,7 @@ class TestClass:
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_q3d(self,local_scratch, add_app):
+    def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
@@ -61,7 +62,7 @@ class TestClass:
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_icepak(self,local_scratch, add_app):
+    def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
         aedtapp = add_app(application=pyaedt.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
@@ -92,7 +93,9 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_04_project_report(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout, project_name="workflow_pdf")
+        aedtapp = add_app(application=pyaedt.Hfss,
+                          project_name=report,
+                          subfolder=test_subfolder)
 
         from pyaedt.workflows.project.create_report import main
 
@@ -134,7 +137,7 @@ class TestClass:
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
-    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
         aedtapp = add_app(application=pyaedt.TwinBuilder,
                           project_name=twinbuilder_circuit,
@@ -145,5 +148,5 @@ class TestClass:
         assert main({"is_test": True})
 
         circuit = pyaedt.Circuit()
-        assert len(circuit.modeler.schematic.components) == 3
+        assert len(circuit.modeler.schematic.components) == 10
         aedtapp.close_project(aedtapp.project_name)
