@@ -84,3 +84,6 @@ class TestClass:
         assert len(msg.aedt_messages.project_level) >= 4
         assert len(msg.aedt_messages.design_level) >= 4
         settings.enable_desktop_logs = False
+
+        assert ipk_app.desktop_class.messenger
+        assert ipk_app.desktop_class.clear_messages()
