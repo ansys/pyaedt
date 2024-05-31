@@ -21,20 +21,6 @@
 # SOFTWARE.
 
 import os.path
-from tkinter import Button
-from tkinter import Checkbutton
-from tkinter import END
-from tkinter import IntVar
-from tkinter import Label
-from tkinter import StringVar
-from tkinter import Text
-from tkinter import Tk
-from tkinter import filedialog
-from tkinter import mainloop
-from tkinter import ttk
-
-import PIL.Image
-import PIL.ImageTk
 
 import pyaedt
 from pyaedt import generate_unique_name
@@ -57,7 +43,15 @@ extension_description = "Import Nastran or STL file"
 
 
 def frontend():  # pragma: no cover
-    master = Tk()
+
+    import tkinter
+    from tkinter import filedialog
+    from tkinter import ttk
+
+    import PIL.Image
+    import PIL.ImageTk
+
+    master = tkinter.Tk()
 
     master.geometry("750x250")
 
@@ -75,35 +69,35 @@ def frontend():  # pragma: no cover
     style = ttk.Style()
     style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
 
-    var = StringVar()
-    label = Label(master, textvariable=var)
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
     var.set("Decimation factor (0-0.9). It may affect results:")
     label.grid(row=0, column=0, pady=10)
-    check = Text(master, width=20, height=1)
-    check.insert(END, "0.0")
+    check = tkinter.Text(master, width=20, height=1)
+    check.insert(tkinter.END, "0.0")
     check.grid(row=0, column=1, pady=10, padx=5)
 
-    var = StringVar()
-    label = Label(master, textvariable=var)
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
     var.set("Import as lightweight (only HFSS):")
     label.grid(row=1, column=0, pady=10)
-    light = IntVar()
-    check2 = Checkbutton(master, width=30, variable=light)
+    light = tkinter.IntVar()
+    check2 = tkinter.Checkbutton(master, width=30, variable=light)
     check2.grid(row=1, column=1, pady=10, padx=5)
 
-    var = StringVar()
-    label = Label(master, textvariable=var)
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
     var.set("Enable planar merge:")
     label.grid(row=2, column=0, pady=10)
-    planar = IntVar(value=1)
-    check3 = Checkbutton(master, width=30, variable=planar)
+    planar = tkinter.IntVar(value=1)
+    check3 = tkinter.Checkbutton(master, width=30, variable=planar)
     check3.grid(row=2, column=1, pady=10, padx=5)
 
-    var2 = StringVar()
-    label2 = Label(master, textvariable=var2)
+    var2 = tkinter.StringVar()
+    label2 = tkinter.Label(master, textvariable=var2)
     var2.set("Browse file:")
     label2.grid(row=3, column=0, pady=10)
-    text = Text(master, width=40, height=1)
+    text = tkinter.Text(master, width=40, height=1)
     text.grid(row=3, column=1, pady=10, padx=5)
 
     def browseFiles():
@@ -112,16 +106,16 @@ def frontend():  # pragma: no cover
             title="Select a Nastran or stl File",
             filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
         )
-        text.insert(END, filename)
+        text.insert(tkinter.END, filename)
 
-    b1 = Button(master, text="...", width=10, command=browseFiles)
+    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
     b1.grid(row=3, column=2, pady=10)
 
     def callback():
-        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
         master.planar_ui = True if planar.get() == 1 else False
-        master.file_path_ui = text.get("1.0", END).strip()
+        master.file_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
     def preview():
@@ -134,20 +128,20 @@ def frontend():  # pragma: no cover
             student_version=is_student,
             designname=design_name,
         )
-        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
         master.planar_ui = True if planar.get() == 1 else False
-        master.file_path_ui = text.get("1.0", END).strip()
+        master.file_path_ui = text.get("1.0", tkinter.END).strip()
         app.modeler.import_nastran(master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True)
         app.release_desktop(False, False)
 
-    b2 = Button(master, text="Preview", width=40, command=preview)
+    b2 = tkinter.Button(master, text="Preview", width=40, command=preview)
     b2.grid(row=5, column=0, pady=10, padx=10)
 
-    b3 = Button(master, text="Ok", width=40, command=callback)
+    b3 = tkinter.Button(master, text="Ok", width=40, command=callback)
     b3.grid(row=5, column=1, pady=10, padx=10)
 
-    mainloop()
+    tkinter.mainloop()
 
     decimate_ui = getattr(master, "decimate_ui", extension_arguments["decimate"])
     lightweight_ui = getattr(master, "lightweight_ui", extension_arguments["lightweight"])
