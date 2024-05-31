@@ -1,5 +1,7 @@
-# from pyaedt.filtersolutions_core.lumped_termination_impedance import TerminationType
 from resource import resource_path
+
+from _unittest_solvers.conftest import config
+import pytest
 
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import DiplexerType
@@ -8,6 +10,7 @@ from pyaedt.filtersolutions_core.attributes import FilterImplementation
 from pyaedt.filtersolutions_core.attributes import FilterType
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_generator_resistor_30():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.generator_resistor == "50"
@@ -21,6 +24,7 @@ def test_lumped_generator_resistor_30():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_load_resistor_30():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.load_resistor == "50"
@@ -34,6 +38,7 @@ def test_lumped_load_resistor_30():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_current_source():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.current_source is False
@@ -47,6 +52,7 @@ def test_lumped_current_source():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_first_shunt():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.first_shunt
@@ -60,6 +66,7 @@ def test_lumped_first_shunt():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_first_series():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.first_shunt
@@ -73,6 +80,7 @@ def test_lumped_first_series():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_bridge_t():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_type = FilterType.ELLIPTIC
@@ -88,6 +96,7 @@ def test_lumped_bridge_t():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_bridge_t_low():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
@@ -107,6 +116,7 @@ def test_lumped_bridge_t_low():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_bridge_t_high():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
@@ -126,6 +136,7 @@ def test_lumped_bridge_t_high():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_equal_inductors():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -141,6 +152,7 @@ def test_lumped_equal_inductors():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_equal_capacitors():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -163,6 +175,7 @@ def test_lumped_equal_capacitors():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_equal_legs():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -178,6 +191,7 @@ def test_lumped_equal_legs():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_high_low_pass():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -193,6 +207,7 @@ def test_lumped_high_low_pass():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_high_low_pass_min_ind():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -210,6 +225,7 @@ def test_lumped_high_low_pass_min_ind():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_zig_zag():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -227,6 +243,7 @@ def test_lumped_zig_zag():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_min_ind():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -246,6 +263,7 @@ def test_lumped_min_ind():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_min_cap():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -265,6 +283,7 @@ def test_lumped_min_cap():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_set_source_res():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -285,6 +304,7 @@ def test_lumped_set_source_res():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_trap_topology():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -304,6 +324,7 @@ def test_lumped_trap_topology():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_node_cap_ground():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -321,6 +342,7 @@ def test_lumped_node_cap_ground():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_match_impedance():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.BAND_PASS
@@ -338,6 +360,7 @@ def test_lumped_match_impedance():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_complex_termination():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.topology.complex_termination is False
@@ -345,6 +368,7 @@ def test_lumped_complex_termination():
     assert lumpdesign.topology.complex_termination
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_complex_element_tune_enabled():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -353,6 +377,7 @@ def test_complex_element_tune_enabled():
     assert lumpdesign.topology.complex_element_tune_enabled is False
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_circuit_export():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     netlist = lumpdesign.topology.circuit_response()
@@ -363,6 +388,7 @@ def test_lumped_circuit_export():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer1_hi_lo():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
@@ -377,6 +403,7 @@ def test_lumped_diplexer1_hi_lo():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer1_bp_1():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
@@ -391,6 +418,7 @@ def test_lumped_diplexer1_bp_1():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer1_bp_2():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_1
@@ -405,6 +433,7 @@ def test_lumped_diplexer1_bp_2():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer2_bp_bs():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2
@@ -419,6 +448,7 @@ def test_lumped_diplexer2_bp_bs():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer2_triplexer_1():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2
@@ -433,6 +463,7 @@ def test_lumped_diplexer2_triplexer_1():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_diplexer2_triplexer_2():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.attributes.filter_class = FilterClass.DIPLEXER_2

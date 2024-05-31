@@ -1,21 +1,25 @@
+from _unittest_solvers.conftest import config
 import pytest
 
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row_count():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True
     assert design.multiple_bands_table.row_count == 2
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True
     assert design.multiple_bands_table.row(0) == ("2G", "3G")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_update_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True
@@ -30,6 +34,7 @@ def test_update_row():
     assert design.multiple_bands_table.row(0) == ("200M", "5G")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_append_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True
@@ -44,6 +49,7 @@ def test_append_row():
     assert info.value.args[0] == "It is not possible to append an empty value"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_insert_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True
@@ -56,6 +62,7 @@ def test_insert_row():
     assert info.value.args[0] == "The rowIndex must be greater than zero and less than row count"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_remove_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.attributes.filter_multiple_bands_enabled = True

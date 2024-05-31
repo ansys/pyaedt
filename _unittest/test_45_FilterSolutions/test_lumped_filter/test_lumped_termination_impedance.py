@@ -1,3 +1,4 @@
+from _unittest_solvers.conftest import config
 import pytest
 
 import pyaedt
@@ -6,6 +7,7 @@ from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexReac
 from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexTerminationDefinition
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row_count():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -13,6 +15,7 @@ def test_row_count():
     assert lumpdesign.load_impedance_table.row_count == 3
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -20,6 +23,7 @@ def test_row():
     assert lumpdesign.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_update_row():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -43,6 +47,7 @@ def test_update_row():
     assert lumpdesign.load_impedance_table.row(0) == ("2G", "50", "0")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_append_row():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -55,6 +60,7 @@ def test_append_row():
     assert lumpdesign.load_impedance_table.row(3) == ("100M", "10", "20")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_insert_row():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -64,6 +70,7 @@ def test_insert_row():
     assert lumpdesign.load_impedance_table.row(0) == ("2G", "50", "0")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_remove_row():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -79,6 +86,7 @@ def test_remove_row():
     assert info.value.args[0] == "No value is set for this band"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_complex_definition():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -93,6 +101,7 @@ def test_complex_definition():
         assert lumpdesign.load_impedance_table.complex_definition == cdef
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_reactance_type():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -107,6 +116,7 @@ def test_reactance_type():
         assert lumpdesign.load_impedance_table.reactance_type == creac
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_compensation_enabled():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True
@@ -118,6 +128,7 @@ def test_compensation_enabled():
     assert lumpdesign.load_impedance_table.compensation_enabled
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_compensation_order():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     lumpdesign.topology.complex_termination = True

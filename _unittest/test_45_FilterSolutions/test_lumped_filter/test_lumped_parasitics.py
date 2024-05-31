@@ -1,9 +1,13 @@
 from resource import resource_path
 
+from _unittest_solvers.conftest import config
+import pytest
+
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_capacitor_q():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.capacitor_q == "Inf"
@@ -17,6 +21,7 @@ def test_lumped_capacitor_q():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_capacitor_rs():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.capacitor_rs == "0"
@@ -30,6 +35,7 @@ def test_lumped_capacitor_rs():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_capacitor_rp():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.capacitor_rp == "Inf"
@@ -43,6 +49,7 @@ def test_lumped_capacitor_rp():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_capacitor_ls():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.capacitor_ls == "0"
@@ -56,6 +63,7 @@ def test_lumped_capacitor_ls():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_inductor_q():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.inductor_q == "Inf"
@@ -69,6 +77,7 @@ def test_lumped_inductor_q():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_inductor_rs():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.inductor_rs == "0"
@@ -82,6 +91,7 @@ def test_lumped_inductor_rs():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_inductor_rp():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.inductor_rp == "Inf"
@@ -95,6 +105,7 @@ def test_lumped_inductor_rp():
         assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_lumped_inductor_cp():
     lumpdesign = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert lumpdesign.parasitics.inductor_cp == "0"

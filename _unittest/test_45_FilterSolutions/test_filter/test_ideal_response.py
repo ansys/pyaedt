@@ -1,5 +1,6 @@
 from resource import resource_path
 
+from _unittest_solvers.conftest import config
 import pytest
 
 import pyaedt
@@ -10,6 +11,7 @@ from pyaedt.filtersolutions_core.ideal_response import SParametersResponseColumn
 from pyaedt.filtersolutions_core.ideal_response import TimeResponseColumn
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_frequency_response_getter():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
 
@@ -65,6 +67,7 @@ def test_frequency_response_getter():
     assert freqs[-1] == 31214328219.225075
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_time_response_getter():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     step_response = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
@@ -104,6 +107,7 @@ def test_time_response_getter():
     assert time[-1] == pytest.approx(9.966666666666667e-09)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_sparameters_response_getter():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     s11_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
@@ -133,6 +137,7 @@ def test_sparameters_response_getter():
     assert freqs[-1] == pytest.approx(31214328219.225075)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pole_zeros_response_getter():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
@@ -237,6 +242,7 @@ def test_pole_zeros_response_getter():
     assert proto_rx_zero_num_y[4] == pytest.approx(0.0)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_filter_vsg_analysis_enabled():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.ideal_response.vsg_analysis_enabled is False
@@ -244,6 +250,7 @@ def test_filter_vsg_analysis_enabled():
     assert design.ideal_response.vsg_analysis_enabled
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_frequency_response():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     freq, mag_db = design.ideal_response.frequency_response(
@@ -262,6 +269,7 @@ def test_frequency_response():
     assert mag_db[-1] == pytest.approx(-69.61741290615645)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_time_response():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     time, step_response = design.ideal_response.time_response(
@@ -281,6 +289,7 @@ def test_time_response():
     assert step_response[-1] == pytest.approx(0.9999999965045667)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_s_parameters():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     freq, s21_db = design.ideal_response.s_parameters(
@@ -298,6 +307,7 @@ def test_s_parameters():
     assert s21_db[-1] == pytest.approx(-69.61741290615645)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_pole_zero_locations():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     tx_zero_den_x, tx_zero_den_y = design.ideal_response.pole_zero_locations(
@@ -318,6 +328,7 @@ def test_pole_zero_locations():
     assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_transfer_function_response():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     list = design.ideal_response.transfer_function_response()

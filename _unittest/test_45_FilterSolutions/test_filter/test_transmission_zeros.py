@@ -1,15 +1,18 @@
+from _unittest_solvers.conftest import config
 import pytest
 
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row_count():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     assert design.transmission_zeros_frequency.row_count == 0
     assert design.transmission_zeros_ratio.row_count == 0
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
@@ -20,6 +23,7 @@ def test_row():
     assert info.value.args[0] == "This filter has no transmission zero at row 0"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_update_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
@@ -30,6 +34,7 @@ def test_update_row():
     assert info.value.args[0] == "This filter has no transmission zero at row 0 to update"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_append_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
@@ -51,6 +56,7 @@ def test_append_row():
     assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_insert_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
@@ -76,6 +82,7 @@ def test_insert_row():
     assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_remove_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     with pytest.raises(RuntimeError) as info:
@@ -88,6 +95,7 @@ def test_remove_row():
     assert info.value.args[0] == "This filter has no transmission zero at row 0"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_clear_row():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.transmission_zeros_frequency.insert_row(0, zero="1600M", position="2")
@@ -104,6 +112,7 @@ def test_clear_row():
     assert info.value.args[0] == "This filter has no transmission zero at row 0"
 
 
+@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 def test_default_position():
     design = pyaedt.FilterSolutions(projectname="fs1", implementation_type=FilterImplementation.LUMPED)
     design.transmission_zeros_frequency.insert_row(0, zero="1600M", position="2")
