@@ -98,7 +98,7 @@ def frontend():  # pragma: no cover
     label = tkinter.Label(master, textvariable=var)
     var.set("Choose a port:")
     label.grid(row=0, column=0, pady=10)
-    combo = ttk.Combobox(master, width=30)  # Set the width of the combobox
+    combo = ttk.Combobox(master, width=30)
     combo["values"] = port_selection
     combo.current(0)
     combo.grid(row=0, column=1, pady=10, padx=5)
