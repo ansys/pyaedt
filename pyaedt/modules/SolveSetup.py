@@ -144,28 +144,32 @@ class CommonSetup(PropsManager, object):
             self.props = SetupProps(self, setup_template)
         else:
             try:
-                setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
-                if self.name in setups_data:
-                    setup_data = setups_data[self.name]
-                    if "Sweeps" in setup_data and self.setuptype not in [
-                        0,
-                        7,
-                    ]:  # 0 and 7 represent setup HFSSDrivenAuto
-                        if self.setuptype <= 4:
-                            app = setup_data["Sweeps"]
-                            app.pop("NextUniqueID", None)
-                            app.pop("MoveBackForward", None)
-                            app.pop("MoveBackwards", None)
-                            for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepHFSS(self, el, props=app[el]))
+                if "AnalysisSetup" in self.p_app.design_properties.keys():
+                    setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
+                    if self.name in setups_data:
+                        setup_data = setups_data[self.name]
+                        if "Sweeps" in setup_data and self.setuptype not in [
+                            0,
+                            7,
+                        ]:  # 0 and 7 represent setup HFSSDrivenAuto
+                            if self.setuptype <= 4:
+                                app = setup_data["Sweeps"]
+                                app.pop("NextUniqueID", None)
+                                app.pop("MoveBackForward", None)
+                                app.pop("MoveBackwards", None)
+                                for el in app:
+                                    if isinstance(app[el], (OrderedDict, dict)):
+                                        self.sweeps.append(SweepHFSS(self, el, props=app[el]))
 
-                        else:
-                            app = setup_data["Sweeps"]
-                            for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepMatrix(self, el, props=app[el]))
-                        setup_data.pop("Sweeps", None)
+                            else:
+                                app = setup_data["Sweeps"]
+                                for el in app:
+                                    if isinstance(app[el], (OrderedDict, dict)):
+                                        self.sweeps.append(SweepMatrix(self, el, props=app[el]))
+                            setup_data.pop("Sweeps", None)
+                        self.props = SetupProps(self, OrderedDict(setup_data))
+                elif "SimSetups" in self.p_app.design_properties.keys():
+                    setup_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except Exception:
                 self.props = SetupProps(self, OrderedDict())

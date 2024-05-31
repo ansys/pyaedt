@@ -8,6 +8,7 @@ import os.path
 from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -575,3 +576,137 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             return component
         else:  # pragma: no cover
             raise ValueError("Error in creating the component.")
+
+    @pyaedt_function_handler()
+    def add_excitation_model(
+        self,
+        project,
+        design,
+        use_default_values=True,
+        setup=None,
+        start=None,
+        stop=None,
+        export_uniform_points=False,
+        export_uniform_points_step=1e-5,
+    ):
+        """
+        Use the excitation component to assign output quantities in a Twin Builder design to a windings
+        in a Maxwell design.
+
+        This method works only with AEDT versions > 2024 R2.
+
+        Parameters
+        ----------
+        project : str
+            Name or path to the project to provide.
+        design : str
+            Name of the design to import the excitations from.
+        use_default_values : bool, optional
+            Whether to use the default values for the start and stop times for the chosen TR setup.
+            The default value is ``True``.
+        setup : str, optional
+            Name of the TR setup.
+            If not provided, the default value is the first setup in the design.
+        start : float, optional
+            Start time.
+            The default value is ``None``.
+            If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
+        stop : float, optional
+            Stop time.
+            The default value is ``None``.
+            If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
+        export_uniform_points : bool, optional
+            If ``True``, Twin Builder performs linear interpolation to uniformly space out time and data points.
+            The interpolation is based on the step size provided.
+        export_uniform_points_step : float, optional
+            Step size used for the uniform interpolation.
+            The default value is ``1E-5``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent` or bool
+            Circuit component object if successful or ``False`` if fails.
+
+        References
+        ----------
+        >>> oComponentManager.AddExcitationModel
+        """
+        if self.aedt_version_id < "2024.2":
+            self.logger.error("This method only work for AEDT versions > 2024 R2.")
+            return False
+
+        # get_pyaedt_app() check rather than dkp [[project, design]]
+        dkp = self.desktop_class
+        if os.path.isfile(project):
+            project_path = project
+            project_name = os.path.splitext(os.path.basename(project))[0]
+            if project_name in dkp.project_list():
+                app = dkp[[project_name, design]]
+                twin_app = dkp[[project_name, self.design_name]]
+            else:
+                app = dkp.load_project(project_path, design)
+                twin_app = dkp[[project_path, self.design_name]]
+                project_selection = 1
+        elif project in self.project_list:
+            project_name = "$PROJECTDIR/{}.aedt".format(project)
+            project_path = os.path.join(self.project_path, project_name + ".aedt")
+            app = dkp[[project, design]]
+            twin_app = dkp[[project, self.design_name]]
+            project_selection = 0
+        else:
+            raise ValueError("Invalid project name or path provided.")
+
+        if not setup:
+            setup = self.setups[0].name
+            start = 0
+            stop_value_units = decompose_variable_value(self.setups[0].props["TransientData"][0])
+            stop = unit_converter(
+                stop_value_units[0], unit_system="Time", input_units=stop_value_units[1], output_units="s"
+            )
+        elif not start or not stop:
+            pass
+
+        settings = [
+            "NAME:Project and Design Settings",
+            "Project Name:=",
+            project_name,
+            "Design Name:=",
+            design,
+            "Project Selection:=",
+            project_selection,
+        ]
+        excitations_data = [
+            "NAME:ExcitationData",
+            "Excitation Type:=",
+            0,
+            "Link Type:=",
+            "Excitations to Ansys Maxwell",
+            "Setup Name:=",
+            setup,
+            "Start Value:=",
+            start,
+            "Stop Value:=",
+            stop,
+            "Use Default values flag:=",
+            use_default_values,
+            "Export Uniform points flag:=",
+            export_uniform_points,
+            "Export uniform points - Step size:=",
+            export_uniform_points_step,
+        ]
+        excitations = {}
+        grid_data = ["NAME:GridData"]
+        for e in app.excitations_by_type["Winding Group"]:
+            excitations[e.name] = [e.props[e.props["Type"]], True, e.props["Type"], True]
+            grid_data.append("{}:=".format(e.name))
+            grid_data.append([e.props[e.props["Type"]], True, e.props["Type"], True])
+
+        self.set_active_design(self.design_name)
+        o_def_manager = app.oproject.GetDefinitionManager()
+        o_component_manager = o_def_manager.GetManager("Component")
+        o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        # app.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        # self.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
+        # self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+
+        pass
