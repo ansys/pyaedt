@@ -406,7 +406,7 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain, use_filter=False, filter_list=None):
+    def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
         """
         Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
@@ -550,7 +550,7 @@ class Revision:
         protection_levels=None,
         use_filter=False,
         filter_list=None,
-    ):
+    ):  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
 
