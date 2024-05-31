@@ -4924,7 +4924,7 @@ class GeometryModeler(Modeler):
         self.refresh_all_ids()
         return True
 
-    def discovery_import(self, input_file):
+    def import_discovery_model(self, input_file):
         """Import a Discovery file.
 
         Parameters
@@ -4944,10 +4944,20 @@ class GeometryModeler(Modeler):
         """
         version = settings.aedt_version[-4:].replace(".", "")
 
+        same_version = False
+        ansys_install_dir = ""
+
         aedt_install_dir = os.environ.get("ANSYSEM_ROOT{}".format(version), "")
         ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
 
-        if ansys_install_dir == "":
+        if ansys_install_dir != "":
+            for root, directory_names, files in os.walk(ansys_install_dir):
+                for name in directory_names:
+                    if name == "Discovery":
+                        same_version = True
+                        break
+
+        if not same_version:
             self.logger.error("Same version of AEDT and Discovery is needed.")
             return False
 
@@ -4985,7 +4995,25 @@ class GeometryModeler(Modeler):
                 "",
             ]
         )
+        self.disconnect_discovery_link()
         self.refresh_all_ids()
+        return True
+
+    def disconnect_discovery_link(self):
+        """Disconnect from the running Discovery instance.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.BreakUDMConnection
+        """
+        args = ["NAME:Selections", "Selections:=", "Discovery1"]
+        self.oeditor.BreakUDMConnection(args)
         return True
 
     @pyaedt_function_handler(input_dict="primitives")
