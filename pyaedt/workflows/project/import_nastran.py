@@ -119,10 +119,10 @@ def frontend():  # pragma: no cover
         master.destroy()
 
     def preview():
-        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
         master.planar_ui = True if planar.get() == 1 else False
-        master.file_path_ui = text.get("1.0", END).strip()
+        master.file_path_ui = text.get("1.0", tkinter.END).strip()
 
         if master.file_path_ui.endswith(".nas"):
             design_name = generate_unique_name("Preview", n=2)
