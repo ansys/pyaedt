@@ -482,7 +482,7 @@ class Desktop(object):
         if getattr(self, "_initialized", None) is not None and self._initialized:
             try:
                 self.grpc_plugin.recreate_application(True)
-            except Exception:  # pragma no cover
+            except Exception:  # nosec
                 pass
             return
         else:

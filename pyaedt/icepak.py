@@ -2916,7 +2916,7 @@ class Icepak(FieldAnalysis3D):
         inflation_layer_number=3,
         inflation_growth_rate=1.2,
         mesh_growth_rate=1.2,
-    ):
+    ):  # pragma: no cover
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
