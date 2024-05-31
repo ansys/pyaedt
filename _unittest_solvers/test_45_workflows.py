@@ -134,7 +134,6 @@ class TestClass:
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
-    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
         aedtapp = add_app(application=pyaedt.TwinBuilder,
                           project_name=twinbuilder_circuit,

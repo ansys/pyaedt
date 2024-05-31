@@ -23,7 +23,6 @@
 import math
 import os
 import sys
-import time
 
 import pyaedt
 from pyaedt import is_linux
@@ -46,6 +45,7 @@ extension_description = "Create Circuit design from Twin Builder design"
 
 
 def main(extension_args):
+
     app = pyaedt.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -53,6 +53,12 @@ def main(extension_args):
         aedt_process_id=aedt_process_id,
         student_version=is_student,
     )
+
+    if is_linux:
+        app.logger.error("This extension is not compatible with Linux.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return True
 
     active_project = app.active_project()
     active_design = app.active_design()
@@ -69,9 +75,6 @@ def main(extension_args):
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
     cir = pyaedt.Circuit(designname=tb.design_name + "_Translated")
-    if is_linux:
-        time.sleep(1)
-        app.CloseAllWindows()
 
     from pyaedt.generic.constants import unit_converter
 
