@@ -5,34 +5,26 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 import csv
 import os
+import re
 import warnings
 
-from pyaedt import is_ironpython
+import pyaedt
 from pyaedt import is_linux
-from pyaedt.application.Design import DesignSettingsManipulation
-from pyaedt.generic.general_methods import GrpcApiError
-from pyaedt.modeler.cad.elements3d import FacePrimitive
-from pyaedt.modeler.geometry_operators import GeometryOperators as go
-from pyaedt.modules.SetupTemplates import SetupKeys
-
-if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
-
-import re
-
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.Design import DesignSettingsManipulation
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import ExponentialDictionary
@@ -45,6 +37,7 @@ from pyaedt.modules.Boundary import PowerLawDictionary
 from pyaedt.modules.Boundary import SinusoidalDictionary
 from pyaedt.modules.Boundary import SquareWaveDictionary
 from pyaedt.modules.Boundary import _create_boundary
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -3071,7 +3064,7 @@ class Icepak(FieldAnalysis3D):
         else:
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
-        subprocess.call(fl_ucommand)
+        pyaedt.desktop.run_process(fl_ucommand)
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)

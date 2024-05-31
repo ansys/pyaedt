@@ -64,6 +64,16 @@ class TestClass:
     def test_01_installed_path(self):
         assert self.aedtapp.desktop_class.install_path
 
+    def test_01_desktop_class_path(self):
+        assert os.path.exists(self.aedtapp.desktop_class.project_path())
+        assert os.path.exists(self.aedtapp.desktop_class.project_path(self.aedtapp.project_name))
+
+        assert len(self.aedtapp.desktop_class.design_list(self.aedtapp.project_name)) == 1
+        assert self.aedtapp.desktop_class.design_type() == "HFSS"
+        assert self.aedtapp.desktop_class.design_type(self.aedtapp.project_name, self.aedtapp.design_name) == "HFSS"
+        assert os.path.exists(self.aedtapp.desktop_class.src_dir)
+        assert os.path.exists(self.aedtapp.desktop_class.pyaedt_dir)
+
     def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
         assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
