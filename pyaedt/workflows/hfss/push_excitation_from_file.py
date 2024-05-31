@@ -21,19 +21,6 @@
 # SOFTWARE.
 
 import os.path
-from tkinter import Button
-from tkinter import END
-from tkinter import Label
-from tkinter import StringVar
-from tkinter import Text
-from tkinter import Tk
-from tkinter import filedialog
-from tkinter import mainloop
-from tkinter import ttk
-from tkinter.ttk import Combobox
-
-import PIL.Image
-import PIL.ImageTk
 
 import pyaedt
 from pyaedt import Hfss
@@ -55,6 +42,14 @@ extension_description = "Push excitation from file"
 
 
 def frontend():  # pragma: no cover
+
+    import tkinter
+    from tkinter import filedialog
+    from tkinter import ttk
+
+    import PIL.Image
+    import PIL.ImageTk
+
     # Get ports
     app = pyaedt.Desktop(
         new_desktop_session=False,
@@ -77,10 +72,11 @@ def frontend():  # pragma: no cover
     if not port_selection:
         app.logger.error("No ports found.")
         hfss.release_desktop(False, False)
-        return extension_arguments["file_path"], extension_arguments["choice"]
+        output_dict = {"choice": "", "file_path": ""}
+        return output_dict
 
     # Create UI
-    master = Tk()
+    master = tkinter.Tk()
 
     master.geometry("700x150")
 
@@ -98,20 +94,20 @@ def frontend():  # pragma: no cover
     style = ttk.Style()
     style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
 
-    var = StringVar()
-    label = Label(master, textvariable=var)
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
     var.set("Choose a port:")
     label.grid(row=0, column=0, pady=10)
-    combo = Combobox(master, width=30)  # Set the width of the combobox
+    combo = ttk.Combobox(master, width=30)  # Set the width of the combobox
     combo["values"] = port_selection
     combo.current(0)
     combo.grid(row=0, column=1, pady=10, padx=5)
     combo.focus_set()
-    var2 = StringVar()
-    label2 = Label(master, textvariable=var2)
+    var2 = tkinter.StringVar()
+    label2 = tkinter.Label(master, textvariable=var2)
     var2.set("Browse file:")
     label2.grid(row=1, column=0, pady=10)
-    text = Text(master, width=50, height=1)
+    text = tkinter.Text(master, width=50, height=1)
     text.grid(row=1, column=1, pady=10, padx=5)
 
     def browseFiles():
@@ -120,21 +116,21 @@ def frontend():  # pragma: no cover
             title="Select a Transient File",
             filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
         )
-        text.insert(END, filename)
+        text.insert(tkinter.END, filename)
 
-    b1 = Button(master, text="...", width=10, command=browseFiles)
+    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
     b1.grid(row=3, column=0)
     b1.grid(row=1, column=2, pady=10)
 
     def callback():
         master.choice_ui = combo.get()
-        master.file_path_ui = text.get("1.0", END).strip()
+        master.file_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b = Button(master, text="Ok", width=40, command=callback)
+    b = tkinter.Button(master, text="Ok", width=40, command=callback)
     b.grid(row=2, column=1, pady=10)
 
-    mainloop()
+    tkinter.mainloop()
 
     file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
     choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
