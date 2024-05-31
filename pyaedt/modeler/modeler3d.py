@@ -823,19 +823,18 @@ class Modeler3D(Primitives3D):
         self,
         axis,
         origin,
-        bottom_radius=20,
-        top_radius=10,
-        cone_height=30,
-        name=None,
-        material=None,
-        ring_height=0.1,
+        bottom_radius,
+        top_radius,
+        cone_height,
+        ring_height,
         thickness=None,
+        name=None,
     ):
         """Create rings in a conical shape.
 
         Parameters
         ----------
-        axis : str or :class:`pyaedt.generic.constants.AXIS`
+        axis : str
             Coordinate system of the axis.
         origin : list, optional
             List of ``[x, y, z]`` coordinates for the center position
@@ -846,16 +845,13 @@ class Modeler3D(Primitives3D):
             Top radius of the cone.
         cone_height : float
             Height of the cone.
+        ring_height : float
+            Ring height.
+        thickness : float, optional
+            Ring thickness. The default is ``None``, in which case a 2D sheet is created.
         name : str, optional
             Name of the cone. The default is ``None``, in which case
             the default name is assigned.
-        material : str, optional
-            Name of the material. The default is ``None``, in which case
-            the default material is assigned.
-        ring_height : float, optional
-            Ring height. The default is ``0.1``.
-        thickness : float, optional
-            Ring thickness. The default is ``None``, in which case a 2D sheet is created.
 
         Returns
         -------
@@ -876,13 +872,12 @@ class Modeler3D(Primitives3D):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0,0,0]
-        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z',origin=[0, 0, 0],
-        ...                                           bottom_radius=2,top_radius=3,height=4,
-        ...                                           material="copper")
+        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z', origin=[0, 0, 0],
+        ...                                           bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1)
 
         """
-        if bottom_radius == top_radius:
-            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
+        if bottom_radius <= top_radius:
+            self.logger.error("the ``bottom_radius`` argument must must be bigger than ``top_radius``.")
             return False
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
             self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
@@ -893,6 +888,9 @@ class Modeler3D(Primitives3D):
         if isinstance(cone_height, (int, float)) and cone_height <= 0:
             self.logger.error("The ``cone_height`` argument must be greater than 0.")
             return False
+        if isinstance(ring_height, (int, float)) and ring_height <= 0:
+            self.logger.error("The ``ring_height`` argument must be greater than 0.")
+            return False
         if len(origin) != 3:
             self.logger.error("The ``origin`` argument must be a valid three-element list.")
             return False
@@ -902,19 +900,25 @@ class Modeler3D(Primitives3D):
 
         n_strips = int(cone_height / ring_height)
 
+        if not thickness:
+            thickness = 0.0
+
         solids = []
         for strip in range(n_strips):
             if strip % 2 == 0:
                 z = strip * ring_height
                 r_ini = top_radius + z * (bottom_radius - top_radius) / cone_height
                 r_end = top_radius + (z + ring_height) * (bottom_radius - top_radius) / cone_height
+                polyline_points = [[r_ini, 0, cone_height - z], [r_end, 0, cone_height - z - ring_height]]
+                pol = self.create_polyline(polyline_points, name=name)
+                pol.sweep_around_axis("Z")
+                solid = self.thicken_sheet(pol.name, thickness=thickness)
 
-                # Create polyline points
-                polyline_points = [[r_ini, 0, h - z], [r_end, 0, h - z - ht]]
-                # Create polyline
-                pol = aedtapp.modeler.create_polyline(polyline_points, name=name)
-                pol.sweep_around_axis(axis)
-                solids.append(aedtapp.modeler.thicken_sheet(pol.name, thickness=thickness))
+                if axis == "X":
+                    solid.rotate(axis=1, angle=90.0)
+                elif axis == "Y":
+                    solid.rotate(axis=0, angle=-90.0)
+                solids.append(solid)
         return solids
 
     @pyaedt_function_handler()
