@@ -54,7 +54,7 @@ def main(extension_args):
         student_version=is_student,
     )
 
-    if is_linux:
+    if is_linux:  # pragma: no cover
         app.logger.error("This extension is not compatible with Linux.")
         if not extension_args["is_test"]:
             app.release_desktop(False, False)
