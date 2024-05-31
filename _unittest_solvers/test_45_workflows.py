@@ -9,7 +9,7 @@ from _unittest.conftest import local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
-twinbuilder_circuit = "twin_circuit"
+twinbuilder_circuit = "TB_test"
 report = "report"
 
 test_subfolder = "T45"
@@ -147,5 +147,5 @@ class TestClass:
         assert main({"is_test": True})
 
         circuit = pyaedt.Circuit()
-        assert len(circuit.modeler.schematic.components) == 3
+        assert len(circuit.modeler.schematic.components) == 10
         aedtapp.close_project(aedtapp.project_name)
