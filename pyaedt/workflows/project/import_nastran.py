@@ -125,21 +125,31 @@ def frontend():  # pragma: no cover
         master.destroy()
 
     def preview():
-        design_name = generate_unique_name("Preview", n=2)
-        app = pyaedt.Hfss(
-            new_desktop_session=False,
-            specified_version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-            designname=design_name,
-        )
         master.decimate_ui = float(check.get("1.0", END).strip())
         master.lightweight_ui = True if light.get() == 1 else False
         master.planar_ui = True if planar.get() == 1 else False
         master.file_path_ui = text.get("1.0", END).strip()
-        app.modeler.import_nastran(master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True)
-        app.release_desktop(False, False)
+
+        if master.file_path_ui.endswith(".nas"):
+            design_name = generate_unique_name("Preview", n=2)
+
+            app = pyaedt.Hfss(
+                new_desktop_session=False,
+                specified_version=version,
+                port=port,
+                aedt_process_id=aedt_process_id,
+                student_version=is_student,
+                designname=design_name,
+            )
+
+            app.modeler.import_nastran(
+                master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True
+            )
+            app.release_desktop(False, False)
+        else:
+            from pyaedt.modules.solutions import simplify_stl
+
+            simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
 
     b2 = Button(master, text="Preview", width=40, command=preview)
     b2.grid(row=5, column=0, pady=10, padx=10)
