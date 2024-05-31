@@ -15,6 +15,7 @@ from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.settings import settings
 
 settings.lazy_load = False
+settings.wait_for_license = True
 
 
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
@@ -40,9 +41,9 @@ class TestClass:
         aedtapp = Hfss3dLayout(ic_mode=True)
         assert aedtapp.design_type == "HFSS 3D Layout Design"
         assert aedtapp.solution_type == "HFSS3DLayout"
-        assert aedtapp.ic_mode == True
+        assert aedtapp.ic_mode
         aedtapp.ic_mode = False
-        assert aedtapp.ic_mode == False
+        assert not aedtapp.ic_mode
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_run_desktop_twinbuilder(self):
