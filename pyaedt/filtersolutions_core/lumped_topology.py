@@ -8,9 +8,7 @@ import pyaedt
 
 
 class LumpedTopology:
-    """Defines attributes and parameters of lumped filters."""
-
-    """Defines attributes of lumped element parasitics.
+    """Defines attributes and parameters of lumped filters.
 
     This class allows you to construct all the necessary attributes for the LumpedDesign class.
 
