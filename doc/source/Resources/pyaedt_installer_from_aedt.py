@@ -202,21 +202,27 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
 
-            run_command(
-                '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
-                                                                                                   unzipped_path))
-            run_command(
-                '"{}" install --no-cache-dir --no-index --find-links={} jupyterlab'.format(pip_exe, unzipped_path))
+            if args.version <= "231":
+                run_command(
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
+                                                                                                       unzipped_path))
+            else:
+                run_command(
+                    '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
+                                                                                                      unzipped_path))
 
         else:
             run_command('"{}" -m pip install --upgrade pip'.format(python_exe))
             run_command('"{}" --default-timeout=1000 install wheel'.format(pip_exe))
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
-            run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+            if args.version <= "231":
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+            else:
+                run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
 
         if args.version == "231":
             run_command('"{}" uninstall -y pywin32'.format(pip_exe))
@@ -234,10 +240,20 @@ def install_pyaedt():
             with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
-
-            run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt'.format(pip_exe, unzipped_path))
+            if args.version <= "231":
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe,
+                                                                                                               unzipped_path))
+            else:
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
+                                                                                                              unzipped_path))
         else:
-            run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+            if args.version <= "231":
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
+            else:
+                run_command('"{}" --default-timeout=1000 install pyaedt[installer]'.format(pip_exe))
     sys.exit(0)
 
 

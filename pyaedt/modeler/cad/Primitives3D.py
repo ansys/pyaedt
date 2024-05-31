@@ -1287,20 +1287,20 @@ class Primitives3D(GeometryModeler):
         dtheta = 2 * pi / faces
         theta = pi / 2
         pts = [(internal_radius, 0, elevation), (internal_radius, internal_radius * tan(dtheta / 2), elevation)]
-        rin = internal_radius * tan(dtheta / 2) * 2
-        x = rin
-        r = rin
+        r_in = internal_radius * tan(dtheta / 2) * 2
+        x = r_in
+        r = r_in
         for i in range(faces):
             r += 1
             theta += dtheta
             x = x + r * cos(theta)
-            dr = (width + spacing) / (x - rin)
+            dr = (width + spacing) / (x - r_in)
 
         for i in range(turns * faces - int(faces / 2) - 1):
-            rin += dr
+            r_in += dr
             theta += dtheta
             x0, y0 = pts[-1][:2]
-            x1, y1 = x0 + rin * cos(theta), y0 + rin * sin(theta)
+            x1, y1 = x0 + r_in * cos(theta), y0 + r_in * sin(theta)
             pts.append((x1, y1, elevation))
 
         pts.append((x1, 0, elevation))

@@ -1977,6 +1977,53 @@ class Q3d(QExtractor, object):
         setup.update()
         return setup
 
+    @pyaedt_function_handler()
+    def assign_thin_conductor(self, assignment, material="copper", thickness=1, name=""):
+        """Assign a thin conductor to a sheet. The method accepts both a sheet name or a face id.
+        If a face it is provided, then a sheet will be created and the boundary assigned to it.
+
+        Parameters
+        ----------
+        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d` or list
+            Object assignment.
+        material : str, optional
+            Material. Default is ``"copper"``.
+        thickness : float, str, optional
+            Conductor thickness. It can be as number of a string with units. Default is ``1``.
+        name : str, optional
+            Name of the boundary. Default is ``""``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+        """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        new_ass = []
+        for ass in assignment:
+            if isinstance(ass, int):
+                try:
+                    new_ass.append(self.modeler.create_object_from_face(ass)._m_name)
+                except Exception:  # pragma: no cover
+                    self.logger.error("Thin conductor can be applied only to sheet objects or faces.")
+            elif ass in self.modeler.sheet_names:
+                new_ass.append(ass)
+            else:
+                self.logger.error("Thin conductor can be applied only to sheet objects.")
+        if not new_ass:
+            return False
+        if not name:
+            name = generate_unique_name("Thin_Cond")
+        if isinstance(thickness, (float, int)):
+            thickness = str(thickness) + self.modeler.model_units
+        props = OrderedDict({"Objects": new_ass, "Material": material, "Thickness": thickness})
+
+        bound = BoundaryObject(self, name, props, "ThinConductor")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False  # pragma: no cover
+
 
 class Q2d(QExtractor, object):
     """Provides the Q2D app interface.

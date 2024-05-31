@@ -1,33 +1,81 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 import os
 import sys
 
 import pyaedt
-from pyaedt import Circuit
-from pyaedt import Desktop
-from pyaedt import TwinBuilder
+from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+import pyaedt.workflows
+from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
+from pyaedt.workflows.misc import get_port
+from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_student
 
-if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-    port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    version = os.environ["PYAEDT_SCRIPT_VERSION"]
-else:
-    port = 0
-    version = "2024.1"
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+is_student = is_student()
 
-with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=version, port=port) as d:
-    proj = d.active_project()
-    des = d.active_design()
-    projname = proj.GetName()
-    if des.GetDesignType() in ["Twin Builder"]:
-        desname = des.GetName().split(";")[1]
-        tb = TwinBuilder(designname=desname, projectname=projname)
-    else:
-        d.logger.error("An active TwinBuilder Design is needed.")
+# Extension batch arguments
+extension_arguments = None
+extension_description = "Create Circuit design from Twin Builder design"
+
+
+def main(extension_args):
+
+    app = pyaedt.Desktop(
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    if is_linux:  # pragma: no cover
+        app.logger.error("This extension is not compatible with Linux.")
+        if not extension_args["is_test"]:
+            app.release_desktop(False, False)
+        return True
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+
+    if active_design.GetDesignType() in ["Twin Builder"]:
+        design_name = active_design.GetName().split(";")[1]
+        tb = pyaedt.TwinBuilder(designname=design_name, projectname=project_name)
+    else:  # pragma: no cover
+        app.logger.error("An active TwinBuilder Design is needed.")
         sys.exit()
+
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
-    cir = Circuit(designname=tb.design_name + "_Translated")
+    cir = pyaedt.Circuit(designname=tb.design_name + "_Translated")
+
     from pyaedt.generic.constants import unit_converter
 
     pins_unconnected = []
@@ -102,3 +150,12 @@ with Desktop(new_desktop_session=False, close_on_exit=False, specified_version=v
             if pin.net == "":
                 offsety = [-i for i in cpms[1]]
                 cir.modeler.move(cpms[0], offsety)
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+    return True
+
+
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments(extension_arguments, extension_description)
+    main(args)

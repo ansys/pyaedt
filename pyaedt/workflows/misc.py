@@ -22,7 +22,9 @@
 
 """Miscellaneous Methods for PyAEDT workflows."""
 
+import argparse
 import os
+import sys
 
 from pyaedt.misc import current_version
 
@@ -30,7 +32,7 @@ from pyaedt.misc import current_version
 def get_process_id():
     """Get process ID from environment variable."""
     aedt_process_id = None
-    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):
+    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):  # pragma: no cover
         aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
     return aedt_process_id
 
@@ -54,6 +56,39 @@ def get_aedt_version():
 def is_student():
     """Get if AEDT student is opened from environment variable."""
     student_version = False
-    if "PYAEDT_STUDENT_VERSION" in os.environ:
+    if "PYAEDT_STUDENT_VERSION" in os.environ:  # pragma: no cover
         student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
     return student_version
+
+
+def get_arguments(args=None, description=""):  # pragma: no cover
+    """Get extension arguments."""
+
+    output_args = {"is_batch": False, "is_test": False}
+
+    if len(sys.argv) != 1:  # pragma: no cover
+        parsed_args = __parse_arguments(args, description)
+        output_args["is_batch"] = True
+        for k, v in parsed_args.__dict__.items():
+            if v is not None:
+                output_args[k] = __string_to_bool(v)
+    return output_args
+
+
+def __string_to_bool(v):  # pragma: no cover
+    """Change string to bool."""
+    if isinstance(v, str) and v.lower() in ("true", "1"):
+        v = True
+    elif isinstance(v, str) and v.lower() in ("false", "0"):
+        v = False
+    return v
+
+
+def __parse_arguments(args=None, description=""):  # pragma: no cover
+    """Parse arguments."""
+    parser = argparse.ArgumentParser(description=description)
+    if args:
+        for arg in args:
+            parser.add_argument(f"--{arg}", default=args[arg])
+    parsed_args = parser.parse_args()
+    return parsed_args
