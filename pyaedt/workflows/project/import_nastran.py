@@ -1,8 +1,28 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os.path
 from tkinter import Button
 from tkinter import Checkbutton
-
-# import filedialog module
 from tkinter import END
 from tkinter import IntVar
 from tkinter import Label
@@ -16,26 +36,30 @@ from tkinter import ttk
 import PIL.Image
 import PIL.ImageTk
 
-from pyaedt import Desktop
+import pyaedt
+from pyaedt import generate_unique_name
 from pyaedt import get_pyaedt_app
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_student
 
-decimate = 0.0
+port = get_port()
+version = get_aedt_version()
+aedt_process_id = get_process_id()
+is_student = is_student()
 
-lightweight = False
-file_path = ""
+# Extension batch arguments
+extension_arguments = {"decimate": 0.0, "lightweight": False, "planar": True, "file_path": ""}
+extension_description = "Import Nastran or STL file"
 
 
-def browse_nastran():
-    # Function for opening the
-    # file explorer window
-
+def frontend():  # pragma: no cover
     master = Tk()
 
-    master.geometry("700x200")
+    master.geometry("750x250")
 
     master.title("Import Nastran or STL file")
 
@@ -55,22 +79,32 @@ def browse_nastran():
     label = Label(master, textvariable=var)
     var.set("Decimation factor (0-0.9). It may affect results:")
     label.grid(row=0, column=0, pady=10)
-    check = Text(master, width=20, height=1)  # Set the width of the combobox
+    check = Text(master, width=20, height=1)
     check.insert(END, "0.0")
     check.grid(row=0, column=1, pady=10, padx=5)
+
     var = StringVar()
     label = Label(master, textvariable=var)
     var.set("Import as lightweight (only HFSS):")
     label.grid(row=1, column=0, pady=10)
     light = IntVar()
-    check2 = Checkbutton(master, width=30, variable=light)  # Set the width of the combobox
+    check2 = Checkbutton(master, width=30, variable=light)
     check2.grid(row=1, column=1, pady=10, padx=5)
+
+    var = StringVar()
+    label = Label(master, textvariable=var)
+    var.set("Enable planar merge:")
+    label.grid(row=2, column=0, pady=10)
+    planar = IntVar(value=1)
+    check3 = Checkbutton(master, width=30, variable=planar)
+    check3.grid(row=2, column=1, pady=10, padx=5)
+
     var2 = StringVar()
     label2 = Label(master, textvariable=var2)
     var2.set("Browse file:")
-    label2.grid(row=2, column=0, pady=10)
+    label2.grid(row=3, column=0, pady=10)
     text = Text(master, width=40, height=1)
-    text.grid(row=2, column=1, pady=10, padx=5)
+    text.grid(row=3, column=1, pady=10, padx=5)
 
     def browseFiles():
         filename = filedialog.askopenfilename(
@@ -79,62 +113,114 @@ def browse_nastran():
             filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
         )
         text.insert(END, filename)
-        # # Change label contents
-        # return filename
 
     b1 = Button(master, text="...", width=10, command=browseFiles)
-    b1.grid(row=3, column=0)
-    # b1.pack(pady=10)
-    b1.grid(row=2, column=2, pady=10)
+    b1.grid(row=3, column=2, pady=10)
 
     def callback():
-        global lightweight, decimate, file_path
-        decimate = float(check.get("1.0", END).strip())
-        lightweight = True if light.get() == 1 else False
-        file_path = text.get("1.0", END).strip()
+        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.lightweight_ui = True if light.get() == 1 else False
+        master.planar_ui = True if planar.get() == 1 else False
+        master.file_path_ui = text.get("1.0", END).strip()
         master.destroy()
-        return True
 
-    b = Button(master, text="Ok", width=40, command=callback)
-    # b.pack(pady=10)
-    b.grid(row=3, column=1, pady=10)
+    def preview():
+        design_name = generate_unique_name("Preview", n=2)
+        app = pyaedt.Hfss(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+            designname=design_name,
+        )
+        master.decimate_ui = float(check.get("1.0", END).strip())
+        master.lightweight_ui = True if light.get() == 1 else False
+        master.planar_ui = True if planar.get() == 1 else False
+        master.file_path_ui = text.get("1.0", END).strip()
+        app.modeler.import_nastran(master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True)
+        app.release_desktop(False, False)
+
+    b2 = Button(master, text="Preview", width=40, command=preview)
+    b2.grid(row=5, column=0, pady=10, padx=10)
+
+    b3 = Button(master, text="Ok", width=40, command=callback)
+    b3.grid(row=5, column=1, pady=10, padx=10)
 
     mainloop()
 
+    decimate_ui = getattr(master, "decimate_ui", extension_arguments["decimate"])
+    lightweight_ui = getattr(master, "lightweight_ui", extension_arguments["lightweight"])
+    planar_ui = getattr(master, "planar_ui", extension_arguments["planar"])
+    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
 
-browse_nastran()
+    output_dict = {
+        "decimate": decimate_ui,
+        "lightweight": lightweight_ui,
+        "planar": planar_ui,
+        "file_path": file_path_ui,
+    }
+    return output_dict
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
 
-if os.path.exists(file_path):
-    with Desktop(
-        new_desktop_session=False,
-        close_on_exit=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-    ) as d:
-        proj = d.active_project()
-        des = d.active_design()
-        projname = proj.GetName()
-        desname = des.GetName()
-        app = get_pyaedt_app(projname, desname)
+def main(extension_args):
+    file_path = extension_args["file_path"]
+    lightweight = extension_args["lightweight"]
+    decimate = extension_args["decimate"]
+    planar = extension_args["planar"]
+
+    if os.path.exists(file_path):
+        app = pyaedt.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+
+        active_project = app.active_project()
+        active_design = app.active_design()
+
+        project_name = active_project.GetName()
+        design_name = active_design.GetName()
+
+        aedtapp = get_pyaedt_app(project_name, design_name)
+
         if file_path.endswith(".nas"):
-            app.modeler.import_nastran(file_path, import_as_light_weight=lightweight, decimation=decimate)
+            aedtapp.modeler.import_nastran(
+                file_path, import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
+            )
         else:
             from pyaedt.modules.solutions import simplify_stl
 
-            outfile = simplify_stl(file_path, decimation=decimate, aggressiveness=5)
-            app.modeler.import_3d_cad(outfile, healing=False, create_lightweigth_part=lightweight)
-        d.logger.info("Nastran imported correctly.")
-else:
-    with Desktop(
-        new_desktop_session=False,
-        close_on_exit=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-    ) as d:
-        d.odesktop.AddMessage("", "", 3, "Wrong file selected. Select a .nas file")
+            outfile = simplify_stl(file_path, decimation=decimate)
+            aedtapp.modeler.import_3d_cad(
+                outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
+            )
+        app.logger.info("Geometry imported correctly.")
+    else:
+        app = pyaedt.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+        app.logger.debug("Wrong file selected. Select a .nas or .stl file")
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+    return True
+
+
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments(extension_arguments, extension_description)
+
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        output = frontend()
+        if output:
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
+    main(args)
