@@ -1,4 +1,4 @@
-"""Download example datasets from https://github.com/pyansys/example-data"""
+"""Download example datasets from https://github.com/ansys/example-data"""
 
 import os
 import shutil

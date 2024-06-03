@@ -1602,7 +1602,7 @@ def compute_fft(time_values, data_values, window=None):  # pragma: no cover
     else:
         valueFFT = np.fft.fft(data_values, num_points)
     Npoints = int(len(valueFFT) / 2)
-    valueFFT = valueFFT[1 : Npoints + 1]
+    valueFFT = valueFFT[:Npoints]
     valueFFT = 2 * valueFFT / len(valueFFT)
     n = np.arange(num_points)
     freq = n / deltaT
