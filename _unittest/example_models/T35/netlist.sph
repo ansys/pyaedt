@@ -1,0 +1,4 @@
+RResistor1 net_1 net_2 10
+LInductor1 net_2 net_3 1.5 
+CCapacitor1 net_3 net_4 7.5
+.end

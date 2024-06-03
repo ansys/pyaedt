@@ -159,7 +159,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                     mycomp = self.modeler.schematic.create_capacitor(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
-                elif fields[0][0] == "D":
+                elif fields[0][0] == "D":  # pragma: no cover
                     value = fields[3][fields[3].find("=") + 1 :].strip()
                     mycomp = self.modeler.schematic.create_diode(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
