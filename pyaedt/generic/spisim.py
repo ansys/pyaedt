@@ -252,6 +252,8 @@ class SpiSim:
                 fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
         retries = 3
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            retries = 10
         trynumb = 0
         while trynumb < retries:
             out_processing = self._compute_spisim(
