@@ -581,7 +581,7 @@ class QExtractor(FieldAnalysis3D, object):
                 if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
-            else:
+            else:  # pragma: no cover
                 self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
@@ -706,7 +706,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
         else:
@@ -729,7 +729,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 

@@ -325,6 +325,7 @@ class TestClass:
                                       matrix_type="Maxwell, Spice, Couple")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C",
                                       matrix_type="Maxwell, Spice, Couple")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
                                           problem_type="AC RL, DC RL", matrix_type="Maxwell, Spice, Couple")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
@@ -339,6 +340,8 @@ class TestClass:
                                       sweep="Last Adaptive")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup",
                                           sweep="LastAdaptive")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                          sweep="Last Adaptive Invented")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
                                       reduce_matrix="Original")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
