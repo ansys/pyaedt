@@ -131,7 +131,7 @@ class TestClass:
                     == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
             )
 
-    def test_06c_autoidentify(self):
+    def test_06c_auto_identify(self):
         assert self.aedtapp.auto_identify_nets()
         assert self.aedtapp.delete_all_nets()
         assert self.aedtapp.auto_identify_nets()
@@ -281,7 +281,7 @@ class TestClass:
         assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
 
         sources_cg = {"Box1": "2V"}
-        sources_ac = {"Box1:Source1": "2", "Box1_1:Source2": "5V"}
+        sources_ac = {"Box1:Source1": ["2"], "Box1_1:Source2": "5V"}
         assert q3d.edit_sources(sources_cg, sources_ac)
 
         sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
@@ -299,6 +299,10 @@ class TestClass:
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
+
+        sources_dc = {"Box1:Source1": ["20v"]}
+        assert q3d.edit_sources(None, None, sources_dc)
+
         self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_15_export_matrix_data(self, add_app):
@@ -426,10 +430,20 @@ class TestClass:
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
     def test_19_assign_thin_conductor(self, add_app):
         q3d = add_app(application=Q3d, project_name="thin", just_open=True)
         box = q3d.modeler.create_box([1,1,1], [10,10,10])
         assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
-        rect =  q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
+        rect = q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
         assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
         assert not q3d.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
+        assert not q3d.assign_thin_econductor(box, material="aluminum", thickness="3mm", name="")
+
+    def test_20_auto_identify_no_metal(self, add_app):
+        q3d = add_app(application=Q3d, project_name="no_metal", just_open=True)
+        q3d.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
+        assert q3d.auto_identify_nets()
+        assert not q3d.nets
+
+
