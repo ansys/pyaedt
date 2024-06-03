@@ -31,6 +31,7 @@ class FilterType(Enum):
     CHEBYSHEV_II = 5
     HOURGLASS = 6
     ELLIPTIC = 7
+    DELAY = 8
 
 
 #   CUSTOM = 8
@@ -271,6 +272,16 @@ class Attributes:
         self._dll.getMinimumOrderStopbandFrequency.argtypes = [c_char_p, c_int]
         self._dll.getMinimumOrderStopbandFrequency.restype = c_int
 
+        self._dll.setMinimumOrderGroupDelayError.argtype = c_char_p
+        self._dll.setMinimumOrderGroupDelayError.restype = c_int
+        self._dll.getMinimumOrderGroupDelayError.argtypes = [c_char_p, c_int]
+        self._dll.getMinimumOrderGroupDelayError.restype = c_int
+
+        self._dll.setMinimumOrderGroupDelayCutoff.argtype = c_char_p
+        self._dll.setMinimumOrderGroupDelayCutoff.restype = c_int
+        self._dll.getMinimumOrderGroupDelayCutoff.argtypes = [c_char_p, c_int]
+        self._dll.getMinimumOrderGroupDelayCutoff.restype = c_int
+
         self._dll.setIdealMinimumOrder.argtype = POINTER(c_int)
         self._dll.setIdealMinimumOrder.restype = c_int
 
@@ -286,6 +297,11 @@ class Attributes:
         self._dll.setCenterFrequency.restype = c_int
         self._dll.getCenterFrequency.argtypes = [c_char_p, c_int]
         self._dll.getCenterFrequency.restype = c_int
+
+        self._dll.setDelayTime.argtype = c_char_p
+        self._dll.setDelayTime.restype = c_int
+        self._dll.getDelayTime.argtypes = [c_char_p, c_int]
+        self._dll.getDelayTime.restype = c_int
 
         self._dll.setPassbandFrequency.argtype = c_char_p
         self._dll.setPassbandFrequency.restype = c_int
@@ -327,15 +343,30 @@ class Attributes:
         self._dll.getStandardCutoffEnabled.argtype = POINTER(c_bool)
         self._dll.getStandardCutoffEnabled.restype = c_int
 
+        self._dll.setEquirippleDelayEnabled.argtype = c_bool
+        self._dll.setEquirippleDelayEnabled.restype = c_int
+        self._dll.getEquirippleDelayEnabled.argtype = POINTER(c_bool)
+        self._dll.getEquirippleDelayEnabled.restype = c_int
+
+        self._dll.setDelayRipplePeriod.argtype = c_char_p
+        self._dll.setDelayRipplePeriod.restype = c_int
+        self._dll.getDelayRipplePeriod.argtypes = [c_char_p, c_int]
+        self._dll.getDelayRipplePeriod.restype = c_int
+
+        self._dll.setGroupDealyRipplePercentage.argtype = c_int
+        self._dll.setGroupDealyRipplePercentage.restype = c_int
+        self._dll.setGroupDealyRipplePercentage.argtype = POINTER(c_int)
+        self._dll.setGroupDealyRipplePercentage.restype = c_int
+
         self._dll.setCutoffAttenuationdB.argtype = c_char_p
         self._dll.setCutoffAttenuationdB.restype = c_int
         self._dll.getCutoffAttenuationdB.argtypes = [c_char_p, c_int]
         self._dll.getCutoffAttenuationdB.restype = c_int
 
-        self._dll.setBesselNormalizedDelay.argtype = c_bool
-        self._dll.setBesselNormalizedDelay.restype = c_int
-        self._dll.getBesselNormalizedDelay.argtype = POINTER(c_bool)
-        self._dll.getBesselNormalizedDelay.restype = c_int
+        self._dll.setBesselNormalizedDelayEnabled.argtype = c_bool
+        self._dll.setBesselNormalizedDelayEnabled.restype = c_int
+        self._dll.getBesselNormalizedDelayEnabled.argtype = POINTER(c_bool)
+        self._dll.getBesselNormalizedDelayEnabled.restype = c_int
 
         self._dll.setBesselEquiRippleDelayPeriod.argtype = c_char_p
         self._dll.setBesselEquiRippleDelayPeriod.restype = c_int
@@ -660,6 +691,48 @@ class Attributes:
         )
 
     @property
+    def minimum_order_group_delay_error_percent(self) -> str:
+        """Filter maximum group delay in % for calculation of the filter minimum order.
+        The default is `5`.
+
+        Returns
+        -------
+        str
+        """
+        minimum_order_group_delay_error_percent_string = self._dll_interface.get_string(
+            self._dll.getMinimumOrderGroupDelayError
+        )
+        return minimum_order_group_delay_error_percent_string
+
+    @minimum_order_group_delay_error_percent.setter
+    def minimum_order_group_delay_error_percent(self, minimum_order_group_delay_error_percent):
+        self._dll_interface.set_string(
+            self._dll.setMinimumOrderGroupDelayError,
+            minimum_order_group_delay_error_percent,
+        )
+
+    @property
+    def minimum_order_group_delay_cutoff(self) -> str:
+        """Filter group dealy cutoff frequency for calculation of the filter minimum order.
+        The default is `10 GHz`.
+
+        Returns
+        -------
+        str
+        """
+        minimum_order_group_delay_cutoff_string = self._dll_interface.get_string(
+            self._dll.getMinimumOrderGroupDelayCutoff
+        )
+        return minimum_order_group_delay_cutoff_string
+
+    @minimum_order_group_delay_cutoff.setter
+    def minimum_order_group_delay_cutoff(self, minimum_order_group_delay_cutoff_string):
+        self._dll_interface.set_string(
+            self._dll.setMinimumOrderGroupDelayCutoff,
+            minimum_order_group_delay_cutoff_string,
+        )
+
+    @property
     def ideal_minimum_order(self) -> int:
         """Filter minimum order for the defined stop band frequency and attenuation parameters.
 
@@ -671,6 +744,22 @@ class Attributes:
         status = self._dll.setIdealMinimumOrder(byref(minimum_order))
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return int(minimum_order.value)
+
+    @property
+    def delay_time(self) -> str:
+        """Filter delay time.
+        The default is `1 ns`.
+
+        Returns
+        -------
+        str
+        """
+        delay_time_string = self._dll_interface.get_string(self._dll.getDelayTime)
+        return delay_time_string
+
+    @delay_time.setter
+    def delay_time(self, delay_time_string):
+        self._dll_interface.set_string(self._dll.setDelayTime, delay_time_string)
 
     @property
     def pass_band_definition(self) -> PassbandDefinition:
@@ -846,6 +935,65 @@ class Attributes:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
+    def equiripple_delay(self) -> bool:
+        """Filter equiripple delay status.
+        The default is `True`.
+
+        Returns
+        -------
+        bool
+        """
+        equiripple_delay = c_bool()
+        status = self._dll.getEquirippleDelayEnabled(byref(equiripple_delay))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(equiripple_delay.value)
+
+    @equiripple_delay.setter
+    def equiripple_delay(self, equiripple_delay: bool):
+        status = self._dll.setEquirippleDelayEnabled(equiripple_delay)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def group_delay_ripple_period(self) -> str:
+        """Filter approximate normalized group delay ripple period.
+        The default is `2`.
+
+        Returns
+        -------
+        str
+        """
+        group_delay_ripple_period_string = self._dll_interface.get_string(self._dll.getDelayRipplePeriod)
+        return group_delay_ripple_period_string
+
+    @group_delay_ripple_period.setter
+    def group_delay_ripple_period(self, group_delay_ripple_period_string):
+        self._dll_interface.set_string(
+            self._dll.setDelayRipplePeriod,
+            group_delay_ripple_period_string,
+        )
+
+    @property
+    def normalized_group_delay_percentage(self) -> int:
+        """Bessel filter ripple percentage.
+        The default is `0`.
+
+        Returns
+        -------
+        int
+        """
+        index = c_int()
+        normalized_group_delay_percentage = list(BesselRipplePercentage)
+        status = self._dll.getGroupDealyRipplePercentage(byref(index))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        normalized_group_delay_percentage_string = normalized_group_delay_percentage[index.value]
+        return normalized_group_delay_percentage_string
+
+    @normalized_group_delay_percentage.setter
+    def normalized_group_delay_percentage(self, column: BesselRipplePercentage):
+        status = self._dll.setGroupDealyRipplePercentage(column.value)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
     def standard_pass_band_attenuation_value_db(self) -> str:
         """Filter cut off attenuation in dB.
         The default is `3.01 dB`.
@@ -876,13 +1024,13 @@ class Attributes:
         bool
         """
         bessel_normalized_delay = c_bool()
-        status = self._dll.getBesselNormalizedDelay(byref(bessel_normalized_delay))
+        status = self._dll.getBesselNormalizedDelayEnabled(byref(bessel_normalized_delay))
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         return bool(bessel_normalized_delay.value)
 
     @bessel_normalized_delay.setter
     def bessel_normalized_delay(self, bessel_normalized_delay: bool):
-        status = self._dll.setBesselNormalizedDelay(bessel_normalized_delay)
+        status = self._dll.setBesselNormalizedDelayEnabled(bessel_normalized_delay)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property

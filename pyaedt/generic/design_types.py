@@ -128,14 +128,12 @@ def Circuit(
 
 
 def FilterSolutions(
-    projectname=None,
     implementation_type=None,
 ):
 
     from pyaedt.filtersolutions import FilterSolutions as app
 
     return app(
-        projectname=projectname,
         implementation_type=implementation_type,
     )
 

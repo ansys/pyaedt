@@ -15,22 +15,15 @@ from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
 class FilterSolutions:
     """Provides the FilterSolutions application interface.
 
-    This class allows you to create an instance of FilterSolutions and
-    define the parameters for an ideal filter.
     The class has access to ideal filter attributes and calcultaed output parameters.
 
     Parameters
     ----------
-    projectname: str, optional
-        Name of the projest to select. The default is ``FilterSolutions API Session``.
     implementation_type: FilterImplementation, optional
         The technology used to implement the filter.
         The full list of implementations are listed in FilterImplementation enum.
         The default is `LUMPED`.
 
-        Returns
-        -------
-        :enum:'FilterImplementation'
 
     Examples
     --------
@@ -44,8 +37,7 @@ class FilterSolutions:
     >>> )
     """
 
-    def __init__(self, projectname=None, implementation_type=None):
-        projectname = projectname
+    def __init__(self, implementation_type=FilterImplementation.LUMPED):
         implementation_type = implementation_type
         if implementation_type == FilterImplementation.LUMPED:
             self._init_lumped_design()
@@ -53,12 +45,7 @@ class FilterSolutions:
             raise RuntimeError("The " + str(implementation_type) + " is not supported on this release.")
 
     def _init_lumped_design(self):
-        """Provides the FilterSolutions application interface.
-
-        This class allows you to create an instance of FilterSolutions and
-        define the parameters for a lumped filter. The class has access to ideal
-        and lumped filter attributes and calcultaed output parameters.
-        """
+        """Initialize the FilterSolutions object to support lumped filter design."""
 
         self.attributes = Attributes()
         self.ideal_response = IdealResponse()
