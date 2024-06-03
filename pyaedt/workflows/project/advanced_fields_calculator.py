@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# import os.path
+import os.path
 
 import pyaedt
 from pyaedt import get_pyaedt_app
@@ -43,12 +43,11 @@ extension_description = "Simplified use of Fields Calculator"
 
 def frontend():  # pragma: no cover
 
-    # import tkinter
-    # from tkinter import filedialog
-    # from tkinter import ttk
-    #
-    # import PIL.Image
-    # import PIL.ImageTk
+    import tkinter
+    from tkinter import ttk
+
+    import PIL.Image
+    import PIL.ImageTk
 
     # Get ports
     app = pyaedt.Desktop(
@@ -63,15 +62,88 @@ def frontend():  # pragma: no cover
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+        design_name = active_design.GetDesignName()
+    else:
+        design_name = active_design.GetName()
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    solved_analysis = setups_with_solved_fields(aedtapp)
+
+    if not solved_analysis:
+        app.logger.error("No field solved solutions.")
+        aedtapp.release_desktop(False, False)
+        output_dict = {"setup": "", "sweep": ""}
+        return output_dict
+    else:
+        solved_analysis_list = [f"{setup} : {sweep}" for setup, sweep in solved_analysis]
+
+    # Create UI
+    master = tkinter.Tk()
+
+    master.geometry("700x150")
+
+    master.title("Advanced fields calculator")
+
+    # Load the logo for the main window
+    icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
+    im = PIL.Image.open(icon_path)
+    photo = PIL.ImageTk.PhotoImage(im)
+
+    # Set the icon for the main window
+    master.iconphoto(True, photo)
+
+    # Configure style for ttk buttons
+    style = ttk.Style()
+    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
+    var.set("Solved setup:")
+    label.grid(row=0, column=0, pady=10, padx=15)
+    combo = ttk.Combobox(master, width=30)
+    combo["values"] = solved_analysis_list
+    combo.current(0)
+    combo.grid(row=0, column=1, pady=10, padx=10)
+    combo.focus_set()
+
+    def callback():
+        master.setup = combo.get()
+        master.destroy()
+
+    b = tkinter.Button(master, text="Ok", width=40, command=callback)
+    b.grid(row=2, column=1, pady=10)
+
     app.release_desktop(False, False)
 
-    output_dict = {"choice": choice_ui, "file_path": file_path_ui}
+    tkinter.mainloop()
+
+    setup_ui = getattr(master, "setup", extension_arguments["setup"])
+    if getattr(master, "setup"):
+        setup, sweep = setup_ui.split(" : ")
+    else:
+        setup = extension_arguments["setup"]
+        sweep = extension_arguments["sweep"]
+
+    output_dict = {"setup": setup, "sweep": sweep}
 
     return output_dict
+
+
+def setups_with_solved_fields(aedt_app):
+    solved_analysis_sweeps = []
+    for setup in aedt_app.setups:
+        if setup.has_fields or setup.has_fields is None and setup.is_solved:
+            solved_analysis_sweeps.append([setup.name, "LastAdaptive"])
+        if setup.sweeps:
+            for sweep in setup.sweeps:
+                has_fields = getattr(sweep, "has_fields", None)
+                if has_fields is None or has_fields and sweep.is_solved:
+                    # Has fields only available for HFSS
+                    solved_analysis_sweeps.append([setup.name, sweep.name])
+
+    return solved_analysis_sweeps
 
 
 def main(extension_args):
@@ -90,11 +162,21 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+        design_name = active_design.GetDesignName()
+    else:
+        design_name = active_design.GetName()
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    solved_setups = setups_with_solved_fields(aedtapp)
+    solved_analysis_list = [f"{setup} : {sweep}" for setup, sweep in solved_setups]
+    analysis_name = ""
     if not setup or not sweep:
+        app.logger.error("Not valid setup or sweep.")
+    else:
+        analysis_name = setup + " : " + sweep
+    if analysis_name not in solved_analysis_list:
         app.logger.error("Not valid setup or sweep.")
 
     if not extension_args["is_test"]:  # pragma: no cover

@@ -198,6 +198,25 @@ class CommonSetup(PropsManager, object):
         return True if sol.get_solution_data() else False
 
     @property
+    def has_fields(self):
+        """Verify if solutions has solved fields.
+            It is only available for HFSS setup.
+
+        Returns
+        -------
+        bool
+            ``True`` if fields are available,
+             ``False`` if fields are not available, and ``None`` if option not available.
+        """
+        if self.p_app.design_type not in ["HFSS"]:
+            return None
+        if "HasFields" in self.p_app.osolution.__dir__():
+            has_fields = self.p_app.osolution.HasFields(self.name + " : LastAdaptive", "nominal")
+            if has_fields == 1:
+                return True
+        return False
+
+    @property
     def p_app(self):
         """Parent."""
         return self._app
