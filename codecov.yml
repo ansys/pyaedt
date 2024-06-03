@@ -23,3 +23,4 @@ coverage:
     - "pyaedt/workflows/installer"  # ignore folders and all its contents
     - "pyaedt/workflows/templates"  # ignore folders and all its contents
     - "pyaedt/common_rpc.py"  # ignore folders and all its contents
+    - "pyaedt/EDB.py"  # ignore folders and all its contents
