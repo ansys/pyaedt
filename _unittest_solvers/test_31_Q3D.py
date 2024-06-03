@@ -26,9 +26,11 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, bondwire_project_name)
+    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder,
+                                   bondwire_project_name)
     test_project = local_scratch.copyfile(example_project)
-    test_matrix = local_scratch.copyfile(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
+    test_matrix = local_scratch.copyfile(
+        os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
     return test_project, test_matrix
 
 
@@ -125,7 +127,8 @@ class TestClass:
         sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
         assert sweep3
         with pytest.raises(AttributeError) as execinfo:
-            mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
+            mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4,
+                                           sweep_type="Invalid")
             assert (
                     execinfo.args[0]
                     == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
@@ -436,17 +439,14 @@ class TestClass:
 
     def test_19_assign_thin_conductor(self, add_app):
         q3d = add_app(application=Q3d, project_name="thin", just_open=True)
-        box = q3d.modeler.create_box([1,1,1], [10,10,10])
+        box = q3d.modeler.create_box([1, 1, 1], [10, 10, 10])
         assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
-        rect = q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
+        rect = q3d.modeler.create_rectangle("X", [1, 1, 1], [10, 10])
         assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
         assert not q3d.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
-        assert not q3d.assign_thin_econductor(box, material="aluminum", thickness="3mm", name="")
 
     def test_20_auto_identify_no_metal(self, add_app):
         q3d = add_app(application=Q3d, project_name="no_metal", just_open=True)
         q3d.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
         assert q3d.auto_identify_nets()
         assert not q3d.nets
-
-
