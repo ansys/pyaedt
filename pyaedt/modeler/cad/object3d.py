@@ -1922,7 +1922,7 @@ class Object3d(object):
         Parameters
         ----------
         vertices : list, optional
-            List of vertices to fillet.
+            List of vertices to fillet. Default is ``None``.
         edges : list, optional
             List of edges to fillet.
         radius : float, optional
