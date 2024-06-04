@@ -880,14 +880,11 @@ class Modeler3D(Primitives3D):
     def _parse_nastran(self, file_path):
 
         nas_to_dict = {"Points": [], "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
+        includes = []
 
-        self.logger.reset_timer()
-        self.logger.info("Loading file")
-        pid = 0
-        with open_file(file_path, "r") as f:
-            lines = f.read().splitlines()
-            for lk in range(len(lines)):
-                line = lines[lk]
+        def parse_lines(input_lines, input_pid=0):
+            for lk in range(len(input_lines)):
+                line = input_lines[lk]
                 line_type = line[:8].strip()
                 if line.startswith("$") or line.startswith("*"):
                     continue
@@ -907,9 +904,9 @@ class Modeler3D(Primitives3D):
                     if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
                     if line_type == "GRID":
-                        nas_to_dict["PointsId"][grid_id] = pid
+                        nas_to_dict["PointsId"][grid_id] = input_pid
                         nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
-                        pid += 1
+                        input_pid += 1
                     elif line_type == "CTRIA3":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
@@ -950,7 +947,7 @@ class Modeler3D(Primitives3D):
                     idx = 88
                     if not n3 or n3.startswith("*"):
                         lk += 1
-                        n3 = lines[lk][8:24].strip()
+                        n3 = input_lines[lk][8:24].strip()
                         idx = 24
                     if "-" in n3[1:] and "e" not in n3[1:].lower():
                         n3 = n3[0] + n3[1:].replace("-", "e-")
@@ -959,8 +956,8 @@ class Modeler3D(Primitives3D):
                             nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
                         except Exception:  # nosec
                             continue
-                        nas_to_dict["PointsId"][grid_id] = pid
-                        pid += 1
+                        nas_to_dict["PointsId"][grid_id] = input_pid
+                        input_pid += 1
                     elif line_type == "CTRIA3*":
                         tri = [
                             nas_to_dict["PointsId"][int(n1)],
@@ -969,10 +966,10 @@ class Modeler3D(Primitives3D):
                         ]
                         nas_to_dict["Triangles"][tria_id].append(tri)
                     elif line_type == "CQUAD4*":
-                        n4 = lines[lk][idx : idx + 16].strip()
+                        n4 = input_lines[lk][idx : idx + 16].strip()
                         if not n4 or n4.startswith("*"):
                             lk += 1
-                            n4 = lines[lk][8:24].strip()
+                            n4 = input_lines[lk][8:24].strip()
                         if "-" in n4[1:] and "e" not in n4[1:].lower():
                             n4 = n4[0] + n4[1:].replace("-", "e-")
                         tri = [
@@ -1033,7 +1030,7 @@ class Modeler3D(Primitives3D):
 
                     n.append(line[56:72].strip())
                     lk += 1
-                    n.extend([lines[lk][i : i + 16] for i in range(16, len(lines[lk]), 16)])
+                    n.extend([input_lines[lk][i : i + 16] for i in range(16, len(input_lines[lk]), 16)])
 
                     from itertools import combinations
 
@@ -1082,7 +1079,20 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["Lines"][obj_id] = [
                             [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
                         ]
+            return input_pid
 
+        self.logger.reset_timer()
+        self.logger.info("Loading file")
+        with open_file(file_path, "r") as f:
+            lines = f.read().splitlines()
+            for line in lines:
+                if line.startswith("INCLUDE"):
+                    includes.append(line.split(" ")[1].replace("'", "").strip())
+            pid = parse_lines(lines)
+        for include in includes:
+            with open_file(os.path.join(os.path.dirname(file_path), include), "r") as f:
+                lines = f.read().splitlines()
+                pid = parse_lines(lines, pid)
         self.logger.info("File loaded")
         return nas_to_dict
 
