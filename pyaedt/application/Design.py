@@ -276,7 +276,8 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        self.design_settings = DesignSettings(self)
+        if not self._design_type == "Maxwell Circuit":
+            self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
@@ -328,6 +329,7 @@ class Design(AedtObjects):
             bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        bb = list(bb)
         if "GetHybridRegions" in self.oboundary.__dir__():
             hybrid_regions = self.oboundary.GetHybridRegions()
             for region in hybrid_regions:
@@ -974,7 +976,7 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = os.path.join(self.toolkit_directory, name)
+        working_directory = os.path.join(os.path.normpath(self.toolkit_directory), name)
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)

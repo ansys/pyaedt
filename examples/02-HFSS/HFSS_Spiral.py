@@ -153,7 +153,7 @@ hfss.change_material_override()
 # ~~~~~~~~~~
 # Plot the model.
 
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
 
 ################################################################
 # Create setup

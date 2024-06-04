@@ -431,12 +431,12 @@ class AedtLogger(object):
         if aedt_messages and self._desktop.GetVersion() > "2022.2":
             project_name = project_name or self.project_name
             design_name = design_name or self.design_name
-            global_message_data = self._desktop.GetMessages("", "", level)
+            global_message_data = list(self._desktop.GetMessages("", "", level))
             # if a 3d component is open, GetMessages without the project name argument returns messages with
             # "(3D Component)" appended to project name
             if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
                 project_name = project_name + " (3D Component)"
-            global_message_data.extend(self._desktop.GetMessages(project_name, design_name, level))
+            global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
             global_message_data = list(set(global_message_data))
             return MessageList(global_message_data)
         message_lists = []

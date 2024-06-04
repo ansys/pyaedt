@@ -96,13 +96,13 @@ class FieldAnalysisCircuit(Analysis):
             return True
         return False
 
-    @pyaedt_function_handler()
-    def push_down(self, component_name):
+    @pyaedt_function_handler(component_name="component")
+    def push_down(self, component):
         """Push-down to the child component and reinitialize the Circuit object.
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.cad.object3d.circuit.CircuitComponent`
+        component : str or :class:`pyaedt.modeler.cad.object3d.circuit.CircuitComponent`
             Component to initialize.
 
         Returns
@@ -111,16 +111,16 @@ class FieldAnalysisCircuit(Analysis):
             ``True`` when successful, ``False`` when failed.
         """
         out_name = ""
-        if isinstance(component_name, CircuitComponent):
-            out_name = self.design_name + ":" + component_name.component_info["RefDes"]
-        elif "U" == component_name[0]:
-            out_name = self.design_name + ":" + component_name
-        elif ":" not in component_name:
+        if isinstance(component, CircuitComponent):
+            out_name = self.design_name + ":" + component.component_info["RefDes"]
+        elif "U" == component[0]:
+            out_name = self.design_name + ":" + component
+        elif ":" not in component:
             for v in self.modeler.components.components:
-                if component_name == v.composed_name.split(";")[0].split("@")[1]:
+                if component == v.composed_name.split(";")[0].split("@")[1]:
                     out_name = self.design_name + ":" + v.component_info["RefDes"]
         else:
-            out_name = component_name
+            out_name = component
         try:
             self.desktop_class.active_design(self.oproject, out_name, self.design_type)
             self.__init__(projectname=self.project_name, designname=out_name)
