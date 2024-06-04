@@ -1914,3 +1914,125 @@ class Object3d(object):
 
     def __str__(self):
         return self.name
+
+    @pyaedt_function_handler()
+    def fillet(self, vertices=None, edges=None, radius=0.1, setback=0.0):
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        vertices : list, optional
+            List of vertices to fillet.
+        edges : list, optional
+            List of edges to fillet.
+        radius : float, optional
+            Radius of the fillet. The default is ``0.1``.
+        setback : float, optional
+            Setback value for the file. The default is ``0.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Fillet
+
+        """
+        if not vertices and not edges:
+            self.logger.error("Either vertices or edges has to be provided as input.")
+            return False
+        edge_id_list = []
+        vertex_id_list = []
+        if edges is not None:
+            edge_id_list = self._primitives.convert_to_selections(edges, return_list=True)
+        if vertices is not None:
+            vertex_id_list = self._primitives.convert_to_selections(vertices, return_list=True)
+
+        vArg1 = ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:FilletParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("Radius:="), vArg2.append(self._primitives._arg_with_dim(radius))
+        vArg2.append("Setback:="), vArg2.append(self._primitives._arg_with_dim(setback))
+        self._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):
+            self._primitives._odesign.Undo()
+            self.logger.error("Operation failed, generating an unclassified object. Check and retry.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def chamfer(self, vertices=None, edges=None, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        vertices : list, optional
+            List of vertices to chamfer.
+        edges : list, optional
+            List of edges to chamfer.
+        left_distance : float, optional
+            Left distance from the edge. The default is ``1``.
+        right_distance : float, optional
+            Right distance from the edge. The default is ``None``.
+        angle : float, optional.
+            Angle value for chamfer types 2 and 3. The default is ``0``.
+        chamfer_type : int, optional
+            Type of the chamfer. Options are:
+                * 0 - Symmetric
+                * 1 - Left Distance-Right Distance
+                * 2 - Left Distance-Angle
+                * 3 - Right Distance-Angle
+
+            The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Chamfer
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+        if edges is not None:
+            edge_id_list = self._primitives.convert_to_selections(edges, return_list=True)
+        if vertices is not None:
+            vertex_id_list = self._primitives.convert_to_selections(vertices, return_list=True)
+
+        vArg1 = ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:ChamferParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
+        if not right_distance:
+            right_distance = left_distance
+        if chamfer_type == 0:
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Symmetric")
+        elif chamfer_type == 1:
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 2:
+            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 3:
+            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
+        else:
+            self.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            return False
+        self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):
+            self._primitives._odesign.Undo()
+            self.logger.error("Operation Failed generating Unclassified object. Check and retry")
+            return False
+        return True
