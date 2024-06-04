@@ -37,7 +37,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"setup": "", "sweep": ""}
+extension_arguments = {"setup": ""}
 extension_description = "Simplified use of Fields Calculator"
 
 
@@ -69,15 +69,13 @@ def frontend():  # pragma: no cover
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
-    solved_analysis = setups_with_solved_fields(aedtapp)
+    available_setups = aedtapp.existing_analysis_sweeps
 
-    if not solved_analysis:
-        app.logger.error("No field solved solutions.")
+    if not available_setups:
+        app.logger.error("No setups defined.")
         aedtapp.release_desktop(False, False)
-        output_dict = {"setup": "", "sweep": ""}
+        output_dict = {"setup": ""}
         return output_dict
-    else:
-        solved_analysis_list = [f"{setup} : {sweep}" for setup, sweep in solved_analysis]
 
     # Create UI
     master = tkinter.Tk()
@@ -103,7 +101,7 @@ def frontend():  # pragma: no cover
     var.set("Solved setup:")
     label.grid(row=0, column=0, pady=10, padx=15)
     combo_setup = ttk.Combobox(master, width=30)
-    combo_setup["values"] = solved_analysis_list
+    combo_setup["values"] = available_setups
     combo_setup.current(0)
     combo_setup.grid(row=0, column=1, pady=10, padx=10)
     combo_setup.focus_set()
@@ -117,23 +115,15 @@ def frontend():  # pragma: no cover
 
     app.release_desktop(False, False)
 
-    def update_page(event=None):
-        combo_setup = toolkits_combo.get()
-
-    combo_setup.bind("<<ComboboxSelected>>", update_page)
-
-    update_page()
-
     tkinter.mainloop()
 
     setup_ui = getattr(master, "setup", extension_arguments["setup"])
     if getattr(master, "setup"):
-        setup, sweep = setup_ui.split(" : ")
+        setup = setup_ui
     else:
         setup = extension_arguments["setup"]
-        sweep = extension_arguments["sweep"]
 
-    output_dict = {"setup": setup, "sweep": sweep}
+    output_dict = {"setup": setup}
 
     return output_dict
 
@@ -155,7 +145,6 @@ def frontend():  # pragma: no cover
 
 def main(extension_args):
     setup = extension_args["setup"]
-    sweep = extension_args["sweep"]
 
     app = pyaedt.Desktop(
         new_desktop_session=False,
@@ -176,15 +165,40 @@ def main(extension_args):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
-    solved_setups = setups_with_solved_fields(aedtapp)
-    solved_analysis_list = [f"{setup} : {sweep}" for setup, sweep in solved_setups]
-    analysis_name = ""
-    if not setup or not sweep:
-        app.logger.error("Not valid setup or sweep.")
-    else:
-        analysis_name = setup + " : " + sweep
-    if analysis_name not in solved_analysis_list:
-        app.logger.error("Not valid setup or sweep.")
+    setup_name = ""
+    sweep_name = ""
+    if setup:
+        setup_name, sweep_name = setup.split(" : ")
+
+    # First frequency solved
+    frequency = ""
+    freq_unit = aedtapp.odesktop.GetDefaultUnit("Frequency")
+
+    for setup in aedtapp.setups:
+        if setup.name == setup_name:
+            if sweep_name in ["LastAdaptive", "Last Adaptive"]:
+                if "MultipleAdaptiveFreqsSetup" in setup.props:
+                    multi_freq_props = setup.props["MultipleAdaptiveFreqsSetup"]
+                    if "AdaptAt" in multi_freq_props:
+                        frequency = multi_freq_props["AdaptAt"][0]["Frequency"]
+                    elif "Low" in multi_freq_props:
+                        frequency = multi_freq_props["Low"]
+                elif "Frequency" in setup.props:
+                    frequency = setup.props["Frequency"]
+                elif "AdaptiveFreq" in setup.props:
+                    frequency = setup.props["AdaptiveFreq"]
+                break
+            for sweep in setup.sweeps:
+                if sweep.name == sweep_name:
+                    if getattr(sweep, "basis_frequencies"):
+                        frequency = str(sweep.basis_frequencies[0]) + freq_unit
+                    elif "Frequencies" in sweep.props:
+                        frequency = setup.props["Frequencies"][0]
+                    elif "RangeStart" in sweep.props:
+                        frequency = setup.props["RangeStart"]
+                    break
+
+    frequency
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
