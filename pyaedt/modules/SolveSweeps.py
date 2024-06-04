@@ -76,7 +76,7 @@ class SweepHFSS(object):
     Examples
     --------
     >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
-                    setup_name=setup_name, new_desktop_session=False, close_on_exit=False)
+                    name=name, new_desktop_session=False, close_on_exit=False)
     >>> hfss_setup = hfss.setups[0]
     >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweep_type ='Interpolating', props=None)
 
@@ -211,7 +211,7 @@ class SweepHFSS(object):
         --------
         Create a setup in an HFSS design and add multiple sweep ranges.
 
-        >>> setup = hfss.create_setup(setup_name="MySetup")
+        >>> setup = hfss.create_setup(name="MySetup")
         >>> sweep = setup.add_sweep()
         >>> sweep.change_type("Interpolating")
         >>> sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
@@ -362,7 +362,7 @@ class SweepHFSS3DLayout(object):
 
     @property
     def combined_name(self):
-        """Compute the setup_name : sweep_name string.
+        """Compute the name : sweep_name string.
 
         Returns
         -------

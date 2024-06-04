@@ -554,7 +554,7 @@ class CommonOptimetrics(PropsManager, object):
         >>> oDesign.Analyze
         """
         return self._app.analyze(
-            name=self.name,
+            setup=self.name,
             cores=cores,
             tasks=tasks,
             gpus=gpus,
@@ -579,7 +579,7 @@ class SetupOpti(CommonOptimetrics, object):
 
         Parameters
         ----------
-        setup_name : str
+        name : str
             Name of optimetrics setup to delete.
 
         Returns

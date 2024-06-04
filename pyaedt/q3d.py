@@ -214,14 +214,14 @@ class QExtractor(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variation_string="", mesh_path=None, setup_type="CG"):
+    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
         setup : str
             Setup name.
-        variation_string : str, optional
+        variations : str, optional
             Variation list. The default is ``""``.
         mesh_path : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
@@ -241,7 +241,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variation_string, setup_type, mesh_path)
+        self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
