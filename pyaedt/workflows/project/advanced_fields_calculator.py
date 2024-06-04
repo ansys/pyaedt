@@ -102,20 +102,27 @@ def frontend():  # pragma: no cover
     label = tkinter.Label(master, textvariable=var)
     var.set("Solved setup:")
     label.grid(row=0, column=0, pady=10, padx=15)
-    combo = ttk.Combobox(master, width=30)
-    combo["values"] = solved_analysis_list
-    combo.current(0)
-    combo.grid(row=0, column=1, pady=10, padx=10)
-    combo.focus_set()
+    combo_setup = ttk.Combobox(master, width=30)
+    combo_setup["values"] = solved_analysis_list
+    combo_setup.current(0)
+    combo_setup.grid(row=0, column=1, pady=10, padx=10)
+    combo_setup.focus_set()
 
     def callback():
-        master.setup = combo.get()
+        master.setup = combo_setup.get()
         master.destroy()
 
     b = tkinter.Button(master, text="Ok", width=40, command=callback)
     b.grid(row=2, column=1, pady=10)
 
     app.release_desktop(False, False)
+
+    def update_page(event=None):
+        combo_setup = toolkits_combo.get()
+
+    combo_setup.bind("<<ComboboxSelected>>", update_page)
+
+    update_page()
 
     tkinter.mainloop()
 
@@ -131,19 +138,19 @@ def frontend():  # pragma: no cover
     return output_dict
 
 
-def setups_with_solved_fields(aedt_app):
-    solved_analysis_sweeps = []
-    for setup in aedt_app.setups:
-        if setup.has_fields or setup.has_fields is None and setup.is_solved:
-            solved_analysis_sweeps.append([setup.name, "LastAdaptive"])
-        if setup.sweeps:
-            for sweep in setup.sweeps:
-                has_fields = getattr(sweep, "has_fields", None)
-                if has_fields is None or has_fields and sweep.is_solved:
-                    # Has fields only available for HFSS
-                    solved_analysis_sweeps.append([setup.name, sweep.name])
-
-    return solved_analysis_sweeps
+# def setups_with_solved_fields(aedt_app):
+#     solved_analysis_sweeps = []
+#     for setup in aedt_app.setups:
+#         if setup.has_fields or setup.has_fields is None and setup.is_solved:
+#             solved_analysis_sweeps.append([setup.name, "LastAdaptive"])
+#         if setup.sweeps:
+#             for sweep in setup.sweeps:
+#                 has_fields = getattr(sweep, "has_fields", None)
+#                 if has_fields is None or has_fields and sweep.is_solved:
+#                     # Has fields only available for HFSS
+#                     solved_analysis_sweeps.append([setup.name, sweep.name])
+#
+#     return solved_analysis_sweeps
 
 
 def main(extension_args):

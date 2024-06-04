@@ -85,7 +85,6 @@ class SweepHFSS(object):
     def __init__(self, setup, name, sweep_type="Interpolating", props=None):
         self._app = setup
         self.oanalysis = setup.omodule
-        self.osolution = setup.p_app.osolution
         self.props = {}
         self.setup_name = setup.name
         self.name = name
@@ -119,21 +118,6 @@ class SweepHFSS(object):
         if identify_setup(self.props):
             sol.domain = "Time"
         return True if sol.get_solution_data() else False
-
-    @property
-    def has_fields(self):
-        """Verify if solutions has solved fields.
-
-        Returns
-        -------
-        bool
-            ``True`` if fields are available, ``False`` otherwise.
-        """
-        if "HasFields" in self.osolution.__dir__():
-            has_fields = self.osolution.HasFields(self.setup_name + ":" + self.name, "nominal")
-            if has_fields == 1:
-                return True
-        return False
 
     @property
     def frequencies(self):
