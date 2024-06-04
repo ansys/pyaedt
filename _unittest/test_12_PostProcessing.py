@@ -194,9 +194,13 @@ class TestClass:
             report_category="Far Fields",
             context="3D",
         )
-        assert data.plot(is_polar=True)
-        assert data.plot_3d()
-        assert field_test.post.create_3d_plot(data)
+        assert data.plot(
+            is_polar=True, snapshot_path=os.path.join(field_test.working_directory, "test9.jpg"), show=False
+        )
+        assert data.plot_3d(snapshot_path=os.path.join(field_test.working_directory, "test9_1.jpg"), show=False)
+        assert field_test.post.create_3d_plot(
+            data, snapshot_path=os.path.join(field_test.working_directory, "test9_2.jpg"), show=False
+        )
 
     def test_09_manipulate_report_D(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -212,9 +216,13 @@ class TestClass:
             report_category="Far Fields",
             context=context,
         )
-        assert data.plot(is_polar=True)
-        assert data.plot_3d()
-        assert field_test.post.create_3d_plot(data)
+        assert data.plot(
+            is_polar=True, snapshot_path=os.path.join(field_test.working_directory, "test9D_2.jpg"), show=False
+        )
+        assert data.plot_3d(snapshot_path=os.path.join(field_test.working_directory, "test9D_1.jpg"), show=False)
+        assert field_test.post.create_3d_plot(
+            data, snapshot_path=os.path.join(field_test.working_directory, "test9D_3.jpg"), show=False
+        )
         assert data.primary_sweep == "Theta"
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
@@ -253,7 +261,7 @@ class TestClass:
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(formula="db20", is_polar=True)
+        assert data_farfield2.plot(formula="db20", is_polar=True, show=False)
 
         assert field_test.post.reports_by_category.terminal_solution()
 
@@ -379,14 +387,20 @@ class TestClass:
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"))
-        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"))
-        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"))
-        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"))
-        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"))
-        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"))
-        assert data1.plot(formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"))
-        assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
+        assert data1.plot(
+            "S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"), show=False
+        )
+        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"), show=False)
+        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"), show=False)
+        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"), show=False)
+        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"), show=False)
+        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"), show=False)
+        assert data1.plot(
+            formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"), show=False
+        )
+        assert data1.plot(
+            formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"), show=False
+        )
 
         assert diff_test.create_touchstone_report(
             name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
@@ -627,6 +641,7 @@ class TestClass:
         )
         assert isinstance(data_pyvista, Plotter)
 
+    @pytest.mark.skipif(sys.version_info > (3, 11), reason="Issues with VTK in Python 3.12")
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
         ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
@@ -649,6 +664,7 @@ class TestClass:
             secondary_sweep_value=[-180, -75, 75],
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
         ffdata.plot_2d_cut(
@@ -657,12 +673,16 @@ class TestClass:
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.frequency),
             image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            show=False,
         )
 
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 
@@ -714,7 +734,10 @@ class TestClass:
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
 
         ffdata.polar_plot_3d(
-            quantity="RealizedGain", image_path=os.path.join(self.local_scratch.path, "3d1.jpg"), convert_to_db=True
+            quantity="RealizedGain",
+            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            convert_to_db=True,
+            show=False,
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
 

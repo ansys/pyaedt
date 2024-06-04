@@ -253,11 +253,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         elif close_desktop:
             try:
-                os.kill(pid, 9)
-                if _desktop_sessions:
-                    for v in _desktop_sessions.values():
-                        if pid in v.parent_desktop_id:  # pragma: no cover
-                            del v.parent_desktop_id[v.parent_desktop_id.index(pid)]
+                if settings.use_multi_desktop:
+                    os.kill(pid, 9)
+                else:
+                    desktop_class.odesktop.QuitApplication()
                 return True
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `_main.oDesktop.QuitApplication()`.")
@@ -1540,7 +1539,7 @@ class Desktop(object):
             except Exception:
                 self.logger.warning("Failed to close Edb object.")
 
-        if close_projects:
+        if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
             projects = self.odesktop.GetProjectList()
             for project in projects:
                 try:

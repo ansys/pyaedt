@@ -70,11 +70,15 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
-    def test_02b_PCB_filters(self):
+    def test_02b_PCB_filters(self, local_scratch):
         new_component = os.path.join(local_path, "example_models", "T40", "Package.aedt")
+        new_component_edb = os.path.join(local_path, "example_models", "T40", "Package.aedb")
+        new_component_dest = os.path.join(local_scratch.path, "Package.aedt")
+        local_scratch.copyfolder(new_component_edb, os.path.join(local_scratch.path, "Package.aedb"))
+        local_scratch.copyfile(new_component, new_component_dest)
         cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board_w_cmp",
-            [new_component, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
+            [new_component_dest, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
             solution_freq,
             resolution,
             custom_x_resolution=400,
