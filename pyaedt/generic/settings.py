@@ -48,6 +48,8 @@ class Settings(object):
         self._lsf_num_cores = 2
         self._lsf_ram = 1000
         self._use_lsf_scheduler = False
+        self._lsf_osrel = None
+        self._lsf_ui = None
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
@@ -220,6 +222,15 @@ class Settings(object):
         self._lsf_ram = int(value)
 
     @property
+    def lsf_ui(self):
+        """Value passed in the LSF 'select' string to the ui resource."""
+        return self._lsf_ui
+
+    @lsf_ui.setter
+    def lsf_ui(self, value):
+        self._lsf_ui = int(value)
+
+    @property
     def lsf_timeout(self):
         """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds."""
         return self._lsf_timeout
@@ -227,6 +238,16 @@ class Settings(object):
     @lsf_timeout.setter
     def lsf_timeout(self, value):
         self._lsf_timeout = int(value)
+
+    @property
+    def lsf_osrel(self):
+        """Operating system string.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
+        return self._lsf_osrel
+
+    @lsf_osrel.setter
+    def lsf_osrel(self, value):
+        self._lsf_osrel = value
 
     @property
     def custom_lsf_command(self):
