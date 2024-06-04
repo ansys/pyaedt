@@ -152,24 +152,29 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-waitforlicense")
     else:
         command = settings.custom_lsf_command.split(" ")
-    print(command)
+        command.append("-grpcsrv")
+        command.append(str(port))
+    command_str = " ".join(str(x) for x in command)
+    pyaedt_logger.info("LSF Command: '" + command_str + "'")
+    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")
     try:  # nosec
-        p = subprocess.Popen(
-            " ".join(str(x) for x in command), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        p = subprocess.Popen(command_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except FileNotFoundError:  # nosec
         p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        pyaedt_logger.error(lsf_message(p))
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
-        err = p.stderr.readline().strip().decode("utf-8", "replace")
+        err = lsf_message(p)
+        pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
             aedt_startup_timeout = 120
             k = 0
+            # LSF resources are assigned. Make sure AEDT starts
             while not _check_grpc_port(port, machine_name=m.group(1)):
                 if k > aedt_startup_timeout:
+                    pyaedt_logger.error("LSF allocated resources but AEDT was unable to start due to a timeout.")
                     return False, err
                 time.sleep(1)
                 k += 1
