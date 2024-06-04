@@ -108,7 +108,8 @@ class Design(AedtObjects):
         Only used when ``new_desktop_session = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
     ic_mode : bool, optional
-        Whether to set the design to IC mode or not. The default is ``False``. Applicable only to ``Hfss3dLayout``.
+        Whether to set the design to IC mode or not. The default is ``None``, which means to retain
+        the existing setting. Applicable only to ``Hfss3dLayout``.
 
     """
 
@@ -203,7 +204,7 @@ class Design(AedtObjects):
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
     ):
 
         self.__t = None
@@ -1085,7 +1086,7 @@ class Design(AedtObjects):
                 self.design_solutions._odesign = self.odesign
                 if self._temp_solution_type:
                     self.design_solutions.solution_type = self._temp_solution_type
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if self._ic_mode is not None and (self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
 
     @property

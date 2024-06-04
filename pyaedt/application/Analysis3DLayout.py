@@ -54,7 +54,8 @@ class FieldAnalysis3DLayout(Analysis):
         Specifies by process ID the instance of AEDT to point PyAEDT at.
         This parameter is only used when ``new_desktop_session=False``.
     ic_mode : bool, optional
-        Whether to set the design to IC mode. The default is ``False``.
+        Whether to set the design to IC mode. The default is ``None``, which means to retain the
+        existing setting.
 
     """
 
@@ -73,7 +74,7 @@ class FieldAnalysis3DLayout(Analysis):
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
     ):
         Analysis.__init__(
             self,
