@@ -1924,7 +1924,7 @@ class Object3d(object):
         vertices : list, optional
             List of vertices to fillet. Default is ``None``.
         edges : list, optional
-            List of edges to fillet.
+            List of edges to fillet. Default is ``None``.
         radius : float, optional
             Radius of the fillet. The default is ``0.1``.
         setback : float, optional
