@@ -123,7 +123,6 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    @pyaedt_function_handler()
     def __getitem__(self, item):
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
@@ -208,11 +207,20 @@ class GeometryModeler(Modeler):
             return partId
         try:
             return self.objects[partId]
-        except Exception:
-            if partId in self.user_defined_components.keys():
-                return self.user_defined_components[partId]
-        self.logger.error("Object '{}' not found.".format(partId))
-        return None
+        except KeyError:
+            pass
+        try:
+            return self.user_defined_components[partId]
+        except KeyError:
+            pass
+        try:
+            return self.planes[partId]
+        except KeyError:
+            pass
+        try:
+            return self.points[partId]
+        except KeyError:
+            return
 
     def __init__(self, app, is3d=True):
         self._app = app
