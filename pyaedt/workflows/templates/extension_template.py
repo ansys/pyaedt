@@ -25,20 +25,46 @@
 import pyaedt
 from pyaedt import get_pyaedt_app
 from pyaedt.workflows.misc import get_aedt_version
+from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
 from pyaedt.workflows.misc import get_process_id
+from pyaedt.workflows.misc import is_student
 
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
+is_student = is_student()
 
-app = pyaedt.Desktop(new_desktop_session=False, specified_version=version, port=port, aedt_process_id=aedt_process_id)
+# Extension batch arguments
+extension_arguments = {"dummy_argument": True}
+extension_description = "Extension template"
 
-active_project = app.odesktop.GetActiveProject()
-active_design = active_project.GetActiveDesign()
 
-aedtapp = get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+def main(extension_args):
+    app = pyaedt.Desktop(
+        new_desktop_session=False,
+        specified_version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
 
-# Your PyAEDT script
+    # active_project = app.active_project()
+    active_design = app.active_design()
 
-app.release_desktop(False, False)
+    # project_name = active_project.GetName()
+    design_name = active_design.GetName()
+
+    aedtapp = get_pyaedt_app(design_name=design_name, desktop=app)
+
+    # Your PyAEDT script
+    aedtapp.modeler.create_sphere([0, 0, 0], 3)
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
+    return True
+
+
+if __name__ == "__main__":
+    args = get_arguments(extension_arguments, extension_description)
+    main(args)

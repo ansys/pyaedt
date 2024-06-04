@@ -1403,12 +1403,16 @@ class TestClass:
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
+        assert os.path.exists(stl)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
 
-        out = simplify_stl(example_project, decimation=0.8, aggressiveness=5)
+        out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
+        out = simplify_stl(example_project, decimation=0.8, preview=True)
+        assert out
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

@@ -20,11 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+import os
 
 import pyaedt
-from pyaedt import Hfss
-import pyaedt.workflows
+import pyaedt.workflows.hfss3dlayout
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
 from pyaedt.workflows.misc import get_port
@@ -37,53 +36,28 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"file_path": "", "choice": ""}
-extension_description = "Push excitation from file"
+extension_arguments = {"choice": "Export to HFSS"}
+extension_description = "Export layout to 3D Modeler"
+
+suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
 
 def frontend():  # pragma: no cover
 
     import tkinter
-    from tkinter import filedialog
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
 
-    # Get ports
-    app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-
-    active_project = app.active_project()
-    active_design = app.active_design()
-
-    project_name = active_project.GetName()
-    design_name = active_design.GetName()
-
-    hfss = Hfss(project_name, design_name)
-
-    port_selection = hfss.excitations
-
-    if not port_selection:
-        app.logger.error("No ports found.")
-        hfss.release_desktop(False, False)
-        output_dict = {"choice": "", "file_path": ""}
-        return output_dict
-
-    # Create UI
     master = tkinter.Tk()
 
-    master.geometry("700x150")
+    master.geometry("400x150")
 
-    master.title("Assign push excitation to port from transient data")
+    master.title("Export to 3D")
 
     # Load the logo for the main window
-    icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -92,65 +66,38 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
 
     var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Choose a port:")
-    label.grid(row=0, column=0, pady=10)
-    combo = ttk.Combobox(master, width=30)
-    combo["values"] = port_selection
+    label = tkinter.Label(master, textvariable=var, relief=tkinter.RAISED)
+    var.set("Choose an option:")
+    label.pack(pady=10)
+    combo = ttk.Combobox(master, width=40)  # Set the width of the combobox
+    combo["values"] = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
     combo.current(0)
-    combo.grid(row=0, column=1, pady=10, padx=5)
+    combo.pack(pady=10)
+
     combo.focus_set()
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Browse file:")
-    label2.grid(row=1, column=0, pady=10)
-    text = tkinter.Text(master, width=50, height=1)
-    text.grid(row=1, column=1, pady=10, padx=5)
-
-    def browseFiles():
-        filename = filedialog.askopenfilename(
-            initialdir="/",
-            title="Select a Transient File",
-            filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
-        )
-        text.insert(tkinter.END, filename)
-
-    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
-    b1.grid(row=3, column=0)
-    b1.grid(row=1, column=2, pady=10)
 
     def callback():
         master.choice_ui = combo.get()
-        master.file_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b = tkinter.Button(master, text="Ok", width=40, command=callback)
-    b.grid(row=2, column=1, pady=10)
+    b = tkinter.Button(master, text="Export", width=40, command=callback)
+    b.pack(pady=10)
 
     tkinter.mainloop()
 
-    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
     choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
 
-    if not file_path_ui or not os.path.isfile(file_path_ui):
-        app.logger.error("File does not exist.")
-
-    if not choice_ui:
-        app.logger.error("Excitation not found.")
-
-    hfss.release_desktop(False, False)
-
-    output_dict = {"choice": choice_ui, "file_path": file_path_ui}
-
+    output_dict = {
+        "choice": choice_ui,
+    }
     return output_dict
 
 
 def main(extension_args):
     choice = extension_args["choice"]
-    file_path = extension_args["file_path"]
 
     app = pyaedt.Desktop(
         new_desktop_session=False,
@@ -164,23 +111,48 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
 
-    hfss = Hfss(project_name, design_name)
+    if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
+        design_name = active_design.GetName().split(";")[1]
+    else:  # pragma: no cover
+        app.logger.debug("Hfss 3D Layout project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("Hfss 3D Layout project is needed.")
 
-    if not os.path.isfile(file_path):  # pragma: no cover
-        app.logger.error("File does not exist.")
-    elif choice:
-        hfss.edit_source_from_file(
-            choice,
-            file_path,
-            is_time_domain=True,
-        )
-        app.logger.info("Excitation assigned correctly.")
+    h3d = pyaedt.Hfss3dLayout(projectname=project_name, designname=design_name)
+    setup = h3d.create_setup()
+    suffix = suffixes[choice]
+
+    if choice == "Export to Q3D":
+        setup.export_to_q3d(h3d.project_file[:-5] + f"_{suffix}.aedt", keep_net_name=True)
     else:
-        app.logger.error("Failed to select a port.")
+        setup.export_to_hfss(h3d.project_file[:-5] + f"_{suffix}.aedt", keep_net_name=True)
+
+    h3d.delete_setup(setup.name)
+
+    h3d.save_project()
+
+    if choice == "Export to Q3D":
+        _ = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+    else:
+        aedtapp = pyaedt.Hfss(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        aedtapp2 = None
+        if choice == "Export to Maxwell 3D":
+            aedtapp2 = pyaedt.Maxwell3d(projectname=aedtapp.project_name)
+        elif choice == "Export to Icepak":
+            aedtapp2 = pyaedt.Icepak(projectname=aedtapp.project_name)
+        if aedtapp2:
+            aedtapp2.copy_solid_bodies_from(
+                aedtapp,
+                no_vacuum=False,
+                no_pec=False,
+                include_sheets=True,
+            )
+            aedtapp2.delete_design(aedtapp.design_name)
+            aedtapp2.save_project()
 
     if not extension_args["is_test"]:  # pragma: no cover
+        app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
     return True
 

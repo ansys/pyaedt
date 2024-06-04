@@ -5,34 +5,26 @@ from __future__ import absolute_import  # noreorder
 from collections import OrderedDict
 import csv
 import os
+import re
 import warnings
 
-from pyaedt import is_ironpython
+import pyaedt
 from pyaedt import is_linux
-from pyaedt.application.Design import DesignSettingsManipulation
-from pyaedt.generic.general_methods import GrpcApiError
-from pyaedt.modeler.cad.elements3d import FacePrimitive
-from pyaedt.modeler.geometry_operators import GeometryOperators as go
-from pyaedt.modules.SetupTemplates import SetupKeys
-
-if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
-
-import re
-
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.application.Design import DesignSettingsManipulation
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.configurations import ConfigurationsIcepak
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryDictionary
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import ExponentialDictionary
@@ -45,6 +37,7 @@ from pyaedt.modules.Boundary import PowerLawDictionary
 from pyaedt.modules.Boundary import SinusoidalDictionary
 from pyaedt.modules.Boundary import SquareWaveDictionary
 from pyaedt.modules.Boundary import _create_boundary
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.monitor_icepak import Monitor
 
 
@@ -2377,7 +2370,8 @@ class Icepak(FieldAnalysis3D):
             Type of the extent. Options are ``"Bounding Box"`` and ``"Polygon"``.
             The default is ``"Bounding Box"``.
         outline_polygon : str, optional
-            Name of the polygon if ``extentype="Polygon"``. The default is ``""``.
+            Name of the polygon if ``extentype="Polygon"``. The default is ``""``,
+            in which case the outline polygon is automatically identified.
         powerin : str, optional
             Power to dissipate if cosimulation is disabled. The default is ``"0W"``.
         custom_x_resolution
@@ -2491,6 +2485,10 @@ class Icepak(FieldAnalysis3D):
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
             self._native_components.append(native)
+            if extent_type == "Polygon" and not outline_polygon:
+                outline_polygon = native.identify_extent_poly()
+                if outline_polygon:
+                    native.set_board_settings("Polygon", outline_polygon)
             return native
         return False
 
@@ -2918,7 +2916,7 @@ class Icepak(FieldAnalysis3D):
         inflation_layer_number=3,
         inflation_growth_rate=1.2,
         mesh_growth_rate=1.2,
-    ):
+    ):  # pragma: no cover
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
         Parameters
@@ -3066,7 +3064,7 @@ class Icepak(FieldAnalysis3D):
         else:
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
-        subprocess.call(fl_ucommand)
+        pyaedt.desktop.run_process(fl_ucommand)
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
