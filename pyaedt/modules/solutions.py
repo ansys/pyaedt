@@ -153,6 +153,7 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
@@ -184,6 +185,7 @@ class SolutionData(object):
         Returns
         -------
         list
+            List of variation values.
         """
         if variation in self.intrinsics:
             return self.intrinsics[variation]
@@ -317,7 +319,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
 
             for data, comb in zip(self._original_data, self.variations):
                 solution = list(data.GetRealDataValues(expression, False))
@@ -328,9 +330,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -342,7 +344,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
             for data, comb in zip(self._original_data, self.variations):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
@@ -355,9 +357,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -435,7 +437,6 @@ class SolutionData(object):
         -------
         type
             List of inputs in radians.
-
         """
         if isinstance(input_list, (tuple, list)):
             return [i * 2 * math.pi / 360 for i in input_list]
@@ -469,21 +470,20 @@ class SolutionData(object):
         -------
         list
             List of data.
-
         """
         if not expression:
             expression = self.active_expression
         elif expression not in self.expressions:
             return False
         temp = self._variation_tuple()
-        solution_Data = self._solutions_mag[expression]
+        solution_data = self._solutions_mag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
         sw = self.variation_values(self.primary_sweep)
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -537,7 +537,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -562,7 +561,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -587,7 +585,6 @@ class SolutionData(object):
         -------
         list
             Phase data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -606,7 +603,6 @@ class SolutionData(object):
         -------
         list
             List of the primary sweep valid points for the expression.
-
         """
         if self.enable_pandas_output:
             return pd.Series(self.variation_values(self.primary_sweep))
@@ -625,13 +621,13 @@ class SolutionData(object):
         expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = list(self._solutions_real[expression].keys())
+        solution_data = list(self._solutions_real[expression].keys())
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if tuple(temp) in solution_Data:
+            if tuple(temp) in solution_data:
                 sol_dict = OrderedDict({})
                 i = 0
                 for sn in self._sweeps_names:
@@ -661,20 +657,19 @@ class SolutionData(object):
         -------
         list
             List of the real data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = self._solutions_real[expression]
+        solution_data = self._solutions_real[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
 
@@ -703,7 +698,6 @@ class SolutionData(object):
         -------
         list
             List of the imaginary data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -764,6 +758,7 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         header = []
         des_var = self._original_data[0].GetDesignVariableNames()
@@ -832,7 +827,6 @@ class SolutionData(object):
             in which case only real value of the data stored in the solution data is plotted.
             Options are ``"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
             ``"phaserad"``, and ``"re"``.
-
         size : tuple, optional
             Image size in pixels (width, height).
         show_legend : bool
@@ -1783,6 +1777,8 @@ class FfdSolutionData(object):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
 
         Examples
         --------
@@ -1793,9 +1789,7 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_2d_cut(theta=20)
-
         """
-
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1924,6 +1918,8 @@ class FfdSolutionData(object):
         -------
         :class:`matplotlib.pyplot.Figure`
             Matplotlib figure object.
+            If ``show=True``, a Matplotlib figure instance of the plot is returned.
+            If ``show=False``, the plotted curve is returned.
 
         Examples
         --------
@@ -1934,7 +1930,6 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2028,7 +2023,8 @@ class FfdSolutionData(object):
         Returns
         -------
         bool or :class:`Pyvista.Plotter`
-            ``False`` when the method fails, Pyvista plotter object otherwise.
+            ``True`` when successful. The :class:`Pyvista.Plotter` is returned when ``show`` and
+            ``export_image_path`` are ``False``.
 
         Examples
         --------
@@ -2039,7 +2035,6 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2143,7 +2138,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[quantity], function_str=quantity_format)
+        data = conversion_function(self.farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -2279,7 +2274,6 @@ class FfdSolutionData(object):
         -------
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2559,7 +2553,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
     >>> sphere = "3D"
     >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
-
     """
 
     def __init__(
@@ -3039,7 +3032,6 @@ class FieldPlot:
         -------
         list
             List of surface plot settings.
-
         """
         out = [
             "NAME:" + self.name,
@@ -3090,7 +3082,6 @@ class FieldPlot:
         -------
         list
             List of plot settings for line traces.
-
         """
         out = [
             "NAME:" + self.name,
@@ -3220,7 +3211,6 @@ class FieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.seeding_faces:
@@ -3333,11 +3323,10 @@ class FieldPlot:
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
@@ -3427,7 +3416,6 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
@@ -3485,7 +3473,6 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.UpdateAllFieldsPlots
         >>> oModule.UpdateQuantityFieldsPlots
         >>> oModule.ExportFieldPlot
@@ -3717,7 +3704,6 @@ class VRTFieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.is_creeping_wave:

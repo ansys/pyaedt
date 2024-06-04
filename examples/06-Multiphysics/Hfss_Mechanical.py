@@ -140,7 +140,7 @@ for el in diels:
 # ~~~~~~~~~~
 # Plot the model.
 
-mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
+mech.plot(show=False, output_file=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Solve and plot thermal results

@@ -113,8 +113,8 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -126,7 +126,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file.
 
         Returns
@@ -139,7 +139,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open_file(file_to_import, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
@@ -159,7 +159,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                     mycomp = self.modeler.schematic.create_capacitor(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
                     )
-                elif fields[0][0] == "D":
+                elif fields[0][0] == "D":  # pragma: no cover
                     value = fields[3][fields[3].find("=") + 1 :].strip()
                     mycomp = self.modeler.schematic.create_diode(
                         name, value, [xpos, ypos], use_instance_id_netlist=use_instance
@@ -182,13 +182,13 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                         ypos = 0
         return True
 
-    @pyaedt_function_handler
-    def export_netlist_from_schematic(self, file_to_export):
+    @pyaedt_function_handler(file_to_export="output_file")
+    def export_netlist_from_schematic(self, output_file):
         """Create netlist from schematic circuit.
 
         Parameters
         ----------
-        file_to_export : str
+        output_file : str
             File path to export the netlist to.
 
         Returns
@@ -197,11 +197,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             Netlist file path when successful, ``False`` when failed.
 
         """
-        if os.path.splitext(file_to_export)[1] != ".sph":
+        if os.path.splitext(output_file)[1] != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:
-            self.odesign.ExportNetlist("", file_to_export)
-            return file_to_export
+            self.odesign.ExportNetlist("", output_file)
+            return output_file
         except Exception:
             return False
