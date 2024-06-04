@@ -113,14 +113,22 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
     if not settings.custom_lsf_command:
+        if hasattr(settings, "lsf_osrel") and hasattr(settings, "lsf_ui"):
+            select_str = '"select[(osrel={}) && ui={}] rusage[mem={}]"'
+            select_str = select_str.format(str(settings.lsf_osrel), settings.lsf_ui, str(settings.lsf_ram))
+        elif hasattr(settings, "lsf_ui"):
+            select_str = '"select[(ui={}) rusage[mem={}]]"'.format(settings.lsf_ui, settings.lsf_ram)
+        else:
+            select_str = '"-R rusage[mem={}"'.format(settings.lsf_ram)
         if settings.lsf_queue:
             command = [
                 "bsub",
                 "-n",
                 str(settings.lsf_num_cores),
                 "-R",
+                select_str,
                 '"rusage[mem={}]"'.format(settings.lsf_ram),
-                "-queue {}".format(settings.lsf_queue),
+                "-q {}".format(settings.lsf_queue),
                 "-Is",
                 settings.lsf_aedt_command,
                 "-grpcsrv",
@@ -132,7 +140,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
                 "-n",
                 str(settings.lsf_num_cores),
                 "-R",
-                '"rusage[mem={}]"'.format(settings.lsf_ram),
+                select_str,
                 "-Is",
                 settings.lsf_aedt_command,
                 "-grpcsrv",
