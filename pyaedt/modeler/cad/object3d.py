@@ -1942,7 +1942,7 @@ class Object3d(object):
 
         """
         if not vertices and not edges:
-            self.logger.error("Either vertices or edges has to be provided as input.")
+            self.logger.error("Either vertices or edges have to be provided as input.")
             return False
         edge_id_list = []
         vertex_id_list = []
