@@ -5391,7 +5391,7 @@ class GeometryModeler(Modeler):
         if components is None and groups is None and objects is None:
             raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
 
-        all_objects = self.object_names
+        all_objects = self.object_names[:] + self.oeditor.GetChildNames("Groups")[::]
         if objects:
             object_selection = self.convert_to_selections(objects, return_list=False)
         else:
@@ -5417,7 +5417,9 @@ class GeometryModeler(Modeler):
             group_selection,
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
-        if group_name and group_name not in all_objects:
+        if group_name and group_name in all_objects:
+            group_name = generate_unique_name(group_name, n=2)
+        if group_name:
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -5429,8 +5431,7 @@ class GeometryModeler(Modeler):
                 ]
             )
             return group_name
-        else:
-            return assigned_name
+        return assigned_name
 
     @pyaedt_function_handler()
     def ungroup(self, groups):
