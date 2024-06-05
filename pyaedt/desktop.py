@@ -156,16 +156,16 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         command.append(str(port))
     command_str = " ".join(str(x) for x in command)
     pyaedt_logger.info("LSF Command: '" + command_str + "'")
-    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")
+    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")  # nosec
     try:  # nosec
-        p = subprocess.Popen(command_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError:  # nosec
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
         pyaedt_logger.error(lsf_message(p))
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
-        err = lsf_message(p)
+        err = lsf_message(p)  # noqa
         pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
