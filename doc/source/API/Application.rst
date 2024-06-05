@@ -26,9 +26,10 @@ Available PyAEDT apps are:
    pyaedt.circuit.Circuit
    pyaedt.maxwellcircuit.MaxwellCircuit
    pyaedt.twinbuilder.TwinBuilder
-   .. ifconfig: is_emit_incompatible
+   pyaedt.emit.Emit
+  ..  .. ifconfig: is_emit_incompatible
    
-      pyaedt.emit.Emit
+  ..     pyaedt.emit.Emit
 
 
 All other classes and methods are inherited into the app class.

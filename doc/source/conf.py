@@ -104,9 +104,9 @@ def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
     app.connect('build-finished', remove_doctree)
-    # Emit is not available for python 3.7 and 3.12
-    # FIXME: Might need to be updated once a new release of AEDT is performed
-    app.add_config_value('is_emit_compatible', (3,7) < sys.version_info[:2] < (3,12), 'html')
+    # # Emit is not available for python 3.7 and 3.12
+    # # FIXME: Might need to be updated once a new release of AEDT is performed
+    # app.add_config_value('is_emit_compatible', (3,7) < sys.version_info[:2] < (3,12), 'html')
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -149,7 +149,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.coverage",
     "sphinx.ext.graphviz",
-    "sphinx.ext.ifconfig",
+    # "sphinx.ext.ifconfig",
     "sphinx.ext.imgconverter",
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.intersphinx",
