@@ -2006,7 +2006,9 @@ class Object3d(object):
             edge_id_list = self._primitives.convert_to_selections(edges, return_list=True)
         if vertices is not None:
             vertex_id_list = self._primitives.convert_to_selections(vertices, return_list=True)
-
+        if vertex_id_list == edge_id_list == []:
+            self.logger.error("Vertices or Edges have to be provided as input.")
+            return False
         vArg1 = ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"]
         vArg2 = ["NAME:ChamferParameters"]
         vArg2.append("Edges:="), vArg2.append(edge_id_list)

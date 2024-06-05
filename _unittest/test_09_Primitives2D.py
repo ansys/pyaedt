@@ -68,6 +68,7 @@ class TestClass:
         o2 = self.create_rectangle("Rectangle2")
         assert o2.chamfer(o2.vertices)
         assert not o2.chamfer(edges=o2.edges)
+        assert not o2.chamfer()
 
     def test_fillet_vertex(self):
         o = self.create_rectangle("Rectangle1")
