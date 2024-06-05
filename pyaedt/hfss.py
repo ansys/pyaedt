@@ -5478,8 +5478,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         link_to_hfss=True,
     ):
         """Export the antenna parameters to Far Field Data (FFD) files and return an
-        instance of the
-        ``FfdSolutionDataExporter`` object.
+        instance of the ``FfdSolutionDataExporter`` object.
 
         For phased array cases, only one phased array is calculated.
 
