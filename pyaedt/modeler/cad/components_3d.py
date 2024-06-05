@@ -820,13 +820,13 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password="", output_file="", local_update=False):
+    def update_definition(self, password=None, output_file="", local_update=False):
         """Update 3d component definition.
 
         Parameters
         ----------
         password : str, optional
-            Password for encrypted models. The default value is ``""``.
+            Password for encrypted models. The default value is ``None``.
         output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
@@ -838,7 +838,8 @@ class UserDefinedComponent(object):
         bool
             True if successful.
         """
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         self._primitives._app.oeditor.UpdateComponentDefinition(
             [
                 "NAME:UpdateDefinitionData",
@@ -856,7 +857,7 @@ class UserDefinedComponent(object):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password=""):
+    def edit_definition(self, password=None):
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
@@ -874,7 +875,8 @@ class UserDefinedComponent(object):
         from pyaedt.generic.design_types import get_pyaedt_app
 
         # from pyaedt.generic.general_methods import is_linux
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         project_list = [i for i in self._primitives._app.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
