@@ -70,8 +70,8 @@ class Modeler3D(Primitives3D):
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password="",
-        edit_password="",
+        password=None,
+        edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
         replace_names=False,
@@ -112,10 +112,10 @@ class Modeler3D(Primitives3D):
             The default value is an empty string.
         password : str, optional
             Security password needed when adding the component.
-            The default value is an empty string.
+            The default value is ``None``.
         edit_password : str, optional
             Edit password.
-            The default value is an empty string.
+            The default value is ``None``.
         password_type : str, optional
             Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default is ``UserSuppliedPassword``.
@@ -164,6 +164,11 @@ class Modeler3D(Primitives3D):
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not edit_password:
+            edit_password = os.getenv("PYAEDT_ENCRYPTED_EDIT_PASSWORD", "")
+
         hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
