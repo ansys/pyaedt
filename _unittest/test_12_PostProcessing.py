@@ -252,7 +252,7 @@ class TestClass:
         assert field_test.post.get_far_field_data(
             expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
-        field_test.post.get_far_field_data(
+        data_farfield2 = field_test.post.get_far_field_data(
             expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
