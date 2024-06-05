@@ -1984,5 +1984,5 @@ class TestClass:
 
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
-        assert self.aedtapp.modeler.discovery_import(self.discovery_file)
+        assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
         assert len(self.aedtapp.modeler.objects) == 1
