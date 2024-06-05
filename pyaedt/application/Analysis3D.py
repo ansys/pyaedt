@@ -1023,7 +1023,7 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not password:
+        if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
         if not components:
