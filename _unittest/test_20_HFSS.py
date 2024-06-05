@@ -943,7 +943,7 @@ class TestClass:
         design_name = "HfssCopiedBodies"
         new_design = add_app(project_name=project_name, design_name=design_name)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
-        assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
+        assert new_design.copy_solid_bodies_from(self.aedtapp, vacuum=False, pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
@@ -1403,12 +1403,16 @@ class TestClass:
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+        stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
+        assert os.path.exists(stl)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
 
-        out = simplify_stl(example_project, decimation=0.8, aggressiveness=5)
+        out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
+        out = simplify_stl(example_project, decimation=0.8, preview=True)
+        assert out
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

@@ -121,7 +121,7 @@ new_report.create()
 if not non_graphical:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
-    vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
+    vout.set_trace_properties(style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
                               color=(0, 0, 255))
     vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
     ll = new_report.limit_lines[0]

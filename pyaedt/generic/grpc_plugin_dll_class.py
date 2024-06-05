@@ -87,7 +87,7 @@ class AedtObjWrapper:
             settings.logger.debug("{} {}".format(funcName, argv))
         try:
             if settings.use_multi_desktop and funcName not in exclude_list:
-                self.dllapi.recreate_application(True if self.is_linux else False)
+                self.dllapi.recreate_application(True)
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,
                 self.dllapi.AedtAPI.InvokeAedtObjMethod,

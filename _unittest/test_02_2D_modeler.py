@@ -135,12 +135,12 @@ class TestClass:
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
         assert ellipse2.solve_inside
         assert ellipse2.model
         assert ellipse2.material_name == "copper"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, relative_tolerance=0.1)
 
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
@@ -168,14 +168,14 @@ class TestClass:
         )
         obj = self.aedtapp.plot(
             show=False,
-            export_path=os.path.join(self.local_scratch.path, "image.jpg"),
-            show_bounding=True,
+            output_file=os.path.join(self.local_scratch.path, "image.jpg"),
             show_grid=True,
+            show_bounding=True,
         )
         assert os.path.exists(obj.image_file)
-        obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
+        obj2 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
         assert os.path.exists(obj2.image_file)
-        obj3 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
+        obj3 = self.aedtapp.plot(show=False, output_file=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
         assert filecmp.cmp(obj.image_file, obj3.image_file)
 
     def test_10_edit_menu_commands(self):

@@ -23,7 +23,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 if not is_ironpython:
     try:
         import numpy as np
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
 
@@ -214,14 +214,14 @@ class QExtractor(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variation_string="", mesh_path=None, setup_type="CG"):
+    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
         setup : str
             Setup name.
-        variation_string : str, optional
+        variations : str, optional
             Variation list. The default is ``""``.
         mesh_path : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
@@ -241,7 +241,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variation_string, setup_type, mesh_path)
+        self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
@@ -366,14 +366,14 @@ class QExtractor(FieldAnalysis3D, object):
             source_list = ["NAME:Source Names"]
             excitation = self.sources(0, False)
             for key, value in dcrl.items():
-                if key not in excitation:
+                if key not in excitation:  # pragma: no cover
                     self.logger.error("Not existing excitation " + key)
                     return False
                 else:
                     source_list.append(key)
             if self.default_solution_type == "Q3D Extractor":
                 value_list = ["NAME:Source Values"]
-            else:
+            else:  # pragma: no cover
                 value_list = ["NAME:Magnitude"]
             for key, vals in dcrl.items():
                 magnitude = decompose_variable_value(vals)
@@ -581,7 +581,7 @@ class QExtractor(FieldAnalysis3D, object):
                 if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
-            else:
+            else:  # pragma: no cover
                 self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
@@ -706,7 +706,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
         else:
@@ -729,7 +729,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
@@ -1387,9 +1387,9 @@ class Q3d(QExtractor, object):
         sources = []
         net_id = -1
         for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)  # pragma: no cover
-                break  # pragma: no cover
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:  # pragma: no cover
+                net_id = i.props.get("ID", None)
+                break
         for i in self.boundaries:
             if i.type == "Source":
                 if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
@@ -1443,6 +1443,14 @@ class Q3d(QExtractor, object):
         >>> oModule.AutoIdentifyNets
         """
         original_nets = [i for i in self.nets]
+        has_conductor = False
+        for _, val in self.modeler.objects.items():
+            if val.material_name and self.materials[val.material_name].is_conductor():
+                has_conductor = True
+                break
+        if not has_conductor:
+            self.logger.warning("Nets not identified because no conductor material was found.")
+            return True
         self.oboundary.AutoIdentifyNets()
         new_nets = [i for i in self.nets if i not in original_nets]
         for net in new_nets:
@@ -1976,6 +1984,53 @@ class Q3d(QExtractor, object):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler()
+    def assign_thin_conductor(self, assignment, material="copper", thickness=1, name=""):
+        """Assign a thin conductor to a sheet. The method accepts both a sheet name or a face id.
+        If a face it is provided, then a sheet will be created and the boundary assigned to it.
+
+        Parameters
+        ----------
+        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d` or list
+            Object assignment.
+        material : str, optional
+            Material. Default is ``"copper"``.
+        thickness : float, str, optional
+            Conductor thickness. It can be as number of a string with units. Default is ``1``.
+        name : str, optional
+            Name of the boundary. Default is ``""``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Source object.
+        """
+        assignment = self.modeler.convert_to_selections(assignment, True)
+        new_ass = []
+        for ass in assignment:
+            if isinstance(ass, int):
+                try:
+                    new_ass.append(self.modeler.create_object_from_face(ass)._m_name)
+                except Exception:  # pragma: no cover
+                    self.logger.error("Thin conductor can be applied only to sheet objects or faces.")
+            elif ass in self.modeler.sheet_names:
+                new_ass.append(ass)
+            else:
+                self.logger.error("Thin conductor can be applied only to sheet objects.")
+        if not new_ass:
+            return False
+        if not name:
+            name = generate_unique_name("Thin_Cond")
+        if isinstance(thickness, (float, int)):
+            thickness = str(thickness) + self.modeler.model_units
+        props = OrderedDict({"Objects": new_ass, "Material": material, "Thickness": thickness})
+
+        bound = BoundaryObject(self, name, props, "ThinConductor")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False  # pragma: no cover
 
 
 class Q2d(QExtractor, object):

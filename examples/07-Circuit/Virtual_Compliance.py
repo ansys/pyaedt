@@ -77,22 +77,13 @@ status, diff_pairs, comm_pairs = cir.create_lna_schematic_from_snp(input_file=to
                                                                    separation=".", pattern=["component", "pin", "net"],
                                                                    analyze=True)
 
-insertion = cir.get_all_insertion_loss_list(trlist=diff_pairs,
-                                            reclist=diff_pairs,
-                                            tx_prefix="X1",
-                                            rx_prefix="U1",
-                                            math_formula="dB",
-                                            net_list=["RX0", "RX1", "RX2", "RX3"]
-                                            )
-return_diff = cir.get_all_return_loss_list(excitation_names=diff_pairs,
-                                           excitation_name_prefix="X1",
-                                           math_formula="dB",
-                                           net_list=["RX0", "RX1", "RX2", "RX3"]
-                                           )
-return_comm = cir.get_all_return_loss_list(excitation_names=comm_pairs,
-                                           excitation_name_prefix="COMMON_X1",
-                                           math_formula="dB",
-                                           net_list=["RX0", "RX1", "RX2", "RX3"])
+insertion = cir.get_all_insertion_loss_list(drivers=diff_pairs, receivers=diff_pairs, drivers_prefix_name="X1",
+                                            receivers_prefix_name="U1", math_formula="dB",
+                                            nets=["RX0", "RX1", "RX2", "RX3"])
+return_diff = cir.get_all_return_loss_list(excitations=diff_pairs, excitation_name_prefix="X1", math_formula="dB",
+                                           nets=["RX0", "RX1", "RX2", "RX3"])
+return_comm = cir.get_all_return_loss_list(excitations=comm_pairs, excitation_name_prefix="COMMON_X1",
+                                           math_formula="dB", nets=["RX0", "RX1", "RX2", "RX3"])
 ###############################################################################
 # Create TDR project
 # ~~~~~~~~~~~~~~~~~~

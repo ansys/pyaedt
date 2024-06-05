@@ -70,6 +70,65 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
+    def test_02b_PCB_filters(self):
+        new_component = os.path.join(local_path, "example_models", "T40", "Package.aedt")
+        cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
+            "Board_w_cmp",
+            [new_component, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
+            solution_freq,
+            resolution,
+            custom_x_resolution=400,
+            custom_y_resolution=500,
+            extent_type="Polygon",
+        )
+        assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
+        assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert not bool(cmp2.overridden_components)
+        assert cmp2.override_component("FCHIP", True)
+        assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
+        assert cmp2.override_component("FCHIP", False)
+        assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
+        assert cmp2.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
+        component_name = "RadioBoard2"
+        cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
+            component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        )
+        f = cmp.filters
+        assert len(f.keys()) == 1
+        assert all(not v for v in f["Type"].values())
+        assert not cmp.set_parts("Device Pt")
+        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert cmp.height_filter is None
+        assert cmp.footprint_filter is None
+        assert cmp.power_filter is None
+        assert not cmp.objects_2d_filter
+        cmp.height_filter = "1mm"
+        cmp.objects_2d_filter = True
+        cmp.power_filter = "4mW"
+        cmp.type_filters = "Resistors"
+        cmp.type_filters = "Register"  # should not be set
+        cmp.type_filters = "Inductors"
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = "0.5mm2"
+        f = cmp.filters
+        assert len(f.keys()) >= 4  # 5 if version 2024.2
+        assert f["Type"]["Inductors"]
+        assert cmp.set_board_settings()
+        assert not cmp.set_board_settings("Polygon")
+        assert not cmp.set_board_settings("Bounding Domain")
+        cmp.set_board_settings("Bounding Box")
+        cmp.power_filter = None
+        cmp.height_filter = None
+        cmp.objects_2d_filter = False
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = None
+        f = cmp.filters
+        assert len(f.keys()) == 1
+
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
 

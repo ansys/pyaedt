@@ -176,7 +176,7 @@ m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
 ipk = pyaedt.Icepak(designname=icepak_design_name)
-ipk.copy_solid_bodies_from(m3d, no_pec=False)
+ipk.copy_solid_bodies_from(m3d, pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil
 ipk.modeler["Region"].delete()
