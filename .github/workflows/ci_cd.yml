@@ -10,7 +10,7 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.12'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
@@ -54,11 +54,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.12']
         target: ['all', 'installer']
-        exclude:
-          - python-version: '3.7'
-            target: 'installer'
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
@@ -178,7 +175,8 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          # pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.20240525.dev0
 
       # TODO: Update this step once pyaedt-examples is ready
       # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
@@ -261,7 +259,8 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          # pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.20240525.dev0
 
       - name: Run tests on _unittest_solvers
         env:
@@ -377,7 +376,8 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          # pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.20240525.dev0
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
@@ -447,7 +447,8 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          # pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.20240525.dev0
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3

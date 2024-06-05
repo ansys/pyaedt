@@ -6,17 +6,19 @@ import tempfile
 from _unittest_solvers.conftest import config
 import pytest
 
-from pyaedt import Emit
-from pyaedt import generate_unique_project_name
-from pyaedt.emit_core.emit_constants import EmiCategoryFilter
-from pyaedt.emit_core.emit_constants import InterfererType
-from pyaedt.emit_core.emit_constants import ResultType
-from pyaedt.emit_core.emit_constants import TxRxMode
-from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+from pyaedt.generic import constants as consts
+
+if (3,7) < sys.version_info <(3, 12):
+    from pyaedt import Emit
+    from pyaedt import generate_unique_project_name
+    from pyaedt.emit_core.emit_constants import EmiCategoryFilter
+    from pyaedt.emit_core.emit_constants import InterfererType
+    from pyaedt.emit_core.emit_constants import ResultType
+    from pyaedt.emit_core.emit_constants import TxRxMode
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
@@ -29,7 +31,7 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-@pytest.mark.skipif(sys.version_info < (3,8), reason="Emit API is only available for Python 3.8+.")
+@pytest.mark.skipif(sys.version_info < (3,8) or sys.version_info >=(3, 12), reason="Emit API is only available for Python 3.8+,<3.12.")
 class TestClass:
 
     @pytest.fixture(autouse=True)
