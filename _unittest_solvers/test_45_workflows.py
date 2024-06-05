@@ -118,7 +118,8 @@ class TestClass:
 
         file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "test_cad.nas"),
                                 os.path.join(local_scratch.path, "test_cad.nas"))
-
+        shutil.copy(os.path.join(local_path, "example_models", "T20", "assembly1.key"),
+                    os.path.join(local_scratch.path, "assembly1.key"))
         assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
 
         assert len(aedtapp.modeler.object_list) == 3
