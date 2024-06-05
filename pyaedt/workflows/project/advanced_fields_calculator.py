@@ -37,7 +37,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {"setup": ""}
+extension_arguments = {"setup": "", "calculation": "", "assignment": []}
 extension_description = "Simplified use of Fields Calculator"
 
 
@@ -69,12 +69,20 @@ def frontend():  # pragma: no cover
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    # Available fields calculator expressions
+    available_expressions = aedtapp.post.fields_calculator.available_expressions
+    available_descriptions = {}
+    for expression in available_expressions:
+        available_descriptions[expression] = aedtapp.post.fields_calculator.expression_catalog[expression][
+            "description"
+        ]
+
     available_setups = aedtapp.existing_analysis_sweeps
 
     if not available_setups:
         app.logger.error("No setups defined.")
         aedtapp.release_desktop(False, False)
-        output_dict = {"setup": ""}
+        output_dict = {"setup": "", "calculation": "", "assignment": []}
         return output_dict
 
     # Create UI
@@ -106,14 +114,23 @@ def frontend():  # pragma: no cover
     combo_setup.grid(row=0, column=1, pady=10, padx=10)
     combo_setup.focus_set()
 
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
+    var.set("Calculations:")
+    label.grid(row=1, column=0, pady=10, padx=15)
+    combo_calculation = ttk.Combobox(master, width=30)
+    combo_calculation["values"] = list(available_descriptions.values())
+    combo_calculation.current(0)
+    combo_calculation.grid(row=1, column=1, pady=10, padx=10)
+    combo_calculation.focus_set()
+
     def callback():
         master.setup = combo_setup.get()
+        master.calculation = combo_calculation.get()
         master.destroy()
 
     b = tkinter.Button(master, text="Ok", width=40, command=callback)
     b.grid(row=2, column=1, pady=10)
-
-    app.release_desktop(False, False)
 
     tkinter.mainloop()
 
@@ -123,28 +140,29 @@ def frontend():  # pragma: no cover
     else:
         setup = extension_arguments["setup"]
 
-    output_dict = {"setup": setup}
+    calculation_ui = getattr(master, "calculation", extension_arguments["calculation"])
+    calculation = extension_arguments["setup"]
+
+    if getattr(master, "setup"):
+        calculation_description = calculation_ui
+        for k, v in available_descriptions.items():
+            if calculation_description == v:
+                calculation = k
+                break
+
+    assignment = aedtapp.modeler.selections
+
+    app.release_desktop(False, False)
+
+    output_dict = {"setup": setup, "calculation": calculation, "assignment": assignment}
 
     return output_dict
 
 
-# def setups_with_solved_fields(aedt_app):
-#     solved_analysis_sweeps = []
-#     for setup in aedt_app.setups:
-#         if setup.has_fields or setup.has_fields is None and setup.is_solved:
-#             solved_analysis_sweeps.append([setup.name, "LastAdaptive"])
-#         if setup.sweeps:
-#             for sweep in setup.sweeps:
-#                 has_fields = getattr(sweep, "has_fields", None)
-#                 if has_fields is None or has_fields and sweep.is_solved:
-#                     # Has fields only available for HFSS
-#                     solved_analysis_sweeps.append([setup.name, sweep.name])
-#
-#     return solved_analysis_sweeps
-
-
 def main(extension_args):
     setup = extension_args["setup"]
+    calculation = extension_args["calculation"]
+    assignment = extension_args["assignment"]
 
     app = pyaedt.Desktop(
         new_desktop_session=False,
@@ -165,40 +183,22 @@ def main(extension_args):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
-    setup_name = ""
-    sweep_name = ""
-    if setup:
-        setup_name, sweep_name = setup.split(" : ")
+    names = []
+    for element in assignment:
+        name = aedtapp.post.fields_calculator.add_expression(calculation, element, name=calculation + "_" + element)
+        if name:
+            names.append(name)
 
-    # First frequency solved
-    frequency = ""
-    freq_unit = aedtapp.odesktop.GetDefaultUnit("Frequency")
-
-    for setup in aedtapp.setups:
-        if setup.name == setup_name:
-            if sweep_name in ["LastAdaptive", "Last Adaptive"]:
-                if "MultipleAdaptiveFreqsSetup" in setup.props:
-                    multi_freq_props = setup.props["MultipleAdaptiveFreqsSetup"]
-                    if "AdaptAt" in multi_freq_props:
-                        frequency = multi_freq_props["AdaptAt"][0]["Frequency"]
-                    elif "Low" in multi_freq_props:
-                        frequency = multi_freq_props["Low"]
-                elif "Frequency" in setup.props:
-                    frequency = setup.props["Frequency"]
-                elif "AdaptiveFreq" in setup.props:
-                    frequency = setup.props["AdaptiveFreq"]
-                break
-            for sweep in setup.sweeps:
-                if sweep.name == sweep_name:
-                    if getattr(sweep, "basis_frequencies"):
-                        frequency = str(sweep.basis_frequencies[0]) + freq_unit
-                    elif "Frequencies" in sweep.props:
-                        frequency = setup.props["Frequencies"][0]
-                    elif "RangeStart" in sweep.props:
-                        frequency = setup.props["RangeStart"]
-                    break
-
-    frequency
+    expression_info = aedtapp.post.fields_calculator.expression_catalog[calculation]
+    design_type_index = expression_info["design_type"].index(aedtapp.design_type)
+    if names:
+        for report_type in expression_info["report"]:
+            if expression_info["fields_type"][design_type_index] == "CG Fields":
+                report = aedtapp.post.reports_by_category.cg_fields(names, setup)
+            else:
+                report = aedtapp.post.reports_by_category.fields(names, setup)
+            report.report_type = report_type
+            report.create()
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
