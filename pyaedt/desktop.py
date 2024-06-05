@@ -112,7 +112,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    if not settings.custom_lsf_command:
+    if not settings.custom_lsf_command:  # pragma: no cover
         if hasattr(settings, "lsf_osrel") and hasattr(settings, "lsf_ui"):
             select_str = '"select[(osrel={}) && ui={}] rusage[mem={}]"'
             select_str = select_str.format(str(settings.lsf_osrel), settings.lsf_ui, str(settings.lsf_ram))
@@ -150,7 +150,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
-    else:
+    else:  # pragma: no cover
         command = settings.custom_lsf_command.split(" ")
         command.append("-grpcsrv")
         command.append(str(port))
@@ -266,7 +266,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         elif close_desktop:
             try:
-                os.kill(pid, 9)
+                if settings.use_multi_desktop:
+                    os.kill(pid, 9)
+                else:
+                    desktop_class.odesktop.QuitApplication()
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:  # pragma: no cover
@@ -283,7 +286,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
     elif not inside_desktop:  # pragma: no cover
         if close_desktop:
             try:
-                os.kill(pid, 9)
+                if settings.use_multi_desktop:
+                    desktop_class.odesktop.QuitApplication()
+                else:
+                    os.kill(pid, 9)
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)`.")
                 return False
