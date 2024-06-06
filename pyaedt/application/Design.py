@@ -2826,6 +2826,7 @@ class Design(AedtObjects):
             is_project_dataset=is_project_dataset,
             x_unit=units[0],
             y_unit=units[1],
+            z_unit=units[2],
             v_unit=units[3],
         )
 
