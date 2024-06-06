@@ -1094,7 +1094,7 @@ class Configurations(object):
                 self.results.import_variables = True
             try:
                 for k, v in dict_in["general"]["postprocessing_variables"].items():
-                    self._app.variable_manager.set_variable(k, v, postprocessing=True)
+                    self._app.variable_manager.set_variable(k, v, post_processing=True)
             except KeyError:
                 self.results.import_postprocessing_variables = False
             else:

@@ -3906,11 +3906,7 @@ class Design(AedtObjects):
             if "$" in expression:
                 variable_name = "$pyaedt_evaluator"
             self._variable_manager.set_variable(
-                variable_name,
-                expression=expression,
-                readonly=True,
-                hidden=True,
-                description="Internal_Evaluator",
+                variable_name, expression=expression, read_only=True, hidden=True, description="Internal_Evaluator"
             )
             eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
