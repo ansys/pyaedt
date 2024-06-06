@@ -6,10 +6,8 @@ import os
 import tempfile
 
 import pyaedt
-from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
-from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
@@ -1865,6 +1863,8 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler
     def _get_duplicate_names(self):
         # Copy project to get dictionary
+        from pyaedt.icepak import Icepak
+
         directory = os.path.join(
             self._app.toolkit_directory,
             self._app.design_name,
@@ -2090,6 +2090,8 @@ class ConfigurationsIcepak(Configurations):
                 ]["DefnLink"]["Project"] not in [self._app.project_file or "This Project*"]:
                     prj = list(set(self._app.project_list) - prj_list)[0]
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
+                    from pyaedt.generic.design_types import get_pyaedt_app
+
                     app = get_pyaedt_app(prj, design)
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(

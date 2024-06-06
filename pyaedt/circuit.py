@@ -10,7 +10,6 @@ import re
 import shutil
 import time
 
-from pyaedt import Hfss3dLayout
 from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
@@ -22,6 +21,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.hfss3dlayout import Hfss3dLayout
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
