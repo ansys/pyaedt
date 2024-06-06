@@ -1398,33 +1398,32 @@ class Design(AedtObjects):
             else:
                 variation = ",".join(val_str)
         if self.design_type == "2D Extractor":
-            for setup in self.setups:
-                if setup.name == setup:
-                    if "CGDataBlock" in setup.props:
+            for s in self.setups:
+                if s.name == setup:
+                    if "CGDataBlock" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
                         self.logger.info("Exported Profile to file {}".format(output_file))
-                    if "RLDataBlock" in setup.props:
+                    if "RLDataBlock" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "RL" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "RL", output_file, True)
                         self.logger.info("Exported Profile to file {}".format(output_file))
                     break
         elif self.design_type == "Q3D Extractor":
-            for setup in self.setups:
-                if setup.name == setup:
-                    if "Cap" in setup.props:
+            for s in self.setups:
+                if s.name == setup:
+                    if "Cap" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
                         self.logger.info("Exported Profile to file {}".format(output_file))
-                    if "AC" in setup.props:
+                    if "AC" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "ACRL" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "AC RL", output_file, True)
                         self.logger.info("Exported Profile to file {}".format(output_file))
-                    if "DC" in setup.props:
+                    if "DC" in s.props:
                         output_file = os.path.splitext(output_file)[0] + "DC" + os.path.splitext(output_file)[1]
                         self.odesign.ExportProfile(setup, variation, "DC RL", output_file, True)
                         self.logger.info("Exported Profile to file {}".format(output_file))
-
                     break
         else:
             try:
