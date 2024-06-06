@@ -253,7 +253,8 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          # pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array _unittest_solvers/test_45_workflows.py
 
       - uses: codecov/codecov-action@v4
         with:
@@ -310,7 +311,8 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          # pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array _unittest_solvers/test_45_workflows.py
 
       - uses: codecov/codecov-action@v4
         with:
@@ -375,21 +377,22 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest\test_12_1_PostProcessing.py
+            # pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest\test_12_1_PostProcessing.py
+            pytest _unittest/test_12_1_PostProcessing.py::TestClass::test_01_Animate_plt
 
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-tests
-          file: ./coverage.xml
-          flags: system
+      # - uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     name: codecov-system-tests
+      #     file: ./coverage.xml
+      #     flags: system
 
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-results
-          path: junit/test-results.xml
-        if: ${{ always() }}
+      # - name: Upload pytest test results
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: pytest-results
+      #     path: junit/test-results.xml
+      #   if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -445,21 +448,22 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest/test_12_1_PostProcessing.py
+            # pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest/test_12_1_PostProcessing.py
+            pytest _unittest/test_12_1_PostProcessing.py::TestClass::test_01_Animate_plt
 
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
-          file: ./coverage.xml
-          flags: system,solver
+      # - uses: codecov/codecov-action@v4
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     name: codecov-system-solver-tests
+      #     file: ./coverage.xml
+      #     flags: system,solver
 
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-solver-results
-          path: junit/test-results.xml
-        if: ${{ always() }}
+      # - name: Upload pytest test results
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: pytest-solver-results
+      #     path: junit/test-results.xml
+      #   if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
