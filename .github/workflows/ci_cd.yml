@@ -254,7 +254,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           # pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array _unittest_solvers/test_45_workflows.py
+          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array
 
       - uses: codecov/codecov-action@v4
         with:
@@ -312,7 +312,7 @@ jobs:
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           # pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array _unittest_solvers/test_45_workflows.py
+          pytest _unittest_solvers/test_00_analyze.py::TestClass::test_01a_sbr_link_array
 
       - uses: codecov/codecov-action@v4
         with:

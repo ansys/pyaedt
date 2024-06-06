@@ -1351,7 +1351,7 @@ class ModelPlotter(CommonPlotter):
     def _read_mesh_files(self, read_frames=False):
         for cad in self.objects:
             if not cad._cached_polydata:
-                print(cad.path)
+                print("~~~~~~", cad.path)
                 filedata = pv.read(cad.path)
                 cad._cached_polydata = filedata
             color_cad = [i / 255 for i in cad.color]
