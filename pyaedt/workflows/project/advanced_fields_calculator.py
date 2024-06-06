@@ -71,11 +71,11 @@ def frontend():  # pragma: no cover
 
     # Available fields calculator expressions
     available_expressions = aedtapp.post.fields_calculator.available_expressions
+    catalog = aedtapp.post.fields_calculator.expression_catalog
     available_descriptions = {}
     for expression in available_expressions:
-        available_descriptions[expression] = aedtapp.post.fields_calculator.expression_catalog[expression][
-            "description"
-        ]
+        if aedtapp.design_type in catalog[expression]["design_type"]:
+            available_descriptions[expression] = catalog[expression]["description"]
 
     available_setups = aedtapp.existing_analysis_sweeps
 
@@ -189,6 +189,9 @@ def main(extension_args):
         if name:
             names.append(name)
 
+    if not calculation:
+        aedtapp.logger.warning("No calculation selected.")
+        return False
     expression_info = aedtapp.post.fields_calculator.expression_catalog[calculation]
     design_type_index = expression_info["design_type"].index(aedtapp.design_type)
     if names:
