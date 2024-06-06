@@ -4,10 +4,10 @@ import copy
 import datetime
 import json
 import os.path
-import random
 import warnings
 
 from pyaedt.application.Variables import generate_validation_errors
+from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -878,7 +878,7 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def _parse_nastran(self, file_path, assembly="Main"):
+    def _parse_nastran(self, file_path):
 
         nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
         includes = []
@@ -1111,7 +1111,7 @@ class Modeler3D(Primitives3D):
         return nas_to_dict
 
     @pyaedt_function_handler()
-    def _write_stl(self, nas_to_dict, decimation, enable_planar_merge):
+    def _write_stl(self, nas_to_dict, decimation, enable_planar_merge, pv):
         def _write_solid_stl(triangle, pp):
             try:
                 # points = [nas_to_dict["Points"][id] for id in triangle]
@@ -1151,11 +1151,11 @@ class Modeler3D(Primitives3D):
             new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
             points_out = list(new_mesh.points)
             faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
-            self.logger.info(
-                "Final decimation on object {}: {}%".format(
-                    stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
-                )
-            )
+            # self.logger.info(
+            #     "Final decimation on object {}: {}%".format(
+            #         stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
+            #     )
+            # )
             return points_out, faces_out
 
         output_stls = []
@@ -1166,20 +1166,13 @@ class Modeler3D(Primitives3D):
                 tri_out = triangles
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(triangles) > 20:
-                    try:
-                        import pyvista as pv
-
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
-                    except Exception:
-                        self.logger.error("Package pyvista is needed to perform model simplification.")
-                        self.logger.error("Please install it using pip.")
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
                 f.write("solid Sheet_{}\n".format(tri_id))
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
                     enable_stl_merge = False
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
-
             for solidid, solid_triangles in assembly["Solids"].items():
                 f.write("solid Solid_{}\n".format(solidid))
                 import pandas as pd
@@ -1188,14 +1181,7 @@ class Modeler3D(Primitives3D):
                 tri_out = df.drop_duplicates(keep=False).to_list()
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(solid_triangles) > 20:
-                    try:
-
-                        import pyvista as pv
-
-                        p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
-                    except Exception:
-                        self.logger.error("Package pyvista is needed to perform model simplification.")
-                        self.logger.error("Please install it using pip.")
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
                     enable_stl_merge = False
                 for triangle in tri_out:
@@ -1251,6 +1237,15 @@ class Modeler3D(Primitives3D):
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
+        pv = None
+        if decimation > 0 or preview:
+            try:
+                import pyvista as pv
+            except Exception:
+                self.logger.error("Package pyvista is needed to perform model simplification.")
+                self.logger.error("Please install it using pip.")
+                decimation = 0
+                preview = False
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
         )
@@ -1267,70 +1262,67 @@ class Modeler3D(Primitives3D):
         if empty:
             self.logger.error("Failed to import file. Check the model and retry")
             return False
-        output_stls, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge)
+        output_stls, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge, pv)
         if preview:
-            import pyvista as pv
-
-            pl = pv.Plotter(shape=(1, 2))
+            if decimation > 0:
+                pl = pv.Plotter(shape=(1, 2))
+            else:
+                pl = pv.Plotter()
             dargs = dict(show_edges=True)
-            p_out = nas_to_dict["Points"][::]
+            css4_colors = list(CSS4_COLORS.values())
             colors = []
             color_by_assembly = True
             if len(nas_to_dict["Assemblies"]) == 1:
                 color_by_assembly = False
-            for assembly in nas_to_dict["Assemblies"].values():
-                if color_by_assembly:
-                    colors.append(
-                        [
-                            random.randint(0, 255) / 256,
-                            random.randint(0, 255) / 256,
-                            random.randint(0, 255) / 256,
-                        ]
-                    )
 
-                for triangles in assembly["Triangles"].values():
-                    tri_out = triangles
-                    fin = [[3] + list(i) for i in tri_out]
-                    if not color_by_assembly:
-                        colors.append(
-                            [
-                                random.randint(0, 255) / 256,
-                                random.randint(0, 255) / 256,
-                                random.randint(0, 255) / 256,
-                            ]
-                        )
-                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+            def preview(dict_in):
+                k = 0
+                p_out = nas_to_dict["Points"][::]
+                for assembly in dict_in["Assemblies"].values():
+                    if color_by_assembly:
+                        h = CSS4_COLORS[k].lstrip("#")
+                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                        k += 1
 
-                for triangles in assembly["Solids"].values():
-                    import pandas as pd
+                    for triangles in assembly["Triangles"].values():
+                        tri_out = triangles
+                        fin = [[3] + list(i) for i in tri_out]
+                        if not color_by_assembly:
+                            h = css4_colors[k].lstrip("#")
+                            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                            k = k + 1 if k < len(css4_colors) - 1 else 0
+                            pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
 
-                    df = pd.Series(triangles)
-                    tri_out = df.drop_duplicates(keep=False).to_list()
-                    p_out = nas_to_dict["Points"][::]
-                    fin = [[3] + list(i) for i in tri_out]
-                    if not color_by_assembly:
-                        colors.append(
-                            [
-                                random.randint(0, 255) / 256,
-                                random.randint(0, 255) / 256,
-                                random.randint(0, 255) / 256,
-                            ]
-                        )
+                    for triangles in assembly["Solids"].values():
+                        import pandas as pd
 
-                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+                        df = pd.Series(triangles)
+                        tri_out = df.drop_duplicates(keep=False).to_list()
+                        p_out = nas_to_dict["Points"][::]
+                        fin = [[3] + list(i) for i in tri_out]
+                        if not color_by_assembly:
+                            h = css4_colors[k].lstrip("#")
+                            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                            k = k + 1 if k < len(css4_colors) - 1 else 0
 
+                        pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+
+            preview(nas_to_dict)
             pl.add_text("Input mesh", font_size=24)
             pl.reset_camera()
-            pl.subplot(0, 1)
-            k = 0
-            if output_stls:
+            if decimation > 0 and output_stls:
+                k = 0
+                pl.reset_camera()
+                pl.subplot(0, 1)
                 for output_stl in output_stls:
                     mesh = pv.read(output_stl)
-                    pl.add_mesh(mesh, color=colors[k], **dargs)
-                    k += 1
-            pl.add_text("Decimated mesh", font_size=24)
-            pl.reset_camera()
-            pl.link_views()
+                    h = css4_colors[k].lstrip("#")
+                    colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                    pl.add_mesh(mesh, color=colors[-1], **dargs)
+                    k = k + 1 if k < len(css4_colors) - 1 else 0
+                pl.add_text("Decimated mesh", font_size=24)
+                pl.reset_camera()
+                pl.link_views()
             if "PYTEST_CURRENT_TEST" not in os.environ:
                 pl.show()
         self.logger.info("STL files created")
@@ -1349,7 +1341,7 @@ class Modeler3D(Primitives3D):
                 )
                 self.logger.info("Model {} imported".format(os.path.split(output_stl)[-1]))
             if group_parts:
-                for assembly in nas_to_dict["Assemblies"].keys():
+                for assembly, _ in nas_to_dict["Assemblies"].items():
                     new_group = []
                     for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
                         obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
