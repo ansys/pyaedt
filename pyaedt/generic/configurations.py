@@ -1119,7 +1119,7 @@ class Configurations(object):
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
                 if not self._app.create_dataset(
-                    el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
+                    el[1:], x_list=xval, y_list=yval, z_list=zval, x_unit=xunit, y_unit=yunit
                 ):
                     self.results.import_material_datasets = False
 

@@ -84,7 +84,7 @@ class TestClass:
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_02_q3d_export(self, q3dtest, add_app):
         q3dtest.modeler.create_coordinate_system()
@@ -101,7 +101,7 @@ class TestClass:
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_03_q2d_export(self, q2dtest, add_app):
         conf_file = q2dtest.configurations.export_config()
@@ -153,7 +153,7 @@ class TestClass:
         assert q2dtest.configurations.options.import_mesh_operations
         assert q2dtest.configurations.options.import_object_properties
         assert q2dtest.configurations.options.import_parametrics
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_04a_icepak(self, icepak_a, aedtapp, add_app):
         box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
@@ -184,13 +184,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z_list=None,
+            v_list=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         filename = icepak_a.design_name
         icepak_a.export_3d_model(filename, icepak_a.working_directory, ".x_b", [], [])
@@ -235,7 +234,7 @@ class TestClass:
         out = app.configurations.import_config(old_conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2023.1" and config["use_grpc"],
@@ -269,13 +268,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z_list=None,
+            v_list=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         filename = icepak_b.design_name
         icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])
