@@ -1433,8 +1433,8 @@ class Design(AedtObjects):
             self.logger.info("Exported Profile to file {}".format(output_file))
         return output_file
 
-    @pyaedt_function_handler(message_text="text", message_type="type")
-    def add_info_message(self, text, type=None):
+    @pyaedt_function_handler(message_text="text", message_type="level")
+    def add_info_message(self, text, level=None):
         """Add a type 0 "Info" message to either the global, active project, or active design
         level of the message manager tree.
 
@@ -1444,7 +1444,7 @@ class Design(AedtObjects):
         ----------
         text : str
             Text to display as the info message.
-        type : str, optional
+        level : str, optional
             Level to add the "Info" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the "Info" message gets added to the ``"Design"``
@@ -1468,16 +1468,16 @@ class Design(AedtObjects):
             "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
             DeprecationWarning,
         )
-        if type.lower() == "project":
+        if level.lower() == "project":
             self.logger.project_logger.info(text)
-        elif type.lower() == "design":
+        elif level.lower() == "design":
             self.logger.design_logger.info(text)
         else:
             self.logger.info(text)
         return True
 
-    @pyaedt_function_handler(message_text="text", message_type="type")
-    def add_warning_message(self, text, type=None):
+    @pyaedt_function_handler(message_text="text", message_type="level")
+    def add_warning_message(self, text, level=None):
         """Add a type 0 "Warning" message to either the global, active project, or active design
         level of the message manager tree.
 
@@ -1487,7 +1487,7 @@ class Design(AedtObjects):
         ----------
         text : str
             Text to display as the "Warning" message.
-        type : str, optional
+        level : str, optional
             Level to add the "Warning" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the "Warning" message gets added to the ``"Design"``
@@ -1512,16 +1512,16 @@ class Design(AedtObjects):
             DeprecationWarning,
         )
 
-        if type.lower() == "project":
+        if level.lower() == "project":
             self.logger.project_logger.warning(text)
-        elif type.lower() == "design":
+        elif level.lower() == "design":
             self.logger.design_logger.warning(text)
         else:
             self.logger.warning(text)
         return True
 
-    @pyaedt_function_handler(message_text="text", message_type="type")
-    def add_error_message(self, text, type=None):
+    @pyaedt_function_handler(message_text="text", message_type="level")
+    def add_error_message(self, text, level=None):
         """Add a type 0 "Error" message to either the global, active project, or active design
         level of the message mmanager tree.
 
@@ -1531,7 +1531,7 @@ class Design(AedtObjects):
         ----------
         text : str
             Text to display as the "Error" message.
-        type : str, optional
+        level : str, optional
             Level to add the "Error" message to. Options are ``"Global"``,
             ``"Project"``, and ``"Design"``. The default is ``None``,
             in which case the "Error" message gets added to the ``"Design"``
@@ -1556,9 +1556,9 @@ class Design(AedtObjects):
             DeprecationWarning,
         )
 
-        if type.lower() == "project":
+        if level.lower() == "project":
             self.logger.project_logger.error(text)
-        elif type.lower() == "design":
+        elif level.lower() == "design":
             self.logger.design_logger.error(text)
         else:
             self.logger.error(text)
@@ -1604,13 +1604,13 @@ class Design(AedtObjects):
             val = "{0}{1}".format(value, units)
         return val
 
-    @pyaedt_function_handler(license_type="type")
-    def set_license_type(self, type="Pool"):
+    @pyaedt_function_handler()
+    def set_license_type(self, license_type="Pool"):
         """Change the license type between ``"Pack"`` and ``"Pool"``.
 
         Parameters
         ----------
-        type : str, optional
+        license_type : str, optional
             Type of license type, which can be either ``"Pack"`` or ``"Pool"``.
 
         Returns
@@ -1627,7 +1627,7 @@ class Design(AedtObjects):
         >>> oDesktop.SetRegistryString
         """
         try:
-            self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", type)
+            self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
             return True
         except Exception:
             return False
