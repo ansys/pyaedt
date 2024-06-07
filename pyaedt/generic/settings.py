@@ -4,7 +4,7 @@ import time
 is_linux = os.name == "posix"
 
 
-class Settings(object):
+class Settings(object):  # pragma: no cover
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):

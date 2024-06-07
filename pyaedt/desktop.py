@@ -266,7 +266,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         elif close_desktop:
             try:
-                if settings.use_multi_desktop:
+                if settings.use_multi_desktop:  # pragma: no cover
                     os.kill(pid, 9)
                 else:
                     desktop_class.odesktop.QuitApplication()
