@@ -111,7 +111,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
-    """Launch AEDT in LSF in GRPC mode."""
+    """Launch AEDT in LSF in gRPC mode."""
     if not settings.custom_lsf_command:  # pragma: no cover
         if hasattr(settings, "lsf_osrel") and hasattr(settings, "lsf_ui"):
             select_str = '"select[(osrel={}) && ui={}] rusage[mem={}]"'
