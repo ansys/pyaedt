@@ -1451,17 +1451,20 @@ class Modeler3D(Primitives3D):
                 )
                 self.logger.info("Model {} imported".format(os.path.split(output_stl)[-1]))
             if group_parts:
+                self.logger.info("Grouping parts...")
+                aedt_objs = self.object_names[::]
                 for assembly, _ in nas_to_dict["Assemblies"].items():
                     new_group = []
                     for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
-                        obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
-                        new_group.append(self.create_group(obj_names, group_name=str(el)))
-                    objs = self.object_names[::]
+                        obj_names = [i for i in aedt_objs if i.startswith("Solid_{}".format(el))]
+                        if obj_names:
+                            new_group.append(self.create_group(obj_names, group_name=str(el)))
                     for el in nas_to_dict["Assemblies"][assembly]["Triangles"].keys():
                         obj_names = [
-                            i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))
+                            i for i in aedt_objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))
                         ]
-                        new_group.append(self.create_group(obj_names, group_name=str(el)))
+                        if obj_names:
+                            new_group.append(self.create_group(obj_names, group_name=str(el)))
                     if assembly in self.oeditor.GetChildNames("Groups"):
                         self.oeditor.MoveEntityToGroup(
                             [
@@ -1471,17 +1474,18 @@ class Modeler3D(Primitives3D):
                             ["ParentGroup:=", assembly],
                         )
                     else:
-                        self.create_group(new_group, group_name=assembly)
+                        new_name = self.create_group(new_group, group_name=assembly)
                         self.oeditor.MoveEntityToGroup(
                             [
                                 "Groups:=",
                                 new_group,
                             ],
-                            ["ParentGroup:=", assembly],
+                            ["ParentGroup:=", new_name],
                         )
                 self.logger.info("Parts grouped")
 
         if import_lines:
+            self.logger.info("Importing lines. This operation can take time....")
             for assembly_name, assembly in nas_to_dict["Assemblies"].items():
                 if assembly["Lines"]:
                     for line_name, lines in assembly["Lines"].items():
