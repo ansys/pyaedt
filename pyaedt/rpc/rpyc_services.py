@@ -11,8 +11,8 @@ import time
 from pyaedt import generate_unique_name
 from pyaedt.generic.general_methods import env_path
 
-from pyaedt import is_ironpython
-from pyaedt import is_linux
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.settings import is_linux
 from pyaedt import is_windows
 
 if is_linux and is_ironpython:

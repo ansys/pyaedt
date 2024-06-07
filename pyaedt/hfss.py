@@ -97,6 +97,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -182,6 +186,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -198,6 +203,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
         self._field_setups = []

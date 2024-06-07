@@ -10,7 +10,7 @@ from _unittest_solvers.conftest import local_path
 
 from pathlib import Path
 
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 from pyaedt import Icepak
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d

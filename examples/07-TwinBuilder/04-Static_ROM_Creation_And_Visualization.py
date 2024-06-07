@@ -20,9 +20,9 @@ import shutil
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import downloads
-from pyaedt import settings
+from pyaedt.generic.settings import settings
 
 ##########################################################
 # Set AEDT version

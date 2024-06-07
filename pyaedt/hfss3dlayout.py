@@ -8,10 +8,10 @@ import io
 import os
 import re
 
-from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -76,6 +76,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     ic_mode : bool, optional
         Whether to set the design to IC mode or not. The default is ``None``, which  means to retain
         the existing setting.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -138,6 +142,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -155,6 +160,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
 

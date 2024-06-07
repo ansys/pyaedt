@@ -25,8 +25,8 @@ import os
 import sys
 
 import pyaedt
-from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+from pyaedt.generic.settings import is_linux
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments

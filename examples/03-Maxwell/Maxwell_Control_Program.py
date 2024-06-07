@@ -13,7 +13,7 @@ plot field line traces, relevant for an electrostatic analysis.
 # Perform required imports.
 
 from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import Maxwell2d
 
 ##########################################################

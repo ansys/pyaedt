@@ -64,6 +64,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -111,6 +115,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
@@ -128,6 +133,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
     def _init_from_design(self, *args, **kwargs):

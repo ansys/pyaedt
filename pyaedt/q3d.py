@@ -7,12 +7,12 @@ import os
 import re
 import warnings
 
-from pyaedt import is_ironpython
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -62,6 +62,7 @@ class QExtractor(FieldAnalysis3D, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -78,6 +79,7 @@ class QExtractor(FieldAnalysis3D, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
@@ -1252,6 +1254,10 @@ class Q3d(QExtractor, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -1283,6 +1289,7 @@ class Q3d(QExtractor, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         QExtractor.__init__(
             self,
@@ -1299,6 +1306,7 @@ class Q3d(QExtractor, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
@@ -2094,6 +2102,10 @@ class Q2d(QExtractor, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -2141,6 +2153,7 @@ class Q2d(QExtractor, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         QExtractor.__init__(
             self,
@@ -2157,6 +2170,7 @@ class Q2d(QExtractor, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 

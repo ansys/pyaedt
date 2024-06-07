@@ -22,12 +22,12 @@ import traceback
 import warnings
 
 from pyaedt import __version__ as pyaedt_version
-from pyaedt import is_ironpython
-from pyaedt import is_linux
-from pyaedt import is_windows
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 
 if is_linux:
     os.environ["ANS_NODEPCHECK"] = str(1)
@@ -38,7 +38,6 @@ else:
     import subprocess
 
 from pyaedt import __version__
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.desktop_sessions import _desktop_sessions
 from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import active_sessions
@@ -48,6 +47,7 @@ from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
@@ -375,7 +375,7 @@ class Desktop(object):
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.

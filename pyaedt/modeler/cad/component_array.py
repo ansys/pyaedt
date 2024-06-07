@@ -4,9 +4,9 @@ from collections import OrderedDict
 import os
 import re
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 
 

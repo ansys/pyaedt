@@ -57,6 +57,10 @@ class FieldAnalysis3D(Analysis, object):
     aedt_process_id : int, optional
         Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     def __init__(
@@ -74,6 +78,7 @@ class FieldAnalysis3D(Analysis, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -90,6 +95,7 @@ class FieldAnalysis3D(Analysis, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._post = None
         self._modeler = None

@@ -2,10 +2,10 @@ import re
 import sys
 import time
 
-from pyaedt import is_linux
 from pyaedt.circuit import Circuit
 from pyaedt.desktop import Desktop
 from pyaedt.emit import Emit
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.settings import settings
 from pyaedt.hfss3dlayout import Hfss3dLayout
 from pyaedt.hfss import Hfss

@@ -10,7 +10,6 @@ import re
 import shutil
 import time
 
-from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
@@ -21,6 +20,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.hfss3dlayout import Hfss3dLayout
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import PowerIQSource
@@ -85,6 +85,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -142,6 +146,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysisCircuit.__init__(
             self,
@@ -158,6 +163,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")

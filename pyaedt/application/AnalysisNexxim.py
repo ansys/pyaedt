@@ -43,6 +43,7 @@ class FieldAnalysisCircuit(Analysis):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -59,6 +60,7 @@ class FieldAnalysisCircuit(Analysis):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
         self._modeler = None

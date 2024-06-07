@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import os
 
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
     try:

@@ -7,13 +7,13 @@ import tempfile
 
 import pyaedt
 from pyaedt import __version__
-from pyaedt import generate_unique_folder_name
-from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import GrpcApiError
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file

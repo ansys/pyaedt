@@ -9,7 +9,6 @@ import re
 import warnings
 
 import pyaedt
-from pyaedt import is_linux
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Design import DesignSettingsManipulation
 from pyaedt.generic.DataHandlers import _arg2dict
@@ -20,6 +19,7 @@ from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import is_linux
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.elements3d import FacePrimitive
@@ -70,7 +70,7 @@ class Icepak(FieldAnalysis3D):
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
@@ -94,6 +94,10 @@ class Icepak(FieldAnalysis3D):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -157,6 +161,7 @@ class Icepak(FieldAnalysis3D):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysis3D.__init__(
             self,
@@ -173,6 +178,7 @@ class Icepak(FieldAnalysis3D):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._monitor = Monitor(self)
         self._configurations = ConfigurationsIcepak(self)

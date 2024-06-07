@@ -14,9 +14,6 @@ import shutil
 import tempfile
 import time
 
-from pyaedt import is_ironpython
-from pyaedt import is_linux
-from pyaedt import is_windows
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
@@ -29,6 +26,9 @@ from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -91,7 +91,10 @@ class Analysis(Design, object):
     ic_mode : bool, optional
         Whether to set the design to IC mode. The default is ``None``, which means to retain the
         existing setting. This parameter applies only to HFSS 3D Layout.
-
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     def __init__(
@@ -110,6 +113,7 @@ class Analysis(Design, object):
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
         Design.__init__(
             self,
@@ -126,6 +130,7 @@ class Analysis(Design, object):
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock,
         )
         self._excitation_objects = {}
         self._setup = None

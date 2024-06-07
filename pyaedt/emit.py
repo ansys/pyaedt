@@ -59,6 +59,10 @@ class Emit(Design, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -118,6 +122,7 @@ class Emit(Design, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         self.__emit_api_enabled = False
         self.results = None
@@ -140,6 +145,7 @@ class Emit(Design, object):
             machine=machine,
             port=port,
             aedt_process_id=aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)

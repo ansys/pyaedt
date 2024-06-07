@@ -2,8 +2,8 @@ from enum import Enum
 import json
 from pathlib import Path
 
-from pyaedt import pyaedt_function_handler
-from pyaedt import settings
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.misc.spisim_com_configuration_files.com_settings_mapping import spimsim_matlab_keywords_mapping
 
 logger = settings.logger

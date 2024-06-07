@@ -8,7 +8,6 @@ import os
 import re
 import time
 
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
@@ -18,6 +17,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -2067,7 +2067,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         the active version or latest installed version is used. This
         parameter is ignored when a script is launched within AEDT.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical
         mode. This parameter is ignored when a script is launched within
@@ -2095,6 +2095,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -2138,6 +2142,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """
         Initialize the ``Maxwell`` class.
@@ -2158,6 +2163,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         Maxwell.__init__(self)
 
@@ -2827,7 +2833,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
@@ -2853,6 +2859,10 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -2911,6 +2921,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         self.is3d = False
         FieldAnalysis3D.__init__(
@@ -2928,6 +2939,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         Maxwell.__init__(self)
 

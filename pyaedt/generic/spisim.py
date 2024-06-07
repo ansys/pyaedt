@@ -9,13 +9,13 @@ import subprocess  # nosec
 from numpy import float64
 from numpy import zeros
 
-from pyaedt import generate_unique_folder_name
 from pyaedt import generate_unique_name
-from pyaedt import is_linux
-from pyaedt import pyaedt_function_handler
-from pyaedt import settings
 from pyaedt.generic.general_methods import env_value
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import is_linux
+from pyaedt.generic.settings import settings
 from pyaedt.misc import current_version
 from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 

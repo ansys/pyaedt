@@ -6,10 +6,10 @@ import random
 import re
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.edb import Edb
 from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
 

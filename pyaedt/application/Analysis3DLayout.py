@@ -56,6 +56,10 @@ class FieldAnalysis3DLayout(Analysis):
     ic_mode : bool, optional
         Whether to set the design to IC mode. The default is ``None``, which means to retain the
         existing setting.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     """
 
@@ -75,6 +79,7 @@ class FieldAnalysis3DLayout(Analysis):
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -92,6 +97,7 @@ class FieldAnalysis3DLayout(Analysis):
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock=remove_lock,
         )
         self._modeler = None
         self._mesh = None

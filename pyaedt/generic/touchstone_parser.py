@@ -4,7 +4,7 @@ import os
 import re
 import subprocess
 
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.misc.misc import installed_versions
 
 if not is_ironpython:

@@ -3,11 +3,11 @@ from __future__ import absolute_import
 import math
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.geometry_operators import GeometryOperators
 

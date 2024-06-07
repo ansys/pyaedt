@@ -29,7 +29,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         the active setup is used or the latest installed version is
         used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
@@ -53,6 +53,10 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -99,6 +103,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
@@ -114,6 +119,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
     def _init_from_design(self, *args, **kwargs):

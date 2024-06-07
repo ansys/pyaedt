@@ -5,11 +5,11 @@ from collections import OrderedDict
 import math
 import time
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
 from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.elements3d import _dict2arg
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 

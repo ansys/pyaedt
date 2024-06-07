@@ -51,6 +51,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
+from pyaedt.generic.general_methods import remove_project_lock
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.modules.Boundary import BoundaryObject
@@ -89,7 +90,7 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    _version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
@@ -110,7 +111,10 @@ class Design(AedtObjects):
     ic_mode : bool, optional
         Whether to set the design to IC mode or not. The default is ``None``, which means to retain
         the existing setting. Applicable only to ``Hfss3dLayout``.
-
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     @property
@@ -205,6 +209,7 @@ class Design(AedtObjects):
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
 
         self.__t = None
@@ -263,14 +268,13 @@ class Design(AedtObjects):
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
         self._temp_solution_type = solution_type
+        self._remove_lock = remove_lock
         self.oproject = project_name
         self.odesign = design_name
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        # if t:
-        #     t.join()
         if not self.__t and not settings.lazy_load and not is_ironpython and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
@@ -1147,7 +1151,11 @@ class Design(AedtObjects):
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
                         if is_project_locked(project):
-                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+                            if self._remove_lock:
+                                self.logger.warning("Project is locked. Removing it and opening.")
+                                remove_project_lock(project)
+                            else:
+                                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("aedt project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
                         self._add_handler()
@@ -1172,7 +1180,11 @@ class Design(AedtObjects):
                     self.logger.info("Project %s set to active.", pname)
                 else:
                     if is_project_locked(proj_name):
-                        raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+                        if self._remove_lock:
+                            self.logger.warning("Project is locked. Removing it and opening.")
+                            remove_project_lock(proj_name)
+                        else:
+                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
