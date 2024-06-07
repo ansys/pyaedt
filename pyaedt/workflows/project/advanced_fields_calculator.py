@@ -70,12 +70,12 @@ def frontend():  # pragma: no cover
     aedtapp = get_pyaedt_app(project_name, design_name)
 
     # Available fields calculator expressions
-    available_expressions = aedtapp.post.fields_calculator.available_expressions
-    catalog = aedtapp.post.fields_calculator.expression_catalog
+    # available_expressions = aedtapp.post.fields_calculator.available_expressions
+    available_expressions = aedtapp.post.fields_calculator.expression_catalog
     available_descriptions = {}
-    for expression in available_expressions:
-        if aedtapp.design_type in catalog[expression]["design_type"]:
-            available_descriptions[expression] = catalog[expression]["description"]
+    for expression, expression_info in available_expressions.items():
+        if aedtapp.design_type in expression_info["design_type"]:
+            available_descriptions[expression] = expression_info["description"]
 
     available_setups = aedtapp.existing_analysis_sweeps
 
@@ -150,11 +150,11 @@ def frontend():  # pragma: no cover
                 calculation = k
                 break
 
-    assignment = aedtapp.modeler.selections
+    assignments = aedtapp.modeler.convert_to_selections(aedtapp.modeler.selections, True)
 
     app.release_desktop(False, False)
 
-    output_dict = {"setup": setup, "calculation": calculation, "assignment": assignment}
+    output_dict = {"setup": setup, "calculation": calculation, "assignment": assignments}
 
     return output_dict
 
@@ -162,7 +162,7 @@ def frontend():  # pragma: no cover
 def main(extension_args):
     setup = extension_args["setup"]
     calculation = extension_args["calculation"]
-    assignment = extension_args["assignment"]
+    assignment_selection = extension_args["assignment"]
 
     app = pyaedt.Desktop(
         new_desktop_session=False,
@@ -183,25 +183,31 @@ def main(extension_args):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
-    names = []
-    for element in assignment:
-        name = aedtapp.post.fields_calculator.add_expression(calculation, element, name=calculation + "_" + element)
-        if name:
-            names.append(name)
-
     if not calculation:
         aedtapp.logger.warning("No calculation selected.")
+        if not extension_args["is_test"]:  # pragma: no cover
+            app.release_desktop(False, False)
         return False
-    expression_info = aedtapp.post.fields_calculator.expression_catalog[calculation]
-    design_type_index = expression_info["design_type"].index(aedtapp.design_type)
-    if names:
-        for report_type in expression_info["report"]:
-            if expression_info["fields_type"][design_type_index] == "CG Fields":
-                report = aedtapp.post.reports_by_category.cg_fields(names, setup)
-            else:
-                report = aedtapp.post.reports_by_category.fields(names, setup)
-            report.report_type = report_type
-            report.create()
+
+    assignments = []
+    for assignment in assignment_selection:
+        if assignment not in aedtapp.modeler.object_names and "Face" in assignment:
+            assignments.append(aedtapp.modeler.get_face_by_id(int(assignment[4:])))
+        else:
+            assignments.append(assignment)
+
+    names = []
+
+    if not aedtapp.post.fields_calculator.is_general_expression(calculation):
+        for assignment in assignments:
+            names.append(aedtapp.post.fields_calculator.add_expression(calculation, assignment))
+    else:
+        names.append(aedtapp.post.fields_calculator.add_expression(calculation, None))
+
+    if not aedtapp.post.fields_calculator.is_general_expression(calculation):
+        _ = aedtapp.post.fields_calculator.expression_plot(calculation, None, names, setup)
+    else:
+        _ = aedtapp.post.fields_calculator.expression_plot(calculation, assignments, names, setup)
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

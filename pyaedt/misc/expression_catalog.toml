@@ -1,8 +1,9 @@
-[voltage]
+[voltage_line]
 name = "Voltage_Line"
 description = "Voltage Drop along a Line"
 design_type = ["HFSS", "Q3D Extractor"]
 fields_type = ["Fields", "CG Fields"]
+primary_sweep = "Freq"
 assignment = ""
 assignment_type = ["Line"]
 operations = ["Fundamental_Quantity('E')",
@@ -23,3 +24,17 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('CmplxI')",
 	"Operation('+')"]
 report = ["Data Table", "Rectangular Plot"]
+
+[voltage_drop]
+name = "Voltage_Drop"
+description = "Voltage Drop in Q3D"
+design_type = ["Q3D Extractor"]
+fields_type = ["DC R/L Fields"]
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Solid"]
+constants = {"vrm"= 3.3}
+operations = ["Fundamental_Quantity('dcvPhi')",
+    "Scalar_Function(FuncValue='vrm')",
+	"Operation('+')"]
+report = ["Field_3D"]

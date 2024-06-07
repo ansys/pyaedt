@@ -34,10 +34,11 @@ class FieldsCalculator:
     def __init__(self, app):
         self.expression_catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "expression_catalog.toml"))
         self.__app = app
+        self.design_type = app.design_type
         self.ofieldsreporter = app.ofieldsreporter
 
     @property
-    def available_expressions(self):
+    def expression_names(self):
         """List of available expressions.
 
         Returns
@@ -52,9 +53,10 @@ class FieldsCalculator:
 
         Parameters
         ----------
-        calculation : str
-            Calculation to add.
-        assignment : str
+        calculation :
+            Calculation type.
+        assignment : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
+         :class:`pyaedt.modeler.cad.FacePrimitive
             Name of the object from which to add the named expression.
         name : str, optional
             Name of the named expression. The default is ``None``.
@@ -64,7 +66,10 @@ class FieldsCalculator:
         str, bool
             Named expression when successful, ``False`` when failed.
         """
-        if calculation not in self.available_expressions:
+        if assignment is not None:
+            assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
+
+        if calculation not in self.expression_names:
             self.__app.logger.error("Calculation is not available.")
             return False
 
@@ -76,7 +81,7 @@ class FieldsCalculator:
         expression_info["name"] = name
 
         if self.is_expression_defined(expression_info["name"]):
-            self.__app.logger.warning("Named expression already exists.")
+            self.__app.logger.debug("Named expression already exists.")
             return expression_info["name"]
 
         # Check design type
@@ -87,27 +92,42 @@ class FieldsCalculator:
         design_type_index = expression_info["design_type"].index(design_type)
 
         # Check assignment type
-        if assignment not in self.__app.modeler.object_names:
+        if assignment and isinstance(assignment, str) and assignment not in self.__app.modeler.object_names:
             self.__app.logger.error("Assignment type is not correct.")
             return False
 
         # Check assignment type
-        assignment_type = self.__app.modeler.objects_by_name[assignment].object_type
-        if assignment_type not in expression_info["assignment_type"]:
-            self.__app.logger.error("Wrong assignment type.")
-            return False
+        if assignment and isinstance(assignment, str):
+            assignment_type = self.__app.modeler.objects_by_name[assignment].object_type
+            if assignment_type not in expression_info["assignment_type"]:
+                self.__app.logger.error("Wrong assignment type.")
+                return False
+        elif assignment and isinstance(assignment, int):
+            if "Face" not in expression_info["assignment_type"]:
+                self.__app.logger.error("Wrong assignment type.")
+                return False
+            else:
+                assignment = "Face" + str(assignment)
 
-        expression_info["assignment"] = assignment
+        # Check constants
+        if "constants" in expression_info:
+            constants = expression_info["constants"]
+            if constants:
+                for k, v in constants.items():
+                    self.__app.variable_manager.set_variable(k, v, postprocessing=True)
+
+        if assignment is not None:
+            expression_info["assignment"] = assignment
 
         expression_info["operations"] = [
             operation.replace("assignment", expression_info["assignment"])
             for operation in expression_info["operations"]
         ]
 
-        # Create clc
+        # Create clc file
         file_name = self.create_expression_file(expression_info["name"], expression_info["operations"])
 
-        # Import CLC
+        # Import clc
         self.ofieldsreporter.LoadNamedExpressions(
             os.path.abspath(file_name), expression_info["fields_type"][design_type_index], [name]
         )
@@ -122,8 +142,6 @@ class FieldsCalculator:
         ----------
         name : str
             Name of the expression.
-        expression : str
-            Expression to add.
         operations : list
             List of operations in the calculator.
 
@@ -148,6 +166,76 @@ class FieldsCalculator:
         except Exception:  # pragma: no cover
             return False
         return os.path.abspath(file_name)
+
+    @pyaedt_function_handler()
+    def expression_plot(self, calculation, assignment, names, setup=None):
+        """Add named expression.
+
+        Parameters
+        ----------
+        calculation : str
+            Calculation type.
+        assignment : list
+            List of assignments to apply the expression. If the expression is not general, assignment is not needed.
+        names : list
+            Name of the expressions to plot.
+        setup : str
+            Analysis setup.
+
+        Returns
+        -------
+        list
+            List of created reports.
+        """
+        if assignment is not None:
+            assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
+
+        reports = []
+
+        for name in names:
+            if not self.is_expression_defined(name):
+                self.__app.logger.error("Named expression not available.")
+                return False
+
+        if calculation not in self.expression_names:
+            self.__app.logger.error("Calculation is not available.")
+            return False
+
+        if not setup:
+            setup = self.__app.existing_analysis_sweeps[0]
+
+        expression_info = self.expression_catalog[calculation]
+        fields_type = expression_info["fields_type"]
+        primary_sweep = expression_info["primary_sweep"]
+
+        for report_type in expression_info["report"]:
+            if report_type in ["Data Table", "Rectangular Plot"]:
+                if "CG Fields" in fields_type and self.design_type == "Q3D Extractor":
+                    report = self.__app.post.reports_by_category.cg_fields(names, setup)
+                elif "DC R/L Fields" in fields_type and self.design_type == "Q3D Extractor":
+                    report = self.__app.post.reports_by_category.dc_fields(names, setup)
+                else:
+                    report = self.__app.post.reports_by_category.fields(names, setup)
+                report.report_type = report_type
+                report.primary_sweep = primary_sweep
+                report.create()
+                reports.append(report)
+            elif report_type in ["Field_3D"]:
+                intrinsic = {}
+                if self.design_type == "Q3D Extractor":
+                    intrinsic = {"Freq": self.__app.setups[0].props["AdaptiveFreq"]}
+                for assign in assignment:
+                    if isinstance(assign, int):
+                        report = self.__app.post.create_fieldplot_surface(
+                            quantity=names[0], assignment=assign, field_type=fields_type, intrinsics=intrinsic
+                        )
+                        reports.append(report)
+                    else:
+                        report = self.__app.post.create_fieldplot_volume(
+                            quantity=names[0], assignment=assign, field_type=fields_type, intrinsics=intrinsic
+                        )
+                        reports.append(report)
+        return reports
 
     @pyaedt_function_handler()
     def delete_expression(self, name=None):
@@ -184,4 +272,31 @@ class FieldsCalculator:
         bool
             ``True`` when exists.
         """
-        return self.ofieldsreporter.DoesNamedExpressionExists(name)
+        is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
+        if is_defined == 1:
+            return True
+        return False
+
+    @pyaedt_function_handler()
+    def is_general_expression(self, name):
+        """Check if expression is general.
+
+        Parameters
+        ----------
+        name : str,
+            Named expression.
+
+        Returns
+        -------
+        bool
+            ``True`` when exists.
+        """
+        if name not in self.expression_names:
+            self.__app.logger.error("Named expression not available.")
+            return False
+        is_general = True
+        for operation in self.expression_catalog[name]["operations"]:
+            if "assignment" in operation:
+                is_general = False
+                break
+        return is_general
