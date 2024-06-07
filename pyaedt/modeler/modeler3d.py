@@ -71,8 +71,8 @@ class Modeler3D(Primitives3D):
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password="",
-        edit_password="",
+        password=None,
+        edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
         replace_names=False,
@@ -113,10 +113,10 @@ class Modeler3D(Primitives3D):
             The default value is an empty string.
         password : str, optional
             Security password needed when adding the component.
-            The default value is an empty string.
+            The default value is ``None``.
         edit_password : str, optional
             Edit password.
-            The default value is an empty string.
+            The default value is ``None``.
         password_type : str, optional
             Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default is ``UserSuppliedPassword``.
@@ -165,6 +165,11 @@ class Modeler3D(Primitives3D):
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not edit_password:
+            edit_password = os.getenv("PYAEDT_ENCRYPTED_EDIT_PASSWORD", "")
+
         hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
@@ -555,41 +560,49 @@ class Modeler3D(Primitives3D):
         new_name = list(set(self.user_defined_component_names) - set(old_components))
         return self.user_defined_components[new_name[0]]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        startingposition="origin",
+        innerradius="inner_radius",
+        outerradius="outer_radius",
+        dielradius="diel_radius",
+        matinner="mat_inner",
+        matouter="mat_outer",
+        matdiel="mat_diel",
+    )
     def create_coaxial(
         self,
-        startingposition,
+        origin,
         axis,
-        innerradius=1,
-        outerradius=2,
-        dielradius=1.8,
+        inner_radius=1,
+        outer_radius=2,
+        diel_radius=1.8,
         length=10,
-        matinner="copper",
-        matouter="copper",
-        matdiel="teflon_based",
+        mat_inner="copper",
+        mat_outer="copper",
+        mat_diel="teflon_based",
     ):
         """Create a coaxial.
 
         Parameters
         ----------
-        startingposition : list
+        origin : list
             List of ``[x, y, z]`` coordinates for the starting position.
         axis : int
             Coordinate system AXIS (integer ``0`` for X, ``1`` for Y, ``2`` for Z) or
             the :class:`Application.AXIS` enumerator.
-        innerradius : float, optional
+        inner_radius : float, optional
             Inner coax radius. The default is ``1``.
-        outerradius : float, optional
+        outer_radius : float, optional
             Outer coax radius. The default is ``2``.
-        dielradius : float, optional
+        diel_radius : float, optional
             Dielectric coax radius. The default is ``1.8``.
         length : float, optional
             Coaxial length. The default is ``10``.
-        matinner : str, optional
+        mat_inner : str, optional
             Material for the inner coaxial. The default is ``"copper"``.
-        matouter : str, optional
+        mat_outer : str, optional
             Material for the outer coaxial. The default is ``"copper"``.
-        matdiel : str, optional
+        mat_diel : str, optional
             Material for the dielectric. The default is ``"teflon_based"``.
 
         Returns
@@ -611,21 +624,20 @@ class Modeler3D(Primitives3D):
         >>> from pyaedt import Hfss
         >>> app = Hfss()
         >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(
-        ...    position, app.AXIS.X, innerradius=0.5, outerradius=0.8, dielradius=0.78, length=50
-        ... )
+        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
+        ... length=50)
 
         """
-        if not (outerradius > dielradius and dielradius > innerradius):
+        if not (outer_radius > diel_radius and diel_radius > inner_radius):
             raise ValueError("Error in coaxial radius.")
-        inner = self.create_cylinder(axis, startingposition, innerradius, length, 0)
-        outer = self.create_cylinder(axis, startingposition, outerradius, length, 0)
-        diel = self.create_cylinder(axis, startingposition, dielradius, length, 0)
+        inner = self.create_cylinder(axis, origin, inner_radius, length, 0)
+        outer = self.create_cylinder(axis, origin, outer_radius, length, 0)
+        diel = self.create_cylinder(axis, origin, diel_radius, length, 0)
         self.subtract(outer, inner)
         self.subtract(outer, diel)
-        inner.material_name = matinner
-        outer.material_name = matouter
-        diel.material_name = matdiel
+        inner.material_name = mat_inner
+        outer.material_name = mat_outer
+        diel.material_name = mat_diel
 
         return inner, outer, diel
 
@@ -811,6 +823,109 @@ class Modeler3D(Primitives3D):
             return wgbox, p1, p2
         else:
             return None
+
+    @pyaedt_function_handler()
+    def create_conical_rings(
+        self,
+        axis,
+        origin,
+        bottom_radius,
+        top_radius,
+        cone_height,
+        ring_height,
+        thickness=None,
+        name=None,
+    ):
+        """Create rings in a conical shape.
+
+        Parameters
+        ----------
+        axis : str
+            Coordinate system of the axis.
+        origin : list, optional
+            List of ``[x, y, z]`` coordinates for the center position
+            of the bottom of the cone.
+        bottom_radius : float
+            Bottom radius of the cone.
+        top_radius : float
+            Top radius of the cone.
+        cone_height : float
+            Height of the cone.
+        ring_height : float
+            Ring height.
+        thickness : float, optional
+            Ring thickness. The default is ``None``, in which case a 2D sheet is created.
+        name : str, optional
+            Name of the cone. The default is ``None``, in which case
+            the default name is assigned.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.object3d.Object3d`, bool
+            List of 3D object or ``False`` if it fails.
+
+        References
+        ----------
+
+        >>> oEditor.CreatePolyline
+        >>> oEditor.SweepAroundAxis
+        >>> oEditor.ThickenSheet
+
+        Examples
+        --------
+        This example shows how to create rings along Z axis with a cone shape.
+
+        >>> from pyaedt import Hfss
+        >>> app = Hfss()
+        >>> position = [0,0,0]
+        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z', origin=[0, 0, 0],
+        ...                                           bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1)
+
+        """
+        if bottom_radius <= top_radius:
+            self.logger.error("the ``bottom_radius`` argument must must be bigger than ``top_radius``.")
+            return False
+        if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
+            self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
+            return False
+        if isinstance(top_radius, (int, float)) and top_radius < 0:
+            self.logger.error("The ``top_radius`` argument must be greater than 0.")
+            return False
+        if isinstance(cone_height, (int, float)) and cone_height <= 0:
+            self.logger.error("The ``cone_height`` argument must be greater than 0.")
+            return False
+        if isinstance(ring_height, (int, float)) and ring_height <= 0:
+            self.logger.error("The ``ring_height`` argument must be greater than 0.")
+            return False
+        if len(origin) != 3:
+            self.logger.error("The ``origin`` argument must be a valid three-element list.")
+            return False
+
+        if not name:
+            name = generate_unique_name("ring_cone")
+
+        n_strips = int(cone_height / ring_height)
+
+        if not thickness:
+            thickness = 0.0
+
+        solids = []
+        for strip in range(n_strips):
+            if strip % 2 == 0:
+                z = strip * ring_height
+                r_ini = top_radius + z * (bottom_radius - top_radius) / cone_height
+                r_end = top_radius + (z + ring_height) * (bottom_radius - top_radius) / cone_height
+                polyline_points = [[r_ini, 0, cone_height - z], [r_end, 0, cone_height - z - ring_height]]
+                pol = self.create_polyline(polyline_points, name=name)
+                pol.sweep_around_axis("Z")
+                solid = self.thicken_sheet(pol.name, thickness=thickness)
+
+                if axis == "X":
+                    solid.rotate(axis=1, angle=90.0)
+                elif axis == "Y":
+                    solid.rotate(axis=0, angle=-90.0)
+                solids.append(solid)
+        return solids
 
     @pyaedt_function_handler()
     def objects_in_bounding_box(self, bounding_box, check_solids=True, check_lines=True, check_sheets=True):

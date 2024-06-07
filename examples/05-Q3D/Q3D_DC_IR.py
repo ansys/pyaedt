@@ -150,8 +150,8 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 objs_copper = q3d.modeler.get_objects_by_material("copper")
 objs_copper_names = [i.name for i in objs_copper]
-q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(assignment=objs_copper_names, show=False, output_file=os.path.join(q3d.working_directory, "Q3D.jpg"),
+         plot_as_separate_objects=False, plot_air_objects=False)
 
 ###############################################################################
 # Assign source and sink

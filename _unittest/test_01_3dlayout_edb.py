@@ -31,6 +31,12 @@ def dcir_example_project(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def ic_mode_design(add_app):
+    app = add_app(project_name="ic_mode_design", application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch, aedtapp):
     design_name = aedtapp.design_name
@@ -39,10 +45,11 @@ def examples(local_scratch, aedtapp):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flipchip, dcir_example_project, local_scratch, examples):
+    def init(self, aedtapp, flipchip, dcir_example_project, ic_mode_design, local_scratch, examples):
         self.aedtapp = aedtapp
         self.flipchip = flipchip
         self.dcir_example_project = dcir_example_project
+        self.ic_mode_design = ic_mode_design
         self.local_scratch = local_scratch
         self.design_name = examples[0]
 
@@ -384,3 +391,6 @@ class TestClass:
         ]
         assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
         assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")
+
+    def test_24_open_ic_mode_design(self):
+        assert self.ic_mode_design.ic_mode
