@@ -11,8 +11,17 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 import json
 import os
 import pyaedt
+import tempfile
 
-project_name = pyaedt.generate_unique_project_name(rootname=r"C:\Data\Support\Test", folder_name="choke", project_name="choke")
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, folder_name="choke",
+                                                   project_name="choke")
 
 ##########################################################
 # Set AEDT version
@@ -206,7 +215,7 @@ hfss.create_linear_count_sweep(setup=setup.name, units="MHz", start_frequency=0.
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

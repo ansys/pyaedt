@@ -259,7 +259,7 @@ class AnsysReport(FPDF):
             msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
             msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
             image_path = os.path.join(design.working_directory, "model.jpg")
-            design.modeler.edb.nets.plot(save_plot=image_path)
+            design.modeler.edb.nets.plot()
             if os.path.exists(image_path):
                 self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:

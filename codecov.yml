@@ -24,3 +24,4 @@ coverage:
     - "pyaedt/workflows/templates"  # ignore folders and all its contents
     - "pyaedt/common_rpc.py"  # ignore folders and all its contents
     - "pyaedt/generic/grpc_plugin_dll_class.py"  # ignore file to interact with AEDT grpc api
+    - "pyaedt/edb.py"  # ignore folders and all its contents

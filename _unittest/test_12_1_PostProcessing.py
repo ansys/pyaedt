@@ -457,7 +457,7 @@ class TestClass:
         symbols = new_report.traces[0].SYMBOLSTYLE
 
         assert new_report.traces[0].set_trace_properties(
-            trace_style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+            style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
         )
         assert new_report.traces[0].set_symbol_properties(
             show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)
@@ -529,7 +529,7 @@ class TestClass:
         assert not plot_obj.background_image
         plot_obj.convert_fields_in_db = True
         plot_obj.log_multiplier = 20
-        plot_obj.plot(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file, show=False)
         assert os.path.exists(plot_obj.image_file)
 
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
@@ -543,7 +543,7 @@ class TestClass:
             file_format="aedtplt",
         )
         assert os.path.exists(plot_obj.image_file)
-        plot_obj.plot(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file, show=False)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
     def test_14B_Field_Ploton_Vector(self):
