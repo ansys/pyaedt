@@ -174,7 +174,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             # LSF resources are assigned. Make sure AEDT starts
             while not _check_grpc_port(port, machine_name=m.group(1)):
                 if k > aedt_startup_timeout:
-                    pyaedt_logger.error("LSF allocated resources but AEDT was unable to start due to a timeout.")
+                    pyaedt_logger.error("LSF allocated resources, but AEDT was unable to start due to a timeout.")
                     return False, err
                 time.sleep(1)
                 k += 1
