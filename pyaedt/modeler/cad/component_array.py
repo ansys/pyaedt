@@ -25,7 +25,7 @@ class ComponentArray(object):
     Basic usage demonstrated with an HFSS design with an existing array:
 
     >>> from pyaedt import Hfss
-    >>> aedtapp = Hfss(projectname="Array.aedt")
+    >>> aedtapp = Hfss(project="Array.aedt")
     >>> array_names = aedtapp.component_array_names[0]
     >>> array = aedtapp.component_array[array_names[0]]
     """
@@ -386,7 +386,7 @@ class ComponentArray(object):
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss(projectname="Array.aedt")
+        >>> aedtapp = Hfss(project="Array.aedt")
         >>> array_names = aedtapp.component_array_names[0]
         >>> array = aedtapp.component_array[array_names[0]]
         >>> array_csv = array.export_array_info()

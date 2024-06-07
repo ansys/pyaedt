@@ -44,8 +44,8 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D.
 
-m2d = Maxwell2d(projectname=aedt_file,
-                specified_version=aedt_version,
+m2d = Maxwell2d(project=aedt_file,
+                version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 

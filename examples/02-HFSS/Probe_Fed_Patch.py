@@ -60,12 +60,12 @@ proj_name = os.path.join(project_folder, "antenna")
 # -----------
 #
 
-hfss = pyaedt.Hfss(projectname=proj_name,
+hfss = pyaedt.Hfss(project=proj_name,
                    solution_type="Terminal",
-                   designname="patch",
+                   design="patch",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
-                   specified_version=aedt_version)
+                   version=aedt_version)
 
 hfss.modeler.model_units = length_units
 

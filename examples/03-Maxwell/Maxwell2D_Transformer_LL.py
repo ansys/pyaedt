@@ -30,10 +30,10 @@ design_name = "1 Magnetostatic"
 solver = "MagnetostaticXY"
 desktop_version = "2024.1"
 
-m2d = Maxwell2d(specified_version=desktop_version,
+m2d = Maxwell2d(version=desktop_version,
                 new_desktop_session=False,
-                designname=design_name,
-                projectname=project_name,
+                design=design_name,
+                project=project_name,
                 solution_type=solver,
                 non_graphical=non_graphical)
 

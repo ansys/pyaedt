@@ -32,7 +32,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a :class:`pyaedt.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version=aedt_version,
+M3D = pyaedt.Maxwell3d(solution_type="Transient", design="test_polyline_3D", version=aedt_version,
                        new_desktop_session=True, non_graphical=non_graphical, )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

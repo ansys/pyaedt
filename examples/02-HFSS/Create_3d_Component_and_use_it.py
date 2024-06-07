@@ -30,7 +30,7 @@ aedt_version = "2024.1"
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one. 
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(specified_version=aedt_version, new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(version=aedt_version, new_desktop_session=True, close_on_exit=True)
 
 ##########################################################
 # Variables
@@ -100,7 +100,7 @@ hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
-hfss2 = Hfss(projectname="new_project", designname="new_design")
+hfss2 = Hfss(project="new_project", design="new_design")
 
 ##########################################################
 # Insert of 3d component

@@ -371,13 +371,13 @@ class Desktop(object):
 
     Parameters
     ----------
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    non_graphical : bool, optional
+    graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in graphical mode.
+        is ``True``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -408,10 +408,10 @@ class Desktop(object):
     Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
 
     >>> import pyaedt
-    >>> desktop = pyaedt.Desktop(specified_version="2023.2", non_graphical=True)
+    >>> desktop = pyaedt.Desktop(version="2023.2", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
@@ -420,7 +420,7 @@ class Desktop(object):
     >>> desktop = Desktop(232)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
     """
 
@@ -463,10 +463,12 @@ class Desktop(object):
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        specified_version="version",
+    )
     def __init__(
         self,
-        specified_version=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=True,
         close_on_exit=True,
@@ -475,8 +477,8 @@ class Desktop(object):
         port=0,
         aedt_process_id=None,
     ):
-        if _desktop_sessions and specified_version is None:
-            specified_version = list(_desktop_sessions.values())[-1].aedt_version_id
+        if _desktop_sessions and version is None:
+            version = list(_desktop_sessions.values())[-1].aedt_version_id
         if aedt_process_id:  # pragma no cover
             aedt_process_id = int(aedt_process_id)
         if getattr(self, "_initialized", None) is not None and self._initialized:
@@ -497,9 +499,9 @@ class Desktop(object):
         self.launched_by_pyaedt = False
 
         # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
-        # the ``non_graphical`` argument.
+        # the ``graphical`` argument.
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:  # pragma no cover
-            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
+            graphical = not os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
         # Used in Examples generation to force the desktop opening
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma no cover
             new_desktop_session = True
@@ -508,9 +510,9 @@ class Desktop(object):
         if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):  # pragma no cover
             aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
         # Used in toolkit scripts. The ``PYAEDT_SCRIPT_VERSION`` environment variable overrides
-        # the ``specified_version`` argument.
+        # the ``version`` argument.
         if os.getenv("PYAEDT_SCRIPT_VERSION", None):  # pragma no cover
-            specified_version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
+            version = str(os.getenv("PYAEDT_SCRIPT_VERSION"))
 
         self.close_on_exit = close_on_exit
         self.machine = machine
@@ -538,7 +540,7 @@ class Desktop(object):
             self._logger.info("Debug logger is enabled. PyAEDT methods will be logged.")
         else:
             self._logger.info("Debug logger is disabled. PyAEDT methods will not be logged.")
-        student_version_flag, version_key, version = self._assert_version(specified_version, student_version)
+        student_version_flag, version_key, version = self._assert_version(version, student_version)
 
         # start the AEDT opening decision tree
         # starting_mode can be one of these: "grpc", "com", "ironpython", "console_in", "console_out"
@@ -557,7 +559,7 @@ class Desktop(object):
         elif aedt_process_id and not new_desktop_session and not is_ironpython:  # pragma: no cover
             # connecting to an existing session has the precedence over use_grpc_api user preference
             sessions = active_sessions(
-                version=specified_version, student_version=student_version_flag, non_graphical=non_graphical
+                version=version, student_version=student_version_flag, non_graphical=non_graphical
             )
             self.logger.info(sessions)
             if aedt_process_id in sessions:
@@ -569,15 +571,15 @@ class Desktop(object):
             else:
                 raise ValueError(
                     "The version specified ({}) doesn't correspond to the pid specified ({})".format(
-                        specified_version, aedt_process_id
+                        version, aedt_process_id
                     )
                 )
         elif float(version_key[0:6]) < 2022.2:  # pragma no cover
             starting_mode = "com"
-            if non_graphical:
+            if self.non_graphical:
                 self._logger.disable_desktop_log()
         elif float(version_key[0:6]) == 2022.2:  # pragma no cover
-            if non_graphical:
+            if self.non_graphical:
                 self._logger.disable_desktop_log()
             if self.machine and self.port:
                 starting_mode = "grpc"  # if the machine and port is specified, user wants to use gRPC
@@ -1905,7 +1907,7 @@ class Desktop(object):
         --------
         >>> from pyaedt import Desktop
 
-        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d = Desktop(version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -1994,7 +1996,7 @@ class Desktop(object):
         --------
         >>> from pyaedt import Desktop
 
-        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d = Desktop(version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2061,7 +2063,7 @@ class Desktop(object):
         --------
         >>> from pyaedt import Desktop
 
-        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d = Desktop(version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
@@ -2103,7 +2105,7 @@ class Desktop(object):
         --------
         >>> from pyaedt import Desktop
 
-        >>> d = Desktop(specified_version="2023.1", new_desktop_session=False)
+        >>> d = Desktop(version="2023.1", new_desktop_session=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',

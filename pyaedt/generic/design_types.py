@@ -30,7 +30,7 @@ Simplorer = TwinBuilder
 
 
 def launch_desktop(
-    specified_version=None,
+    version=None,
     non_graphical=False,
     new_desktop_session=True,
     close_on_exit=True,
@@ -43,7 +43,7 @@ def launch_desktop(
 
     Parameters
     ----------
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     non_graphical : bool, optional
@@ -85,7 +85,7 @@ def launch_desktop(
     >>> desktop = pyaedt.launch_desktop("2022.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
@@ -94,11 +94,11 @@ def launch_desktop(
     >>> desktop = Desktop("2021.2")
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
+    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
     """
     d = Desktop(
-        specified_version=specified_version,
+        version=version,
         non_graphical=non_graphical,
         new_desktop_session=new_desktop_session,
         close_on_exit=close_on_exit,
@@ -198,5 +198,5 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if design_type in list(app_map.keys()):
         version = odesktop.GetVersion().split(".")
         v = ".".join([version[0], version[1]])
-        return app_map[design_type](project_name, design_name, specified_version=v, aedt_process_id=process_id)
+        return app_map[design_type](project_name, design_name, version=v, aedt_process_id=process_id)
     return None

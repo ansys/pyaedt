@@ -29,30 +29,30 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open or the path to the ``aedb`` folder or
         ``edb.def`` file. The default is ``None``, in which case an
         attempt is made to get an active project. If no projects are present,
         an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False```, in which case AEDT is launched in graphical mode.
+        is ``True```, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -103,7 +103,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2023 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2023.1", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
@@ -113,17 +113,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
+    >>> aedtapp = pyaedt.Hfss3dLayout(version=231, project=edb_path)
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=False,
         close_on_exit=False,
@@ -136,11 +142,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS 3D Layout Design",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,
@@ -710,7 +716,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
-        self.__init__(projectname=project_name, designname=design_name)
+        self.__init__(project=project_name, design=design_name)
         return True
 
     @pyaedt_function_handler(outputdir="output_dir")

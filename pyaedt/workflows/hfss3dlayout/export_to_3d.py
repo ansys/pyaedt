@@ -101,7 +101,7 @@ def main(extension_args):
 
     app = pyaedt.Desktop(
         new_desktop_session=False,
-        specified_version=version,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -119,7 +119,7 @@ def main(extension_args):
         app.release_desktop(False, False)
         raise Exception("Hfss 3D Layout project is needed.")
 
-    h3d = pyaedt.Hfss3dLayout(projectname=project_name, designname=design_name)
+    h3d = pyaedt.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = suffixes[choice]
 
@@ -133,14 +133,14 @@ def main(extension_args):
     h3d.save_project()
 
     if choice == "Export to Q3D":
-        _ = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        _ = pyaedt.Q3d(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
     else:
-        aedtapp = pyaedt.Hfss(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        aedtapp = pyaedt.Hfss(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
         aedtapp2 = None
         if choice == "Export to Maxwell 3D":
-            aedtapp2 = pyaedt.Maxwell3d(projectname=aedtapp.project_name)
+            aedtapp2 = pyaedt.Maxwell3d(project=aedtapp.project_name)
         elif choice == "Export to Icepak":
-            aedtapp2 = pyaedt.Icepak(projectname=aedtapp.project_name)
+            aedtapp2 = pyaedt.Icepak(project=aedtapp.project_name)
         if aedtapp2:
             aedtapp2.copy_solid_bodies_from(
                 aedtapp,

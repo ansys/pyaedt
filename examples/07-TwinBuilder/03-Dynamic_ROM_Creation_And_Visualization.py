@@ -73,8 +73,8 @@ shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),
-                 specified_version=aedt_version,
+tb = TwinBuilder(project=generate_unique_project_name(),
+                 version=aedt_version,
                  non_graphical=non_graphical,
                  new_desktop_session=new_thread)
 

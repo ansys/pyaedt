@@ -1165,7 +1165,7 @@ class FfdSolutionData(object):
 
     >>> import pyaedt
     >>> from pyaedt.modules.solutions import FfdSolutionData
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -1640,7 +1640,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2024.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1779,7 +1779,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1920,7 +1920,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2025,7 +2025,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2543,7 +2543,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     Examples
     --------
     >>> import pyaedt
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"

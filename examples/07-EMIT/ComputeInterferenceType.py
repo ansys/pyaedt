@@ -63,7 +63,7 @@ new_thread = True
 desktop = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
-emitapp = Emit(non_graphical=False, new_desktop_session=False, projectname=path_to_desktop_project)
+emitapp = Emit(non_graphical=False, new_desktop_session=False, project=path_to_desktop_project)
 
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -38,7 +38,7 @@ class FieldAnalysis3DLayout(Analysis):
     specified_version : str, int, float, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
     new_desktop_session : bool, optional
@@ -66,7 +66,7 @@ class FieldAnalysis3DLayout(Analysis):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=False,
         close_on_exit=False,
@@ -83,7 +83,7 @@ class FieldAnalysis3DLayout(Analysis):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,

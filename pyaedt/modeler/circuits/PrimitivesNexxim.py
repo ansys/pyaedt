@@ -1957,7 +1957,7 @@ class NexximComponents(CircuitComponents):
         Examples
         --------
         >>> from pyaedt import Circuit
-        >>> cir = Circuit(specified_version="2023.2")
+        >>> cir = Circuit(version="2023.2")
         >>> model = os.path.join("Your path", "test.lib")
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)

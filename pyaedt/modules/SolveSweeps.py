@@ -75,7 +75,7 @@ class SweepHFSS(object):
 
     Examples
     --------
-    >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
+    >>> hfss = Hfss(version=version, project=proj, design=gtemDesign, solution_type=solutiontype,
                     name=name, new_desktop_session=False, close_on_exit=False)
     >>> hfss_setup = hfss.setups[0]
     >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweep_type ='Interpolating', props=None)

@@ -15,23 +15,23 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    non-graphical : bool, optional
+    graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in graphical mode.
+        is ``True``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -80,12 +80,18 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=False,
         close_on_exit=False,
@@ -98,9 +104,9 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         AnalysisMaxwellCircuit.__init__(
             self,
             "Maxwell Circuit",
-            projectname,
-            designname,
-            specified_version,
+            project,
+            design,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,

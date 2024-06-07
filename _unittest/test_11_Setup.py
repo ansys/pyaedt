@@ -77,7 +77,7 @@ class TestClass:
         assert setup1.props["SolveType"] == "MultiFrequency"
 
     def test_02_create_circuit_setup(self):
-        circuit = Circuit(specified_version=desktop_version)
+        circuit = Circuit(version=desktop_version)
         setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"

@@ -1872,7 +1872,7 @@ class ConfigurationsIcepak(Configurations):
         )
         os.makedirs(directory)
         tempproj_name = os.path.join(directory, "temp_proj.aedt")
-        tempproj = Icepak(tempproj_name, specified_version=self._app._aedt_version)
+        tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
         self._app.modeler.refresh()
         self._app.modeler.delete(

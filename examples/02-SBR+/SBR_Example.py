@@ -37,17 +37,17 @@ non_graphical = False
 # a different object.
 
 target = pyaedt.Hfss(
-    projectname=project_full_name,
-    designname="Cassegrain_",
+    project=project_full_name,
+    design="Cassegrain_",
     solution_type="SBR+",
-    specified_version=aedt_version,
+    version=aedt_version,
     new_desktop_session=True,
     non_graphical=non_graphical
 )
 
-source = pyaedt.Hfss(projectname=target.project_name,
-                     designname="feeder",
-                     specified_version=aedt_version,
+source = pyaedt.Hfss(project=target.project_name,
+                     design="feeder",
+                     version=aedt_version,
                      )
 
 ###############################################################################

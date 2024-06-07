@@ -17,26 +17,26 @@ class Emit(Design, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which case
         an attempt is made to get an active project. If no projects are
         present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in which case
         an attempt is made to get an active design. If no designs are
         present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in graphical mode.
+        is ``True``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -69,7 +69,7 @@ class Emit(Design, object):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, specified_version=232)
+    >>> aedtapp = Emit(projectname, designame, version=232)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -99,12 +99,18 @@ class Emit(Design, object):
     >>> print("Worst-case sensitivity for Rx '{}' is {}dB.".format(domain.rx_radio_name, val))
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=True,
         close_on_exit=True,
@@ -123,10 +129,10 @@ class Emit(Design, object):
         Design.__init__(
             self,
             "EMIT",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            specified_version,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,

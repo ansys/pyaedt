@@ -632,9 +632,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
         if prj == "This Project*":
             prj = self._app.project_name
-        layout = Hfss3dLayout(
-            projectname=prj, designname=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
-        )
+        layout = Hfss3dLayout(project=prj, design=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"])
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:

@@ -40,12 +40,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
@@ -61,18 +61,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         - "Transient"
         - "Eigenmode"
 
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
-        is ``False``, in which case AEDT is launched in graphical mode.
+        is ``True``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
@@ -138,7 +138,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     Create an instance of HFSS using the 2023 R2 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(specified_version=232, projectname="myfile2.aedt")
+    >>> hfss = Hfss(version=232, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -147,7 +147,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     Create an instance of HFSS using the 2023 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(specified_version="2023.2", projectname="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="2023.2", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -162,13 +162,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     #     except Exception:
     #         return "HFSS Module"
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=False,
         close_on_exit=False,
@@ -180,11 +186,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         FieldAnalysis3D.__init__(
             self,
             "HFSS",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,
@@ -1173,10 +1179,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> from pyaedt import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(projectname=target_project, solution_type="SBR+",
-        ...               specified_version="2021.2", new_desktop_session=False)  # doctest: +SKIP
-        >>> source = Hfss(projectname=source_project, designname="feeder",
-        ...               specified_version="2021.2", new_desktop_session=False)  # doctest: +SKIP
+        >>> target = Hfss(project=target_project, solution_type="SBR+",
+        ...               version="2021.2", new_desktop_session=False)  # doctest: +SKIP
+        >>> source = Hfss(project=source_project, design="feeder",
+        ...               version="2021.2", new_desktop_session=False)  # doctest: +SKIP
         >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
 
         """

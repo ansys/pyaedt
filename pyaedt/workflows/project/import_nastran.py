@@ -129,11 +129,11 @@ def frontend():  # pragma: no cover
 
             app = pyaedt.Hfss(
                 new_desktop_session=False,
-                specified_version=version,
+                version=version,
                 port=port,
                 aedt_process_id=aedt_process_id,
                 student_version=is_student,
-                designname=design_name,
+                design=design_name,
             )
 
             app.modeler.import_nastran(
@@ -176,7 +176,7 @@ def main(extension_args):
     if os.path.exists(file_path):
         app = pyaedt.Desktop(
             new_desktop_session=False,
-            specified_version=version,
+            version=version,
             port=port,
             aedt_process_id=aedt_process_id,
             student_version=is_student,
@@ -205,7 +205,7 @@ def main(extension_args):
     else:
         app = pyaedt.Desktop(
             new_desktop_session=False,
-            specified_version=version,
+            version=version,
             port=port,
             aedt_process_id=aedt_process_id,
             student_version=is_student,

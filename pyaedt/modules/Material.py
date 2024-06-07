@@ -603,7 +603,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         """
@@ -636,7 +636,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
@@ -693,7 +693,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
         """
@@ -852,7 +852,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2023.2")
+        >>> hfss = Hfss(version="2023.2")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")
@@ -1050,7 +1050,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_free_form("if(X > 1mm, 1, if(X < 1mm, 2, 1))")
         """
@@ -1083,7 +1083,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_dataset("$ds1")
         """
@@ -1384,7 +1384,7 @@ class Material(CommonMaterial, object):
         Create a material with color ``[0, 153, 153]`` (darker cyan) and transparency ``0.5``.
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
         >>> appearance_props = mat1.material_appearance
         >>> mat1.material_appearance = [0, 153, 153, 0.5]

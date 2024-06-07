@@ -435,7 +435,7 @@ class TestClass:
         assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
 
     def test_16_maxwell_circuit_variables(self):
-        mc = MaxwellCircuit(specified_version=desktop_version)
+        mc = MaxwellCircuit(version=desktop_version)
         mc["var2"] = "10mm"
         assert mc["var2"] == "10mm"
         v_circuit = mc.variable_manager

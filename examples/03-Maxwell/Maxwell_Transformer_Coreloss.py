@@ -60,9 +60,9 @@ curves_csv_1MHz = list(zip(data[data.columns[0]],
 # ~~~~~~~~~~~
 # Launch AEDT in graphical mode.
 
-m3d = Maxwell3d(projectname=aedt_file,
-                designname="02_3D eddycurrent_CmXY_for_thermal",
-                specified_version=aedt_version,
+m3d = Maxwell3d(project=aedt_file,
+                design="02_3D eddycurrent_CmXY_for_thermal",
+                version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=False)
 

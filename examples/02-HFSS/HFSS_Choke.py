@@ -43,8 +43,8 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launches HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version=aedt_version,
+hfss = pyaedt.Hfss(project=project_name,
+                   version=aedt_version,
                    non_graphical=non_graphical,
                    new_desktop_session=True,
                    solution_type="Terminal")

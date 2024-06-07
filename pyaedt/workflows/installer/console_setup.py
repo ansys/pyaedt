@@ -64,7 +64,7 @@ if not session_found:
 error = False
 if port:
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         port=port,
         new_desktop_session=False,
         non_graphical=False,
@@ -73,7 +73,7 @@ if port:
     )
 elif is_windows:
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         aedt_process_id=aedt_process_id,
         new_desktop_session=False,
         non_graphical=False,

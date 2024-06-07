@@ -178,10 +178,10 @@ class Design(AedtObjects):
     def _init_design(self, project_name, design_name, solution_type=None):
         # calls the method from the application class
         self._init_from_design(
-            projectname=project_name,
-            designname=design_name,
+            project=project_name,
+            design=design_name,
             solution_type=solution_type,
-            specified_version=settings.aedt_version,
+            version=settings.aedt_version,
             non_graphical=self._desktop_class.non_graphical,
             new_desktop_session=False,
             close_on_exit=self.close_on_exit,
@@ -196,7 +196,7 @@ class Design(AedtObjects):
         project_name=None,
         design_name=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
         new_desktop_session=False,
         close_on_exit=False,
@@ -230,7 +230,7 @@ class Design(AedtObjects):
         self.close_on_exit = close_on_exit
         self._desktop_class = None
         self._desktop_class = _init_desktop_from_design(
-            specified_version,
+            version,
             non_graphical,
             new_desktop_session,
             close_on_exit,

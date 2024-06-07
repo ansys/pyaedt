@@ -336,34 +336,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_hfss(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Hfss session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -376,11 +376,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Hfss(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -391,34 +391,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_hfss3dlayout(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Hfss3dLayout session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -431,11 +431,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Hfss3dLayout(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -446,34 +446,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_maxwell3d(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Maxwell3d session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -486,11 +486,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Maxwell3d(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -501,34 +501,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_maxwell2d(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Maxwell32 session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -541,11 +541,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Maxwell2d(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -556,34 +556,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_icepak(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Icepak session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -596,11 +596,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Icepak(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -611,34 +611,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_circuit(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Circuit session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -651,11 +651,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Circuit(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -666,34 +666,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_mechanical(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Mechanical session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -706,11 +706,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Mechanical(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -721,34 +721,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_q3d(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Q3d session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -761,11 +761,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Q3d(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,
@@ -776,34 +776,34 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_q2d(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=True,
     ):
         """Starts a new Q2d session.
 
         Parameters
         ----------
-        projectname : str, optional
+        project : str, optional
             Name of the project to select or the full path to the project
             or AEDTZ archive to open.  The default is ``None``, in which
             case an attempt is made to get an active project. If no
             projects are present, an empty project is created.
-        designname : str, optional
+        design : str, optional
             Name of the design to select. The default is ``None``, in
             which case an attempt is made to get an active design. If no
             designs are present, an empty design is created.
         solution_type : str, optional
             Solution type to apply to the design. The default is
             ``None``, in which case the default type is applied.
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup to use as the nominal. The default is
             ``None``, in which case the active setup is used or
             nothing is used.
-        specified_version : str, int, float, optional
+        version : str, int, float, optional
             Version of AEDT to use. The default is ``None``, in which case
             the active version or latest installed version is used.
         non_graphical : bool, optional
@@ -816,11 +816,11 @@ class PyaedtServiceWindows(rpyc.Service):
         """
         self._beta()
         aedtapp = Q2d(
-            projectname=projectname,
-            designname=designname,
+            project=project,
+            design=design,
             solution_type=solution_type,
-            setup_name=setup_name,
-            specified_version=specified_version,
+            setup=setup,
+            version=version,
             non_graphical=non_graphical,
             new_desktop_session=True,
             close_on_exit=True,

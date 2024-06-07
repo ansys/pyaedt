@@ -240,7 +240,7 @@ def button_is_clicked(
     name = toolkit_name.get()
 
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         port=port,
         new_desktop_session=False,
         non_graphical=False,

@@ -64,7 +64,7 @@ d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
 
 ###############################################################################
 # Input parameters for eigenmode solver

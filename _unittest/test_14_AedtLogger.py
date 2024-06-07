@@ -230,9 +230,9 @@ class TestLogMessages:
         from pyaedt import Hfss
 
         app = Hfss(
-            projectname="log_project",
-            designname="log_design",
-            specified_version=desktop_version,
+            project="log_project",
+            design="log_design",
+            version=desktop_version,
             new_desktop_session=True,
         )
         with pytest.raises(AttributeError):
