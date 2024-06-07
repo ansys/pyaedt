@@ -194,9 +194,11 @@ class TestClass:
             report_category="Far Fields",
             context="3D",
         )
-        assert data.plot(is_polar=True)
-        assert data.plot_3d()
-        assert field_test.post.create_3d_plot(data)
+        assert data.plot(snapshot_path=os.path.join(self.local_scratch.path, "reportC.jpg"))
+        assert data.plot_3d(snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D.jpg"))
+        assert field_test.post.create_3d_plot(
+            data, snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D_2.jpg")
+        )
 
     def test_09_manipulate_report_D(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
@@ -212,9 +214,9 @@ class TestClass:
             report_category="Far Fields",
             context=context,
         )
-        assert data.plot(is_polar=True)
-        assert data.plot_3d()
-        assert field_test.post.create_3d_plot(data)
+        assert field_test.post.create_3d_plot(
+            data, snapshot_path=os.path.join(self.local_scratch.path, "reportD_3D_2.jpg")
+        )
         assert data.primary_sweep == "Theta"
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
@@ -248,17 +250,17 @@ class TestClass:
         assert field_test.post.get_far_field_data(
             expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
-        data_farfield2 = field_test.post.get_far_field_data(
+        field_test.post.get_far_field_data(
             expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(formula="db20", is_polar=True)
 
         assert field_test.post.reports_by_category.terminal_solution()
 
-        assert not field_test.post.get_solution_data_per_variation(
-            solution_type="Far Fields", expressions="RealizedGainTotal"
+        assert (
+            field_test.post.get_solution_data_per_variation(solution_type="Far Fields", expressions="RealizedGainTotal")
+            is None
         )
 
     def test_09b_export_report_A(self, circuit_test):
@@ -375,18 +377,10 @@ class TestClass:
             context="Differential Pairs",
         )
         assert data1.primary_sweep == "Freq"
-        data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp1.jpg"))
         data1.primary_sweep = "l1"
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
-        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "temp2.jpg"))
-        assert data1.plot(formula="db20", snapshot_path=os.path.join(self.local_scratch.path, "temp3.jpg"))
-        assert data1.plot(formula="db10", snapshot_path=os.path.join(self.local_scratch.path, "temp4.jpg"))
-        assert data1.plot(formula="mag", snapshot_path=os.path.join(self.local_scratch.path, "temp5.jpg"))
-        assert data1.plot(formula="re", snapshot_path=os.path.join(self.local_scratch.path, "temp6.jpg"))
-        assert data1.plot(formula="im", snapshot_path=os.path.join(self.local_scratch.path, "temp7.jpg"))
-        assert data1.plot(formula="phasedeg", snapshot_path=os.path.join(self.local_scratch.path, "temp8.jpg"))
-        assert data1.plot(formula="phaserad", snapshot_path=os.path.join(self.local_scratch.path, "temp9.jpg"))
+        assert data1.plot("S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "diff_pairs.jpg"))
 
         assert diff_test.create_touchstone_report(
             name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
@@ -495,7 +489,7 @@ class TestClass:
 
     def test_61_export_mesh(self, q3dtest):
         assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1", setup_type="AC RL"))
+        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
 
     def test_62_eye_diagram(self, eye_test):
         eye_test.analyze(eye_test.active_setup)

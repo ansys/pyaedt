@@ -232,7 +232,7 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 # Analyze setup
 # ~~~~~~~~~~~~~
 
-# q2d.analyze(setup_name=setup_name)
+# q2d.analyze(name=name)
 
 ###################################################################
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component

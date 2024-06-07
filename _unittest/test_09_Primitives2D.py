@@ -64,11 +64,18 @@ class TestClass:
 
     def test_chamfer_vertex(self):
         o = self.create_rectangle("Rectangle1")
-        o.vertices[0].chamfer()
+        assert o.vertices[0].chamfer()
+        o2 = self.create_rectangle("Rectangle2")
+        assert o2.chamfer(o2.vertices)
+        assert not o2.chamfer(edges=o2.edges)
+        assert not o2.chamfer()
 
     def test_fillet_vertex(self):
         o = self.create_rectangle("Rectangle1")
         o.vertices[0].fillet()
+        o2 = self.create_rectangle("Rectangle2")
+        assert o2.fillet(o2.vertices)
+        assert not o2.fillet(edges=o2.edges)
 
     def test_06_create_region(self):
         if self.aedtapp.modeler["Region"]:
