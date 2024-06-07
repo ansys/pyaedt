@@ -1197,6 +1197,18 @@ class Modeler3D(Primitives3D):
                         nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id] = [
                             [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
                         ]
+                elif line_type in ["CROD*", "CBEAM*", "CBAR*"]:
+                    obj_id = int(line[24:40])
+                    n1 = int(line[40:56])
+                    n2 = int(line[56:72])
+                    if obj_id in nas_to_dict["Assemblies"][in_assembly]["Lines"]:
+                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id].append(
+                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
+                        )
+                    else:
+                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id] = [
+                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
+                        ]
             return input_pid
 
         self.logger.reset_timer()
