@@ -19,7 +19,7 @@ class AnalysisMaxwellCircuit(Analysis):
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.

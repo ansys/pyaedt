@@ -39,7 +39,7 @@ class FieldAnalysis3D(Analysis, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
