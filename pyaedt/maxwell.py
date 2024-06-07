@@ -2829,7 +2829,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``True``, in which case AEDT is launched in graphical mode.
+        is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
