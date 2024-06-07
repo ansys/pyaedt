@@ -128,7 +128,7 @@ def frontend():  # pragma: no cover
             design_name = generate_unique_name("Preview", n=2)
 
             app = pyaedt.Hfss(
-                new_desktop_session=False,
+                new_desktop=False,
                 version=version,
                 port=port,
                 aedt_process_id=aedt_process_id,
@@ -175,7 +175,7 @@ def main(extension_args):
 
     if os.path.exists(file_path):
         app = pyaedt.Desktop(
-            new_desktop_session=False,
+            new_desktop=False,
             version=version,
             port=port,
             aedt_process_id=aedt_process_id,
@@ -204,7 +204,7 @@ def main(extension_args):
         app.logger.info("Geometry imported correctly.")
     else:
         app = pyaedt.Desktop(
-            new_desktop_session=False,
+            new_desktop=False,
             version=version,
             port=port,
             aedt_process_id=aedt_process_id,

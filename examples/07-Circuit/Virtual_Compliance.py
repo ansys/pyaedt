@@ -45,7 +45,7 @@ projectdir = os.path.join(workdir, "project")
 # ~~~~~~~~~~~
 # Launch AEDT.
 
-d = pyaedt.Desktop(aedt_version, new_desktop_session=new_thread, non_graphical=non_graphical)
+d = pyaedt.Desktop(aedt_version, new_desktop=new_thread, non_graphical=non_graphical)
 
 ###############################################################################
 # Open and solve layout

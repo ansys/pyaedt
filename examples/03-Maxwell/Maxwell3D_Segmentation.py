@@ -50,7 +50,7 @@ aedt_file = downloads.download_file("object_segmentation", "Motor3D_obj_segments
 
 m3d = Maxwell3d(project=aedt_file,
                 version=aedt_version,
-                new_desktop_session=True,
+                new_desktop=True,
                 non_graphical=non_graphical)
 
 ##################################################################################

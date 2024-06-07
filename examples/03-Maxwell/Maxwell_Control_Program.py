@@ -46,7 +46,7 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 
 m2d = Maxwell2d(project=aedt_file,
                 version=aedt_version,
-                new_desktop_session=True,
+                new_desktop=True,
                 non_graphical=non_graphical)
 
 ##################################################################################

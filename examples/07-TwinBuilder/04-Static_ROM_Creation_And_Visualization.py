@@ -78,7 +78,7 @@ shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
 # a default setup for building the static ROM component.
 
 tb = TwinBuilder(project=generate_unique_project_name(), version=aedt_version,
-                 non_graphical=non_graphical, new_desktop_session=new_thread)
+                 non_graphical=non_graphical, new_desktop=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Static ROM feature is only available with a twin builder license.

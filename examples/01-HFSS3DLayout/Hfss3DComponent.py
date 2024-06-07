@@ -52,7 +52,7 @@ component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcom
 # ~~~~~~~~~~~
 # Launch HFSS application
 
-hfss = pyaedt.Hfss(new_desktop_session=True, version=aedt_version, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(new_desktop=True, version=aedt_version, non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 

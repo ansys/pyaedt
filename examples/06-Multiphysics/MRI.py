@@ -48,7 +48,7 @@ non_graphical = False
 
 project_path = downloads.download_file(directory="mri")
 hfss = Hfss(os.path.join(project_path, "background_SAR.aedt"), version=aedt_version, non_graphical=non_graphical,
-            new_desktop_session=True)
+            new_desktop=True)
 
 ###############################################################################
 # Insert 3D component

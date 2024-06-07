@@ -37,7 +37,7 @@ project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
 ipk = pyaedt.Icepak(project=project_temp_name,
                     version=aedt_version,
-                    new_desktop_session=True,
+                    new_desktop=True,
                     non_graphical=non_graphical
                     )
 

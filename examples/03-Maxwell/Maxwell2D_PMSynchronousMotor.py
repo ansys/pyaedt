@@ -127,7 +127,7 @@ M2D = pyaedt.Maxwell2d(project=project_name,
                        version=aedt_version,
                        design=design_name,
                        solution_type=solver,
-                       new_desktop_session=True,
+                       new_desktop=True,
                        non_graphical=non_graphical
                        )
 

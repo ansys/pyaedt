@@ -42,7 +42,7 @@ ipk = Icepak(project=os.path.join(temp_folder, "Heatsink.aedt"),
              version=aedt_version,
              non_graphical=non_graphical,
              close_on_exit=True,
-             new_desktop_session=True)
+             new_desktop=True)
 
 # Remove air region created by default because it is not needed as the heatsink will be exported as a 3DComponent.
 

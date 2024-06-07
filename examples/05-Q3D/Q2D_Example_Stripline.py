@@ -38,7 +38,7 @@ q = pyaedt.Q2d(project=project_path,
                design="differential_stripline",
                version=aedt_version,
                non_graphical=non_graphical,
-               new_desktop_session=True
+               new_desktop=True
                )
 
 ###############################################################################

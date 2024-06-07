@@ -46,7 +46,7 @@ non_graphical = False
 hfss = pyaedt.Hfss(project=project_name,
                    version=aedt_version,
                    non_graphical=non_graphical,
-                   new_desktop_session=True,
+                   new_desktop=True,
                    solution_type="Terminal")
 
 ###############################################################################

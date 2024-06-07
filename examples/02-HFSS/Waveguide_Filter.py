@@ -65,7 +65,7 @@ hfss = pyaedt.Hfss(project=project_name + '.aedt',
                    version=aedt_version,
                    design="filter",
                    non_graphical=non_graphical,
-                   new_desktop_session=True,
+                   new_desktop=True,
                    close_on_exit=True,
                    solution_type="Modal")
 

@@ -47,7 +47,7 @@ project_name = pyaedt.generate_unique_project_name(project_name="doppler")
 app = pyaedt.Hfss(
     version=aedt_version,
     solution_type="SBR+",
-    new_desktop_session=True,
+    new_desktop=True,
     project=project_name,
     close_on_exit=True,
     non_graphical=non_graphical

@@ -27,7 +27,7 @@ aedt_version = "2024.1"
 
 m2d = pyaedt.Maxwell2d(
     version=aedt_version,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
     project="M2D_DC_Conduction",

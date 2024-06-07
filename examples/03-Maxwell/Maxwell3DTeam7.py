@@ -55,7 +55,7 @@ m3d = Maxwell3d(
     solution_type=solver,
     version=aedt_version,
     non_graphical=non_graphical,
-    new_desktop_session=True
+    new_desktop=True
 )
 m3d.modeler.model_units = "mm"
 

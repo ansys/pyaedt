@@ -37,7 +37,7 @@ non_graphical = False
 
 cir = pyaedt.Circuit(project=pyaedt.generate_unique_project_name(),
                      version=aedt_version,
-                     new_desktop_session=True,
+                     new_desktop=True,
                      non_graphical=non_graphical
                      )
 

@@ -44,7 +44,7 @@ m3d = pyaedt.Maxwell3d(project=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
                        version=aedt_version,
                        non_graphical=non_graphical,
-                       new_desktop_session=True
+                       new_desktop=True
                        )
 
 ###############################################################################

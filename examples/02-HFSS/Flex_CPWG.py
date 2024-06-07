@@ -35,7 +35,7 @@ non_graphical = False
 
 hfss = pyaedt.Hfss(version=aedt_version,
                    solution_type="DrivenTerminal",
-                   new_desktop_session=True,
+                   new_desktop=True,
                    non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)

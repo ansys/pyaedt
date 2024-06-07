@@ -382,7 +382,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -437,7 +437,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -492,7 +492,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -547,7 +547,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -602,7 +602,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -657,7 +657,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -712,7 +712,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -767,7 +767,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )
@@ -822,7 +822,7 @@ class PyaedtServiceWindows(rpyc.Service):
             setup=setup,
             version=version,
             non_graphical=non_graphical,
-            new_desktop_session=True,
+            new_desktop=True,
             close_on_exit=True,
             student_version=False,
         )

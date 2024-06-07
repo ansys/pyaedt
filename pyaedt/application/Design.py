@@ -95,7 +95,7 @@ class Design(AedtObjects):
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT launches in graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -105,7 +105,7 @@ class Design(AedtObjects):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
     ic_mode : bool, optional
         Whether to set the design to IC mode or not. The default is ``None``, which means to retain
@@ -183,7 +183,7 @@ class Design(AedtObjects):
             solution_type=solution_type,
             version=settings.aedt_version,
             non_graphical=self._desktop_class.non_graphical,
-            new_desktop_session=False,
+            new_desktop=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
             machine=self._desktop_class.machine,
@@ -198,7 +198,7 @@ class Design(AedtObjects):
         solution_type=None,
         version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
@@ -232,7 +232,7 @@ class Design(AedtObjects):
         self._desktop_class = _init_desktop_from_design(
             version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,

@@ -30,7 +30,7 @@ aedt_version = "2024.1"
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one. 
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(version=aedt_version, new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(version=aedt_version, new_desktop=True, close_on_exit=True)
 
 ##########################################################
 # Variables

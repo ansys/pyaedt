@@ -35,7 +35,7 @@ non_graphical = False
 
 q = pyaedt.Q2d(version=aedt_version,
                non_graphical=non_graphical,
-               new_desktop_session=True,
+               new_desktop=True,
                project=pyaedt.generate_unique_name("pyaedt_q2d_example"),
                design="coplanar_waveguide")
 

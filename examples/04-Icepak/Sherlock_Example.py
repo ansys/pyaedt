@@ -52,7 +52,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)

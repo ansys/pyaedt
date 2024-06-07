@@ -36,7 +36,7 @@ non_graphical = False
 # units to microns.
 
 hfss = pyaedt.Hfss(version=aedt_version, non_graphical=non_graphical, design="A1",
-                   new_desktop_session=True)
+                   new_desktop=True)
 hfss.solution_type = "Modal"
 hfss.modeler.model_units = "um"
 p = hfss.modeler

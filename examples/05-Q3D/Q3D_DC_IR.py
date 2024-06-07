@@ -93,7 +93,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 edb.save_edb_as(output_edb)
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=False, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=False, new_desktop=True)
 
 ###############################################################################
 # Export to Q3D

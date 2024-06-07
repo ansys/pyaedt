@@ -26,7 +26,7 @@ class AnalysisMaxwellCircuit(Analysis):
     NG : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``.
@@ -35,7 +35,7 @@ class AnalysisMaxwellCircuit(Analysis):
     student_version : bool, optional
         Whether to open the AEDT student version. The default is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
 
     """
@@ -47,7 +47,7 @@ class AnalysisMaxwellCircuit(Analysis):
         designname,
         version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
@@ -63,7 +63,7 @@ class AnalysisMaxwellCircuit(Analysis):
             None,
             version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,

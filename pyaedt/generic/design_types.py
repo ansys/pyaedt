@@ -1,7 +1,6 @@
 import re
 import sys
 import time
-import warnings
 
 from pyaedt import is_linux
 from pyaedt.circuit import Circuit
@@ -20,19 +19,13 @@ from pyaedt.q3d import Q3d
 from pyaedt.rmxprt import Rmxprt
 from pyaedt.twinbuilder import TwinBuilder
 
-if sys.version_info > (3, 7):
-    try:
-        from pyedb import Edb
-        from pyedb import Siwave
-    except ImportError:
-        warnings.warn("Pyedb package is missed. Please install it.")
 Simplorer = TwinBuilder
 
 
 def launch_desktop(
     version=None,
     non_graphical=False,
-    new_desktop_session=True,
+    new_desktop=True,
     close_on_exit=True,
     student_version=False,
     machine="",
@@ -50,7 +43,7 @@ def launch_desktop(
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the machine.
         The default is ``False``.
@@ -70,7 +63,7 @@ def launch_desktop(
         later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
 
     Returns
     -------
@@ -100,7 +93,7 @@ def launch_desktop(
     d = Desktop(
         version=version,
         non_graphical=non_graphical,
-        new_desktop_session=new_desktop_session,
+        new_desktop=new_desktop,
         close_on_exit=close_on_exit,
         student_version=student_version,
         machine=machine,
@@ -124,9 +117,6 @@ app_map = {
     "Rmxprt": Rmxprt,
     "HFSS 3D Layout Design": Hfss3dLayout,
     "EMIT": Emit,
-    "EDB": Edb,
-    "Desktop": Desktop,
-    "Siwave": Siwave,
 }
 
 

@@ -38,7 +38,7 @@ class Emit(Design, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``.
@@ -58,7 +58,7 @@ class Emit(Design, object):
         If the machine is `"localhost"`, the server starts if it is not present.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
 
     Examples
     --------
@@ -112,7 +112,7 @@ class Emit(Design, object):
         solution_type=None,
         version=None,
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
         machine="",
@@ -134,7 +134,7 @@ class Emit(Design, object):
             solution_type,
             version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine=machine,

@@ -38,7 +38,7 @@ app = Hfss(
     design="Ansys",
     solution_type="SBR+",
     version=aedt_version,
-    new_desktop_session=True,
+    new_desktop=True,
     non_graphical=non_graphical
 )
 

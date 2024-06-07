@@ -41,7 +41,7 @@ class FieldAnalysis3DLayout(Analysis):
     non_graphical : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -52,7 +52,7 @@ class FieldAnalysis3DLayout(Analysis):
         is ``False``.
     aedt_process_id : int, optional
         Specifies by process ID the instance of AEDT to point PyAEDT at.
-        This parameter is only used when ``new_desktop_session=False``.
+        This parameter is only used when ``new_desktop=False``.
     ic_mode : bool, optional
         Whether to set the design to IC mode. The default is ``None``, which means to retain the
         existing setting.
@@ -68,7 +68,7 @@ class FieldAnalysis3DLayout(Analysis):
         setup_name=None,
         version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
@@ -85,7 +85,7 @@ class FieldAnalysis3DLayout(Analysis):
             setup_name,
             version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,

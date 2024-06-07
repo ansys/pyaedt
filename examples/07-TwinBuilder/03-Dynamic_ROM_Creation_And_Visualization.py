@@ -76,7 +76,7 @@ shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
 tb = TwinBuilder(project=generate_unique_project_name(),
                  version=aedt_version,
                  non_graphical=non_graphical,
-                 new_desktop_session=new_thread)
+                 new_desktop=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Dynamic ROM feature is only available with a twin builder license.

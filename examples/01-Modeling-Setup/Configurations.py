@@ -56,7 +56,7 @@ non_graphical = False
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
 ipk = pyaedt.Icepak(project=project_full_name, version=aedt_version,
-                    new_desktop_session=True, non_graphical=non_graphical)
+                    new_desktop=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
 ###############################################################################

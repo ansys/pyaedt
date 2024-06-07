@@ -74,7 +74,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``. This parameter is ignored when
@@ -96,7 +96,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
 
     Examples
     --------
@@ -176,7 +176,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         setup=None,
         version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
@@ -192,7 +192,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             setup,
             version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
@@ -1180,9 +1180,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2021.2", new_desktop_session=False)  # doctest: +SKIP
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
         >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2021.2", new_desktop_session=False)  # doctest: +SKIP
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
         >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
 
         """

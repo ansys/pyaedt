@@ -31,7 +31,7 @@ solver = "MagnetostaticXY"
 desktop_version = "2024.1"
 
 m2d = Maxwell2d(version=desktop_version,
-                new_desktop_session=False,
+                new_desktop=False,
                 design=design_name,
                 project=project_name,
                 solution_type=solver,

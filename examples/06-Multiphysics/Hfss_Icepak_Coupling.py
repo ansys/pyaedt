@@ -51,7 +51,7 @@ project_file = pyaedt.generate_unique_project_name()
 aedtapp = pyaedt.Hfss(project=project_file,
                       version=aedt_version,
                       non_graphical=non_graphical,
-                      new_desktop_session=NewThread
+                      new_desktop=NewThread
                       )
 
 ###############################################################################

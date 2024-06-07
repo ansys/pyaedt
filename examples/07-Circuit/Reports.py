@@ -44,7 +44,7 @@ NewThread = True
 cir = pyaedt.Circuit(project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
                      version=aedt_version,
-                     new_desktop_session=True
+                     new_desktop=True
                      )
 cir.analyze()
 

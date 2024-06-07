@@ -47,7 +47,7 @@ pyaedt.settings.enable_debug_internal_methods_logger = False
 q = pyaedt.Q3d(project=pyaedt.generate_unique_project_name(),
                version=aedt_version,
                non_graphical=non_graphical,
-               new_desktop_session=True)
+               new_desktop=True)
 
 ###############################################################################
 # Create primitives

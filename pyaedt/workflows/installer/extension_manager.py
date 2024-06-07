@@ -242,7 +242,7 @@ def button_is_clicked(
     desktop = Desktop(
         version=version,
         port=port,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,

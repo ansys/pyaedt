@@ -41,7 +41,7 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # Start HFSS and initialize the PyAEDT object.
 
 hfss = pyaedt.Hfss(project=project_temp_name, version=aedt_version, non_graphical=non_graphical,
-                   new_desktop_session=True)
+                   new_desktop=True)
 pin_names = hfss.excitations
 hfss.change_material_override(True)
 

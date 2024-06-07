@@ -41,7 +41,7 @@ temp_folder = pyaedt.generate_unique_folder_name()
 
 ipk = pyaedt.Icepak(project=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
                     version=aedt_version,
-                    new_desktop_session=True,
+                    new_desktop=True,
                     non_graphical=non_graphical
                     )
 

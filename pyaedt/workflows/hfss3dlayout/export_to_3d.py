@@ -100,7 +100,7 @@ def main(extension_args):
     choice = extension_args["choice"]
 
     app = pyaedt.Desktop(
-        new_desktop_session=False,
+        new_desktop=False,
         version=version,
         port=port,
         aedt_process_id=aedt_process_id,

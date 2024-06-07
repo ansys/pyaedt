@@ -43,7 +43,7 @@ non_graphical = False
 
 m3d = Maxwell3d(project=generate_unique_project_name(),
                 version=aedt_version,
-                new_desktop_session=True,
+                new_desktop=True,
                 non_graphical=non_graphical)
 
 ###############################################################################

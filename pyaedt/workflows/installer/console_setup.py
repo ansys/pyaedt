@@ -66,7 +66,7 @@ if port:
     desktop = Desktop(
         version=version,
         port=port,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
@@ -75,7 +75,7 @@ elif is_windows:
     desktop = Desktop(
         version=version,
         aedt_process_id=aedt_process_id,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,

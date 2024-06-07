@@ -44,7 +44,7 @@ hfss = pyaedt.Hfss(project=project_name,
                    version=aedt_version,
                    design="Array_Simple",
                    non_graphical=non_graphical,
-                   new_desktop_session=True)
+                   new_desktop=True)
 
 print("Project name " + project_name)
 
