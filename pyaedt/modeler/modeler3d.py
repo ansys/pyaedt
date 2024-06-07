@@ -1070,7 +1070,7 @@ class Modeler3D(Primitives3D):
                             tri = tuple(tri)
                             nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id].append(tri)
 
-                elif line_type in ["CROD", "CBEAM"]:
+                elif line_type in ["CROD", "CBEAM", "CBAR"]:
                     obj_id = int(line[16:24])
                     n1 = int(line[24:32])
                     n2 = int(line[32:40])
