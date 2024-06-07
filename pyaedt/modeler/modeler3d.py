@@ -1275,7 +1275,7 @@ class Modeler3D(Primitives3D):
             if len(nas_to_dict["Assemblies"]) == 1:
                 color_by_assembly = False
 
-            def preview(dict_in):
+            def preview_pyvista(dict_in):
                 k = 0
                 p_out = nas_to_dict["Points"][::]
                 for assembly in dict_in["Assemblies"].values():
@@ -1307,7 +1307,7 @@ class Modeler3D(Primitives3D):
 
                         pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
 
-            preview(nas_to_dict)
+            preview_pyvista(nas_to_dict)
             pl.add_text("Input mesh", font_size=24)
             pl.reset_camera()
             if decimation > 0 and output_stls:

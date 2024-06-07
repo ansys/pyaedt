@@ -1405,6 +1405,7 @@ class TestClass:
         assert len(cads) > 0
         stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
         assert os.path.exists(stl[0])
+        assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
