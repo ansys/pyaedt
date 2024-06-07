@@ -111,16 +111,24 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
 
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
-    """Launch AEDT in LSF in GRPC mode."""
-    if not settings.custom_lsf_command:
+    """Launch AEDT in LSF in gRPC mode."""
+    if not settings.custom_lsf_command:  # pragma: no cover
+        if hasattr(settings, "lsf_osrel") and hasattr(settings, "lsf_ui"):
+            select_str = '"select[(osrel={}) && ui={}] rusage[mem={}]"'
+            select_str = select_str.format(str(settings.lsf_osrel), settings.lsf_ui, str(settings.lsf_ram))
+        elif hasattr(settings, "lsf_ui"):
+            select_str = '"select[(ui={}) rusage[mem={}]]"'.format(settings.lsf_ui, settings.lsf_ram)
+        else:
+            select_str = '"-R rusage[mem={}"'.format(settings.lsf_ram)
         if settings.lsf_queue:
             command = [
                 "bsub",
                 "-n",
                 str(settings.lsf_num_cores),
                 "-R",
+                select_str,
                 '"rusage[mem={}]"'.format(settings.lsf_ram),
-                "-queue {}".format(settings.lsf_queue),
+                "-q {}".format(settings.lsf_queue),
                 "-Is",
                 settings.lsf_aedt_command,
                 "-grpcsrv",
@@ -132,7 +140,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
                 "-n",
                 str(settings.lsf_num_cores),
                 "-R",
-                '"rusage[mem={}]"'.format(settings.lsf_ram),
+                select_str,
                 "-Is",
                 settings.lsf_aedt_command,
                 "-grpcsrv",
@@ -142,26 +150,31 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
-    else:
+    else:  # pragma: no cover
         command = settings.custom_lsf_command.split(" ")
-    print(command)
+        command.append("-grpcsrv")
+        command.append(str(port))
+    command_str = " ".join(str(x) for x in command)
+    pyaedt_logger.info("LSF Command: '" + command_str + "'")
+    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")  # nosec
     try:  # nosec
-        p = subprocess.Popen(
-            " ".join(str(x) for x in command), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        p = subprocess.Popen(command_str, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError:  # nosec
-        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
+        pyaedt_logger.error(lsf_message(p))
     timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
-        err = p.stderr.readline().strip().decode("utf-8", "replace")
+        err = lsf_message(p)  # noqa
+        pyaedt_logger.info("[LSF]:" + err)
         m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
             aedt_startup_timeout = 120
             k = 0
+            # LSF resources are assigned. Make sure AEDT starts
             while not _check_grpc_port(port, machine_name=m.group(1)):
                 if k > aedt_startup_timeout:
+                    pyaedt_logger.error("LSF allocated resources, but AEDT was unable to start due to a timeout.")
                     return False, err
                 time.sleep(1)
                 k += 1
@@ -253,7 +266,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
             return False
         elif close_desktop:
             try:
-                os.kill(pid, 9)
+                if settings.use_multi_desktop:
+                    os.kill(pid, 9)
+                else:
+                    desktop_class.odesktop.QuitApplication()
                 if _desktop_sessions:
                     for v in _desktop_sessions.values():
                         if pid in v.parent_desktop_id:  # pragma: no cover
@@ -270,7 +286,10 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
     elif not inside_desktop:  # pragma: no cover
         if close_desktop:
             try:
-                os.kill(pid, 9)
+                if settings.use_multi_desktop:
+                    desktop_class.odesktop.QuitApplication()
+                else:
+                    os.kill(pid, 9)
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong closing AEDT. Exception in `os.kill(pid, 9)`.")
                 return False
