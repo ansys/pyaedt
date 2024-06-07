@@ -95,16 +95,27 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
             "pydev",
             "traceback",
             "user_function",
-            "__Invoke",
+            "__Invoke__",
             "interactiveshell",
             "async_helpers",
+            "plugins",
         ]
-        if any(exc in trace for exc in exceptions):
+        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
             continue
         for el in trace.split("\n"):
             _write_mes(el)
     for trace in tb_trace:
-        if "user_function" in trace or "async_helpers" in trace:
+        exceptions = [
+            "_exception",
+            "pydev",
+            "traceback",
+            "user_function",
+            "__Invoke__",
+            "interactiveshell",
+            "async_helpers",
+            "plugins",
+        ]
+        if any(exc in trace for exc in exceptions) or ("site-packages" in trace and "pyaedt" not in trace):
             continue
         tblist = trace.split("\n")
         for el in tblist:
@@ -141,12 +152,6 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     except Exception:
         pyaedt_logger.error("An error occurred while parsing and logging an error with method {}.")
 
-    if not func.__name__.startswith("_"):
-        _write_mes(
-            "Check Online documentation on: https://aedt.docs.pyansys.com/version/stable/search.html?q={}".format(
-                func.__name__
-            )
-        )
     _write_mes(header)
 
 
@@ -218,7 +223,7 @@ def _function_handler_wrapper(user_function, **deprecated_kwargs):
                 settings.error(message)
             return raise_exception_or_return_false(e)
         except GrpcApiError as e:
-            _exception(sys.exc_info(), user_function, args, kwargs, "AEDT grpc API call Error")
+            _exception(sys.exc_info(), user_function, args, kwargs, "AEDT API Error")
             return raise_exception_or_return_false(e)
         except BaseException as e:
             _exception(sys.exc_info(), user_function, args, kwargs, str(sys.exc_info()[1]).capitalize())
