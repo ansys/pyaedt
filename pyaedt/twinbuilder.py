@@ -634,6 +634,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         if self.aedt_version_id < "2024.2":
             self.logger.error("This method only work for AEDT versions > 2024 R2.")
             return False
+        elif self.aedt_version_id < "2025.1":
+            self.odesktop.SetDesktopConfiguration("Twin Builder")
 
         # get_pyaedt_app() check rather than dkp [[project, design]]
         dkp = self.desktop_class
@@ -709,4 +711,5 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         # self.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
         # self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
 
+        self.odesktop.SetDesktopConfiguration("All")
         pass
