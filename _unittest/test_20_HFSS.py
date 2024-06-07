@@ -1401,7 +1401,7 @@ class TestClass:
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
         example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
-        cads = self.aedtapp.modeler.import_nastran(example_project)
+        cads = self.aedtapp.modeler.import_nastran(example_project, lines_thickness=0.1)
         assert len(cads) > 0
         stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
         assert os.path.exists(stl[0])

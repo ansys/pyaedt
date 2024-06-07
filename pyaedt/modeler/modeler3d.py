@@ -1145,17 +1145,12 @@ class Modeler3D(Primitives3D):
         self.logger.info("Creating STL file with detected faces")
         enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
 
-        def decimate(points_in, faces_in, stl_id):
+        def decimate(points_in, faces_in):
             fin = [[3] + list(i) for i in faces_in]
             mesh = pv.PolyData(points_in, faces=fin)
             new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
             points_out = list(new_mesh.points)
             faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
-            # self.logger.info(
-            #     "Final decimation on object {}: {}%".format(
-            #         stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
-            #     )
-            # )
             return points_out, faces_out
 
         output_stls = []
@@ -1166,10 +1161,10 @@ class Modeler3D(Primitives3D):
                 tri_out = triangles
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(triangles) > 20:
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
                 f.write("solid Sheet_{}\n".format(tri_id))
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_stl_merge = False
+                    enable_stl_merge = False  # pragma: no cover
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
@@ -1181,9 +1176,9 @@ class Modeler3D(Primitives3D):
                 tri_out = df.drop_duplicates(keep=False).to_list()
                 p_out = nas_to_dict["Points"][::]
                 if decimation > 0 and len(solid_triangles) > 20:
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
+                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
                 if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_stl_merge = False
+                    enable_stl_merge = False  # pragma: no cover
                 for triangle in tri_out:
                     _write_solid_stl(triangle, p_out)
                 f.write("endsolid\n")
@@ -1241,7 +1236,7 @@ class Modeler3D(Primitives3D):
         if decimation > 0 or preview:
             try:
                 import pyvista as pv
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Package pyvista is needed to perform model simplification.")
                 self.logger.error("Please install it using pip.")
                 decimation = 0
@@ -1259,14 +1254,14 @@ class Modeler3D(Primitives3D):
             if assembly["Triangles"] or assembly["Solids"] or assembly["Lines"]:
                 empty = False
                 break
-        if empty:
+        if empty:  # pragma: no cover
             self.logger.error("Failed to import file. Check the model and retry")
             return False
         output_stls, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge, pv)
         if preview:
             if decimation > 0:
                 pl = pv.Plotter(shape=(1, 2))
-            else:
+            else:  # pragma: no cover
                 pl = pv.Plotter()
             dargs = dict(show_edges=True)
             css4_colors = list(CSS4_COLORS.values())
@@ -1280,7 +1275,7 @@ class Modeler3D(Primitives3D):
                 p_out = nas_to_dict["Points"][::]
                 for assembly in dict_in["Assemblies"].values():
                     if color_by_assembly:
-                        h = CSS4_COLORS[k].lstrip("#")
+                        h = css4_colors[k].lstrip("#")
                         colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
                         k += 1
 
@@ -1324,7 +1319,7 @@ class Modeler3D(Primitives3D):
                 pl.reset_camera()
                 pl.link_views()
             if "PYTEST_CURRENT_TEST" not in os.environ:
-                pl.show()
+                pl.show()  # pragma: no cover
         self.logger.info("STL files created")
         if save_only_stl:
             return output_stls
