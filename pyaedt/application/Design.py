@@ -1151,10 +1151,10 @@ class Design(AedtObjects):
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
                         if is_project_locked(project):
-                            if self._remove_lock:
+                            if self._remove_lock:  # pragma: no cover
                                 self.logger.warning("Project is locked. Removing it and opening.")
                                 remove_project_lock(project)
-                            else:
+                            else:  # pragma: no cover
                                 raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("aedt project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
@@ -1180,10 +1180,10 @@ class Design(AedtObjects):
                     self.logger.info("Project %s set to active.", pname)
                 else:
                     if is_project_locked(proj_name):
-                        if self._remove_lock:
+                        if self._remove_lock:  # pragma: no cover
                             self.logger.warning("Project is locked. Removing it and opening.")
                             remove_project_lock(proj_name)
-                        else:
+                        else:  # pragma: no cover
                             raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     if not is_windows and settings.aedt_version:
