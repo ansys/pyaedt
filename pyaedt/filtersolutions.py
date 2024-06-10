@@ -13,21 +13,21 @@ from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
 
 
 class FilterSolutions:
-    """Provides the FilterSolutions application interface.
+    """Provides the ``FilterSolutions`` application interface.
 
-    The class has access to ideal filter attributes and calcultaed output parameters.
+    The class has access to ideal filter attributes and calculated output parameters.
 
     Parameters
     ----------
     implementation_type: FilterImplementation, optional
         The technology used to implement the filter.
-        The full list of implementations are listed in FilterImplementation enum.
-        The default is `LUMPED`.
+        The technology used to implement the filter. The default is ``LUMPED``.
+        The ``FilterImplementation`` enum provides the list of implementations.
 
 
     Examples
     --------
-    Create an instance of FilterSolutions with a band pass elliptic ideal filter.
+    Create a ``FilterSolutions`` instance with a band pass elliptic ideal filter.
 
     >>> import pyaedt
     >>> from pyaedt.filtersolutions_core.attributes import FilterImplementation
@@ -42,10 +42,10 @@ class FilterSolutions:
         if implementation_type == FilterImplementation.LUMPED:
             self._init_lumped_design()
         else:
-            raise RuntimeError("The " + str(implementation_type) + " is not supported on this release.")
+            raise RuntimeError("The " + str(implementation_type) + " is not supported in this release.")
 
     def _init_lumped_design(self):
-        """Initialize the FilterSolutions object to support lumped filter design."""
+        """Initialize the ``FilterSolutions`` object to support a lumped filter design."""
 
         self.attributes = Attributes()
         self.ideal_response = IdealResponse()

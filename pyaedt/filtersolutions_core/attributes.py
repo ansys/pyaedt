@@ -9,7 +9,7 @@ import pyaedt
 
 
 class FilterType(Enum):
-    """Selects type of filter with the associated mathematical formulation.
+    """Provides an enum of filter types with associated mathematical formulations.
 
     Attributes:
     GAUSSIAN: Represents a Gaussian filter.
@@ -18,9 +18,9 @@ class FilterType(Enum):
     LEGENDRE: Represents a Legendre filter.
     CHEBYSHEV_I: Represents a Chevyshev type I filter.
     CHEBYSHEV_II: Represents a Chevyshev type II filter.
-    HOURGLASS: Represents a Hourglass filter.
-    ELLIPTIC: Represents a elliptic filter.
-    Custom, rasied-cos, matched, and delay filter types are not available in this release.
+    HOURGLASS: Represents an hourglass filter.
+    ELLIPTIC: Represents an elliptic filter.
+    Custom, raised-cos, and matched filter types are not available in this release.
     """
 
     GAUSSIAN = 0
@@ -41,19 +41,19 @@ class FilterType(Enum):
 
 
 class FilterClass(Enum):
-    """Selects class of filter for single band and multiple bands filters.
+    """Provides an enum of filter types for single-band and multiple-bands filters.
 
     Attributes:
-    LOW_PASS: Represents a low pass filter.
-    HIGH_PASS: Represents a high pass filter.
+    LOW_PASS: Represents a low-pass filter.
+    HIGH_PASS: Represents a high-pass filter.
     DIPLEXER_1: Represents a first group of diplexer filter.
     BAND_PASS: Represents a band pass filter.
     BAND_STOP: Represents a band stop filter.
     DIPLEXER_2: Represents a second group of diplexer filter.
-    LOW_BAND: Represents a combined low pass and multi band filter.
-    BAND_HIGH: Represents a combined high pass and multi band filter.
-    BAND_BAND: Represents a multi band passfilter.
-    STOP_STOP: Represents a multi band stop filter.
+    LOW_BAND: Represents a combined low-pass and multi-band filter.
+    BAND_HIGH: Represents a combined high-pass and multi-band filter.
+    BAND_BAND: Represents a multi-band pass filter.
+    STOP_STOP: Represents a multi-band stop filter.
     """
 
     LOW_PASS = 0
@@ -69,12 +69,12 @@ class FilterClass(Enum):
 
 
 class FilterImplementation(Enum):
-    """Selects implementations type of filter. This release covers only lumped filter technology.
+    """Provides an enum of filter implementation types.
 
     Attributes:
     LUMPED: Represents a lumped implementation.
     DISTRIB: Represents a distributed implementation.
-    ACTIVE: Represents a active implementation.
+    ACTIVE: Represents an active implementation.
     SWCAP: Represents a switched capacitor implementation.
     DIGITAL: Represents a digital implementation.
     """
@@ -87,15 +87,15 @@ class FilterImplementation(Enum):
 
 
 class DiplexerType(Enum):
-    """Selects topology of diplexers.
+    """Provides an enum of diplexer and triplexer types.
 
     Attributes:
-    HI_LO: Represents a high pass low pass diplexer type.
-    BP_1: Represents a band pass band pass diplexer type.
-    BP_2: Represents a band pass band pass diplexer type.
-    BP_BS: Represents a band pass band stop diplexer type.
-    TRIPLEXER_1: Represents a low pass, band pass, and high pass triplexer type.
-    TRIPLEXER_2: Represents a low pass, band pass, and high pass triplexer type.
+    HI_LO: Represents a high-pass, low-pass diplexer type.
+    BP_1: Represents a band-pass, band-pass diplexer type.
+    BP_2: Represents a band-pass, band-pass diplexer type.
+    BP_BS: Represents a band-pass, band-stop diplexer type.
+    TRIPLEXER_1: Represents a low-pass, band-pass, and high-pass triplexer type.
+    TRIPLEXER_2: Represents a low-pass, band-pass, and high-pass triplexer type.
     """
 
     HI_LO = 0
@@ -107,7 +107,8 @@ class DiplexerType(Enum):
 
 
 class BesselRipplePercentage(Enum):
-    """Selects peak to peak group delay ripple magnitude as percent of average for Bessl filters.
+    """Provides an enum of peak-to-peak group delay ripple magnitudes as percents of averages for Bessel filters.
+
     Attributes:
     ZERO: 0%
     HALF: 0.5%
@@ -126,7 +127,8 @@ class BesselRipplePercentage(Enum):
 
 
 class GaussianTransition(Enum):
-    """Selects transition attenuation in dB for Gaussian filters to improve group delay response.
+    """Provides an enum of transition attenuations in dB for Gaussian filters to improve group delay response.
+
     Attributes:
     TRANSITION_NONE: 0dB
     TRANSITION_3_DB: 3dB
@@ -145,7 +147,7 @@ class GaussianTransition(Enum):
 
 
 class GaussianBesselReflection(Enum):
-    """Selects various synthesis methods for Gaussian and Bessel filters."""
+    """Provides an enum of synthesis methods for Gaussian and Bessel filters."""
 
     OPTION_1 = 0
     OPTION_2 = 1
@@ -153,11 +155,12 @@ class GaussianBesselReflection(Enum):
 
 
 class RippleConstrictionBandSelect(Enum):
-    """Selects the bands to apply the constrict ripple parameter.
+    """Provides an enum of the bands to apply constrict the ripple parameter.
+
     Attributes:
-    STOP: stop band
-    PASS: pass band
-    BOTH: stop and pass bands
+    STOP: Stop band
+    PASS: Pass band
+    BOTH: Stop and pass bands
     """
 
     STOP = 0
@@ -166,10 +169,11 @@ class RippleConstrictionBandSelect(Enum):
 
 
 class SinglePointRippleInfZeros(Enum):
-    """Selects either 1 or 3 non-infifnite zeros at single frequency point to confine ripple.
+    """Provides an enum for either one or three non-Infinite zeros at the single frequency point to confine the ripple.
+
     Attributes:
-    RIPPLE_INF_ZEROS_1: 1 zero
-    RIPPLE_INF_ZEROS_3: 3 zeros
+    RIPPLE_INF_ZEROS_1: One zero
+    RIPPLE_INF_ZEROS_3: Three zeros
     """
 
     RIPPLE_INF_ZEROS_1 = 0
@@ -177,14 +181,14 @@ class SinglePointRippleInfZeros(Enum):
 
 
 class PassbandDefinition(Enum):
-    """Selects type of frequency entries to get either center frequency and bandwidth or corner frequencies."""
+    """Provides an enum to get either center frequency and bandwidth or corner frequencies."""
 
     CENTER_FREQUENCY = 0
     CORNER_FREQUENCIES = 1
 
 
 class StopbandDefinition(Enum):
-    """Selects stop band parameter to be compared to pass band."""
+    """Provides an enum for comparing the stop band parameter to the pass band parameter."""
 
     RATIO = 0
     FREQUENCY = 1
@@ -194,19 +198,19 @@ class StopbandDefinition(Enum):
 class Attributes:
     """Defines attributes and parameters of filters.
 
-    This class allows you to construct all the necessary attributes for the FilterDesign class.
+    This class allows you to construct all the necessary attributes for the ``FilterDesign`` class.
 
     Attributes
     ----------
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class.
 
     Methods
     ----------
     _define_attributes_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -500,8 +504,8 @@ class Attributes:
 
     @property
     def filter_type(self) -> FilterType:
-        """The type (mathematical formulation) of filter. The full list of types are listed in FilterType enum.
-        The default is `BUTTERWORTH`.
+        """Type (mathematical formulation) of the filter. The default is ``BUTTERWORTH``.
+        The ``FilterType`` enum provides a list of all types.
 
         Returns
         -------
@@ -518,8 +522,8 @@ class Attributes:
 
     @property
     def filter_class(self) -> FilterClass:
-        """The class (band definition) of filter. The full list of classes are listed in FilterClass enum.
-        The default is `LOW_PASS`.
+        """Class (band definition) of the filter. The default is ``LOW_PASS``.
+        The ``FilterClass`` enum provides a list of all classes.
 
         Returns
         -------
@@ -536,13 +540,12 @@ class Attributes:
 
     @property
     def filter_implementation(self) -> FilterImplementation:
-        """The technology used to implement the filter.
-        The full list of implementations are listed in FilterImplementation enum.
-        The default is `LUMPED`.
+        """Technology used to implement the filter. The default is ``LUMPED``.
+        The ``FilterImplementation`` enum provides a list of all implementations.
 
         Returns
         -------
-        :enum:'FilterImplementation'
+        :enum:`FilterImplementation`
         """
         type_string = self._dll_interface.get_string(self._dll.getFilterImplementation)
         return self._dll_interface.string_to_enum(FilterImplementation, type_string)
@@ -555,10 +558,10 @@ class Attributes:
 
     @property
     def diplexer_type(self) -> DiplexerType:
-        """The type of diplexer topology. Only applicable to lumped filters.
-        The full list of diplexer types are listed in DiplexerType enum.
-        The default is `HI_LO` for `DIPLEXER_1` filter class.
-        The default is `BP_BS` for `DIPLEXER_2` filter class.
+        """Type of diplexer topology. This property is only applicable to lumped filters.
+        The default is ``HI_LO`` for the ``DIPLEXER_1`` filter class.
+        The default is ``BP_BS`` for the ``DIPLEXER_2`` filter class.
+        The ``DiplexerType`` enum provides a full list of diplexer types.
 
         Returns
         -------
@@ -574,7 +577,7 @@ class Attributes:
 
     @property
     def filter_multiple_bands_enabled(self) -> bool:
-        """Whether to enable the multiple bands table. The default is `False`.
+        """Flag indicating if the multiple bands table is enabled.
 
         Returns
         -------
@@ -592,7 +595,7 @@ class Attributes:
 
     @property
     def filter_multiple_bands_low_pass_frequency(self) -> str:
-        """The multiple bands low pass frequency of combined low pass and band pass filters. The default is `1GHz`.
+        """Multiple bands low-pass frequency of combined low-pass and band-pass filters. The default is ``1GHz``.
 
         Returns
         -------
@@ -612,7 +615,7 @@ class Attributes:
 
     @property
     def filter_multiple_bands_high_pass_frequency(self) -> str:
-        """The multiple bands high pass frequency of combined high pass and band pass filters. The default is `1GHz`.
+        """Multiple bands high-pass frequency of combined high-pass and band-pass filters. The default is ``1GHz``.
 
         Returns
         -------
@@ -632,7 +635,7 @@ class Attributes:
 
     @property
     def order(self) -> int:
-        """Order of filter. The default is `5`.
+        """Order of the filter. The default is ``5``.
 
         Returns
         -------
@@ -651,7 +654,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB for calculation of the filter minimum order.
-        The default is `50`.
+        The default is ``50``.
 
         Returns
         -------
@@ -672,7 +675,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_frequency(self) -> str:
         """Filter stop band frequency for calculation of the filter minimum order.
-        The default is `10 GHz`.
+        The default is ``10 GHz``.
 
         Returns
         -------
@@ -693,7 +696,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_error_percent(self) -> str:
         """Filter maximum group delay in % for calculation of the filter minimum order.
-        The default is `5`.
+        The default is ``5``.
 
         Returns
         -------
@@ -713,8 +716,8 @@ class Attributes:
 
     @property
     def minimum_order_group_delay_cutoff(self) -> str:
-        """Filter group dealy cutoff frequency for calculation of the filter minimum order.
-        The default is `10 GHz`.
+        """Filter group delay cutoff frequency for calculation of the filter minimum order.
+        The default is ``10 GHz``.
 
         Returns
         -------
@@ -748,7 +751,7 @@ class Attributes:
     @property
     def delay_time(self) -> str:
         """Filter delay time.
-        The default is `1 ns`.
+        The default is ``1 ns``.
 
         Returns
         -------
@@ -764,11 +767,11 @@ class Attributes:
     @property
     def pass_band_definition(self) -> PassbandDefinition:
         """Pass band frequency entry options.
-        The default is `CENTER_FREQUENCY`.
+        The default is ``CENTER_FREQUENCY``.
 
         Returns
         -------
-        :enum: PassbandDefinition
+        :enum:`PassbandDefinition`
         """
         index = c_int()
         pass_band_definition = list(PassbandDefinition)
@@ -785,7 +788,7 @@ class Attributes:
     @property
     def pass_band_center_frequency(self) -> str:
         """Filter pass band or center frequency.
-        The default is `1 GHz`.
+        The default is ``1 GHz``.
 
         Returns
         -------
@@ -801,7 +804,7 @@ class Attributes:
     @property
     def pass_band_width_frequency(self) -> str:
         """Pass band width frequency for band pass or band stop filters.
-        The default is `200 MHz`.
+        The default is ``200 MHz``.
 
         Returns
         -------
@@ -817,7 +820,7 @@ class Attributes:
     @property
     def lower_frequency(self) -> str:
         """Filter lower corner frequency.
-        The default is `905 MHz`.
+        The default is ``905 MHz``.
 
         Returns
         -------
@@ -833,7 +836,7 @@ class Attributes:
     @property
     def upper_frequency(self) -> str:
         """Filter upper corner frequency.
-        The default is `1.105 MHz`.
+        The default is ``1.105 MHz``.
 
         Returns
         -------
@@ -849,11 +852,11 @@ class Attributes:
     @property
     def stop_band_definition(self) -> StopbandDefinition:
         """Stop band parameter entry option.
-        The default is `RATIO`.
+        The default is ``RATIO``.
 
         Returns
         -------
-        :enum: StopbandDefinition
+        :enum:`StopbandDefinition`
         """
         index = c_int()
         stop_band_definition = list(StopbandDefinition)
@@ -870,7 +873,7 @@ class Attributes:
     @property
     def stop_band_ratio(self) -> str:
         """Filter stop band ratio.
-        The default is `1.2`.
+        The default is ``1.2``.
 
         Returns
         -------
@@ -886,7 +889,7 @@ class Attributes:
     @property
     def stop_band_frequency(self) -> str:
         """Filter stop band frequency.
-        The default is `1.2 GHz`.
+        The default is ``1.2 GHz``.
 
         Returns
         -------
@@ -902,7 +905,7 @@ class Attributes:
     @property
     def stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB.
-        The default is `60 dB`.
+        The default is ``60 dB``.
 
         Returns
         -------
@@ -917,8 +920,7 @@ class Attributes:
 
     @property
     def standard_pass_band_attenuation(self) -> bool:
-        """Filter standard cut status.
-        The default is `True`.
+        """Flag indicating if the standard cut is enabled.
 
         Returns
         -------
@@ -936,8 +938,7 @@ class Attributes:
 
     @property
     def equiripple_delay(self) -> bool:
-        """Filter equiripple delay status.
-        The default is `True`.
+        """Flag indicating if the equiripple delay is enabled.
 
         Returns
         -------
@@ -956,7 +957,7 @@ class Attributes:
     @property
     def group_delay_ripple_period(self) -> str:
         """Filter approximate normalized group delay ripple period.
-        The default is `2`.
+        The default is ''2''.
 
         Returns
         -------
@@ -975,7 +976,7 @@ class Attributes:
     @property
     def normalized_group_delay_percentage(self) -> int:
         """Bessel filter ripple percentage.
-        The default is `0`.
+        The default is ''0''.
 
         Returns
         -------
@@ -996,7 +997,7 @@ class Attributes:
     @property
     def standard_pass_band_attenuation_value_db(self) -> str:
         """Filter cut off attenuation in dB.
-        The default is `3.01 dB`.
+        The default is ''3.01 dB''.
 
         Returns
         -------
@@ -1016,8 +1017,7 @@ class Attributes:
 
     @property
     def bessel_normalized_delay(self) -> bool:
-        """Bessel filter normalized delay status.
-        The default is `False`.
+        """Flag indicating if the normalized delay is enabled.
 
         Returns
         -------
@@ -1036,7 +1036,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_period(self) -> str:
         """Bessel filter normalized delay period.
-        The default is `2`.
+        The default is ''2''.
 
         Returns
         -------
@@ -1055,7 +1055,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_percentage(self) -> int:
         """Bessel filter ripple percentage.
-        The default is `0`.
+        The default is ''0''.
 
         Returns
         -------
@@ -1076,7 +1076,7 @@ class Attributes:
     @property
     def pass_band_ripple(self) -> str:
         """Filter pass band ripple in dB.
-        The default is `0.05 dB`.
+        The default is ''0.05 dB''.
 
         Returns
         -------
@@ -1091,8 +1091,7 @@ class Attributes:
 
     @property
     def arith_symmetry(self) -> bool:
-        """Filter arithmetic symmetry status.
-        The default is `False`.
+        """Flag indicating if the arithmetic symmetry is enabled.
 
         Returns
         -------
@@ -1110,8 +1109,7 @@ class Attributes:
 
     @property
     def asymmetric(self) -> bool:
-        """Filter asymmetric status.
-        The default is `False`.
+        """Flag indicating if the asymmetric is enabled.
 
         Returns
         -------
@@ -1129,8 +1127,8 @@ class Attributes:
 
     @property
     def asymmetric_low_order(self) -> int:
-        """Filter asymmetry lower frequency order.
-        The default is `5`.
+        """Order for low side of an asymmetric filter.
+        The default is ''5''.
 
         Returns
         -------
@@ -1148,8 +1146,8 @@ class Attributes:
 
     @property
     def asymmetric_high_order(self) -> int:
-        """Filter asymmetry higher frequency order.
-        The default is `5`.
+        """Order for high side of an asymmetric filter.
+        The default is ''5''.
 
         Returns
         -------
@@ -1167,8 +1165,8 @@ class Attributes:
 
     @property
     def asymmetric_low_stop_band_ratio(self) -> str:
-        """Filter asymmetry lower stop band ratio.
-        The default is `1.2`.
+        """Stop-band ratio for low side of an asymmetric filter.
+        The default is ''1.2''.
 
         Returns
         -------
@@ -1186,8 +1184,8 @@ class Attributes:
 
     @property
     def asymmetric_high_stop_band_ratio(self) -> str:
-        """Filter asymmetry higher stop band ratio.
-        The default is `1.2`.
+        """Stop-band ratio for high side of an asymmetric filter.
+        The default is ''1.2''.
 
         Returns
         -------
@@ -1207,8 +1205,8 @@ class Attributes:
 
     @property
     def asymmetric_low_stop_band_attenuation_db(self) -> str:
-        """Filter asymmetry lower stop band attenuation in dB.
-        The default is `60 dB`.
+        """Stop-band attenuation for low side of an asymmetric filter.
+        The default is ''60 dB''.
 
         Returns
         -------
@@ -1228,8 +1226,8 @@ class Attributes:
 
     @property
     def asymmetric_high_stop_band_attenuation_db(self) -> str:
-        """Filter asymmetry higher stop band attenuation in dB.
-        The default is `60 dB`.
+        """Stop-band attenuation for high side of an asymmetric filter.
+        The default is ''60 dB''.
 
         Returns
         -------
@@ -1250,11 +1248,11 @@ class Attributes:
     @property
     def gaussian_transition(self) -> GaussianTransition:
         """Gaussian filter transition option.
-        The default is `TRANSITION_NONE`.
+        The default is ''TRANSITION_NONE''.
 
         Returns
         -------
-        :enum: GaussianTransition
+        :enum:`GaussianTransition`
         """
         type_string = self._dll_interface.get_string(self._dll.getGaussianTransition)
         type_string = "TRANSITION_" + type_string
@@ -1268,11 +1266,11 @@ class Attributes:
     @property
     def gaussian_bessel_reflection(self) -> GaussianBesselReflection:
         """Gaussian or Bessel filter reflection option.
-        The default is `OPTION_1`.
+        The default is ''OPTION_1''.
 
         Returns
         -------
-        :enum: GaussianBesselReflection
+        :enum:`GaussianBesselReflection`
         """
         index = c_int()
         gaussian_bessel_reflection = list(GaussianBesselReflection)
@@ -1288,8 +1286,7 @@ class Attributes:
 
     @property
     def even_order(self) -> bool:
-        """Filter even order mode status for filter with even orders.
-        The default is `True`.
+        """Flag indicating if the even order mode for filter with even orders is enabled.
 
         Returns
         -------
@@ -1307,8 +1304,7 @@ class Attributes:
 
     @property
     def even_order_refl_zero(self) -> bool:
-        """Filter even order reflection zeros to 0 status.
-        The default is `True`.
+        """Flag indicating if the even order reflection zeros to 0 is enabled.
 
         Returns
         -------
@@ -1326,8 +1322,7 @@ class Attributes:
 
     @property
     def even_order_trn_zero(self) -> bool:
-        """Filter even order reflection zeros to infinite status.
-        The default is `True`.
+        """Flag indicating if the even order reflection zeros to infinite is enabled.
 
         Returns
         -------
@@ -1345,8 +1340,7 @@ class Attributes:
 
     @property
     def constrict_ripple(self) -> bool:
-        """Filter equiripple constriction status.
-        The default is `False`.
+        """Flag indicating if the equiripple constriction is enabled.
 
         Returns
         -------
@@ -1364,8 +1358,7 @@ class Attributes:
 
     @property
     def single_point_ripple(self) -> bool:
-        """Filter ripple confinement to a single frequency point status.
-        The default is `False`.
+        """Flag indicating if the ripple confinement to a single frequency point is enabled.
 
         Returns
         -------
@@ -1382,8 +1375,7 @@ class Attributes:
 
     @property
     def half_band_ripple(self) -> bool:
-        """Filter ripple with half of the zeros in the given band status.
-        The default is `False`.
+        """Flag indicating if the ripple with half of the zeros in the given band is enabled.
 
         Returns
         -------
@@ -1402,7 +1394,7 @@ class Attributes:
     @property
     def constrict_ripple_percent(self) -> str:
         """Filter ripple constriction percentage.
-        The default is `False`.
+        The default is ''False''.
 
         Returns
         -------
@@ -1418,11 +1410,11 @@ class Attributes:
     @property
     def ripple_constriction_band(self) -> RippleConstrictionBandSelect:
         """Filter ripple constriction band option.
-        The default is `STOP`.
+        The default is ''STOP''.
 
         Returns
         -------
-        :enum: RippleConstrictionBandSelect
+        :enum:`RippleConstrictionBandSelect`
         """
         type_string = self._dll_interface.get_string(self._dll.getRippleConstrictionBandSelect)
         return self._dll_interface.string_to_enum(RippleConstrictionBandSelect, type_string)
@@ -1435,11 +1427,11 @@ class Attributes:
     @property
     def single_point_ripple_inf_zeros(self) -> SinglePointRippleInfZeros:
         """Filter number of single point ripple infinite zeros.
-        The default is `RIPPLE_INF_ZEROS_1`.
+        The default is ''RIPPLE_INF_ZEROS_1''.
 
         Returns
         -------
-        :enum: SinglePointRippleInfZeros
+        :enum:`SinglePointRippleInfZeros`
         """
         type_string = self._dll_interface.get_string(self._dll.getSinglePointRippleNoninfiniteZeros)
         type_string = "RIPPLE_INF_ZEROS_" + type_string
@@ -1452,8 +1444,7 @@ class Attributes:
 
     @property
     def delay_equalizer(self) -> bool:
-        """Filter delay equalizer status.
-        The default is `False`.
+        """Flag indicating if the delay equalizer enabled.
 
         Returns
         -------
@@ -1471,7 +1462,7 @@ class Attributes:
     @property
     def delay_equalizer_order(self) -> int:
         """Filter delay equalizer order.
-        The default is `2`.
+        The default is ''2''.
 
         Returns
         -------
@@ -1489,8 +1480,7 @@ class Attributes:
 
     @property
     def standard_delay_equ_pass_band_attenuation(self) -> bool:
-        """Filter standard delay equalizer attenuation status.
-        The default is `True`.
+        """Flag indicating if the standard delay equalizer attenuation enabled.
 
         Returns
         -------
@@ -1509,7 +1499,7 @@ class Attributes:
     @property
     def standard_delay_equ_pass_band_attenuation_value_db(self) -> str:
         """Filter standard delay equalizer cut Off attenuation in dB.
-        The default is `3.01 dB`.
+        The default is ''3.01 dB''.
 
         Returns
         -------

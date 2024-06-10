@@ -12,7 +12,7 @@ from pyaedt.filtersolutions_core.graph_setup import GraphSetup
 
 
 class FrequencyResponseColumn(Enum):
-    """Selects frequency response parameter.
+    """Provides an enum of frequency response parameters.
 
     Attributes:
     MAGNITUDE_DB: Represents the frequency response magnitude in dB.
@@ -40,7 +40,7 @@ class FrequencyResponseColumn(Enum):
 
 
 class TimeResponseColumn(Enum):
-    """Selects time response parameter.
+    """Provides an enum of time response parameters.
 
     Attributes:
     STEP_RESPONSE: Represents the step time response.
@@ -62,7 +62,7 @@ class TimeResponseColumn(Enum):
 
 
 class SParametersResponseColumn(Enum):
-    """Selects S parameter.
+    """Provides an enum of S parameters.
 
     Attributes:
     S21_DB: Represents the S21 parameter in dB.
@@ -80,7 +80,7 @@ class SParametersResponseColumn(Enum):
 
 
 class PoleZerosResponseColumn(Enum):
-    """Selects pole zero x and y coordinates of transmission (TX) or reflection (RX) zeros.
+    """Provides an enum of pole zero x and y coordinates of transmission (TX) or reflection (RX) zeros.
 
     Attributes:
     TX_ZERO_DEN_X: Represents the x coordinate of filter transmission zero denominator.
@@ -121,23 +121,23 @@ class PoleZerosResponseColumn(Enum):
 
 class IdealResponse:
     """Exports the data for available ideal filter responses.
-    Includes `frequency`, `time`, `S parameters`, `transfer function`, or `pole zero location` responses.
+    Includes ``frequency``, ``time``, ``S parameters``, ``transfer function``, or ``pole zero location`` responses.
 
-    This class allows you to construct all the necessary ideal response attributes for the FilterDesign class.
+    This class allows you to construct all the necessary ideal response attributes for the ``FilterDesign`` class.
 
     Attributes
     ----------
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
     graph_setup: GraphSetup
-        an instance of GraphSetup class
+        Instance of the ``GraphSetup`` class
 
     Methods
     ----------
     _define_response_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -187,8 +187,8 @@ class IdealResponse:
 
         Parameters
         ----------
-        column: FrequencyResponseColumn
-            Defined parameter to be exported.
+        column: `FrequencyResponseColumn`
+            Parameter to export.
 
         Returns
         -------
@@ -209,8 +209,8 @@ class IdealResponse:
 
         Parameters
         ----------
-        column: TimeResponseColumn
-            Defined parameter to be exported.
+        column: `TimeResponseColumn`
+            Parameter to export.
 
         Returns
         -------
@@ -231,8 +231,8 @@ class IdealResponse:
 
         Parameters
         ----------
-        column: SParametersResponseColumn
-            Defined parameter to be exported.
+        column: `SParametersResponseColumn`
+            Parameter to export.
 
         Returns
         -------
@@ -253,8 +253,8 @@ class IdealResponse:
 
         Parameters
         ----------
-        column: PoleZerosResponseColumn
-            Parameter to be exported.
+        column: `PoleZerosResponseColumn`
+            Parameter to export.
 
         Returns
         -------
@@ -288,7 +288,7 @@ class IdealResponse:
 
     @property
     def vsg_analysis_enabled(self) -> bool:
-        """Whether to include offset due to source resistor in frequency and time responses. The default is ``False``.
+        """Flag indicating if the offset due to source resistor in frequency and time responses is enabled.
 
         Returns
         -------
@@ -316,14 +316,14 @@ class IdealResponse:
 
         Parameters
         ----------
-        y_axis_parameter: FrequencyResponseColumn, optional
-            Defined parameter to be exported. The default is frequency response magnitude in dB.
+        y_axis_parameter: `FrequencyResponseColumn`, optional
+            Parameter to export. The default is frequency response magnitude in dB.
         minimum_frequency: str, optional
-            The default is 200 MHz.
+            The default is ``200 MHz``.
         maximum_frequency: str, optional
-            The default is 5 GHz.
+            The default is ``5 GHz``.
         vsg_analysis_enabled: bool, optional
-            The default is False.
+            The default is ``False``.
 
         Returns
         -------
@@ -354,14 +354,14 @@ class IdealResponse:
 
         Parameters
         ----------
-        y_axis_parameter: TimeResponseColumn, optional
-            Defined parameter to be exported. The default is step time response.
+        y_axis_parameter: `TimeResponseColumn`, optional
+            Parameter to export. The default is step time response.
         minimum_time: str, optional
-            The default is 0 s.
+            The default is ``0 s``.
         maximum_time: str, optional
-            The default is 10 ns.
+            The default is ``10 ns``.
         vsg_analysis_enabled: bool, optional
-            The default is False.
+            The default is ``False``.
 
         Returns
         -------
@@ -388,14 +388,14 @@ class IdealResponse:
 
         Parameters
         ----------
-        y_axis_parameter: SParametersResponseColumn, optional
-            Defined parameter to be exported. The default is S21 parameter response in dB.
+        y_axis_parameter: `SParametersResponseColumn`, optional
+            Parameter to export. The default is S21 parameter response in dB.
         minimum_frequency: str, optional
-            The default is 200 MHz.
+            The default is ``200 MHz``.
         maximum_frequency: str, optional
-            The default is 5 GHz.
+            The default is ``5 GHz``.
         vsg_analysis_enabled: bool, optional
-            The default is False.
+            The default is ``False``.
 
         Returns
         -------
@@ -423,10 +423,10 @@ class IdealResponse:
 
         Parameters
         ----------
-        x_axis_parameter: PoleZerosResponseColumn, optional
-            Defined parameter to be exported. The default is x coordinate of filter transmission zero denominator.
-        y_axis_parameter: PoleZerosResponseColumn, optional
-            Defined parameter to be exported. The default is y coordinate of filter transmission zero denominator.
+        x_axis_parameter: `PoleZerosResponseColumn`, optional
+            Parameter to export. The default is x coordinate of filter transmission zero denominator.
+        y_axis_parameter: `PoleZerosResponseColumn`, optional
+            Parameter to export. The default is y coordinate of filter transmission zero denominator.
 
         Returns
         -------

@@ -15,12 +15,12 @@ class LumpedParasitics:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
 
     Methods
     ----------
     _define_parasitics_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -73,7 +73,7 @@ class LumpedParasitics:
     @property
     def capacitor_q(self) -> str:
         """Q factor value of non ideal capacitors in synthesized circuit
-        The default is `infinite`.
+        The default is ``infinite``.
 
         Returns
         -------
@@ -89,7 +89,7 @@ class LumpedParasitics:
     @property
     def capacitor_rs(self) -> str:
         """Series resistor value of non ideal capacitors in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -105,7 +105,7 @@ class LumpedParasitics:
     @property
     def capacitor_rp(self) -> str:
         """Shunt resistor value of non ideal capacitors in synthesized circuit
-        The default is `infinite`.
+        The default is ``infinite``.
 
         Returns
         -------
@@ -121,7 +121,7 @@ class LumpedParasitics:
     @property
     def capacitor_ls(self) -> str:
         """Series inductance value of non ideal capacitors in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -137,7 +137,7 @@ class LumpedParasitics:
     @property
     def inductor_q(self) -> str:
         """Q factor value of non ideal inductors in synthesized circuit
-        The default is `infinite`.
+        The default is ``infinite``.
 
         Returns
         -------
@@ -153,7 +153,7 @@ class LumpedParasitics:
     @property
     def inductor_rs(self) -> str:
         """Series resistor value of non ideal inductors in synthesized circuit
-        The default is `0`.
+        The default is` ``0``.
 
         Returns
         -------
@@ -169,7 +169,7 @@ class LumpedParasitics:
     @property
     def inductor_rp(self) -> str:
         """Shunt resistor value of non ideal inductors in synthesized circuit
-        The default is `infinite`.
+        The default is ``infinite``.
 
         Returns
         -------
@@ -185,7 +185,7 @@ class LumpedParasitics:
     @property
     def inductor_cp(self) -> str:
         """Shunt capacitor value of non ideal inductors in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------

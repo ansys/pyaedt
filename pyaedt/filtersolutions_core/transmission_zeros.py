@@ -31,14 +31,14 @@ class TransmissionZeros:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
     table_format: TableFormat
         Whether selects ratio or frequency transmission zeros table.
 
     Methods
     ----------
     _define_transmission_zeros_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self, table_format):
@@ -108,7 +108,7 @@ class TransmissionZeros:
     @property
     def row_count(self) -> int:
         """The count of accumulated transmission zeros in the transmission zeros table.
-        The default is `2`.
+        The default is ``2``.
 
         Returns
         -------
@@ -125,7 +125,7 @@ class TransmissionZeros:
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is 0 and maximum value is 9.
+            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
 
         Returns
         -------
@@ -155,7 +155,7 @@ class TransmissionZeros:
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is 0 and maximum value is 9.
+            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
         zero: str, optional
             Transmission zero ratio or frequency value.
             The default is blank.
@@ -196,7 +196,7 @@ class TransmissionZeros:
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is 0 and maximum value is 9.
+            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
         zero: str
             Transmission zero ratio or frequency value.
         position: str
@@ -218,7 +218,7 @@ class TransmissionZeros:
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is 0 and maximum value is 9.
+            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
         """
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)

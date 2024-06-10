@@ -18,12 +18,12 @@ class LumpedNodesandLeads:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
 
     Methods
     ----------
     _define_nodes_and_leads_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -76,7 +76,7 @@ class LumpedNodesandLeads:
     @property
     def c_node_capacitor(self) -> str:
         """Shunt capacitors value of non ideal capacitors nodes in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -92,7 +92,7 @@ class LumpedNodesandLeads:
     @property
     def c_lead_inductor(self) -> str:
         """Series inductors value of non ideal capacitors leades in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -108,7 +108,7 @@ class LumpedNodesandLeads:
     @property
     def l_node_capacitor(self) -> str:
         """Shunt capacitors value of non ideal inductors nodes in synthesized circuit
-        The default is `0`.
+        The default is` ``0``.
 
         Returns
         -------
@@ -124,7 +124,7 @@ class LumpedNodesandLeads:
     @property
     def l_lead_inductor(self) -> str:
         """Series inductors value of non ideal inductors leades in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -140,7 +140,7 @@ class LumpedNodesandLeads:
     @property
     def r_node_capacitor(self) -> str:
         """Shunt capacitors value of non ideal resistors nodes in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -156,7 +156,7 @@ class LumpedNodesandLeads:
     @property
     def r_lead_inductor(self) -> str:
         """Series inductors value of non ideal resistors leades in synthesized circuit
-        The default is `0`.
+        The default is ``0``.
 
         Returns
         -------
@@ -171,8 +171,7 @@ class LumpedNodesandLeads:
 
     @property
     def c_node_compensate(self) -> bool:
-        """Whether to check adjust capacitor values to compensate for node capacitance, when possible.
-        The default is `False`.
+        """Flag indicating if the possible adjust capacitor values to compensate for node capacitance is enabled.
 
         Returns
         -------
@@ -190,8 +189,7 @@ class LumpedNodesandLeads:
 
     @property
     def l_node_compensate(self) -> bool:
-        """Whether to check adjust inductor values to compensate for lead inductance, when possible.
-        The default is `False`.
+        """Flag indicating if the possible adjust inductor values to compensate for lead inductance is enabled.
 
         Returns
         -------

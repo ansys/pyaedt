@@ -17,12 +17,12 @@ class MultipleBandsTable:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
 
     Methods
     ----------
     _define_multiple_bands_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -53,7 +53,7 @@ class MultipleBandsTable:
     @property
     def row_count(self) -> int:
         """The count of accumulated frequenices in the multiple bands table.
-        The default is `2`.
+        The default is ``2``.
 
         Returns
         -------
@@ -78,7 +78,7 @@ class MultipleBandsTable:
                 str:
                     Lower frequency value.
                 str:
-                    upper frequency value.
+                    Upper frequency value.
         """
         lower_value_buffer = create_string_buffer(100)
         upper_value_buffer = create_string_buffer(100)
@@ -124,7 +124,7 @@ class MultipleBandsTable:
         Parameters
         ----------
         row_index: int
-            The row index on multiple bands table. Starting value is 0 and maximum value is 6.
+            The row index on multiple bands table. Starting value is ``0`` and maximum value is ``6``.
         lower_frequency: str
         upper_frequency: str
         """
@@ -139,7 +139,7 @@ class MultipleBandsTable:
         Parameters
         ----------
         row_index: int
-            The row index on multiple bands table. Starting value is 0 and maximum value is 6.
+            The row index on multiple bands table. Starting value is ``0`` and maximum value is ``6``.
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)

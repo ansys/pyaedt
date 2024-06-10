@@ -19,7 +19,7 @@ class DllInterface:
         self.raise_error(status)
 
     def _init_dll_path(self):
-        """Set DLL path and print to screen the status of DLL access."""
+        """Set DLL path and print the status of the DLL access to the screen."""
         relative_path = "../../../build_output/64Release/nuhertz/FilterSolutionsAPI.dll"
         self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
         if not os.path.isfile(self.dll_path):
@@ -28,10 +28,10 @@ class DllInterface:
             )  # pragma: no cover
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
-            raise RuntimeError(f"The FilterSolutions API DLL was not found at {self.dll_path}")  # pragma: no cover
+            raise RuntimeError(f"The 'FilterSolution' API DLL was not found at {self.dll_path}.")  # pragma: no cover
 
     def _init_dll(self, show_gui):
-        """Load DLL and initiate application parameters to default values."""
+        """Load DLL and initialize application parameters to default values."""
 
         self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
         self._define_dll_functions()
@@ -68,14 +68,14 @@ class DllInterface:
         Parameters
         ----------
         dll_function: Callable
-            DLL function to be called. It must be a function that returns a string.
+            DLL function to call. It must be a function that returns a string.
         max_size: int
-            The maximum number of string characters to return. This will be used for the string buffer size.
+            Maximum number of string characters to return. This value is used for the string buffer size.
 
         Returns
         -------
         str
-            The requested string. If 'status' , Error message is returned.
+            Requested string. If '`status`', an error message is returned.
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)
@@ -90,9 +90,9 @@ class DllInterface:
         Parameters
         ----------
         dll_function: Callable
-            DLL function to be called. It must be a function that set a string.
+            DLL function to call. It must be a function that sets a string.
         string: str
-            String to be set.
+            String to set.
         """
         bytes_value = bytes(string, "ascii")
         status = dll_function(bytes_value)
@@ -100,38 +100,38 @@ class DllInterface:
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
         """
-        Convert string to the defined string by Enum.
+        Convert string to a string defined by an enum.
 
         Parameters
         ----------
         enum_type: Enum
-            Enum to be called.
+            Enum to call.
         string: str
-            String to be converted.
+            String to convert.
 
         Returns
         -------
         str
-            Converted entered string to the Enum string.
+            Converted enum string.
         """
         fixed_string = string.upper().replace(" ", "_")
         return enum_type[fixed_string]
 
     def enum_to_string(self, enum_value: Enum) -> str:
         """
-        Convert the defined string by Enum to string.
+        Convert a string defined by an enum to a string.
 
         Parameters
         ----------
         enum_type: Enum
-            Enum to be called.
+            Enum to call.
         string: str
-            String to be converted.
+            String to convert.
 
         Returns
         -------
         str
-            Converted Enum string to the compatible string.
+            String converted from the enum string.
         """
         fixed_string = str(enum_value.name).replace("_", " ").lower()
         return fixed_string

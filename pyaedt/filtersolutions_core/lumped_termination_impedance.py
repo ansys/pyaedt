@@ -60,14 +60,14 @@ class LumpedTerminationImpedance:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
-        table_type: TerminationType
+        Instance of the ``DllInterface`` class
+        table_type: `TerminationType`
             Whether selects source or load complex impedance table.
 
     Methods
     ----------
     _define_termination_impedance_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self, table_type):
@@ -158,7 +158,7 @@ class LumpedTerminationImpedance:
     @property
     def row_count(self) -> int:
         """The count of accumulated complex impedances in the complex impedances tables.
-        The default is `3`.
+        The default is ``3``.
 
         Returns
         -------
@@ -293,11 +293,11 @@ class LumpedTerminationImpedance:
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
         """The definition type of complex impedances in the complex impedance tables.
-        The default is `Cartesian`.
+        The default is ``Cartesian``.
 
         Returns
         -------
-        :enum: ComplexTerminationDefinition
+        :enum:`ComplexTerminationDefinition`
         """
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexDefinition(
@@ -319,11 +319,11 @@ class LumpedTerminationImpedance:
     @property
     def reactance_type(self) -> ComplexReactanceType:
         """The reactance type of complex impedances in the complex impedance tables.
-        The default is `reactance`.
+        The default is ``reactance``.
 
         Returns
         -------
-        :enum: ComplexReactanceType
+        :enum:`ComplexReactanceType`
         """
 
         type_string_buffer = create_string_buffer(100)
@@ -345,8 +345,7 @@ class LumpedTerminationImpedance:
 
     @property
     def compensation_enabled(self) -> bool:
-        """Whether to enable the impedance compnesation option.
-        The default is `False`.
+        """Flag indicating if the impedance compnesation is enabled.
 
         Returns
         -------
@@ -365,7 +364,7 @@ class LumpedTerminationImpedance:
     @property
     def compensation_order(self) -> int:
         """The order of impedance compnesation.
-        The default is `2`.
+        The default is` ``2``.
 
         Returns
         -------

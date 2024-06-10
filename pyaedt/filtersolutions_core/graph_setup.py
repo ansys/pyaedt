@@ -5,19 +5,19 @@ import pyaedt
 
 
 class GraphSetup:
-    """Defines minimum and maximum of freuquncy and time parameters of filter responses.
+    """Defines the minimum and maximum of the frequency and time parameters of the filter
 
     Attributes
     ----------
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class.
 
     Methods
     ----------
     _define_graph_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -49,7 +49,7 @@ class GraphSetup:
 
     @property
     def minimum_frequency(self) -> str:
-        """Minimum frequency value for exporting frequency and S parameters responses. The default is 200 MHz.
+        """Minimum frequency value for exporting frequency and S parameters responses. The default is ``200 MHz``.
 
         Returns
         -------
@@ -64,7 +64,7 @@ class GraphSetup:
 
     @property
     def maximum_frequency(self) -> str:
-        """Maximum frequency value for exporting frequency and S parameters responses. The default is 5 GHz.
+        """Maximum frequency value for exporting frequency and S parameters responses. The default is ``5 GHz``.
 
         Returns
         -------
@@ -79,7 +79,7 @@ class GraphSetup:
 
     @property
     def minimum_time(self) -> str:
-        """Minimum time value for exporting time response. The default is 0 s.
+        """Minimum time value for exporting time response. The default is ``0 s``.
 
         Returns
         -------
@@ -94,7 +94,7 @@ class GraphSetup:
 
     @property
     def maximum_time(self) -> str:
-        """Maximum time value for exporting time response. The default is 10 ns.
+        """Maximum time value for exporting time response. The default is ``10 ns``.
 
         Returns
         -------

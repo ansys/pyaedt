@@ -17,12 +17,12 @@ class LumpedTopology:
     _dll: CDLL
         FilterSolutions C++ API DLL.
     _dll_interface: DllInterface
-        an instance of DllInterface class
+        Instance of the ``DllInterface`` class
 
     Methods
     ----------
     _define_topology_dll_functions:
-        Define argument types of DLL function.
+        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -144,7 +144,7 @@ class LumpedTopology:
 
     @property
     def generator_resistor(self) -> str:
-        """Generator resistor. The default is `50`.
+        """Generator resistor. The default is ``50``.
 
         Returns
         -------
@@ -159,7 +159,7 @@ class LumpedTopology:
 
     @property
     def load_resistor(self) -> str:
-        """Load resistor. The default is `50`.
+        """Load resistor. The default is ``50``.
 
         Returns
         -------
@@ -174,7 +174,7 @@ class LumpedTopology:
 
     @property
     def current_source(self) -> bool:
-        """Whether to implement current source in synthesized circuit . The default is `False`.
+        """Flag indicating if the current source in synthesized circuit is enabled.
 
         Returns
         -------
@@ -192,9 +192,8 @@ class LumpedTopology:
 
     @property
     def first_shunt(self) -> bool:
-        """Whether to implement shunt element(s) as first element(s) in synthesized circuit .
-        The default is `True` for shunt element(s).
-        If `False` implements series element(s) as first element(s) in synthesized circuit .
+        """Flag indicating if the shunt element(s) as first element(s) in synthesized circuit is enabled.
+        If ``False`` implements series element(s) as first element(s) in synthesized circuit .
 
         Returns
         -------
@@ -212,8 +211,7 @@ class LumpedTopology:
 
     @property
     def bridge_t(self) -> bool:
-        """Whether to implement bridgeT topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the bridgeT topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -231,8 +229,7 @@ class LumpedTopology:
 
     @property
     def bridge_t_low(self) -> bool:
-        """Whether to implement bridgeT topology for lower frequency band in synthesized diplexer.
-        The default is `False`
+        """Flag indicating if the bridgeT topology for lower frequency band in synthesized circuit is enabled.
 
         Returns
         -------
@@ -250,8 +247,7 @@ class LumpedTopology:
 
     @property
     def bridge_t_high(self) -> bool:
-        """Whether to implement bridgeT topology for higher frequency band in synthesized diplexer.
-        The default is `False`
+        """Flag indicating if the bridgeT topology for higher frequency band in synthesized circuit is enabled.
 
         Returns
         -------
@@ -269,8 +265,7 @@ class LumpedTopology:
 
     @property
     def equal_inductors(self) -> bool:
-        """Whether to implement equal inductors topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the equal inductors topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -288,8 +283,7 @@ class LumpedTopology:
 
     @property
     def equal_capacitors(self) -> bool:
-        """Whether to implement equal capacitors topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the equal capacitors topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -307,8 +301,7 @@ class LumpedTopology:
 
     @property
     def equal_legs(self) -> bool:
-        """Whether to implement equal pairs shunt or series legs topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the equal pairs shunt or series legs topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -326,8 +319,7 @@ class LumpedTopology:
 
     @property
     def high_low_pass(self) -> bool:
-        """Whether to implement high and low pass topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the high and low pass topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -345,8 +337,7 @@ class LumpedTopology:
 
     @property
     def high_low_pass_min_ind(self) -> bool:
-        """Whether to implement high and low pass topology with minimum inductors in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the high and low pass topology with minimum inductors in synthesized circuit is enabled.
 
         Returns
         -------
@@ -364,8 +355,7 @@ class LumpedTopology:
 
     @property
     def zig_zag(self) -> bool:
-        """Whether to implement zig zag topology with minimum inductors in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the zig zag topology with minimum inductors in synthesized circuit is enabled.
 
         Returns
         -------
@@ -383,8 +373,7 @@ class LumpedTopology:
 
     @property
     def min_ind(self) -> bool:
-        """Whether to implement minimum inductors topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the minimum inductors topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -402,8 +391,7 @@ class LumpedTopology:
 
     @property
     def min_cap(self) -> bool:
-        """Whether to implement minimum capacitors topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the minimum capacitors topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -421,8 +409,7 @@ class LumpedTopology:
 
     @property
     def set_source_res(self) -> bool:
-        """Whether to set matched source resistor for zig zag topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the matched source resistor for zig-zag topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -440,8 +427,7 @@ class LumpedTopology:
 
     @property
     def trap_topology(self) -> bool:
-        """Whether to implement trap topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the trap topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -459,8 +445,7 @@ class LumpedTopology:
 
     @property
     def node_cap_ground(self) -> bool:
-        """Whether to implement parasitic capacitors to ground topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the parasitic capacitors to ground topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -478,8 +463,7 @@ class LumpedTopology:
 
     @property
     def match_impedance(self) -> bool:
-        """Whether to implement automatic matched impedance topology in synthesized circuit .
-        The default is `False`
+        """Flag indicating if the automatic matched impedance topology in synthesized circuit is enabled.
 
         Returns
         -------
@@ -497,8 +481,7 @@ class LumpedTopology:
 
     @property
     def complex_termination(self) -> bool:
-        """Whether to select lumped filter complex termination.
-        The default is `False`
+        """Flag indicating if the lumped filter complex termination is enabled.
 
         Returns
         -------
@@ -516,8 +499,7 @@ class LumpedTopology:
 
     @property
     def complex_element_tune_enabled(self) -> bool:
-        """Whether to enable the element tune option.
-        The default is `True`.
+        """Flag indicating if the element tune option is enabled.
 
         Returns
         -------
