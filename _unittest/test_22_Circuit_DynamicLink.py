@@ -76,7 +76,7 @@ class TestClass:
         is_ironpython or config.get("skip_circuits", False), reason="Skipped because Desktop is crashing"
     )
     def test_02_add_subcircuits_3dlayout(self):
-        layout_design = "Galileo_G87173_205_cutout3"
+        layout_design = "layout_cutout"
         hfss3Dlayout_comp = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout(layout_design)
         assert hfss3Dlayout_comp.id == 86
         assert hfss3Dlayout_comp
@@ -248,10 +248,10 @@ class TestClass:
     @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_11_siwave_link(self):
-        model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
+        model = os.path.join(local_path, "example_models", test_subfloder, "siw_dc.siw")
         model_out = self.local_scratch.copyfile(model)
         self.local_scratch.copyfolder(
-            model + "averesults", os.path.join(self.local_scratch.path, "Galileo_um.siwaveresults")
+            model + "averesults", os.path.join(self.local_scratch.path, "siw_dc.siwaveresults")
         )
         siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
         assert siw_comp
