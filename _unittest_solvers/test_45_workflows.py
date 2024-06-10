@@ -3,7 +3,6 @@ import os
 import shutil
 
 import pyaedt
-from pyaedt import get_pyaedt_app
 from pyaedt import is_linux
 from _unittest.conftest import local_path
 
