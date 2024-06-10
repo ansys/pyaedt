@@ -25,6 +25,33 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('+')"]
 report = ["Data Table", "Rectangular Plot"]
 
+[voltage_line_maxwell]
+name = "Voltage_Line"
+description = "Voltage Drop along a Line"
+design_type = ["Maxwell 3D"]
+fields_type = ["Fields"]
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Ex,Ey,Ez>')",
+    "Operation('Real')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxR')",
+	"NameOfExpression('<Ex,Ey,Ez>')",
+	"Operation('Imag')",
+	"Operation('Tangent')",
+	"Operation('Dot')",
+	"EnterLine('assignment')",
+	"Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxI')",
+	"Operation('+')"]
+report = ["Data Table", "Rectangular Plot"]
+
 [voltage_drop]
 name = "Voltage_Drop"
 description = "Voltage Drop in Q3D"
@@ -37,4 +64,4 @@ constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
-report = ["Field_3D", "Rectangular Plot"]
+report = ["Field_3D", ]
