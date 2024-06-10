@@ -248,14 +248,14 @@ class TestClass:
     @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_11_siwave_link(self):
-        model = os.path.join(local_path, "example_models", test_subfloder, "siw_dc.siw")
+        model = os.path.join(local_path, "example_models", test_subfloder, "siwave_syz.siw")
         model_out = self.local_scratch.copyfile(model)
         self.local_scratch.copyfolder(
-            model + "averesults", os.path.join(self.local_scratch.path, "siw_dc.siwaveresults")
+            model + "averesults", os.path.join(self.local_scratch.path, "siwave_syz.siwaveresults")
         )
         siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
         assert siw_comp
-        assert len(siw_comp.pins) == 2
+        assert len(siw_comp.pins) == 4
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_12_create_interface_port(self):
