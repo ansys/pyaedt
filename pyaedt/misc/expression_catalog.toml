@@ -37,4 +37,4 @@ constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
-report = ["Field_3D"]
+report = ["Field_3D", "Rectangular Plot"]

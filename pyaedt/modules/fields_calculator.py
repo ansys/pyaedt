@@ -210,16 +210,29 @@ class FieldsCalculator:
 
         for report_type in expression_info["report"]:  # pragma: no cover
             if report_type in ["Data Table", "Rectangular Plot"]:
-                if "CG Fields" in fields_type and self.design_type == "Q3D Extractor":
-                    report = self.__app.post.reports_by_category.cg_fields(names, setup)
-                elif "DC R/L Fields" in fields_type and self.design_type == "Q3D Extractor":
-                    report = self.__app.post.reports_by_category.dc_fields(names, setup)
+                assignment_report = assignment
+                primary_sweep_report = primary_sweep
+                if self.is_general_expression(calculation):
+                    # General expression to calculate the field over the polyline distance
+                    primary_sweep_report = "Distance"
                 else:
-                    report = self.__app.post.reports_by_category.fields(names, setup)
-                report.report_type = report_type
-                report.primary_sweep = primary_sweep
-                report.create()
-                reports.append(report)
+                    # Non-general expression does not need assignment
+                    assignment_report = [None]
+
+                if None in assignment_report or (
+                    not self.__has_integer(assignment_report) and self.__has_lines(assignment_report)
+                ):
+                    for assign in assignment_report:
+                        if "CG Fields" in fields_type and self.design_type == "Q3D Extractor":
+                            report = self.__app.post.reports_by_category.cg_fields(names, setup, polyline=assign)
+                        elif "DC R/L Fields" in fields_type and self.design_type == "Q3D Extractor":
+                            report = self.__app.post.reports_by_category.dc_fields(names, setup, polyline=assign)
+                        else:
+                            report = self.__app.post.reports_by_category.fields(names, setup, polyline=assign)
+                        report.report_type = report_type
+                        report.primary_sweep = primary_sweep_report
+                        report.create()
+                        reports.append(report)
             elif report_type in ["Field_3D"]:
                 intrinsic = {}
                 if self.design_type == "Q3D Extractor":
@@ -231,10 +244,11 @@ class FieldsCalculator:
                         )
                         reports.append(report)
                     else:
-                        report = self.__app.post.create_fieldplot_volume(
-                            quantity=names[0], assignment=assign, field_type=fields_type, intrinsics=intrinsic
-                        )
-                        reports.append(report)
+                        if assign not in self.__app.modeler.point_names and assign not in self.__app.modeler.line_names:
+                            report = self.__app.post.create_fieldplot_volume(
+                                quantity=names[0], assignment=assign, field_type=fields_type, intrinsics=intrinsic
+                            )
+                            reports.append(report)
         return reports
 
     @pyaedt_function_handler()
@@ -300,3 +314,18 @@ class FieldsCalculator:
                 is_general = False
                 break
         return is_general
+
+    @staticmethod
+    def __has_integer(lst):
+        """Check if list has integers."""
+        for item in lst:
+            if isinstance(item, int):
+                return True
+        return False
+
+    def __has_lines(self, lst):
+        """Check if list has lines."""
+        for item in lst:
+            if item not in self.__app.modeler.line_names:
+                return False
+        return True
