@@ -316,14 +316,14 @@ class FieldsCalculator:
         return is_general
 
     @staticmethod
-    def __has_integer(lst):
+    def __has_integer(lst):  # pragma: no cover
         """Check if list has integers."""
         for item in lst:
             if isinstance(item, int):
                 return True
         return False
 
-    def __has_lines(self, lst):
+    def __has_lines(self, lst):  # pragma: no cover
         """Check if list has lines."""
         for item in lst:
             if item not in self.__app.modeler.line_names:

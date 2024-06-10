@@ -163,7 +163,10 @@ class TestClass:
         assert name == "Voltage_Line"
         name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == name2
+        assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])
+        assert aedtapp.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
         assert aedtapp.post.fields_calculator.delete_expression(name)
+        assert aedtapp.post.fields_calculator.delete_expression()
         assert not aedtapp.post.fields_calculator.is_expression_defined(name)
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1_invented")
 
