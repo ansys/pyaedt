@@ -502,8 +502,6 @@ def download_sherlock(destination=None):
 
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_sherlock()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
     if not destination:
         destination = EXAMPLES_PATH

@@ -808,7 +808,7 @@ class TestClass:
 
     def test_96_change_nets_visibility(self, add_app):
         project_name = "ipc_out"
-        design_name = "Galileo_um"
+        design_name = "layout"
         hfss3d = add_app(application=Hfss3dLayout, project_name=project_name, design_name=design_name, just_open=True)
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)
