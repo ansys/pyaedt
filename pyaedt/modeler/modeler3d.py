@@ -1235,6 +1235,42 @@ class Modeler3D(Primitives3D):
                 == {}
             ):
                 del nas_to_dict["Assemblies"][assembly]
+        for ass_name, ass in nas_to_dict["Assemblies"].items():
+
+            def reduce(lines):
+                reduced = False
+                nls = []
+                for segment in lines:
+                    found = False
+                    for nl in nls:
+                        # if segment[0] in nl[0::2] or segment[1] in nl[1::2]:
+                        #     nls.append(segment)
+                        #     found = True
+                        #     break
+                        if segment[0] in nl[1::2]:
+                            nls[nls.index(nl)] = (
+                                nl[: nl.index(segment[0]) + 1] + segment + nl[nl.index(segment[0]) + 1 :]
+                            )
+                            found = True
+                            reduced = True
+                            break
+                        elif segment[-1] in nl[0::2]:
+                            nls[nls.index(nl)] = nl[: nl.index(segment[-1])] + segment + nl[nl.index(segment[-1]) :]
+                            found = True
+                            reduced = True
+                            break
+                    if not found:
+                        nls.append(segment)
+                return [list(dict.fromkeys(i)) for i in nls], reduced
+
+            if ass["Lines"]:
+                for lname, lines in ass["Lines"].items():
+                    new_lines = lines[::]
+                    is_reduced = True
+                    while is_reduced:
+                        new_lines, is_reduced = reduce(new_lines)
+                    ass["Lines"][lname] = new_lines
+
         return nas_to_dict
 
     @pyaedt_function_handler()
@@ -1391,13 +1427,13 @@ class Modeler3D(Primitives3D):
             else:  # pragma: no cover
                 pl = pv.Plotter()
             dargs = dict(show_edges=True)
-            css4_colors = list(CSS4_COLORS.values())
             colors = []
             color_by_assembly = True
             if len(nas_to_dict["Assemblies"]) == 1:
                 color_by_assembly = False
 
             def preview_pyvista(dict_in):
+                css4_colors = list(CSS4_COLORS.values())
                 k = 0
                 p_out = nas_to_dict["Points"][::]
                 for assembly in dict_in["Assemblies"].values():
@@ -1436,6 +1472,7 @@ class Modeler3D(Primitives3D):
                 k = 0
                 pl.reset_camera()
                 pl.subplot(0, 1)
+                css4_colors = list(CSS4_COLORS.values())
                 for output_stl in output_stls:
                     mesh = pv.read(output_stl)
                     h = css4_colors[k].lstrip("#")
@@ -1462,6 +1499,7 @@ class Modeler3D(Primitives3D):
                     merge_planar_faces=enable_stl_merge,
                 )
                 self.logger.info("Model {} imported".format(os.path.split(output_stl)[-1]))
+            self._app.save_project()
             if group_parts:
                 self.logger.info("Grouping parts...")
                 aedt_objs = self.object_names[::]
@@ -1495,6 +1533,7 @@ class Modeler3D(Primitives3D):
                             ["ParentGroup:=", new_name],
                         )
                 self.logger.info("Parts grouped")
+                self._app.save_project()
 
         if import_lines:
             self.logger.info("Importing lines. This operation can take time....")
@@ -1507,21 +1546,31 @@ class Modeler3D(Primitives3D):
                         id = 0
                         for line in lines:
                             try:
-                                points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                                # points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                                points = [nas_to_dict["Points"][i] for i in line]
                             except KeyError:
                                 continue
-                            if lines_thickness:
-                                polys.append(
-                                    self.create_polyline(
-                                        points,
-                                        name="Poly_{}_{}".format(line_name, id),
-                                        xsection_type="Circle",
-                                        xsection_width="x_section_{}".format(line_name),
-                                        xsection_num_seg=6,
-                                    )
-                                )
+                            p_line = self.create_polyline(
+                                points,
+                                name="Poly_{}_{}".format(line_name, id),
+                                xsection_type="Circle" if lines_thickness else None,
+                                xsection_width="x_section_{}".format(line_name) if lines_thickness else None,
+                            )
+
+                            if p_line:
+                                polys.append(p_line)
                             else:
-                                polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
+                                self.logger.warning("Failed to create Polyline as a union of segments.")
+                                self.logger.warning("Trying to create single segments.")
+                                for i in range(len(points) - 1):
+                                    p_line = self.create_polyline(
+                                        points[i : i + 2],
+                                        name=generate_unique_name("Poly_{}_{}".format(line_name, id)),
+                                        xsection_type="Circle" if lines_thickness else None,
+                                        xsection_width="x_section_{}".format(line_name) if lines_thickness else None,
+                                    )
+                                    if p_line:
+                                        polys.append(p_line)
                             id += 1
                         if group_parts:
                             pids = [i.name for i in polys]
