@@ -76,7 +76,7 @@ def frontend():  # pragma: no cover
         if aedtapp.design_type in expression_info["design_type"]:
             if "Transient" in aedtapp.solution_type and "Transient" in expression_info["solution_type"]:
                 available_descriptions[expression] = expression_info["description"]
-            elif "Transient" not in aedtapp.solution_type:
+            elif "Transient" not in aedtapp.solution_type and "Transient" not in expression_info["solution_type"]:
                 available_descriptions[expression] = expression_info["description"]
 
     available_setups = aedtapp.existing_analysis_sweeps
