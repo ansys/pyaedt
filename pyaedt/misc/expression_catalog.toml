@@ -1,8 +1,11 @@
+# Voltage
+
 [voltage_line]
 name = "Voltage_Line"
-description = "Voltage Drop along a Line"
+description = "Voltage drop along a line"
 design_type = ["HFSS", "Q3D Extractor"]
 fields_type = ["Fields", "CG Fields"]
+solution_type = ""
 primary_sweep = "Freq"
 assignment = ""
 assignment_type = ["Line"]
@@ -25,11 +28,30 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('+')"]
 report = ["Data Table", "Rectangular Plot"]
 
+[voltage_line_time]
+name = "Voltage_Line"
+description = "Voltage drop along a line"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = "Transient"
+primary_sweep = "Time"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E_t')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')"
+]
+report = ["Data Table", "Rectangular Plot"]
+
 [voltage_line_maxwell]
 name = "Voltage_Line"
-description = "Voltage Drop along a Line"
+description = "Voltage drop along a line"
 design_type = ["Maxwell 3D"]
 fields_type = ["Fields"]
+solution_type = ""
 primary_sweep = "Freq"
 assignment = ""
 assignment_type = ["Line"]
@@ -54,9 +76,10 @@ report = ["Data Table", "Rectangular Plot"]
 
 [voltage_drop]
 name = "Voltage_Drop"
-description = "Voltage Drop in Q3D"
+description = "Voltage drop in Q3D"
 design_type = ["Q3D Extractor"]
 fields_type = ["DC R/L Fields"]
+solution_type = ""
 primary_sweep = "Freq"
 assignment = ""
 assignment_type = ["Line", "Face", "Solid"]
@@ -64,4 +87,51 @@ constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
-report = ["Field_3D", ]
+report = ["Field_3D"]
+
+# Current
+
+[current_line]
+name = "Current_Line"
+description = "Current along a line"
+design_type = ["HFSS", "Q3D Extractor"]
+fields_type = ["Fields", "CG Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+    "Operation('Real')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxR')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Imag')",
+	"Operation('Tangent')",
+	"Operation('Dot')",
+	"EnterLine('assignment')",
+	"Operation('LineValue')",
+	"Operation('Integrate')",
+	"Operation('CmplxI')",
+	"Operation('+')"]
+report = ["Data Table", "Rectangular Plot"]
+
+[current_line_time]
+name = "Current_Line"
+description = "Current along a line"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = "Transient"
+primary_sweep = "Time"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('H_t')",
+    "Operation('Tangent')",
+    "Operation('Dot')",
+    "EnterLine('assignment')",
+    "Operation('LineValue')",
+	"Operation('Integrate')"]
+report = ["Data Table", "Rectangular Plot"]
