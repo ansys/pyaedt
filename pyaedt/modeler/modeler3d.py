@@ -1554,7 +1554,7 @@ class Modeler3D(Primitives3D):
                                 points,
                                 name="Poly_{}_{}".format(line_name, id),
                                 xsection_type="Circle" if lines_thickness else None,
-                                xsection_width="x_section_{}".format(line_name) if lines_thickness else None,
+                                xsection_width="x_section_{}".format(line_name) if lines_thickness else 1,
                             )
 
                             if p_line:
@@ -1567,7 +1567,7 @@ class Modeler3D(Primitives3D):
                                         points[i : i + 2],
                                         name=generate_unique_name("Poly_{}_{}".format(line_name, id)),
                                         xsection_type="Circle" if lines_thickness else None,
-                                        xsection_width="x_section_{}".format(line_name) if lines_thickness else None,
+                                        xsection_width="x_section_{}".format(line_name) if lines_thickness else 1,
                                     )
                                     if p_line:
                                         polys.append(p_line)
