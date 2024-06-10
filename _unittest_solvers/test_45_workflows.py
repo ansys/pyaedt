@@ -3,14 +3,15 @@ import os
 import shutil
 
 import pyaedt
+from pyaedt import get_pyaedt_app
 from pyaedt import is_linux
-# from _unittest_solvers.conftest import local_path as solver_local_path
 from _unittest.conftest import local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
+fields_calculator = "fields_calculator_solved"
 
 test_subfolder = "T45"
 
@@ -149,4 +150,54 @@ class TestClass:
 
         circuit = pyaedt.Circuit()
         assert len(circuit.modeler.schematic.components) == 10
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_08_advanced_fields_calculator_non_general(self, add_app):
+        aedtapp = add_app(application=pyaedt.Hfss,
+                          project_name=fields_calculator,
+                          subfolder=test_subfolder)
+
+        name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        assert name == "Voltage_Line"
+        name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        assert name == name2
+        assert aedtapp.post.fields_calculator.delete_expression(name)
+        assert not aedtapp.post.fields_calculator.is_expression_defined(name)
+        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1_invented")
+
+        from pyaedt.workflows.project.advanced_fields_calculator import main
+
+        assert main({"is_test": True,
+                     "setup": "Setup1 : LastAdaptive",
+                     "calculation": "voltage_line",
+                     "assignment": ["Polyline1", "Polyline2"]})
+
+        assert len(aedtapp.post.all_report_names) == 4
+
+        assert not main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "",
+                         "assignment": ["Polyline1", "Polyline2"]})
+
+        assert not main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "voltage_line_invented",
+                         "assignment": ["Polyline1", "Polyline2"]})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_09_advanced_fields_calculator_general(self, add_app):
+        aedtapp = add_app(application=pyaedt.Q3d,
+                          project_name=fields_calculator,
+                          subfolder=test_subfolder)
+
+        from pyaedt.workflows.project.advanced_fields_calculator import main
+
+        assert main({"is_test": True,
+                     "setup": "Setup1 : LastAdaptive",
+                     "calculation": "voltage_drop",
+                     "assignment": ["Face9", "inner"]})
+
+        assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
+
         aedtapp.close_project(aedtapp.project_name)

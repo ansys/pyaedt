@@ -190,8 +190,6 @@ class FieldsCalculator:
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
 
-        reports = []
-
         for name in names:
             if not self.is_expression_defined(name):
                 self.__app.logger.error("Named expression not available.")
@@ -208,7 +206,9 @@ class FieldsCalculator:
         fields_type = expression_info["fields_type"]
         primary_sweep = expression_info["primary_sweep"]
 
-        for report_type in expression_info["report"]:
+        reports = []
+
+        for report_type in expression_info["report"]:  # pragma: no cover
             if report_type in ["Data Table", "Rectangular Plot"]:
                 if "CG Fields" in fields_type and self.design_type == "Q3D Extractor":
                     report = self.__app.post.reports_by_category.cg_fields(names, setup)

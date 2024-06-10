@@ -70,7 +70,6 @@ def frontend():  # pragma: no cover
     aedtapp = get_pyaedt_app(project_name, design_name)
 
     # Available fields calculator expressions
-    # available_expressions = aedtapp.post.fields_calculator.available_expressions
     available_expressions = aedtapp.post.fields_calculator.expression_catalog
     available_descriptions = {}
     for expression, expression_info in available_expressions.items():
@@ -176,7 +175,7 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    if active_design.GetDesignType() == "HFSS 3D Layout Design":
+    if active_design.GetDesignType() == "HFSS 3D Layout Design":  # pragma: no cover
         design_name = active_design.GetDesignName()
     else:
         design_name = active_design.GetName()
@@ -200,7 +199,16 @@ def main(extension_args):
 
     if not aedtapp.post.fields_calculator.is_general_expression(calculation):
         for assignment in assignments:
-            names.append(aedtapp.post.fields_calculator.add_expression(calculation, assignment))
+            name = aedtapp.post.fields_calculator.add_expression(
+                calculation, assignment, calculation + "_" + assignment
+            )
+            if name:
+                names.append(name)
+            else:
+                aedtapp.logger.error("Wrong assignment.")
+                if not extension_args["is_test"]:  # pragma: no cover
+                    app.release_desktop(False, False)
+                return False
     else:
         names.append(aedtapp.post.fields_calculator.add_expression(calculation, None))
 
