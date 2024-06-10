@@ -395,4 +395,5 @@ model.index\+
 
 # local environment settings used by e.g. Visual Studio Code
 /.env
-/.cov/**
+/doc/source/local_config.json
+/.cov/
