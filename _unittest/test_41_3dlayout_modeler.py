@@ -634,7 +634,7 @@ class TestClass:
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
-        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "layout.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
 
