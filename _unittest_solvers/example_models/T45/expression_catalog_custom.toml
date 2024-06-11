@@ -7,9 +7,7 @@ solution_type = ""
 primary_sweep = "Freq"
 assignment = ""
 assignment_type = ["Line", "Face", "Solid"]
-constants = {"dummy_parameter"= 3.3}
 operations = ["Fundamental_Quantity('E')",
-	"Operation('Mag')",
-    "Scalar_Function(FuncValue='dummy_parameter')",
-	"Operation('+')"]
-report = ["Field_3D"]
+	"Operation('Mag')"
+]
+report = ["Field_3D", "Rectangular Plot"]
