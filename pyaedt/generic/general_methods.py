@@ -963,6 +963,7 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
          ``None`` when licenser server is down.
     """
     import subprocess  # nosec B404
+    import tempfile
 
     aedt_install_folder = list(installed_versions().values())[0]
 
@@ -972,31 +973,43 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
         ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
     my_env = os.environ.copy()
 
+    tempfile_status = tempfile.mktemp(suffix=".txt")
+    tempfile_checkout = tempfile.mktemp(suffix=".txt")
+
     # License server status
     cmd = [ansysli_util_path, "-statli"]
 
-    p_stat = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
+    f = open(tempfile_status, "w")
 
-    output_stat = p_stat.communicate()
-    output_stat_str = str(output_stat[0])
-    output_stat_lst = output_stat_str.split("\\r\\n")
+    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
 
-    if len(output_stat_lst) == 5 and output_stat_lst[3] == "ansysli_server process could not be found.":
-        pyaedt_logger.info(output_stat_lst[3])
+    f.close()
+
+    is_server_down = False
+    with open_file(tempfile_status, "r") as f:
+        for line in f:
+            if line == "ansysli_server process could not be found.\n":
+                is_server_down = True
+                break
+
+    if is_server_down:
+        pyaedt_logger.info("License server process could not be found.")
         return None
 
     cmd = [ansysli_util_path, "-checkcount", str(count), "-checkout", feature]
 
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
-    output = p.communicate()
-    output_str = str(output[0])
-    output_lst = output_str.split("\\r\\n")
-    if len(output_lst) == 4:
-        out_str_msg = output_lst[0].split(",")
-        if len(out_str_msg) == 2:
-            pyaedt_logger.info(output_lst[0].split(",")[1])
-        else:
-            pyaedt_logger.info("Not enough increments.")
+    f = open(tempfile_checkout, "w")
+
+    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
+
+    f.close()
+
+    checkout_lines = []
+    with open_file(tempfile_checkout, "r") as f:
+        for line in f:
+            checkout_lines.append(line)
+    if "CHECKOUT FAILED" in checkout_lines[1] or len(checkout_lines) != 2:
+        pyaedt_logger.info(checkout_lines[0])
         return False
     return True
 
