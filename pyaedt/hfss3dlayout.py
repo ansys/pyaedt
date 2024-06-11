@@ -74,7 +74,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
     ic_mode : bool, optional
-        Whether to set the design to IC mode or not. The default is ``False``.
+        Whether to set the design to IC mode or not. The default is ``None``, which  means to retain
+        the existing setting.
 
     Examples
     --------
@@ -130,7 +131,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -707,8 +708,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             input_folder = os.path.join(input_folder, "edb.def")
         self.oimport_export.ImportEDB(input_folder)
         self._close_edb()
-        project_name = self.odesktop.GetActiveProject().GetName()
-        design_name = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[-1]
+        project_name = self.desktop_class.active_project().GetName()
+        design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
         self.__init__(projectname=project_name, designname=design_name)
         return True
 
@@ -1998,6 +1999,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         encoding="utf-8",
         include_post_effects=True,
         incident_voltage=True,
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -2026,7 +2028,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             Either if include or not post-processing effects. Default is `True`,
         incident_voltage : bool, optional
             Either if include or incident or total voltage. Default is `True`, for incident voltage.
-
+        window : str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
@@ -2042,6 +2045,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
         ds_name_mag = "ds_" + source.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + source.replace(":", "_mode_") + "_Angle"

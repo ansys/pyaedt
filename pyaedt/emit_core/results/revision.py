@@ -406,7 +406,7 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain, use_filter=False, filter_list=None):
+    def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
         """
         Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
@@ -550,7 +550,7 @@ class Revision:
         protection_levels=None,
         use_filter=False,
         filter_list=None,
-    ):
+    ):  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
 
@@ -733,10 +733,10 @@ class Revision:
     def get_license_session(self):
         """Get a license session.
 
-        A license session can be started with checkout(), and ended with checkin().
-        The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
+        A license session can be started with checkout(), and ended with check in().
+        The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
 
-        Avoids having to wait for license checkin and checkout when doing many runs.
+        Avoids having to wait for license check in and checkout when doing many runs.
 
         Examples
         --------

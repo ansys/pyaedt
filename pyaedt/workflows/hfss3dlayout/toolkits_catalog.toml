@@ -1,0 +1,6 @@
+[Export3D]
+name = "Export to 3D"
+script = "export_to_3d.py"
+icon = "images/large/cad3d.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

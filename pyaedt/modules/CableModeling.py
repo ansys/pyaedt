@@ -6,6 +6,7 @@ from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 
 
@@ -109,6 +110,7 @@ class Cable:
         if json_file_name:
             self._init_from_json(json_file_name)
 
+    @pyaedt_function_handler()
     def create_cable(self):
         """Create a cable.
 
@@ -230,6 +232,7 @@ class Cable:
             self._app.logger.error("Cable creation was unsuccessful.")
             return False
 
+    @pyaedt_function_handler()
     def update_cable_properties(self):
         """Update cable properties for all cable types.
 
@@ -303,6 +306,7 @@ class Cable:
             self._app.logger.error("Cable properties not updated.")
             return False
 
+    @pyaedt_function_handler()
     def update_shielding(self):
         """Create jacket type when cable type is bundle and jacket type is braid shield.
 
@@ -350,6 +354,7 @@ class Cable:
             self._app.logger.error("Cable shielding properties not updated.")
             return False
 
+    @pyaedt_function_handler()
     def remove_cables(self):
         """Remove a list of cables.
 
@@ -374,6 +379,7 @@ class Cable:
                     self._app.logger.error("Remove cable failed.")
                     return False
 
+    @pyaedt_function_handler()
     def add_cable_to_bundle(self):
         """Add a cable to an existing cable bundle.
 
@@ -400,6 +406,7 @@ class Cable:
             self._app.logger.error("There is not any cable with the provided name.")
             return False
 
+    @pyaedt_function_handler()
     def create_clock_source(self):
         """Create a clock source.
 
@@ -432,6 +439,7 @@ class Cable:
             self._app.logger.error("Clock source not created.")
             return False
 
+    @pyaedt_function_handler()
     def update_clock_source(self):
         """Update clock source.
 
@@ -465,6 +473,7 @@ class Cable:
             self._app.logger.error("Clock source not created.")
             return False
 
+    @pyaedt_function_handler()
     def remove_source(self):
         """Remove source.
 
@@ -480,6 +489,7 @@ class Cable:
             self._app.logger.error("Source could not be removed.")
             return False
 
+    @pyaedt_function_handler()
     def remove_all_sources(self):
         """Remove all sources.
 
@@ -497,6 +507,7 @@ class Cable:
             self._app.logger.error("Source could not be removed.")
             return False
 
+    @pyaedt_function_handler()
     def create_pwl_source(self):
         """Create a clock source.
 
@@ -523,6 +534,7 @@ class Cable:
             self._app.logger.error("PWL source not created.")
             return False
 
+    @pyaedt_function_handler()
     def create_pwl_source_from_file(self):
         """Create a pwl source from file.
 
@@ -540,6 +552,7 @@ class Cable:
             self._app.logger.error("PWL source from file not created.")
             return False
 
+    @pyaedt_function_handler()
     def update_pwl_source(self):
         """Update pwl source.
 
@@ -581,6 +594,7 @@ class Cable:
             self._app.logger.error("PWL source not created.")
             return False
 
+    @pyaedt_function_handler()
     def create_cable_harness(self):
         """Create cable harness.
 

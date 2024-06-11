@@ -2,11 +2,14 @@ from abc import abstractmethod
 from collections import OrderedDict
 import warnings
 
+from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modules.Mesh import MeshOperation
 from pyaedt.modules.Mesh import meshers
 
@@ -465,13 +468,6 @@ class MeshSettings(object):
             for arg in self._aedt_20212_args:
                 del self._instance_settings[arg]
 
-    @pyaedt_function_handler()
-    def _dim_arg(self, value):
-        if isinstance(value, str):
-            return value
-        else:
-            return _dim_arg(value, getattr(self._mesh_class, "_model_units"))
-
     def parse_settings_as_args(self):
         """
         Parse mesh region settings.
@@ -485,7 +481,7 @@ class MeshSettings(object):
         for k, v in self._instance_settings.items():
             out.append(k + ":=")
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = self._dim_arg(v)
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out.append(v)
         return out
 
@@ -499,18 +495,12 @@ class MeshSettings(object):
             Settings of the subregion.
         """
         out = {}
-        for k, v in self._instance_settings.items():
+        for k in self.keys():
+            v = self._instance_settings[k]
             if k in ["MaxElementSizeX", "MaxElementSizeY", "MaxElementSizeZ", "MinGapX", "MinGapY", "MinGapZ"]:
-                v = self._dim_arg(v)
+                v = _dim_arg(v, getattr(self._mesh_class, "_model_units"))
             out[k] = v
         return out
-
-    def _key_in_dict(self, key):
-        if self._mesh_class.manual_settings:
-            ref_dict = self._manual_mesh_settings
-        else:
-            ref_dict = self._automatic_mesh_settings
-        return key in ref_dict or key in self._common_mesh_settings
 
     def keys(self):
         """
@@ -521,7 +511,10 @@ class MeshSettings(object):
         dict_keys
             Available settings keys.
         """
-        return self.parse_settings_as_dictionary().keys()
+        if self._mesh_class.manual_settings:
+            return set(self._manual_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
+        else:
+            return set(self._automatic_mesh_settings.keys()) | set(self._common_mesh_settings.keys())
 
     def values(self):
         """
@@ -534,21 +527,32 @@ class MeshSettings(object):
         """
         return self.parse_settings_as_dictionary().values()
 
+    def items(self):
+        """
+        Get mesh region settings items.
+
+        Returns
+        -------
+        dict_items
+            Settings items.
+        """
+        return self.parse_settings_as_dictionary().items()
+
     def __repr__(self):
         return repr(self.parse_settings_as_dictionary())
 
     def __getitem__(self, key):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             return self._instance_settings[key]
         else:
             raise KeyError("Setting not available.")
 
     def __setitem__(self, key, value):
-        if key == "Level":
+        if key == "Level":  # backward compatibility
             key = "MeshRegionResolution"
-        if self._key_in_dict(key):
+        if key in self.keys():
             if key == "MeshRegionResolution":
                 try:
                     value = int(value)
@@ -572,13 +576,13 @@ class MeshSettings(object):
         self._app.logger.error("Setting cannot be removed.")
 
     def __iter__(self):
-        return self._instance_settings.__iter__()
+        return iter(self.keys())
 
     def __len__(self):
-        return self._instance_settings.__len__()
+        return len(self.keys())
 
     def __contains__(self, x):
-        return self._instance_settings.__contains__(x)
+        return x in self.keys()
 
 
 class MeshRegionCommon(object):
@@ -1066,8 +1070,13 @@ class IcepakMesh(object):
                                 "Icepak",
                             )
                         )
-        except Exception as e:
-            self._app.logger.error(e)
+        except TypeError:
+            # design_properties not loaded, maybe there are mesh region, we need to warn the user
+            self._app.logger.warning("No mesh operation found.")
+            self._app.logger.debug("Failed to get mesh operation from `design_properties`.")
+        except KeyError:
+            # design_properties loaded, mesh region related keys missing, no need to warn the user
+            self._app.logger.debug("Failed to get mesh operation.")
 
         return meshops
 
@@ -1103,8 +1112,13 @@ class IcepakMesh(object):
                             if el in meshop.__dict__:
                                 meshop.__dict__[el] = dict_prop[el]
                         meshops.append(meshop)
-        except Exception as e:
-            self._app.logger.error(e)
+        except TypeError:
+            # design_properties not loaded, maybe there are mesh region, we need to warn the user
+            self._app.logger.warning("No mesh region found.")
+            self._app.logger.debug("Failed to get mesh region from `design_properties`.")
+        except KeyError:
+            # design_properties loaded, mesh region related keys missing, no need to warn the user
+            self._app.logger.debug("Failed to get mesh region.")
 
         return meshops
 
@@ -1269,9 +1283,93 @@ class IcepakMesh(object):
         self.global_mesh_region.update()
         return True
 
+    @pyaedt_function_handler()
+    def assign_priorities(self, assignment):
+        """Set objects priorities.
+
+        Parameters
+        ----------
+        assignment : List[List[Union[Object3d, UserDefinedComponent, str]
+            List of lists of objects. Each list corresponds to one priority level from low to high.
+            This means that the first list has the lowest priority while the last list
+            has the highest priority. Objects not explicitly passed in the lists are assigned
+            to a priority level lower than the objects in the first list.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, "False" when failed.
+
+        References
+        ----------
+
+        >>> oEditor.UpdatePriorityList
+
+        Examples
+        --------
+
+        >>> ipk.mesh.assign_priorities([["Box1", "Rectangle1"], ["Box2", "Fan1_1"], ["Heatsink1_1"]])
+        """
+        if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
+            raise AttributeError("``assignment`` input must be a list of lists.")
+        props = {"PriorityListParameters": []}
+        for level, objects in enumerate(assignment):
+            level += 1
+            if isinstance(objects[0], str):
+                objects = [
+                    self.modeler.objects_by_name.get(o, self.modeler.user_defined_components.get(o, None))
+                    for o in objects
+                ]
+            obj_3d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and o.is3d)
+                or (isinstance(o, UserDefinedComponent) and any(p.is3d for p in o.parts.values()))
+            ]
+            obj_2d = [
+                o
+                for o in objects
+                if (isinstance(o, Object3d) and not o.is3d)
+                or (isinstance(o, UserDefinedComponent) and any(not p.is3d for p in o.parts.values()))
+            ]
+            if obj_3d:
+                level_3d = {
+                    "EntityList": ", ".join([o.name for o in obj_3d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "3D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_3d):
+                    level_3d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_3d):
+                    level_3d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_3d)
+            if obj_2d:
+                level_2d = {
+                    "EntityList": ", ".join([o.name for o in obj_2d]),
+                    "PriorityNumber": level,
+                    "PriorityListType": "2D",
+                }
+                if all(isinstance(o, Object3d) for o in obj_2d):
+                    level_2d["EntityType"] = "Object"
+                elif all(isinstance(o, UserDefinedComponent) for o in obj_2d):
+                    level_2d["EntityType"] = "Component"
+                else:
+                    raise AttributeError("Cannot assign components and parts on the same level.")
+                props["PriorityListParameters"].append(level_2d)
+        props = {"UpdatePriorityListData": props}
+        args = []
+        _dict2arg(props, args)
+        self.modeler.oeditor.UpdatePriorityList(args[0])
+        return True
+
     @pyaedt_function_handler(obj_list="assignment", comp_name="component")
     def add_priority(self, entity_type, assignment=None, component=None, priority=3):
         """Add priority to objects.
+
+        .. deprecated:: 0.9.1
+        Use :func:`assign_priorities` function instead.
 
         Parameters
         ----------
@@ -1304,6 +1402,7 @@ class IcepakMesh(object):
         >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
         >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
         """
+        warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
         i = priority
 
         args = ["NAME:UpdatePriorityListData"]

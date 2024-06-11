@@ -2537,11 +2537,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:  # pragma: no cover
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:  # pragma: no cover
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
@@ -2719,11 +2720,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
 
         export_options = [
             "NAME:ExportOption",
@@ -2870,11 +2872,12 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 variation.append("Freq:=")
                 variation.append(intrinsics)
-                variation.append("Phase:=")
-                if phase:
-                    variation.append(phase)
-                else:
-                    variation.append("0deg")
+                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
+                    variation.append("Phase:=")
+                    if phase:
+                        variation.append(phase)
+                    else:
+                        variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)
@@ -3056,7 +3059,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -3116,7 +3119,7 @@ class PostProcessor(PostProcessorCommon, object):
         except Exception:
             pass
         self._desktop.TileWindows(0)
-        self._oproject.SetActiveDesign(self._app.design_name)
+        self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
@@ -4708,6 +4711,27 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
+    @pyaedt_function_handler()
+    def set_tuning_offset(self, setup, offsets):
+        """Set derivative variable to a specific offset value.
+
+        Parameters
+        ----------
+        setup : str
+            Setup name.
+        offsets : dict
+            Dictionary containing the variable name and it's offset value.
+
+        Returns
+        -------
+        bool
+        """
+        setup_obj = self._app.get_setup(setup)
+        if setup_obj and "set_tuning_offset" in dir(setup_obj):
+            return setup_obj.set_tuning_offset(offsets)
+        self.logger.error("Tuning offset applies only to solved setup with derivatives enabled.")
+        return False
+
 
 class CircuitPostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT Nexxim postprocessing functions.
@@ -5078,7 +5102,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         --------
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setup_name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
 
         """
 
@@ -5407,7 +5431,11 @@ class FieldSummary:
             if pandas_output:
                 if pd is None:
                     raise ImportError("pandas package is needed.")
-                return pd.DataFrame.from_dict(out_dict)
+                df = pd.DataFrame.from_dict(out_dict)
+                for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
+                    if col in df.columns:
+                        df[col] = df[col].astype(float)
+                return df
         return out_dict
 
     @pyaedt_function_handler(filename="output_file", design_variation="variations", setup_name="setup")

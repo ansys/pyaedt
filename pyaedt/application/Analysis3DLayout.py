@@ -54,7 +54,8 @@ class FieldAnalysis3DLayout(Analysis):
         Specifies by process ID the instance of AEDT to point PyAEDT at.
         This parameter is only used when ``new_desktop_session=False``.
     ic_mode : bool, optional
-        Whether to set the design to IC mode. The default is ``False``.
+        Whether to set the design to IC mode. The default is ``None``, which means to retain the
+        existing setting.
 
     """
 
@@ -73,7 +74,7 @@ class FieldAnalysis3DLayout(Analysis):
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
     ):
         Analysis.__init__(
             self,
@@ -182,15 +183,15 @@ class FieldAnalysis3DLayout(Analysis):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variation_string="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
+    def export_mesh_stats(self, setup, variations="", mesh_path=None):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
         setup : str
             Setup name.
-        variation_string : str, optional
+        variations : str, optional
             Variation List.
         mesh_path : str, optional
             Full path to mesh statistics file. If `None` working_directory will be used.
@@ -198,7 +199,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         str
-            File Path.
+            Path to the mesh statistics file.
 
         References
         ----------
@@ -207,7 +208,7 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variation_string, mesh_path)
+        self.odesign.ExportMeshStats(setup, variations, mesh_path)
         return mesh_path
 
     @property

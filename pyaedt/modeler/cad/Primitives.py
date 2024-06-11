@@ -69,11 +69,11 @@ class Objects(dict):
                 self.__parent.cleanup_solids()
                 self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "p":
-                self.__parent.logger.info("Parsing design points. This operation can take time")
-                self.__parent.logger.reset_timer()
+                # self.__parent.logger.info("Parsing design points. This operation can take time")
+                # self.__parent.logger.reset_timer()
                 self.__parent.add_new_points()
                 self.__parent.cleanup_points()
-                self.__parent.logger.info_timer("3D Modeler objects parsed.")
+                # self.__parent.logger.info_timer("3D Modeler objects parsed.")
             elif self.__obj_type == "u":
                 self.__parent.add_new_user_defined_component()
 
@@ -123,7 +123,6 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    @pyaedt_function_handler()
     def __getitem__(self, item):
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
@@ -208,11 +207,20 @@ class GeometryModeler(Modeler):
             return partId
         try:
             return self.objects[partId]
-        except Exception:
-            if partId in self.user_defined_components.keys():
-                return self.user_defined_components[partId]
-        self.logger.error("Object '{}' not found.".format(partId))
-        return None
+        except KeyError:
+            pass
+        try:
+            return self.user_defined_components[partId]
+        except KeyError:
+            pass
+        try:
+            return self.planes[partId]
+        except KeyError:
+            pass
+        try:
+            return self.points[partId]
+        except KeyError:
+            return
 
     def __init__(self, app, is3d=True):
         self._app = app
@@ -1103,13 +1111,13 @@ class GeometryModeler(Modeler):
         if material is not None:
             for obj in self.object_list:
                 if obj and ("[" in obj.material_name or "(" in obj.material_name) and obj.object_type == "Solid":
-                    material = (
+                    found_material = (
                         self._app.odesign.GetChildObject("3D Modeler")
                         .GetChildObject(obj.name)
                         .GetPropEvaluatedValue("Material")
                         .lower()
                     )
-                    if material.lower() == material:
+                    if found_material == material.lower():
                         obj_lst.append(obj)
                 elif obj and (obj.material_name == material or obj.material_name == material.lower()):
                     obj_lst.append(obj)
@@ -4612,6 +4620,11 @@ class GeometryModeler(Modeler):
         separate_disjoints_lumped_object=False,
         import_free_surfaces=False,
         point_coicidence_tolerance=1e-6,
+        heal_stl=True,
+        reduce_stl=False,
+        reduce_percentage=0,
+        reduce_error=0,
+        merge_planar_faces=True,
     ):
         """Import a CAD model.
 
@@ -4643,6 +4656,16 @@ class GeometryModeler(Modeler):
             Either to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
+        heal_stl : bool, optional
+            Whether to heal the stl file on import or not. Default is ``True``.
+        reduce_stl : bool, optional
+            Whether to reduce the stl file on import or not. Default is ``True``.
+        reduce_percentage : int, optional
+            Stl reduce percentage. Default is  ``0``.
+        reduce_error : int, optional
+            Stl error percentage during reduce operation. Default is  ``0``.
+        merge_planar_faces : bool, optional
+            Stl automatic planar face merge during import. Default is ``True``.
 
         Returns
         -------
@@ -4668,7 +4691,14 @@ class GeometryModeler(Modeler):
         vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
-        vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
+        vArg1.append("MergeFacesAngle:="), vArg1.append(
+            0.02 if input_file.endswith(".stl") and merge_planar_faces else -1
+        )
+        if input_file.endswith(".stl"):
+            vArg1.append("HealSTL:="), vArg1.append(heal_stl)
+            vArg1.append("ReduceSTL:="), vArg1.append(reduce_stl)
+            vArg1.append("ReduceMaxError:="), vArg1.append(reduce_error)
+            vArg1.append("ReducePercentage:="), vArg1.append(reduce_percentage)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
@@ -5369,7 +5399,7 @@ class GeometryModeler(Modeler):
         if components is None and groups is None and objects is None:
             raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
 
-        all_objects = self.object_names
+        all_objects = self.object_names[:] + self.oeditor.GetChildNames("Groups")[::]
         if objects:
             object_selection = self.convert_to_selections(objects, return_list=False)
         else:
@@ -5395,7 +5425,9 @@ class GeometryModeler(Modeler):
             group_selection,
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
-        if group_name and group_name not in all_objects:
+        if group_name and group_name in all_objects:
+            group_name = generate_unique_name(group_name, n=2)
+        if group_name:
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -5407,8 +5439,7 @@ class GeometryModeler(Modeler):
                 ]
             )
             return group_name
-        else:
-            return assigned_name
+        return assigned_name
 
     @pyaedt_function_handler()
     def ungroup(self, groups):
@@ -8657,7 +8688,7 @@ class PrimitivesBuilder(object):
 
                 from pyaedt.generic.general_methods import read_csv_pandas
 
-                csv_data = read_csv_pandas(filename=input_file)
+                csv_data = read_csv_pandas(input_file=input_file)
                 primitive_type = csv_data.columns[0]
                 primitive_type_cleaned = re.sub(r"^#\s*", "", primitive_type)
 

@@ -359,7 +359,8 @@ class TestClass:
         assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_04i_3dl_get_all_insertion_loss_list(self):
-        assert self.hfss3dl_solve.get_all_insertion_loss_list(tx_prefix="Port1", rx_prefix="Port2") == ['S(Port1,Port2)']
+        assert self.hfss3dl_solve.get_all_insertion_loss_list(drivers_prefix_name="Port1",
+                                                              receivers_prefix_name="Port2") == ['S(Port1,Port2)']
 
     def test_04j_3dl_get_next_xtalk_list(self):
         assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
@@ -405,13 +406,13 @@ class TestClass:
                                                   use_number_of_last_cycles=True, last_cycles_number=3,
                                                   calculate_force="Harmonic")
         m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
                                                                 number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep, variations={},
                                                    output_dir=fld_file_3, assignment="Coil_A2", objects_type="Surf",

@@ -8,6 +8,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from abc import abstractmethod
 from collections import OrderedDict
 import gc
 import json
@@ -39,6 +40,7 @@ from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -106,7 +108,8 @@ class Design(AedtObjects):
         Only used when ``new_desktop_session = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
     ic_mode : bool, optional
-        Whether to set the design to IC mode or not. The default is ``False``. Applicable only to ``Hfss3dLayout``.
+        Whether to set the design to IC mode or not. The default is ``None``, which means to retain
+        the existing setting. Applicable only to ``Hfss3dLayout``.
 
     """
 
@@ -201,7 +204,7 @@ class Design(AedtObjects):
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
     ):
 
         self.__t = None
@@ -274,6 +277,8 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
+        if not self._design_type == "Maxwell Circuit":
+            self.design_settings = DesignSettings(self)
 
     @property
     def desktop_class(self):
@@ -320,8 +325,12 @@ class Design(AedtObjects):
         bb = []
         if "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
+        elif "GetAllBoundariesList" in self.oboundary.__dir__() and self.design_type == "HFSS 3D Layout Design":
+            bb = list(self.oboundary.GetAllBoundariesList())
+            bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
+        bb = list(bb)
         if "GetHybridRegions" in self.oboundary.__dir__():
             hybrid_regions = self.oboundary.GetHybridRegions()
             for region in hybrid_regions:
@@ -335,6 +344,11 @@ class Design(AedtObjects):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+        elif "Excitations" in self.get_oo_name(self.odesign) and self.design_type == "HFSS 3D Layout Design":
+            ee = self.get_oo_name(self.odesign, "Excitations")
+            ee = [elem for sublist in zip(ee, ["Port"] * len(ee)) for elem in sublist]
+            current_excitations = ee[::2]
+            current_excitation_types = ee[1::2]
 
         # Parameters and Motion definitions
         if self.design_type in ["Maxwell 3D", "Maxwell 2D"]:
@@ -963,7 +977,7 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = os.path.join(self.toolkit_directory, name)
+        working_directory = os.path.join(os.path.normpath(self.toolkit_directory), name)
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
@@ -1019,7 +1033,7 @@ class Design(AedtObjects):
             if not self._check_design_consistency():
                 count_consistent_designs = 0
                 for des in self.design_list:
-                    self._odesign = self._oproject.SetActiveDesign(des)
+                    self._odesign = self.desktop_class.active_design(self.oproject, des, self.design_type)
                     if self._check_design_consistency():
                         count_consistent_designs += 1
                         activedes = des
@@ -1062,7 +1076,7 @@ class Design(AedtObjects):
         else:
             activedes, warning_msg = self._find_design()
             if activedes:
-                self._odesign = self.oproject.SetActiveDesign(activedes)
+                self._odesign = self.desktop_class.active_design(self.oproject, activedes, self.design_type)
                 self.logger.info(warning_msg)
                 self.design_solutions._odesign = self.odesign
 
@@ -1072,7 +1086,9 @@ class Design(AedtObjects):
                 self.design_solutions._odesign = self.odesign
                 if self._temp_solution_type:
                     self.design_solutions.solution_type = self._temp_solution_type
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        if self._ic_mode is not None and (
+            self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"
+        ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
 
     @property
@@ -1095,7 +1111,7 @@ class Design(AedtObjects):
     @oproject.setter
     def oproject(self, proj_name=None):
         if not proj_name:
-            self._oproject = self.odesktop.GetActiveProject()
+            self._oproject = self.desktop_class.active_project()
             if self._oproject:
                 self.logger.info(
                     "No project is defined. Project {} exists and has been read.".format(self._oproject.GetName())
@@ -1103,7 +1119,7 @@ class Design(AedtObjects):
         else:
             prj_list = self.odesktop.GetProjectList()
             if prj_list and proj_name in list(prj_list):
-                self._oproject = self.odesktop.SetActiveProject(proj_name)
+                self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
             elif os.path.exists(proj_name) or (
@@ -1114,7 +1130,7 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.odesktop.GetActiveProject()
+                    self._oproject = self.desktop_class.active_project()
                     self._add_handler()
                     self.logger.info(
                         "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
@@ -1126,7 +1142,7 @@ class Design(AedtObjects):
                         project = proj_name[:-5] + ".aedt"
                     if os.path.exists(project) and self.check_if_project_is_loaded(project):
                         pname = self.check_if_project_is_loaded(project)
-                        self._oproject = self.odesktop.SetActiveProject(pname)
+                        self._oproject = self.desktop_class.active_project(pname)
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
@@ -1143,7 +1159,7 @@ class Design(AedtObjects):
                             oTool.ImportEDB(proj_name)
                         else:
                             oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                        self._oproject = self.odesktop.GetActiveProject()
+                        self._oproject = self.desktop_class.active_project()
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(
@@ -1151,13 +1167,16 @@ class Design(AedtObjects):
                         )
                 elif self.check_if_project_is_loaded(proj_name):
                     pname = self.check_if_project_is_loaded(proj_name)
-                    self._oproject = self.odesktop.SetActiveProject(pname)
+                    self._oproject = self.desktop_class.active_project(pname)
                     self._add_handler()
                     self.logger.info("Project %s set to active.", pname)
                 else:
                     if is_project_locked(proj_name):
                         raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
+                    if not is_windows and settings.aedt_version:
+                        time.sleep(1)
+                        self.odesktop.CloseAllWindows()
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
@@ -1169,7 +1188,7 @@ class Design(AedtObjects):
                 if not self._oproject:
                     new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
                     if new_project_list:
-                        self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
+                        self._oproject = self.desktop_class.active_project(new_project_list[0])
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
@@ -1182,7 +1201,7 @@ class Design(AedtObjects):
             if not self._oproject:
                 new_project_list = [i for i in self.odesktop.GetProjectList() if i not in project_list]
                 if new_project_list:
-                    self._oproject = self.odesktop.SetActiveProject(new_project_list[0])
+                    self._oproject = self.desktop_class.active_project(new_project_list[0])
             self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
@@ -3133,7 +3152,7 @@ class Design(AedtObjects):
             if self.design_type == "HFSS 3D Layout Design":
                 self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
-        oproj = self.odesktop.SetActiveProject(name)
+        oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
         proj_file = os.path.join(proj_path, name + ".aedt")
         if save_project:
@@ -3148,7 +3167,7 @@ class Design(AedtObjects):
             self._oproject = None
             self._odesign = None
         else:
-            self.odesktop.SetActiveProject(legacy_name)
+            self.desktop_class.active_project(legacy_name)
         AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
@@ -3323,10 +3342,13 @@ class Design(AedtObjects):
                 new_design = self._oproject.InsertDesign(
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
+        if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
         if new_design is None:  # pragma: no cover
-            new_design = self.oproject.SetActiveDesign(unique_design_name)
+            new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:
-                self.logger.error("Fail to create new design.")
+                self.logger.error("Failed to create design.")
                 return
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
@@ -3452,8 +3474,11 @@ class Design(AedtObjects):
         proj_from.CopyDesign(design_name)
         # paste in the destination project and get the name
         self._oproject.Paste()
-        new_designname = self._oproject.GetActiveDesign().GetName()
-        if self._oproject.GetActiveDesign().GetDesignType() == "HFSS 3D Layout Design":
+        new_designname = self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetName()
+        if (
+            self.desktop_class.active_design(self._oproject, design_type=self.design_type).GetDesignType()
+            == "HFSS 3D Layout Design"
+        ):
             new_designname = new_designname[2:]  # name is returned as '2;EMDesign3'
         # close the source project
         self.odesktop.CloseProject(proj_from_name)
@@ -3930,7 +3955,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler()
     def _assert_consistent_design_type(self, des_name):
         if des_name in self.design_list:
-            self._odesign = self._oproject.SetActiveDesign(des_name)
+            self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
             dtype = self._odesign.GetDesignType()
             if dtype != "RMxprt":
                 if dtype != self._design_type:
@@ -3940,7 +3965,7 @@ class Design(AedtObjects):
             return True
         elif ":" in des_name:
             try:
-                self._odesign = self._oproject.SetActiveDesign(des_name)
+                self._odesign = self.desktop_class.active_design(self.oproject, des_name, self.design_type)
                 return True
             except Exception:
                 return des_name
@@ -4019,33 +4044,65 @@ class Design(AedtObjects):
         self.odesktop.SetTempDirectory(temp_dir_path)
         return True
 
-    @pyaedt_function_handler()
-    def design_settings(self):
-        """Get design settings for the current AEDT app.
 
-        Returns
-        -------
-        dict
-            Dictionary of valid design settings.
+class DesignSettings:
+    """Get design settings for the current AEDT app.
 
-        References
-        ----------
+    References
+    ----------
 
-        >>> oDesign.GetChildObject("Design Settings")
-        """
+    >>> oDesign.GetChildObject("Design Settings")
+    """
+
+    def __init__(self, app):
+        self._app = app
+        self.manipulate_inputs = None
         try:
-            design_settings = self._odesign.GetChildObject("Design Settings")
-        except Exception:  # pragma: no cover
-            self.logger.error("Failed to retrieve design settings.")
-            return False
+            self.design_settings = self._app.odesign.GetChildObject("Design Settings")
+        except GrpcApiError:  # pragma: no cover
+            self._app.logger.error("Failed to retrieve design settings.")
+            self.design_settings = None
 
-        prop_name_list = design_settings.GetPropNames()
-        design_settings_dict = {}
-        for prop in prop_name_list:
-            try:
-                design_settings_dict[prop] = design_settings.GetPropValue(prop)
-            except Exception:  # pragma: no cover
-                self.logger.warning('Could not retrieve "{}" property value in design settings.'.format(prop))
-                design_settings_dict[prop] = None
+    @property
+    def available_properties(self):
+        """Available properties names for the current design."""
+        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
-        return design_settings_dict
+    def __repr__(self):
+        lines = ["{"]
+        for prop in self.available_properties:
+            lines.append("\t{}: {}".format(prop, self.design_settings.GetPropValue(prop)))
+        lines.append("}")
+        return "\n".join(lines)
+
+    def __setitem__(self, key, value):
+        if key in self.available_properties:
+            if self.manipulate_inputs is not None:
+                value = self.manipulate_inputs.execute(key, value)
+            key_choices = "{}/Choices".format(key)
+            if key_choices in self.design_settings.GetPropNames():
+                value_choices = self.design_settings.GetPropValue(key_choices)
+                if value not in value_choices:
+                    self._app.logger.error(
+                        "{} is not a valid choice. Possible choices are: {}".format(value, ", ".join(value_choices))
+                    )
+                    return False
+            self.design_settings.SetPropValue(key, value)
+        else:
+            self._app.logger.error("{} property is not available in design settings.".format(key))
+
+    def __getitem__(self, key):
+        if key in self.available_properties:
+            return self.design_settings.GetPropValue(key)
+        else:
+            self._app.logger.error("{} property is not available in design settings.".format(key))
+            return None
+
+    def __contains__(self, item):
+        return item in self.available_properties
+
+
+class DesignSettingsManipulation:
+    @abstractmethod
+    def execute(self, k, v):
+        pass

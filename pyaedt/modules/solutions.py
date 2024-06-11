@@ -24,7 +24,6 @@ from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
-from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
@@ -45,6 +44,50 @@ if not is_ironpython:
         import pyvista as pv
     except ImportError:
         pv = None
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        plt = None
+
+
+def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
+    """Import and simplify a stl file using pyvista and fast-simplification.
+
+    Parameters
+    ----------
+    input_file : str
+        Input stl file.
+    output_file : str, optional
+        Output stl file.
+    decimation : float, optional
+        Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
+        this function will try to reduce the data set to 10% of its
+        original size and will remove 90% of the input triangles.
+
+    Returns
+    -------
+    str
+        Full path to output stl.
+    """
+    mesh = pv.read(input_file)
+    if not output_file:
+        output_file = os.path.splitext(input_file)[0] + "_output.stl"
+    simple = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
+    simple.save(output_file)
+    if preview:
+        pl = pv.Plotter(shape=(1, 2))
+        dargs = dict(show_edges=True, color=True)
+        pl.add_mesh(mesh, **dargs)
+        pl.add_text("Input mesh", font_size=24)
+        pl.reset_camera()
+        pl.subplot(0, 1)
+        pl.add_mesh(simple, **dargs)
+        pl.add_text("Decimated mesh", font_size=24)
+        pl.reset_camera()
+        pl.link_views()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            pl.show()
+    return output_file
 
 
 class SolutionData(object):
@@ -110,6 +153,7 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
@@ -141,6 +185,7 @@ class SolutionData(object):
         Returns
         -------
         list
+            List of variation values.
         """
         if variation in self.intrinsics:
             return self.intrinsics[variation]
@@ -274,7 +319,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
 
             for data, comb in zip(self._original_data, self.variations):
                 solution = list(data.GetRealDataValues(expression, False))
@@ -285,9 +330,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -299,7 +344,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
             for data, comb in zip(self._original_data, self.variations):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
@@ -312,9 +357,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -392,7 +437,6 @@ class SolutionData(object):
         -------
         type
             List of inputs in radians.
-
         """
         if isinstance(input_list, (tuple, list)):
             return [i * 2 * math.pi / 360 for i in input_list]
@@ -426,21 +470,20 @@ class SolutionData(object):
         -------
         list
             List of data.
-
         """
         if not expression:
             expression = self.active_expression
         elif expression not in self.expressions:
             return False
         temp = self._variation_tuple()
-        solution_Data = self._solutions_mag[expression]
+        solution_data = self._solutions_mag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
         sw = self.variation_values(self.primary_sweep)
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -494,7 +537,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -519,7 +561,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -544,7 +585,6 @@ class SolutionData(object):
         -------
         list
             Phase data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -563,7 +603,6 @@ class SolutionData(object):
         -------
         list
             List of the primary sweep valid points for the expression.
-
         """
         if self.enable_pandas_output:
             return pd.Series(self.variation_values(self.primary_sweep))
@@ -582,13 +621,13 @@ class SolutionData(object):
         expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = list(self._solutions_real[expression].keys())
+        solution_data = list(self._solutions_real[expression].keys())
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if tuple(temp) in solution_Data:
+            if tuple(temp) in solution_data:
                 sol_dict = OrderedDict({})
                 i = 0
                 for sn in self._sweeps_names:
@@ -618,20 +657,19 @@ class SolutionData(object):
         -------
         list
             List of the real data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = self._solutions_real[expression]
+        solution_data = self._solutions_real[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
 
@@ -660,7 +698,6 @@ class SolutionData(object):
         -------
         list
             List of the imaginary data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -721,14 +758,32 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        header = [el for el in self._sweeps_names]
-        for el in self.expressions:
-            if not self.is_real_only(el):
-                header.append(el + " (Real)")
-                header.append(el + " (Imag)")
+        header = []
+        des_var = self._original_data[0].GetDesignVariableNames()
+        sweep_var = self._original_data[0].GetSweepNames()
+        for el in self._sweeps_names:
+            unit = ""
+            if el in des_var:
+                unit = self._original_data[0].GetDesignVariableUnits(el)
+            elif el in sweep_var:
+                unit = self._original_data[0].GetSweepUnits(el)
+            if unit == "":
+                header.append("{}".format(el))
             else:
-                header.append(el)
+                header.append("{} [{}]".format(el, unit))
+        # header = [el for el in self._sweeps_names]
+        for el in self.expressions:
+            data_unit = self._original_data[0].GetDataUnits(el)
+            if data_unit:
+                data_unit = " [{}]".format(data_unit)
+            if not self.is_real_only(el):
+
+                header.append(el + " (Real){}".format(data_unit))
+                header.append(el + " (Imag){}".format(data_unit))
+            else:
+                header.append(el + "{}".format(data_unit))
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
@@ -758,8 +813,9 @@ class SolutionData(object):
         title="",
         snapshot_path=None,
         is_polar=False,
+        show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a matplotlib figure based on a list of data.
 
         Parameters
         ----------
@@ -771,7 +827,6 @@ class SolutionData(object):
             in which case only real value of the data stored in the solution data is plotted.
             Options are ``"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
             ``"phaserad"``, and ``"re"``.
-
         size : tuple, optional
             Image size in pixels (width, height).
         show_legend : bool
@@ -791,8 +846,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:  # pragma: no cover
             return False
@@ -832,9 +887,9 @@ class SolutionData(object):
         if len(data_plot) > 15:
             show_legend = False
         if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
         else:
-            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path)
+            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
@@ -848,8 +903,9 @@ class SolutionData(object):
         formula=None,
         size=(2000, 1000),
         snapshot_path=None,
+        show=True,
     ):
-        """Create a matplotlib 3d plot based on a list of data.
+        """Create a matplotlib 3D figure based on a list of data.
 
         Parameters
         ----------
@@ -877,8 +933,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.figure.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:
             return False  # pragma: no cover
@@ -924,7 +980,7 @@ class SolutionData(object):
             y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path)
+        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
@@ -1088,18 +1144,21 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Contains information from the far field solution data.
+    """Provides antenna array far-field data.
 
-    Load far field data from the element pattern files.
+    Read embedded element patterns generated in HFSS and return the Python interface
+    to plot and analyze the array far-field data.
 
     Parameters
     ----------
     eep_files : list or str
-        List of element pattern files for each frequency.
-        If the input is string, it is assumed to be a single frequency.
+        List of embedded element pattern files for each frequency.
+        If data is only provided for a single frequency, then a string can be passed
+        instead of a one-element list.
     frequencies : list, str, int, or float
         List of frequencies.
-        If the input is not a list, it is assumed to be a single frequency.
+        If data is only available for a single frequency, then a float or integer may be passed
+        instead of a one-element list.
 
     Examples
     --------
@@ -1526,11 +1585,14 @@ class FfdSolutionData(object):
             quantity="RealizedGain",
             phi=0,
             theta=0,
-            title="RectangularPlot",
+            size=None,
+            title=None,
             quantity_format="dB10",
             image_path=None,
             levels=64,
             show=True,
+            polar=True,
+            max_theta=180,
             **kwargs
     ):
         # fmt: on
@@ -1546,6 +1608,9 @@ class FfdSolutionData(object):
             Phi scan angle in degrees. The default is ``0``.
         theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
+        size : tuple, optional
+            Image size in pixel (width, height). The default is ``None``, in which case resolution
+            is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
@@ -1559,18 +1624,23 @@ class FfdSolutionData(object):
         show : bool, optional
             Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
             instance of the plot is shown.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
+        max_theta : float or int, optional
+            Maxmum theta angle for plotting. The default is ``180``, which plots the far-field data for
+            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            hemisphere, that is (0 < theta < 90).
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1578,6 +1648,8 @@ class FfdSolutionData(object):
         >>> data.plot_farfield_contour()
 
         """
+        if not title:
+            title = quantity
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1594,27 +1666,54 @@ class FfdSolutionData(object):
         if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
+        select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
-        data_to_plot = data[quantity]
+        data_to_plot = data[quantity][select, :]
         data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
-        data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
-        th, ph = np.meshgrid(data["Theta"], data["Phi"])
-        if show:
-            return plot_contour(
-                x=th,
-                y=ph,
-                qty_to_plot=data_to_plot,
-                xlabel="Theta (degree)",
-                ylabel="Phi (degree)",
-                title=title,
-                levels=levels,
-                snapshot_path=image_path,
-            )
+        ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
+        ph = ph * np.pi/180 if polar else ph
+        # Convert to radians for polar plot.
+
+        # TODO: Is it necessary to set the plot size?
+
+        default_figsize = plt.rcParams["figure.figsize"]
+        if size:  # Retain this code to remain consistent with other plotting methods.
+            dpi = 100.0
+            figsize = (size[0] / dpi, size[1] / dpi)
+            plt.rcParams["figure.figsize"] = figsize
         else:
-            return data_to_plot
+            figsize = default_figsize
+
+        projection = 'polar' if polar else 'rectilinear'
+        fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
+
+        fig.suptitle(title)
+        ax.set_xlabel("$\phi$ (Degrees)")
+        if polar:
+            ax.set_rticks(np.linspace(0, max_theta, 3))
+        else:
+            ax.set_ylabel("$\\theta (Degrees")
+
+        plt.contourf(
+            ph,
+            th,
+            data_to_plot,
+            levels=levels,
+            cmap="jet",
+        )
+        cbar = plt.colorbar()
+        cbar.set_label(quantity_format, rotation=270, labelpad=20)
+
+        if image_path:
+            plt.savefig(image_path)
+        if show:  # pragma: no cover
+            plt.show()
+
+        plt.rcParams["figure.figsize"] = default_figsize
+        return fig
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1633,6 +1732,7 @@ class FfdSolutionData(object):
             image_path=None,
             show=True,
             is_polar=False,
+            show_legend=True,
             **kwargs
     ):
         # fmt: on
@@ -1666,14 +1766,15 @@ class FfdSolutionData(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
-
 
         Examples
         --------
@@ -1684,9 +1785,7 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_2d_cut(theta=20)
-
         """
-
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
@@ -1746,30 +1845,29 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        if show:
-            show_legend = True
-            if len(curves) > 15:
-                show_legend = False
-            if is_polar:
-                return plot_polar_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
-            else:
-                return plot_2d_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=quantity,
-                    title=title,
-                    snapshot_path=image_path,
-                    show_legend=show_legend,
-                )
+        # FIXME: See if we need to keep this check on the curves length
+        # if len(curves) > 15:
+        #     show_legend = False
+        if is_polar:
+            return plot_polar_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
         else:
-            return curves
+            return plot_2d_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1810,12 +1908,12 @@ class FfdSolutionData(object):
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
+            If ``False``, the Matplotlib instance of the plot is not shown.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
 
@@ -1828,7 +1926,6 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -1865,10 +1962,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:
-            plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path)
-        else:
-            return x, y, z
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
@@ -1937,7 +2031,6 @@ class FfdSolutionData(object):
         >>> sphere = "3D"
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2041,7 +2134,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[quantity], function_str=quantity_format)
+        data = conversion_function(self.farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -2105,10 +2198,8 @@ class FfdSolutionData(object):
 
         if image_path:
             p.show(screenshot=image_path)
-            return True
-        elif show:  # pragma: no cover
+        if show:  # pragma: no cover
             p.show()
-            return True
         return p
 
     @pyaedt_function_handler()
@@ -2179,7 +2270,6 @@ class FfdSolutionData(object):
         -------
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2420,7 +2510,19 @@ class FfdSolutionData(object):
 
 
 class FfdSolutionDataExporter(FfdSolutionData):
-    """Export far field solution data.
+    """Class to enable export of embedded element pattern data from HFSS.
+
+    An instance of this class is returned from the
+    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
+    the embedded
+    element pattern (EEP) files for an antenna array that have been solved in HFSS. The
+    ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
+    instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
+    subsequent analysis and postprocessing of the array data.
+
+    Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
+    far-field postprocessing and array analysis, but it remains a property of the
+    :class:`pyaedt.Hfss` application.
 
     Parameters
     ----------
@@ -2447,7 +2549,6 @@ class FfdSolutionDataExporter(FfdSolutionData):
     >>> sphere = "3D"
     >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
-
     """
 
     def __init__(
@@ -2927,7 +3028,6 @@ class FieldPlot:
         -------
         list
             List of surface plot settings.
-
         """
         out = [
             "NAME:" + self.name,
@@ -2978,7 +3078,6 @@ class FieldPlot:
         -------
         list
             List of plot settings for line traces.
-
         """
         out = [
             "NAME:" + self.name,
@@ -3108,7 +3207,6 @@ class FieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.seeding_faces:
@@ -3221,11 +3319,10 @@ class FieldPlot:
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
@@ -3261,7 +3358,19 @@ class FieldPlot:
         return True
 
     @pyaedt_function_handler()
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
+    def export_image(
+        self,
+        full_path=None,
+        width=1920,
+        height=1080,
+        orientation="isometric",
+        display_wireframe=True,
+        selections=None,
+        show_region=True,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+    ):
         """Export the active plot to an image file.
 
         .. note::
@@ -3279,7 +3388,22 @@ class FieldPlot:
             ``top``, ``bottom``, ``right``, ``left``, ``front``,
             ``back``, and any custom orientation.
         display_wireframe : bool, optional
-            Set to ``True`` if the objects has to be put in wireframe mode.
+            Whether the objects has to be put in wireframe mode. Default is ``True``.
+        selections : str or List[str], optional
+            Objects to fit for the zoom on the exported image.
+            Default is None in which case all the objects in the design will be shown.
+            One important note is that, if the fieldplot extension is larger than the
+            selection extension, the fieldplot extension will be the one considered
+            for the zoom of the exported image.
+        show_region : bool, optional
+            Whether to include the air region in the exported image. Default is ``True``.
+        show_grid : bool, optional
+            Whether to display the background grid in the exported image.
+            Default is ``True``.
+        show_axis : bool, optional
+            Whether to display the axis triad in the exported image. Default is ``True``.
+        show_ruler : bool, optional
+            Whether to display the ruler in the exported image. Default is ``True``.
 
         Returns
         -------
@@ -3288,7 +3412,6 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
@@ -3304,6 +3427,11 @@ class FieldPlot:
             width=width,
             height=height,
             display_wireframe=display_wireframe,
+            selections=selections,
+            show_region=show_region,
+            show_axis=show_axis,
+            show_grid=show_grid,
+            show_ruler=show_ruler,
         )
         full_path = check_and_download_file(full_path)
         if status:
@@ -3341,7 +3469,6 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.UpdateAllFieldsPlots
         >>> oModule.UpdateQuantityFieldsPlots
         >>> oModule.ExportFieldPlot
@@ -3573,7 +3700,6 @@ class VRTFieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.is_creeping_wave:

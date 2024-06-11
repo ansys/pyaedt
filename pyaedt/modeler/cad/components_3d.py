@@ -510,13 +510,13 @@ class UserDefinedComponent(object):
         """
         return self._primitives.duplicate_and_mirror(self.name, origin=origin, vector=vector, is_3d_comp=True)
 
-    @pyaedt_function_handler()
-    def mirror(self, position, vector):
+    @pyaedt_function_handler(position="origin")
+    def mirror(self, origin, vector):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : list, Position
+        origin : list, Position
             List of the ``[x, y, z]`` coordinates or
             the Application.Position object for the selection.
         vector : float
@@ -534,11 +534,11 @@ class UserDefinedComponent(object):
         >>> oEditor.Mirror
         """
         if self.is3dcomponent:
-            if self._primitives.mirror(self.name, position=position, vector=vector):
+            if self._primitives.mirror(self.name, origin=origin, vector=vector):
                 return self
         else:
             for part in self.parts:
-                self._primitives.mirror(part, position=position, vector=vector)
+                self._primitives.mirror(part, origin=origin, vector=vector)
             return self
         return False
 
@@ -820,28 +820,31 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password="", output_file=""):
+    def update_definition(self, password=None, output_file="", local_update=False):
         """Update 3d component definition.
 
         Parameters
         ----------
         password : str, optional
-            Password for encrypted models. The default value is ``""``.
+            Password for encrypted models. The default value is ``None``.
         output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
+        local_update : bool, optional
+            Whether to update the file only locally. Default is ``False``.
 
         Returns
         -------
         bool
             True if successful.
         """
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         self._primitives._app.oeditor.UpdateComponentDefinition(
             [
                 "NAME:UpdateDefinitionData",
                 "ForLocalEdit:=",
-                False,
+                local_update,
                 "DefinitionNames:=",
                 self.definition_name,
                 "Passwords:=",
@@ -854,7 +857,7 @@ class UserDefinedComponent(object):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password=""):
+    def edit_definition(self, password=None):
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
@@ -872,7 +875,8 @@ class UserDefinedComponent(object):
         from pyaedt.generic.design_types import get_pyaedt_app
 
         # from pyaedt.generic.general_methods import is_linux
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         project_list = [i for i in self._primitives._app.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
@@ -885,7 +889,7 @@ class UserDefinedComponent(object):
         new_project = [i for i in self._primitives._app.project_list if i not in project_list]
 
         if new_project:
-            project = self._primitives._app.odesktop.SetActiveProject(new_project[0])
+            project = self._primitives._app.desktop_class.active_project(new_project[0])
             # project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
             project.GetDesigns()[0].GetName()
