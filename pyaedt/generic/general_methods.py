@@ -959,8 +959,7 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
     Returns
     -------
     bool
-        ``True`` when feature available, ``False`` when feature not available, and
-         ``None`` when licenser server is down.
+        ``True`` when feature available, ``False`` when feature not available.
     """
     import subprocess  # nosec B404
 
@@ -992,8 +991,8 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
                 break
 
     if is_server_down:
-        pyaedt_logger.info("License server process could not be found.")
-        return None
+        pyaedt_logger.warning("License server process could not be found.")
+        return False
 
     cmd = [ansysli_util_path, "-checkcount", str(count), "-checkout", feature]
 
@@ -1008,7 +1007,7 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
         for line in f:
             checkout_lines.append(line)
     if "CHECKOUT FAILED" in checkout_lines[1] or len(checkout_lines) != 2:
-        pyaedt_logger.info(checkout_lines[0])
+        pyaedt_logger.warning(checkout_lines[0])
         return False
     return True
 
