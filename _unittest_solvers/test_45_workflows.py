@@ -159,6 +159,7 @@ class TestClass:
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
+        assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == "Voltage_Line"
         name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
@@ -177,7 +178,7 @@ class TestClass:
                      "calculation": "voltage_line",
                      "assignment": ["Polyline1", "Polyline2"]})
 
-        assert len(aedtapp.post.all_report_names) == 4
+        assert len(aedtapp.post.all_report_names) == 6
 
         assert not main({"is_test": True,
                          "setup": "Setup1 : LastAdaptive",

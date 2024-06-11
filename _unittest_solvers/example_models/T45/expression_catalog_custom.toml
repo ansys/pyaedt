@@ -1,0 +1,17 @@
+# Voltage
+
+[e_field_line]
+name = "EField_Line"
+description = "E field along a line"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Solid"]
+constants = {"dummy_parameter"= 3.3}
+operations = ["Fundamental_Quantity('E')",
+	"Operation('Magnitude')",
+    "Scalar_Function(FuncValue='dummy_parameter')",
+	"Operation('+')"]
+report = ["Field_3D"]
