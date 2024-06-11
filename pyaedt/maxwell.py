@@ -1685,29 +1685,59 @@ class Maxwell(object):
         objects,
         force_type=0,
         window_function="Rectangular",
-        use_number_of_last_cycles=True,
-        last_cycles_number=1,
+        use_number_of_cycles_from_stop_time=True,
+        number_of_cycles_from_stop_time=1,
+        start_time="0s",
+        use_number_of_cycles_for_stop_time=True,
+        number_of_cycles_for_stop_time=1,
+        stop_time="0.01s",
+        output_frequency_range_type="Use All",
+        output_frequency_range_start="0Hz",
+        number_of_output_frequencies=10,
+        output_frequency_range_stop = "1000Hz",
         calculate_force="Harmonic",
+        enable_inverter_feedback=False
     ):
         """Enable the harmonic force calculation for the transient analysis.
 
         Parameters
         ----------
         objects : list
-            List of object names for force calculations.
+            Defines a list of object names for force calculations, for example: ["arc_01","arc_02","arc_03"]
         force_type : int, optional
-            Force Type. ``0`` for Objects, ``1`` for Surface, ``2`` for volumetric.
+            Force Type. ``0`` for Object Based, ``1`` for Element Based (Surface), ``2`` for Element Based (Volumetric).
         window_function : str, optional
             Windowing function. Default is ``"Rectangular"``.
             Available options are: ``"Rectangular"``, ``"Tri"``, ``"Van Hann"``, ``"Hamming"``,
             ``"Blackman"``, ``"Lanczos"``, ``"Welch"``.
-        use_number_of_last_cycles : bool, optional
-            Use number Of last cycles for force calculations. Default is ``True``.
-        last_cycles_number : int, optional
-            Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
-        calculate_force : sr, optional
+        use_number_of_cycles_from_stop_time : bool, optional
+            If True, the harmonic force will be computed using the transient force during the defined number of cycles backwards from stop time.
+            If False, the defined time range will be used. Default is ``True``.
+        number_of_cycles_from_stop_time : int, optional
+            Defines the number of cycles from stop time for harmonic force computation, if `use_number_of_cycles_from_stop_time` is ``True``.
+        start_time : str, optional
+            Defines the time range start time for harmonic force computation, if `use_number_of_cycles_from_stop_time` is ``False``.
+        use_number_of_cycles_for_stop_time : bool, optional
+            If True, the time range stop time is defined using the number of cycles.
+            The harmonic force will be computed using the defined number of cycles forward from the start time.
+            If False, the time range stop time is defined using the stop time.
+            The harmonic force will be computed using the transient force between the start time and the stop time.
+            Default is ``True``.
+        number_of_cycles_for_stop_time
+            Defines the time range for harmonic force computation using the number of cycles, if `use_number_of_cycles_for_stop_time` is ``True``.
+        stop_time : str, optional
+            Defines the time range stop time for harmonic force computation, if `use_number_of_cycles_for_stop_time` is ``False``.
+        output_frequency_range_type : str, optional
+            Defines the type of the output frequency range. Default is ``"Use All"``.
+            Available options are: ``"Use All"``, ``"Use Number"``, ``"Use Range"``.
+        output_frequency_range_start : str, optional
+        output_frequency_range_number : int, optional
+            Number of frequencies to output.
+        output_frequency_range_stop : str, optional
+        calculate_force : str, optional
             How to calculate force. The default is ``"Harmonic"``.
-            Options are ``"Harmonic"`` and ``"Transient"``.
+            Options are ``"Harmonic"``, ``"Transient"`` and ``"Harmonic and Transient"``
+        enable_inverter_feedback : bool, optional
 
 
         Returns
@@ -1729,21 +1759,24 @@ class Maxwell(object):
                 "WindowFunctionType:=",
                 window_function,
                 "UseNumberOfLastCycles:=",
-                use_number_of_last_cycles,
+                use_number_of_cycles_from_stop_time,
                 "NumberOfLastCycles:=",
-                last_cycles_number,
+                number_of_cycles_from_stop_time,
                 "StartTime:=",
-                "0s",
+                start_time,
                 "UseNumberOfCyclesForStopTime:=",
-                True,
+                use_number_of_cycles_for_stop_time,
                 "NumberOfCyclesForStopTime:=",
-                1,
+                number_of_cycles_for_stop_time,
                 "StopTime:=",
-                "0.01s",
+                stop_time,
                 "OutputFreqRangeType:=",
-                "Use All",
-                "CaculateForceType:=",
-                calculate_force + " Force",
+                output_frequency_range_type,
+                "OutputFreqRangeStart:=", output_frequency_range_start,
+                "OutputFreqRangeNum:=", str(number_of_output_frequencies),
+                "OutputFreqRangeStop:=", output_frequency_range_stop,
+                "CaculateForceType:=", calculate_force + " Force",
+                "EnableInverterFeedback:=", enable_inverter_feedback
             ]
         )
         return True
