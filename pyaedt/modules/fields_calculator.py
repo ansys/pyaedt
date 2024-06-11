@@ -238,7 +238,7 @@ class FieldsCalculator:
                 if self.design_type == "Q3D Extractor":
                     intrinsic = {"Freq": self.__app.setups[0].props["AdaptiveFreq"]}
                 for assign in assignment:
-                    if isinstance(assign, int):
+                    if isinstance(assign, int) or assign in self.__app.modeler.sheet_names:
                         report = self.__app.post.create_fieldplot_surface(
                             quantity=names[0], assignment=assign, field_type=fields_type, intrinsics=intrinsic
                         )
