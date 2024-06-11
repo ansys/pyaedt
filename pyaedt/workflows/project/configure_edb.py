@@ -26,6 +26,7 @@ from pyedb import Edb
 
 import pyaedt
 from pyaedt import Hfss3dLayout
+from pyaedt import generate_unique_name
 from pyaedt.generic.filesystem import search_files
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
@@ -157,6 +158,9 @@ def main(extension_args):
         edbapp = Edb(aedb_path, edbversion=version)
         config_name = os.path.splitext(os.path.split(config)[-1])[0]
         output_path = aedb_path[:-5] + f"_{config_name}.aedb"
+        if os.path.exists(output_path):
+            new_name = generate_unique_name(config_name, n=2)
+            output_path = aedb_path[:-5] + f"_{new_name}.aedb"
         edbapp.configuration.load(config_file=config)
         edbapp.configuration.run()
         edbapp.save_edb_as(output_path)
