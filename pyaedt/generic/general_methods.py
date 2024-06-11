@@ -25,6 +25,7 @@ import traceback
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
+from pyaedt.misc.misc import installed_versions
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
@@ -942,6 +943,62 @@ def is_project_locked(project_path):
         else:
             return False
     return check_if_path_exists(project_path + ".lock")
+
+
+@pyaedt_function_handler()
+def is_license_feature_available(feature="electronics_desktop", count=1):  # pragma: no cover
+    """Check if license feature is available.
+
+    Parameters
+    ----------
+    feature : str
+        Feature increment name. The default is the electronics desktop one.
+    count : int
+        Number of increments of the same feature available.
+
+    Returns
+    -------
+    bool
+        ``True`` when feature available, ``False`` when feature not available, and
+         ``None`` when licenser server is down.
+    """
+    import subprocess  # nosec B404
+
+    aedt_install_folder = list(installed_versions().values())[0]
+
+    if is_linux:
+        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "linx64", "ansysli_util")
+    else:
+        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
+    my_env = os.environ.copy()
+
+    # License server status
+    cmd = [ansysli_util_path, "-statli"]
+
+    p_stat = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
+
+    output_stat = p_stat.communicate()
+    output_stat_str = str(output_stat[0])
+    output_stat_lst = output_stat_str.split("\\r\\n")
+
+    if len(output_stat_lst) == 5 and output_stat_lst[3] == "ansysli_server process could not be found.":
+        pyaedt_logger.info(output_stat_lst[3])
+        return None
+
+    cmd = [ansysli_util_path, "-checkcount", str(count), "-checkout", feature]
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
+    output = p.communicate()
+    output_str = str(output[0])
+    output_lst = output_str.split("\\r\\n")
+    if len(output_lst) == 4:
+        out_str_msg = output_lst[0].split(",")
+        if len(out_str_msg) == 2:
+            pyaedt_logger.info(output_lst[0].split(",")[1])
+        else:
+            pyaedt_logger.info("Not enough increments.")
+        return False
+    return True
 
 
 @pyaedt_function_handler()
