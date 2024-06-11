@@ -189,7 +189,7 @@ solutions_custom.plot_3d()
 # Generate a 2D plot using Matplotlib where you specify whether it is a polar
 # plot or a rectangular plot.
 
-solutions.plot(formula="db20", is_polar=True)
+solutions.plot()
 
 ##########################################################
 # Get far field data

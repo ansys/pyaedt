@@ -70,6 +70,65 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
+    def test_02b_PCB_filters(self):
+        new_component = os.path.join(local_path, "example_models", "T40", "Package.aedt")
+        cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
+            "Board_w_cmp",
+            [new_component, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
+            solution_freq,
+            resolution,
+            custom_x_resolution=400,
+            custom_y_resolution=500,
+            extent_type="Polygon",
+        )
+        assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
+        assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert not bool(cmp2.overridden_components)
+        assert cmp2.override_component("FCHIP", True)
+        assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
+        assert cmp2.override_component("FCHIP", False)
+        assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
+        assert cmp2.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon")
+        assert cmp2.set_board_settings("Bounding Box")
+        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
+        component_name = "RadioBoard2"
+        cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
+            component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
+        )
+        f = cmp.filters
+        assert len(f.keys()) == 1
+        assert all(not v for v in f["Type"].values())
+        assert not cmp.set_parts("Device Pt")
+        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert cmp.height_filter is None
+        assert cmp.footprint_filter is None
+        assert cmp.power_filter is None
+        assert not cmp.objects_2d_filter
+        cmp.height_filter = "1mm"
+        cmp.objects_2d_filter = True
+        cmp.power_filter = "4mW"
+        cmp.type_filters = "Resistors"
+        cmp.type_filters = "Register"  # should not be set
+        cmp.type_filters = "Inductors"
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = "0.5mm2"
+        f = cmp.filters
+        assert len(f.keys()) >= 4  # 5 if version 2024.2
+        assert f["Type"]["Inductors"]
+        assert cmp.set_board_settings()
+        assert not cmp.set_board_settings("Polygon")
+        assert not cmp.set_board_settings("Bounding Domain")
+        cmp.set_board_settings("Bounding Box")
+        cmp.power_filter = None
+        cmp.height_filter = None
+        cmp.objects_2d_filter = False
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp.footprint_filter = None
+        f = cmp.filters
+        assert len(f.keys()) == 1
+
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)
 
@@ -292,6 +351,9 @@ class TestClass:
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
         assert self.aedtapp.edit_design_settings(ambtemp=20)
         assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        self.aedtapp.solution_type = "Transient"
+        bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
+        assert self.aedtapp.edit_design_settings(ambtemp=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -404,6 +466,7 @@ class TestClass:
         assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].top_face_z.id, input_power="2W")
         assert self.aedtapp.create_source_power(
             self.aedtapp.modeler["boxSource"].bottom_face_z.id,
+            input_power="0W",
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
@@ -426,6 +489,7 @@ class TestClass:
             voltage_current_choice="Current",
             voltage_current_value="1A",
         )
+        self.aedtapp.solution_type = "SteadyState"
         assert not self.aedtapp.assign_source(
             self.aedtapp.modeler["boxSource"].top_face_x.id,
             "Total Power",
@@ -950,7 +1014,6 @@ class TestClass:
             thickness="0mm",
             material="Al-Extruded",
             htc=10,
-            htc_dataset=None,
             ref_temperature="AmbientTemp",
             ht_correlation=True,
             ht_correlation_type="Forced Convection",
@@ -966,7 +1029,7 @@ class TestClass:
             name=None,
             thickness="0mm",
             material="Al-Extruded",
-            htc_dataset="ds1",
+            htc="ds1",
             ref_temperature="AmbientTemp",
             ht_correlation=False,
         )
@@ -1033,7 +1096,7 @@ class TestClass:
     def test_56_mesh_priority(self):
         self.aedtapp.insert_design("mesh_priority")
         b = self.aedtapp.modeler.create_box([0, 0, 0], [20, 50, 80])
-        self.aedtapp.create_ipk_3dcomponent_pcb(
+        board = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board",
             link_data,
             solution_freq,
@@ -1046,6 +1109,9 @@ class TestClass:
         assert self.aedtapp.mesh.add_priority(
             entity_type=2, component=self.aedtapp.modeler.user_defined_component_names[0], priority=1
         )
+        fan = self.aedtapp.create_fan(name="TestFan", is_2d=True)
+        rect = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [1, 2], name="TestRectangle")
+        assert self.aedtapp.mesh.assign_priorities([[fan.name, board.name], [b.name, rect.name]])
 
     def test_57_update_source(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="boxSource")
@@ -1583,3 +1649,25 @@ class TestClass:
     def test_75_native_component_load(self, add_app):
         app = add_app(application=Icepak, project_name=native_import, subfolder=test_subfolder)
         assert len(app.native_components) == 1
+
+    def test_76_design_settings(self):
+        d = self.aedtapp.design_settings
+        d["AmbTemp"] = 5
+        assert d["AmbTemp"] == "5cel"
+        d["AmbTemp"] = "5kel"
+        assert d["AmbTemp"] == "5kel"
+        d["AmbTemp"] = {"1": "2"}
+        assert d["AmbTemp"] == "5kel"
+        d["AmbGaugePressure"] = 5
+        assert d["AmbGaugePressure"] == "5n_per_meter_sq"
+        d["GravityVec"] = 1
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = 4
+        assert d["GravityVec"] == "Global::Y"
+        assert d["GravityDir"] == "Negative"
+        d["GravityVec"] = "+X"
+        assert d["GravityVec"] == "Global::X"
+        assert d["GravityDir"] == "Positive"
+        d["GravityVec"] = "Global::Y"
+        assert d["GravityVec"] == "Global::Y"

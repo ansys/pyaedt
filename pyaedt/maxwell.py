@@ -6,11 +6,14 @@ from collections import OrderedDict
 import io
 import os
 import re
+import time
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
@@ -1251,16 +1254,16 @@ class Maxwell(object):
         >>> m3d = Maxwell3d()
         >>> iron_object = m3d.modeler.create_box([0, 0, 0],[2, 10, 10],name="iron")
         >>> magnet_object = m3d.modeler.create_box([10, 0, 0],[2, 10, 10],name="magnet")
-        >>> m3d.assign_material(iron_object, "iron")
-        >>> m3d.assign_material(magnet_object, "NdFe30")
+        >>> m3d.assign_material(iron_object,"iron")
+        >>> m3d.assign_material(magnet_object,"NdFe30")
         >>> m3d.assign_force("iron",is_virtual=True,force_name="force_iron")
 
         Assign Lorentz force to a conductor:
 
         >>> conductor1 = m3d.modeler.create_box([0, 0, 0],[1, 1, 10],name="conductor1")
         >>> conductor2 = m3d.modeler.create_box([10, 0, 0],[1, 1, 10],name="conductor2")
-        >>> m3d.assign_material(conductor1, "copper")
-        >>> m3d.assign_material(conductor2, "copper")
+        >>> m3d.assign_material(conductor1,"copper")
+        >>> m3d.assign_material(conductor2,"copper")
         >>> m3d.assign_force("conductor1",is_virtual=False,force_name="force_copper") # conductor, use Lorentz force
         >>> m3d.release_desktop(True, True)
         """
@@ -1917,17 +1920,24 @@ class Maxwell(object):
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
 
-    @pyaedt_function_handler
-    def edit_external_circuit(self, netlist_file_path, schematic_design_name):
+    @pyaedt_function_handler()
+    def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
         """
-        Edit the external circuit for the winding.
+        Edit the external circuit for the winding and allow editing of the circuit parameters.
 
         Parameters
         ----------
         netlist_file_path : str
-            Circuit netlist file path.
+            Path to the circuit netlist file.
         schematic_design_name : str
             Name of the schematic design.
+        parameters : dict, optional
+            Name and value of the circuit parameters.
+            Parameters must be provided as a dictionary, where the key is the parameter name
+            and the value is the parameter value.
+            If the dictionary is provided, the ``netlist_file_path`` parameter is automatically
+            set to an empty string.
+            The default is ``None``.
 
         Returns
         -------
@@ -1936,8 +1946,11 @@ class Maxwell(object):
         """
         if schematic_design_name not in self.design_list:
             return False
-        odesign = self.oproject.SetActiveDesign(schematic_design_name)
+        odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self.odesktop.CloseAllWindows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []
@@ -1961,7 +1974,13 @@ class Maxwell(object):
                     sources_type_array.append(2)
                 elif source_type == "SPEED":
                     sources_type_array.append(3)
-        self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
+        names = []
+        values = []
+        if parameters:
+            names = list(parameters.keys())
+            values = list(parameters.values())
+            netlist_file_path = ""
+        self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, names, values)
         return True
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
@@ -2915,7 +2934,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     @property
     def model_depth(self):
         """Model depth."""
-        design_settings = self.design_settings()
+        design_settings = self.design_settings
         if "ModelDepth" in design_settings:
             value_str = design_settings["ModelDepth"]
             return value_str
@@ -3015,6 +3034,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignBalloon
+
+
+        Examples
+        --------
+        Set balloon boundary condition in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_balloon(edge_list=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3054,6 +3084,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
 
         >>> oModule.AssignVectorPotential
+
+
+        Examples
+        --------
+        Set vector potential to zero at the boundary edges in Maxwell 2D.
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> region_id = m2d.modeler.create_region()
+        >>> region_edges = region_id.edges
+        >>> m2d.assign_vector_potential(input_edge=region_edges)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 

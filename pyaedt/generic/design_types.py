@@ -1,5 +1,9 @@
 import re
 import sys
+import time
+
+from pyaedt import is_linux
+from pyaedt.generic.settings import settings
 
 
 # lazy imports
@@ -541,7 +545,7 @@ def Hfss3dLayout(
     machine="",
     port=0,
     aedt_process_id=None,
-    ic_mode=False,
+    ic_mode=None,
 ):
     """Hfss3dLayout Class.
 
@@ -592,7 +596,8 @@ def Hfss3dLayout(
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
     ic_mode : bool, optional
-        Whether to set the design to IC mode or not. The default is ``False``.
+        Whether to set the design to IC mode or not. The default is ``None``, which means to retain
+        the existing setting.
 
     Returns
     -------
@@ -1802,6 +1807,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oProject = odesktop.GetActiveProject()
     else:
         oProject = odesktop.SetActiveProject(project_name)
+    if is_linux and settings.aedt_version == "2024.1":
+        time.sleep(1)
+        odesktop.CloseAllWindows()
     if not oProject:
         raise AttributeError("No project is present.")
     design_names = []
@@ -1815,6 +1823,9 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oDesign = oProject.GetActiveDesign()
     else:
         oDesign = oProject.SetActiveDesign(design_name)
+    if is_linux and settings.aedt_version == "2024.1":
+        time.sleep(1)
+        odesktop.CloseAllWindows()
     if not oDesign:
         raise AttributeError("No design is present.")
     design_type = oDesign.GetDesignType()

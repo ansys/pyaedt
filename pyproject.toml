@@ -6,31 +6,39 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "pyaedt"
 dynamic = ["version"]
-description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
+description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
 requires-python = ">=3.7,<4"
 license = {file = "LICENSE"}
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
-maintainers = [{name = "PyAEDT developers", email = "massimo.capodiferro@ansys.com"}]
+maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 classifiers = [
+    # General classifiers
     "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Intended Audience :: Manufacturing",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Libraries",
+    "Topic :: Scientific/Engineering :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    # Additional specific classifiers
+    "Operating System :: OS Independent",
 ]
 
 dependencies = [
     "fpdf2",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0,<0.9; python_version == '3.7'",
-    "pyedb>=0.5.0; python_version > '3.7'",
+    "pyedb>=0.4.0",
     "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
 ]
@@ -38,7 +46,7 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "imageio>=2.30.0,<2.35",
-    "ipython>=7.30.0,<8.24",
+    "ipython>=7.30.0,<8.26",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.9",
     "mock>=5.1.0,<5.2",
@@ -46,13 +54,12 @@ tests = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.2",
+    "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyedb>=0.4.0,<0.9; python_version == '3.7'",
-    "pyedb>=0.5.0,<0.9; python_version > '3.7'",
     "pyvista>=0.38.0,<0.44",
-    "scikit-learn>=1.0.0,<1.5",
+    # Never directly imported but required when loading ML related file see #4713
+    "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
@@ -66,11 +73,11 @@ dotnet = [
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=0.10.0,<0.16",
+    "ansys-sphinx-theme>=0.10.0,<0.17",
     "imageio>=2.30.0,<2.35",
     #"imageio-ffmpeg>=0.4.0,<0.5",
     "ipython>=7.34.0; python_version == '3.7'",
-    "ipython>=8.13.0,<8.24; python_version > '3.7'",
+    "ipython>=8.13.0,<8.26; python_version > '3.7'",
     #"ipywidgets>=8.0.0,<8.2",
     "joblib>=1.3.0,<1.5",
     "jupyterlab>=4.0.0,<4.3",
@@ -83,7 +90,6 @@ doc = [
     #"pytest-sphinx",
     "pyvista>=0.38.0,<0.44",
     "recommonmark",
-    #"scikit-learn",
     "scikit-rf>=0.30.0,<1.1",
     "Sphinx==5.3.0; python_version == '3.7'",
     "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
@@ -92,21 +98,20 @@ doc = [
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.16",
-    "sphinx-jinja>=2.0,<2.1",
+    "sphinx-gallery>=0.14.0,<0.17",
     #"sphinx-notfound-page",
-    "sphinx_design>=0.4.0,<0.6",
+    "sphinx_design>=0.4.0,<0.7",
     #"sphinxcontrib-websupport",
     "SRTM.py",
     "utm",
     "vtk==9.2.6",
 ]
-doc-noexamples = [
-    "ansys-sphinx-theme>=0.10.0,<0.16",
+doc-no-examples = [
+    "ansys-sphinx-theme>=0.10.0,<0.17",
     "imageio>=2.30.0,<2.35",
     #"imageio-ffmpeg",
     "numpydoc>=1.5.0,<1.8",
-    # "recommonmark",
+    "recommonmark",
     "Sphinx==5.3.0; python_version == '3.7'",
     "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
     "sphinx-autobuild==2021.3.14; python_version == '3.7'",
@@ -114,11 +119,10 @@ doc-noexamples = [
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.16",
+    "sphinx-gallery>=0.14.0,<0.17",
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
-    "sphinx_design>=0.4.0,<0.6",
-    "sphinx-jinja>=2.0,<2.1",
+    "sphinx_design>=0.4.0,<0.7",
 ]
 all = [
     "imageio>=2.30.0,<2.35",
@@ -128,10 +132,31 @@ all = [
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
     "pyvista>=0.38.0,<0.44",
+    "fast-simplification>=0.1.7",
+    # Never directly imported but required when loading ML related file see #4713
+    "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
     "vtk==9.2.6",
+]
+installer = [
+    "imageio>=2.30.0,<2.35",
+    "matplotlib>=3.5.0,<3.9",
+    "numpy>=1.20.0,<2",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<1.10",
+    "pandas>=1.1.0,<2.3",
+    "pyvista>=0.38.0,<0.44",
+    # Never directly imported but required when loading ML related file see #4713
+    "scikit-learn>=1.0.0,<1.6",
+    "scikit-rf>=0.30.0,<1.1",
+    "SRTM.py",
+    "utm",
+    "vtk==9.2.6",
+    "jupyterlab>=3.6.0,<4.3",
+    "ipython>=7.30.0,<8.26",
+    "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
 [tool.flit.module]

@@ -693,6 +693,8 @@ class TestClass:
         assert o.edges[0].chamfer(chamfer_type=3)
         self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.chamfer(edges=o2.edges)
 
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
@@ -701,6 +703,8 @@ class TestClass:
         assert o.edges[0].fillet()
         r = self.create_rectangle(name="MyRect")
         assert not r.edges[0].fillet()
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.fillet(edges=o2.edges)
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -1764,7 +1768,7 @@ class TestClass:
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
 
-    def test_84_replace_3dcomponent(self):
+    def test_84_replace_3d_component(self):
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
@@ -1782,7 +1786,8 @@ class TestClass:
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
-    def test_85_insert_layoutcomponent(self):
+    @pytest.mark.skipif(is_linux, reason="EDB object is not loaded")
+    def test_85_insert_layout_component(self):
         self.aedtapp.insert_design("LayoutComponent")
         self.aedtapp.solution_type = "Modal"
         assert not self.aedtapp.modeler.insert_layout_component(

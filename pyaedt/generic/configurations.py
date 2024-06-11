@@ -26,6 +26,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NativeComponentPCB
 from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
@@ -2054,7 +2055,10 @@ class ConfigurationsIcepak(Configurations):
                 nc_dict = copy.deepcopy(native_dict["Properties"])
                 nc_dict["TargetCS"] = instance_dict["CS"]
                 component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
-                native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
+                if native_dict["Type"] == "PCB":
+                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
+                else:
+                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
                 prj_list = set(self._app.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {

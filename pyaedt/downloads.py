@@ -1,4 +1,4 @@
-"""Download example datasets from https://github.com/pyansys/example-data"""
+"""Download example datasets from https://github.com/ansys/example-data"""
 
 import os
 import shutil
@@ -167,6 +167,7 @@ def _download_file(directory, name=None, destination=None, local_paths=None):
 # front-facing functions
 
 
+# TODO remove once examples repository is public
 def download_aedb(destination=None):
     """Download an example of AEDB File and return the def path.
 
@@ -188,8 +189,7 @@ def download_aedb(destination=None):
     Download an example result file and return the path of the file.
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_aedb()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
+
     """
     local_paths = []
     _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
@@ -502,8 +502,6 @@ def download_sherlock(destination=None):
 
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_sherlock()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
     if not destination:
         destination = EXAMPLES_PATH

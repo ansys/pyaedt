@@ -1970,7 +1970,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props = OrderedDict({"Objects": [assignment], "Direction": OrderedDict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
 
-    @pyaedt_function_handler(face="assignment", nummodes="modes", portname="name", renorm="renormalize")
+    @pyaedt_function_handler(
+        face="assignment", nummodes="modes", portname="name", renorm="renormalize", deembed_dist="deembed_distance"
+    )
     def create_floquet_port(
         self,
         assignment,
@@ -3594,6 +3596,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         impedance=50,
         data_format="Power",
         encoding="utf-8",
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -3606,23 +3609,78 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         file_name : str
             Full name of the input file.
         is_time_domain : bool, optional
-            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+            Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
-            Scaling factor for x axis.
+            Scaling factor for the x axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         y_scale : float, optional
-            Scaling factor for y axis.
+            Scaling factor for the y axis. This argument is ignored if the algorithm
+             identifies the format from the file header.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
-            Either `"Power"`, `"Current"` or `"Voltage"`.
+            Data format. Options are ``"Current"``, ``"Power"``, and ``"Voltage"``. This
+            argument is ignored if the algoritmm identifies the format from the
+            file header.
         encoding : str, optional
-            Csv file encoding.
-
+            CSV file encoding.
+        window : str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
         bool
         """
+
+        def find_scale(data, header_line):
+            for td in data.keys():
+                if td in header_line:
+                    return data[td]
+            return None
+
+        with open(file_name, "r") as f:
+            header = f.readlines()[0]
+            time_data = {"[ps]": 1e-12, "[ns]": 1e-9, "[us]": 1e-6, "[ms]": 1e-3, "[s]": 1}
+            curva_data_V = {
+                "[nV]": 1e-9,
+                "[pV]": 1e-12,
+                "[uV]": 1e-6,
+                "[mV]": 1e-3,
+                "[V]": 1,
+                "[kV]": 1e3,
+            }
+            curva_data_W = {
+                "[nW]": 1e-9,
+                "[pW]": 1e-12,
+                "[uW]": 1e-6,
+                "[mW]": 1e-3,
+                "[W]": 1,
+                "[kW]": 1e3,
+            }
+            curva_data_A = {
+                "[nA]": 1e-9,
+                "[pA]": 1e-12,
+                "[uA]": 1e-6,
+                "[mA]": 1e-3,
+                "[A]": 1,
+                "[kA]": 1e3,
+            }
+            scale = find_scale(time_data, header)
+            x_scale = scale if scale else x_scale
+            scale = find_scale(curva_data_V, header)
+            if scale:
+                y_scale = scale
+                data_format = "Voltage"
+            else:
+                scale = find_scale(curva_data_W, header)
+                if scale:
+                    y_scale = scale
+                    data_format = "Power"
+                else:
+                    scale = find_scale(curva_data_A, header)
+                    if scale:
+                        y_scale = scale
+                        data_format = "Current"
         if self.solution_type == "Modal":
             out = "Power"
         else:
@@ -3636,6 +3694,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
         ds_name_mag = "ds_" + assignment.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + assignment.replace(":", "_mode_") + "_Angle"
@@ -5235,13 +5294,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
-        """Add or edit a 3D component array from a JSON file or TOML file.
+        """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
         The 3D component is placed in the layout if it is not present.
 
         Parameters
         ----------
         input_data : str, dict
-            Full path to either the JSON file or dictionary containing the array information.
+            Full path to either the JSON file, TOML file, or the dictionary
+            containing the array information.
         name : str, optional
              Name of the boundary to add or edit.
 
@@ -5415,8 +5475,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         sphere=None,
         variations=None,
         overwrite=True,
+        link_to_hfss=True,
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionDataExporter`` object.
+        """Export the antenna parameters to Far Field Data (FFD) files and return an
+        instance of the
+        ``FfdSolutionDataExporter`` object.
 
         For phased array cases, only one phased array is calculated.
 
@@ -5433,12 +5496,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Variation dictionary.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
+        link_to_hfss : bool, optional
+            Whether to return an instance of the
+            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
+            independent from the running HFSS instance.
 
         Returns
         -------
         :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
+        from pyaedt.modules.solutions import FfdSolutionData
         from pyaedt.modules.solutions import FfdSolutionDataExporter
 
         if not variations:
@@ -5465,7 +5536,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
-        return FfdSolutionDataExporter(
+        ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
             setup_name=setup,
@@ -5473,6 +5544,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             variations=variations,
             overwrite=overwrite,
         )
+        if link_to_hfss:
+            return ffd
+        else:
+            eep_file = ffd.eep_files
+            frequencies = ffd.frequencies
+            return FfdSolutionData(frequencies=frequencies, eep_files=eep_file)
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=100000):

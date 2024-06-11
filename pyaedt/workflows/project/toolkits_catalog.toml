@@ -1,0 +1,13 @@
+[GenerateReport]
+name = "Generate report"
+script = "create_report.py"
+icon = "images/large/pdf.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[ImportNastran]
+name = "Import Nastran/STL"
+script = "import_nastran.py"
+icon = "images/large/cad3d.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

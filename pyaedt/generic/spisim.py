@@ -59,9 +59,12 @@ class SpiSim:
         if touchstone_file != "":
             cfgCmmd = cfgCmmd + '-i "%s"' % touchstone_file
         if config_file != "":
-            cfgCmmd = '-v CFGFILE="%s"' % config_file
+            if is_linux:
+                cfgCmmd = "-v CFGFILE=%s" % config_file
+            else:
+                cfgCmmd = '-v CFGFILE="%s"' % config_file
         if out_file:
-            cfgCmmd += ' -o "%s"' % out_file
+            cfgCmmd += ', -o "%s"' % out_file
         command = [spisimExe, parameter, cfgCmmd]
         # Debug('%s %s' % (cmdList[0], ' '.join(arguments)))
         # try up to three times to be sure
@@ -72,8 +75,12 @@ class SpiSim:
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
+
         if is_linux:  # pragma: no cover
-            command.append("&")
+            if "ANSYSEM_ROOT_PATH" not in my_env:  # pragma: no cover
+                my_env["ANSYSEM_ROOT_PATH"] = self.desktop_install_dir
+            if "SPISIM_OUTPUT_LOG" not in my_env:  # pragma: no cover
+                my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
             with open_file(out_processing, "w") as outfile:
                 subprocess.Popen(command, env=my_env, stdout=outfile, stderr=outfile).wait()  # nosec
         else:
@@ -245,6 +252,8 @@ class SpiSim:
                 fp.write("# {}: {}\n".format(k, k))
                 fp.write("{} = {}\n".format(k, v))
         retries = 3
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            retries = 10
         trynumb = 0
         while trynumb < retries:
             out_processing = self._compute_spisim(
