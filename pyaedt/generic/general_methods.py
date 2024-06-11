@@ -963,7 +963,6 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
          ``None`` when licenser server is down.
     """
     import subprocess  # nosec B404
-    import tempfile
 
     aedt_install_folder = list(installed_versions().values())[0]
 
@@ -973,8 +972,8 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
         ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
     my_env = os.environ.copy()
 
-    tempfile_status = tempfile.mktemp(suffix=".txt")
-    tempfile_checkout = tempfile.mktemp(suffix=".txt")
+    tempfile_status = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
+    tempfile_checkout = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
 
     # License server status
     cmd = [ansysli_util_path, "-statli"]
