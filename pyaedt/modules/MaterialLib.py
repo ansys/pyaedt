@@ -829,7 +829,7 @@ class Materials(object):
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = [sublist[2] for sublist in new_list]
-                self._app.create_dataset(el[1:], x_list=xval, y_list=yval, z_list=zval, x_unit=xunit, y_unit=yunit)
+                self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit)
         if json_flag:
             for el, val in data["materials"].items():
                 if el.lower() in list(self.material_keys.keys()):

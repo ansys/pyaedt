@@ -932,7 +932,7 @@ class VariableManager(object):
         else:
             return self._odesign
 
-    @pyaedt_function_handler(variable_name="name", readonly="read_only", postprocessing="post_processing")
+    @pyaedt_function_handler(variable_name="name", readonly="read_only", postprocessing="is_post_processing")
     def set_variable(
         self,
         name,
@@ -941,7 +941,7 @@ class VariableManager(object):
         hidden=False,
         description=None,
         overwrite=True,
-        post_processing=False,
+        is_post_processing=False,
         circuit_parameter=True,
     ):
         """Set the value of a design property or project variable.
@@ -968,7 +968,7 @@ class VariableManager(object):
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
             which case this method is ignored.
-        post_processing : bool, optional
+        is_post_processing : bool, optional
             Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable is not used in postprocessing.
         circuit_parameter : bool, optional
@@ -1049,7 +1049,7 @@ class VariableManager(object):
                 prop_server = "Instance:{}".format(desktop_object.GetName())
 
         prop_type = "VariableProp"
-        if post_processing or "post" in name.lower()[0:5]:
+        if is_post_processing or "post" in name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
         if isinstance(expression, str):
             # Handle string type variable (including arbitrary expression)# Handle input type variable
@@ -1475,7 +1475,7 @@ class Variable(object):
                 read_only=self._readonly,
                 hidden=self._hidden,
                 description=self._description,
-                post_processing=self._postprocessing,
+                is_post_processing=self._postprocessing,
                 circuit_parameter=self._circuit_parameter,
             )
         return False

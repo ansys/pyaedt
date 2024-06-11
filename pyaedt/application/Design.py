@@ -2500,17 +2500,17 @@ class Design(AedtObjects):
             return False
 
     @pyaedt_function_handler(
-        project_file="input_file",
+        project_file="file_name",
         design_name="design",
         close_active_proj="close_active",
         save_active_project="set_active",
     )
-    def load_project(self, input_file, design=None, close_active=False, set_active=False):
+    def load_project(self, file_name, design=None, close_active=False, set_active=False):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
         ----------
-        input_file : str
+        file_name : str
             Full path of the project to load.
         design : str, optional
             Design name. The default is ``None``.
@@ -2529,7 +2529,7 @@ class Design(AedtObjects):
 
         >>> oDesktop.OpenProject
         """
-        proj = self.odesktop.OpenProject(input_file)
+        proj = self.odesktop.OpenProject(file_name)
         if close_active and self.oproject:
             self._close_edb()
             self.close_project(self.project_name, save=set_active)
@@ -2545,17 +2545,17 @@ class Design(AedtObjects):
             if self.modeler and self.modeler._edb:
                 self.modeler._edb.close_edb()
 
-    @pyaedt_function_handler(dsname="name", xlist="x_list", ylist="y_list", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_design(self, name, x_list, y_list, x_unit="", y_unit=""):
+    @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
+    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit=""):
         """Create a design dataset.
 
         Parameters
         ----------
         name : str
             Name of the dataset (without a prefix for a project dataset).
-        x_list : list
+        x : list
             List of X-axis values for the dataset.
-        y_list : list
+        y : list
             List of Y-axis values for the dataset.
         x_unit : str, optional
             Units for the X axis. The default is ``""``.
@@ -2572,19 +2572,19 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x_list, y_list, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit)
 
-    @pyaedt_function_handler(dsname="name", xlist="x_list", ylist="y_list", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_project(self, name, x_list, y_list, x_unit="", y_unit=""):
+    @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
+    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit=""):
         """Create a project dataset.
 
         Parameters
         ----------
         name : str
             Name of dataset (without a prefix for a project dataset).
-        x_list : list
+        x : list
             List of X-axis values for the dataset.
-        y_list : list
+        y : list
             List of Y-axis values for the dataset.
         x_unit : str, optional
             Units for the X axis. The default is ``""``.
@@ -2602,14 +2602,14 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x_list, y_list, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit)
 
     @pyaedt_function_handler(
         dsname="name",
-        xlist="x_list",
-        ylist="y_list",
-        zlist="z_list",
-        vlist="v_list",
+        xlist="x",
+        ylist="y",
+        zlist="z",
+        vlist="v",
         xunit="x_unit",
         yunit="y_unit",
         zunit="z_unit",
@@ -2618,10 +2618,10 @@ class Design(AedtObjects):
     def create_dataset3d(
         self,
         name,
-        x_list,
-        y_list,
-        z_list=None,
-        v_list=None,
+        x,
+        y,
+        z=None,
+        v=None,
         x_unit="",
         y_unit="",
         z_unit="",
@@ -2634,13 +2634,13 @@ class Design(AedtObjects):
         ----------
         name : str
             Name of the dataset (without a prefix for a project dataset).
-        x_list : list
+        x : list
             List of X-axis values for the dataset.
-        y_list : list
+        y : list
             List of Y-axis values for the dataset.
-        z_list : list, optional
+        z : list, optional
             List of Z-axis values for a 3D dataset only. The default is ``None``.
-        v_list : list, optional
+        v : list, optional
             List of V-axis values for a 3D dataset only. The default is ``None``.
         x_unit : str, optional
             Units for the X axis. The default is ``""``.
@@ -2671,10 +2671,10 @@ class Design(AedtObjects):
 
         return self.create_dataset(
             name=name,
-            x_list=x_list,
-            y_list=y_list,
-            z_list=z_list,
-            v_list=v_list,
+            x=x,
+            y=y,
+            z=z,
+            v=v,
             is_project_dataset=is_project_dataset,
             x_unit=x_unit,
             y_unit=y_unit,
@@ -2831,10 +2831,10 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler(
         dsname="name",
-        xlist="x_list",
-        ylist="y_list",
-        zlist="z_list",
-        vlist="v_list",
+        xlist="x",
+        ylist="y",
+        zlist="z",
+        vlist="v",
         xunit="x_unit",
         yunit="y_unit",
         zunit="z_unit",
@@ -2843,10 +2843,10 @@ class Design(AedtObjects):
     def create_dataset(
         self,
         name,
-        x_list,
-        y_list,
-        z_list=None,
-        v_list=None,
+        x,
+        y,
+        z=None,
+        v=None,
         is_project_dataset=True,
         x_unit="",
         y_unit="",
@@ -2859,13 +2859,13 @@ class Design(AedtObjects):
         ----------
         name : str
             Name of the dataset (without a prefix for a project dataset).
-        x_list : list
+        x : list
             List of X-axis values for the dataset.
-        y_list : list
+        y : list
             List of Y-axis values for the dataset.
-        z_list : list, optional
+        z : list, optional
             List of Z-axis values for a 3D dataset only. The default is ``None``.
-        v_list : list, optional
+        v : list, optional
             List of V-axis values for a 3D dataset only. The default is ``None``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2892,7 +2892,7 @@ class Design(AedtObjects):
         if not self.dataset_exists(name, is_project_dataset):
             if is_project_dataset:
                 name = "$" + name
-            ds = DataSet(self, name, x_list, y_list, z_list, v_list, x_unit, y_unit, z_unit, v_unit)
+            ds = DataSet(self, name, x, y, z, v, x_unit, y_unit, z_unit, v_unit)
         else:
             self.logger.warning("Dataset %s already exists", name)
             return False
@@ -3643,13 +3643,13 @@ class Design(AedtObjects):
             design_data = json.load(fps)
         return design_data
 
-    @pyaedt_function_handler(project_file="project_path", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, project_path=None, overwrite=True, refresh_ids=False):
+    @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
+    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        project_path : str, optional
+        file_name : str, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
@@ -3668,10 +3668,10 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        if project_path and not os.path.exists(os.path.dirname(project_path)):
-            os.makedirs(os.path.dirname(project_path))
-        elif project_path:
-            self.oproject.SaveAs(project_path, overwrite)
+        if file_name and not os.path.exists(os.path.dirname(file_name)):
+            os.makedirs(os.path.dirname(file_name))
+        elif file_name:
+            self.oproject.SaveAs(file_name, overwrite)
             self._add_handler()
         else:
             self.oproject.Save()

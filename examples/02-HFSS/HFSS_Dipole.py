@@ -153,7 +153,7 @@ solution_data.plot()
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
-hfss.variable_manager.set_variable(name="y_post", expression=1, post_processing=True)
+hfss.variable_manager.set_variable(name="y_post", expression=1, is_post_processing=True)
 hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 

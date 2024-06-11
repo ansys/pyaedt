@@ -172,17 +172,17 @@ class TestClass:
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, "origin.aedt")
         destin = os.path.join(self.local_scratch.path, "destin.aedt")
-        self.aedtapp.save_project(project_path=origin)
+        self.aedtapp.save_project(file_name=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
-        self.aedtapp.save_project(project_path=origin, refresh_ids=True)
+        self.aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        self.aedtapp.save_project(project_path=destin)
+        self.aedtapp.save_project(file_name=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
 
     def test_16_renamedesign(self, add_app, test_project_file):
         prj_file = test_project_file(test_project_name)
-        self.aedtapp.load_project(input_file=prj_file, design="myname", close_active=True)
+        self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
         assert "myname" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
@@ -432,7 +432,7 @@ class TestClass:
 
     def test_39_load_project(self, desktop):
         new_project = os.path.join(self.local_scratch.path, "new.aedt")
-        self.aedtapp.save_project(project_path=new_project)
+        self.aedtapp.save_project(file_name=new_project)
         self.aedtapp.close_project(name="new")
         aedtapp = desktop.load_project(new_project)
         assert aedtapp

@@ -100,8 +100,8 @@ ipk.plot(show=False, output_file=os.path.join(temp_folder, "QFP2.jpg"))
 # Create dataset for power dissipation.
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
-ipk.create_dataset("PowerDissipationDataset", x_datalist, y_datalist, z_list=None, v_list=None,
-                   is_project_dataset=False, x_unit="cel", y_unit="W", v_unit="")
+ipk.create_dataset("PowerDissipationDataset", x_datalist, y_datalist, z=None, v=None, is_project_dataset=False,
+                   x_unit="cel", y_unit="W", v_unit="")
 
 # Assign source power condition to the die.
 ipk.create_source_power(
