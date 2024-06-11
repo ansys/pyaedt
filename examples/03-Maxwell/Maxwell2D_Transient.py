@@ -25,6 +25,21 @@ Install these libraries with:
 
 import os
 import pyaedt
+import tempfile
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -39,7 +54,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2023.2", non_graphical=non_graphical,
+maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version=aedt_version, non_graphical=non_graphical,
                               new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
 
 ###############################################################################
@@ -47,7 +62,7 @@ maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="20
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a rectangle and duplicate it.
 
-rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", matname="copper")
+rect1 = maxwell_2d.modeler.create_rectangle([0, 0, 0], [10, 20], name="winding", material="copper")
 added = rect1.duplicate_along_line([14, 0, 0])
 rect2 = maxwell_2d.modeler[added[0]]
 
@@ -56,7 +71,7 @@ rect2 = maxwell_2d.modeler[added[0]]
 # ~~~~~~~~~~~~~~~~~
 # Create an air region.
 
-region = maxwell_2d.modeler.create_region([100, 100, 100, 100, 100, 100])
+region = maxwell_2d.modeler.create_region([100, 100, 100, 100])
 
 ###############################################################################
 # Assign windings and balloon
@@ -71,7 +86,7 @@ maxwell_2d.assign_balloon(region.edges)
 # ~~~~~~~~~~
 # Plot the model.
 
-maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.working_directory, "Image.jpg"), plot_air_objects=True)
+maxwell_2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup
@@ -91,9 +106,8 @@ setup.props["Steps To"] = "0.002s"
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Create a rectangular plot.
 
-maxwell_2d.post.create_report(
-    "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time", plotname="Winding Plot 1"
-)
+maxwell_2d.post.create_report("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+                              plot_name="Winding Plot 1")
 
 ###############################################################################
 # Solve model
@@ -113,29 +127,22 @@ face_lists += rect2.faces
 timesteps = [str(i * 2e-4) + "s" for i in range(11)]
 id_list = [f.id for f in face_lists]
 
-animatedGif = maxwell_2d.post.plot_animated_field(
-    "Mag_B",
-    id_list,
-    "Surface",
-    intrinsics={"Time": "0s"},
-    variation_variable="Time",
-    variation_list=timesteps,
-    show=False,
-    export_gif=False,
-)
-animatedGif.isometric_view = False
-animatedGif.camera_position = [15, 15, 80]
-animatedGif.focal_point = [15, 15, 0]
-animatedGif.roll_angle = 0
-animatedGif.elevation_angle = 0
-animatedGif.azimuth_angle = 0
+gif = maxwell_2d.post.plot_animated_field(quantity="Mag_B", assignment=id_list, plot_type="Surface",
+                                          intrinsics={"Time": "0s"}, variation_variable="Time",
+                                          variations=timesteps, show=False, export_gif=False)
+gif.isometric_view = False
+gif.camera_position = [15, 15, 80]
+gif.focal_point = [15, 15, 0]
+gif.roll_angle = 0
+gif.elevation_angle = 0
+gif.azimuth_angle = 0
 # Set off_screen to False to visualize the animation.
-# animatedGif.off_screen = False
-animatedGif.animate()
+# gif.off_screen = False
+gif.animate()
 
 ###############################################################################
-# Generate plot outside of AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate plot outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate the same plot outside AEDT.
 
 solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
@@ -147,3 +154,4 @@ solutions.plot()
 # Close AEDT.
 
 maxwell_2d.release_desktop()
+temp_dir.cleanup()

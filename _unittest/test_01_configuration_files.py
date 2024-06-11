@@ -74,7 +74,7 @@ class TestClass:
     def test_01_hfss_export(self, aedtapp, add_app):
         aedtapp.mesh.assign_length_mesh("sub")
         conf_file = aedtapp.configurations.export_config()
-        assert os.path.exists(conf_file)
+        assert aedtapp.configurations.validate(conf_file)
         filename = aedtapp.design_name
         file_path = os.path.join(aedtapp.working_directory, filename + ".x_b")
         aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
@@ -82,6 +82,7 @@ class TestClass:
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
+        assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
@@ -89,30 +90,32 @@ class TestClass:
         q3dtest.modeler.create_coordinate_system()
         q3dtest.setups[0].props["AdaptiveFreq"] = "100MHz"
         conf_file = q3dtest.configurations.export_config()
-        assert os.path.exists(conf_file)
+        assert q3dtest.configurations.validate(conf_file)
         filename = q3dtest.design_name
         file_path = os.path.join(q3dtest.working_directory, filename + ".x_b")
         q3dtest.export_3d_model(filename, q3dtest.working_directory, ".x_b", [], [])
-        time.sleep(1)
+        time.sleep(2)
         app = add_app(application=Q3d, project_name="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
+        assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
     def test_03_q2d_export(self, q2dtest, add_app):
         conf_file = q2dtest.configurations.export_config()
 
-        assert os.path.exists(conf_file)
+        assert q2dtest.configurations.validate(conf_file)
         filename = q2dtest.design_name
-        file_path = os.path.join(q2dtest.working_directory, filename + ".x_b")
-        q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_b", [], [])
-        time.sleep(1)
+        file_path = os.path.join(q2dtest.working_directory, filename + ".x_t")
+        q2dtest.export_3d_model(filename, q2dtest.working_directory, ".x_t", [], [])
+        time.sleep(2)
         app = add_app(application=Q2d, project_name="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
+        assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
         q2dtest.configurations.options.unset_all_export()
         assert not q2dtest.configurations.options.export_materials
@@ -195,7 +198,7 @@ class TestClass:
         assert icepak_a.configurations.options.export_native_components
         assert icepak_a.configurations.options.export_datasets
         conf_file = icepak_a.configurations.export_config()
-        assert os.path.exists(conf_file)
+        assert icepak_a.configurations.validate(conf_file)
         f = icepak_a.create_fan("test_fan")
         idx = 0
         icepak_a.monitor.assign_point_monitor_to_vertex(
@@ -208,6 +211,7 @@ class TestClass:
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
+        assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
         # backward compatibility
         with open(conf_file, "r") as f:
@@ -290,27 +294,33 @@ class TestClass:
             list(icepak_b.modeler.user_defined_components[fan4[0]].parts.values())[0]
         )
         conf_file = icepak_b.configurations.export_config()
-        assert os.path.exists(conf_file)
+        assert icepak_b.configurations.validate(conf_file)
         file_path = os.path.join(icepak_b.working_directory, filename + ".x_b")
         app = add_app(application=Icepak, project_name="new_proj_Ipk", just_open=True)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
+        assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        # app.close_project(save_project=False)
 
     def test_05a_hfss3dlayout_setup(self, hfss3dl_a, local_scratch):
-        setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
-        export_path = os.path.join(local_scratch.path, "export_setup_properties.json")
-        assert setup2.export_to_json(export_path)
-        assert setup2.props["ViaNumSides"] == 6
+        setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")  # Insert a setup.
+        assert setup2.props["ViaNumSides"] == 6  # Check the default value.
+        export_path = os.path.join(local_scratch.path, "export_setup_properties.json")  # Legacy.
+        assert setup2.export_to_json(export_path)  # Export from setup directly.
+        conf_file = hfss3dl_a.configurations.export_config()  # Design level export. Same as other apps.
         assert setup2.import_from_json(os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json"))
         assert setup2.props["ViaNumSides"] == 12
+        assert hfss3dl_a.configurations.validate(conf_file)
+        hfss3dl_a.configurations.import_config(conf_file)
+        assert hfss3dl_a.setups[0].props["ViaNumSides"] == 6
 
     def test_05b_hfss3dlayout_existing_setup(self, hfss3dl_a, hfss3dl_b, local_scratch):
-        setup2 = hfss3dl_a.get_setup("My_HFSS_Setup_2")
+        setup2 = hfss3dl_a.create_setup("My_HFSS_Setup_2")
         export_path = os.path.join(local_scratch.path, "export_setup_properties.json")
-        assert setup2.export_to_json(export_path)
+        assert setup2.export_to_json(export_path, overwrite=True)
+        assert not setup2.export_to_json(export_path)
         setup3 = hfss3dl_b.create_setup("My_HFSS_Setup_3")
         assert setup3.import_from_json(export_path)
         assert setup3.update()

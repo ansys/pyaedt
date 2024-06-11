@@ -119,7 +119,6 @@ class TestClass:
         v = self.aedtapp.variable_manager
         for var_name in v.variable_names:
             print("{} = {}".format(var_name, self.aedtapp[var_name]))
-        pass
         tol = 1e-9
         c2pi = math.pi * 2.0
         assert abs(v["$PrjVar1"].numeric_value - c2pi) < tol
@@ -253,18 +252,11 @@ class TestClass:
         v2 = Variable(3)
         v3 = Variable("3mA")
         v4 = Variable("10A")
-
-        try:
+        with pytest.raises(ValueError):
             v1 + v2
-            assert False
-        except AssertionError:
-            pass
 
-        try:
+        with pytest.raises(ValueError):
             v2 + v1
-            assert False
-        except AssertionError:
-            pass
         result_1 = v2 + v2
         result_2 = v3 + v4
         result_3 = v3 + v3
@@ -286,17 +278,11 @@ class TestClass:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        try:
+        with pytest.raises(ValueError):
             v1 - v2
-            assert False
-        except AssertionError:
-            pass
 
-        try:
+        with pytest.raises(ValueError):
             v2 - v1
-            assert False
-        except AssertionError:
-            pass
 
         result_1 = v2 - v2
         result_2 = v3 - v4

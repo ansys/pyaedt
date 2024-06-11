@@ -2,11 +2,11 @@
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,
-`Nets3DLayout`, `Objec3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
+`Nets3DLayout`, `Object3DLayout`, `Object3d`, `Padstack`, `PDSHole`, `PDSLayer`,
 `Pins3DLayout', and `VertexPrimitive`.
 
 This module provides methods and data structures for managing all properties of
-objects (points, lines, sheeets, and solids) within the AEDT 3D Modeler.
+objects (points, lines, sheets, and solids) within the AEDT 3D Modeler.
 
 """
 from __future__ import absolute_import  # noreorder
@@ -48,7 +48,7 @@ class Object3d(object):
 
     Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
 
-    >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
+    >>> id = prim.create_box([0, 0, 0],[10, 10, 5],"Mybox","Copper")
     >>> part = prim[id]
     """
 
@@ -161,7 +161,7 @@ class Object3d(object):
                 try:
                     for i in range(1, 7):
                         bb.append(float(m.group(i)))
-                except:
+                except Exception:
                     return False
             else:
                 return False
@@ -170,7 +170,7 @@ class Object3d(object):
 
         try:
             os.remove(filename)
-        except:
+        except Exception:
             self.logger.warning("ERROR: Cannot remove temp file.")
         return bb
 
@@ -258,8 +258,8 @@ class Object3d(object):
                 show=show,
             )
 
-    @pyaedt_function_handler()
-    def export_image(self, file_path=None):
+    @pyaedt_function_handler(file_path="output_file")
+    def export_image(self, output_file=None):
         """Export the current object to a specified file path.
 
 
@@ -268,7 +268,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        file_path : str, optional
+        output_file : str, optional
             File name with full path. If `None` the exported image will be a ``png`` file that
             will be saved in ``working_directory``.
             To access the ``working_directory`` the use ``app.working_directory`` property.
@@ -279,12 +279,12 @@ class Object3d(object):
             File path.
         """
         if not is_ironpython and self._primitives._app._aedt_version >= "2021.2":
-            if not file_path:
-                file_path = os.path.join(self._primitives._app.working_directory, self.name + ".png")
+            if not output_file:
+                output_file = os.path.join(self._primitives._app.working_directory, self.name + ".png")
             model_obj = self._primitives._app.post.plot_model_obj(
                 objects=[self.name],
                 show=False,
-                export_path=file_path,
+                export_path=output_file,
                 plot_as_separate_objects=True,
                 clean_files=True,
             )
@@ -327,13 +327,13 @@ class Object3d(object):
                 list_names.extend(a)
         return list_names
 
-    @pyaedt_function_handler()
-    def get_touching_faces(self, object_name):
+    @pyaedt_function_handler(object_name="assignment")
+    def get_touching_faces(self, assignment):
         """Get the objects that touch one of the face center of each face of the object.
 
         Parameters
         ----------
-        object_name : str, :class:`Object3d`
+        assignment : str, :class:`Object3d`
             Object to check.
         Returns
         -------
@@ -341,11 +341,11 @@ class Object3d(object):
             list of objects and faces touching."""
 
         _names = []
-        if isinstance(object_name, Object3d):
-            object_name = object_name.name
+        if isinstance(assignment, Object3d):
+            assignment = assignment.name
         for face in self.faces:
             body_names = self._primitives.get_bodynames_from_position(face.center)
-            if object_name in body_names:
+            if assignment in body_names:
                 _names.append(face)
         return _names
 
@@ -498,7 +498,7 @@ class Object3d(object):
             result = [(float(face.center[2]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -519,7 +519,7 @@ class Object3d(object):
             result = [(float(face.center[2]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -540,7 +540,7 @@ class Object3d(object):
             result = [(float(face.center[0]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -561,7 +561,7 @@ class Object3d(object):
             result = [(float(face.center[0]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -582,7 +582,7 @@ class Object3d(object):
             result = [(float(face.center[1]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -603,7 +603,7 @@ class Object3d(object):
             result = [(float(face.center[1]), face) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -624,7 +624,7 @@ class Object3d(object):
             result = [(float(face.top_edge_z.midpoint[2]), face.top_edge_z) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -640,7 +640,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_z.midpoint[2]), face.bottom_edge_z) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -656,7 +656,7 @@ class Object3d(object):
             result = [(float(face.top_edge_x.midpoint[0]), face.top_edge_x) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -672,7 +672,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_x.midpoint[0]), face.bottom_edge_x) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -688,12 +688,12 @@ class Object3d(object):
             result = [(float(face.top_edge_y.midpoint[1]), face.top_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
     def bottom_edge_y(self):
-        """Bottom edge in the X direction of the object. Midpoint is used as criteria to find the edge.
+        """Bottom edge in the Y direction of the object. Midpoint is used as criteria to find the edge.
 
         Returns
         -------
@@ -704,7 +704,7 @@ class Object3d(object):
             result = [(float(face.bottom_edge_y.midpoint[1]), face.bottom_edge_y) for face in self.faces]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -817,15 +817,16 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._m_groupName is not None:
-            return self._m_groupName
+        group_name = None
         if "Group" in self.valid_properties:
-            self._m_groupName = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Group")
-            return self._m_groupName
+            group_name = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Group")
+        if group_name is not None:
+            self._m_groupName = group_name
+        return self._m_groupName
 
     @group_name.setter
     def group_name(self, name):
-        """Assign Object to a specific group. it creates a new group if the group doesn't exist.
+        """Assign Object to a specific group. It creates a new group if the group doesn't exist.
 
         Parameters
         ----------
@@ -870,11 +871,10 @@ class Object3d(object):
                     ],
                 ]
             )
-            self._m_groupName = name
         else:
             vgroup = ["NAME:Group", "Value:=", name]
             self._change_property(vgroup)
-            self._m_groupName = name
+        self._m_groupName = name
 
     @property
     def is_conductor(self):
@@ -936,7 +936,7 @@ class Object3d(object):
             vMaterial = ["NAME:Surface Material", "Value:=", '"' + mat + '"']
             self._change_property(vMaterial)
             self._surface_material = mat
-        except:
+        except Exception:
             self.logger.warning("Material %s does not exist", mat)
 
     @property
@@ -957,7 +957,7 @@ class Object3d(object):
         if not self._id:
             try:
                 self._id = self._primitives.oeditor.GetObjectIDByName(self._m_name)
-            except:
+            except Exception:
                 return None
         return self._id
 
@@ -1089,7 +1089,7 @@ class Object3d(object):
                 self._primitives.add_new_objects()
                 self._primitives.cleanup_objects()
         else:
-            pass
+            self.logger.warning("{} is already used in current design.".format(obj_name))
 
     @property
     def valid_properties(self):
@@ -1195,7 +1195,7 @@ class Object3d(object):
             transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
             try:
                 self._transparency = float(transp)
-            except:
+            except Exception:
                 self._transparency = 0.3
             return self._transparency
 
@@ -1339,7 +1339,7 @@ class Object3d(object):
             child_object = self._oeditor.GetChildObject(self.name)
             parent = BinaryTreeNode(self.name, child_object, True)
             return parent
-        except:
+        except Exception:
             return False
 
     @property
@@ -1375,13 +1375,13 @@ class Object3d(object):
         self._change_property(vArg1)
         self._model = fModel
 
-    @pyaedt_function_handler()
-    def unite(self, object_list):
+    @pyaedt_function_handler(object_list="assignment")
+    def unite(self, assignment):
         """Unite a list of objects with this object.
 
         Parameters
         ----------
-        object_list : list of str or list of pyaedt.modeler.cad.object3d.Object3d
+        assignment : list of str or list of pyaedt.modeler.cad.object3d.Object3d
             List of objects.
 
         Returns
@@ -1395,17 +1395,17 @@ class Object3d(object):
         >>> oEditor.Unite
 
         """
-        unite_list = [self.name] + self._primitives.convert_to_selections(object_list, return_list=True)
+        unite_list = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
         self._primitives.unite(unite_list)
         return self
 
-    @pyaedt_function_handler()
-    def intersect(self, theList, keep_originals=False):
+    @pyaedt_function_handler(theList="assignment")
+    def intersect(self, assignment, keep_originals=False):
         """Intersect the active object with a given list.
 
         Parameters
         ----------
-        theList : list
+        assignment : list
             List of objects.
         keep_originals : bool, optional
             Whether to keep the original object. The default is ``False``.
@@ -1420,8 +1420,8 @@ class Object3d(object):
 
         >>> oEditor.Intersect
         """
-        theList = [self.name] + self._primitives.convert_to_selections(theList, return_list=True)
-        self._primitives.intersect(theList, keep_originals)
+        assignment = [self.name] + self._primitives.convert_to_selections(assignment, return_list=True)
+        self._primitives.intersect(assignment)
         return self
 
     @pyaedt_function_handler()
@@ -1450,18 +1450,21 @@ class Object3d(object):
         """
         return self._primitives.split(self.name, plane, sides)
 
-    @pyaedt_function_handler()
-    def mirror(self, position, vector, duplicate=False):
+    @pyaedt_function_handler(position="origin")
+    def mirror(self, origin, vector, duplicate=False):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : list of int or float
+        origin : list of int or float
             Cartesian ``[x, y, z]`` coordinates or
             the ``Application.Position`` object of a point in the plane used for the mirror operation.
         vector : list of float
             Vector in Cartesian coordinates ``[x1, y1, z1]``  or
             the ``Application.Position`` object for the vector normal to the plane used for the mirror operation.
+        duplicate : bool, optional
+             Whether to duplicate the object after mirroring it .n. The default
+             is ``False``, in which case AEDT is not duplicating the object.
 
         Returns
         -------
@@ -1474,22 +1477,22 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        if self._primitives.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
+        if self._primitives.mirror(self.id, origin=origin, vector=vector, duplicate=duplicate):
             return self
         return False
 
-    @pyaedt_function_handler()
-    def rotate(self, cs_axis, angle=90.0, unit="deg"):
+    @pyaedt_function_handler(cs_axis="axis", unit="units")
+    def rotate(self, axis, angle=90.0, units="deg"):
         """Rotate the selection.
 
         Parameters
         ----------
-        cs_axis : int
+        axis : int
             Coordinate system axis or the Application.AXIS object.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
-        unit : text, optional
+        units : text, optional
              Units for the angle. Options are ``"deg"`` or ``"rad"``.
              The default is ``"deg"``.
 
@@ -1503,7 +1506,7 @@ class Object3d(object):
 
         >>> oEditor.Rotate
         """
-        if self._primitives.rotate(self.id, cs_axis=cs_axis, angle=angle, unit=unit):
+        if self._primitives.rotate(self.id, axis=axis, angle=angle, units=units):
             return self
         return False
 
@@ -1513,8 +1516,6 @@ class Object3d(object):
 
         Parameters
         ----------
-        objid : list, Position object
-            List of object IDs.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
             coordinates or a Position object.
@@ -1529,20 +1530,21 @@ class Object3d(object):
         ----------
         >>> oEditor.Move
         """
-        if self._primitives.move(self.id, vector=vector):
+        if self._primitives.move(self.id, vector):
             return self
         return False
 
-    def duplicate_around_axis(self, cs_axis, angle=90, nclones=2, create_new_objects=True):
+    @pyaedt_function_handler(cs_axis="axis", nclones="clones")
+    def duplicate_around_axis(self, axis, angle=90, clones=2, create_new_objects=True):
         """Duplicate the object around the axis.
 
         Parameters
         ----------
-        cs_axis : Application.AXIS object
+        axis : Application.AXIS object
             Coordinate system axis of the object.
         angle : float
             Angle of rotation in degrees. The default is ``90``.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
         create_new_objects : bool, optional
             Whether to create copies as new objects. The default is ``True``.
@@ -1558,20 +1560,22 @@ class Object3d(object):
         >>> oEditor.DuplicateAroundAxis
 
         """
-        _, added_objects = self._primitives.duplicate_around_axis(self, cs_axis, angle, nclones, create_new_objects)
+        _, added_objects = self._primitives.duplicate_around_axis(
+            self, axis, angle, clones, create_new_objects=create_new_objects
+        )
         return added_objects
 
-    @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+    @pyaedt_function_handler(nclones="clones", attachObject="attach")
+    def duplicate_along_line(self, vector, clones=2, attach=False):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
+        clones : int, optional
             Number of clones. The default is ``2``.
-        attachObject : bool, optional
+        attach : bool, optional
             Whether to attach the object. The default is ``False``.
 
         Returns
@@ -1585,7 +1589,7 @@ class Object3d(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        _, added_objects = self._primitives.duplicate_along_line(self, vector, nclones, attachObject)
+        _, added_objects = self._primitives.duplicate_along_line(self, vector, clones, attach=attach)
         return added_objects
 
     @pyaedt_function_handler()
@@ -1652,13 +1656,13 @@ class Object3d(object):
         )
         return self
 
-    @pyaedt_function_handler()
-    def sweep_around_axis(self, cs_axis, sweep_angle=360, draft_angle=0):
+    @pyaedt_function_handler(cs_axis="axis")
+    def sweep_around_axis(self, axis, sweep_angle=360, draft_angle=0):
         """Sweep around an axis.
 
         Parameters
         ----------
-        cs_axis : :class:`pyaedt.generic.constants.AXIS`
+        axis : :class:`pyaedt.generic.constants.AXIS`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1676,7 +1680,7 @@ class Object3d(object):
         >>> oEditor.SweepAroundAxis
 
         """
-        self._primitives.sweep_around_axis(self, cs_axis, sweep_angle, draft_angle)
+        self._primitives.sweep_around_axis(self, axis, sweep_angle, draft_angle)
         return self
 
     @pyaedt_function_handler()
@@ -1705,6 +1709,28 @@ class Object3d(object):
         """
         self._primitives.section(self, plane, create_new, section_cross_object)
         return self
+
+    @pyaedt_function_handler()
+    def detach_faces(self, faces):
+        """Section the object.
+
+        Parameters
+        ----------
+        faces : List[FacePrimitive] or List[int] or int or FacePrimitive
+            Face or faces to detach from the object.
+
+        Returns
+        -------
+        List[:class:`pyaedt.modeler.cad.object3d.Object3d`]
+            List of object resulting from the operation.
+
+        References
+        ----------
+
+        >>> oEditor.DetachFaces
+
+        """
+        return self._primitives.detach_faces(self, faces)
 
     @pyaedt_function_handler()
     def clone(self):
@@ -1888,3 +1914,127 @@ class Object3d(object):
 
     def __str__(self):
         return self.name
+
+    @pyaedt_function_handler()
+    def fillet(self, vertices=None, edges=None, radius=0.1, setback=0.0):
+        """Add a fillet to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        vertices : list, optional
+            List of vertices to fillet. Default is ``None``.
+        edges : list, optional
+            List of edges to fillet. Default is ``None``.
+        radius : float, optional
+            Radius of the fillet. The default is ``0.1``.
+        setback : float, optional
+            Setback value for the file. The default is ``0.0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Fillet
+
+        """
+        if not vertices and not edges:
+            self.logger.error("Either vertices or edges have to be provided as input.")
+            return False
+        edge_id_list = []
+        vertex_id_list = []
+        if edges is not None:
+            edge_id_list = self._primitives.convert_to_selections(edges, return_list=True)
+        if vertices is not None:
+            vertex_id_list = self._primitives.convert_to_selections(vertices, return_list=True)
+
+        vArg1 = ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:FilletParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("Radius:="), vArg2.append(self._primitives._arg_with_dim(radius))
+        vArg2.append("Setback:="), vArg2.append(self._primitives._arg_with_dim(setback))
+        self._oeditor.Fillet(vArg1, ["NAME:Parameters", vArg2])
+        if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):
+            self._primitives._odesign.Undo()
+            self.logger.error("Operation failed, generating an unclassified object. Check and retry.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def chamfer(self, vertices=None, edges=None, left_distance=1, right_distance=None, angle=45, chamfer_type=0):
+        """Add a chamfer to the selected edges in 3D/vertices in 2D.
+
+        Parameters
+        ----------
+        vertices : list, optional
+            List of vertices to chamfer.
+        edges : list, optional
+            List of edges to chamfer.
+        left_distance : float, optional
+            Left distance from the edge. The default is ``1``.
+        right_distance : float, optional
+            Right distance from the edge. The default is ``None``.
+        angle : float, optional.
+            Angle value for chamfer types 2 and 3. The default is ``0``.
+        chamfer_type : int, optional
+            Type of the chamfer. Options are:
+                * 0 - Symmetric
+                * 1 - Left Distance-Right Distance
+                * 2 - Left Distance-Angle
+                * 3 - Right Distance-Angle
+
+            The default is ``0``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Chamfer
+
+        """
+        edge_id_list = []
+        vertex_id_list = []
+        if edges is not None:
+            edge_id_list = self._primitives.convert_to_selections(edges, return_list=True)
+        if vertices is not None:
+            vertex_id_list = self._primitives.convert_to_selections(vertices, return_list=True)
+        if vertex_id_list == edge_id_list == []:
+            self.logger.error("Vertices or Edges have to be provided as input.")
+            return False
+        vArg1 = ["NAME:Selections", "Selections:=", self.name, "NewPartsModelFlag:=", "Model"]
+        vArg2 = ["NAME:ChamferParameters"]
+        vArg2.append("Edges:="), vArg2.append(edge_id_list)
+        vArg2.append("Vertices:="), vArg2.append(vertex_id_list)
+        vArg2.append("LeftDistance:="), vArg2.append(self._primitives._arg_with_dim(left_distance))
+        if not right_distance:
+            right_distance = left_distance
+        if chamfer_type == 0:
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Symmetric")
+        elif chamfer_type == 1:
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 2:
+            vArg2.append("Angle:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
+        elif chamfer_type == 3:
+            vArg2.append("LeftDistance:="), vArg2.append(str(angle) + "deg")
+            vArg2.append("RightDistance:="), vArg2.append(self._primitives._arg_with_dim(right_distance))
+            vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
+        else:
+            self.logger.error("Wrong Type Entered. Type must be integer from 0 to 3")
+            return False
+        self._oeditor.Chamfer(vArg1, ["NAME:Parameters", vArg2])
+        if self.name in list(self._oeditor.GetObjectsInGroup("UnClassified")):
+            self._primitives._odesign.Undo()
+            self.logger.error("Operation Failed generating Unclassified object. Check and retry")
+            return False
+        return True

@@ -9,6 +9,13 @@ import os
 import tempfile
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Configure EDB for DCIR analysis
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,8 +28,7 @@ local_path = pyaedt.downloads.download_aedb(dst_dir)
 #####################################################################################
 # Load example board into EDB
 
-edbversion = "2023.2"
-appedb = pyaedt.Edb(local_path, edbversion=edbversion)
+appedb = pyaedt.Edb(local_path, edbversion=aedt_version)
 
 #####################################################################################
 # Create pin group on VRM positive pins
@@ -92,7 +98,7 @@ appedb.close_edb()
 # Analysis DCIR in AEDT
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and import the configured EDB and analysis DCIR
-desktop = pyaedt.Desktop(edbversion, non_graphical=False, new_desktop_session=True)
+desktop = pyaedt.Desktop(aedt_version, non_graphical=False, new_desktop_session=True)
 hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze()
 hfss3dl.save_project()
@@ -100,21 +106,15 @@ hfss3dl.save_project()
 ###############################################################################
 # Get element data
 # ~~~~~~~~~~~~~~~~~~~
-# Get loop resistance
-
-loop_resistance = hfss3dl.get_dcir_element_data_loop_resistance(setup_name="my_setup")
-print(loop_resistance)
-
-# ~~~~~~~~~~~~~~~~~~~
 # Get current source
 
-current_source = hfss3dl.get_dcir_element_data_current_source(setup_name="my_setup")
+current_source = hfss3dl.get_dcir_element_data_current_source(setup="my_setup")
 print(current_source)
 
 # ~~~~~~~~~~~~~~~~~~~
 # Get via information
 
-via = hfss3dl.get_dcir_element_data_via(setup_name="my_setup")
+via = hfss3dl.get_dcir_element_data_via(setup="my_setup")
 print(via)
 
 
@@ -122,14 +122,10 @@ print(via)
 # Get voltage
 # ~~~~~~~~~~~
 # Get voltage from dcir solution data
-voltage = hfss3dl.get_dcir_solution_data(
-    setup_name="my_setup",
-    show="Sources",
-    category="Voltage")
-print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
+voltage = hfss3dl.get_dcir_solution_data(setup="my_setup", show="Sources", category="Voltage")
+print({expression: voltage.data_magnitude(expression) for expression in voltage.expressions})
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-hfss3dl.close_project()
 desktop.release_desktop()

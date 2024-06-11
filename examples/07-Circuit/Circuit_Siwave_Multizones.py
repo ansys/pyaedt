@@ -27,12 +27,12 @@ circuit_project_file = os.path.join(working_directory, os.path.splitext(os.path.
 print(edb_file)
 
 
-###############################################################################
-# AEDT version
-# ~~~~~~~~~~~~
-# Sets the Aedt version to 2023 R2.
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
-edb_version = "2023.2"
+aedt_version = "2024.1"
 
 #####################################################################################
 # Ground net
@@ -48,7 +48,7 @@ common_reference_net = "GND"
 
 if os.path.isfile(aedt_file):
     os.remove(aedt_file)
-edb = Edb(edbversion=edb_version, edbpath=edb_file)
+edb = Edb(edbversion=aedt_version, edbpath=edb_file)
 
 ###############################################################################
 # Project zones
@@ -69,7 +69,7 @@ defined_ports, project_connexions = edb.cutout_multizone_layout(edb_zones, commo
 # ~~~~~~~
 # Create circuit design, import all sub-project as EM model and connect all corresponding pins in circuit.
 
-circuit = Circuit(specified_version=edb_version, projectname=circuit_project_file)
+circuit = Circuit(specified_version=aedt_version, projectname=circuit_project_file)
 circuit.connect_circuit_models_from_multi_zone_cutout(project_connections=project_connexions,
                                                       edb_zones_dict=edb_zones, ports=defined_ports,
                                                       model_inc=70)
@@ -94,10 +94,8 @@ circuit.analyze()
 ###############################################################################
 # Define differential pairs
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-circuit.set_differential_pair(diff_name="U0", positive_terminal="U0.via_38.B2B_SIGP",
-                              negative_terminal="U0.via_39.B2B_SIGN")
-circuit.set_differential_pair(diff_name="U1", positive_terminal="U1.via_32.B2B_SIGP",
-                              negative_terminal="U1.via_33.B2B_SIGN")
+circuit.set_differential_pair(assignment="U0.via_38.B2B_SIGP", reference="U0.via_39.B2B_SIGN", differential_mode="U0")
+circuit.set_differential_pair(assignment="U1.via_32.B2B_SIGP", reference="U1.via_33.B2B_SIGN", differential_mode="U1")
 
 ###############################################################################
 # Plot results

@@ -12,6 +12,12 @@ It pushes down the child subcircuit and pops up to the parent design.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -27,7 +33,7 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
 circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                         specified_version="2023.2",
+                         specified_version=aedt_version,
                          non_graphical=non_graphical,
                          new_desktop_session=True
                          )
@@ -58,7 +64,7 @@ r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")
 c1 = circuit.modeler.schematic.create_capacitor(value="C_val")
 p2 = circuit.modeler.schematic.create_interface_port(name="Out")
-circuit.modeler.schematic.connect_components_in_series(components_to_connect=[p1, r1, l1, c1, p2], use_wire=True)
+circuit.modeler.schematic.connect_components_in_series(assignment=[p1, r1, l1, c1, p2], use_wire=True)
 circuit.pop_up()
 
 

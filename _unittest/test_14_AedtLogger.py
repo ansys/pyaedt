@@ -6,12 +6,15 @@ import sys
 import tempfile
 import unittest.mock
 
+from _unittest.conftest import config
 import pytest
 
-from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
+from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
+
+desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture(scope="class")
@@ -103,10 +106,7 @@ class TestClass:
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
         assert "Elapsed time:" in content[12]
-        # self.aedtapp.logger.handlers.pop()
-        # self.aedtapp.logger.project.handlers.pop()
-        # if len(self.aedtapp.logger.design.handlers) > 0:
-        #     self.aedtapp.logger.design.handlers.pop()
+
         shutil.rmtree(path, ignore_errors=True)
 
     def test_03_stdout_with_app_filter(self):
@@ -220,6 +220,24 @@ class TestClass:
         assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
         assert stream_content[1] == "PyAEDT INFO: StdOut is enabled\n"
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
+
+
+class TestLogMessages:
+    """Class used to test log messages."""
+
+    def test_log_when_accessing_non_existing_object(self, caplog):
+        """Check that accessing a non-existent object logs an error message."""
+        from pyaedt import Hfss
+
+        app = Hfss(
+            projectname="log_project",
+            designname="log_design",
+            specified_version=desktop_version,
+            new_desktop_session=True,
+        )
+        with pytest.raises(AttributeError):
+            app.get_object_material_properties("MS1", "conductivity")
+        assert ("Global", logging.ERROR, "    assignment = MS1 ") in caplog.record_tuples
 
 
 class CaptureStdOut:

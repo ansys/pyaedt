@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import warnings
 
 from pyaedt import emit_core
-from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
 from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.emit_constants import EMIT_VALID_UNITS
@@ -30,10 +29,6 @@ class Emit(Design, object):
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    setup_name : str, optional
-        Name of the setup to use as the nominal. The default is
-        ``None``, in which case the active setup is used or
-        nothing is used.
     specified_version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
@@ -46,7 +41,7 @@ class Emit(Design, object):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine.  The default is ``True``.
+        machine.  The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -85,16 +80,16 @@ class Emit(Design, object):
 
     Once the schematic is generated, the ``Emit`` object can be analyzed to generate
     a revision. Each revision is added as an element of the ``Emit`` object member's
-    revisions_list.
+    ``Results.revisions`` list.
 
-    >>> aedtapp.analyze()
+    >>> revision = aedtapp.results.analyze()
 
     A revision within PyAEDT is analogous to a revision in AEDT. An interaction domain must
     be defined and then used as the input to the run command used on that revision.
 
-    >>> domain = aedtapp.interaction_domain()
+    >>> domain = aedtapp.results.interaction_domain()
     >>> domain.rx_radio_name = "UE - HandHeld"
-    >>> interaction = aedtapp.revisions_list[0].run(domain)
+    >>> interaction = revision.run(domain)
 
     The output of the run command is an ``interaction`` object. This object summarizes the interaction data
     that is defined in the interaction domain.
@@ -109,7 +104,6 @@ class Emit(Design, object):
         projectname=None,
         designname=None,
         solution_type=None,
-        setup_name=None,
         specified_version=None,
         non_graphical=False,
         new_desktop_session=True,
@@ -119,8 +113,6 @@ class Emit(Design, object):
         port=0,
         aedt_process_id=None,
     ):
-        if projectname is None:
-            projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
         self.results = None
         """Constructor for the ``FieldAnalysisEmit`` class"""
@@ -190,10 +182,6 @@ class Emit(Design, object):
         return self._couplings
 
     @pyaedt_function_handler()
-    def __enter__(self):
-        return self
-
-    @pyaedt_function_handler()
     def version(self, detailed=False):
         """
         Get version information.
@@ -219,7 +207,7 @@ class Emit(Design, object):
 
     @pyaedt_function_handler()
     def set_units(self, unit_type, unit_value):
-        """Set units for the component.
+        """Set units for the EMIT design.
 
         Parameters
         ----------
@@ -281,7 +269,7 @@ class Emit(Design, object):
 
     @pyaedt_function_handler()
     def get_units(self, unit_type=""):
-        """Get units for the component.
+        """Get units for the EMIT design.
 
         Parameters
         ----------

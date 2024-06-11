@@ -1,12 +1,25 @@
 documentation:
-- any-glob-to-any-file: ["doc/source/**/*", "README.md", "README_CN.md"]
-maintenance:
-- any-glob-to-any-file: [".github/**/*", ".flake8", "pyproject.toml"]
-dependencies:
-- any-glob-to-any-file: [requirements/**/*]
-testing:
-- any-glob-to-any-file: ["_unittest/conftest.py", "_unittest_ironpython/run_unittests.py", "_unittest_ironpython/run_unittests_batchmode.cmd"]
-# TODO : Remove once EDB is extracted from PyAEDT
-edb:
-- any-glob-to-any-file: ["examples/00-EDB/**", "examples/01-HFSS3DLayout/EDB_in_3DLayout.py", "examples/05-Q3D/Q3D_from_EDB.py", "pyaedt/edb_core/**", "pyaedt/edb.py"]
+- changed-files:
+  - any-glob-to-any-file:
+    - "doc/source/*"
+    - "README.md"
+    - "README_CN.md"
 
+maintenance:
+- changed-files:
+  - any-glob-to-any-file:
+    - ".github/**/*"
+    - ".flake8"
+    - "pyproject.toml"
+
+testing:
+- changed-files:
+  - any-glob-to-any-file:
+    - "_unittest/conftest.py"
+    - "_unittest_ironpython/run_unittests.py"
+    - "_unittest_ironpython/run_unittests_batchmode.cmd"
+
+examples:
+- changed-files:
+  - any-glob-to-any-file:
+    - "examples/**/*"

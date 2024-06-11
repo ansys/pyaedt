@@ -7,9 +7,7 @@ import pathlib
 import sys
 import warnings
 
-import pyvista
 import numpy as np
-import json
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
                                 get_version_match, pyansys_logo_black,
@@ -21,6 +19,7 @@ from pprint import pformat
 from docutils.parsers.rst import Directive
 from docutils import nodes
 from sphinx import addnodes
+from sphinx.util import logging
 import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
@@ -29,7 +28,7 @@ import shutil
 # Additionally, when documenting images in formats other than the supported ones, 
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml", "image/webp" ]
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
@@ -42,8 +41,14 @@ LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
 
+
+logger = logging.getLogger(__name__)
+
+
+# Sphinx event hooks
+
 class PrettyPrintDirective(Directive):
-    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+    """Renders a constant using ``pprint.pformat`` and inserts it into the document."""
     required_arguments = 1
 
     def run(self):
@@ -64,18 +69,36 @@ class PrettyPrintDirective(Directive):
 def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
         exclude = True if ".. deprecated::" in obj.__doc__ else False
-    except:
+    except Exception:
         exclude = False
     exclude2 = True if name.startswith("_") else False
     return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
     # return True if exclude else None
 
 
-def remove_doctree(app, exception):
-    """Remove the .doctree directory created during the documentation build.
-    """
-    shutil.rmtree(app.doctreedir)
+def directory_size(directory_path):
+    """Compute the size (in megabytes) of a directory."""
+    res = 0
+    for path, _, files in os.walk(directory_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            res += os.stat(fp).st_size
+    # Convert in megabytes
+    res /= 1e6
+    return res
 
+def remove_doctree(app, exception):
+    """Remove the ``.doctree`` directory created during the documentation build."""
+
+    # Keep the ``doctree`` directory to avoid creating it twice. This is typically helpful in CI/CD
+    # where we want to build both HTML and PDF pages.
+    if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
+        logger.info(f"Keeping directory {app.doctreedir}.")
+    else:
+        size = directory_size(app.doctreedir)
+        logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
+        shutil.rmtree(app.doctreedir, ignore_errors=True)
+        logger.info(f"Doctree removed.")
 
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
@@ -100,19 +123,15 @@ project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
 cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
-
-# Check for the local config file, otherwise use default desktop configuration
-local_config_file = os.path.join(local_path, "local_config.json")
-if os.path.exists(local_config_file):
-    with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    config = {"run_examples": True}
-
+switcher_version = get_version_match(__version__)
 release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 os.environ["PYAEDT_DOC_GENERATION"] = "1"
+
+# Do not run examples by default
+run_examples = bool(int(os.getenv("PYAEDT_DOC_RUN_EXAMPLES", "0")))
+use_gif = bool(int(os.getenv("PYAEDT_DOC_USE_GIF", "1")))
 
 # -- General configuration ---------------------------------------------------
 
@@ -120,21 +139,20 @@ os.environ["PYAEDT_DOC_GENERATION"] = "1"
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.intersphinx",
+    "ansys_sphinx_theme.extension.linkcode",
+    "numpydoc",
+    "recommonmark",
     "sphinx.ext.autodoc",
-    "sphinx.ext.todo",
     "sphinx.ext.autosummary",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
+    "sphinx.ext.graphviz",
+    "sphinx.ext.imgconverter",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.todo",
     "sphinx_copybutton",
     "sphinx_design",
-    "sphinx_jinja",
-    "recommonmark",
-    "sphinx.ext.graphviz",
-    "sphinx.ext.mathjax",
-    "sphinx.ext.inheritance_diagram",
-    "numpydoc",
-    "ansys_sphinx_theme.extension.linkcode",
 ]
 
 # Intersphinx mapping
@@ -214,6 +232,7 @@ language = "en"
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "sphinx_boogergreen_theme_1", "Thumbs.db", ".DS_Store", "*.txt"]
 
+
 inheritance_graph_attrs = dict(rankdir="RL", size='"8.0, 10.0"', fontsize=14, ratio="compress")
 inheritance_node_attrs = dict(shape="ellipse", fontsize=14, height=0.75, color="dodgerblue1", style="filled")
 
@@ -237,81 +256,59 @@ master_doc = "index"
 pygments_style = "sphinx"
 
 
-# Manage errors
-pyvista.set_error_output_file("errors.txt")
-
-# Ensure that offscreen rendering is used for docs generation
-pyvista.OFF_SCREEN = True
-
-# Preferred plotting style for documentation
-# pyvista.set_plot_theme('document')
-
-# must be less than or equal to the XVFB window size
-pyvista.global_theme["window_size"] = np.array([1024, 768])
-
-# Save figures in specified directory
-pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
-if not os.path.exists(pyvista.FIGURE_PATH):
-    os.makedirs(pyvista.FIGURE_PATH)
-
 # gallery build requires AEDT install
-if is_windows and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
+# if is_windows and bool(os.getenv("PYAEDT_CI_RUN_EXAMPLES", "0")):
+if run_examples:
+    import pyvista
+
+    # PyVista settings
+
+    # Ensure that offscreen rendering is used for docs generation
+    pyvista.OFF_SCREEN = True
+    # Save figures in specified directory
+    pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
+    if not os.path.exists(pyvista.FIGURE_PATH):
+        os.makedirs(pyvista.FIGURE_PATH)
+    # Necessary for pyvista when building the sphinx gallery
+    pyvista.BUILDING_GALLERY = True
+
+    # Manage errors
+    pyvista.set_error_output_file("errors.txt")
+    # Must be less than or equal to the XVFB window size
+    pyvista.global_theme["window_size"] = np.array([1024, 768])
 
     # suppress annoying matplotlib bug
     warnings.filterwarnings(
         "ignore",
         category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so cannot show the figure.",
+        message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
     )
 
-    # necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
-
-    if config["run_examples"]:
-        extensions.append("sphinx_gallery.gen_gallery")
-
-        sphinx_gallery_conf = {
-            # convert rst to md for ipynb
-            "pypandoc": True,
-            # path to your examples scripts
-            "examples_dirs": ["../../examples/"],
-            # path where to save gallery generated examples
-            "gallery_dirs": ["examples"],
-            # Patter to search for examples files
-            "filename_pattern": r"\.py",
-            # Remove the "Download all examples" button from the top level gallery
-            "download_all_examples": False,
-            # Sort gallery examples by file name instead of number of lines (default)
-            "within_subsection_order": FileNameSortKey,
-            # directory where function granular galleries are stored
-            "backreferences_dir": None,
-            # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-pyaedt",
-            "image_scrapers": ("pyvista", "matplotlib"),
-            "ignore_pattern": "flycheck*",
-            "thumbnail_size": (350, 350),
-            # 'first_notebook_cell': ("%matplotlib inline\n"
-            #                         "from pyvista import set_plot_theme\n"
-            #                         "set_plot_theme('document')"),
-        }
-
-jinja_contexts = {
-    "main_toctree": {
-        "run_examples": config["run_examples"],
-    },
-}
-# def prepare_jinja_env(jinja_env) -> None:
-#     """
-#     Customize the jinja env.
-#
-#     Notes
-#     -----
-#     See https://jinja.palletsprojects.com/en/3.0.x/api/#jinja2.Environment
-#     """
-#     jinja_env.globals["project_name"] = project
-#
-#
-# autoapi_prepare_jinja_env = prepare_jinja_env
+    extensions.append("sphinx_gallery.gen_gallery")
+    sphinx_gallery_conf = {
+        # convert rst to md for ipynb
+        "pypandoc": True,
+        # path to your examples scripts
+        "examples_dirs": ["../../examples/"],
+        # path where to save gallery generated examples
+        "gallery_dirs": ["examples"],
+        # Pattern to search for examples files
+        "filename_pattern": r"\.py",
+        # Remove the "Download all examples" button from the top level gallery
+        "download_all_examples": False,
+        # Sort gallery examples by file name instead of number of lines (default)
+        "within_subsection_order": FileNameSortKey,
+        # Directory where function granular galleries are stored
+        "backreferences_dir": None,
+        # Modules for which function level galleries are created.  In
+        "doc_module": "ansys-pyaedt",
+        "image_scrapers": ("pyvista", "matplotlib"),
+        "ignore_pattern": r"flycheck.*",
+        "thumbnail_size": (350, 350),
+    }
+    if not use_gif:
+        gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"
+        sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + gif_ignore_pattern
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
@@ -352,10 +349,20 @@ html_theme_options = {
         "api_key": os.getenv("MEILISEARCH_PUBLIC_API_KEY", ""),
         "index_uids": {
             f"pyaedt-v{get_version_match(__version__).replace('.', '-')}": "PyAEDT",
-            f"pyedb-v{get_version_match(__version__).replace('.', '-')}": "EDB API",
         },
     },
 }
+
+# Add button to download PDF
+html_theme_options["icon_links"].append(
+    {
+        "name": "Download documentation in PDF",
+        # NOTE: Changes to this URL must be reflected in CICD documentation build
+        "url": f"https://{cname}/version/{switcher_version}/_static/assets/download/pyaedt.pdf",
+        # noqa: E501
+        "icon": "fa fa-file-pdf fa-fw",
+    }
+)
 
 html_static_path = ["_static"]
 

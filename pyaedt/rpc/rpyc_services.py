@@ -147,11 +147,11 @@ class FileManagement(object):
             i += 1
         logger.info("Directory %s downloaded. %s files copied", localpath, i)
 
-    def open_file(self, remote_file, open_options="r"):
-        return self.client.root.open(remote_file, open_options=open_options)
+    def open_file(self, remote_file, open_options="r", encoding=None):
+        return self.client.root.open(remote_file, open_options=open_options, encoding=encoding)
 
-    def create_file(self, remote_file, create_options="w"):
-        return self.client.root.open(remote_file, open_options=create_options)
+    def create_file(self, remote_file, create_options="w", encoding=None, override=True):
+        return self.client.root.create(remote_file, open_options=create_options, encoding=encoding, override=override)
 
     def makedirs(self, remotepath):
         if self.client.root.pathexists(remotepath):
@@ -170,6 +170,10 @@ class FileManagement(object):
 
     def pathexists(self, remotepath):
         if self.client.root.pathexists(remotepath):
+            return True
+        return False
+    def unlink(self, remotepath):
+        if self.client.root.unlink(remotepath):
             return True
         return False
     def normpath(self, remotepath):
@@ -843,7 +847,7 @@ class GlobalService(rpyc.Service):
 
     @staticmethod
     def exposed_stop():
-        from pyaedt import settings
+        from pyaedt.generic.settings import settings
         settings.remote_rpc_session = None
 
         pid = os.getpid()
@@ -1025,15 +1029,15 @@ class GlobalService(rpyc.Service):
                   use_ppe=use_ppe, )
 
     @staticmethod
-    def exposed_open(filename, open_options="rb"):
-        f = open(filename, open_options)
+    def exposed_open(filename, open_options="rb", encoding=None):
+        f = open(filename, open_options, encoding=encoding)
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     @staticmethod
-    def exposed_create(filename,create_options="wb"):
-        if os.path.exists(filename):
+    def exposed_create(filename,create_options="wb", encoding=None, override=True):
+        if os.path.exists(filename) and not override:
             return "File already exists"
-        f = open(filename, create_options)
+        f = open(filename, create_options, encoding=encoding)
         return rpyc.restricted(f, ["read", "readlines", "write", "writelines", "close"], [])
 
     @staticmethod
@@ -1052,6 +1056,12 @@ class GlobalService(rpyc.Service):
     @staticmethod
     def exposed_pathexists(remotepath):
         if os.path.exists(remotepath):
+            return True
+        return False
+
+    @staticmethod
+    def exposed_unlink(remotepath):
+        if os.unlink(remotepath):
             return True
         return False
 
@@ -1086,7 +1096,7 @@ class ServiceManager(rpyc.Service):
         for edb in self._edb:
             try:
                 edb.close_edb()
-            except:
+            except Exception:
                 pass
 
     def start_service(self, port):
@@ -1120,7 +1130,7 @@ class ServiceManager(rpyc.Service):
             time.sleep(2)
             self._processes[port] = p
             return port
-        except:
+        except Exception:
             logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
             return False
 
@@ -1140,7 +1150,7 @@ class ServiceManager(rpyc.Service):
             try:
                 self._processes[port].terminate()
                 return True
-            except:
+            except Exception:
                 return False
 
         return True

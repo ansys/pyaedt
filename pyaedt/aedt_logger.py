@@ -7,7 +7,7 @@ import sys
 import tempfile
 import time
 
-from pyaedt import settings
+from pyaedt.generic.settings import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
 
@@ -24,47 +24,58 @@ class MessageList:
     ----------
     msg_list : list
         List of messages extracted from AEDT.
-    project_name : str
-        Name of the project. The default is the active project.
-    design_name : str
-        Name of the design within the specified project. The default is the active design.
-
 
     Attributes
     ----------
-    global_level : list of str
-        List of strings representing the message content at the global level of the message manager.
+    info_level : list of str
+        List of strings representing the info messages of the message manager.
 
-    project_level : list of str
-        List of strings representing the message content within the specified project.
+    warning_level : list of str
+        List of strings representing the warning messages of the message manager.
 
-    design_level : list of str
-        List of strings representing the message content for the specified design within the specified project.
+    error_level : list of str
+        List of strings representing the error messages of the message manager.
+
+    debug_level : list of str
+        List of strings representing the debug messages of the message manager.
+
+    unknown_level : list of str
+        List of strings representing the messages with no level of the message manager.
 
     """
 
-    def __init__(self, msg_list, project_name, design_name):
+    def __init__(self, msg_list):
+        self.info_level = []
+        self.warning_level = []
+        self.error_level = []
+        self.debug_level = []
+        self.unknown_level = []
         self.global_level = []
         self.project_level = []
         self.design_level = []
         global_label = "Project: *Global - Messages, "
-        project_label = "Project: {}, ".format(project_name)
-        design_label = "Project: {}, Design: {} (".format(project_name, design_name)
+        project_label = "Project: "
+        design_label = ", Design: "
         for line in msg_list:
             # Find the first instance of '[' to get the message context
-            loc = line.find("[")
-            if loc < 0:
-                # Format is not clear - append to global
+            if "[info]" in line.lower():
+                self.info_level.append(line)
+            elif "[warning]" in line.lower():
+                self.warning_level.append(line)
+            elif "[error]" in line.lower():
+                self.error_level.append(line)
+            elif "[debug]" in line.lower():
+                self.debug_level.append(line)
+            else:  # pragma: no cover
+                self.unknown_level.append(line)
+            if global_label in line:
                 self.global_level.append(line)
+            elif design_label in line:
+                self.design_level.append(line)
+            elif project_label in line:
+                self.project_level.append(line)
             else:
-                line_label = line[0:loc]
-                msg_txt = line[loc:].strip()
-                if design_label in line_label:
-                    self.design_level.append(msg_txt)
-                elif project_label in line_label:
-                    self.project_level.append(msg_txt)
-                elif global_label in line_label:
-                    self.global_level.append(msg_txt)
+                self.global_level.append(line)
 
 
 class AppFilter(logging.Filter):
@@ -122,11 +133,18 @@ class AedtLogger(object):
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False, desktop=None):
+        self._desktop_class = desktop
+        self._oproject = None
+        self._odesign = None
+        self._project_name = ""
+        self._design_name = ""
         self._std_out_handler = None
         self._files_handlers = []
         self.level = level
+        self._non_graphical = None
         self.filename = filename or settings.logger_file_path
+        self._messages = []
         settings.logger_file_path = self.filename
 
         self._global = logging.getLogger("Global")
@@ -177,6 +195,7 @@ class AedtLogger(object):
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._timer = time.time()
+        settings.logger = self
 
     def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
@@ -222,19 +241,18 @@ class AedtLogger(object):
 
     @property
     def _desktop(self):
-        if "oDesktop" in dir(sys.modules["__main__"]):
-            MainModule = sys.modules["__main__"]
-            return MainModule.oDesktop
+        if self._desktop_class:
+            return self._desktop_class.odesktop
         return None  # pragma: no cover
 
     @property
     def _log_on_desktop(self):
         try:
-            if self._desktop and not self._desktop.GetIsNonGraphical() and settings.enable_desktop_logs:
+            if self._desktop and settings.enable_desktop_logs:
                 return True
             else:
                 return False
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     @_log_on_desktop.setter
@@ -266,7 +284,7 @@ class AedtLogger(object):
             return None  # pragma: no cover
 
     @property
-    def messages(self):
+    def aedt_messages(self):
         """Message manager content for the active project and design.
 
         Returns
@@ -275,10 +293,101 @@ class AedtLogger(object):
            List of messages for the active project and design.
 
         """
-        return self.get_messages(self._project_name, self._design_name)
+        return self.get_messages(self.project_name, self.design_name, aedt_messages=True)
+
+    @property
+    def messages(self):
+        """Message manager content for the active session.
+
+        Returns
+        -------
+        list of str
+           List of messages for the active session.
+
+        """
+        return self.get_messages(self.project_name, self.design_name)
+
+    @property
+    def aedt_info_messages(self):
+        """Message manager content for the active project and design.
+
+        Returns
+        -------
+        list of str
+           List of info messages for the active project and design.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
+        return aa.info_level
+
+    @property
+    def aedt_warning_messages(self):
+        """Message manager content for the active project and design.
+
+        Returns
+        -------
+        list of str
+           List of warning messages for the active project and design.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
+        return aa.warning_level
+
+    @property
+    def aedt_error_messages(self):
+        """Message manager content for the active project and design.
+
+        Returns
+        -------
+        list of str
+           List of error messages for the active project and design.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=True)
+        return aa.error_level
+
+    @property
+    def info_messages(self):
+        """Message manager content for the active pyaedt session.
+
+        Returns
+        -------
+        list of str
+           List of info messages.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
+        return aa.info_level
+
+    @property
+    def warning_messages(self):
+        """Message manager content for the active pyaedt session.
+
+        Returns
+        -------
+        list of str
+           List of warning messages.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
+
+        return aa.warning_level
+
+    @property
+    def error_messages(self):
+        """Message manager content for the active pyaedt session.
+
+        Returns
+        -------
+        list of str
+           List of error messages.
+
+        """
+        aa = self.get_messages(self.project_name, self.design_name, aedt_messages=False)
+        return aa.error_level
 
     def reset_timer(self, time_val=None):
-        """ "Reset actual timer to  actual time or specified time.
+        """Reset actual timer to  actual time or specified time.
 
         Parameters
         ----------
@@ -318,16 +427,27 @@ class AedtLogger(object):
             List of messages for the specified project and design.
 
         """
-        project_name = project_name or self._project_name
-        design_name = design_name or self._design_name
+
         if aedt_messages and self._desktop.GetVersion() > "2022.2":
-            global_message_data = self._desktop.GetMessages("", "", level)
+            project_name = project_name or self.project_name
+            design_name = design_name or self.design_name
+            global_message_data = list(self._desktop.GetMessages("", "", level))
             # if a 3d component is open, GetMessages without the project name argument returns messages with
             # "(3D Component)" appended to project name
             if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
                 project_name = project_name + " (3D Component)"
-            return MessageList(global_message_data, project_name, design_name)
-        return MessageList([], project_name, design_name)
+            global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
+            global_message_data = list(set(global_message_data))
+            return MessageList(global_message_data)
+        message_lists = []
+        levels = {0: "[info] ", 1: "[warning] ", 2: "[error] ", 3: "[debug] "}
+
+        for message in self._messages:
+            if message[0] >= level:
+                if not project_name or not message[2] or project_name == message[2]:
+                    if not design_name or not message[3] or design_name == message[3]:
+                        message_lists.append(levels[message[0]] + message[1])
+        return MessageList(message_lists)
 
     def add_error_message(self, message_text, level=None):
         """
@@ -349,7 +469,7 @@ class AedtLogger(object):
         --------
         Add an error message to the AEDT message manager.
 
-        >>> hfss.logger.project.error("Project Error Message", "Project")
+        >>> hfss.logger.project_logger.error("Project Error Message", "Project")
 
         """
         self.add_message(2, message_text, level)
@@ -459,21 +579,31 @@ class AedtLogger(object):
         if not level:
             level = "Design"
 
-        assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
+        if level not in message_levels:
+            raise ValueError("Message level must be 'Design', 'Project', or 'Global'.")
 
         if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
-                proj_name = self._project_name
+                proj_name = self.project_name
             if not des_name and message_levels[level] > 1:
-                des_name = self._design_name
+                des_name = self.design_name
             if des_name and ";" in des_name:
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
-            except:
-                print("PyAEDT INFO: Failed in Adding Desktop Message")
+            except Exception:  # pragma: no cover
+                self._global.info("Failed to add desktop message.")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
+        message_text = str(message_text)
+        if args:
+            try:
+                msg1 = message_text % tuple(str(i) for i in args)
+            except TypeError:
+                msg1 = message_text
+        else:
+            msg1 = message_text
+        self._messages.append([message_type, msg1, self.project_name, self.design_name])
         if not (self._log_on_file or self._log_on_screen) or not self._global:
             return
         if len(message_text) > 250:
@@ -521,36 +651,89 @@ class AedtLogger(object):
 
         >>> hfss.clear_messages(proj_name="", des_name="", level=3)
         """
-        if self._log_on_desktop:
-            if proj_name is None:
-                proj_name = self._project_name
-            if des_name is None:
-                des_name = self._design_name
+        if self.non_graphical:
+            return
+        if proj_name is None:
+            proj_name = self.project_name
+        if des_name is None:
+            des_name = self.design_name
+        try:
             self._desktop.ClearMessages(proj_name, des_name, level)
+        except Exception:  # pragma: no cover
+            self._global.info("Failed to clear desktop messages.")
 
     @property
-    def _oproject(self):
-        if self._desktop:
-            return self._desktop.GetActiveProject()
+    def non_graphical(self):
+        """Check if desktop is graphical or not.
+
+        Returns
+        -------
+        bool
+        """
+        if self._non_graphical is None and self._desktop:
+            self._non_graphical = self._desktop.GetIsNonGraphical()
+
+        return self._non_graphical
 
     @property
-    def _odesign(self):
+    def oproject(self):
+        """Project object.
+
+        Returns
+        -------
+        object
+        """
         if self._oproject:
-            return self._oproject.GetActiveDesign()
+            return self._oproject
+        return None  # pragma: no cover
 
     @property
-    def _design_name(self):
+    def odesign(self):
+        """Design object.
+
+        Returns
+        -------
+        object
+        """
+        if self._odesign:
+            return self._odesign
+        return None  # pragma: no cover
+
+    @oproject.setter
+    def oproject(self, val):
+        self._oproject = val
         try:
-            return self._odesign.GetName()
-        except AttributeError:
-            return ""
+            self._project_name = self._oproject.GetName()
+        except AttributeError:  # pragma: no cover
+            self._project_name = ""
+
+    @odesign.setter
+    def odesign(self, val):
+        self._odesign = val
+        try:
+            self._design_name = self._odesign.GetName()
+        except AttributeError:  # pragma: no cover
+            self._design_name = ""
 
     @property
-    def _project_name(self):
-        try:
-            return self._oproject.GetName()
-        except AttributeError:
-            return ""
+    def design_name(self):
+        """Name of current logger design.
+
+        Returns
+        -------
+        str
+        """
+        return self._design_name
+
+    @property
+    def project_name(self):
+        """Name of current logger project.
+
+        Returns
+        -------
+        str
+        """
+        return self._project_name
 
     def add_logger(self, destination, level=logging.DEBUG):
         """
@@ -576,8 +759,8 @@ class AedtLogger(object):
                 self._project.addHandler(self._std_out_handler)
             return self._project
         elif destination == "Design":
-            project_name = self._project_name
-            design_name = self._design_name
+            project_name = self.project_name
+            design_name = self.design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
             self._design.setLevel(level)
             self._design.addFilter(AppFilter("Design", design_name))
@@ -586,6 +769,7 @@ class AedtLogger(object):
                     self._design.addHandler(handler)
             if self._std_out_handler is not None:
                 self._design.addHandler(self._std_out_handler)
+            self._design.parent = None
             return self._design
         else:
             raise ValueError("The destination must be either 'Project' or 'Design'.")
@@ -621,10 +805,21 @@ class AedtLogger(object):
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
+        from logging import FileHandler
+
         self._log_on_file = False
-        for _file_handler in self._files_handlers:
-            _file_handler.close()
-            self._global.removeHandler(_file_handler)
+        for _file_handler in self._global.handlers:
+            if isinstance(_file_handler, FileHandler):
+                _file_handler.close()
+                self._global.removeHandler(_file_handler)
+        for _file_handler in self.design_logger.handlers:
+            if isinstance(_file_handler, FileHandler):
+                _file_handler.close()
+                self.design_logger.removeHandler(_file_handler)
+        for _file_handler in self.project_logger.handlers:
+            if isinstance(_file_handler, FileHandler):
+                _file_handler.close()
+                self.project_logger.removeHandler(_file_handler)
         self.info("Log on file is disabled")
 
     def enable_log_on_file(self):
@@ -722,17 +917,17 @@ class AedtLogger(object):
         return self._global
 
     @property
-    def project(self):
+    def project_logger(self):
         """Project logger."""
-        self._project = logging.getLogger(self._project_name)
+        self._project = logging.getLogger(self.project_name)
         if not self._project.handlers:
             self.add_logger("Project")
         return self._project
 
     @property
-    def design(self):
+    def design_logger(self):
         """Design logger."""
-        self._design = logging.getLogger(self._project_name + ":" + self._design_name)
+        self._design = logging.getLogger(self.project_name + ":" + self.design_name)
         if not self._design.handlers:
             self.add_logger("Design")
         return self._design

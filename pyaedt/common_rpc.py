@@ -1,13 +1,12 @@
 import os
 import signal
-import socket
 import sys
 import tempfile
 import time
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.aedt_logger import pyaedt_logger as logger
+from pyaedt.generic.settings import settings
 from pyaedt.misc import list_installed_ansysem
 
 # import sys
@@ -120,9 +119,11 @@ safe_attrs = {
 
 
 def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
-    """Starts an RPyC server on CPython and listens on a specified port.
+    """Starts the PyAEDT service manager using RPyC server on CPython.
 
-    This method must run on a server machine.
+    This method, which must run on a server machine, is used as a service on the
+    server machine to listen on a dedicated port for inbound requests to launch
+    a new server connection and launch AEDT.
 
     Parameters
     ----------
@@ -165,7 +166,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = socket.gethostname()
+    hostname = "0.0.0.0"
     t = ThreadedServer(
         ServiceManager,
         hostname=hostname,
@@ -226,7 +227,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = socket.gethostname()
+    hostname = "0.0.0.0"
     if threaded:
         service = ThreadedServer
     else:
@@ -253,7 +254,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
 
 def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=True):
     """
-    Connect to an existing AEDT server session.
+    Connect to an existing AEDT server session and create a new client session from it.
 
     Parameters
     ----------
@@ -267,9 +268,10 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
         Aedt Grpc port on server.
     non_graphical : bool, optional
         Aedt Non Graphical Flag.
+
     Returns
     -------
-    RPyC object.
+    RPyC client object.
     """
     try:
         client = rpyc.connect(
@@ -295,7 +297,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
             if cl.aedt_port is None:
                 cl.aedt_port = aedt_port
         return cl
-    except:
+    except Exception:
         msg = "Error. No connection exists."
         msg += " Check if pyaedt_service_manager is running and if the port number is correct."
         logger.error(msg)
@@ -315,7 +317,7 @@ def connect(server_name, aedt_client_port):
 
     Returns
     -------
-    RPyC object.
+    RPyC client object.
     """
     try:
         client = rpyc.connect(
@@ -345,6 +347,6 @@ def connect(server_name, aedt_client_port):
         if not os.path.exists(settings.remote_rpc_session_temp_folder):
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
-    except:
+    except Exception:
         logger.error("Error. No connection exists. Check if AEDT is running and if the port number is correct.")
         return False

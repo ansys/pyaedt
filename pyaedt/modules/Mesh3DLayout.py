@@ -4,6 +4,7 @@ This module contains these classes: `Mesh` and `Mesh3DOperation`.
 This module provides all functionalities for creating and editing the mesh in the 3D tools.
 
 """
+
 from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
@@ -174,15 +175,15 @@ class Mesh3d(object):
         """
         return self._app.omeshmodule
 
-    @pyaedt_function_handler()
-    def delete_mesh_operations(self, setup_name, mesh_name):
+    @pyaedt_function_handler(setup_name="setup", mesh_name="name")
+    def delete_mesh_operations(self, setup, name):
         """Remove mesh operations from a setup.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
-        mesh_name : str
+        name : str
             Name of the mesh.
 
         Returns
@@ -196,7 +197,7 @@ class Mesh3d(object):
         >>> oModule.DeleteMeshOperation
         """
         for el in self.meshoperations:
-            if el.hfss_setup_name == setup_name and el.name == mesh_name:
+            if el.hfss_setup_name == setup and el.name == name:
                 el.delete()
                 self.meshoperations.remove(el)
 
@@ -219,33 +220,39 @@ class Mesh3d(object):
                     for ops in self._app.design_properties["Setup"]["Data"][ds]["MeshOps"]:
                         props = self._app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
-        except:
+        except Exception:
             pass
         return meshops
 
-    @pyaedt_function_handler()
-    def assign_length_mesh(
-        self, setupname, layer_name, net_name, isinside=True, maxlength=1, maxel=1000, meshop_name=None
-    ):
+    @pyaedt_function_handler(
+        setupname="setup",
+        layer_name="layer",
+        net_name="net",
+        isinside="is_inside",
+        maxlength="maximum_length",
+        maxel="maximum_elements",
+        meshop_name="name",
+    )
+    def assign_length_mesh(self, setup, layer, net, is_inside=True, maximum_length=1, maximum_elements=1000, name=None):
         """Assign mesh length.
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the HFSS setup to apply.
-        layer_name : str
+        layer : str
            Name of the layer.
-        net_name : str
+        net : str
            Name of the net.
-        isinside : bool, optional
+        is_inside : bool, optional
             Whether the mesh length is inside the selection. The default is ``True``.
-        maxlength : float, optional
+        maximum_length : float, optional
             Maximum length of the element. The default is ``1`` When ``None``, this
             parameter is disabled.
-        maxel : int, optional
+        maximum_elements : int, optional
             Maximum number of elements. The default is ``1000``. When ``None``, this
             parameter is disabled.
-        meshop_name : str, optional
+        name : str, optional
             Name of the mesh operation. The default is ``None``.
 
         Returns
@@ -258,37 +265,37 @@ class Mesh3d(object):
 
         >>> oModule.AddMeshOperation
         """
-        if meshop_name:
+        if name:
             for el in self.meshoperations:
-                if el.name == meshop_name:
-                    meshop_name = generate_unique_name(meshop_name)
+                if el.name == name:
+                    name = generate_unique_name(name)
         else:
-            meshop_name = generate_unique_name("Length")
+            name = generate_unique_name("Length")
 
-        if maxlength is None:
+        if maximum_length is None:
             restrictlength = False
         else:
             restrictlength = True
-        length = self.modeler.modeler_variable(maxlength)
+        length = self.modeler.modeler_variable(maximum_length)
 
-        if maxel is None:
+        if maximum_elements is None:
             restrictel = False
             numel = "1000"
         else:
             restrictel = True
-            numel = str(maxel)
-        if maxlength is None and maxel is None:
+            numel = str(maximum_elements)
+        if maximum_length is None and maximum_elements is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        if isinstance(layer_name, list) and isinstance(net_name, list):
+        if isinstance(layer, list) and isinstance(net, list):
             assignment = OrderedDict({"MeshEntityInfo": []})
-            for l, n in zip(layer_name, net_name):
+            for l, n in zip(layer, net):
                 meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
                 assignment["MeshEntityInfo"].append(
                     OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
                 )
         else:
-            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
             assignment = OrderedDict(
                 {
                     "MeshEntityInfo": OrderedDict(
@@ -299,7 +306,7 @@ class Mesh3d(object):
         props = OrderedDict(
             {
                 "Type": "LengthBased",
-                "RefineInside": isinside,
+                "RefineInside": is_inside,
                 "Enabled": True,
                 "Assignment": assignment,
                 "Region": "",
@@ -310,42 +317,50 @@ class Mesh3d(object):
             }
         )
 
-        mop = Mesh3DOperation(self, setupname, meshop_name, props)
+        mop = Mesh3DOperation(self, setup, name, props)
         mop.create()
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup",
+        layer_name="layer",
+        net_name="net",
+        skindepth="skin_depth",
+        maxelements="maximum_elements",
+        numlayers="layers_number",
+        meshop_name="name",
+    )
     def assign_skin_depth(
         self,
-        setupname,
-        layer_name,
-        net_name,
-        skindepth=1,
-        maxelements=None,
+        setup,
+        layer,
+        net,
+        skin_depth=1,
+        maximum_elements=None,
         triangulation_max_length=0.1,
-        numlayers="2",
-        meshop_name=None,
+        layers_number="2",
+        name=None,
     ):
         """Assign skin depth to the mesh.
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup.
-        layer_name : str
+        layer : str
             Name of the layer.
-        net_name : str
+        net : str
             Name of the net.
-        skindepth : int, optional
+        skin_depth : int, optional
             Depth of the skin. The default is ``1``.
-        maxelements : float, optional
+        maximum_elements : float, optional
             Maximum element length. The default is ``None``, which disables this parameter.
         triangulation_max_length : float, optional
             Maximum surface triangulation length. The default is ``0.1``.
-        numlayers : str, optional
+        layers_number : str, optional
             Number of layers. The default is ``"2"``.
-        meshop_name : str, optional
+        name : str, optional
              Name of the mesh operation. The default is ``None``.
 
         Returns
@@ -358,21 +373,21 @@ class Mesh3d(object):
 
         >>> oModule.AddMeshOperation
         """
-        if meshop_name:
+        if name:
             for el in self.meshoperations:
-                if el.name == meshop_name:
-                    meshop_name = generate_unique_name(meshop_name)
+                if el.name == name:
+                    name = generate_unique_name(name)
         else:
-            meshop_name = generate_unique_name("SkinDepth")
+            name = generate_unique_name("SkinDepth")
 
-        if maxelements is None:
+        if maximum_elements is None:
             restrictlength = False
-            maxelements = "1000"
+            maximum_elements = "1000"
         else:
             restrictlength = True
-        skindepth = self.modeler.modeler_variable(skindepth)
+        skin_depth = self.modeler.modeler_variable(skin_depth)
         triangulation_max_length = self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer_name, "Net": net_name, "OrigNet": net_name})
+        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
         assignment = OrderedDict(
             {
                 "MeshEntityInfo": OrderedDict(
@@ -386,15 +401,15 @@ class Mesh3d(object):
                 "Enabled": True,
                 "Assignment": assignment,
                 "Region": "",
-                "SkinDepth": skindepth,
+                "SkinDepth": skin_depth,
                 "SurfTriMaxLength": triangulation_max_length,
-                "NumLayers": numlayers,
+                "NumLayers": layers_number,
                 "RestrictElem": restrictlength,
-                "NumMaxElem": maxelements,
+                "NumMaxElem": maximum_elements,
             }
         )
 
-        mop = Mesh3DOperation(self, setupname, meshop_name, props)
+        mop = Mesh3DOperation(self, setup, name, props)
         mop.create()
         self.meshoperations.append(mop)
         return mop

@@ -6,6 +6,7 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.OptimetricsTemplates import defaultdoeSetup
 from pyaedt.modules.OptimetricsTemplates import defaultdxSetup
@@ -70,7 +71,7 @@ class CommonOptimetrics(PropsManager, object):
                 setups = inputd["Sim. Setups"]
                 for el in setups:
                     try:
-                        if type(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]) is list:
+                        if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
                             for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                                 if setup["I"] == el:
                                     setups[setups.index(el)] = setup["I"]
@@ -103,9 +104,7 @@ class CommonOptimetrics(PropsManager, object):
                         value = (
                             True
                             if parts[1].lower() == "true"
-                            else False
-                            if parts[1].lower() == "false"
-                            else parts[1].strip("'")
+                            else False if parts[1].lower() == "false" else parts[1].strip("'")
                         )
                         output_list.extend([parts[0] + ":=", value])
                     self.props["Variables"][var] = output_list
@@ -336,7 +335,7 @@ class CommonOptimetrics(PropsManager, object):
                     for f in self._app.field_setups:
                         if context == f.name:
                             report_type = "Far Fields"
-                except:
+                except Exception:
                     pass
         sweepdefinition = self._get_context(
             calculation,
@@ -357,7 +356,7 @@ class CommonOptimetrics(PropsManager, object):
             for el in list(variables):
                 try:
                     dx_variables[el] = self._app[el]
-                except:
+                except Exception:
                     pass
         for v in list(dx_variables.keys()):
             self._activate_variable(v)
@@ -505,12 +504,12 @@ class CommonOptimetrics(PropsManager, object):
         elif self.soltype == "OptiStatistical":
             self._app.activate_variable_statistical(variable_name)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze(
         self,
-        num_cores=1,
-        num_tasks=1,
-        num_gpu=0,
+        cores=1,
+        tasks=1,
+        gpus=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -522,12 +521,12 @@ class CommonOptimetrics(PropsManager, object):
 
         Parameters
         ----------
-        num_cores : int, optional
-            Number of simulation cores. Default is ``1``.
-        num_tasks : int, optional
-            Number of simulation tasks. Default is ``1``.
-        num_gpu : int, optional
-            Number of simulation graphic processing units to use. Default is ``0``.
+        cores : int, optional
+            Number of simulation cores. The default is ``1``.
+        tasks : int, optional
+            Number of simulation tasks. The default is ``1``.
+        gpus : int, optional
+            Number of simulation graphic processing units to use. The default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -555,10 +554,10 @@ class CommonOptimetrics(PropsManager, object):
         >>> oDesign.Analyze
         """
         return self._app.analyze(
-            setup_name=self.name,
-            num_cores=num_cores,
-            num_tasks=num_tasks,
-            num_gpu=num_gpu,
+            setup=self.name,
+            cores=cores,
+            tasks=tasks,
+            gpus=gpus,
             acf_file=acf_file,
             use_auto_settings=use_auto_settings,
             solve_in_batch=solve_in_batch,
@@ -580,7 +579,7 @@ class SetupOpti(CommonOptimetrics, object):
 
         Parameters
         ----------
-        setup_name : str
+        name : str
             Name of optimetrics setup to delete.
 
         Returns
@@ -862,11 +861,6 @@ class SetupParam(CommonOptimetrics, object):
     def delete(self):
         """Delete a defined Optimetrics Setup.
 
-        Parameters
-        ----------
-        setup_name : str
-            Name of optimetrics setup to delete.
-
         Returns
         -------
         bool
@@ -1094,7 +1088,7 @@ class ParametricSetups(object):
                         and setups_data[data]["SetupType"] == "OptiParametric"
                     ):
                         self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except:
+            except Exception:
                 pass
 
     @property
@@ -1220,7 +1214,7 @@ class ParametricSetups(object):
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
-        with open(filename, "r") as csvfile:
+        with open_file(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
             setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
@@ -1302,7 +1296,7 @@ class OptimizationSetups(object):
                         "OptiStatistical",
                     ]:
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
-            except:
+            except Exception:
                 pass
 
     @property
@@ -1436,7 +1430,7 @@ class OptimizationSetups(object):
                         for f in self._app.field_setups:
                             if context == f.name:
                                 report_type = "Far Fields"
-                    except:
+                    except Exception:
                         pass
             sweepdefinition = setup._get_context(
                 calculation,
@@ -1459,7 +1453,7 @@ class OptimizationSetups(object):
             for el in variables:
                 try:
                     dx_variables[el] = self._app[el]
-                except:
+                except Exception:
                     pass
         for v in list(dx_variables.keys()):
             if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:

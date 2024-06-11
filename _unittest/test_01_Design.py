@@ -10,10 +10,12 @@ from pyaedt import Hfss
 from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import get_pyaedt_app
+from pyaedt.application.Design import DesignSettings
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
+from pyaedt.workflows import customize_automation_tab
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -38,8 +40,17 @@ class TestClass:
         assert self.aedtapp
 
     def test_01_designname(self):
-        self.aedtapp.design_name = "myname"
-        assert self.aedtapp.design_name == "myname"
+        # TODO: Remove subsequent dependence on string "myname"
+        design_names = ["myname", "design2"]
+        self.aedtapp.design_name = design_names[0]  # Change the design name.
+        assert self.aedtapp.design_name == design_names[0]
+        self.aedtapp.insert_design(design_names[1])  # Insert a new design
+        assert self.aedtapp.design_name == design_names[1]
+        self.aedtapp.design_name = design_names[0]  # Change current design back.
+        assert len(self.aedtapp.design_list) == 2  # Make sure there are still 2 designs.
+        assert self.aedtapp.design_list[0] in design_names  # Make sure the name is correct.
+        self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
+        assert len(self.aedtapp.design_list) == 1
 
     def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
@@ -49,6 +60,19 @@ class TestClass:
 
     def test_01_clean_proj_folder(self):
         assert self.aedtapp.clean_proj_folder()
+
+    def test_01_installed_path(self):
+        assert self.aedtapp.desktop_class.install_path
+
+    def test_01_desktop_class_path(self):
+        assert os.path.exists(self.aedtapp.desktop_class.project_path())
+        assert os.path.exists(self.aedtapp.desktop_class.project_path(self.aedtapp.project_name))
+
+        assert len(self.aedtapp.desktop_class.design_list(self.aedtapp.project_name)) == 1
+        assert self.aedtapp.desktop_class.design_type() == "HFSS"
+        assert self.aedtapp.desktop_class.design_type(self.aedtapp.project_name, self.aedtapp.design_name) == "HFSS"
+        assert os.path.exists(self.aedtapp.desktop_class.src_dir)
+        assert os.path.exists(self.aedtapp.desktop_class.pyaedt_dir)
 
     def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
@@ -109,7 +133,9 @@ class TestClass:
     def test_09_set_objects_temperature(self):
         ambient_temp = 22
         objects = [o for o in self.aedtapp.modeler.solid_names if self.aedtapp.modeler[o].model]
-        assert self.aedtapp.modeler.set_objects_temperature(objects, ambient_temp=ambient_temp, create_project_var=True)
+        assert self.aedtapp.modeler.set_objects_temperature(
+            objects, ambient_temperature=ambient_temp, create_project_var=True
+        )
 
     def test_10_change_material_override(self):
         assert self.aedtapp.change_material_override(True)
@@ -227,6 +253,7 @@ class TestClass:
         assert not ds7
         assert ds4.delete()
         assert self.aedtapp.import_dataset1d(filename)
+        assert ds5.delete()
 
     def test_19a_import_dataset3d(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.tab")
@@ -288,6 +315,7 @@ class TestClass:
             "<class 'win32com.client.CDispatch'>",
             "<class 'PyDesktopPlugin.AedtObjWrapper'>",
             "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
+            "<class 'pyaedt.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
         ]
 
     def test_28_get_pyaedt_app(self):
@@ -324,7 +352,7 @@ class TestClass:
         aedt_obj = AedtObjects()
         assert aedt_obj.odesign
         assert aedt_obj.oproject
-        aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
+        aedt_obj = AedtObjects(self.aedtapp._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):
@@ -336,7 +364,7 @@ class TestClass:
             h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
         except Exception as e:
             exception_raised = True
-            assert e.args[0] == "Project doesn't exists. Check it and retry."
+            assert e.args[0] == "Project doesn't exist. Check it and retry."
         assert exception_raised
         settings.force_error_on_missing_project = False
 
@@ -370,7 +398,7 @@ class TestClass:
             f.write(" ")
         try:
             hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
-        except:
+        except Exception:
             assert True
         try:
             os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
@@ -378,21 +406,29 @@ class TestClass:
             with open(file_name3, "w") as f:
                 f.write(" ")
             hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
-        except:
+        except Exception:
             assert True
 
     def test_37_add_custom_toolkit(self, desktop):
-        assert desktop.get_available_toolkits()
+        assert customize_automation_tab.available_toolkits()
 
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
             f.write("import pyaedt\n")
-        assert desktop.add_script_to_menu(
-            "test_toolkit",
-            file,
+        assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)
+        assert customize_automation_tab.remove_script_from_menu(
+            desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
         )
-        assert desktop.remove_script_from_menu("test_toolkit")
+        assert customize_automation_tab.add_script_to_menu(
+            name="test_toolkit",
+            script_file=file,
+            personal_lib=self.aedtapp.desktop_class.personallib,
+            aedt_version=self.aedtapp.desktop_class.aedt_version_id,
+        )
+        assert customize_automation_tab.remove_script_from_menu(
+            desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
+        )
 
     def test_39_load_project(self, desktop):
         new_project = os.path.join(self.local_scratch.path, "new.aedt")
@@ -403,10 +439,19 @@ class TestClass:
 
     def test_40_get_design_settings(self, add_app):
         ipk = add_app(application=Icepak)
-        design_settings_dict = ipk.design_settings()
+        design_settings_dict = ipk.design_settings
 
-        assert isinstance(design_settings_dict, dict)
+        assert isinstance(design_settings_dict, DesignSettings)
         assert "AmbTemp" in design_settings_dict
         assert "AmbRadTemp" in design_settings_dict
         assert "GravityVec" in design_settings_dict
         assert "GravityDir" in design_settings_dict
+
+    def test_41_desktop_reference_counting(self, desktop):
+        num_references = desktop._connected_app_instances
+        with Hfss() as hfss:
+            assert hfss
+            assert desktop._connected_app_instances == num_references + 1
+            hfss.set_active_design(hfss.design_name)
+            assert desktop._connected_app_instances == num_references + 1
+        assert desktop._connected_app_instances == num_references

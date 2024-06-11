@@ -3,6 +3,8 @@ import pkgutil
 import sys
 import warnings
 
+from pyaedt.aedt_logger import pyaedt_logger as logger
+
 modules = [tup[1] for tup in pkgutil.iter_modules()]
 pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
@@ -18,7 +20,7 @@ if is_linux and cpython:  # pragma: no cover
                 import dotnet
 
                 runtime = os.path.join(os.path.dirname(dotnet.__path__))
-            except:
+            except Exception:
                 import dotnetcore2
 
                 runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
@@ -48,8 +50,8 @@ else:
         load("coreclr")
         is_clr = True
 
-    except:
-        pass
+    except Exception:
+        logger.error("An error occurred while loading clr.")
 
 
 try:  # work around a number formatting bug in the EDB API for non-English locales

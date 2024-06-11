@@ -17,7 +17,9 @@
 [![PythonVersion](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![GH-CI](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/ansys/pyaedt/actions/workflows/unit_tests.yml)
 [![codecov](https://codecov.io/gh/ansys/pyaedt/branch/main/graph/badge.svg)](https://codecov.io/gh/ansys/pyaedt)
-[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/blog/license/mit)[![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)[![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
+
+
 [![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## What is PyAEDT?
@@ -25,10 +27,15 @@
 PyAEDT is a Python library that interacts directly with the API for
 Ansys Electronics Desktop (AEDT) to make scripting simpler. The architecture
 for PyAEDT can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D,
-and Q3D Extractor), 2D tools, and Ansys Mechanical. PyAEDT also provides
+and Q3D Extractor), 2D tools, and Ansys Mechanical inside AEDT. PyAEDT also provides
 support for circuit tools like Nexxim and system simulation tools like
 Twin Builder. Finally, PyAEDT provides scripting capabilities in Ansys layout
-tools like HFSS 3D Layout and EDB. The PyAEDT class and method structures
+tools like HFSS 3D Layout. The Ansys Electronics Database 
+([EDB](https://edb.docs.pyansys.com/version/stable/)) is included
+with PyAEDT as a dependency and is recommended for any automated manipulation and 
+setup of layout data for PCBs, electronic packages, and integrated circuits. 
+
+The PyAEDT class and method structures
 simplify operation while reusing information as much as possible across
 the API.
 
@@ -43,7 +50,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI with this command:
 Install PyAEDT with all extra packages (matplotlib, numpy, pandas, pyvista):
 
 ```sh
-  pip install pyaedt[full]
+  pip install pyaedt[all]
 ```
 
 You can also install PyAEDT from Conda-Forge with this command:
@@ -91,6 +98,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
   - Nexxim
   - EDB
   - Twin Builder
+  - EMIT
 
 ## Documentation and issues
 
@@ -111,7 +119,7 @@ providing syntax rules and commands for using the PyAEDT API and PyEDB API:
 
 - [View](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.png) or
   [download](https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf) the
-  PyAEDT API cheat sheet.
+  PyEDB API cheat sheet.
 
 
 On the [PyAEDT Issues](https://github.com/ansys/PyAEDT/issues) page, you can
@@ -126,6 +134,31 @@ To reach the project support team, email [pyansys.core@ansys.com](mailto:pyansys
 
 To run PyAEDT, you must have a local licenced copy of AEDT.
 PyAEDT supports AEDT versions 2022 R1 or newer.
+
+## Contributing
+
+For comprehensive information on contributing to the PyAnsys project, see the [PyAnsys developer's guide](https://dev.docs.pyansys.com). 
+
+
+Note that PyAEDT uses semantic naming for pull requests (PR). This convention 
+greatly simplifies the review process by providing meaningful
+information in the PR title. The
+following 
+[prefixes](https://github.com/ansys/actions/blob/main/commit-style/action.yml)
+should be used for pull request name:
+
+- "BUILD"
+- "CHORE"
+- "CI"
+- "DOCS"
+- "FEAT"
+- "FIX"
+- "PERF"
+- "REFACTOR"
+- "REVERT"
+- "STYLE"
+- "TEST"
+
 
 ## Student version
 

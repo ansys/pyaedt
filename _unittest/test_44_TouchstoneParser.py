@@ -42,3 +42,14 @@ class TestClass:
 
         assert ts1.plot_insertion_losses(plot=False)
         assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
+
+    def test_03_check_touchstone_file(self):
+        from pyaedt.generic.touchstone_parser import check_touchstone_files
+
+        check = check_touchstone_files(folder=test_T44_dir)
+        assert check
+        for k, v in check.items():
+            if v and v[0] == "passivity":
+                assert v[1]
+            elif v and v[0] == "causality":
+                assert not v[1]

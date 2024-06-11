@@ -19,11 +19,17 @@ import tempfile
 import pyaedt
 from pyaedt import general_methods
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Launch Ansys Electronics Desktop (AEDT)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-
 
 ###############################################################################
 # Define parameters and values for waveguide iris filter
@@ -56,11 +62,12 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2023.2",
+                   specified_version=aedt_version,
                    designname="filter",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
-                   close_on_exit=True)
+                   close_on_exit=True,
+                   solution_type="Modal")
 
 # hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
 
@@ -90,6 +97,7 @@ else:
     zstart = "l1/2 - t/2"  # Odd number of cavities, even number of irises.
     is_even = False
 
+
 ###############################################################################
 # Draw parametric waveguide filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,14 +107,17 @@ else:
 
 def place_iris(zpos, dz, n):
     w_str = "w" + str(n)  # Iris width parameter as a string.
-    this_name = "iris_a_"+str(n)  # Iris object name in the HFSS project.
+    this_name = "iris_a_" + str(n)  # Iris object name in the HFSS project.
     iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
-    iris.append(hfss.modeler.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
-                                                    name=this_name, matname="silver"))
+    iris.append(hfss.modeler.create_box(origin=['-b/2', '-a/2', zpos],
+                                        sizes=['(b - ' + w_str + ')/2', 'a', dz],
+                                        name=this_name,
+                                        material="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
+
 
 ###############################################################################
 # Place irises
@@ -142,8 +153,10 @@ wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"] = "a/2"
-hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
-                        name="waveguide", matname="vacuum")
+hfss.modeler.create_box(origin=["-b/2", "-a/2", "wg_z_start"],
+                        sizes=["b", "a", "wg_length"],
+                        name="waveguide",
+                        material="vacuum")
 
 ###############################################################################
 # Draw the whole waveguide.
@@ -163,8 +176,8 @@ wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_val
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
-    face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
-    u_start = [0, hfss.variable_manager["u_start"].evaluated_value,  z]
+    face_id = hfss.modeler.get_faceid_from_position(position=[0, 0, z], assignment="waveguide")
+    u_start = [0, hfss.variable_manager["u_start"].evaluated_value, z]
     u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
 
     ports.append(hfss.wave_port(face_id, integration_line=[u_start, u_end], name="P" + str(n + 1), renormalize=False))
@@ -178,27 +191,26 @@ for n, z in enumerate(wg_z):
 # through the resonant structure while the mesh is refined.
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
-                           MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
-                           MaximumPasses=5)
+                          MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
+                          MaximumPasses=5)
 
 setup.create_frequency_sweep(
     unit="GHz",
-    sweepname="Sweep1",
-    freqstart=9.5,
-    freqstop=10.5,
+    name="Sweep1",
+    start_frequency=9.5,
+    stop_frequency=10.5,
     sweep_type="Interpolating",
-    )
-
+)
 
 #################################################################################
 #  Solve the project with two tasks.
 #  Each frequency point is solved simultaneously.
 
 
-setup.analyze(num_tasks=2)
+setup.analyze(tasks=2)
 
 ###############################################################################
-# Generate S-Parameter Plots
+# Generate S-parameter plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
@@ -217,13 +229,9 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 #  The following command generates a field plot in HFSS and uses PyVista
 #  to plot the field in Jupyter.
 
-plot=hfss.post.plot_field(quantity="Mag_E",
-                          objects_list=["Global:XZ"],
-                          plot_type="CutPlane",
-                          setup_name=hfss.nominal_adaptive,
-                          intrinsics={"Freq":"9.8GHz", "Phase":"0deg"},
-                          export_path=hfss.working_directory,
-                          show=False)
+plot = hfss.post.plot_field(quantity="Mag_E", assignment=["Global:XZ"], plot_type="CutPlane",
+                            setup=hfss.nominal_adaptive, intrinsics={"Freq": "9.8GHz", "Phase": "0deg"}, show=False,
+                            export_path=hfss.working_directory)
 
 ###############################################################################
 # Save and close the desktop

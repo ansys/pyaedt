@@ -12,6 +12,10 @@ from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import TwinBuilder
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.settings import settings
+
+settings.lazy_load = False
+settings.wait_for_license = True
 
 
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
@@ -34,9 +38,12 @@ class TestClass:
         assert aedtapp.solution_type == "SteadyState"
 
     def test_run_desktop_hfss3dlayout(self):
-        aedtapp = Hfss3dLayout()
+        aedtapp = Hfss3dLayout(ic_mode=True)
         assert aedtapp.design_type == "HFSS 3D Layout Design"
         assert aedtapp.solution_type == "HFSS3DLayout"
+        assert aedtapp.ic_mode
+        aedtapp.ic_mode = False
+        assert not aedtapp.ic_mode
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_run_desktop_twinbuilder(self):
@@ -61,7 +68,7 @@ class TestClass:
     def test_run_desktop_hfss(self):
         aedtapp = Hfss()
         assert aedtapp.design_type == "HFSS"
-        assert "Modal" in aedtapp.solution_type
+        assert "Terminal" in aedtapp.solution_type
 
     def test_run_desktop_maxwell3d(self):
         aedtapp = Maxwell3d()

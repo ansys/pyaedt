@@ -18,6 +18,13 @@ import datetime
 project_folder = pyaedt.generate_unique_folder_name()
 input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -45,7 +52,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -106,7 +113,7 @@ ipk.save_project(refresh_obj_ids_after_save=True)
 # ~~~~~~~~~~
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Delete PCB objects
@@ -157,7 +164,7 @@ total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 # ~~~~~~~~~~
 # Plot the model again now that materials are assigned.
 
-ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Set up boundaries
@@ -184,7 +191,9 @@ ipk.assign_openings(ipk.modeler.get_object_faces("Region"))
 
 point1 = ipk.assign_point_monitor(ipk.modeler["COMP_U10"].top_face_z.center, monitor_name="Point1")
 ipk.modeler.set_working_coordinate_system("Global")
-line = ipk.modeler.create_polyline([ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position], non_model=True)
+line = ipk.modeler.create_polyline(
+    [ipk.modeler["COMP_U10"].top_face_z.vertices[0].position, ipk.modeler["COMP_U10"].top_face_z.vertices[2].position],
+    non_model=True)
 ipk.post.create_report(expressions="Point1.Temperature", primary_sweep_variable="X")
 
 ###############################################################################
@@ -206,7 +215,7 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze(num_cores=4, num_tasks=4)
+ipk.analyze(cores=4, tasks=4)
 ipk.save_project()
 
 ###############################################################################
@@ -214,7 +223,7 @@ ipk.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
-ipk.post.plot_field("SurfPressure",ipk.modeler["COMP_U10"].faces,export_path=ipk.working_directory, show=False)
+ipk.post.plot_field("SurfPressure", ipk.modeler["COMP_U10"].faces, show=False, export_path=ipk.working_directory)
 
 
 ###############################################################################

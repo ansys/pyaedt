@@ -37,7 +37,7 @@ class TestClass:
         List_str.Add("two")
         List_str.Add("three")
         ls = go.List2list(List_str)
-        assert type(ls) is list
+        assert isinstance(ls, list)
         assert len(ls) == 3
         List_float = List[Double]()
         List_float.Add(1.0)
@@ -369,16 +369,12 @@ class TestClass:
         xo2, yo2 = go.orient_polygon(x2, y2, clockwise=True)
         assert x2 == xo2
         assert y2 == yo2
-        try:
+        with pytest.raises(ValueError) as excinfo:
             go.orient_polygon([1], [2], clockwise=True)
-            assert False
-        except ValueError as e:
-            assert str(e) == "'x' length must be >= 2"
-        try:
+            assert str(excinfo) == "'x' length must be >= 2"
+        with pytest.raises(ValueError) as excinfo:
             go.orient_polygon([1, 2, 3], [1, 2], clockwise=True)
-            assert False
-        except ValueError as e:
-            assert str(e) == "'y' must be same length as 'x'"
+            assert str(excinfo) == "'y' must be same length as 'x'"
 
     def test_is_collinear(self):
         assert go.is_collinear([1, 0, 0], [1, 0, 0])

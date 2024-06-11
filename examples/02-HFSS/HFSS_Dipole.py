@@ -14,6 +14,13 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -27,7 +34,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop("2023.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
@@ -60,7 +67,7 @@ hfss.modeler.insert_3d_component(compfile, geometryparams)
 # ~~~~~~~~~~~~~~~~~
 # Create boundaries. A region with openings is needed to run the analysis.
 
-hfss.create_open_region(Frequency="1GHz")
+hfss.create_open_region(frequency="1GHz")
 
 ###############################################################################
 # Plot model
@@ -83,18 +90,9 @@ my_plot.plot(
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "1GHz"
 setup.props["MaximumPasses"] = 1
-hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="GHz",
-    freqstart=0.5,
-    freqstop=1.5,
-    num_of_freq_points=251,
-    sweepname="sweep1",
-    sweep_type="Interpolating",
-    interpolation_tol=3,
-    interpolation_max_solutions=255,
-    save_fields=False,
-)
+hfss.create_linear_count_sweep(setup=setup.name, units="GHz", start_frequency=0.5, stop_frequency=1.5,
+                               num_of_freq_points=251, name="sweep1", save_fields=False, sweep_type="Interpolating",
+                               interpolation_tol=3, interpolation_max_solutions=255)
 
 ###############################################################################
 # Save and run simulation
@@ -113,14 +111,8 @@ variations = hfss.available_variations.nominal_w_values_dict
 variations["Freq"] = ["1GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-hfss.post.create_report(
-    "db(GainTotal)",
-    hfss.nominal_adaptive,
-    variations,
-    primary_sweep_variable="Theta",
-    context="3D",
-    report_category="Far Fields",
-)
+hfss.post.create_report("db(GainTotal)", hfss.nominal_adaptive, variations, primary_sweep_variable="Theta",
+                        report_category="Far Fields", context="3D")
 
 ###############################################################################
 # Create far fields report using report objects
@@ -174,23 +166,6 @@ new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_a
 new_report.primary_sweep = "Theta"
 new_report.far_field_sphere = "3D"
 solutions = new_report.get_solution_data()
-# solutions = hfss.post.get_solution_data(
-#     "GainTotal",
-#     hfss.nominal_adaptive,
-#     variations,
-#     primary_sweep_variable="Theta",
-#     context="3D",
-#     report_category="Far Fields",
-# )
-#
-# solutions_custom = hfss.post.get_solution_data(
-#     "GainTotal",
-#     hfss.nominal_adaptive,
-#     variations,
-#     primary_sweep_variable="Theta",
-#     context="Sphere_Custom",
-#     report_category="Far Fields",
-# )
 
 ###############################################################################
 # Generate 3D plot using Matplotlib
@@ -214,7 +189,26 @@ solutions_custom.plot_3d()
 # Generate a 2D plot using Matplotlib where you specify whether it is a polar
 # plot or a rectangular plot.
 
-solutions.plot(math_formula="db20", is_polar=True)
+solutions.plot()
+
+##########################################################
+# Get far field data
+# ~~~~~~~~~~~~~~~~~~
+# Get far field data. After the simulation completes, the far
+# field data is generated port by port and stored in a data class, , user can use this data
+# once AEDT is released.
+
+ffdata = hfss.get_antenna_ffd_solution_data(frequencies=["1000MHz"], setup=hfss.nominal_adaptive,
+                                            sphere="Sphere_Custom")
+
+##########################################################
+# Generate 2D cutout plot
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Generate 2D cutout plot. You can define the Theta scan
+# and Phi scan.
+
+ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
+                   quantity_format="dB20", is_polar=True)
 
 ###############################################################################
 # Close AEDT

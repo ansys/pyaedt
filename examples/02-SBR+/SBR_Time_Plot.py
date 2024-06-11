@@ -8,10 +8,17 @@ and save it to a GIF file. This example works only on CPython.
 ###############################################################################
 # Perform required imports.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform requried imports.
+# Perform required imports.
 
 import os
 from pyaedt import Hfss, downloads
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -28,7 +35,7 @@ non_graphical = False
 
 project_file = downloads.download_sbr_time()
 
-hfss = Hfss(projectname=project_file, specified_version="2023.2", non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(projectname=project_file, specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze()
 
@@ -57,17 +64,14 @@ t_matrix = solution_data.ifft("NearE", window=True)
 # Export IFFT to a CSV file.
 
 frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0], db_val=True,
-                                              csv_dir=os.path.join(hfss.working_directory, "csv"))
+                                              csv_path=os.path.join(hfss.working_directory, "csv"))
 
 ###############################################################################
 # Plot scene
 # ~~~~~~~~~~
 # Plot the scene to create the time plot animation
 
-hfss.post.plot_scene(frames_list=frames_list_file,
-                     output_gif_path=os.path.join(hfss.working_directory, "animation.gif"),
-                     norm_index=15,
-                     dy_rng=35,
-                     show=False, view="xy", zoom=1)
+hfss.post.plot_scene(frames=frames_list_file, gif_path=os.path.join(hfss.working_directory, "animation.gif"),
+                     norm_index=15, dy_rng=35, show=False, view="xy", zoom=1)
 
 hfss.release_desktop()

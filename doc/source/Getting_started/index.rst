@@ -6,22 +6,23 @@ Getting started
    .. grid-item-card:: About PyAnsys and AEDT
             :link: About
             :link-type: doc
-
-            Learn more about PyAnsys and Ansys Electronics Desktop.
+            :margin: 2 2 0 0
+            
+            Learn more about PyAnsys and AEDT.
 
    .. grid-item-card:: Installation
             :link: Installation
             :link-type: doc
             :margin: 2 2 0 0
 
-            Learn how to install PyAEDT from PyPi or conda.
+            Learn how to install PyAEDT from PyPi or Conda.
 
-   .. grid-item-card:: Quick code
-            :link: Quickcode
+   .. grid-item-card:: User guide
+            :link: ../User_guide/index
             :link-type: doc
             :margin: 2 2 0 0
 
-            Here's a brief example of how PyAEDT works.
+            This section provides in-depth information on PyAEDT key concepts.
 
    .. grid-item-card:: Client-Server
             :link: ClientServer
@@ -76,8 +77,31 @@ faster resolution of complex simulations for design and optimization.
   :alt: AEDT Applications
   :target: https://www.ansys.com/products/electronics
 
-For more information, see `Ansys Electronics <https://https://www.ansys.com/products/electronics>`_
+For more information, see `Ansys Electronics <https://www.ansys.com/products/electronics>`_
 on the Ansys website.
+
+PyAEDT cheat sheets
+-------------------
+
+PyAEDT cheat sheets introduce the basics that you need to use PyAEDT.
+These one-page references providing syntax rules and commands
+for using PyAEDT API and EDB API:
+
+**PyAEDT cheat sheet:** `PyAEDT API <https://cheatsheets.docs.pyansys.com/pyaedt_API_cheat_sheet.pdf>`_
+
+**EDB cheat sheet:** `EDB API <https://cheatsheets.docs.pyansys.com/pyedb_API_cheat_sheet.pdf>`_
+
+
+Get help
+--------
+
+**Development issues:** For PyAEDT development-related matters, see the
+`PyAEDT Issues <https://github.com/ansys/PyAEDT/issues>`_ page.
+You can create issues to report bugs and request new features.
+
+**User questions:** The best way to get help is to post your question on the `PyAEDT Discussions
+<https://github.com/ansys/pyaedt/discussions>`_ page or the `Discussions <https://discuss.ansys.com/>`_
+page on the Ansys Developer portal. You can post questions, share ideas, and get community feedback.
 
 
 License
@@ -100,9 +124,9 @@ page on the Ansys website.
 
    Installation
    Troubleshooting
+   ../User_guide/index
    ClientServer
    versioning
    Contributing
-   Quickcode
    About
 

@@ -9,18 +9,19 @@ import os
 import re
 
 from pyaedt import is_ironpython
-from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
-class Hfss3dLayout(FieldAnalysis3DLayout):
+class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     """Provides the HFSS 3D Layout application interface.
 
     This class inherits all objects that belong to HFSS 3D Layout, including EDB
@@ -56,7 +57,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     new_desktop_session : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
-        machine. The default is ``True``.
+        machine. The default is ``False``.
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
@@ -72,6 +73,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
         ``None``. This parameter is only used when ``new_desktop_session = False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode or not. The default is ``None``, which  means to retain
+        the existing setting.
 
     Examples
     --------
@@ -106,7 +110,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     >>> import pyaedt
     >>> edb_path = "/path/to/edbfile.aedb"
     >>> edb = pyaedt.Edb(edb_path, edbversion=231)
-    >>> edb.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
+    >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
     >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
@@ -127,6 +131,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=None,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
@@ -143,39 +148,59 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             machine,
             port,
             aedt_process_id,
+            ic_mode,
         )
+        ScatteringMethods.__init__(self, self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    def __enter__(self):
-        return self
+    @property
+    def ic_mode(self):
+        """IC mode of current design.
 
-    @pyaedt_function_handler()
+        Returns
+        -------
+        bool
+        """
+        return self.get_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC")
+
+    @ic_mode.setter
+    def ic_mode(self, value):
+        self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", value)
+
+    @pyaedt_function_handler(
+        primivitivename="assignment",
+        edgenumber="edge_number",
+        iscircuit="is_circuit_port",
+        iswave="is_wave_port",
+        ref_primitive_name="reference_primitive",
+        ref_edge_number="reference_edge_number",
+    )
     def create_edge_port(
         self,
-        primivitivename,
-        edgenumber,
-        iscircuit=False,
-        iswave=False,
+        assignment,
+        edge_number,
+        is_circuit_port=False,
+        is_wave_port=False,
         wave_horizontal_extension=5,
         wave_vertical_extension=3,
         wave_launcher="1mm",
-        ref_primitive_name=None,
-        ref_edge_number=0,
+        reference_primitive=None,
+        reference_edge_number=0,
     ):
         # type: (str | Line3dLayout,int,bool, bool,float,float, str, str, str | int) -> BoundaryObject3dLayout | bool
         """Create an edge port.
 
         Parameters
         ----------
-        primivitivename : str or :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        assignment : str or :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
-        edgenumber :
+        edge_number :
             Edge number to create the edge port on.
-        iscircuit : bool, optional
+        is_circuit_port : bool, optional
             Whether the edge port is a circuit port. The default is ``False``.
-        iswave : bool, optional
+        is_wave_port : bool, optional
             Whether the edge port is a wave port. The default is ``False``.
         wave_horizontal_extension : float, optional
             Horizontal port extension factor. The default is `5`.
@@ -184,10 +209,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_launcher : str, optional
             PEC (perfect electrical conductor) launcher size with units. The
             default is `"1mm"`.
-        ref_primitive_name : str, optional
+        reference_primitive : str, optional
             Name of the reference primitive to place negative edge port terminal.
             The default is ``None``.
-        ref_edge_number : str, int
+        reference_edge_number : str, int
             Edge number of reference primitive. The default is ``0``.
 
         Returns
@@ -200,15 +225,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreateEdgePort
         """
-        primivitivename = self.modeler.convert_to_selections(primivitivename, False)
+        assignment = self.modeler.convert_to_selections(assignment, False)
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
             [
                 "NAME:Contents",
                 "edge:=",
-                ["et:=", "pe", "prim:=", primivitivename, "edge:=", edgenumber],
+                ["et:=", "pe", "prim:=", assignment, "edge:=", edge_number],
                 "circuit:=",
-                iscircuit,
+                is_circuit_port,
                 "btype:=",
                 0,
             ]
@@ -217,40 +242,44 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
 
-        if ref_primitive_name:
+        if reference_primitive:
             self.modeler.oeditor.AddRefPort(
                 [a[0]],
-                ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", ref_primitive_name, "edge:=", ref_edge_number]],
+                [
+                    "NAME:Contents",
+                    "edge:=",
+                    ["et:=", "pe", "prim:=", reference_primitive, "edge:=", reference_edge_number],
+                ],
             )
 
         if len(a) > 0:
-            if iswave:
+            if is_wave_port:
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="HFSS Type",
-                    property_value="Wave",
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="HFSS Type",
+                    value="Wave",
+                    aedt_tab="EM Design",
                 )
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="Horizontal Extent Factor",
-                    property_value=str(wave_horizontal_extension),
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="Horizontal Extent Factor",
+                    value=str(wave_horizontal_extension),
+                    aedt_tab="EM Design",
                 )
                 if "Vertical Extent Factor" in list(
                     self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(a[0]))
                 ):
                     self.modeler.change_property(
-                        property_object="Excitations:{}".format(a[0]),
-                        property_name="Vertical Extent Factor",
-                        property_value=str(wave_vertical_extension),
-                        property_tab="EM Design",
+                        assignment="Excitations:{}".format(a[0]),
+                        name="Vertical Extent Factor",
+                        value=str(wave_vertical_extension),
+                        aedt_tab="EM Design",
                     )
                 self.modeler.change_property(
-                    property_object="Excitations:{}".format(a[0]),
-                    property_name="PEC Launch Width",
-                    property_value=str(wave_launcher),
-                    property_tab="EM Design",
+                    assignment="Excitations:{}".format(a[0]),
+                    name="PEC Launch Width",
+                    value=str(wave_launcher),
+                    aedt_tab="EM Design",
                 )
             bound = self._update_port_info(a[0])
             if bound:
@@ -261,10 +290,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(primitive_name="assignment")
     def create_wave_port(
         self,
-        primivitive_name,
+        assignment,
         edge_number,
         wave_horizontal_extension=5,
         wave_vertical_extension=3,
@@ -274,7 +303,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        primivitive_name : str
+        assignment : str
             Name of the primitive to create the edge port on.
         edge_number : int
             Edge number to create the edge port on.
@@ -295,7 +324,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         """
         port_name = self.create_edge_port(
-            primivitive_name,
+            assignment,
             edge_number,
             wave_horizontal_extension=wave_horizontal_extension,
             wave_vertical_extension=wave_vertical_extension,
@@ -311,18 +340,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_wave_port_from_two_conductors(self, primivitivenames=[""], edgenumbers=[""]):
+    @pyaedt_function_handler(primivitivenames="assignment", edgenumbers="edge_numbers")
+    def create_wave_port_from_two_conductors(self, assignment=None, edge_numbers=None):
         """Create a wave port.
 
         Parameters
         ----------
-        primivitivenames : list(str)
+        assignment : list, optional
             List of the primitive names to create the wave port on.
             The list must have two entries, one entry for each of the two conductors,
             or the method is not executed.
 
-        edgenumbers :
+        edge_numbers : list, optional
             List of the edge number to create the wave port on.
             The list must have two entries, one entry for each of the two edges,
             or the method is not executed.
@@ -337,15 +366,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreateEdgePort
         """
-        if len(primivitivenames) == 2 and len(edgenumbers) == 2:
+        if edge_numbers is None:
+            edge_numbers = [""]
+        if assignment is None:
+            assignment = [""]
+        if len(assignment) == 2 and len(edge_numbers) == 2:
             listp = self.port_list
             self.modeler.oeditor.CreateEdgePort(
                 [
                     "NAME:Contents",
                     "edge:=",
-                    ["et:=", "pe", "prim:=", primivitivenames[0], "edge:=", edgenumbers[0]],
+                    ["et:=", "pe", "prim:=", assignment[0], "edge:=", edge_numbers[0]],
                     "edge:=",
-                    ["et:=", "pe", "prim:=", primivitivenames[1], "edge:=", edgenumbers[1]],
+                    ["et:=", "pe", "prim:=", assignment[1], "edge:=", edge_numbers[1]],
                     "external:=",
                     True,
                     "btype:=",
@@ -357,8 +390,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if len(a) > 0:
                 bound = self._update_port_info(a[0])
                 if bound:
-                    self.boundaries.append(bound)
-                    return self.boundaries[-1]
+                    self._boundaries[bound.name] = bound
+                    return bound
                 else:
                     return False
             else:
@@ -366,17 +399,36 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(component_name="component")
+    def dissolve_component(self, component):
+        """Dissolve a component and remove it from 3D Layout.
+
+        Parameters
+        ----------
+        component : str
+            Name of the component.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+
+        """
+        self.oeditor.DissolveComponents(["NAME:elements", component])
+        return True
+
+    @pyaedt_function_handler(component_name="component")
     def create_ports_on_component_by_nets(
         self,
-        component_name,
+        component,
         nets,
     ):
         """Create the ports on a component for a list of nets.
 
         Parameters
         ----------
-        component_name : str
+        component : str
             Component name.
         nets : str, list
             Nets to include.
@@ -398,7 +450,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             nets = [nets]
         net_array = ["NAME:Nets"] + nets
-        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component_name], net_array, "Port", "0", "0", "0")
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component], net_array, "Port", "0", "0", "0")
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         ports = []
@@ -410,9 +462,43 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     ports.append(bound)
         return ports
 
-    @pyaedt_function_handler()
-    def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):
-        """Create a new differential port.
+    @pyaedt_function_handler(component_name="component")
+    def create_pec_on_component_by_nets(
+        self,
+        component,
+        nets,
+    ):
+        """Create a PEC connection on a component for a list of nets.
+
+        Parameters
+        ----------
+        component : str
+            Component name.
+        nets : str, list
+            Nets to include.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        if isinstance(nets, list):
+            pass
+        else:
+            nets = [nets]
+        net_array = ["NAME:Nets"] + nets
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component], net_array, "PEC", "0", "0", "0")
+        return True
+
+    @pyaedt_function_handler(port_name="name")
+    def create_differential_port(self, via_signal, via_reference, name, deembed=True):
+        """Create a differential port.
 
         Parameters
         ----------
@@ -420,10 +506,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Signal pin.
         via_reference : float
             Reference pin.
-        port_name : str
+        name : str
             New Port Name.
         deembed : bool, optional
-            Either to deembed parasitics or not. Default is `True`.
+            Whether to deembed parasitics. The default is ``True``.
 
         Returns
         -------
@@ -436,36 +522,36 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
-        if port_name in self.port_list:
-            self.logger.error("Port already existing on via {}".format(port_name))
+        if name in self.port_list:
+            self.logger.error("Port already existd on via {}.".format(name))
             return False
         self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
 
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
-            self.modeler.change_property("Excitations:{}".format(a[0]), "Port", port_name, "EM Design")
-            self.modeler.oeditor.AssignRefPort([port_name], via_reference)
+            self.modeler.change_property("Excitations:{}".format(a[0]), "Port", name, "EM Design")
+            self.modeler.oeditor.AssignRefPort([name], via_reference)
             if deembed:
                 self.modeler.change_property(
-                    "Excitations:{}".format(port_name), "DeembedParasiticPortInductance", deembed, "EM Design"
+                    "Excitations:{}".format(name), "DeembedParasiticPortInductance", deembed, "EM Design"
                 )
-            bound = self._update_port_info(port_name)
+            bound = self._update_port_info(name)
             if bound:
-                self.boundaries.append(bound)
-                return self.boundaries[-1]
+                self._boundaries[bound.name] = bound
+                return bound
             else:
                 return False
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_coax_port(self, vianame, radial_extent=0.1, layer=None, alignment="lower"):
-        """Create a new coax port.
+    @pyaedt_function_handler(vianame="via")
+    def create_coax_port(self, via, radial_extent=0.1, layer=None, alignment="lower"):
+        """Create a coax port.
 
         Parameters
         ----------
-        vianame : str
+        via : str
             Name of the via to create the port on.
         radial_extent : float
             Radial coax extension.
@@ -485,10 +571,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
-        if vianame in self.port_list:
-            self.logger.error("Port already existing on via {}".format(vianame))
+        if via in self.port_list:
+            self.logger.error("Port already exists on via {}.".format(via))
             return False
-        self.oeditor.ToggleViaPin(["NAME:elements", vianame])
+        self.oeditor.ToggleViaPin(["NAME:elements", via])
 
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
@@ -498,11 +584,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             )
             self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
             if layer:
-                self.modeler.change_property(
-                    a[0],
-                    "Pad Port Layer",
-                    layer,
-                )
+                self.modeler.change_property(a[0], "Pad Port Layer", layer)
             bound = self._update_port_info(a[0])
             if bound:
                 self._boundaries[bound.name] = bound
@@ -512,24 +594,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def create_pin_port(self, name, xpos=0, ypos=0, rotation=0, top_layer=None, bot_layer=None):
+    @pyaedt_function_handler(xpos="x", ypos="y", bot_layer="bottom_layer")
+    def create_pin_port(self, name, x=0, y=0, rotation=0, top_layer=None, bottom_layer=None):
         """Create a pin port.
 
         Parameters
         ----------
         name : str
             Name of the pin port.
-        xpos : float, optional
+        x : float, optional
             X-axis position of the pin. The default is ``0``.
-        ypos : float, optional
+        y : float, optional
             Y-axis position of the pin. The default is ``0``.
         rotation : float, optional
             Rotation of the pin in degrees. The default is ``0``.
         top_layer : str, optional
             Top layer of the pin. The default is ``None``, in which case the top
             layer is assigned automatically.
-        bot_layer : str
+        bottom_layer : str
             Bottom layer of the pin. The default is ``None``, in which case the
             bottom layer is assigned automatically.
 
@@ -547,8 +629,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
             top_layer = layers[0].name
-        if not bot_layer:
-            bot_layer = layers[len(layers) - 1].name
+        if not bottom_layer:
+            bottom_layer = layers[len(layers) - 1].name
         self.modeler.oeditor.CreatePin(
             [
                 "NAME:Contents",
@@ -556,7 +638,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "ReferencedPadstack:=",
                 "Padstacks:NoPad SMT East",
                 "vposition:=",
-                ["x:=", str(xpos) + self.modeler.model_units, "y:=", str(ypos) + self.modeler.model_units],
+                ["x:=", str(x) + self.modeler.model_units, "y:=", str(y) + self.modeler.model_units],
                 "vrotation:=",
                 [str(rotation) + "deg"],
                 "overrides hole:=",
@@ -568,7 +650,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "highest_layer:=",
                 top_layer,
                 "lowest_layer:=",
-                bot_layer,
+                bottom_layer,
             ]
         )
         bound = self._update_port_info(name)
@@ -578,13 +660,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             return False
 
-    @pyaedt_function_handler()
-    def delete_port(self, portname):
+    @pyaedt_function_handler(portname="name")
+    def delete_port(self, name):
         """Delete a port.
 
         Parameters
         ----------
-        portname : str
+        name : str
             Name of the port.
 
         Returns
@@ -597,19 +679,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.Delete
         """
-        self.oexcitation.Delete(portname)
+        self.oexcitation.Delete(name)
         for bound in self.boundaries:
-            if bound.name == portname:
+            if bound.name == name:
                 self.boundaries.remove(bound)
         return True
 
-    @pyaedt_function_handler()
-    def import_edb(self, edb_full_path):
+    @pyaedt_function_handler(edb_full_path="input_folder")
+    def import_edb(self, input_folder):
         """Import EDB.
 
         Parameters
         ----------
-        edb_full_path : str
+        input_folder : str
             Full path to EDB.
 
         Returns
@@ -622,24 +704,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportEDB
         """
-        if "edb.def" not in edb_full_path:
-            edb_full_path = os.path.join(edb_full_path, "edb.def")
-        self.oimport_export.ImportEDB(edb_full_path)
+        if "edb.def" not in input_folder:
+            input_folder = os.path.join(input_folder, "edb.def")
+        self.oimport_export.ImportEDB(input_folder)
         self._close_edb()
-        project_name = self.odesktop.GetActiveProject().GetName()
-        design_name = self.odesktop.GetActiveProject().GetActiveDesign().GetName().split(";")[-1]
+        project_name = self.desktop_class.active_project().GetName()
+        design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
         self.__init__(projectname=project_name, designname=design_name)
         return True
 
-    @pyaedt_function_handler()
-    def validate_full_design(self, name=None, outputdir=None, ports=None):
+    @pyaedt_function_handler(outputdir="output_dir")
+    def validate_full_design(self, name=None, output_dir=None, ports=None):
         """Validate the design based on the expected value and save the information in the log file.
 
         Parameters
         ----------
         name : str, optional
             Name of the design to validate. The default is ``None``.
-        outputdir : str, optional
+        output_dir : str, optional
             Output directory to save the log file to. The default is ``None``,
             in which case the file is exported to the working directory.
 
@@ -658,8 +740,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         if name is None:
             name = self.design_name
-        if outputdir is None:
-            outputdir = self.working_directory
+        if output_dir is None:
+            output_dir = self.working_directory
 
         self.logger.info("#### Design Validation Checks###")
         #
@@ -670,10 +752,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         #
         # Write an overall validation log file with all output from all checks
-        # The design validation inside HFSS outputs to a separate log file which we merge into this overall file
+        # The design validation inside HFSS outputs to a separate log file that is merged into this overall file
         #
         val_list = []
-        all_validate = outputdir + "\\all_validation.log"
+        all_validate = output_dir + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
             # Desktop Messages
             msg = "Desktop Messages:"
@@ -732,15 +814,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         validation.close()
         return val_list, validation_ok  # return all the info in a list for use later
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(plot_name="plot")
     def create_scattering(
-        self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
+        self, plot="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
         """Create a scattering report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        plot : str, optional
             Name of the plot. The default is ``"S Parameter Plot Nominal"``.
         sweep_name : str, optional
             Name of the sweep. The default is ``None``.
@@ -772,72 +854,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port_excited = port_names
         traces = ["dB(S(" + p + "," + q + "))" for p, q in zip(list(port_names), list(port_excited))]
         return self.post.create_report(
-            traces, sweep_name, variations=variations, report_category=solution_data, plotname=plot_name
+            traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot
         )
 
-    @pyaedt_function_handler()
-    def export_touchstone(
-        self,
-        setup_name=None,
-        sweep_name=None,
-        file_name=None,
-        variations=None,
-        variations_value=None,
-        renormalization=False,
-        impedance=None,
-        gamma_impedance_comments=False,
-    ):
-        """Export a Touchstone file.
-
-        Parameters
-        ----------
-        setup_name : str, optional
-            Name of the setup that has been solved.
-        sweep_name : str, optional
-            Name of the sweep that has been solved.
-        file_name : str, optional
-            Full path and name for the Touchstone file.
-            The default is ``None``, in which case the Touchstone file is exported to
-            the working directory.
-        variations : list, optional
-            List of all parameter variations. For example, ``["$AmbientTemp", "$PowerIn"]``.
-            The default is ``None``.
-        variations_value : list, optional
-            List of all parameter variation values. For example, ``["22cel", "100"]``.
-            The default is ``None``.
-        renormalization : bool, optional
-            Perform renormalization before export.
-            The default is ``False``.
-        impedance : float, optional
-            Real impedance value in ohm, for renormalization, if not specified considered 50 ohm.
-            The default is ``None``.
-        gamma_impedance_comments : bool, optional
-            Include Gamma and Impedance values in comments.
-            The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ExportNetworkData
-        """
-        return self._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
-            variations=variations,
-            variations_value=variations_value,
-            renormalization=renormalization,
-            impedance=impedance,
-            comments=gamma_impedance_comments,
-        )
-
-    @pyaedt_function_handler()
-    def set_export_touchstone(self, activate, export_dir=""):
+    @pyaedt_function_handler(export_dir="output_dir")
+    def set_export_touchstone(self, activate, output_dir=""):
         """Export the Touchstone file automatically if the simulation is successful.
 
         Parameters
@@ -863,7 +884,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             settings.append("ExportAfterSolve:=")
             settings.append(True)
             settings.append("ExportDir:=")
-            settings.append(export_dir)
+            settings.append(output_dir)
         elif not activate:
             settings.append("NAME:options")
             settings.append("ExportAfterSolve:=")
@@ -906,15 +927,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign.DesignOptions(settings, 0)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+    )
     def create_linear_count_sweep(
         self,
-        setupname,
+        setup,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         num_of_freq_points,
-        sweepname=None,
+        name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -926,18 +949,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.
@@ -971,8 +995,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if name is None:
+            sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = name
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -985,39 +1011,41 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
-                if not sweep:
+                name = setupdata.add_sweep(name=sweep_name)
+                if not name:
                     return False
-                sweep.change_range("LinearCount", freqstart, freqstop, num_of_freq_points, unit)
-                sweep.props["GenerateSurfaceCurrent"] = save_fields
-                sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
-                sweep.props["FastSweep"] = interpolation
-                sweep.props["SAbsError"] = interpolation_tol
-                sweep.props["EnforcePassivity"] = interpolation
-                sweep.props["UseQ3DForDC"] = use_q3d_for_dc
-                sweep.props["MaxSolutions"] = interpolation_max_solutions
-                sweep.update()
-                self.logger.info("Linear count sweep %s has been correctly created.", sweepname)
-                return sweep
+                name.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
+                name.props["GenerateSurfaceCurrent"] = save_fields
+                name.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                name.props["FastSweep"] = interpolation
+                name.props["SAbsError"] = interpolation_tol
+                name.props["EnforcePassivity"] = interpolation
+                name.props["UseQ3DForDC"] = use_q3d_for_dc
+                name.props["MaxSolutions"] = interpolation_max_solutions
+                name.update()
+                self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
+                return name
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+    )
     def create_linear_step_sweep(
         self,
-        setupname,
+        setup,
         unit,
-        freqstart,
-        freqstop,
+        start_frequency,
+        stop_frequency,
         step_size,
-        sweepname=None,
+        name=None,
         save_fields=True,
         save_rad_fields_only=False,
         sweep_type="Interpolating",
@@ -1029,18 +1057,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup to attach to the sweep.
         unit : str
             Unit of the frequency. For example, ``"MHz"`` or ``"GHz"``.
-        freqstart : float
+        start_frequency : float
             Starting frequency of the sweep.
-        freqstop : float
+        stop_frequency : float
             Stopping frequency of the sweep.
         step_size : float
             Frequency size of the step.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for a discrete sweep only. The
             default is ``True``.
@@ -1049,8 +1078,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             ``save_fields=True``. The default is ``False``.
         sweep_type : str, optional
             Type of the sweep. Options are ``"Fast"``,
-            ``"Interpolating"``, and ``"Discrete"``.  The default is
-            ``"Interpolating"``.
+            ``"Interpolating"``, and ``"Discrete"``.
+            The default is ``"Interpolating"``.
         interpolation_tol_percent : float, optional
             Error tolerance threshold for the interpolation
             process. The default is ``0.5``.
@@ -1074,8 +1103,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
-        if sweepname is None:
-            sweepname = generate_unique_name("Sweep")
+        if name is None:
+            sweep_name = generate_unique_name("Sweep")
+        else:
+            sweep_name = name
 
         interpolation = False
         if sweep_type == "Interpolating":
@@ -1088,18 +1119,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         interpolation_tol = interpolation_tol_percent / 100.0
 
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweep = setupdata.add_sweep(sweepname=sweepname)
+                sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
                 if not sweep:
                     return False
-                sweep.change_range("LinearStep", freqstart, freqstop, step_size, unit)
+                sweep.change_range("LinearStep", start_frequency, stop_frequency, step_size, unit)
                 sweep.props["GenerateSurfaceCurrent"] = save_fields
                 sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweep.props["FastSweep"] = interpolation
@@ -1108,17 +1139,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 sweep.props["UseQ3DForDC"] = use_q3d_for_dc
                 sweep.props["MaxSolutions"] = interpolation_max_solutions
                 sweep.update()
-                self.logger.info("Linear step sweep %s has been correctly created.", sweepname)
+                self.logger.info("Linear step sweep %s has been correctly created.", sweep_name)
                 return sweep
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setupname="setup", sweepname="name")
     def create_single_point_sweep(
         self,
-        setupname,
+        setup,
         unit,
         freq,
-        sweepname=None,
+        name=None,
         save_fields=False,
         save_rad_fields_only=False,
     ):
@@ -1126,14 +1157,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setupname : str
+        setup : str
             Name of the setup.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``.
         freq : float, list
             Frequency of the single point or list of frequencies to create distinct single points.
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+        name : str, optional
+            Name of the sweep. The default is ``None``, in which
+            case a name is automatically assigned.
         save_fields : bool, optional
             Whether to save fields for all points and subranges defined in the sweep. The default is ``False``.
         save_rad_fields_only : bool, optional
@@ -1149,8 +1181,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.AddSweep
         """
-        if sweepname is None:
-            sweepname = generate_unique_name("SinglePoint")
+        if name is None:
+            sweep_name = generate_unique_name("SinglePoint")
+        else:
+            sweep_name = name
 
         add_subranges = False
         if isinstance(freq, list):
@@ -1162,26 +1196,26 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             freq0 = freq
 
-        if setupname not in self.setup_names:
+        if setup not in self.setup_names:
             return False
         for s in self.setups:
-            if s.name == setupname:
+            if s.name == setup:
                 setupdata = s
-                if sweepname in [sweep.name for sweep in setupdata.sweeps]:
-                    oldname = sweepname
-                    sweepname = generate_unique_name(oldname)
+                if sweep_name in [sweep.name for sweep in setupdata.sweeps]:
+                    oldname = sweep_name
+                    sweep_name = generate_unique_name(oldname)
                     self.logger.warning(
-                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
+                        "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                sweepdata = setupdata.add_sweep(sweepname, "Discrete")
+                sweepdata = setupdata.add_sweep(sweep_name, "Discrete")
                 sweepdata.change_range("SinglePoint", freq0, unit=unit)
                 sweepdata.props["GenerateSurfaceCurrent"] = save_fields
                 sweepdata.props["SaveRadFieldsOnly"] = save_rad_fields_only
                 sweepdata.update()
                 if add_subranges:
                     for f in freq:
-                        sweepdata.add_subrange(rangetype="SinglePoint", start=f, unit=unit)
-                self.logger.info("Single point sweep %s has been correctly created.", sweepname)
+                        sweepdata.add_subrange(range_type="SinglePoint", start=f, unit=unit)
+                self.logger.info("Single point sweep %s has been correctly created.", sweep_name)
                 return sweepdata
         return False
 
@@ -1233,16 +1267,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.odesktop.CloseProject(active_project)
         return True
 
-    @pyaedt_function_handler()
-    def import_gds(self, gds_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+    @pyaedt_function_handler(gds_path="input_file", aedb_path="output_dir")
+    def import_gds(
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
         """Import a GDS file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
-        gds_path : str
+        input_file : str
             Full path to the GDS file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1263,18 +1299,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportGDSII
         """
-        return self._import_cad(gds_path, "gds", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "gds", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
-    def import_dxf(self, dxf_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+    @pyaedt_function_handler(dxf_path="input_file", aedb_path="output_dir")
+    def import_dxf(
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
         """Import a DXF file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
-        dxf_path : str
+        input_file : str
             Full path to the DXF file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1295,20 +1333,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportDXF
         """
-        return self._import_cad(dxf_path, "dxf", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "dxf", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(gerber_path="input_file", aedb_path="output_dir")
     def import_gerber(
-        self, gerber_path, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
         """Import a Gerber zip file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
-        gerber_path : str
+        input_file : str
             Full path to the Gerber zip file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1327,11 +1365,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportGerber
         """
-        return self._import_cad(gerber_path, "gerber", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "gerber", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(aedb_path="output_dir")
     def import_brd(
-        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False, control_file=None
+        self, input_file, output_dir=None, set_as_active=True, close_active_project=False, control_file=None
     ):  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1339,8 +1377,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         input_file : str
             Full path to the board file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         set_as_active : bool, optional
             Whether to set the board file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1360,11 +1398,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportExtracta
         """
-        return self._import_cad(input_file, "brd", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "brd", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(aedb_path="output_dir")
     def import_awr(
-        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):  # pragma: no cover
         """Import an AWR Microwave Office file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1372,8 +1410,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         input_file : str
             Full path to the AWR Microwave Office file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1392,11 +1430,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportAWRMicrowaveOffice
         """
-        return self._import_cad(input_file, "awr", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "awr", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(aedb_path="output_dir")
     def import_ipc2581(
-        self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
     ):
         """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1404,8 +1442,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         input_file : str
             Full path to the IPC2581 file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1424,18 +1462,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportAWRMicrowaveOffice
         """
-        return self._import_cad(input_file, "ipc2581", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "ipc2581", output_dir, control_file, set_as_active, close_active_project)
 
-    @pyaedt_function_handler()
-    def import_odb(self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False):
+    @pyaedt_function_handler(aedb_path="output_dir")
+    def import_odb(
+        self, input_file, output_dir=None, control_file=None, set_as_active=True, close_active_project=False
+    ):
         """Import an ODB++ file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
         input_file : str
             Full path to the ODB++ file.
-        aedb_path : str, optional
-            Full path to the AEDB file.
+        output_dir : str, optional
+            Full path to the AEDB folder. For example, ``"c:\\temp\\test.aedb"``.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
@@ -1454,7 +1494,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportAWRMicrowaveOffice
         """
-        return self._import_cad(input_file, "odb++", aedb_path, control_file, set_as_active, close_active_project)
+        return self._import_cad(input_file, "odb++", output_dir, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def edit_cosim_options(
@@ -1566,15 +1606,22 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.odesign.EditCoSimulationOptions(arg)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        positive_terminal="assignment",
+        negative_terminal="reference",
+        common_name="common_mode",
+        diff_name="differential_mode",
+        common_ref="common_reference",
+        diff_ref_z="differential_reference",
+    )
     def set_differential_pair(
         self,
-        positive_terminal,
-        negative_terminal,
-        common_name=None,
-        diff_name=None,
-        common_ref_z=25,
-        diff_ref_z=100,
+        assignment,
+        reference,
+        common_mode=None,
+        differential_mode=None,
+        common_reference=25,
+        differential_reference=100,
         active=True,
         matched=False,
     ):
@@ -1582,17 +1629,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        positive_terminal : str
+        assignment : str
             Name of the terminal to use as the positive terminal.
-        negative_terminal : str
+        reference : str
             Name of the terminal to use as the negative terminal.
-        common_name : str, optional
+        common_mode : str, optional
             Name for the common mode. The default is ``None``, in which case a unique name is assigned.
-        diff_name : str, optional
+        differential_mode : str, optional
             Name for the differential mode. The default is ``None``, in which case a unique name is assigned.
-        common_ref_z : float, optional
+        common_reference : float, optional
             Reference impedance for the common mode in ohms. The default is ``25``.
-        diff_ref_z : float, optional
+        differential_reference : float, optional
             Reference impedance for the differential mode in ohms. The default is ``100``.
         active : bool, optional
             Whether to set the differential pair as active. The default is ``True``.
@@ -1608,28 +1655,28 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         >>> oModule.SetDiffPairs
         """
-        if not diff_name:
-            diff_name = generate_unique_name("Diff")
-        if not common_name:
-            common_name = generate_unique_name("Comm")
+        if not differential_mode:
+            differential_mode = generate_unique_name("Diff")
+        if not common_mode:
+            common_mode = generate_unique_name("Comm")
 
         arg1 = [
             "Pos:=",
-            positive_terminal,
+            assignment,
             "Neg:=",
-            negative_terminal,
+            reference,
             "On:=",
             active,
             "matched:=",
             matched,
             "Dif:=",
-            diff_name,
+            differential_mode,
             "DfZ:=",
-            [float(diff_ref_z), 0],
+            [float(differential_reference), 0],
             "Com:=",
-            common_name,
+            common_mode,
             "CmZ:=",
-            [float(common_ref_z), 0],
+            [float(common_reference), 0],
         ]
 
         arg = ["NAME:DiffPairs"]
@@ -1669,12 +1716,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         try:
             os.remove(tmpfile1)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
         try:
             self.oexcitation.SetDiffPairs(arg)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
@@ -1683,9 +1730,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         # type: () -> list
         """Get the list defined differential pairs.
 
-        Parameters
-        ----------
-        None
 
         Returns
         -------
@@ -1712,15 +1756,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             try:
                 os.remove(tmpfile1)
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 self.logger.warning("ERROR: Cannot remove temp files.")
 
         return list_output
 
-    @pyaedt_function_handler()
-    def load_diff_pairs_from_file(self, filename):
+    @pyaedt_function_handler(filename="input_file")
+    def load_diff_pairs_from_file(self, input_file):
         # type: (str) -> bool
-        """Load differtential pairs definition from file.
+        """Load differential pairs definition from a file.
 
         You can use the ``save_diff_pairs_to_file`` method to obtain the file format.
         The ``File End Of Line`` must be UNIX (LF).
@@ -1728,8 +1772,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        filename : str
-            Fully qualified name of the file containing the differential pairs definition.
+        input_file : str
+            Full path to the differential pairs definition file.
 
         Returns
         -------
@@ -1740,12 +1784,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         >>> oModule.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(filename):  # pragma: no cover
-            raise ValueError("{}: unable to find the specified file.".format(filename))
+        if not os.path.isfile(input_file):  # pragma: no cover
+            raise ValueError("{}: Unable to find the specified file.".format(input_file))
 
         try:
-            new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open_file(filename, "r") as file:
+            new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
+            with open_file(input_file, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
@@ -1753,12 +1797,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             self.oexcitation.LoadDiffPairsFromFile(new_file)
             os.remove(new_file)
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
         return True
 
-    @pyaedt_function_handler()
-    def save_diff_pairs_to_file(self, filename):
+    @pyaedt_function_handler(filename="output_file")
+    def save_diff_pairs_to_file(self, output_file):
         # type: (str) -> bool
         """Save differtential pairs definition to a file.
 
@@ -1766,8 +1810,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        filename : str
-            Fully qualified name of the file containing the differential pairs definition.
+        output_file : str
+            Full path to the differential pairs definition file.
 
         Returns
         -------
@@ -1778,20 +1822,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         >>> oModule.SaveDiffPairsToFile
         """
-        self.oexcitation.SaveDiffPairsToFile(filename)
+        self.oexcitation.SaveDiffPairsToFile(output_file)
 
-        return os.path.isfile(filename)
+        return os.path.isfile(output_file)
 
-    @pyaedt_function_handler()
-    def export_3d_model(self, file_name=None):
+    @pyaedt_function_handler(file_name="output_file")
+    def export_3d_model(self, output_file=None):
         """Export the Ecad model to a 3D file.
 
         Parameters
         ----------
-        file_name : str, optional
-            Full name of the file to export. The default is None, in which case the file name is
+        output_file : str, optional
+            Full name of the file to export. The default is ``None``, in which case the file name is
             set to the design name and saved as a SAT file in the working directory.
-            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022R2 and
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022 R2 and
             Parasolid format `"x_t"` from AEDT 2023R1.
 
         Returns
@@ -1799,16 +1843,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         str
             File name if successful.
         """
-        if not file_name:
+        if not output_file:
             if settings.aedt_version > "2022.2":
-                file_name = os.path.join(self.working_directory, self.design_name + ".x_t")
-                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", file_name])
+                output_file = os.path.join(self.working_directory, self.design_name + ".x_t")
+                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", output_file])
 
             else:
-                file_name = os.path.join(self.working_directory, self.design_name + ".sat")
-                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+                output_file = os.path.join(self.working_directory, self.design_name + ".sat")
+                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", output_file])
 
-        return file_name
+        return output_file
 
     @pyaedt_function_handler()
     def enable_rigid_flex(self):
@@ -1828,7 +1872,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return True
         return True if self.variable_manager["BendModel"].expression == "1" else False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def edit_hfss_extents(
         self,
         diel_extent_type=None,
@@ -1942,11 +1986,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return out_files[0]
         return ""
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(source_name="source", file_name="input_file")
     def edit_source_from_file(
         self,
-        source_name,
-        file_name,
+        source,
+        input_file,
         is_time_domain=True,
         x_scale=1,
         y_scale=1,
@@ -1955,18 +1999,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         encoding="utf-8",
         include_post_effects=True,
         incident_voltage=True,
+        window="hamming",
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
 
         Parameters
         ----------
-        source_name : str
+        source : str
             Source Name.
-        file_name : str
+        input_file : str
             Full name of the input file.
         is_time_domain : bool, optional
-            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+            Whether the input data is time-based. The defaulti s ``True``. If
+            ``False``, the input data is frequency-based. Frequency-based data
+            is degrees in this format: ``Mag/Phase``.
         x_scale : float, optional
             Scaling factor for x axis.
         y_scale : float, optional
@@ -1981,7 +2028,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Either if include or not post-processing effects. Default is `True`,
         incident_voltage : bool, optional
             Either if include or incident or total voltage. Default is `True`, for incident voltage.
-
+        window : str, optional
+            Fft window. Options are ``"hamming"``, ``"hanning"``, ``"blackman"``, ``"bartlett"`` or ``None``.
 
         Returns
         -------
@@ -1989,7 +2037,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         out = "Voltage"
         freq, mag, phase = parse_excitation_file(
-            file_name=file_name,
+            file_name=input_file,
             is_time_domain=is_time_domain,
             x_scale=x_scale,
             y_scale=y_scale,
@@ -1997,9 +2045,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             data_format=data_format,
             encoding=encoding,
             out_mag=out,
+            window=window,
         )
-        ds_name_mag = "ds_" + source_name.replace(":", "_mode_") + "_Mag"
-        ds_name_phase = "ds_" + source_name.replace(":", "_mode_") + "_Angle"
+        ds_name_mag = "ds_" + source.replace(":", "_mode_") + "_Mag"
+        ds_name_phase = "ds_" + source.replace(":", "_mode_") + "_Angle"
         if self.dataset_exists(ds_name_mag, False):
             self.design_datasets[ds_name_mag].x = freq
             self.design_datasets[ds_name_mag].y = mag
@@ -2014,7 +2063,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         else:
             self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
         for p in self.boundaries:
-            if p.name == source_name:
+            if p.name == source:
                 str_val = ["TotalVoltage"]
                 if incident_voltage:
                     str_val = ["IncidentVoltage"]
@@ -2023,9 +2072,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 self.oboundary.EditExcitations(
                     [
                         "NAME:Excitations",
-                        [source_name, "pwl({}, Freq)".format(ds_name_mag), "pwl({}, Freq)".format(ds_name_phase)],
+                        [source, "pwl({}, Freq)".format(ds_name_mag), "pwl({}, Freq)".format(ds_name_phase)],
                     ],
-                    ["NAME:Terminations", [source_name, False, str(impedance) + "ohm", "0ohm"]],
+                    ["NAME:Terminations", [source, False, str(impedance) + "ohm", "0ohm"]],
                     ",".join(str_val),
                     [],
                 )
@@ -2035,7 +2084,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
-    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_solution_data(self, setup, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2045,7 +2095,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         show : str, optional
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
@@ -2067,55 +2117,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             context=show, is_siwave_dc=True, quantities_category=category
         )
 
-        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
-    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
-        """
-        Return a Touchstone data plot.
-
-        Parameters
-        ----------
-        setup_name : list
-            Name of the setup.
-        sweep_name : str, optional
-            Name of the sweep. The default value is ``None``.
-        variations : dict, optional
-            Dictionary of variation names. The default value is ``None``.
-
-        Returns
-        -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
-           Class containing all requested data.
-
-        References
-        ----------
-
-        >>> oModule.GetSolutionDataPerVariation
-        """
-        from pyaedt.generic.touchstone_parser import TouchstoneData
-
-        if not setup_name:
-            setup_name = self.setups[0].name
-
-        if not sweep_name:
-            for setup in self.setups:
-                if setup.name == setup_name:
-                    sweep_name = setup.sweeps[0].name
-        s_parameters = []
-        solution = "{} : {}".format(setup_name, sweep_name)
-        expression = self.get_traces_for_plot(category="S")
-        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
-        for i in range(sol_data.number_of_variations):
-            sol_data.set_active_variation(i)
-            s_parameters.append(TouchstoneData(solution_data=sol_data))
-        return s_parameters
-
-    def get_dcir_element_data_loop_resistance(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_loop_resistance(self, setup):
         """Get dcir element data loop resistance.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2126,7 +2136,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="RL", category="Loop Resistance")
 
         terms = []
         pattern = r"LoopRes\((.*?)\)"
@@ -2151,12 +2161,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    def get_dcir_element_data_current_source(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_current_source(self, setup):
         """Get dcir element data current source.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2167,7 +2178,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         import pandas as pd
 
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        solution_data = self.get_dcir_solution_data(setup=setup, show="Sources", category="Voltage")
         terms = []
         pattern = r"^V\((.*?)\)"
         for t_name in solution_data.expressions:
@@ -2186,12 +2197,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    def get_dcir_element_data_via(self, setup_name):
+    @pyaedt_function_handler(setup_name="setup")
+    def get_dcir_element_data_via(self, setup):
         """Get dcir element data via.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Name of the setup.
         Returns
         -------
@@ -2206,7 +2218,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df = None
         for cat in cates:
             data = {cat: []}
-            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            solution_data = self.get_dcir_solution_data(setup=setup, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
             for t_name in solution_data.expressions:
@@ -2226,7 +2238,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def show_extent(self, show=True):
         """Show or hide extent in a HFSS3dLayout design.
 
@@ -2252,10 +2264,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         try:
             self.oeditor.SetHfssExtentsVisible(show)
             return True
-        except:
+        except Exception:
             return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def change_options(self, color_by_net=True):
         """Change options for an existing layout.
 
@@ -2285,5 +2297,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             oeditor = self.odesign.SetActiveEditor("Layout")
             oeditor.ChangeOptions(options)
             return True
-        except:
+        except Exception:
             return False

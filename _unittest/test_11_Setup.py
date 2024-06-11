@@ -27,6 +27,7 @@ class TestClass:
     def test_01_create_hfss_setup(self):
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
+        assert self.aedtapp.setups[0].name == setup1.name
         assert "SaveRadFieldsOnly" in setup1.props
         assert "SaveRadFieldsOnly" in setup1.available_properties
         setup1["SaveRadFieldsonly"] = True
@@ -56,9 +57,9 @@ class TestClass:
         sweep1.props["SaveFields"] = True
         assert sweep1.update()
         assert self.aedtapp.get_sweeps("My_HFSS_Setup")
-        sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
+        sweep2 = setup1.add_sweep(name="test_sweeptype", sweep_type="invalid")
         assert sweep2.props["Type"] == "Interpolating"
-        sweep3 = setup1.create_frequency_sweep(freqstart=1, freqstop="500MHz")
+        sweep3 = setup1.create_frequency_sweep(start_frequency=1, stop_frequency="500MHz")
         assert sweep3.props["Type"] == "Discrete"
         sweep4 = setup1.create_frequency_sweep("GHz", 23, 25, 401, sweep_type="Fast")
         assert sweep4.props["Type"] == "Fast"
@@ -67,6 +68,8 @@ class TestClass:
         self.aedtapp.duplicate_design("auto_open")
         for setup in self.aedtapp.get_setups():
             self.aedtapp.delete_setup(setup)
+            assert setup not in self.aedtapp.setups
+        assert not self.aedtapp.setups
         self.aedtapp.set_auto_open()
         setup1 = self.aedtapp.get_setup("Auto1")
         setup1.enable_adaptive_setup_multifrequency([1.9, 2.4], 0.02)
@@ -79,8 +82,9 @@ class TestClass:
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1["SaveRadFieldsonly"] = True
-        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 301"
-        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 301"
+        setup1["SweepDefinition/Data"] = "LINC 0GHz 4GHz 302"
+        assert setup1.props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
+        assert circuit.setups[0].props["SweepDefinition"]["Data"] == "LINC 0GHz 4GHz 302"
         assert "SweepDefinition" in setup1.available_properties
         setup1.update()
         setup1.disable()
@@ -113,6 +117,16 @@ class TestClass:
         setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", self.aedtapp.SETUPS.HFSSDrivenAuto)
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
+
+    def test_05a_delete_sweep(self):
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup5", self.aedtapp.SETUPS.HFSSDrivenDefault)
+        setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 1
+        assert "My_Sweep1" in sweeps
+        setup1.delete_sweep("My_Sweep1")
+        sweeps = setup1.get_sweep_names()
+        assert len(sweeps) == 0
 
     def test_06_sweep_sbr(self):
         self.aedtapp.insert_design("sweepsbr")

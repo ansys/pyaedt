@@ -73,14 +73,14 @@ jobs:
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
           pytest --tx 6*popen --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         if: matrix.python-version == '3.8'
         name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results
           path: junit/test-results.xml

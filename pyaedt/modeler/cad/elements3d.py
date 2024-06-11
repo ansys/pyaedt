@@ -50,7 +50,7 @@ def _dict2arg(d, arg_out):
             arg_out.append(arg)
         elif v is None:
             arg_out.append(["NAME:" + k])
-        elif type(v) is list and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
+        elif isinstance(v, list) and len(v) > 0 and isinstance(v[0], (OrderedDict, dict)):
             for el in v:
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
@@ -58,7 +58,7 @@ def _dict2arg(d, arg_out):
 
         else:
             arg_out.append(k + ":=")
-            if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
+            if isinstance(v, (EdgePrimitive, FacePrimitive, VertexPrimitive)):
                 arg_out.append(v.id)
             else:
                 arg_out.append(v)
@@ -229,7 +229,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             self._position = [float(i) for i in vertex_data]
             return self._position
-        except Exception as e:
+        except Exception:
             return None
 
     def __str__(self):
@@ -270,7 +270,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return {}
         self._object3d._primitives._app.autosave_disable()
         ll = list(self.oeditor.GetObjectsInGroup("Lines"))
@@ -363,7 +363,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
         try:
             return float(self.oeditor.GetEdgeLength(self.id))
-        except:
+        except Exception:
             return False
 
     def __str__(self):
@@ -516,7 +516,10 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        try:
+            v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        except Exception:
+            v = []
         if not v:
             for el in self.edges:
                 pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
@@ -550,7 +553,7 @@ class FacePrimitive(object):
         """
         try:
             c = self.oeditor.GetFaceCenter(self.id)
-        except:
+        except Exception:
             self.logger.warning("Non-planar face does not provide a face center.")
             return False
         center = [float(i) for i in c]
@@ -570,7 +573,7 @@ class FacePrimitive(object):
             self.oeditor.GetFaceCenter(self.id)
             self._is_planar = True
             return True
-        except:
+        except Exception:
             self.logger.clear_messages()
             self._is_planar = False
             return False
@@ -659,7 +662,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -675,7 +678,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[2]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -691,7 +694,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -707,7 +710,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[0]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -723,7 +726,7 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[-1][1]
-        except:
+        except Exception:
             return None
 
     @property
@@ -739,11 +742,11 @@ class FacePrimitive(object):
             result = [(float(edge.midpoint[1]), edge) for edge in self.edges]
             result = sorted(result, key=lambda tup: tup[0])
             return result[0][1]
-        except:
+        except Exception:
             return None
 
-    @pyaedt_function_handler()
-    def is_on_bounding(self, tol=1e-9):
+    @pyaedt_function_handler(tol="tolerance")
+    def is_on_bounding(self, tolerance=1e-9):
         """Check if the face is on bounding box or Not.
 
         Parameters
@@ -759,12 +762,12 @@ class FacePrimitive(object):
         b = [float(i) for i in list(self.oeditor.GetModelBoundingBox())]
         c = self.center
         if c and (
-            abs(c[0] - b[0]) < tol
-            or abs(c[1] - b[1]) < tol
-            or abs(c[2] - b[2]) < tol
-            or abs(c[0] - b[3]) < tol
-            or abs(c[1] - b[4]) < tol
-            or abs(c[2] - b[5]) < tol
+            abs(c[0] - b[0]) < tolerance
+            or abs(c[1] - b[1]) < tolerance
+            or abs(c[2] - b[2]) < tolerance
+            or abs(c[0] - b[3]) < tolerance
+            or abs(c[1] - b[4]) < tolerance
+            or abs(c[2] - b[5]) < tolerance
         ):
             return True
         return False
@@ -902,10 +905,8 @@ class FacePrimitive(object):
             n = GeometryOperators.v_cross(cv1, cv2)
         normal = GeometryOperators.normalize_vector(n)
 
-        """
-        Try to move the face center twice, the first with the normal vector, and the second with its inverse.
-        Measures which is closer to the center point of the bounding box.
-        """
+        # Try to move the face center twice, the first with the normal vector, and the second with its inverse.
+        # Measures which is closer to the center point of the bounding box.
         inv_norm = [-i for i in normal]
         mv1 = GeometryOperators.v_sum(fc, normal)
         mv2 = GeometryOperators.v_sum(fc, inv_norm)
@@ -926,7 +927,7 @@ class FacePrimitive(object):
         :class:`pyaedt.modeler.cad.object3d.Object3d`
             3D object.
         non_model : bool, optional
-            Either if create the new object as model or non-model. Default is `False`.
+            Either to create the new object as model or non-model. Default is ``False``.
 
         References
         ----------
@@ -1402,7 +1403,7 @@ class BinaryTreeNode:
             for p in self.child_object.GetPropNames():
                 try:
                     self.props[p] = self.child_object.GetPropValue(p)
-                except:
+                except Exception:
                     self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
@@ -1425,7 +1426,7 @@ class BinaryTreeNode:
         try:
             self.child_object.SetPropValue(prop_name, prop_value)
             return True
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     @pyaedt_function_handler

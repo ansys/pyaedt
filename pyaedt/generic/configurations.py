@@ -5,26 +5,38 @@ import json
 import os
 import tempfile
 
+import pyaedt
 from pyaedt import Icepak
 from pyaedt import __version__
 from pyaedt import generate_unique_folder_name
 from pyaedt import get_pyaedt_app
+from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.general_methods import _create_json_file
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import read_configuration_file
+from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.modeler.cad.Modeler import CoordinateSystem
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NativeComponentPCB
 from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
 from pyaedt.modules.Mesh import MeshOperation
+from pyaedt.modules.MeshIcepak import MeshRegion
+from pyaedt.modules.MeshIcepak import SubRegion
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -54,7 +66,7 @@ class ConfigurationsOptions(object):
     """Options class for the configurations.
     User can enable or disable import export components."""
 
-    def __init__(self):
+    def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
         self._export_variables = True
         self._export_setups = True
@@ -632,8 +644,9 @@ class ConfigurationsOptions(object):
 
 
 class ImportResults(object):
-    """Import Results Class.
-    Contains the results of the import operations. Each reusult can be ``True`` or ``False``.
+    """Contains the results of the import operations.
+
+    Each result can be ``True`` or ``False``.
     """
 
     def __init__(self):
@@ -673,19 +686,35 @@ class ImportResults(object):
 
 
 class Configurations(object):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
-    """
+    """Enables export and import of a JSON configuration file that can be applied to a new or existing design."""
 
     def __init__(self, app):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
+        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
+
+        schema_bytes = None
+
+        config_schema_path = os.path.join(pyaedt_installed_path, "misc", "config.schema.json")
+
+        if os.path.exists(config_schema_path):
+            with open(config_schema_path, "rb") as schema:
+                schema_bytes = schema.read()
+
+        if schema_bytes:
+            # Read the default configuration schema from pyaedt
+            schema_string = schema_bytes.decode("utf-8")
+            self._schema = json.loads(schema_string)
+        else:  # pragma: no cover
+            self._app.logger.error("Failed to load configuration schema.")
+            self._schema = None
+
     @staticmethod
     @pyaedt_function_handler()
     def _map_dict_value(dict_out, key, value):
-        dict_out["general"]["object_mapping"][key] = value
+        dict_out["general"]["object_mapping"][str(key)] = value
 
     @pyaedt_function_handler()
     def _map_object(self, props, dict_out):
@@ -711,12 +740,13 @@ class Configurations(object):
         if "Objects" in props:
             new_list = []
             for obj in props["Objects"]:
-                if isinstance(obj, int):
+                try:
+                    int(obj)
                     try:
                         new_list.append(mapping[str(obj)])
                     except KeyError:
                         pass
-                else:
+                except ValueError:
                     new_list.append(obj)
             props["Objects"] = new_list
         elif "Faces" in props:
@@ -878,7 +908,7 @@ class Configurations(object):
             bound.props["Modes"] = BoundaryProps(bound, modes)
             bound.auto_update = True
         if bound.create():
-            self._app.boundaries.append(bound)
+            self._app._boundaries[bound.name] = bound
             if props["BoundType"] in ["Coil Terminal", "Coil", "CoilTerminal"]:
                 winding_name = ""
                 for b in self._app.boundaries:
@@ -905,7 +935,7 @@ class Configurations(object):
         bound = MeshOperation(self._app.mesh, name, props, props["Type"])
         if bound.create():
             self._app.mesh.meshoperations.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
             return True
         else:
             self._app.logger.warning("Failed to add Mesh {} ".format(name))
@@ -922,7 +952,7 @@ class Configurations(object):
         if self._app.design_type == "Q3D Extractor":
             setup = self._app.create_setup(name, props=props)
         else:
-            setup = self._app.create_setup(name, setuptype=props["SetupType"], props=props)
+            setup = self._app.create_setup(name, setup_type=props["SetupType"], props=props)
         if setup:
             self._app.logger.info("Setup {} added.".format(name))
             return True
@@ -985,9 +1015,50 @@ class Configurations(object):
             )
 
     @pyaedt_function_handler()
+    def validate(self, config):
+        """Validate a configuration file against the schema. The default schema
+            can be found in ``pyaedt/misc/config.schema.json``.
+
+        Parameters
+        ----------
+        config : str, dict
+            Configuration as a JSON file or dictionary.
+
+        Returns
+        -------
+        bool
+            ``True`` if the configuration file is valid, ``False`` otherwise.
+            If the validation fails, a warning is also written to the logger.
+        """
+
+        if isinstance(config, str):
+            try:  # Try to parse config as a file
+                config_data = read_configuration_file(config)
+            except OSError:
+                self._app.logger.warning("Unable to parse %s", config)
+                return False
+        elif isinstance(config, dict):
+            config_data = config
+        else:
+            self._app.logger.warning("Incorrect data type.")
+            return False
+
+        if is_ironpython:
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
+            try:
+                validate(instance=config_data, schema=self._schema)
+                return True
+            except exceptions.ValidationError as e:
+                self._app.logger.warning("Configuration is invalid.")
+                self._app.logger.warning("Validation error:" + e.message)
+                return False
+        return True
+
+    @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
-        The sections to be applied are defined with ``configuration.options`` class.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+        The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
         Parameters
@@ -1003,9 +1074,8 @@ class Configurations(object):
         if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
 
+        dict_in = read_configuration_file(config_file)
         if self.options._is_any_import_set:
             try:
                 self._app.modeler.model_units = dict_in["general"]["model_units"]
@@ -1062,6 +1132,7 @@ class Configurations(object):
                 else:
                     newname = el
                 newmat = Material(self._app, el, val, material_update=True)
+                newmat._update_material()
                 if newmat:
                     self._app.materials.material_keys[newname] = newmat
                 else:  # pragma: no cover
@@ -1079,7 +1150,24 @@ class Configurations(object):
         #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
         #         if not self._update_face_coordinate_systems(name, props):
         #             self.results.import_face_coordinate_systems = False
-        self._app.modeler.set_working_coordinate_system("Global")
+
+        # Only set global CS in the appropriate context.
+        if self._app.design_type not in [
+            "HFSS 3D Layout Design",
+            "HFSS3DLayout",
+            "RMxprt",
+            "Twin Builder",
+            "Circuit Design",
+        ]:
+            self._app.modeler.set_working_coordinate_system("Global")
+
+        if self.options.import_mesh_operations and dict_in.get("mesh", None):
+            self.results.import_mesh_operations = True
+            for name, props in dict_in["mesh"].items():
+                self._convert_objects(props, dict_in["general"]["object_mapping"])
+                if not self._update_mesh_operations(name, props):
+                    self.results.import_mesh_operations = False
+
         if self.options.import_object_properties and dict_in.get("objects", None):
             self.results.import_object_properties = True
             for obj, val in dict_in["objects"].items():
@@ -1105,13 +1193,6 @@ class Configurations(object):
                 self._convert_objects(dict_in["boundaries"][name], dict_in["general"]["object_mapping"])
                 if not self._update_boundaries(name, dict_in["boundaries"][name]):
                     self.results.import_boundaries = False
-
-        if self.options.import_mesh_operations and dict_in.get("mesh", None):
-            self.results.import_mesh_operations = True
-            for name, props in dict_in["mesh"].items():
-                self._convert_objects(props, dict_in["general"]["object_mapping"])
-                if not self._update_mesh_operations(name, props):
-                    self.results.import_mesh_operations = False
 
         if self.options.import_setups and dict_in.get("setups", None):
             self.results.import_setup = True
@@ -1153,7 +1234,7 @@ class Configurations(object):
         if list(self._app.output_variables):
             oo_out = os.path.join(tempfile.gettempdir(), generate_unique_name("oo") + ".txt")
             self._app.ooutput_variable.ExportOutputVariables(oo_out)
-            with open(oo_out, "r") as f:
+            with open_file(oo_out, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     line_split = line.split(" ")
@@ -1370,8 +1451,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
-        """Export current design properties to json file.
-        The section to be exported are defined with ``configuration.options`` class.
+        """Export current design properties to a JSON or TOML file.
+        The sections to be exported are defined with ``configuration.options`` class.
 
 
         Parameters
@@ -1394,19 +1475,15 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        for key, value in vars(self.options).items():
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
             if key.startswith("_export_") and value:
-                getattr(self, key)(dict_out)
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
 
         # update the json if it exists already
 
         if os.path.exists(config_file) and not overwrite:
-            with open(config_file, "r") as json_file:
-                try:
-                    dict_in = json.load(json_file)
-                except Exception:
-                    dict_in = {}
-            try:
+            dict_in = read_configuration_file(config_file)
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
                 if dict_in["general"]["pyaedt_version"] == __version__:
                     for k, v in dict_in.items():
                         if k not in dict_out:
@@ -1415,17 +1492,18 @@ class Configurations(object):
                             for i, j in v.items():
                                 if i not in dict_out[k]:
                                     dict_out[k][i] = j
-            except KeyError:
-                pass
-        # write the updated json to file
-        if _create_json_file(dict_out, config_file):
+            except KeyError as e:
+                self._app.logger.error(str(e))
+
+        # write the updated dict to file
+        if write_configuration_file(dict_out, config_file):
             self._app.logger.info("Json file {} created correctly.".format(config_file))
             return config_file
         self._app.logger.error("Error creating json file {}.".format(config_file))
         return False
 
 
-class ConfigurationsOptionsIcepak(ConfigurationsOptions):
+class ConfigurationOptionsIcepak(ConfigurationsOptions):
     def __init__(self, app):
         ConfigurationsOptions.__init__(self)
         self._export_monitor = True
@@ -1466,14 +1544,35 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
         self._export_native_components = val
 
 
-class ConfigurationsIcepak(Configurations):
-    """Configuration Class.
-    It enables to export and import configuration options to be applied on a new/existing design.
+class ConfigurationOptions3DLayout(ConfigurationsOptions):
+    def __init__(self, app):
+        ConfigurationsOptions.__init__(self)
+        self._export_mesh_operations = False
+        self._export_coordinate_systems = False
+        self._export_boundaries = False
+        self._export_object_properties = False
+        self._import_mesh_operations = False
+        self._import_coordinate_systems = False
+        self._import_boundaries = False
+        self._import_object_properties = False
+
+
+class Configurations3DLayout(Configurations):
+    """Enables export and import configuration options to be applied to a
+    new or existing 3DLayout design.
     """
 
     def __init__(self, app):
         Configurations.__init__(self, app)
-        self.options = ConfigurationsOptionsIcepak(app)
+        self.options = ConfigurationOptions3DLayout(app)
+
+
+class ConfigurationsIcepak(Configurations):
+    """Enables export and import configuration options to be applied on a new or existing design."""
+
+    def __init__(self, app):
+        Configurations.__init__(self, app)
+        self.options = ConfigurationOptionsIcepak(app)
 
     @pyaedt_function_handler()
     def _update_object_properties(self, name, val):
@@ -1532,19 +1631,23 @@ class ConfigurationsIcepak(Configurations):
                         if el in mesh_el.__dict__:
                             mesh_el.__dict__[el] = props[el]
                     return mesh_el.update()
-
-        bound = self._app.mesh.MeshRegion(
-            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
-        )
-        bound.name = name
-        for el in props:
-            if el in bound.__dict__:
-                bound.__dict__[el] = props[el]
-        if bound.create():
+        try:
+            if self._app.settings.aedt_version < "2024.1":
+                objs = props.get("Objects", []) + props.get("Submodels", [])
+            else:
+                subregion = SubRegion(self._app, props["_subregion_information"]["parts"])
+                subregion.padding_values = props["_subregion_information"]["pad_vals"]
+                subregion.padding_types = props["_subregion_information"]["pad_types"]
+                objs = subregion.name
+            bound = MeshRegion(app=self._app, name=name, objects=objs)
+            bound.manual_settings = props["UserSpecifiedSettings"]
+            for el in props:
+                if el in bound.settings:
+                    bound.settings[el] = props[el]
             self._app.mesh.meshregions.append(bound)
-            self._app.logger.info("mesh Operation {} added.".format(name))
-        else:
-            self._app.logger.warning("Failed to add Mesh {} ".format(name))
+            self._app.logger.info("Mesh Operation {} added.".format(name))
+        except GrpcApiError:
+            self._app.logger.warning("Failed to add mesh {} ".format(name))
         return True
 
     @pyaedt_function_handler()
@@ -1555,7 +1658,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.modeler.refresh_all_ids()
             udc_parts_id = [part for _, uc in self._app.modeler.user_defined_components.items() for part in uc.parts]
         for val in self._app.modeler.objects.values():
-            if val.id in udc_parts_id:
+            if val.id in udc_parts_id or val.history().command == "CreateSubRegion":
                 continue
             dict_out["objects"][val.name] = {}
             dict_out["objects"][val.name]["SurfaceMaterial"] = val.surface_material_name
@@ -1571,10 +1674,7 @@ class ConfigurationsIcepak(Configurations):
     def _export_mesh_operations(self, dict_out):
         dict_out["mesh"] = {}
         args = ["NAME:Settings"]
-        if self._app.mesh.global_mesh_region.UserSpecifiedSettings:
-            args += self._app.mesh.global_mesh_region.manualsettings
-        else:
-            args += self._app.mesh.global_mesh_region.autosettings
+        args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
         mop = OrderedDict({})
         _arg2dict(args, mop)
         dict_out["mesh"]["Settings"] = mop["Settings"]
@@ -1584,15 +1684,19 @@ class ConfigurationsIcepak(Configurations):
                     args = ["NAME:Settings"]
                 else:
                     args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
-                if mesh.UserSpecifiedSettings:
-                    args += mesh.manualsettings
-                else:
-                    args += mesh.autosettings
+                args += mesh.settings.parse_settings_as_args()
+                args += getattr(mesh, "_parse_assignment_value")()
+                args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = OrderedDict({})
                 _arg2dict(args, mop)
+                if self._app.modeler[args[-3][0]].history().command == "CreateSubRegion":
+                    mop[mesh.name]["_subregion_information"] = {
+                        "pad_vals": mesh.assignment.padding_values,
+                        "pad_types": mesh.assignment.padding_types,
+                        "parts": list(mesh.assignment.parts.keys()),
+                    }
                 dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
-        pass
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):
@@ -1683,7 +1787,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
-        """Import configuration settings from a json file and apply it to the current design.
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1705,8 +1809,7 @@ class ConfigurationsIcepak(Configurations):
             exclude_set = args[0]
         else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
-        with open(config_file) as json_file:
-            dict_in = json.load(json_file)
+        dict_in = read_configuration_file(config_file)
         self.results._reset_results()
 
         if self.options.import_native_components and dict_in.get("native components", None):
@@ -1897,7 +2000,7 @@ class ConfigurationsIcepak(Configurations):
                 )
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
-                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], unit=rotation[1])
+                obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], units=rotation[1])
             elif operation_dict["Props"]["Command"] == "Mirror":
                 obj.mirror(
                     [
@@ -1918,11 +2021,11 @@ class ConfigurationsIcepak(Configurations):
             elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
                 new_objs = obj.duplicate_around_axis(
-                    operation_dict["Props"]["Axis"], angle=rotation[0], nclones=operation_dict["Props"]["Total Number"]
+                    operation_dict["Props"]["Axis"], angle=rotation[0], clones=operation_dict["Props"]["Total Number"]
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateMirror":
                 new_objs = obj.duplicate_and_mirror(
-                    position=[
+                    origin=[
                         decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
                         for i in range(3)
                     ],
@@ -1952,7 +2055,10 @@ class ConfigurationsIcepak(Configurations):
                 nc_dict = copy.deepcopy(native_dict["Properties"])
                 nc_dict["TargetCS"] = instance_dict["CS"]
                 component3d_names = list(self._app.modeler.oeditor.Get3DComponentInstanceNames(native_name))
-                native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
+                if native_dict["Type"] == "PCB":
+                    native = NativeComponentPCB(self._app, native_dict["Type"], native_name, nc_dict)
+                else:
+                    native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
                 prj_list = set(self._app.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
                 instance_names = {

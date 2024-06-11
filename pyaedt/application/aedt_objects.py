@@ -1,11 +1,27 @@
 import sys
+import time
 
+from pyaedt import is_linux
 from pyaedt import pyaedt_function_handler
+from pyaedt import settings
+from pyaedt.generic.desktop_sessions import _desktop_sessions
 
 
 class AedtObjects(object):
-    def __init__(self, project=None, design=None, is_inherithed=False):
-        self._odesktop = sys.modules["__main__"].oDesktop
+    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+        if desktop:
+            self._odesktop = desktop.odesktop
+        elif _desktop_sessions and project:
+            project_name = project.GetName()
+            for desktop in list(_desktop_sessions.values()):
+                if project_name in list(desktop.project_list):
+                    self._odesktop = desktop.odesktop
+                    break
+        elif _desktop_sessions:
+            self._odesktop = list(_desktop_sessions.values())[-1].odesktop
+        elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
+            self._odesktop = sys.modules["__main__"].oDesktop  # ironpython
+
         if not is_inherithed:
             if project:
                 self.oproject = project
@@ -15,7 +31,8 @@ class AedtObjects(object):
                     self.odesign = self.oproject.GetActiveDesign()
             else:
                 self.oproject = self._odesktop.GetActiveProject()
-                self.odesign = self.oproject.GetActiveDesign()
+                if self.oproject:
+                    self.odesign = self.oproject.GetActiveDesign()
         self._oboundary = None
         self._oimport_export = None
         self._ooptimetrics = None
@@ -59,7 +76,7 @@ class AedtObjects(object):
         if self.design_type not in ["EMIT"] and self.odesign:
             try:
                 return self.odesign.GetModule(module_name)
-            except:
+            except Exception:
                 return None
         return None
 
@@ -357,6 +374,9 @@ class AedtObjects(object):
         if not self._oeditor:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self.odesign.SetActiveEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":
+                    time.sleep(1)
+                    self._odesktop.CloseAllWindows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self.odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:

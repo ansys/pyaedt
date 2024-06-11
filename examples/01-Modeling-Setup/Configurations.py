@@ -33,6 +33,13 @@ design has changed, the boundary fails to apply.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +55,7 @@ non_graphical = False
 
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(projectname=project_full_name, specified_version="2023.2",
+ipk = pyaedt.Icepak(projectname=project_full_name, specified_version=aedt_version,
                     new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
@@ -90,17 +97,18 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 filename = ipk.design_name
 file_path = os.path.join(ipk.working_directory, filename + ".step")
-ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", object_list=[],
-                    removed_objects=[])
+ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", assignment_to_export=[],
+                    assignment_to_remove=[])
 
 ###############################################################################
 # Export configuration files
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Export the configuration files. You can optionally disable the export and
-# import sections.
+# import sections. Supported formats are json and toml files
 
-conf_file = ipk.configurations.export_config()
+conf_file = ipk.configurations.export_config(os.path.join(ipk.working_directory, "config.toml"))
 ipk.close_project()
+
 
 ###############################################################################
 # Create project

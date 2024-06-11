@@ -12,6 +12,13 @@ The example file is an Icepak project with a model that is already created and h
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +36,7 @@ temp_folder = pyaedt.generate_unique_folder_name()
 project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
 ipk = pyaedt.Icepak(projectname=project_temp_name,
-                    specified_version="2023.2",
+                    specified_version=aedt_version,
                     new_desktop_session=True,
                     non_graphical=non_graphical
                     )
@@ -41,7 +48,7 @@ ipk.autosave_disable()
 # ~~~~~~~~~~
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create source blocks
@@ -65,7 +72,7 @@ ipk.assign_grille(air_faces=region.top_face_x.id, free_area_ratio=0.8)
 # ~~~~~~~~~~~~~~~~~~~
 # Assign a mesh region to the heat sink and CPU.
 
-mesh_region = ipk.mesh.assign_mesh_region(objectlist=["HEAT_SINK", "CPU"])
+mesh_region = ipk.mesh.assign_mesh_region(assignment=["HEAT_SINK", "CPU"])
 mesh_region.UserSpecifiedSettings = True
 mesh_region.MaxElementSizeX = "3.35mm"
 mesh_region.MaxElementSizeY = "1.75mm"
@@ -99,7 +106,6 @@ surflist += [i.id for i in ipk.modeler["MEMORY1_1"].faces]
 surflist += [i.id for i in ipk.modeler["ALPHA_MAIN_PCB"].faces]
 
 plot5 = ipk.post.create_fieldplot_surface(surflist, "SurfTemperature")
-
 
 ipk.analyze()
 

@@ -16,6 +16,13 @@ from pyaedt import downloads
 from pyaedt import generate_unique_folder_name
 from pyaedt import Maxwell2d
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -38,7 +45,7 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 # Launch Maxwell 2D.
 
 m2d = Maxwell2d(projectname=aedt_file,
-                specified_version="2023.2",
+                specified_version=aedt_version,
                 new_desktop_session=True,
                 non_graphical=non_graphical)
 
@@ -76,7 +83,7 @@ setup.analyze()
 # ~~~~~~~~~~~~
 # Plot Solved Results.
 
-sols = m2d.post.get_solution_data("FluxLinkage(Winding1)",variations={"Time":["All"]},  primary_sweep_variable="Time")
+sols = m2d.post.get_solution_data("FluxLinkage(Winding1)", variations={"Time":["All"]}, primary_sweep_variable="Time")
 sols.plot()
 
 ###################################################################################

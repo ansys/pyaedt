@@ -192,6 +192,63 @@ Magnetostatic = OrderedDict(
 )
 """Maxwell magnetostatic setup properties and default values."""
 
+DCConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "UseIterativeSolver": False,
+        "RelativeResidual": 1e-06,
+        "NonLinearResidual": 0.001,
+    }
+)
+"""Maxwell DCConduction setup properties and default values."""
+
+ElectroDCConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "UseIterativeSolver": False,
+        "RelativeResidual": 1e-06,
+        "NonLinearResidual": 0.001,
+    }
+)
+"""Maxwell ElectroDCConduction setup properties and default values."""
+
+ACConduction = OrderedDict(
+    {
+        "Enabled": True,
+        "MeshLink": meshlink,
+        "MaximumPasses": 10,
+        "MinimumPasses": 2,
+        "MinimumConvergedPasses": 1,
+        "PercentRefinement": 30,
+        "SolveFieldOnly": False,
+        "PercentError": 1,
+        "SolveMatrixAtLast": True,
+        "UseNonLinearIterNum": False,
+        "NonLinearResidual": 0.001,
+        "Frequency": "60Hz",
+        "HasSweepSetup": False,
+    }
+)
+"""Maxwell ACConduction setup properties and default values."""
+
 Electrostatic = OrderedDict(
     {
         "Enabled": True,
@@ -260,6 +317,7 @@ SteadyTemperatureAndFlow = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": True,
         "Include Flow": True,
         "Include Gravity": False,
@@ -323,6 +381,7 @@ SteadyTemperatureOnly = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": True,
         "Include Gravity": False,
         "Solution Initialization - X Velocity": "0m_per_sec",
@@ -384,6 +443,7 @@ SteadyFlowOnly = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Flow": True,
         "Include Gravity": False,
         "Solution Initialization - X Velocity": "0m_per_sec",
@@ -562,6 +622,8 @@ NexximAMI = OrderedDict(
         "OutputQuantities": OutputQuantities,
         "NoiseOutputQuantities": NoiseOutputQuantities,
         "Name": "AMIAnalysis",
+        "InputType": 1,
+        "DataBlockSize": 10000,
         "AMIAnalysis": [32, False, False],
     }
 )
@@ -734,6 +796,7 @@ TransientTemperatureAndFlow = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": True,
         "Include Flow": True,
         "Include Gravity": False,
@@ -752,7 +815,7 @@ TransientTemperatureAndFlow = OrderedDict(
         "Convergence Criteria - Turbulent Dissipation Rate": "0.001",
         "Convergence Criteria - Specific Dissipation Rate": "0.001",
         "Convergence Criteria - Discrete Ordinates": "1e-06",
-        "IsEnabled:=": False,
+        "IsEnabled": False,
         "Radiation Model": "Off",
         "Solar Radiation Model": "Solar Radiation Calculator",
         "Solar Radiation - Scattering Fraction": "0",
@@ -806,9 +869,9 @@ TransientTemperatureAndFlow = OrderedDict(
         "Linear Solver Stabilization - Temperature": "None",
         "Coupled pressure-velocity formulation": False,
         "Frozen Flow Simulation": False,
-        "Start Time:=": "0s",
-        "Stop Time:=": "20s",
-        "Time Step:=": "1s",
+        "Start Time": "0s",
+        "Stop Time": "20s",
+        "Time Step": "1s",
         "Iterations per Time Step": 20,
         "Import Start Time": False,
         "Copy Fields From Source": False,
@@ -824,6 +887,7 @@ TransientTemperatureOnly = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": True,
         "Include Flow": False,
         "Include Gravity": False,
@@ -842,7 +906,7 @@ TransientTemperatureOnly = OrderedDict(
         "Convergence Criteria - Turbulent Dissipation Rate": "0.001",
         "Convergence Criteria - Specific Dissipation Rate": "0.001",
         "Convergence Criteria - Discrete Ordinates": "1e-06",
-        "IsEnabled:=": False,
+        "IsEnabled": False,
         "Radiation Model": "Off",
         "Solar Radiation Model": "Solar Radiation Calculator",
         "Solar Radiation - Scattering Fraction": "0",
@@ -896,9 +960,9 @@ TransientTemperatureOnly = OrderedDict(
         "Linear Solver Stabilization - Temperature": "None",
         "Coupled pressure-velocity formulation": False,
         "Frozen Flow Simulation": False,
-        "Start Time:=": "0s",
-        "Stop Time:=": "20s",
-        "Time Step:=": "1s",
+        "Start Time": "0s",
+        "Stop Time": "20s",
+        "Time Step": "1s",
         "Iterations per Time Step": 20,
         "Import Start Time": False,
         "Copy Fields From Source": False,
@@ -914,6 +978,7 @@ TransientFlowOnly = OrderedDict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
+        "Turbulent Model Eqn": "ZeroEquation",
         "Include Temperature": False,
         "Include Flow": True,
         "Include Gravity": False,
@@ -932,7 +997,7 @@ TransientFlowOnly = OrderedDict(
         "Convergence Criteria - Turbulent Dissipation Rate": "0.001",
         "Convergence Criteria - Specific Dissipation Rate": "0.001",
         "Convergence Criteria - Discrete Ordinates": "1e-06",
-        "IsEnabled:=": False,
+        "IsEnabled": False,
         "Radiation Model": "Off",
         "Solar Radiation Model": "Solar Radiation Calculator",
         "Solar Radiation - Scattering Fraction": "0",
@@ -986,9 +1051,9 @@ TransientFlowOnly = OrderedDict(
         "Linear Solver Stabilization - Temperature": "None",
         "Coupled pressure-velocity formulation": False,
         "Frozen Flow Simulation": False,
-        "Start Time:=": "0s",
-        "Stop Time:=": "20s",
-        "Time Step:=": "1s",
+        "Start Time": "0s",
+        "Stop Time": "20s",
+        "Time Step": "1s",
         "Iterations per Time Step": 20,
         "Import Start Time": False,
         "Copy Fields From Source": False,
@@ -1091,7 +1156,7 @@ HFSS3DLayout = OrderedDict(
         "InclBBoxOption": 1,
         "AuxBlock": OrderedDict({}),
         "DoAdaptive": True,
-        "Color": ["R:=", 0, "G:=", 0, "B:=", 0],  # TODO: create something smart for color arrays: like a class
+        "Color": ["R", 0, "G", 0, "B", 0],  # TODO: create something smart for color arrays: like a class
         "AdvancedSettings": HFSS3DLayout_AdvancedSettings,
         "CurveApproximation": HFSS3DLayout_CurveApproximation,
         "Q3D_DCSettings": HFSS3DLayout_Q3D_DCSettings,
@@ -1166,7 +1231,7 @@ HFSS3DLayout_v231 = OrderedDict(
         "ICModeLength": "50nm",
         "AuxBlock": OrderedDict({}),
         "DoAdaptive": True,
-        "Color": ["R:=", 0, "G:=", 0, "B:=", 0],  # TODO: create something smart for color arrays: like a class
+        "Color": ["R", 0, "G", 0, "B", 0],  # TODO: create something smart for color arrays: like a class
         "AdvancedSettings": HFSS3DLayout_AdvancedSettings,
         "CurveApproximation": HFSS3DLayout_CurveApproximation,
         "Q3D_DCSettings": HFSS3DLayout_Q3D_DCSettings,
@@ -1181,8 +1246,8 @@ HFSS3DLayout_SweepDataList = OrderedDict({})
 HFSS3DLayout_SIWAdvancedSettings = OrderedDict(
     {
         "IncludeCoPlaneCoupling": True,
-        "IncludeInterPlaneCoupling:=": False,
-        "IncludeSplitPlaneCoupling:=": True,
+        "IncludeInterPlaneCoupling": False,
+        "IncludeSplitPlaneCoupling": True,
         "IncludeFringeCoupling": True,
         "IncludeTraceCoupling": True,
         "XtalkThreshold": "-34",
@@ -1275,7 +1340,7 @@ SiwaveAC3DLayout = OrderedDict(
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
         "SolveSetupType": "SIwave",
-        "Color": ["R:=", 0, "G:=", 0, "B:=", 0],
+        "Color": ["R", 0, "G", 0, "B", 0],
         "Position": 0,
         "SimSetupType": "kSIwave",
         "SimulationSettings": HFSS3DLayout_ACSimulationSettings,
@@ -1358,7 +1423,6 @@ MechTransientThermal = OrderedDict(
         "SaveFieldsType": "None",
     }
 )
-
 
 MechModal = OrderedDict(
     {
@@ -1608,7 +1672,80 @@ SweepSiwave = OrderedDict(
     }
 )
 
+icepak_newkeys_241 = {
+    "GPU Convergence Criteria - Flow": "0.001",
+    "GPU Convergence Criteria - Energy": "1e-05",
+    "GPU Convergence Criteria - Turbulent Kinetic Energy": "0.001",
+    "GPU Convergence Criteria - Turbulent Dissipation Rate": "0.001",
+    "GPU Convergence Criteria - Specific Dissipation Rate": "0.001",
+    "GPU Convergence Criteria - Discrete Ordinates": "1e-05",
+    "GPU Convergence Criteria - Joule Heating": "1e-07",
+    "Solution Initialization - Use Model Based Flow Initialization": False,
+    "Include Solar": False,
+    "Solar Radiation Model": "Solar Radiation Calculator",
+    "Solar Enable Participating Solids": False,
+    "Solar Radiation - Scattering Fraction": "0",
+    "Solar Radiation - North X": "0",
+    "Solar Radiation - North Y": "0",
+    "Solar Radiation - North Z": "1",
+    "Solar Radiation - Day": 1,
+    "Solar Radiation - Month": 1,
+    "Solar Radiation - Hours": 0,
+    "Solar Radiation - Minutes": 0,
+    "Solar Radiation - GMT": "0",
+    "Solar Radiation - Latitude": "0",
+    "Solar Radiation - Latitude Direction": "North",
+    "Solar Radiation - Longitude": "0",
+    "Solar Radiation - Longitude Direction": "East",
+    "Solar Radiation - Ground Reflectance": "0",
+    "Solar Radiation - Sunshine Fraction": "0",
+    "Linear Solver Type - Joule Heating": "F",
+    "Linear Solver Termination Criterion - Joule Heating": "1e-09",
+    "Linear Solver Residual Reduction Tolerance - Joule Heating": "1e-09",
+    "Maximum Cycles": "30",
+    "Linear Solver Stabilization - Joule Heating": "None",
+    "Coupled pressure-velocity formulation": False,
+    "2D Profile Interpolation Method": "Inverse Distance Weighted",
+    "TEC Coupling": False,
+}
+
+SteadyTemperatureOnly_241 = copy.deepcopy(SteadyTemperatureOnly)
+SteadyFlowOnly_241 = copy.deepcopy(SteadyFlowOnly)
+SteadyTemperatureAndFlow_241 = copy.deepcopy(SteadyTemperatureAndFlow)
+TransientTemperatureOnly_241 = copy.deepcopy(TransientTemperatureOnly)
+TransientTemperatureAndFlow_241 = copy.deepcopy(TransientTemperatureAndFlow)
+TransientFlowOnly_241 = copy.deepcopy(TransientFlowOnly)
+SteadyTemperatureOnly_241.update(icepak_newkeys_241)
+SteadyFlowOnly_241.update(icepak_newkeys_241)
+SteadyTemperatureAndFlow_241.update(icepak_newkeys_241)
+TransientTemperatureOnly_241.update(icepak_newkeys_241)
+TransientTemperatureAndFlow_241.update(icepak_newkeys_241)
+TransientFlowOnly_241.update(icepak_newkeys_241)
+
 list_modules = dir()
+
+icepak_forced_convection_update = {
+    "Convergence Criteria - Energy": "1e-12",
+    "Linear Solver Termination Criterion - Temperature": "1e-06",
+    "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
+    "Sequential Solve of Flow and Energy Equations": True,
+}
+
+icepak_natural_convection_update = {
+    "Include Gravity": True,
+    "Solution Initialization - Z Velocity": "0.000980665m_per_sec",
+    "IsEnabled": True,
+    "Radiation Model": "Discrete Ordinates Model",
+    "Flow Iteration Per Radiation Iteration": "10",
+    "Time Step Interval": "1",
+    "ThetaDivision": "2",
+    "PhiDivision": "2",
+    "ThetaPixels": "2",
+    "Under-relaxation - Pressure": "0.7",
+    "Under-relaxation - Momentum": "0.3",
+    "Linear Solver Termination Criterion - Temperature": "1e-06",
+    "Linear Solver Residual Reduction Tolerance - Temperature": "1e-06",
+}
 
 
 class SetupKeys:
@@ -1625,7 +1762,7 @@ class SetupKeys:
         "EddyCurrent",
         "Electrostatic",
         "ElectroDCConduction",
-        "ElectroDCConduction",
+        "ElectricTransient",
         "IcepakSteadyState",
         "IcepakSteadyState",
         "IcepakSteadyState",
@@ -1673,6 +1810,8 @@ class SetupKeys:
         "NSSM",
         "TransientAPhiFormulation",
         "MechTransientThermal",
+        "DCConduction",
+        "ACConduction",
     ]
 
     SetupTemplates = {
@@ -1685,7 +1824,7 @@ class SetupKeys:
         6: Magnetostatic,
         7: EddyCurrent,
         8: Electrostatic,
-        9: Electrostatic,
+        9: ElectroDCConduction,
         10: ElectricTransient,
         11: SteadyTemperatureAndFlow,
         12: SteadyTemperatureOnly,
@@ -1734,12 +1873,23 @@ class SetupKeys:
         55: NSSM,
         56: MaxwellTransient,
         57: MechTransientThermal,
+        58: DCConduction,
+        59: ACConduction,
     }
 
     SetupTemplates_231 = {
         29: HFSS3DLayout_v231,
     }
     SetupTemplates_232 = {}
+
+    SetupTemplates_241 = {
+        11: SteadyTemperatureAndFlow_241,
+        12: SteadyTemperatureOnly_241,
+        13: SteadyFlowOnly_241,
+        36: TransientTemperatureAndFlow_241,
+        37: TransientTemperatureOnly_241,
+        38: TransientFlowOnly_241,
+    }
 
     @staticmethod
     def _add_to_template(template_in, template_to_append):
@@ -1753,10 +1903,47 @@ class SetupKeys:
         from pyaedt.generic.general_methods import settings
 
         template = SetupKeys.SetupTemplates
-        if settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+        if settings.aedt_version is not None and settings.aedt_version >= "2024.1":
             template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
         elif settings.aedt_version is not None and settings.aedt_version >= "2023.2":
             template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
             template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+        elif settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
 
         return template
+
+    def get_default_icepak_template(self, default_type):
+        """
+        Update the setup based on the class arguments or a dictionary.
+
+        Parameters
+        ----------
+        default_type : str
+            Which default template to use. Available options are ``"Default"``,
+            ``"Forced Convection"``, ``"Mixed Convection"``
+            and ``"Natural Convection"``.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the Icepak default setup for the chosen simulation type.
+
+
+        """
+        icepak_setups_n = [11, 12, 13, 36, 37, 38]
+        template = self.get_setup_templates()
+        icepak_template = {self.SetupNames[i]: template[i] for i in icepak_setups_n}
+        if default_type == "Default":
+            return icepak_template
+        elif default_type == "Forced Convection":
+            expand_dict = icepak_forced_convection_update
+        elif default_type == "Natural Convection" or default_type == "Mixed Convection":
+            expand_dict = icepak_natural_convection_update
+        else:
+            raise AttributeError("default_type {} is not supported.".format(default_type))
+        for i in icepak_setups_n:
+            icepak_template[self.SetupNames[i]].update(expand_dict)
+        return icepak_template

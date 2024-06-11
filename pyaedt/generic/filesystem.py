@@ -3,6 +3,8 @@ import random
 import shutil
 import string
 
+from pyaedt.aedt_logger import pyaedt_logger as logger
+
 
 def search_files(dirname, pattern="*"):
     """Search for files inside a directory given a specific pattern.
@@ -54,7 +56,7 @@ class Scratch:
         if os.path.exists(self._scratch_path):
             try:
                 self.remove()
-            except:
+            except Exception:
                 self._cleaned = False
         if self._cleaned:
             try:
@@ -68,8 +70,8 @@ class Scratch:
         try:
             # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
-        except:
-            pass
+        except Exception:
+            logger.error("An error occurred while removing {}".format(self._scratch_path))
 
     def copyfile(self, src_file, dst_filename=None):
         """

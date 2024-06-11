@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import random
 import re
+import time
 
+from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -90,20 +93,25 @@ class ModelerCircuit(Modeler):
         """
         self.oeditor.ZoomToFit()
 
-    @pyaedt_function_handler()
-    def connect_schematic_components(self, firstcomponent, secondcomponent, pinnum_first=2, pinnum_second=1):
+    @pyaedt_function_handler(
+        firstcomponent="starting_component",
+        secondcomponent="ending_component",
+        pinnum_first="pin_starting",
+        pinnum_second="pin_ending",
+    )
+    def connect_schematic_components(self, starting_component, ending_component, pin_starting=2, pin_ending=1):
         """Connect schematic components.
 
         Parameters
         ----------
-        firstcomponent : str
+        starting_component : str
            Starting (right) component.
-        secondcomponent : str
+        ending_component : str
            Ending (left) component for the connection line.
-        pinnum_first : str, optional
+        pin_starting : str, optional
              Number of the pin at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
-        pinnum_second : str, optional
+        pin_ending : str, optional
              Number of the pin at which to terminate the connection from the left end of the
              ending component. The default is ``1``.
 
@@ -119,10 +127,10 @@ class ModelerCircuit(Modeler):
         """
         if self._app.design_type == "Maxwell Circuit":
             components = self.schematic.components
-            obj1 = components[firstcomponent]
+            obj1 = components[starting_component]
         else:
             components = self.components
-            obj1 = components[firstcomponent]
+            obj1 = components[starting_component]
         if "Port" in obj1.composed_name:
             pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
             pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
@@ -132,9 +140,9 @@ class ModelerCircuit(Modeler):
             if self._app.design_type == "Maxwell Circuit":
                 pos1 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj1.location]
             else:
-                pins1 = components.get_pins(firstcomponent)
-                pos1 = components.get_pin_location(firstcomponent, pins1[pinnum_first - 1])
-        obj2 = components[secondcomponent]
+                pins1 = components.get_pins(starting_component)
+                pos1 = components.get_pin_location(starting_component, pins1[pin_starting - 1])
+        obj2 = components[ending_component]
         if "Port" in obj2.composed_name:
             pos2 = self.oeditor.GetPropertyValue("BaseElementTab", obj2.composed_name, "Component Location").split(", ")
             pos2 = [float(i.strip()[:-3]) * 0.0000254 for i in pos2]
@@ -145,12 +153,12 @@ class ModelerCircuit(Modeler):
             if self._app.design_type == "Maxwell Circuit":
                 pos2 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj2.location]
             else:
-                pins2 = components.get_pins(secondcomponent)
-                pos2 = components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
+                pins2 = components.get_pins(ending_component)
+                pos2 = components.get_pin_location(ending_component, pins2[pin_ending - 1])
         try:
             self.schematic.create_wire([pos1, pos2])
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -323,20 +331,20 @@ class ModelerCircuit(Modeler):
                 self.change_text_property(str(text_id), "Rectangle BorderColor", [r3, g3, b3])
                 self.change_text_property(str(text_id), "Rectangle FillStyle", fill[rect_fill])
             return text_out
-        except:
+        except Exception:
             return False
 
-    @pyaedt_function_handler
-    def change_text_property(self, property_id, property_name, property_value):  # pragma: no cover
+    @pyaedt_function_handler(property_id="assignment", property_name="name", property_value="value")
+    def change_text_property(self, assignment, name, value):
         """Change an oeditor property.
 
         Parameters
         ----------
-        property_id : str
+        assignment : str
             Object id.
-        property_name : str
+        name : str
             Name of the property. For example, ``Text``.
-        property_value : str, list, int
+        value : str, list, int
             Value of the property. It can be a string, an int for a single value, a list of three elements for
             ``[r,g,b]`` color values or a list of two elements for ``[x, y]`` coordinates.
 
@@ -351,15 +359,11 @@ class ModelerCircuit(Modeler):
         >>> oEditor.ChangeProperty
         """
         graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
-        if property_id not in graphics_id:
+        if assignment not in graphics_id:
             self.logger.error("Invalid id.")
             return False
-        if isinstance(property_value, list) and len(property_value) == 3:
-            if (
-                not isinstance(property_value[0], int)
-                or not isinstance(property_value[1], int)
-                or not isinstance(property_value[2], int)
-            ):
+        if isinstance(value, list) and len(value) == 3:
+            if not isinstance(value[0], int) or not isinstance(value[1], int) or not isinstance(value[2], int):
                 self.logger.error("Invalid RGB values for color")
                 return False
             self.oeditor.ChangeProperty(
@@ -367,61 +371,61 @@ class ModelerCircuit(Modeler):
                     "NAME:AllTabs",
                     [
                         "NAME:BaseElementTab",
-                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:PropServers", "SchObj@" + assignment],
                         [
                             "NAME:ChangedProps",
                             [
-                                "NAME:" + property_name,
+                                "NAME:" + name,
                                 "R:=",
-                                property_value[0],
+                                value[0],
                                 "G:=",
-                                property_value[1],
+                                value[1],
                                 "B:=",
-                                property_value[2],
+                                value[2],
                             ],
                         ],
                     ],
                 ]
             )
-        elif isinstance(property_value, list) and len(property_value) == 2:
-            xpos = self._arg_with_dim(property_value[0])
-            ypos = self._arg_with_dim(property_value[1])
+        elif isinstance(value, list) and len(value) == 2:
+            xpos = self._arg_with_dim(value[0])
+            ypos = self._arg_with_dim(value[1])
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:BaseElementTab",
-                        ["NAME:PropServers", "SchObj@" + property_id],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos]],
+                        ["NAME:PropServers", "SchObj@" + assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "X:=", xpos, "Y:=", ypos]],
                     ],
                 ]
             )
-        elif isinstance(property_value, bool):
+        elif isinstance(value, bool):
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:BaseElementTab",
-                        ["NAME:PropServers", "SchObj@" + property_id],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                        ["NAME:PropServers", "SchObj@" + assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "Value:=", value]],
                     ],
                 ]
             )
-        elif isinstance(property_value, (str, float, int)):
+        elif isinstance(value, (str, float, int)):
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:BaseElementTab",
-                        ["NAME:PropServers", "SchObj@" + property_id],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                        ["NAME:PropServers", "SchObj@" + assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "Value:=", value]],
                     ],
                 ]
             )
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.debug("Property {} Changed correctly.".format(property_name))
+        self.logger.debug("Property {} Changed correctly.".format(name))
         return True
 
     @pyaedt_function_handler()
@@ -446,11 +450,11 @@ class ModelerCircuit(Modeler):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.schematic_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -532,7 +536,11 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.GetActiveUnits
         >>> oEditor.SetActiveUnits
         """
-        return self.layouteditor.GetActiveUnits()
+        active_units = self.layouteditor.GetActiveUnits()
+        if is_linux and settings.aedt_version == "2024.1":
+            time.sleep(1)
+            self._app.odesktop.CloseAllWindows()
+        return active_units
 
     @property
     def layout(self):
@@ -563,19 +571,19 @@ class ModelerNexxim(ModelerCircuit):
 
     @model_units.setter
     def model_units(self, units):
+        """Set the model units as a string e.g. "mm"."""
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}".format(units)
-        """ Set the model units as a string e.g. "mm" """
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
-    @pyaedt_function_handler()
-    def move(self, selections, pos, units=None):
+    @pyaedt_function_handler(selections="assignment", pos="offset")
+    def move(self, assignment, offset, units=None):
         """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
         ----------
-        selections : list
+        assignment : list
             List of the selections.
-        pos : list
+        offset : list
             Offset for the ``[x, y]`` axis.
         units : str
             Units of the movement. The default is ``meter``. If ``None``, ``schematic_units`` are used.
@@ -590,16 +598,16 @@ class ModelerNexxim(ModelerCircuit):
 
         >>> oEditor.Move
         """
-        sels = self._get_components_selections(selections)
+        sels = self._get_components_selections(assignment)
         if not sels:
             self.logger.error("No Component Found.")
             return False
         if units:
-            x_location = AEDT_UNITS["Length"][units] * float(pos[0])
-            y_location = AEDT_UNITS["Length"][units] * float(pos[1])
+            x_location = AEDT_UNITS["Length"][units] * float(offset[0])
+            y_location = AEDT_UNITS["Length"][units] * float(offset[1])
         else:
-            x_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[0])
-            y_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[1])
+            x_location = AEDT_UNITS["Length"][self.schematic_units] * float(offset[0])
+            y_location = AEDT_UNITS["Length"][self.schematic_units] * float(offset[1])
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
             [
@@ -616,13 +624,13 @@ class ModelerNexxim(ModelerCircuit):
         )
         return True
 
-    @pyaedt_function_handler()
-    def rotate(self, selections, degrees=90):
+    @pyaedt_function_handler(selections="assignment")
+    def rotate(self, assignment, degrees=90):
         """Rotate the selections by degrees.
 
         Parameters
         ----------
-        selections : list
+        assignment : list
             List of the selections.
         degrees : optional
             Angle rotation in degrees. The default is ``90``.
@@ -637,7 +645,7 @@ class ModelerNexxim(ModelerCircuit):
 
         >>> oEditor.Rotate
         """
-        sels = self._get_components_selections(selections)
+        sels = self._get_components_selections(assignment)
         if not sels:
             self.logger.error("No Component Found.")
             return False

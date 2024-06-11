@@ -1,4 +1,5 @@
-"""Download example datasets from https://github.com/pyansys/example-data"""
+"""Download example datasets from https://github.com/ansys/example-data"""
+
 import os
 import shutil
 import tempfile
@@ -6,6 +7,7 @@ import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
@@ -24,19 +26,25 @@ def delete_downloads():
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
-def _get_file_url(directory, filename=None):
-    if not filename:
+@pyaedt_function_handler(filename="name")
+def _get_file_url(directory, name=None):
+    if not name:
         return EXAMPLE_REPO + "/".join([directory])
     else:
-        return EXAMPLE_REPO + "/".join([directory, filename])
+        return EXAMPLE_REPO + "/".join([directory, name])
 
 
-def _retrieve_file(url, filename, directory, destination=None, local_paths=[]):
-    """Download a file from a url"""
+@pyaedt_function_handler(filename="name")
+def _retrieve_file(url, name, directory, destination=None, local_paths=None):
+    """Download a file from a URL."""
+
+    if local_paths is None:
+        local_paths = []
+
     # First check if file has already been downloaded
     if not destination:
         destination = EXAMPLES_PATH
-    local_path = os.path.join(destination, directory, os.path.basename(filename))
+    local_path = os.path.join(destination, directory, os.path.basename(name))
     local_path_no_zip = local_path.replace(".zip", "")
     if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
         local_paths.append(local_path_no_zip)
@@ -85,8 +93,12 @@ def _retrieve_file(url, filename, directory, destination=None, local_paths=[]):
     local_paths.append(local_path)
 
 
-def _retrieve_folder(url, directory, destination=None, local_paths=[]):
+def _retrieve_folder(url, directory, destination=None, local_paths=None):
     """Download a folder from a url"""
+
+    if local_paths is None:
+        local_paths = []
+
     # First check if folder exists
     import json
     import re
@@ -97,6 +109,8 @@ def _retrieve_folder(url, directory, destination=None, local_paths=[]):
         local_path = os.path.join(destination, directory[7:])
     else:
         local_path = os.path.join(destination, directory)
+    # Ensure that "/" is parsed as a path delimiter.
+    local_path = os.path.join(*local_path.split("/"))
 
     if is_ironpython:
         return False
@@ -108,7 +122,7 @@ def _retrieve_folder(url, directory, destination=None, local_paths=[]):
         try:
             os.mkdir(local_path)
         except FileNotFoundError:
-            os.makedirs(local_path)
+            os.makedirs(local_path)  # Create directory recursively if the path doesn't exist.
 
     try:
         tree = [i for i in data if '"payload"' in i][0]
@@ -121,22 +135,25 @@ def _retrieve_folder(url, directory, destination=None, local_paths=[]):
             else:
                 dir_folder = os.path.split(item["path"])
                 _download_file(dir_folder[0], dir_folder[1], destination, local_paths)
-    except:
+    except Exception:
         return False
 
 
-def _download_file(directory, filename=None, destination=None, local_paths=[]):
-    if not filename:
+@pyaedt_function_handler(filename="name")
+def _download_file(directory, name=None, destination=None, local_paths=None):
+    if local_paths is None:
+        local_paths = []
+    if not name:
         if not directory.startswith("pyaedt/"):
             directory = "pyaedt/" + directory
         _retrieve_folder(EXAMPLE_REPO, directory, destination, local_paths)
     else:
         if directory.startswith("pyaedt/"):
-            url = _get_file_url(directory, filename)
+            url = _get_file_url(directory, name)
             directory = directory[7:]
         else:
-            url = _get_file_url("pyaedt/" + directory, filename)
-        _retrieve_file(url, filename, directory, destination, local_paths)
+            url = _get_file_url("pyaedt/" + directory, name)
+        _retrieve_file(url, name, directory, destination, local_paths)
     if settings.remote_rpc_session:
         remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_paths[-1])[-1])
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
@@ -150,6 +167,7 @@ def _download_file(directory, filename=None, destination=None, local_paths=[]):
 # front-facing functions
 
 
+# TODO remove once examples repository is public
 def download_aedb(destination=None):
     """Download an example of AEDB File and return the def path.
 
@@ -171,8 +189,7 @@ def download_aedb(destination=None):
     Download an example result file and return the path of the file.
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_aedb()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
+
     """
     local_paths = []
     _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
@@ -485,8 +502,6 @@ def download_sherlock(destination=None):
 
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_sherlock()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
     if not destination:
         destination = EXAMPLES_PATH
@@ -717,25 +732,32 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     return os.path.join(destination, "twin_builder")
 
 
-def download_file(directory, filename=None, destination=None):
+@pyaedt_function_handler(filename="name", directory="source")
+def download_file(source, name=None, destination=None):
     """
-    Download file from directory.
+    Download a file or files from the online examples repository.
 
-    Files are downloaded to a destination. If filename is not specified, the full directory will be downloaded.
+    Files are downloaded from the
+    :ref:`example-data<https://github.com/ansys/example-data/tree/master/pyaedt>`_ repository
+    to a local destination. If ``name`` is not specified, the full directory path
+    will be copied to the local drive.
 
     Parameters
     ----------
-    directory : str
-        Directory name.
-    filename : str, optional
-        File name to download. The default is all files inside directory.
+    source : str
+        Directory name in the Ansys ``example-data`` repository from which the example
+        data is to be retrieved. If the ``pyaedt/`` prefix
+        is not part of ``directory`` the path will be automatically prepended.
+    name : str, optional
+        File name to download. By default all files in ``directory``
+        will be downloaded.
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path where the files will be saved locally. Default is the user temp folder.
 
     Returns
     -------
     str
-        Path to the example file.
+        Path to the local example file or folder.
 
     Examples
     --------
@@ -747,13 +769,13 @@ def download_file(directory, filename=None, destination=None):
     'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
     """
     local_paths = []
-    _download_file(directory, filename, destination, local_paths)
-    if filename:
+    _download_file(source, name, destination, local_paths)
+    if name:
         return list(set(local_paths))[0]
     else:
         if not destination:
             destination = EXAMPLES_PATH
-        destination_dir = os.path.join(destination, directory)
+        destination_dir = os.path.join(destination, source)
         return destination_dir
 
 

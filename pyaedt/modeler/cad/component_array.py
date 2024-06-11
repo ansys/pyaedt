@@ -5,6 +5,7 @@ import os
 import re
 
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import read_csv
 
@@ -42,7 +43,7 @@ class ComponentArray(object):
 
         # Leverage csv file if possible (aedt version > 2023.2)
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
             self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
         else:
             self.__app.save_project()
@@ -51,7 +52,7 @@ class ComponentArray(object):
         # Data that cannot be obtained from CSV
         try:
             self.__cs_id = app.design_properties["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
-        except AttributeError:  # pragma: no cover
+        except (AttributeError, TypeError, KeyError):  # pragma: no cover
             self.__cs_id = 1
 
         self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
@@ -95,7 +96,7 @@ class ComponentArray(object):
             return self.__cells
 
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
 
@@ -257,6 +258,28 @@ class ComponentArray(object):
         self.logger.warning("B size cannot be modified.")
 
     @property
+    def a_length(self):
+        """Length of the array in A direction."""
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[0] != 0:  # pragma: no cover
+            x_spacing = lattice_vector[0]
+        else:
+            x_spacing = lattice_vector[3]
+
+        return x_spacing * self.a_size
+
+    @property
+    def b_length(self):
+        """Length of the array in B direction."""
+        lattice_vector = self.lattice_vector()
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
+            y_spacing = lattice_vector[4]
+
+        return y_spacing * self.b_size
+
+    @property
     def padding_cells(self):
         """Number of padding cells."""
         return int(self.__app.get_oo_property_value(self.__omodel, self.name, "Padding"))
@@ -297,7 +320,7 @@ class ComponentArray(object):
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
         new_properties = self.properties
@@ -322,8 +345,8 @@ class ComponentArray(object):
         del self.__app.component_array[self.name]
         self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
-    @pyaedt_function_handler()
-    def export_array_info(self, array_path=None):  # pragma: no cover
+    @pyaedt_function_handler(array_path="output_file")
+    def export_array_info(self, output_file=None):  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -341,18 +364,18 @@ class ComponentArray(object):
             self.logger.warning("This feature is not available in {}.".format(str(self.__app.settings.aedt_version)))
             return False
 
-        if not array_path:  # pragma: no cover
-            array_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
-        self.__app.omodelsetup.ExportArray(self.name, array_path)
-        return array_path
+        if not output_file:  # pragma: no cover
+            output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
+        self.__app.omodelsetup.ExportArray(self.name, output_file)
+        return output_file
 
-    @pyaedt_function_handler()
-    def parse_array_info_from_csv(self, csv_file):  # pragma: no cover
+    @pyaedt_function_handler(csv_file="input_file")
+    def parse_array_info_from_csv(self, input_file):  # pragma: no cover
         """Parse component array information from the CSV file.
 
         Parameters
         ----------
-        csv_file : str
+        input_file : str
              Name of the CSV file.
 
         Returns
@@ -370,7 +393,7 @@ class ComponentArray(object):
         >>> array_info = array.array_info_parser(array_csv)
         """
 
-        info = read_csv(csv_file)
+        info = read_csv(input_file)
         if not info:
             self.logger.error("Data from CSV file is not loaded.")
             return False
@@ -566,7 +589,80 @@ class ComponentArray(object):
         >>> oModule.GetLatticeVectors()
 
         """
-        return self.__app.omodelsetup.GetLatticeVectors()
+        lattice_vectors = self.__app.omodelsetup.GetLatticeVectors()
+
+        lattice_vectors = [float(vec) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for vec in lattice_vectors]
+        return lattice_vectors
+
+    @pyaedt_function_handler()
+    def get_component_objects(self):
+        """Get 3D component center.
+
+        Returns
+        -------
+        dict
+            Dictionary of the center position and part name for all 3D components.
+
+        """
+        component_info = {}
+        component_names = self.component_names
+        for component in component_names.values():
+            parts = self.__app.modeler.user_defined_components[component].parts
+            for part_name in parts.values():
+                if component not in component_info:
+                    center = self.__app.modeler.user_defined_components[component].center
+                    scaled_center = [
+                        float(cen) * AEDT_UNITS["Length"][self.__app.modeler.model_units] for cen in center
+                    ]
+                    component_info[component] = (scaled_center, str(part_name))
+                else:
+                    component_info[component] = component_info[component] + (str(part_name),)
+
+        return component_info
+
+    @pyaedt_function_handler()
+    def get_cell_position(self):
+        """Get cell position.
+
+        Returns
+        -------
+        list
+            List of the center position and part name for all cells.
+
+        """
+        cell_info = [[None for _ in range(self.b_size)] for _ in range(self.a_size)]
+        lattice_vector = self.lattice_vector()
+        # Perpendicular lattice vector
+        a_x_dir = True
+        if lattice_vector[0] != 0:  # pragma: no cover
+            x_spacing = lattice_vector[0]
+        else:
+            a_x_dir = False
+            x_spacing = lattice_vector[3]
+
+        if lattice_vector[1] != 0:
+            y_spacing = lattice_vector[1]
+        else:  # pragma: no cover
+            y_spacing = lattice_vector[4]
+
+        cells = self.cells
+        for row_cell in range(0, self.a_size):
+            for col_cell in range(0, self.b_size):
+                if a_x_dir:  # pragma: no cover
+                    y_position = col_cell * y_spacing
+                    x_position = row_cell * x_spacing
+
+                else:
+                    y_position = row_cell * y_spacing
+                    x_position = col_cell * x_spacing
+
+                cell_info[row_cell][col_cell] = (
+                    cells[row_cell][col_cell].component,
+                    [x_position, y_position, 0.0],
+                    cells[row_cell][col_cell].rotation,
+                    [row_cell + 1, col_cell + 1],
+                )
+        return cell_info
 
     @pyaedt_function_handler()
     def __get_properties_from_aedt(self):

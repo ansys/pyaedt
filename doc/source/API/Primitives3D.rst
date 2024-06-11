@@ -67,8 +67,8 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
 
     # This call returns the NexximComponents class
     origin = [0,0,0]
-    dimensions = [10,5,20]
+    sizes = [10,5,20]
     #Material and name are not mandatory fields
-    box_object = app.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
+    box_object = app.modeler.primivites.create_box(origin, sizes, name="mybox", material="copper")
 
     ...
