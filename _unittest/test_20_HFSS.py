@@ -943,7 +943,7 @@ class TestClass:
         design_name = "HfssCopiedBodies"
         new_design = add_app(project_name=project_name, design_name=design_name)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
-        assert new_design.copy_solid_bodies_from(self.aedtapp, vacuum=False, pec=False)
+        assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
