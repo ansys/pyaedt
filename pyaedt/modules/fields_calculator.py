@@ -151,7 +151,7 @@ class FieldsCalculator:
             Path of the calculator expression file when successful, ``False`` when failed.
         """
         file_name = generate_unique_project_name(
-            rootname=self.__app.toolkit_directory,
+            root_name=self.__app.toolkit_directory,
             folder_name=self.__app.design_name,
             project_name=name,
             project_format="clc",

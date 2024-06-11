@@ -82,7 +82,7 @@ fields_type = ["DC R/L Fields"]
 solution_type = ""
 primary_sweep = "Freq"
 assignment = ""
-assignment_type = ["Line", "Face", "Solid"]
+assignment_type = ["Line", "Face", "Sheet", "Solid"]
 constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
     "Scalar_Function(FuncValue='vrm')",
@@ -134,4 +134,101 @@ operations = ["Fundamental_Quantity('H_t')",
     "EnterLine('assignment')",
     "Operation('LineValue')",
 	"Operation('Integrate')"]
+report = ["Data Table", "Rectangular Plot"]
+
+# Power
+
+[power_flow]
+name = "Power_Flow"
+description = "Power flow through a surface"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('Poynting')",
+    "Operation('Real')",
+	"Operation('Normal')",
+	"Operation('Dot')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('Integrate')"]
+report = ["Data Table", "Rectangular Plot"]
+
+# Misc
+
+[wave_impedance_x]
+name = "Wave_Impedance_X"
+description = "Wave impedance along a line in X"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(1, 0, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(1, 0, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
+report = ["Data Table", "Rectangular Plot"]
+
+[wave_impedance_y]
+name = "Wave_Impedance_Y"
+description = "Wave impedance along a line in Y"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 1, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 1, 0)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
+report = ["Data Table", "Rectangular Plot"]
+
+[wave_impedance_z]
+name = "Wave_Impedance_Z"
+description = "Wave impedance along a line in Z"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('E')",
+    "Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 0, 1)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Smooth')",
+	"Operation('CmplxMag')",
+	"Vector_Constant(0, 0, 1)",
+	"Operation('Cross')",
+	"Operation('Mag')",
+	"Operation('/')"
+]
 report = ["Data Table", "Rectangular Plot"]
