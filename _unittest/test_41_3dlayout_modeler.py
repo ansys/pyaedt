@@ -299,6 +299,8 @@ class TestClass:
         line.center_line = {"Pt0": ["0mm", "0mm"]}
         assert line.remove("Pt1")
         assert line.add([1, 2], 1)
+        assert line.set_property_value("Pt0", "10mm ,10mm")
+        assert line.get_property_value("Pt0") == "10 ,10"
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
