@@ -1813,7 +1813,7 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         component : str
-            Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
+            Address of the component instance. For example, ``"Inst@layout_cutout;87;1"``.
         option : str
             Set the simulation strategy. Options are ``"simulate"`` and ``"interpolate"``. The default
             is ``"simulate"``.
@@ -1844,7 +1844,7 @@ class NexximComponents(CircuitComponents):
         Parameters
         ----------
         component : str
-            Address of the component instance. For example, ``"Inst@Galileo_cutout3;87;1"``.
+            Address of the component instance. For example, ``"Inst@layout_cutout;87;1"``.
         solution_name : str, optional
             Name of the solution and sweep. The default is ``"Setup1 : Sweep"``.
 
