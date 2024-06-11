@@ -24,6 +24,7 @@ import os.path
 
 import pyaedt
 from pyaedt import get_pyaedt_app
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
