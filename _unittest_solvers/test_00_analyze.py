@@ -20,7 +20,7 @@ from pyaedt.generic.spisim import SpiSim
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
-original_project_name = "Galileo_t21_231"
+original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
 if config["desktopVersion"] > "2022.2":
@@ -371,7 +371,7 @@ class TestClass:
     def test_05a_circuit_add_3dlayout_component(self, circuit_app):
         setup = circuit_app.create_setup("test_06b_LNA")
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
-        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
+        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         assert type(myedb.id) is int
         ports = myedb.pins
         tx = ports

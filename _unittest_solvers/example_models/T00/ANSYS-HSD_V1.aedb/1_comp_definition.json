@@ -1,0 +1,28 @@
+{
+    "SParameterModel": {
+        "GRM32_DC0V_25degC_series": "./GRM32_DC0V_25degC_series.s2p"
+    },
+    "SPICEModel": {
+        "GRM32_DC0V_25degC": "./GRM32_DC0V_25degC.mod"
+    },
+    "Definitions": {
+        "CAPC1005X05N": {
+            "Component_type": "Capacitor",
+            "Model_type": "RLC",
+            "Res": 1,
+            "Ind": 2,
+            "Cap": 3,
+            "Is_parallel": false
+        },
+        "'CAPC3216X180X55ML20T25": {
+            "Component_type": "Capacitor",
+            "Model_type": "SParameterModel",
+            "Model_name": "GRM32_DC0V_25degC_series"
+        },
+        "'CAPC3216X180X20ML20": {
+            "Component_type": "Capacitor",
+            "Model_type": "SPICEModel",
+            "Model_name": "GRM32_DC0V_25degC"
+        }
+    }
+}
