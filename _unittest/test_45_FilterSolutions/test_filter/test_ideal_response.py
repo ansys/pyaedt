@@ -1,6 +1,5 @@
-from resource import resource_path
-
 from _unittest_solvers.conftest import config
+from filtersolutions_resource import resource_path
 import pytest
 
 import pyaedt
@@ -68,10 +67,6 @@ class TestClass:
         assert freqs[100] == 2392202091.5388284
         assert freqs[300] == 8669097136.772985
         assert freqs[-1] == 31214328219.225075
-
-    @pytest.mark.skipif(is_linux, reason="FilterSolutions API fails on linux.")
-    @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
-    class TestClass:
 
         def test_time_response_getter(self):
             design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)

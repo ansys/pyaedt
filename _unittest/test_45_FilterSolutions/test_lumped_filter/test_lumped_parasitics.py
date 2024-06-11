@@ -1,6 +1,5 @@
-from resource import resource_path
-
 from _unittest_solvers.conftest import config
+from filtersolutions_resource import resource_path
 import pytest
 
 import pyaedt
