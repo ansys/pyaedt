@@ -1547,6 +1547,8 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
+        if settings.use_multi_desktop:
+            self.grpc_plugin.recreate_application(True)
         self.logger.oproject = None
         self.logger.odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover

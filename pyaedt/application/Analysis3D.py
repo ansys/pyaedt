@@ -504,6 +504,94 @@ class FieldAnalysis3D(Analysis, object):
         self.modeler.refresh_all_ids()
         return True
 
+    @pyaedt_function_handler(filename="input_file")
+    def import_3d_cad(
+        self,
+        input_file,
+        healing=False,
+        refresh_all_ids=True,
+        import_materials=False,
+        create_lightweigth_part=False,
+        group_by_assembly=False,
+        create_group=True,
+        separate_disjoints_lumped_object=False,
+        import_free_surfaces=False,
+        point_coicidence_tolerance=1e-6,
+        heal_stl=True,
+        reduce_stl=False,
+        reduce_percentage=0,
+        reduce_error=0,
+        merge_planar_faces=True,
+    ):
+        """Import a CAD model.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path and name of the CAD file.
+        healing : bool, optional
+            Whether to perform healing. The default is ``False``, in which
+            case healing is not performed.
+        healing : int, optional
+            Whether to perform healing. The default is ``0``, in which
+            case healing is not performed.
+        refresh_all_ids : bool, optional
+            Whether to refresh all IDs after the CAD file is loaded. The
+            default is ``True``. Refreshing IDs can take a lot of time in
+            a big project.
+        import_materials : bool optional
+            Either to import material names from the file or not if presents.
+        create_lightweigth_part : bool ,optional
+            Either to import lightweight or not.
+        group_by_assembly : bool, optional
+            Either import by sub-assembly or individual parts. The default is ``False``.
+        create_group : bool, optional
+            Either to create a new group of imported objects. The default is ``True``.
+        separate_disjoints_lumped_object : bool, optional
+            Either to automatically separate disjoint parts. The default is ``False``.
+        import_free_surfaces : bool, optional
+            Either to import free surfaces parts. The default is ``False``.
+        point_coicidence_tolerance : float, optional
+            Tolerance on point. Default is ``1e-6``.
+        heal_stl : bool, optional
+            Whether to heal the stl file on import or not. Default is ``True``.
+        reduce_stl : bool, optional
+            Whether to reduce the stl file on import or not. Default is ``True``.
+        reduce_percentage : int, optional
+            Stl reduce percentage. Default is  ``0``.
+        reduce_error : int, optional
+            Stl error percentage during reduce operation. Default is  ``0``.
+        merge_planar_faces : bool, optional
+            Stl automatic planar face merge during import. Default is ``True``.
+
+        Returns
+        -------
+         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Import
+        """
+        return self.modeler.import_3d_cad(
+            input_file=input_file,
+            healing=healing,
+            refresh_all_ids=refresh_all_ids,
+            import_materials=import_materials,
+            create_lightweigth_part=create_lightweigth_part,
+            group_by_assembly=group_by_assembly,
+            create_group=create_group,
+            separate_disjoints_lumped_object=separate_disjoints_lumped_object,
+            import_free_surfaces=import_free_surfaces,
+            point_coicidence_tolerance=point_coicidence_tolerance,
+            heal_stl=heal_stl,
+            reduce_stl=reduce_stl,
+            reduce_percentage=reduce_percentage,
+            reduce_error=reduce_error,
+            merge_planar_faces=merge_planar_faces,
+        )
+
     @pyaedt_function_handler(object_list="assignment_to_export", removed_objects="assignment_to_remove")
     def export_3d_model(
         self,
@@ -566,62 +654,16 @@ class FieldAnalysis3D(Analysis, object):
             )
 
             file_format = kwargs["fileFormat"]
-        if not file_name:
-            file_name = self.project_name + "_" + self.design_name
-        if not file_path:
-            file_path = self.working_directory
-        if assignment_to_export is None:
-            assignment_to_export = []
-        if assignment_to_remove is None:
-            assignment_to_remove = []
-
-        sub_regions = []
-        if self.settings.aedt_version > "2023.2":
-            sub_regions = [
-                o for o in self.modeler.non_model_objects if self.modeler[o].history().command == "CreateSubRegion"
-            ]
-
-        if not assignment_to_export:
-            allObjects = self.modeler.object_names
-            if assignment_to_remove:
-                for rem in assignment_to_remove:
-                    allObjects.remove(rem)
-            else:
-                if "Region" in allObjects:
-                    allObjects.remove("Region")
-            for o in sub_regions:
-                allObjects.remove(o)
-        else:
-            allObjects = assignment_to_export[:]
-
-        self.logger.debug("Exporting {} objects".format(len(allObjects)))
-
-        # actual version supported by AEDT is 29.0
-        if major_version == -1:
-            if file_format in [".sm3", ".sat", ".sab"]:
-                major_version = 29
-        if minor_version == -1:
-            if file_format in [".sm3", ".sat", ".sab"]:
-                minor_version = 0
-        stringa = ",".join(allObjects)
-        arg = [
-            "NAME:ExportParameters",
-            "AllowRegionDependentPartSelectionForPMLCreation:=",
-            True,
-            "AllowRegionSelectionForPMLCreation:=",
-            True,
-            "Selections:=",
-            stringa,
-            "File Name:=",
-            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
-            "Major Version:=",
-            major_version,
-            "Minor Version:=",
-            minor_version,
-        ]
-
-        self.modeler.oeditor.Export(arg)
-        return True
+        return self.modeler.export_3d_model(
+            file_name=file_name,
+            file_path=file_path,
+            file_format=file_format,
+            assignment_to_export=assignment_to_export,
+            assignment_to_remove=assignment_to_remove,
+            major_version=major_version,
+            minor_version=minor_version,
+            **kwargs,
+        )
 
     @pyaedt_function_handler()
     def get_all_sources(self):
