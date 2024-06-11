@@ -26,6 +26,7 @@ from pyedb import Edb
 
 import pyaedt
 from pyaedt import Hfss3dLayout
+from pyaedt.generic.filesystem import search_files
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -92,7 +93,7 @@ def frontend():  # pragma: no cover
 
     var3 = tkinter.StringVar()
     label3 = tkinter.Label(master, textvariable=var3)
-    var3.set("Browse configuration file:")
+    var3.set("Browse configuration file or folder:")
     label3.grid(row=1, column=0, pady=10)
     text2 = tkinter.Text(master, width=40, height=1)
     text2.grid(row=1, column=1, pady=10, padx=5)
@@ -102,7 +103,7 @@ def frontend():  # pragma: no cover
         filename = filedialog.askopenfilename(
             initialdir=os.path.dirname(dir) if dir else "/",
             title="Select configuration file",
-            filetypes=(("Configuration file", "*.json"), ("all files", "*.*")),
+            filetypes=(("Configuration file", "*.json"), ("Configuration file", "*.toml")),
         )
         text2.insert(tkinter.END, filename)
 
@@ -133,7 +134,11 @@ def frontend():  # pragma: no cover
 def main(extension_args):
     aedb_path = extension_args["aedb_path"]
     config = extension_args["configuration_path"]
-
+    if os.path.isdir(config):
+        configs = search_files(config, "*.json")
+        configs += search_files(config, "*.toml")
+    else:
+        configs = [config]
     app = pyaedt.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -148,17 +153,18 @@ def main(extension_args):
         project_name = os.path.splitext(os.path.split(aedb_path)[-1])[0]
     if project_name in app.project_list():
         app.odesktop.CloseProject(project_name)
-    edbapp = Edb(aedb_path, edbversion=version)
-    config_name = os.path.splitext(os.path.split(config)[-1])[0]
-    output_path = aedb_path[:-5] + f"_{config_name}.aedb"
-    edbapp.configuration.load(config_file=config)
-    edbapp.configuration.run()
-    edbapp.save_edb_as(output_path)
-    edbapp.close()
-    if not extension_args["is_test"]:  # pragma: no cover
+    for config in configs:
+        edbapp = Edb(aedb_path, edbversion=version)
+        config_name = os.path.splitext(os.path.split(config)[-1])[0]
+        output_path = aedb_path[:-5] + f"_{config_name}.aedb"
+        edbapp.configuration.load(config_file=config)
+        edbapp.configuration.run()
+        edbapp.save_edb_as(output_path)
+        edbapp.close()
         h3d = Hfss3dLayout(output_path)
         h3d.save_project()
-        h3d.release_desktop(False, False)
+    if not extension_args["is_test"]:  # pragma: no cover
+        app.release_desktop(False, False)
     return True
 
 
