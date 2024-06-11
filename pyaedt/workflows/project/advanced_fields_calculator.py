@@ -69,11 +69,18 @@ def frontend():  # pragma: no cover
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    # Load new expressions from file
+    current_directory = os.getcwd()
+    all_files = os.listdir(current_directory)
+    toml_files = [f for f in all_files if f.endswith(".toml")]
+    for toml_file in toml_files:
+        aedtapp.post.fields_calculator.load_expression_file(toml_file)
+
     # Available fields calculator expressions
     available_expressions = aedtapp.post.fields_calculator.expression_catalog
     available_descriptions = {}
     for expression, expression_info in available_expressions.items():
-        if aedtapp.design_type in expression_info["design_type"]:
+        if "design_type" in expression_info and aedtapp.design_type in expression_info["design_type"]:
             if "Transient" in aedtapp.solution_type and "Transient" in expression_info["solution_type"]:
                 available_descriptions[expression] = expression_info["description"]
             elif "Transient" not in aedtapp.solution_type and "Transient" not in expression_info["solution_type"]:
@@ -197,6 +204,13 @@ def main(extension_args):
             assignments.append(aedtapp.modeler.get_face_by_id(int(assignment[4:])))
         else:
             assignments.append(assignment)
+
+    # Load new expressions from file
+    current_directory = os.getcwd()
+    all_files = os.listdir(current_directory)
+    toml_files = [f for f in all_files if f.endswith(".toml")]
+    for toml_file in toml_files:
+        aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
     names = []
 

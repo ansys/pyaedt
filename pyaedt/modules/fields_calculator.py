@@ -315,6 +315,31 @@ class FieldsCalculator:
                 break
         return is_general
 
+    @pyaedt_function_handler()
+    def load_expression_file(self, input_file):
+        """Load expressions from a TOML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the file.
+
+        Returns
+        -------
+        dict
+            Dictionary of available expressions.
+        """
+        if not os.path.isfile(input_file):
+            self.__app.logger.error("File does not exist.")
+            return False
+
+        new_expression_catalog = read_toml(input_file)
+
+        if new_expression_catalog:
+            self.expression_catalog.update(new_expression_catalog)
+
+        return self.expression_catalog
+
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
         """Check if list has integers."""
