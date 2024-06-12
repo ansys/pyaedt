@@ -44,8 +44,8 @@ __version__ = "0.10.dev0"
 version = __version__
 
 #
-
-import pyaedt.downloads as downloads
+if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
+    import pyaedt.downloads as downloads
 from pyaedt.edb import Edb
 from pyaedt.edb import Siwave
 from pyaedt.generic import constants
