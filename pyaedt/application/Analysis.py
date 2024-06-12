@@ -638,6 +638,7 @@ class Analysis(Design, object):
         impedance=50,
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
+        variations=None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -670,6 +671,8 @@ class Analysis(Design, object):
         support_non_standard_touchstone_extension : bool, optional
             Specifies whether to support non-standard Touchstone extensions for mixed reference impedance.
             The default is ``False``.
+        variations : list, optional
+            List of variation values with units. The default is all variations.
 
         Returns
         -------
@@ -744,16 +747,18 @@ class Analysis(Design, object):
                     if len(sweeps) == 0:
                         sweeps = ["LastAdaptive"]
                     # variations
-                    variations_list = []
-                    if not self.available_variations.nominal_w_values_dict:
-                        variations_list.append("")
-                    else:
-                        for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                            variation = "{}='{}'".format(
-                                list(self.available_variations.nominal_w_values_dict.keys())[x],
-                                list(self.available_variations.nominal_w_values_dict.values())[x],
-                            )
-                            variations_list.append(variation)
+                    variations_list = variations
+                    if not variations:
+                        variations_list = []
+                        if not self.available_variations.nominal_w_values_dict:
+                            variations_list.append("")
+                        else:
+                            for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                                variation = "{}='{}'".format(
+                                    list(self.available_variations.nominal_w_values_dict.keys())[x],
+                                    list(self.available_variations.nominal_w_values_dict.values())[x],
+                                )
+                                variations_list.append(variation)
                     # sweeps
                     for sweep in sweeps:
                         if sweep == "LastAdaptive":

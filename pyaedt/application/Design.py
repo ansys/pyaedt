@@ -1067,6 +1067,8 @@ class Design(AedtObjects):
         >>> oProject.SetActiveDesign
         >>> oProject.InsertDesign
         """
+        if settings.use_multi_desktop:  # pragma: no cover
+            self._desktop_class.grpc_plugin.recreate_application(True)
         return self._odesign
 
     @odesign.setter
@@ -1094,6 +1096,7 @@ class Design(AedtObjects):
             self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"
         ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
+            self.desktop_class.active_design(self.oproject, des_name)
 
     @property
     def oproject(self):
@@ -1110,6 +1113,8 @@ class Design(AedtObjects):
         >>> oDesktop.SetActiveProject
         >>> oDesktop.NewProject
         """
+        if settings.use_multi_desktop:  # pragma: no cover
+            self._desktop_class.grpc_plugin.recreate_application(True)
         return self._oproject
 
     @oproject.setter

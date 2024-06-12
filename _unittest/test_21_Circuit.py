@@ -11,22 +11,20 @@ from pyaedt.generic.settings import is_linux
 test_subfolder = "T21"
 
 if config["desktopVersion"] > "2022.2":
-    original_project_name = "Galileo_t21_231"
     diff_proj_name = "differential_pairs_231"
 else:
-    original_project_name = "Galileo_t21"
     diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_1.5_ssn.s6p"
 touchstone_custom = "SSN_custom.s6p"
-touchstone2 = "Galileo_V3P3S0.ts"
+touchstone2 = "V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app = add_app(application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
 

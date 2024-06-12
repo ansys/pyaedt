@@ -20,6 +20,7 @@ from pyaedt.generic.settings import settings
 from pyaedt.modules.PostProcessor import FieldSummary
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 from pyaedt.modules.PostProcessor import TOTAL_QUANTITIES
+from pyaedt.modules.fields_calculator import FieldsCalculator
 
 if not is_ironpython:
     try:
@@ -57,6 +58,7 @@ class PostProcessor(Post):
 
     def __init__(self, app):
         Post.__init__(self, app)
+        self.fields_calculator = FieldsCalculator(app)
 
     @pyaedt_function_handler()
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):

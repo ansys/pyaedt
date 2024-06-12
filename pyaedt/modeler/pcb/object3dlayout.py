@@ -95,7 +95,11 @@ class Object3DLayout(object):
 
         >>> oEditor.ChangeProperty
         """
-        vProp = ["NAME:" + name, "Value:=", value]
+        if "Pt" in name:
+            coordinates = value.split(",")
+            vProp = ["NAME:" + name, "X:=", coordinates[0], "Y:=", coordinates[1]]
+        else:
+            vProp = ["NAME:" + name, "Value:=", value]
         return self.change_property(vProp)
 
     @property
