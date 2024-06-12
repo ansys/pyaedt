@@ -4,14 +4,14 @@ import shutil
 
 import pyaedt
 from pyaedt import is_linux
-# from _unittest_solvers.conftest import local_path as solver_local_path
 from _unittest.conftest import local_path
-from _unittest_solvers.conftest import local_path as local_solvers
+from _unittest_solvers.conftest import local_path as solver_local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
+fields_calculator = "fields_calculator_solved"
 
 test_subfolder = "T45"
 
@@ -155,10 +155,76 @@ class TestClass:
 
         from pyaedt.workflows.project.configure_edb import main
 
-        configuration_path = shutil.copy(os.path.join(local_solvers, "example_models", "T45", "ports.json"),
+        configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
                                 os.path.join(local_scratch.path, "ports.json"))
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
-        local_scratch.copyfolder(os.path.join(local_solvers, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
 
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
 
+
+    def test_08_advanced_fields_calculator_non_general(self, add_app):
+        aedtapp = add_app(application=pyaedt.Hfss,
+                          project_name=fields_calculator,
+                          subfolder=test_subfolder)
+
+        assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
+        name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        assert name == "Voltage_Line"
+        name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        assert name == name2
+        assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])
+        assert aedtapp.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
+        assert aedtapp.post.fields_calculator.delete_expression(name)
+        assert aedtapp.post.fields_calculator.delete_expression()
+        assert not aedtapp.post.fields_calculator.is_expression_defined(name)
+        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1_invented")
+        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "inner")
+        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", 500)
+
+        from pyaedt.workflows.project.advanced_fields_calculator import main
+
+        assert main({"is_test": True,
+                     "setup": "Setup1 : LastAdaptive",
+                     "calculation": "voltage_line",
+                     "assignment": ["Polyline1", "Polyline2"]})
+
+        assert len(aedtapp.post.all_report_names) == 6
+
+        assert not main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "",
+                         "assignment": ["Polyline1", "Polyline2"]})
+
+        assert not main({"is_test": True,
+                         "setup": "Setup1 : LastAdaptive",
+                         "calculation": "voltage_line_invented",
+                         "assignment": ["Polyline1", "Polyline2"]})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_09_advanced_fields_calculator_general(self, add_app):
+        aedtapp = add_app(application=pyaedt.Q3d,
+                          project_name=fields_calculator,
+                          subfolder=test_subfolder)
+
+        initial_catalog = len(aedtapp.post.fields_calculator.expression_names)
+        example_file = os.path.join(solver_local_path, "example_models",
+                                    test_subfolder,
+                                    "expression_catalog_custom.toml")
+        new_catalog = aedtapp.post.fields_calculator.load_expression_file(example_file)
+        assert initial_catalog != len(new_catalog)
+        assert new_catalog == aedtapp.post.fields_calculator.expression_catalog
+        assert not aedtapp.post.fields_calculator.add_expression("e_field_magnitude", "Polyline1")
+        assert not aedtapp.post.fields_calculator.load_expression_file("invented.toml")
+
+        from pyaedt.workflows.project.advanced_fields_calculator import main
+
+        assert main({"is_test": True,
+                     "setup": "Setup1 : LastAdaptive",
+                     "calculation": "voltage_drop",
+                     "assignment": ["Face9", "inner"]})
+
+        assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
+
+        aedtapp.close_project(aedtapp.project_name)
