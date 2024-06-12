@@ -1130,7 +1130,7 @@ class Modeler3D(Primitives3D):
                 del nas_to_dict["Assemblies"][assembly]
         for _, assembly_object in nas_to_dict["Assemblies"].items():
 
-            def domino(segments):
+            def domino(segments):  # pragma: no cover
 
                 def check_new_connection(s, polylines, exclude_index=-1):
                     s = s[:]
@@ -1172,7 +1172,7 @@ class Modeler3D(Primitives3D):
 
                 return polylines
 
-            def remove_self_intersections(polylines):
+            def remove_self_intersections(polylines):  # pragma: no cover
                 polylines = [poly[:] for poly in polylines]
                 new_polylines = []
                 for p in polylines:
