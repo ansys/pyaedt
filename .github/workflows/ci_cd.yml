@@ -172,8 +172,8 @@ jobs:
       fail-fast: false
       matrix:
         tests:
-          - {name: "Units", folder: "_unittest"}
-          - {name: "Solvers", folder: "_unittest_solvers"}
+          - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+          - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
     steps:
 
       - name: "Checkout project"
@@ -206,7 +206,7 @@ jobs:
           python -m pip install --extra-index-url https://wheels.vtk.org \
             vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
 
-      - name: "Run ${{ matrix.tests.name }} tests"
+      - name: "Run ${{ matrix.tests.label }} tests"
         uses: nick-fields/retry@v3
         with:
           max_attempts: 2
@@ -215,22 +215,27 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            # TODO (for Jorge): use the right config for each env
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
-      - name: "Upload ${{ matrix.tests.name }} tests coverage"
+            pytest ${{ matrix.tests.flags }} \
+              --durations=50 -v \
+              --cov=pyaedt --cov-report=xml --cov-report=html \
+              --junitxml=junit/test-results.xml \
+              ${{ matrix.tests.folder }}
+
+      - name: "Upload ${{ matrix.tests.label }} tests coverage"
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solver-tests
+          name: linux-${{ matrix.tests.label }}-tests-coverage
           file: ./coverage.xml
           flags: system,solver
 
-      - name: "Upload ${{ matrix.tests.name }} test results"
+      - name: "Upload ${{ matrix.tests.name }} tests results"
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: pytest-solver-results
+          name: linux-${{ matrix.tests.label}-tests-results
           path: junit/test-results.xml
 
 # # =================================================================================================
