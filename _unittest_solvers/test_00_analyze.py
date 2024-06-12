@@ -108,9 +108,10 @@ class TestClass:
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
-        assert sbr_platform.setups[0].profile is None
+        profile = sbr_platform.setups[0].get_profile()
+        assert profile is None
         sbr_platform.analyze(cores=4)
-        profile = sbr_platform.setups[0].profile
+        profile = sbr_platform.setups[0].get_profile()
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
 

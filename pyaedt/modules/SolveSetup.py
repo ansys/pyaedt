@@ -221,8 +221,8 @@ class CommonSetup(PropsManager, object):
         self._name = name
         self.props["Name"] = name
 
-    @property
-    def profile(self):
+    @pyaedt_function_handler()
+    def get_profile(self):
         """Solution profile.
 
         Returns
