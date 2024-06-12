@@ -12,6 +12,7 @@ env:
   MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
   ON_CI: True
+  VTK_OSMESA_VERSION: '9.2.20230527.dev0'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -160,13 +161,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           target: ${{ matrix.target }}
 
-  test-solvers-linux:
-    name: "Linux / Tests / Solvers"
+  tests-linux:
+    name: "Linux / Tests / ${{ matrix.tests.name }}"
     needs: tests-smoke
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
       ANS_NODEPCHECK: '1'
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+          - {name: "Units", folder: "_unittest"}
+          - {name: "Solvers", folder: "_unittest_solvers"}
     steps:
 
       - name: "Checkout project"
@@ -192,26 +199,39 @@ jobs:
           source .venv/bin/activate
           python -m pip install .[tests] pytest-azurepipelines
 
-      - name: "Run solvers tests"
+      - name: "Install graphics dependencies"
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          python -m pip uninstall --yes vtk
+          python -m pip install --extra-index-url https://wheels.vtk.org \
+            vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
 
-      - name: "Upload solvers tests coverage"
-        uses: codecov/codecov-action@v4
+      - name: "Run ${{ matrix.tests.name }} tests"
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 50
+          command: |
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+            source .venv/bin/activate
+            # TODO (for Jorge): use the right config for each env
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+
+      - name: "Upload ${{ matrix.tests.name }} tests coverage"
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solver-tests
           file: ./coverage.xml
           flags: system,solver
 
-      - name: "Upload solvers tests results"
+      - name: "Upload ${{ matrix.tests.name }} test results"
         uses: actions/upload-artifact@v3
+        if: ${{ always() }}
         with:
           name: pytest-solver-results
           path: junit/test-results.xml
-        if: ${{ always() }}
 
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -274,75 +294,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pytest-results
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  # TODO: Si if we can use ansys/actions
-  test-linux:
-    name: Testing and coverage (Linux)
-    needs: tests-smoke
-    runs-on: [ self-hosted, Linux, pyaedt ]
-    env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
-      ANS_NODEPCHECK: '1'
-    steps:
-      - name: Install Git and checkout project
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Create virtual environment
-        run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
-          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
-      - name: Install pyaedt and tests dependencies
-        run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
-          source .venv/bin/activate
-          pip install .[tests]
-          pip install pytest-azurepipelines
-
-      - name: Install CI dependencies (e.g. vtk-osmesa)
-        run: |
-          source .venv/bin/activate
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-
-      - name: Run tests on _unittest
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 2
-          retry_on: error
-          timeout_minutes: 50
-          command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
-            source .venv/bin/activate
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
-
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
-          file: ./coverage.xml
-          flags: system,solver
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-solver-results
           path: junit/test-results.xml
         if: ${{ always() }}
 
