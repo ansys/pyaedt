@@ -134,8 +134,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     )
     def __init__(
         self,
-        design=None,
         project=None,
+        design=None,
         solution_type=None,
         setup=None,
         version=None,
