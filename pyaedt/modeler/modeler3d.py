@@ -1134,7 +1134,7 @@ class Modeler3D(Primitives3D):
 
                 def check_new_connection(s, polylines, exclude_index=-1):
                     s = s[:]
-                    polylines = polylines[:]
+                    polylines = [poly[:] for poly in polylines]
                     attached = False
                     p_index = None
                     for i, p in enumerate(polylines):
@@ -1172,10 +1172,23 @@ class Modeler3D(Primitives3D):
 
                 return polylines
 
+            def remove_self_intersections(polylines):
+                polylines = [poly[:] for poly in polylines]
+                new_polylines = []
+                for p in polylines:
+                    if p[0] in p[1:]:
+                        new_polylines.append([p[0], p[1]])
+                        p.pop(0)
+                    if p[-1] in p[:-1]:
+                        new_polylines.append([p[-2], p[-1]])
+                        p.pop(-1)
+                    new_polylines.append(p)
+                return new_polylines
+
             if assembly_object["Lines"]:
                 for lname, lines in assembly_object["Lines"].items():
                     new_lines = lines[::]
-                    new_lines = domino(new_lines)
+                    new_lines = remove_self_intersections(domino(new_lines))
                     assembly_object["Lines"][lname] = new_lines
 
         return nas_to_dict
@@ -1443,12 +1456,12 @@ class Modeler3D(Primitives3D):
                 self._app.save_project()
 
         if import_lines:
+            if lines_thickness:
+                self._app["x_section_thickness"] = self._arg_with_dim(lines_thickness)
             self.logger.info("Importing lines. This operation can take time....")
             for assembly_name, assembly in nas_to_dict["Assemblies"].items():
                 if assembly["Lines"]:
                     for line_name, lines in assembly["Lines"].items():
-                        if lines_thickness:
-                            self._app["x_section_{}".format(line_name)] = lines_thickness
                         polys = []
                         id = 0
                         for line in lines:
@@ -1461,7 +1474,7 @@ class Modeler3D(Primitives3D):
                                 points,
                                 name="Poly_{}_{}".format(line_name, id),
                                 xsection_type="Circle" if lines_thickness else None,
-                                xsection_width="x_section_{}".format(line_name) if lines_thickness else 1,
+                                xsection_width="x_section_thickness" if lines_thickness else 1,
                             )
 
                             if p_line:
@@ -1474,7 +1487,7 @@ class Modeler3D(Primitives3D):
                                         points[i : i + 2],
                                         name=generate_unique_name("Poly_{}_{}".format(line_name, id)),
                                         xsection_type="Circle" if lines_thickness else None,
-                                        xsection_width="x_section_{}".format(line_name) if lines_thickness else 1,
+                                        xsection_width="x_section_thickness" if lines_thickness else 1,
                                     )
                                     if p_line:
                                         polys.append(p_line)
@@ -1498,11 +1511,6 @@ class Modeler3D(Primitives3D):
                                     ],
                                     ["ParentGroup:=", group_name],
                                 )
-
-                        if len(polys) > 1:
-                            out_poly = self.unite(polys, purge=not lines_thickness)
-                            if not lines_thickness and out_poly:
-                                self.generate_object_history(out_poly)
             self.logger.info("Lines imported")
 
         objs_after = [i for i in self.object_names]
