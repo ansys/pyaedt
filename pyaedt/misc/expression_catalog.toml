@@ -232,3 +232,22 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('/')"
 ]
 report = ["Data Table", "Rectangular Plot"]
+
+# Electrostatic
+
+[electric_charge]
+name = "Electric_Charge"
+description = "Total electric charge on a surface"
+design_type = ["Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Dx,Dy,Dz>')",
+	"Operation('Normal')",
+	"Operation('Dot')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('Integrate')"]
+report = ["Data Table", "Rectangular Plot"]
