@@ -1251,8 +1251,8 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_setup_profile(self, name=None):
-        """Return the profile information.
+    def get_profile(self, name=None):
+        """Get profile information.
 
         Parameters
         ----------
