@@ -79,7 +79,7 @@ class TestClass:
         file_path = os.path.join(aedtapp.working_directory, filename + ".x_b")
         aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
         app = add_app(project_name="new_proj", solution_type=aedtapp.solution_type, just_open=True)
-        app.modeler.import_3d_cad(file_path)
+        app.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
