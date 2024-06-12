@@ -68,19 +68,16 @@ examples:
   - any:
       - changed-files:
           - any-glob-to-any-file: ['_unittest/**']
-          - all-globs-to-all-files: ['!_unittest_ironpython/**', '!_unittest_solvers/**']
 
 'tests:iron':
   - any:
       - changed-files:
           - any-glob-to-any-file: ['_unittest_ironpython/**']
-          - all-globs-to-all-files: ['!_unittest/**', '!_unittest_solvers/**']
 
 'tests:solvers':
   - any:
       - changed-files:
           - any-glob-to-any-file: ['_unittest_solvers/**']
-          - all-globs-to-all-files: ['!_unittest/**', '!_unittest_iron/**']
 
 # HACK: the following labels are declared with the only purpose of avoiding the
 # GitHub labeler bot to remove those. This is a known issue reported in the
