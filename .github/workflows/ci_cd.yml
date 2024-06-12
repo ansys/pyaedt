@@ -62,6 +62,9 @@ jobs:
         if: |
           !contains(github.event.pull_request.labels.*.name, 'style:branch')
         uses: ansys/actions/commit-style@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          use-upper-case: true
 
       # INFO: 'Style of code' is performed by the pre-commit platform
 
@@ -78,7 +81,7 @@ jobs:
   # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
   # TODO: Allow conditional build of sections in docs via env vars
   doc-build-without-examples:
-    name: Documentation build without examples
+    name: "Docs without examples"
     runs-on: ubuntu-latest
     if: |
       !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
@@ -137,7 +140,7 @@ jobs:
           retention-days: 7
 
   tests-smoke:
-    name: "Smoke tests and wheelhouse"
+    name: "Tests / Smoke / ${{ matrix.os }} / Python ${{ matrix.python-version}} / ${{ matrix.target }}"
     runs-on: ${{ matrix.os }}
     if: |
       !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
@@ -223,10 +226,9 @@ jobs:
               ${{ matrix.tests.folder }}
 
       - name: "Upload ${{ matrix.tests.label }} tests coverage"
-      - uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
           name: linux-${{ matrix.tests.label }}-tests-coverage
           file: ./coverage.xml
           flags: system,solver
@@ -235,46 +237,51 @@ jobs:
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: linux-${{ matrix.tests.label}-tests-results
+          name: linux-${{ matrix.tests.label }}-tests-results
           path: junit/test-results.xml
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-windows:
-    name: Testing and coverage (Windows)
+  tests-windows:
+    name: "Windows / Tests / ${{ matrix.tests.name }}"
     needs: tests-smoke
     runs-on: [ self-hosted, Windows, pyaedt ]
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+          - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+          - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+          - {name: "IronPython", label: "iron", folder: "_unittest_ironpython", flags: ""}
     steps:
-      - name: Install Git and checkout project
+
+      - name: "Checkout project"
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Create virtual environment
+      - name: "Create a virtual environment"
         run: |
           python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+          python -m pip install --upgrade \
+            --trusted-host pypi.org \
+            --trusted-host pypi.python.org \
+            --trusted-host files.pythonhosted.org \
+            pip
 
-      - name: Install pyaedt and tests dependencies
+      - name: "Install tests dependencies"
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
-          pip install pytest-azurepipelines
+          python -m pip install .[tests] pytest-azurepipelines
 
-      - name: Install CI dependencies (e.g. vtk-osmesa)
+      - name: "Install graphics dependencies"
         run: |
           .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          python -m pip uninstall --yes vtk
+          python -m pip install --extra-index-url https://wheels.vtk.org \
+            vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
@@ -286,81 +293,29 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-tests
-          file: ./coverage.xml
-          flags: system
+            pytest ${{ matrix.tests.flags }} \
+              --durations=50 -v \
+              --cov=pyaedt --cov-report=xml --cov-report=html \
+              --junitxml=junit/test-results.xml \
+              ${{ matrix.tests.folder }}
 
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-results
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
-  tests-windows-solvers:
-    name: "Windows / Tests / Solvers"
-    needs: tests-smoke
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    if: | 
-      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:solvers:skip')
-    steps:
-
-      - name: "Checkout project"
-        uses: actions/checkout@v4
-
-      - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: "Create virtual environment"
-        run: |
-          python -m venv .venv
-          .venv\Scripts\Activate.ps1
-          python -m pip install pip --upgrade pip
-
-      - name: "Install ${{ env.PACKAGE_NAME }} dependencies"
-        run: |
-          .venv\Scripts\Activate.ps1
-          python -m pip install .[tests] pytest-azurepipelines
-
-      - name: "Install CI dependencies"
-        run: |
-          .venv\Scripts\Activate.ps1
-          # Uninstall conflicting dependencies
-          pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-
-      - name: "Run solvers tests"
-        env:
-          PYTHONMALLOC: malloc
-        run: |
-          .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-
-      - name: "Upload solvers tests coverage"
+      - name: "Upload ${{ matrix.tests.label }} tests coverage"
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
+          name: windows-${{ matrix.tests.label }}-tests-coverage
           file: ./coverage.xml
-          flags: system,solver
+          flags: system
 
-      - name: "Upload solvers tests results"
+      - name: "Upload ${{ matrix.tests.name }} tests results"
         uses: actions/upload-artifact@v3
         if: ${{ always() }}
         with:
-          name: pytest-solver-results
+          name: windows-${{ matrix.tests.label }}-tests-results
           path: junit/test-results.xml
 
-  tests-windows-ironpython:
+  tests-ironpython:
     name: "Windows / Tests / IronPython"
     needs: tests-smoke
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -393,7 +348,7 @@ jobs:
 
   build-library:
     name: "Build library"
-    needs: [test-windows, test-solvers-windows, test-ironpython-windows, test-linux, test-solvers-linux, doc-build]
+    needs: [doc-build-without-examples, tests-linux, tests-windows, tests-ironpython]
     runs-on: ubuntu-latest
     steps:
       - uses: ansys/actions/build-library@v6
