@@ -112,7 +112,7 @@ class TestClass:
         sbr_platform.analyze(cores=4)
         profile = sbr_platform.setups[0].profile
         assert isinstance(profile, dict)
-        assert not sbr_platform.get_setup_profile("Inveted_setup")
+        assert not sbr_platform.get_setup_profile("Invented_setup")
 
         ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
