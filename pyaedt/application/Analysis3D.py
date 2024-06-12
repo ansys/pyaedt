@@ -536,17 +536,19 @@ class FieldAnalysis3D(Analysis, object):
             default is ``True``. Refreshing IDs can take a lot of time in
             a big project.
         import_materials : bool optional
-            Either to import material names from the file or not if presents.
+            Whether to import material names from the file if present. The
+            default is ``False``.
         create_lightweigth_part : bool ,optional
-            Either to import lightweight or not.
+            Whether to import a lightweight part. The default is ``True``.
         group_by_assembly : bool, optional
-            Either import by sub-assembly or individual parts. The default is ``False``.
+            Whether to import by subassembly. The default is ``False``, in which
+            case the import is by individual parts.
         create_group : bool, optional
-            Either to create a new group of imported objects. The default is ``True``.
+            Whether to create a group of imported objects. The default is ``True``.
         separate_disjoints_lumped_object : bool, optional
-            Either to automatically separate disjoint parts. The default is ``False``.
+            Whether to automatically separate disjoint parts. The default is ``False``.
         import_free_surfaces : bool, optional
-            Either to import free surfaces parts. The default is ``False``.
+            Whether to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
         heal_stl : bool, optional
