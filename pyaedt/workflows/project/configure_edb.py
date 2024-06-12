@@ -100,9 +100,9 @@ def frontend():  # pragma: no cover
     text2.grid(row=1, column=1, pady=10, padx=5)
 
     def browse_config():
-        dir = text.get("1.0", tkinter.END).strip()
+        inital_dir = text.get("1.0", tkinter.END).strip()
         filename = filedialog.askopenfilename(
-            initialdir=os.path.dirname(dir) if dir else "/",
+            initialdir=os.path.dirname(inital_dir) if inital_dir else "/",
             title="Select configuration file",
             filetypes=(("Configuration file", "*.json"), ("Configuration file", "*.toml")),
         )
