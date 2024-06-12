@@ -78,6 +78,12 @@ def frontend():  # pragma: no cover
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
+    # Personal Lib directory
+    all_files = os.listdir(aedtapp.personallib)
+    toml_files = [os.path.join(aedtapp.personallib, f) for f in all_files if f.endswith(".toml")]
+    for toml_file in toml_files:
+        aedtapp.post.fields_calculator.load_expression_file(toml_file)
+
     # Available fields calculator expressions
     available_expressions = aedtapp.post.fields_calculator.expression_catalog
     available_descriptions = {}
@@ -208,9 +214,16 @@ def main(extension_args):
             assignments.append(assignment)
 
     # Load new expressions from file
+    # Current directory
     current_directory = os.getcwd()
     all_files = os.listdir(current_directory)
     toml_files = [f for f in all_files if f.endswith(".toml")]
+    for toml_file in toml_files:
+        aedtapp.post.fields_calculator.load_expression_file(toml_file)
+
+    # Personal Lib directory
+    all_files = os.listdir(aedtapp.personallib)
+    toml_files = [os.path.join(aedtapp.personallib, f) for f in all_files if f.endswith(".toml")]
     for toml_file in toml_files:
         aedtapp.post.fields_calculator.load_expression_file(toml_file)
 
