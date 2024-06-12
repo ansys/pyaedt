@@ -86,12 +86,12 @@ specifications = {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define design variables from the created dictionaries.
 
-m2d.variable_manager.set_variable(variable_name="Dimensions")
+m2d.variable_manager.set_variable(name="Dimensions")
 
 for k, v in dimensions.items():
     m2d[k] = v
 
-m2d.variable_manager.set_variable(variable_name="Windings")
+m2d.variable_manager.set_variable(name="Windings")
 
 for k, v in specifications.items():
     m2d[k] = v

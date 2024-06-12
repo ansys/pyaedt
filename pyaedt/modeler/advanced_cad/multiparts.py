@@ -401,20 +401,18 @@ class MultiPartComponent(object):
             for m in range(3):
                 # app[self.offset_names[m]] = self.offset[m]
                 app.variable_manager.set_variable(
-                    variable_name=self.offset_names[m],
+                    name=self.offset_names[m],
                     expression=self.offset[m],
                     description=self.name + " " + xyz[m] + "-position",
                 )
+            app.variable_manager.set_variable(name=self.yaw_name, expression=self.yaw, description=self.name + " yaw")
+
             app.variable_manager.set_variable(
-                variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
+                name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
             )
 
             app.variable_manager.set_variable(
-                variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
-            )
-
-            app.variable_manager.set_variable(
-                variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
+                name=self.roll_name, expression=self.roll, description=self.name + " roll"
             )
 
             cs_origin = self.offset_names
@@ -618,7 +616,7 @@ class Actor(MultiPartComponent, object):
     @pyaedt_function_handler()
     def _add_speed(self, app):
         app.variable_manager.set_variable(
-            variable_name=self.speed_name, expression=self.speed_expression, description="object speed"
+            name=self.speed_name, expression=self.speed_expression, description="object speed"
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (

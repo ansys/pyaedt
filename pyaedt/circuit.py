@@ -1620,7 +1620,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         active_project = hfss.desktop_class.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
-        hfss.close_project(save_project=False)
+        hfss.close_project(save=False)
         return hfss_3d_layout_model
 
     @pyaedt_function_handler(touchstone="input_file")
