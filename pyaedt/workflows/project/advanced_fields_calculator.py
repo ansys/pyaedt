@@ -222,7 +222,7 @@ def main(extension_args):
             if isinstance(assignment_str, FacePrimitive):
                 assignment_str = str(assignment.id)
             elif not isinstance(assignment_str, str):
-                assignment_str = generate_unique_name()
+                assignment_str = generate_unique_name(calculation)
             name = aedtapp.post.fields_calculator.add_expression(
                 calculation, assignment, calculation + "_" + assignment_str
             )
