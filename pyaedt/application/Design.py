@@ -1092,6 +1092,7 @@ class Design(AedtObjects):
             self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"
         ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
+            self.desktop_class.active_design(self.oproject, des_name)
 
     @property
     def oproject(self):
