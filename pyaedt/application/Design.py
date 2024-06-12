@@ -1,3 +1,25 @@
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: ``Design``.
 
@@ -1090,7 +1112,6 @@ class Design(AedtObjects):
             self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design"
         ):
             self.set_oo_property_value(self.odesign, "Design Settings", "Design Mode/IC", self._ic_mode)
-            self.desktop_class.active_design(self.oproject, des_name)
 
     @property
     def oproject(self):
@@ -1245,6 +1266,47 @@ class Design(AedtObjects):
         """
         self.oproject.RemoveAllUnusedDefinitions()
         return True
+
+    @pyaedt_function_handler()
+    def get_setup_profile(self, name=None):
+        """Return the profile information.
+
+        Parameters
+        ----------
+        name : str
+            Setup name. The default is ``None``, in which case all available setups are returned.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+        ``False`` when failed.
+        """
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        if not name:
+            name = self.setup_names
+        if not isinstance(name, list):
+            name = [name]
+
+        profile_setups_obj = self.get_oo_object(self.odesign, "results/profile")
+
+        profile_objs = {}
+        if profile_setups_obj:
+            profile_setup_names = self.get_oo_name(self.odesign, "results/profile")
+            for n in name:
+                for profile_setup_name in profile_setup_names:
+                    if n in profile_setup_name:
+                        profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
+                        if profile_setup_obj and self.get_oo_name(profile_setup_obj):
+                            try:
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_objs[profile_setup_name] = profile_tree
+                            except Exception:
+                                self.logger.error(f"{profile_setup_name} profile could not be obtained.")
+            return profile_objs
+        else:  # pragma: no cover
+            self.logger.error("Profile can not be obtained.")
+            return False
 
     @pyaedt_function_handler()
     def get_oo_name(self, aedt_object, object_name=None):
