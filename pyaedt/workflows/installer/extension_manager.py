@@ -301,6 +301,7 @@ def button_is_clicked(
                     executable_interpreter=executable_interpreter,
                     personal_lib=desktop.personallib,
                     aedt_version=desktop.aedt_version_id,
+                    template_file=selected_toolkit_info.get("template"),
                 )
                 desktop.logger.info("{} installed".format(name))
             else:
