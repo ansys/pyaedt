@@ -23,8 +23,8 @@
 import os.path
 
 import pyaedt
-from pyaedt import generate_unique_name
 from pyaedt import get_pyaedt_app
+from pyaedt.modules.solutions import nastran_to_stl
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -69,36 +69,12 @@ def frontend():  # pragma: no cover
     style = ttk.Style()
     style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Decimation factor (0-0.9). It may affect results:")
-    label.grid(row=0, column=0, pady=10)
-    check = tkinter.Text(master, width=20, height=1)
-    check.insert(tkinter.END, "0.0")
-    check.grid(row=0, column=1, pady=10, padx=5)
-
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Import as lightweight (only HFSS):")
-    label.grid(row=1, column=0, pady=10)
-    light = tkinter.IntVar()
-    check2 = tkinter.Checkbutton(master, width=30, variable=light)
-    check2.grid(row=1, column=1, pady=10, padx=5)
-
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Enable planar merge:")
-    label.grid(row=2, column=0, pady=10)
-    planar = tkinter.IntVar(value=1)
-    check3 = tkinter.Checkbutton(master, width=30, variable=planar)
-    check3.grid(row=2, column=1, pady=10, padx=5)
-
     var2 = tkinter.StringVar()
     label2 = tkinter.Label(master, textvariable=var2)
     var2.set("Browse file:")
-    label2.grid(row=3, column=0, pady=10)
+    label2.grid(row=0, column=0, pady=10)
     text = tkinter.Text(master, width=40, height=1)
-    text.grid(row=3, column=1, pady=10, padx=5)
+    text.grid(row=0, column=1, pady=10, padx=5)
 
     def browseFiles():
         filename = filedialog.askopenfilename(
@@ -109,7 +85,31 @@ def frontend():  # pragma: no cover
         text.insert(tkinter.END, filename)
 
     b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
-    b1.grid(row=3, column=2, pady=10)
+    b1.grid(row=0, column=2, pady=10)
+
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
+    var.set("Decimation factor (0-0.9). It may affect results:")
+    label.grid(row=1, column=0, pady=10)
+    check = tkinter.Text(master, width=20, height=1)
+    check.insert(tkinter.END, "0.0")
+    check.grid(row=1, column=1, pady=10, padx=5)
+
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
+    var.set("Import as lightweight (only HFSS):")
+    label.grid(row=2, column=0, pady=10)
+    light = tkinter.IntVar()
+    check2 = tkinter.Checkbutton(master, width=30, variable=light)
+    check2.grid(row=2, column=1, pady=10, padx=5)
+
+    var = tkinter.StringVar()
+    label = tkinter.Label(master, textvariable=var)
+    var.set("Enable planar merge:")
+    label.grid(row=3, column=0, pady=10)
+    planar = tkinter.IntVar(value=1)
+    check3 = tkinter.Checkbutton(master, width=30, variable=planar)
+    check3.grid(row=3, column=1, pady=10, padx=5)
 
     def callback():
         master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
@@ -125,21 +125,7 @@ def frontend():  # pragma: no cover
         master.file_path_ui = text.get("1.0", tkinter.END).strip()
 
         if master.file_path_ui.endswith(".nas"):
-            design_name = generate_unique_name("Preview", n=2)
-
-            app = pyaedt.Hfss(
-                new_desktop_session=False,
-                specified_version=version,
-                port=port,
-                aedt_process_id=aedt_process_id,
-                student_version=is_student,
-                designname=design_name,
-            )
-
-            app.modeler.import_nastran(
-                master.file_path_ui, decimation=master.decimate_ui, save_only_stl=True, preview=True
-            )
-            app.release_desktop(False, False)
+            nastran_to_stl(input_file=master.file_path_ui, decimation=master.decimate_ui, preview=True)
         else:
             from pyaedt.modules.solutions import simplify_stl
 

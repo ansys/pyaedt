@@ -7,13 +7,13 @@ import os.path
 import warnings
 
 from pyaedt.application.Variables import generate_validation_errors
-from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modules.solutions import nastran_to_stl
 
 
 class Modeler3D(Primitives3D):
@@ -993,284 +993,6 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def _parse_nastran(self, file_path):
-
-        nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
-        includes = []
-
-        def parse_lines(input_lines, input_pid=0, in_assembly="Main"):
-            if in_assembly not in nas_to_dict["Assemblies"]:
-                nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}}
-
-            def get_point(ll, start, length):
-                n = ll[start : start + length].strip()
-                if "-" in n[1:] and "e" not in n[1:].lower():
-                    n = n[0] + n[1:].replace("-", "e-")
-                return n
-
-            for lk in range(len(input_lines)):
-                line = input_lines[lk]
-                line_type = line[:8].strip()
-                obj_type = "Triangles"
-                if line.startswith("$") or line.startswith("*"):
-                    continue
-                elif line_type in ["GRID", "GRID*"]:
-                    num_points = 3
-                    obj_type = "Grid"
-                elif line_type in [
-                    "CTRIA3",
-                    "CTRIA3*",
-                ]:
-                    num_points = 3
-                    obj_type = "Triangles"
-                elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
-                    num_points = 2
-                    obj_type = "Lines"
-                elif line_type in [
-                    "CQUAD4",
-                    "CQUAD4*",
-                ]:
-                    num_points = 4
-                    obj_type = "Triangles"
-                elif line_type in ["CTETRA", "CTETRA*"]:
-                    num_points = 4
-                    obj_type = "Solids"
-                elif line_type in ["CPYRA", "CPYRAM", "CPYRA*", "CPYRAM*"]:
-                    num_points = 5
-                    obj_type = "Solids"
-                else:
-                    continue
-
-                points = []
-                start_pointer = 8
-                word_length = 8
-                if line_type.endswith("*"):
-                    word_length = 16
-                grid_id = int(line[start_pointer : start_pointer + word_length])
-                pp = 0
-                start_pointer = start_pointer + word_length
-                object_id = line[start_pointer : start_pointer + word_length]
-                if obj_type != "Grid":
-                    object_id = int(object_id)
-                    if object_id not in nas_to_dict["Assemblies"][in_assembly][obj_type]:
-                        nas_to_dict["Assemblies"][in_assembly][obj_type][object_id] = []
-                while pp < num_points:
-                    start_pointer = start_pointer + word_length
-                    if start_pointer >= 72:
-                        lk += 1
-                        line = input_lines[lk]
-                        start_pointer = 8
-                    points.append(get_point(line, start_pointer, word_length))
-                    pp += 1
-
-                if line_type in ["GRID", "GRID*"]:
-                    nas_to_dict["PointsId"][grid_id] = input_pid
-                    nas_to_dict["Points"].append([float(i) for i in points])
-                    input_pid += 1
-                elif line_type in [
-                    "CTRIA3",
-                    "CTRIA3*",
-                ]:
-                    tri = [nas_to_dict["PointsId"][int(i)] for i in points]
-                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
-                elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
-                    tri = [nas_to_dict["PointsId"][int(i)] for i in points]
-                    nas_to_dict["Assemblies"][in_assembly]["Lines"][object_id].append(tri)
-                elif line_type in ["CQUAD4", "CQUAD4*"]:
-                    tri = [
-                        nas_to_dict["PointsId"][int(points[0])],
-                        nas_to_dict["PointsId"][int(points[1])],
-                        nas_to_dict["PointsId"][int(points[2])],
-                    ]
-                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
-                    tri = [
-                        nas_to_dict["PointsId"][int(points[0])],
-                        nas_to_dict["PointsId"][int(points[2])],
-                        nas_to_dict["PointsId"][int(points[3])],
-                    ]
-                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
-                else:
-                    from itertools import combinations
-
-                    for k in list(combinations(points, 3)):
-                        tri = [
-                            nas_to_dict["PointsId"][int(k[0])],
-                            nas_to_dict["PointsId"][int(k[1])],
-                            nas_to_dict["PointsId"][int(k[2])],
-                        ]
-                        tri.sort()
-                        tri = tuple(tri)
-                        nas_to_dict["Assemblies"][in_assembly]["Solids"][object_id].append(tri)
-
-            return input_pid
-
-        self.logger.reset_timer()
-        self.logger.info("Loading file")
-        with open_file(file_path, "r") as f:
-            lines = f.read().splitlines()
-            for line in lines:
-                if line.startswith("INCLUDE"):
-                    includes.append(line.split(" ")[1].replace("'", "").strip())
-            pid = parse_lines(lines)
-        for include in includes:
-            with open_file(os.path.join(os.path.dirname(file_path), include), "r") as f:
-                lines = f.read().splitlines()
-                name = include.split(".")[0]
-                if name in self.oeditor.GetChildNames("Groups"):
-                    name = generate_unique_name(include.split(".")[0], n=2)
-                pid = parse_lines(lines, pid, name)
-        self.logger.info("File loaded")
-        for assembly in list(nas_to_dict["Assemblies"].keys())[::]:
-            if (
-                nas_to_dict["Assemblies"][assembly]["Triangles"]
-                == nas_to_dict["Assemblies"][assembly]["Solids"]
-                == nas_to_dict["Assemblies"][assembly]["Lines"]
-                == {}
-            ):
-                del nas_to_dict["Assemblies"][assembly]
-        for _, assembly_object in nas_to_dict["Assemblies"].items():
-
-            def domino(segments):  # pragma: no cover
-
-                def check_new_connection(s, polylines, exclude_index=-1):
-                    s = s[:]
-                    polylines = [poly[:] for poly in polylines]
-                    attached = False
-                    p_index = None
-                    for i, p in enumerate(polylines):
-                        if i == exclude_index:
-                            continue
-                        if s[0] == p[-1]:
-                            p.extend(s[1:])  # the new segment attaches to the end
-                            attached = True
-                        elif s[-1] == p[0]:
-                            for item in reversed(s[:-1]):
-                                p.insert(0, item)  # the new segment attaches to the beginning
-                            attached = True
-                        elif s[0] == p[0]:
-                            for item in s[1:]:
-                                p.insert(0, item)  # the new segment attaches to the beginning in reverse order
-                            attached = True
-                        elif s[-1] == p[-1]:
-                            p.extend(s[-2::-1])  # the new segment attaches to the end in reverse order
-                            attached = True
-                        if attached:
-                            p_index = i
-                            break
-                    if not attached:
-                        polylines.append(s)
-                    return polylines, attached, p_index
-
-                polylines = []
-                for segment in segments:
-                    polylines, attached_flag, attached_p_index = check_new_connection(segment, polylines)
-                    if attached_flag:
-                        other_polylines = polylines[:attached_p_index] + polylines[attached_p_index + 1 :]
-                        polylines, _, _ = check_new_connection(
-                            polylines[attached_p_index], other_polylines, attached_p_index
-                        )
-
-                return polylines
-
-            def remove_self_intersections(polylines):  # pragma: no cover
-                polylines = [poly[:] for poly in polylines]
-                new_polylines = []
-                for p in polylines:
-                    if p[0] in p[1:]:
-                        new_polylines.append([p[0], p[1]])
-                        p.pop(0)
-                    if p[-1] in p[:-1]:
-                        new_polylines.append([p[-2], p[-1]])
-                        p.pop(-1)
-                    new_polylines.append(p)
-                return new_polylines
-
-            if assembly_object["Lines"]:
-                for lname, lines in assembly_object["Lines"].items():
-                    new_lines = lines[::]
-                    new_lines = remove_self_intersections(domino(new_lines))
-                    assembly_object["Lines"][lname] = new_lines
-
-        return nas_to_dict
-
-    @pyaedt_function_handler()
-    def _write_stl(self, nas_to_dict, decimation, enable_planar_merge, pv):
-        def _write_solid_stl(triangle, pp):
-            try:
-                # points = [nas_to_dict["Points"][id] for id in triangle]
-                points = [pp[i] for i in triangle]
-            except KeyError:  # pragma: no cover
-                return
-            fc = GeometryOperators.get_polygon_centroid(points)
-            v1 = points[0]
-            v2 = points[1]
-            cv1 = GeometryOperators.v_points(fc, v1)
-            cv2 = GeometryOperators.v_points(fc, v2)
-            if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                n = [0, 0, 1]  # pragma: no cover
-            elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [0, 1, 0]  # pragma: no cover
-            elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [1, 0, 0]  # pragma: no cover
-            else:
-                n = GeometryOperators.v_cross(cv1, cv2)
-
-            normal = GeometryOperators.normalize_vector(n)
-            if normal:
-                f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                f.write("  outer loop\n")
-                f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                f.write("  endloop\n")
-                f.write(" endfacet\n")
-
-        self.logger.info("Creating STL file with detected faces")
-        enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
-
-        def decimate(points_in, faces_in):
-            fin = [[3] + list(i) for i in faces_in]
-            mesh = pv.PolyData(points_in, faces=fin)
-            new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
-            points_out = list(new_mesh.points)
-            faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
-            return points_out, faces_out
-
-        output_stls = []
-        for assembly_name, assembly in nas_to_dict["Assemblies"].items():
-            output_stl = os.path.join(self._app.working_directory, assembly_name + ".stl")
-            f = open(output_stl, "w")
-            for tri_id, triangles in assembly["Triangles"].items():
-                tri_out = triangles
-                p_out = nas_to_dict["Points"][::]
-                if decimation > 0 and len(triangles) > 20:
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
-                f.write("solid Sheet_{}\n".format(tri_id))
-                if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_stl_merge = False  # pragma: no cover
-                for triangle in tri_out:
-                    _write_solid_stl(triangle, p_out)
-                f.write("endsolid\n")
-            for solidid, solid_triangles in assembly["Solids"].items():
-                f.write("solid Solid_{}\n".format(solidid))
-                import pandas as pd
-
-                df = pd.Series(solid_triangles)
-                tri_out = df.drop_duplicates(keep=False).to_list()
-                p_out = nas_to_dict["Points"][::]
-                if decimation > 0 and len(solid_triangles) > 20:
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
-                if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                    enable_stl_merge = False  # pragma: no cover
-                for triangle in tri_out:
-                    _write_solid_stl(triangle, p_out)
-                f.write("endsolid\n")
-            f.close()
-            output_stls.append(output_stl)
-            self.logger.info("STL file created")
-        return output_stls, enable_stl_merge
-
-    @pyaedt_function_handler()
     def import_nastran(
         self,
         file_path,
@@ -1315,96 +1037,19 @@ class Modeler3D(Primitives3D):
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
-        pv = None
-        if decimation > 0 or preview:
-            try:
-                import pyvista as pv
-            except Exception:  # pragma: no cover
-                self.logger.error("Package pyvista is needed to perform model simplification.")
-                self.logger.error("Please install it using pip.")
-                decimation = 0
-                preview = False
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
         )
         self._app.odesktop.EnableAutoSave(False)
-
-        nas_to_dict = self._parse_nastran(file_path)
-
         objs_before = [i for i in self.object_names]
-        empty = True
-        for assembly in nas_to_dict["Assemblies"].values():
-            if assembly["Triangles"] or assembly["Solids"] or assembly["Lines"]:
-                empty = False
-                break
-        if empty:  # pragma: no cover
-            self.logger.error("Failed to import file. Check the model and retry")
-            return False
-        output_stls, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge, pv)
-        if preview:
-            if decimation > 0:
-                pl = pv.Plotter(shape=(1, 2))
-            else:  # pragma: no cover
-                pl = pv.Plotter()
-            dargs = dict(show_edges=True)
-            colors = []
-            color_by_assembly = True
-            if len(nas_to_dict["Assemblies"]) == 1:
-                color_by_assembly = False
 
-            def preview_pyvista(dict_in):
-                css4_colors = list(CSS4_COLORS.values())
-                k = 0
-                p_out = nas_to_dict["Points"][::]
-                for assembly in dict_in["Assemblies"].values():
-                    if color_by_assembly:
-                        h = css4_colors[k].lstrip("#")
-                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                        k += 1
-
-                    for triangles in assembly["Triangles"].values():
-                        tri_out = triangles
-                        fin = [[3] + list(i) for i in tri_out]
-                        if not color_by_assembly:
-                            h = css4_colors[k].lstrip("#")
-                            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                            k = k + 1 if k < len(css4_colors) - 1 else 0
-                        pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
-
-                    for triangles in assembly["Solids"].values():
-                        import pandas as pd
-
-                        df = pd.Series(triangles)
-                        tri_out = df.drop_duplicates(keep=False).to_list()
-                        p_out = nas_to_dict["Points"][::]
-                        fin = [[3] + list(i) for i in tri_out]
-                        if not color_by_assembly:
-                            h = css4_colors[k].lstrip("#")
-                            colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                            k = k + 1 if k < len(css4_colors) - 1 else 0
-
-                        pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
-
-            preview_pyvista(nas_to_dict)
-            pl.add_text("Input mesh", font_size=24)
-            pl.reset_camera()
-            if decimation > 0 and output_stls:
-                k = 0
-                pl.reset_camera()
-                pl.subplot(0, 1)
-                css4_colors = list(CSS4_COLORS.values())
-                for output_stl in output_stls:
-                    mesh = pv.read(output_stl)
-                    h = css4_colors[k].lstrip("#")
-                    colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
-                    pl.add_mesh(mesh, color=colors[-1], **dargs)
-                    k = k + 1 if k < len(css4_colors) - 1 else 0
-                pl.add_text("Decimated mesh", font_size=24)
-                pl.reset_camera()
-                pl.link_views()
-            if "PYTEST_CURRENT_TEST" not in os.environ:
-                pl.show()  # pragma: no cover
-        self.logger.info("STL files created")
+        output_stls, nas_to_dict, enable_stl_merge = nastran_to_stl(
+            input_file=file_path,
+            decimation=decimation,
+            output_folder=self._app.working_directory,
+            enable_planar_merge=enable_planar_merge,
+            preview=preview,
+        )
         if save_only_stl:
             return output_stls
 
@@ -1424,6 +1069,9 @@ class Modeler3D(Primitives3D):
                 self.logger.info("Grouping parts...")
                 aedt_objs = self.object_names[::]
                 for assembly, _ in nas_to_dict["Assemblies"].items():
+                    assembly_group_name = assembly
+                    if assembly in self.oeditor.GetChildNames("Groups"):
+                        assembly_group_name = generate_unique_name(assembly, n=2)
                     new_group = []
                     for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
                         obj_names = [i for i in aedt_objs if i.startswith("Solid_{}".format(el))]
@@ -1435,16 +1083,16 @@ class Modeler3D(Primitives3D):
                         ]
                         if obj_names:
                             new_group.append(self.create_group(obj_names, group_name=str(el)))
-                    if assembly in self.oeditor.GetChildNames("Groups"):
+                    if assembly_group_name in self.oeditor.GetChildNames("Groups"):
                         self.oeditor.MoveEntityToGroup(
                             [
                                 "Groups:=",
                                 new_group,
                             ],
-                            ["ParentGroup:=", assembly],
+                            ["ParentGroup:=", assembly_group_name],
                         )
                     else:
-                        new_name = self.create_group(new_group, group_name=assembly)
+                        new_name = self.create_group(new_group, group_name=assembly_group_name)
                         self.oeditor.MoveEntityToGroup(
                             [
                                 "Groups:=",
