@@ -4634,9 +4634,9 @@ class GeometryModeler(Modeler):
         assignment_to_remove : list, optional
             List of objects to remove. The default is ``None``.
         major_version : int, optional
-            File format major version. Default is -1.
+            File format major version. The default is -1.
         minor_version : int, optional
-            File format major version. Default is -1.
+            File format major version. The default is -1.
 
         Returns
         -------
