@@ -1,0 +1,13 @@
+[e_field_magnitude]
+name = "EField_magnitude"
+description = "E field magnitude"
+design_type = ["HFSS"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Line", "Face", "Solid"]
+operations = ["Fundamental_Quantity('E')",
+	"Operation('Mag')"
+]
+report = ["Field_3D", "Rectangular Plot"]
