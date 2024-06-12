@@ -1001,129 +1001,98 @@ class Modeler3D(Primitives3D):
         def parse_lines(input_lines, input_pid=0, in_assembly="Main"):
             if in_assembly not in nas_to_dict["Assemblies"]:
                 nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}}
+
+            def get_point(ll, start, length):
+                n = ll[start : start + length].strip()
+                if "-" in n[1:] and "e" not in n[1:].lower():
+                    n = n[0] + n[1:].replace("-", "e-")
+                return n
+
             for lk in range(len(input_lines)):
                 line = input_lines[lk]
                 line_type = line[:8].strip()
+                obj_type = "Triangles"
                 if line.startswith("$") or line.startswith("*"):
                     continue
-                elif line_type in ["GRID", "CTRIA3", "CQUAD4"]:
-                    grid_id = int(line[8:16])
-                    if line_type in ["CTRIA3", "CQUAD4"]:
-                        tria_id = int(line[16:24])
-                        if tria_id not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]:
-                            nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id] = []
-                    n1 = line[24:32].strip()
-                    if "-" in n1[1:] and "e" not in n1[1:].lower():
-                        n1 = n1[0] + n1[1:].replace("-", "e-")
-                    n2 = line[32:40].strip()
-                    if "-" in n2[1:] and "e" not in n2[1:].lower():
-                        n2 = n2[0] + n2[1:].replace("-", "e-")
-                    n3 = line[40:48].strip()
-                    if "-" in n3[1:] and "e" not in n3[1:].lower():
-                        n3 = n3[0] + n3[1:].replace("-", "e-")
-                    if line_type == "GRID":
-                        nas_to_dict["PointsId"][grid_id] = input_pid
-                        nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
-                        input_pid += 1
-                    elif line_type == "CTRIA3":
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
-                    elif line_type == "CQUAD4":
-                        n4 = line[48:56].strip()
-                        if "-" in n4[1:] and "e" not in n4[1:].lower():
-                            n4 = n4[0] + n4[1:].replace("-", "e-")
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n3)],
-                            nas_to_dict["PointsId"][int(n4)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
-                elif line_type in ["GRID*", "CTRIA3*", "CQUAD4*"]:
-                    grid_id = int(line[8:24])
-                    if line_type in ["CTRIA3*", "CQUAD4*"]:
-                        tria_id = int(line[24:40])
-                        if tria_id not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]:
-                            nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id] = []
-                    n1 = line[40:56].strip()
-                    if "-" in n1[1:] and "e" not in n1[1:].lower():
-                        n1 = n1[0] + n1[1:].replace("-", "e-")
-                    n2 = line[56:72].strip()
-                    if "-" in n2[1:] and "e" not in n2[1:].lower():
-                        n2 = n2[0] + n2[1:].replace("-", "e-")
-
-                    n3 = line[72:88].strip()
-                    idx = 88
-                    if not n3 or n3.startswith("*"):
-                        lk += 1
-                        n3 = input_lines[lk][8:24].strip()
-                        idx = 24
-                    if "-" in n3[1:] and "e" not in n3[1:].lower():
-                        n3 = n3[0] + n3[1:].replace("-", "e-")
-                    if line_type == "GRID*":
-                        try:
-                            nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
-                        except Exception:  # nosec
-                            continue
-                        nas_to_dict["PointsId"][grid_id] = input_pid
-                        input_pid += 1
-                    elif line_type == "CTRIA3*":
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
-                    elif line_type == "CQUAD4*":
-                        n4 = input_lines[lk][idx : idx + 16].strip()
-                        if not n4 or n4.startswith("*"):
-                            lk += 1
-                            n4 = input_lines[lk][8:24].strip()
-                        if "-" in n4[1:] and "e" not in n4[1:].lower():
-                            n4 = n4[0] + n4[1:].replace("-", "e-")
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n3)],
-                            nas_to_dict["PointsId"][int(n4)],
-                        ]
-                        nas_to_dict["Assemblies"][in_assembly]["Triangles"][tria_id].append(tri)
+                elif line_type in ["GRID", "GRID*"]:
+                    num_points = 3
+                    obj_type = "Grid"
                 elif line_type in [
-                    "CTETRA",
-                    "CPYRAM",
-                    "CPYRA",
+                    "CTRIA3",
+                    "CTRIA3*",
                 ]:
-                    # obj_id = line[8:16].strip()
-                    n = []
-                    el_id = line[16:24].strip()
-                    if el_id not in nas_to_dict["Assemblies"][in_assembly]["Solids"]:
-                        nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id] = []
+                    num_points = 3
+                    obj_type = "Triangles"
+                elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
+                    num_points = 2
+                    obj_type = "Lines"
+                elif line_type in [
+                    "CQUAD4",
+                    "CQUAD4*",
+                ]:
+                    num_points = 4
+                    obj_type = "Triangles"
+                elif line_type in ["CTETRA", "CTETRA*"]:
+                    num_points = 4
+                    obj_type = "Solids"
+                elif line_type in ["CPYRA", "CPYRAM", "CPYRA*", "CPYRAM*"]:
+                    num_points = 5
+                    obj_type = "Solids"
+                else:
+                    continue
 
-                    n.append(int(line[24:32]))
-                    n.append(int(line[32:40]))
-                    n.append(int(line[40:48]))
-                    n.append(int(line[48:56]))
-                    if line_type in ["CPYRA", "CPYRAM"]:
-                        n.append(int(line[56:64]))
+                points = []
+                start_pointer = 8
+                word_length = 8
+                if line_type.endswith("*"):
+                    word_length = 16
+                grid_id = int(line[start_pointer : start_pointer + word_length])
+                pp = 0
+                start_pointer = start_pointer + word_length
+                object_id = line[start_pointer : start_pointer + word_length]
+                if obj_type != "Grid":
+                    object_id = int(object_id)
+                    if object_id not in nas_to_dict["Assemblies"][in_assembly][obj_type]:
+                        nas_to_dict["Assemblies"][in_assembly][obj_type][object_id] = []
+                while pp < num_points:
+                    start_pointer = start_pointer + word_length
+                    if start_pointer >= 72:
+                        lk += 1
+                        line = input_lines[lk]
+                        start_pointer = 8
+                    points.append(get_point(line, start_pointer, word_length))
+                    pp += 1
 
+                if line_type in ["GRID", "GRID*"]:
+                    nas_to_dict["PointsId"][grid_id] = input_pid
+                    nas_to_dict["Points"].append([float(i) for i in points])
+                    input_pid += 1
+                elif line_type in [
+                    "CTRIA3",
+                    "CTRIA3*",
+                ]:
+                    tri = [nas_to_dict["PointsId"][int(i)] for i in points]
+                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+                elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
+                    tri = [nas_to_dict["PointsId"][int(i)] for i in points]
+                    nas_to_dict["Assemblies"][in_assembly]["Lines"][object_id].append(tri)
+                elif line_type in ["CQUAD4", "CQUAD4*"]:
+                    tri = [
+                        nas_to_dict["PointsId"][int(points[0])],
+                        nas_to_dict["PointsId"][int(points[1])],
+                        nas_to_dict["PointsId"][int(points[2])],
+                    ]
+                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+                    tri = [
+                        nas_to_dict["PointsId"][int(points[0])],
+                        nas_to_dict["PointsId"][int(points[2])],
+                        nas_to_dict["PointsId"][int(points[3])],
+                    ]
+                    nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+                else:
                     from itertools import combinations
 
-                    for k in list(combinations(n, 3)):
-                        # tri = [int(k[0]), int(k[1]), int(k[2])]
+                    for k in list(combinations(points, 3)):
                         tri = [
                             nas_to_dict["PointsId"][int(k[0])],
                             nas_to_dict["PointsId"][int(k[1])],
@@ -1131,84 +1100,8 @@ class Modeler3D(Primitives3D):
                         ]
                         tri.sort()
                         tri = tuple(tri)
-                        nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id].append(tri)
+                        nas_to_dict["Assemblies"][in_assembly]["Solids"][object_id].append(tri)
 
-                elif line_type in [
-                    "CTETRA*",
-                    "CPYRAM*",
-                    "CPYRA*",
-                ]:
-                    # obj_id = line[8:24].strip()
-                    n = []
-                    el_id = line[24:40].strip()
-                    if el_id not in nas_to_dict["Assemblies"][in_assembly]["Solids"]:
-                        nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id] = []
-                    # n.append(line[24:40].strip())
-                    n.append(line[40:56].strip())
-
-                    n.append(line[56:72].strip())
-                    lk += 1
-                    n.extend([input_lines[lk][i : i + 16] for i in range(16, len(input_lines[lk]), 16)])
-
-                    from itertools import combinations
-
-                    if line_type == "CTETRA*":
-                        for k in list(combinations(n, 3)):
-                            # tri = [int(k[0]), int(k[1]), int(k[2])]
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id].append(tri)
-                    else:
-                        spli1 = [n[0], n[1], n[2], n[4]]
-                        for k in list(combinations(spli1, 3)):
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id].append(tri)
-                        spli1 = [n[0], n[2], n[3], n[4]]
-                        for k in list(combinations(spli1, 3)):
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Assemblies"][in_assembly]["Solids"][el_id].append(tri)
-
-                elif line_type in ["CROD", "CBEAM", "CBAR"]:
-                    obj_id = int(line[16:24])
-                    n1 = int(line[24:32])
-                    n2 = int(line[32:40])
-                    if obj_id in nas_to_dict["Assemblies"][in_assembly]["Lines"]:
-                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id].append(
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        )
-                    else:
-                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id] = [
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        ]
-                elif line_type in ["CROD*", "CBEAM*", "CBAR*"]:
-                    obj_id = int(line[24:40])
-                    n1 = int(line[40:56])
-                    n2 = int(line[56:72])
-                    if obj_id in nas_to_dict["Assemblies"][in_assembly]["Lines"]:
-                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id].append(
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        )
-                    else:
-                        nas_to_dict["Assemblies"][in_assembly]["Lines"][obj_id] = [
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        ]
             return input_pid
 
         self.logger.reset_timer()
@@ -1235,41 +1128,55 @@ class Modeler3D(Primitives3D):
                 == {}
             ):
                 del nas_to_dict["Assemblies"][assembly]
-        for ass_name, ass in nas_to_dict["Assemblies"].items():
+        for _, assembly_object in nas_to_dict["Assemblies"].items():
 
-            def reduce(lines):
-                reduced = False
-                nls = []
-                for segment in lines:
-                    found = False
-                    for nl in nls:
-                        # if segment[0] in nl[0::2] or segment[1] in nl[1::2]:
-                        #     nls.append(segment)
-                        #     found = True
-                        #     break
-                        if segment[0] in nl[1::2]:
-                            nls[nls.index(nl)] = (
-                                nl[: nl.index(segment[0]) + 1] + segment + nl[nl.index(segment[0]) + 1 :]
-                            )
-                            found = True
-                            reduced = True
-                            break
-                        elif segment[-1] in nl[0::2]:
-                            nls[nls.index(nl)] = nl[: nl.index(segment[-1])] + segment + nl[nl.index(segment[-1]) :]
-                            found = True
-                            reduced = True
-                            break
-                    if not found:
-                        nls.append(segment)
-                return [list(dict.fromkeys(i)) for i in nls], reduced
+            def domino(segments):
 
-            if ass["Lines"]:
-                for lname, lines in ass["Lines"].items():
+                def check_new_connection(s, polylines, exclude_index=-1):
+                    s = s[:]
+                    polylines = polylines[:]
+                    attached = False
+                    p_index = None
+                    for i, p in enumerate(polylines):
+                        if i == exclude_index:
+                            continue
+                        if s[0] == p[-1]:
+                            p.extend(s[1:])  # the new segment attaches to the end
+                            attached = True
+                        elif s[-1] == p[0]:
+                            for item in reversed(s[:-1]):
+                                p.insert(0, item)  # the new segment attaches to the beginning
+                            attached = True
+                        elif s[0] == p[0]:
+                            for item in s[1:]:
+                                p.insert(0, item)  # the new segment attaches to the beginning in reverse order
+                            attached = True
+                        elif s[-1] == p[-1]:
+                            p.extend(s[-2::-1])  # the new segment attaches to the end in reverse order
+                            attached = True
+                        if attached:
+                            p_index = i
+                            break
+                    if not attached:
+                        polylines.append(s)
+                    return polylines, attached, p_index
+
+                polylines = []
+                for segment in segments:
+                    polylines, attached_flag, attached_p_index = check_new_connection(segment, polylines)
+                    if attached_flag:
+                        other_polylines = polylines[:attached_p_index] + polylines[attached_p_index + 1 :]
+                        polylines, _, _ = check_new_connection(
+                            polylines[attached_p_index], other_polylines, attached_p_index
+                        )
+
+                return polylines
+
+            if assembly_object["Lines"]:
+                for lname, lines in assembly_object["Lines"].items():
                     new_lines = lines[::]
-                    is_reduced = True
-                    while is_reduced:
-                        new_lines, is_reduced = reduce(new_lines)
-                    ass["Lines"][lname] = new_lines
+                    new_lines = domino(new_lines)
+                    assembly_object["Lines"][lname] = new_lines
 
         return nas_to_dict
 
@@ -1449,7 +1356,7 @@ class Modeler3D(Primitives3D):
                             h = css4_colors[k].lstrip("#")
                             colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
                             k = k + 1 if k < len(css4_colors) - 1 else 0
-                            pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+                        pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
 
                     for triangles in assembly["Solids"].values():
                         import pandas as pd
