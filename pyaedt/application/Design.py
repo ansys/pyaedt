@@ -1280,7 +1280,7 @@ class Design(AedtObjects):
                             try:
                                 profile_tree = BinaryTreeNode("profile", profile_setup_obj)
                                 profile_objs[profile_setup_name] = profile_tree
-                            except Exception:
+                            except Exception:  # pragma: no cover
                                 self.logger.error(f"{profile_setup_name} profile could not be obtained.")
             return profile_objs
         else:  # pragma: no cover

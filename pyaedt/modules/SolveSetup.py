@@ -221,6 +221,20 @@ class CommonSetup(PropsManager, object):
         self._name = name
         self.props["Name"] = name
 
+    @property
+    def profile(self):
+        """Solution profile.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when solved setups,
+        ``None`` when not solved setup or not compatible application.
+        """
+        profile = self._app.get_setup_profile(self.name)
+        if not isinstance(profile, dict) or not profile:
+            profile = None
+        return profile
+
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
         self,
