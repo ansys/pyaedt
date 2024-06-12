@@ -1903,17 +1903,19 @@ class Design(AedtObjects):
         arg3 = [tab, ["NAME:PropServers", propserver], ["NAME:ChangedProps", ["NAME:" + variable_name, arg2]]]
         arg.append(arg3)
 
-    @pyaedt_function_handler(variable_name="name", min_val="min", max_val="max")
-    def activate_variable_statistical(self, name, min=None, max=None, tolerance=None, probability=None, mean=None):
+    @pyaedt_function_handler(variable_name="name", min_val="minimum", max_val="maximum")
+    def activate_variable_statistical(
+        self, name, minimum=None, maximum=None, tolerance=None, probability=None, mean=None
+    ):
         """Activate statitistical analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
         name : str
             Name of the variable.
-        min : optional
+        minimum : optional
             Minimum value for the variable. The default is ``None``.
-        max : optional
+        maximum : optional
             Maximum value for the variable. The default is ``None``.
         tolerance : optional
             Tolerance value for the variable. The default is ``None``.
@@ -1933,24 +1935,24 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Statistical", name, min, max, tolerance, probability, mean)
+        self._optimetrics_variable_args(arg, "Statistical", name, minimum, maximum, tolerance, probability, mean)
         if "$" in name:
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)
         return True
 
-    @pyaedt_function_handler(variable_name="name", min_val="min", max_val="max")
-    def activate_variable_optimization(self, name, min=None, max=None):
+    @pyaedt_function_handler(variable_name="name", min_val="minimum", max_val="maximum")
+    def activate_variable_optimization(self, name, minimum=None, maximum=None):
         """Activate optimization analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
         name : str
             Name of the variable.
-        min : optional
+        minimum : optional
             Minimum value for the variable. The default is ``None``.
-        max : optional
+        maximum : optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1964,24 +1966,24 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Optimization", name, min, max)
+        self._optimetrics_variable_args(arg, "Optimization", name, minimum, maximum)
         if name.startswith("$"):
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)
         return True
 
-    @pyaedt_function_handler(variable_name="name", min_val="min", max_val="max")
-    def activate_variable_sensitivity(self, name, min=None, max=None):
+    @pyaedt_function_handler(variable_name="name", min_val="minimum", max_val="maximum")
+    def activate_variable_sensitivity(self, name, minimum=None, maximum=None):
         """Activate sensitivity analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
         name : str
             Name of the variable.
-        min : optional
+        minimum : optional
             Minimum value for the variable. The default is ``None``.
-        max : optional
+        maximum : optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -1995,24 +1997,24 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Sensitivity", name, min, max)
+        self._optimetrics_variable_args(arg, "Sensitivity", name, minimum, maximum)
         if "$" in name:
             self.oproject.ChangeProperty(arg)
         else:
             self.odesign.ChangeProperty(arg)
         return True
 
-    @pyaedt_function_handler(variable_name="name", min_val="min", max_val="max")
-    def activate_variable_tuning(self, name, min=None, max=None):
+    @pyaedt_function_handler(variable_name="name", min_val="minimum", max_val="maximum")
+    def activate_variable_tuning(self, name, minimum=None, maximum=None):
         """Activate tuning analysis for a variable and optionally set up ranges.
 
         Parameters
         ----------
         name : str
             Name of the variable.
-        min : optional
+        minimum : optional
             Minimum value for the variable. The default is ``None``.
-        max : optional
+        maximum : optional
             Maximum value for the variable. The default is ``None``.
 
         Returns
@@ -2026,7 +2028,7 @@ class Design(AedtObjects):
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
-        self._optimetrics_variable_args(arg, "Tuning", name, min, max)
+        self._optimetrics_variable_args(arg, "Tuning", name, minimum, maximum)
         if "$" in name:
             self.oproject.ChangeProperty(arg)
         else:
