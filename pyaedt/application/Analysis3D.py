@@ -530,11 +530,7 @@ class FieldAnalysis3D(Analysis, object):
         input_file : str
             Full path and name of the CAD file.
         healing : bool, optional
-            Whether to perform healing. The default is ``False``, in which
-            case healing is not performed.
-        healing : int, optional
-            Whether to perform healing. The default is ``0``, in which
-            case healing is not performed.
+            Whether to perform healing. The default is ``False``.
         refresh_all_ids : bool, optional
             Whether to refresh all IDs after the CAD file is loaded. The
             default is ``True``. Refreshing IDs can take a lot of time in
