@@ -57,7 +57,7 @@ class FieldsCalculator:
             Calculation type.
         assignment : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive
-            Name of the object from which to add the named expression.
+            Name of the object to add the named expression from.
         name : str, optional
             Name of the named expression. The default is ``None``.
 
@@ -136,7 +136,7 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def create_expression_file(self, name, operations):
-        """Create calculator expression file.
+        """Create a calculator expression file.
 
         Parameters
         ----------
@@ -169,14 +169,14 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def expression_plot(self, calculation, assignment, names, setup=None):
-        """Add named expression.
+        """Add a named expression.
 
         Parameters
         ----------
         calculation : str
             Calculation type.
         assignment : list
-            List of assignments to apply the expression. If the expression is not general, assignment is not needed.
+            List of assignments to apply the expression to. If the expression is not general, assignment is not needed.
         names : list
             Name of the expressions to plot.
         setup : str
@@ -253,12 +253,12 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def delete_expression(self, name=None):
-        """Delete named expression.
+        """Delete a named expression.
 
         Parameters
         ----------
         name : str, optional
-            Name of the named expression. The default is ``None`` in which case all named expressions are deleted.
+            Name of the named expression. The default is ``None``, in which case all named expressions are deleted.
 
         Returns
         -------
@@ -274,7 +274,7 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def is_expression_defined(self, name):
-        """Check if expression exists.
+        """Check if a named expression exists.
 
         Parameters
         ----------
@@ -293,7 +293,7 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def is_general_expression(self, name):
-        """Check if expression is general.
+        """Check if a named expression is general.
 
         Parameters
         ----------
@@ -303,7 +303,7 @@ class FieldsCalculator:
         Returns
         -------
         bool
-            ``True`` when exists.
+            ``True`` if the named expression is general.
         """
         if name not in self.expression_names:
             self.__app.logger.error("Named expression not available.")
@@ -342,14 +342,14 @@ class FieldsCalculator:
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
-        """Check if list has integers."""
+        """Check if a list has integers."""
         for item in lst:
             if isinstance(item, int):
                 return True
         return False
 
     def __has_lines(self, lst):  # pragma: no cover
-        """Check if list has lines."""
+        """Check if a list has lines."""
         for item in lst:
             if item not in self.__app.modeler.line_names:
                 return False
