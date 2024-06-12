@@ -25,8 +25,8 @@
   description: Improvements related to doc style
   color: dcbeff
 
-- name: 'style:branch-name'
-  description: Verifies branch name is compliant with PyAnsys guidelines
+- name: 'style:branch'
+  description: Verifies branch style is compliant with PyAnsys guidelines
   color: dcbeff
 
 - name: 'style:skip'
@@ -37,6 +37,10 @@
 
 - name: 'tests'
   description: Related with improvements of the test suite
+  color: ffd8b1
+
+- name: 'tests:smoke'
+  description: Related with improvements of the smoke test suite
   color: ffd8b1
 
 - name: 'tests:unit'
@@ -53,6 +57,10 @@
 
 - name: 'tests:skip'
   description: Skip tests runs in CI/CD
+  color: ffd8b1
+
+- name: 'tests:smoke:skip'
+  description: Skip smoke tests runs in CI/CD
   color: ffd8b1
 
 - name: 'tests:unit:skip'
