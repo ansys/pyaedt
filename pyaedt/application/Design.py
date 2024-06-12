@@ -1063,7 +1063,7 @@ class Design(AedtObjects):
         >>> oProject.SetActiveDesign
         >>> oProject.InsertDesign
         """
-        if settings.use_multi_desktop:
+        if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
         return self._odesign
 
@@ -1108,7 +1108,7 @@ class Design(AedtObjects):
         >>> oDesktop.SetActiveProject
         >>> oDesktop.NewProject
         """
-        if settings.use_multi_desktop:
+        if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
         return self._oproject
 

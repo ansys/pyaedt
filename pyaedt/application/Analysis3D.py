@@ -1,7 +1,6 @@
 import csv
 import ntpath
 import os
-import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
@@ -590,7 +589,13 @@ class FieldAnalysis3D(Analysis, object):
             merge_planar_faces=merge_planar_faces,
         )
 
-    @pyaedt_function_handler(object_list="assignment_to_export", removed_objects="assignment_to_remove")
+    @pyaedt_function_handler(
+        object_list="assignment_to_export",
+        removed_objects="assignment_to_remove",
+        fileName="file_name",
+        filePath="file_path",
+        fileFormat="file_format",
+    )
     def export_3d_model(
         self,
         file_name="",
@@ -600,7 +605,6 @@ class FieldAnalysis3D(Analysis, object):
         assignment_to_remove=None,
         major_version=-1,
         minor_version=-1,
-        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
@@ -631,27 +635,6 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
-        if "fileName" in kwargs:
-            warnings.warn(
-                "`fileName` is deprecated. Use `file_name` instead.",
-                DeprecationWarning,
-            )
-
-            file_name = kwargs["fileName"]
-        if "filePath" in kwargs:
-            warnings.warn(
-                "`filePath` is deprecated. Use `file_path` instead.",
-                DeprecationWarning,
-            )
-
-            file_path = kwargs["filePath"]
-        if "fileFormat" in kwargs:
-            warnings.warn(
-                "`fileFormat` is deprecated. Use `file_format` instead.",
-                DeprecationWarning,
-            )
-
-            file_format = kwargs["fileFormat"]
         return self.modeler.export_3d_model(
             file_name=file_name,
             file_path=file_path,
@@ -660,7 +643,6 @@ class FieldAnalysis3D(Analysis, object):
             assignment_to_remove=assignment_to_remove,
             major_version=major_version,
             minor_version=minor_version,
-            **kwargs,
         )
 
     @pyaedt_function_handler()

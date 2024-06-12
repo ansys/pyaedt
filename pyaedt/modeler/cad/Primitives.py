@@ -4607,7 +4607,13 @@ class GeometryModeler(Modeler):
 
         return position_list
 
-    @pyaedt_function_handler(object_list="assignment_to_export", removed_objects="assignment_to_remove")
+    @pyaedt_function_handler(
+        object_list="assignment_to_export",
+        removed_objects="assignment_to_remove",
+        fileName="file_name",
+        filePath="file_path",
+        fileFormat="file_format",
+    )
     def export_3d_model(
         self,
         file_name="",
@@ -4617,7 +4623,6 @@ class GeometryModeler(Modeler):
         assignment_to_remove=None,
         major_version=-1,
         minor_version=-1,
-        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
@@ -4648,27 +4653,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Export
         """
-        if "fileName" in kwargs:
-            warnings.warn(
-                "`fileName` is deprecated. Use `file_name` instead.",
-                DeprecationWarning,
-            )
 
-            file_name = kwargs["fileName"]
-        if "filePath" in kwargs:
-            warnings.warn(
-                "`filePath` is deprecated. Use `file_path` instead.",
-                DeprecationWarning,
-            )
-
-            file_path = kwargs["filePath"]
-        if "fileFormat" in kwargs:
-            warnings.warn(
-                "`fileFormat` is deprecated. Use `file_format` instead.",
-                DeprecationWarning,
-            )
-
-            file_format = kwargs["fileFormat"]
         if not file_name:
             file_name = self.project_name + "_" + self.design_name
         if not file_path:
