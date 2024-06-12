@@ -76,7 +76,7 @@ examples:
           - any-glob-to-any-file: ['_unittest_ironpython/**']
           - all-globs-to-all-files: ['!_unittest/**', '!_unittest_solvers/**']
 
-'tests:iron':
+'tests:solvers':
   - any:
       - changed-files:
           - any-glob-to-any-file: ['_unittest_solvers/**']
