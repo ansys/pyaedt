@@ -1,35 +1,132 @@
-- name: bug
-  description: Something isn't working
+# The labels declared in this file are the ones avialables 
+# https://github.com/ansys/pyaedt/labels
+
+# -- Defects and glitches labels----------------------------------------------
+
+- name: 'bug'
+  description: Defects or glitches reported by users or developers
   color: d42a34
 
-- name: dependencies
-  description: Related with project dependencies
-  color: ffc0cb
+- name: 'fix'
+  description:  Pull requests related to resolving problems or errors
+  color: d42a34
 
-- name: documentation
-  description: Improvements or additions to documentation
+# -- Style labels ------------------------------------------------------------
+
+- name: 'style'
+  description: Improvements related to general project style
+  color: dcbeff
+
+- name: 'style:code'
+  description: Improvements related to code style
+  color: dcbeff
+
+- name: 'style:docs'
+  description: Improvements related to doc style
+  color: dcbeff
+
+- name: 'style:branch-name'
+  description: Verifies branch name is compliant with PyAnsys guidelines
+  color: dcbeff
+
+- name: 'style:skip'
+  description: Skip style runs in CI/CD
+  color: dcbeff
+
+# -- Tests labels ------------------------------------------------------------
+
+- name: 'tests'
+  description: Related with improvements of the test suite
+  color: ffd8b1
+
+- name: 'tests:unit'
+  description: Related with improvements of the unit test suite
+  color: ffd8b1
+
+- name: 'tests:iron'
+  description: Related with improvements of the IronPython test suite
+  color: ffd8b1
+
+- name: 'tests:solvers'
+  description: Related with improvements of the solvers test suite
+  color: ffd8b1
+
+- name: 'tests:skip'
+  description: Skip tests runs in CI/CD
+  color: ffd8b1
+
+- name: 'tests:unit:skip'
+  description: Skip IronPython tests runs in CI/CD
+  color: ffd8b1
+
+- name: 'tests:iron:skip'
+  description: Skip IronPython tests runs in CI/CD
+  color: ffd8b1
+
+- name: 'tests:solvers:skip'
+  description: Skip IronPython tests runs in CI/CD
+  color: ffd8b1
+
+# -- Documentation labels ----------------------------------------------------
+
+- name: 'docs'
+  description: Issues related to documentation
   color: 0677ba
 
-- name: enhancement
-  description: New features or code improvements
-  color: FFD827
+- name: 'docs:api'
+  description: Related to API documentation
+  color: 0677ba
 
-- name: good first issue
-  description: Easy to solve for newcomers
-  color: 62ca50
+- name: 'docs:examples'
+  description: Related to documentation examples
+  color: 0677ba
 
-- name: maintenance
-  description: Package and maintenance related
-  color: f78c37
+- name: 'docs:skip'
+  description: Skip documentation runs in CI/CD
+  color: 0677ba
 
-- name: release
+# -- Dependencies labels -----------------------------------------------------
+
+- name: 'dependencies'
+  description: Related with project dependencies
+  color: fabed4
+
+- name: 'dependencies:pyproject'
+  description: Related with project file dependencies
+  color: fabed4
+
+- name: 'dependencies:ci'
+  description: Related with pipelines dependencies
+  color: fabed4
+
+# -- CI/CD labels ------------------------------------------------------------
+
+- name: 'ci'
+  description: Pipelines maintenance related
+  color: a9a9a9
+
+- name: 'ci:skip'
+  description: Skip CI/CD runs
+  color: a9a9a9
+
+# -- Other labels ------------------------------------------------------------
+
+- name: 'release'
   description: Anything related to an incoming release
   color: ffffff
 
-- name: testing
-  description: Anything related to testing
-  color: 5802B8
+- name: 'good first issue'
+  description: Issues suitable for newcomers or those with less experience
+  color: 62ca50
 
-- name: examples
-  description: Anything related to the examples
-  color: 3C2E5F
+- name: 'enhancement'
+  description: General improvements to existing features
+  color: ffd827
+
+- name: 'maintenance'
+  description: Generic maintenance related
+  color: f78c37
+
+- name: 'docker'
+  description: Docker maintenance related
+  color: 000075
