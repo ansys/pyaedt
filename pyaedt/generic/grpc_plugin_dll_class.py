@@ -294,6 +294,7 @@ class AEDT:
         self.AedtAPI = AedtAPI
         self.SetPyObjCalbacks()
         self.aedt = None
+        self.non_graphical = False
 
     def SetPyObjCalbacks(self):
         self.callback_type = CFUNCTYPE(py_object, c_int, c_bool, py_object)
@@ -330,6 +331,7 @@ class AEDT:
             if not self.aedt:
                 raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
+        self.non_graphical = NGmode
         if port == 0:
             self.port = self.aedt.GetAppDesktop().GetGrpcServerPort()
         else:
@@ -351,7 +353,7 @@ class AEDT:
             self.__init__(self.original_path)
             self.port = port
             self.machine = machine
-            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, False, False)
+            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, self.non_graphical, False)
             return self.aedt
 
         if force:
