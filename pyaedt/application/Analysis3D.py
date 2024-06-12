@@ -550,17 +550,17 @@ class FieldAnalysis3D(Analysis, object):
         import_free_surfaces : bool, optional
             Whether to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
-            Tolerance on point. Default is ``1e-6``.
+            Tolerance on the point. The default is ``1e-6``.
         heal_stl : bool, optional
-            Whether to heal the stl file on import or not. Default is ``True``.
+            Whether to heal the STL file on import. The default is ``True``.
         reduce_stl : bool, optional
-            Whether to reduce the stl file on import or not. Default is ``True``.
+            Whether to reduce the STL file on import. The default is ``True``.
         reduce_percentage : int, optional
-            Stl reduce percentage. Default is  ``0``.
+            Percentage to reduce the STL file by if ``reduce_stl=True``. The default is ``0``.
         reduce_error : int, optional
-            Stl error percentage during reduce operation. Default is  ``0``.
+            Error percentage during STL reduction operation. The default is ``0``.
         merge_planar_faces : bool, optional
-            Stl automatic planar face merge during import. Default is ``True``.
+            Whether to merge planar faces during import. The default is ``True``.
 
         Returns
         -------
