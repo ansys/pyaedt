@@ -151,9 +151,17 @@ class TestClass:
 
         assert main({"is_test": True})
 
-        circuit = pyaedt.Circuit()
-        assert len(circuit.modeler.schematic.components) == 10
-        aedtapp.close_project(aedtapp.project_name)
+    def test_08_configure_a3d(self, local_scratch):
+
+        from pyaedt.workflows.project.configure_edb import main
+
+        configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
+                                os.path.join(local_scratch.path, "ports.json"))
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
+
+        assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
+
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss,

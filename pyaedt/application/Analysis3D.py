@@ -427,8 +427,8 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
-    @pyaedt_function_handler(object_list="assignment", no_vacuum="vacuum", no_pec="pec")
-    def copy_solid_bodies_from(self, design, assignment=None, vacuum=True, pec=True, include_sheets=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
         If user defined models are selected, the project will be saved automatically.
 
@@ -438,10 +438,10 @@ class FieldAnalysis3D(Analysis, object):
             Starting application object. For example, ``hfss1= HFSS3DLayout``.
         assignment : list, optional
             List of objects and user defined components to copy. The default is ``None``.
-        vacuum : bool, optional
+        no_vacuum : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``True``.
-        pec :
+        no_pec :
             Whether to include pec objects for the copied objects. The
             default is ``True``.
         include_sheets :
@@ -492,9 +492,9 @@ class FieldAnalysis3D(Analysis, object):
                 include_object = True
                 for key, val in material_properties.items():
                     if val.name == body:
-                        if vacuum and val.material_name.lower() == "vacuum":
+                        if no_vacuum and val.material_name.lower() == "vacuum":
                             include_object = False
-                        if pec and val.material_name == "pec":
+                        if no_pec and val.material_name == "pec":
                             include_object = False
                 if include_object:
                     selection_list.append(body)
@@ -1101,7 +1101,7 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
             obj_set = set(self.modeler.objects.values())
-            self.copy_solid_bodies_from(app, vacuum=False, pec=False, include_sheets=True)
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
             self.modeler.refresh_all_ids()
             self.modeler.set_working_coordinate_system(oldcs)
             if self.design_type == "Icepak":

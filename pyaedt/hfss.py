@@ -3715,14 +3715,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.design_datasets[ds_name_mag].y = mag
             self.design_datasets[ds_name_mag].update()
         else:
-            self.create_dataset1d_design(ds_name_mag, freq, mag, xunit="Hz")
+            self.create_dataset1d_design(ds_name_mag, freq, mag, x_unit="Hz")
         if self.dataset_exists(ds_name_phase, False):
             self.design_datasets[ds_name_phase].x = freq
             self.design_datasets[ds_name_phase].y = phase
             self.design_datasets[ds_name_phase].update()
 
         else:
-            self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
+            self.create_dataset1d_design(ds_name_phase, freq, phase, x_unit="Hz", y_unit="deg")
         self.osolution.EditSources(
             [
                 ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],

@@ -94,7 +94,7 @@ ipk.import_idf(board_path, library_path=None, control_path=None,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ipk.modeler.fit_all()    # scales to fit all objects in AEDT
-ipk.save_project()       # saves the project
+ipk.save_project()  # saves the project
 
 ###############################################################################
 # Add an HFSS 3D Layout design with the layout information of the PCB
@@ -106,7 +106,7 @@ hfss3dLO = Hfss3dLayout('Icepak_ECAD_Import', 'PCB_temp')      # adding a dummy 
 
 #edb_full_path = os.path.join(os.getcwd(), Layout_name+'.aedb\edb.def')   # path to the EDB file
 hfss3dLO.import_edb(def_path)  # importing the EDB file
-hfss3dLO.save_project()                                                  # save the new project so files are stored in the path     
+hfss3dLO.save_project()  # save the new project so files are stored in the path
 
 ipk.delete_design(name='PCB_temp', fallback_design=None)                 # deleting the dummy layout from the original project
 

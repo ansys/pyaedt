@@ -37,28 +37,28 @@ com_project_name = "com_unit_test_23r2"
 def sbr_platform(add_app):
     app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def array(add_app):
     app = add_app(project_name=array_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def hfss_app(add_app):
     app = add_app(project_name="Hfss_test")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture(scope="class")

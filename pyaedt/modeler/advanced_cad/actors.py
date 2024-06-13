@@ -363,7 +363,7 @@ class Radar(MultiPartComponent, object):
     @pyaedt_function_handler()
     def _add_speed(self, app):
         app.variable_manager.set_variable(
-            variable_name=self.speed_name, expression=self.speed_expression, description="radar speed"
+            name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (

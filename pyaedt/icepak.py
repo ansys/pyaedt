@@ -2599,7 +2599,7 @@ class Icepak(FieldAnalysis3D):
 
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
-            self.close_project(prjname, save_project=False)
+            self.close_project(prjname, save=False)
         self.logger.info("PCB component correctly created in Icepak.")
         return status
 
@@ -4142,7 +4142,7 @@ class Icepak(FieldAnalysis3D):
         >>> from pyaedt import Icepak
         >>> app = Icepak()
         >>> box = app.modeler.create_box([0, 0, 0],[20, 20, 20],name="box")
-        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
         >>> app.solution_type = "Transient"
         >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
         ... "Function": "Piecewise Linear", "Values": "Test_DataSet"})

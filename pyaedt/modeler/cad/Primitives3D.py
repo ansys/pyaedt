@@ -1469,18 +1469,8 @@ class Primitives3D(GeometryModeler):
                             else:
                                 is_project_dataset = False
                                 dsname = key
-                            self._app.create_dataset(
-                                dsname,
-                                dat["x"],
-                                dat["y"],
-                                dat["z"],
-                                dat["v"],
-                                is_project_dataset,
-                                dat["xunit"],
-                                dat["yunit"],
-                                dat["zunit"],
-                                dat["vunit"],
-                            )
+                            self._app.create_dataset(dsname, dat["x"], dat["y"], dat["z"], dat["v"], is_project_dataset,
+                                                     dat["xunit"], dat["yunit"], dat["zunit"], dat["vunit"])
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_parameters:
                     udm_obj.name = name

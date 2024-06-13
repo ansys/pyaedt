@@ -1092,7 +1092,7 @@ class Configurations(object):
                 self.results.import_variables = True
             try:
                 for k, v in dict_in["general"]["postprocessing_variables"].items():
-                    self._app.variable_manager.set_variable(k, v, postprocessing=True)
+                    self._app.variable_manager.set_variable(k, v, is_post_processing=True)
             except KeyError:
                 self.results.import_postprocessing_variables = False
             else:
@@ -1116,9 +1116,7 @@ class Configurations(object):
                 if numcol > 2:
                     zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
-                if not self._app.create_dataset(
-                    el[1:], xunit=xunit, yunit=yunit, zunit=zunit, xlist=xval, ylist=yval, zlist=zval
-                ):
+                if not self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit):
                     self.results.import_material_datasets = False
 
         if self.options.import_materials and dict_in.get("materials", None):

@@ -4349,7 +4349,7 @@ class NetworkObject(BoundaryObject):
         >>> app = pyaedt.Icepak()
         >>> network = pyaedt.modules.Boundary.Network(app)
         >>> network.add_boundary_node("TestNode", "Temperature", 2)
-        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
         >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
         >>>                                                       "Function": "Piecewise Linear",
         >>>                                                       "Values": "Test_DataSet"})
