@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This module contains these classes: `Components3DLayout`,`CircuitComponent',
 `EdgePrimitive`, `EdgeTypePrimitive`, `FacePrimitive`, `Geometries3DLayout`,

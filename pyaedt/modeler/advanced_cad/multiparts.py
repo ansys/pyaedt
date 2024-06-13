@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from pyaedt.generic.filesystem import get_json_files
