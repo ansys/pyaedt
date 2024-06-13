@@ -735,7 +735,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         grid_data = ["NAME:GridData"]
         maxwell_excitations = {}
-        show_pin = False
+        # show_pin = False
         if not maxwell_app.excitations_by_type["Winding Group"]:
             self.odesktop.SetDesktopConfiguration("All")
             raise ValueError("No voltage or current excitations detected in the design.")
@@ -758,7 +758,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 #                           excitations[k][1],
                 #                           excitations[k][2],
                 #                           excitations[k][3]]
-                show_pin = excitations[k][3]
+                # show_pin = excitations[k][3]
                 grid_data.append("{}:=".format(k))
                 grid_data.append(excitations[k])
         else:
@@ -769,7 +769,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
         comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
-        comp.set_property("ShowPin", show_pin)
+        # comp.set_property("ShowPin", show_pin)
 
         self.odesktop.SetDesktopConfiguration("All")
         return comp
