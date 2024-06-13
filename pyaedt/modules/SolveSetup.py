@@ -101,7 +101,7 @@ class CommonSetup(PropsManager, object):
             that support automatic settings.
         solve_in_batch : bool, optional
             Whether to solve the project in batch or not.
-            If ``True`` the project will be saved, closed, solved and repened.
+            If ``True`` the project will be saved, closed, and solved.
         machine : str, optional
             Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
@@ -220,6 +220,20 @@ class CommonSetup(PropsManager, object):
     def name(self, name):
         self._name = name
         self.props["Name"] = name
+
+    @pyaedt_function_handler()
+    def get_profile(self):
+        """Solution profile.
+
+        Returns
+        -------
+        dict of :class:pyaedt.modeler.cad.elements3d.BinaryTree when solved setups exist,
+        ``None`` when no solved setups or no compatible application exists.
+        """
+        profile = self._app.get_profile(self.name)
+        if not isinstance(profile, dict) or not profile:
+            profile = None
+        return profile
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(

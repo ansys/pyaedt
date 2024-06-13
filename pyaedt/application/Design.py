@@ -1263,6 +1263,47 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
+    def get_profile(self, name=None):
+        """Get profile information.
+
+        Parameters
+        ----------
+        name : str
+            Setup name. The default is ``None``, in which case all available setups are returned.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+        ``False`` when failed.
+        """
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        if not name:
+            name = self.setup_names
+        if not isinstance(name, list):
+            name = [name]
+
+        profile_setups_obj = self.get_oo_object(self.odesign, "results/profile")
+
+        profile_objs = {}
+        if profile_setups_obj:
+            profile_setup_names = self.get_oo_name(self.odesign, "results/profile")
+            for n in name:
+                for profile_setup_name in profile_setup_names:
+                    if n in profile_setup_name:
+                        profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
+                        if profile_setup_obj and self.get_oo_name(profile_setup_obj):
+                            try:
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_objs[profile_setup_name] = profile_tree
+                            except Exception:  # pragma: no cover
+                                self.logger.error("{} profile could not be obtained.".format(profile_setup_name))
+            return profile_objs
+        else:  # pragma: no cover
+            self.logger.error("Profile can not be obtained.")
+            return False
+
+    @pyaedt_function_handler()
     def get_oo_name(self, aedt_object, object_name=None):
         """Return the object-oriented AEDT property names.
 
@@ -2565,7 +2606,7 @@ class Design(AedtObjects):
                 self.modeler._edb.close_edb()
 
     @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit=""):
+    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort=True):
         """Create a design dataset.
 
         Parameters
@@ -2580,6 +2621,8 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2591,10 +2634,10 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit=""):
+    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit="", sort=True):
         """Create a project dataset.
 
         Parameters
@@ -2609,6 +2652,8 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2621,7 +2666,7 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler(
         dsname="name",
@@ -2635,17 +2680,7 @@ class Design(AedtObjects):
         vunit="v_unit",
     )
     def create_dataset3d(
-        self,
-        name,
-        x,
-        y,
-        z=None,
-        v=None,
-        x_unit="",
-        y_unit="",
-        z_unit="",
-        v_unit="",
-        is_project_dataset=True,
+        self, name, x, y, z=None, v=None, x_unit="", y_unit="", z_unit="", v_unit="", is_project_dataset=True, sort=True
     ):
         """Create a 3D dataset.
 
@@ -2671,6 +2706,8 @@ class Design(AedtObjects):
             Units for the V axis for a 3D dataset only. The default is ``""``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2699,10 +2736,11 @@ class Design(AedtObjects):
             y_unit=y_unit,
             z_unit=z_unit,
             v_unit=v_unit,
+            sort=sort,
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset1d(self, input_file, name=None, is_project_dataset=True):
+    def import_dataset1d(self, input_file, name=None, is_project_dataset=True, sort=True):
         """Import a 1D dataset.
 
         Parameters
@@ -2713,6 +2751,8 @@ class Design(AedtObjects):
             Name of the dataset. The default is the file name.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2752,11 +2792,11 @@ class Design(AedtObjects):
             is_project_dataset = True
 
         return self.create_dataset(
-            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1]
+            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset3d(self, input_file, name=None, encoding="utf-8-sig", is_project_dataset=True):
+    def import_dataset3d(self, input_file, name=None, encoding="utf-8-sig", is_project_dataset=True, sort=True):
         """Import a 3D dataset.
 
         Parameters
@@ -2769,6 +2809,8 @@ class Design(AedtObjects):
             File encoding to be provided for csv.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2846,6 +2888,7 @@ class Design(AedtObjects):
             y_unit=units[1],
             z_unit=units[2],
             v_unit=units[3],
+            sort=sort,
         )
 
     @pyaedt_function_handler(
@@ -2860,17 +2903,7 @@ class Design(AedtObjects):
         vunit="v_unit",
     )
     def create_dataset(
-        self,
-        name,
-        x,
-        y,
-        z=None,
-        v=None,
-        is_project_dataset=True,
-        x_unit="",
-        y_unit="",
-        z_unit="",
-        v_unit="",
+        self, name, x, y, z=None, v=None, is_project_dataset=True, x_unit="", y_unit="", z_unit="", v_unit="", sort=True
     ):
         """Create a dataset.
 
@@ -2896,6 +2929,8 @@ class Design(AedtObjects):
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         v_unit : str, optional
             Units for the V axis for a 3D dataset only. The default is ``""``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2911,7 +2946,7 @@ class Design(AedtObjects):
         if not self.dataset_exists(name, is_project_dataset):
             if is_project_dataset:
                 name = "$" + name
-            ds = DataSet(self, name, x, y, z, v, x_unit, y_unit, z_unit, v_unit)
+            ds = DataSet(self, name, x, y, z, v, x_unit, y_unit, z_unit, v_unit, sort)
         else:
             self.logger.warning("Dataset %s already exists", name)
             return False

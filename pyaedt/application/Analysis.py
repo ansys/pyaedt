@@ -1927,7 +1927,7 @@ class Analysis(Design, object):
             Number of tasks to use in the simulation.
             Set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
         setup : str
-            Name of the setup, which can be an optimetric setup or a simple setup.
+            Name of the setup, which can be an optimetrics setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
             Whether to revert to the initial mesh before solving. The default is ``False``.

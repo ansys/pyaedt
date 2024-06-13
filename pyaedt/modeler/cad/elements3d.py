@@ -1116,7 +1116,6 @@ class Point(object):
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
-        return True
 
     @pyaedt_function_handler()
     def delete(self):

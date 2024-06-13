@@ -2132,10 +2132,11 @@ class DataSet(object):
         Units for the Z axis for a 3D dataset only. The default is ``""``.
     vunit : str, optional
         Units for the V axis for a 3D dataset only. The default is ``""``.
-
+    sort : bool, optional
+        Sort dataset. The default is ``True``.
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
+    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit="", sort=True):
         self._app = app
         self.name = name
         self.x = x
@@ -2146,12 +2147,12 @@ class DataSet(object):
         self.yunit = yunit
         self.zunit = zunit
         self.vunit = vunit
+        self.sort = sort
 
     @pyaedt_function_handler()
     def _args(self):
         """Retrieve arguments."""
-        arg = []
-        arg.append("Name:" + self.name)
+        arg = ["Name:" + self.name]
         arg2 = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
@@ -2159,16 +2160,25 @@ class DataSet(object):
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
         else:
             return False
+        z = {}
+        v = {}
         if self.z:
-            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
+            if self.sort:
+                x, y, z, v = (
+                    list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0])))
+                )
+            else:
+                x, y, z, v = (list(t) for t in zip(*zip(self.x, self.y, self.z, self.v)))
         else:
-            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+            if self.sort:
+                x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+            else:
+                x, y = (list(t) for t in zip(*(zip(self.x, self.y))))
+
         ver = self._app._aedt_version
         for i in range(len(x)):
             if ver >= "2022.1":
-                arg3 = ["NAME:Point"]
-                arg3.append(float(x[i]))
-                arg3.append(float(y[i]))
+                arg3 = ["NAME:Point", float(x[i]), float(y[i])]
                 if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))

@@ -221,6 +221,8 @@ class TestClass:
         assert self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
         assert ds2.delete()
         assert not self.aedtapp.dataset_exists("Test_DataSet", is_project_dataset=True)
+        ds3 = self.aedtapp.create_dataset1d_project("Test_DataSet2", x, y, sort=False)
+        assert ds3.name == "$Test_DataSet2"
 
     def test_19_create_3dproject_dataset(self):
         x = [1, 100]
@@ -230,6 +232,9 @@ class TestClass:
         vunits = "cel"
         ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, v_unit=vunits)
         assert ds3.name == "$Test_DataSet3D"
+        ds3.sort = False
+        ds3.v = [50, 200]
+        assert ds3.update()
         ds30 = self.aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, v_unit=vunits, is_project_dataset=False)
         assert ds30.name == "$Test_DataSet3D1"
         ds31 = self.aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, v_unit=vunits, is_project_dataset=False)
