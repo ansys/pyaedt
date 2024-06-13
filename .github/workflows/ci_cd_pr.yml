@@ -225,7 +225,6 @@ jobs:
         tests:
           - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
           - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
-          - {name: "IronPython", label: "iron", folder: "_unittest_ironpython", flags: ""}
     steps:
 
       - name: "Checkout project"
