@@ -2850,17 +2850,7 @@ class Design(AedtObjects):
         vunit="v_unit",
     )
     def create_dataset(
-        self,
-        name,
-        x,
-        y,
-        z=None,
-        v=None,
-        is_project_dataset=True,
-        x_unit="",
-        y_unit="",
-        z_unit="",
-        v_unit="",
+        self, name, x, y, z=None, v=None, is_project_dataset=True, x_unit="", y_unit="", z_unit="", v_unit="", sort=True
     ):
         """Create a dataset.
 
@@ -2886,6 +2876,8 @@ class Design(AedtObjects):
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         v_unit : str, optional
             Units for the V axis for a 3D dataset only. The default is ``""``.
+        sort : bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2901,7 +2893,7 @@ class Design(AedtObjects):
         if not self.dataset_exists(name, is_project_dataset):
             if is_project_dataset:
                 name = "$" + name
-            ds = DataSet(self, name, x, y, z, v, x_unit, y_unit, z_unit, v_unit)
+            ds = DataSet(self, name, x, y, z, v, x_unit, y_unit, z_unit, v_unit, sort)
         else:
             self.logger.warning("Dataset %s already exists", name)
             return False
