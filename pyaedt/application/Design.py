@@ -2553,7 +2553,7 @@ class Design(AedtObjects):
                 self.modeler._edb.close_edb()
 
     @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit=""):
+    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort=sort):
         """Create a design dataset.
 
         Parameters
@@ -2568,6 +2568,8 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
+        sort: bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2579,10 +2581,10 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=False, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit=""):
+    def create_dataset1d_project(self, name, x, y, x_unit="", y_unit="", sort=True):
         """Create a project dataset.
 
         Parameters
@@ -2597,6 +2599,8 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
+        sort: bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2609,7 +2613,7 @@ class Design(AedtObjects):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit)
+        return self.create_dataset(name, x, y, is_project_dataset=True, x_unit=x_unit, y_unit=y_unit, sort=sort)
 
     @pyaedt_function_handler(
         dsname="name",
@@ -2623,17 +2627,7 @@ class Design(AedtObjects):
         vunit="v_unit",
     )
     def create_dataset3d(
-        self,
-        name,
-        x,
-        y,
-        z=None,
-        v=None,
-        x_unit="",
-        y_unit="",
-        z_unit="",
-        v_unit="",
-        is_project_dataset=True,
+        self, name, x, y, z=None, v=None, x_unit="", y_unit="", z_unit="", v_unit="", is_project_dataset=True, sort=True
     ):
         """Create a 3D dataset.
 
@@ -2659,6 +2653,8 @@ class Design(AedtObjects):
             Units for the V axis for a 3D dataset only. The default is ``""``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort: bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2687,10 +2683,11 @@ class Design(AedtObjects):
             y_unit=y_unit,
             z_unit=z_unit,
             v_unit=v_unit,
+            sort=sort,
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset1d(self, input_file, name=None, is_project_dataset=True):
+    def import_dataset1d(self, input_file, name=None, is_project_dataset=True, sort=True):
         """Import a 1D dataset.
 
         Parameters
@@ -2701,6 +2698,8 @@ class Design(AedtObjects):
             Name of the dataset. The default is the file name.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort: bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2740,11 +2739,11 @@ class Design(AedtObjects):
             is_project_dataset = True
 
         return self.create_dataset(
-            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1]
+            name, xlist, ylist, is_project_dataset=is_project_dataset, x_unit=units[0], y_unit=units[1], sort=sort
         )
 
     @pyaedt_function_handler(filename="input_file", dsname="name")
-    def import_dataset3d(self, input_file, name=None, encoding="utf-8-sig", is_project_dataset=True):
+    def import_dataset3d(self, input_file, name=None, encoding="utf-8-sig", is_project_dataset=True, sort=True):
         """Import a 3D dataset.
 
         Parameters
@@ -2757,6 +2756,8 @@ class Design(AedtObjects):
             File encoding to be provided for csv.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
+        sort: bool, optional
+            Sort dataset. The default is ``True``.
 
         Returns
         -------
@@ -2834,6 +2835,7 @@ class Design(AedtObjects):
             y_unit=units[1],
             z_unit=units[2],
             v_unit=units[3],
+            sort=sort,
         )
 
     @pyaedt_function_handler(
