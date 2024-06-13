@@ -227,8 +227,8 @@ class CommonSetup(PropsManager, object):
 
         Returns
         -------
-        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when solved setups,
-        ``None`` when not solved setup or not compatible application.
+        dict of :class:pyaedt.modeler.cad.elements3d.BinaryTree when solved setups exist,
+        ``None`` when no solved setups or no compatible application exists.
         """
         profile = self._app.get_profile(self.name)
         if not isinstance(profile, dict) or not profile:
