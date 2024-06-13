@@ -107,8 +107,8 @@ jobs:
 
       - name: "Install project dependencies"
         run: |
-          python pip install --upgrade pip
-          python pip install .[doc-no-examples]
+          python -m pip install --upgrade pip
+          python -m pip install .[doc-no-examples]
 
       # TODO: Update this step once pyaedt-examples is ready
       - name: "Build HTML documentation without examples"
