@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+
 from pyaedt.generic.settings import settings
 
 log = settings.logger
