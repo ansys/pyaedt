@@ -106,7 +106,7 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 # ~~~~~~~~~~~~~
 # Save the CAD file and refresh the properties from the parsing of the AEDT file.
 
-ipk.save_project(refresh_obj_ids_after_save=True)
+ipk.save_project(refresh_ids=True)
 
 ###############################################################################
 # Plot model

@@ -1978,7 +1978,7 @@ class Setup3DLayout(CommonSetup):
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
-        aedtapp.close_project(save_project=True)
+        aedtapp.close_project(save=True)
 
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):

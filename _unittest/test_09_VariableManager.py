@@ -156,9 +156,9 @@ class TestClass:
         assert self.aedtapp.variable_manager.set_variable("p1", expression="30mm")
         assert self.aedtapp["p1"] == "30mm"
         assert self.aedtapp.variable_manager.set_variable(
-            variable_name="p2",
+            name="p2",
             expression="10mm",
-            readonly=True,
+            read_only=True,
             hidden=True,
             description="This is a description of this variable",
         )
@@ -409,10 +409,10 @@ class TestClass:
         assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
 
     def test_13_postprocessing(self):
-        v1 = self.aedtapp.variable_manager.set_variable("test_post1", 10, postprocessing=True)
+        v1 = self.aedtapp.variable_manager.set_variable("test_post1", 10, is_post_processing=True)
         assert v1
         assert not self.aedtapp.variable_manager.set_variable("test2", "v1+1")
-        assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
+        assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", is_post_processing=True)
         x1 = GeometryOperators.parse_dim_arg(
             self.aedtapp.variable_manager["test2"].evaluated_value, variable_manager=self.aedtapp.variable_manager
         )

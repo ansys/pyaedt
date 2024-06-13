@@ -172,17 +172,17 @@ class TestClass:
     def test_15b_copy_design_from(self):
         origin = os.path.join(self.local_scratch.path, "origin.aedt")
         destin = os.path.join(self.local_scratch.path, "destin.aedt")
-        self.aedtapp.save_project(project_file=origin)
+        self.aedtapp.save_project(file_name=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
-        self.aedtapp.save_project(project_file=origin, refresh_obj_ids_after_save=True)
+        self.aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        self.aedtapp.save_project(project_file=destin)
+        self.aedtapp.save_project(file_name=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
 
     def test_16_renamedesign(self, add_app, test_project_file):
         prj_file = test_project_file(test_project_name)
-        self.aedtapp.load_project(project_file=prj_file, close_active_proj=True, design_name="myname")
+        self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
         assert "myname" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
@@ -228,11 +228,11 @@ class TestClass:
         z = [800, 200]
         v = [10, 20]
         vunits = "cel"
-        ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, vunit=vunits)
+        ds3 = self.aedtapp.create_dataset3d("Test_DataSet3D", x, y, z, v, v_unit=vunits)
         assert ds3.name == "$Test_DataSet3D"
-        ds30 = self.aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        ds30 = self.aedtapp.create_dataset3d("Test_DataSet3D1", x, y, z, v, v_unit=vunits, is_project_dataset=False)
         assert ds30.name == "$Test_DataSet3D1"
-        ds31 = self.aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, vunit=vunits, is_project_dataset=False)
+        ds31 = self.aedtapp.create_dataset3d("$Test_DataSet3D2", x, y, z, v, v_unit=vunits, is_project_dataset=False)
         assert ds31.name == "$Test_DataSet3D2"
 
     def test_19_edit_existing_dataset(self):
@@ -245,9 +245,9 @@ class TestClass:
         filename = os.path.join(local_path, "example_models", test_subfolder, "ds_1d.tab")
         ds4 = self.aedtapp.import_dataset1d(filename)
         assert ds4.name == "$ds_1d"
-        ds5 = self.aedtapp.import_dataset1d(filename, dsname="dataset_test", is_project_dataset=False)
+        ds5 = self.aedtapp.import_dataset1d(filename, name="dataset_test", is_project_dataset=False)
         assert ds5.name == "dataset_test"
-        ds6 = self.aedtapp.import_dataset1d(filename, dsname="$dataset_test2")
+        ds6 = self.aedtapp.import_dataset1d(filename, name="$dataset_test2")
         assert ds6.name == "$dataset_test2"
         ds7 = self.aedtapp.import_dataset1d(filename)
         assert not ds7
@@ -260,18 +260,18 @@ class TestClass:
         ds8 = self.aedtapp.import_dataset3d(filename)
         assert ds8.name == "$Dataset_3D"
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.csv")
-        ds8 = self.aedtapp.import_dataset3d(filename, dsname="dataset_csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, name="dataset_csv")
         assert ds8.name == "$dataset_csv"
         assert ds8.delete()
-        ds10 = self.aedtapp.import_dataset3d(filename, dsname="$dataset_test")
+        ds10 = self.aedtapp.import_dataset3d(filename, name="$dataset_test")
         assert ds10.zunit == "mm"
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.csv")
-        ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
+        ds8 = self.aedtapp.import_dataset3d(filename, name="dataset_csv", encoding="utf-8-sig")
         assert ds8.name == "$dataset_csv"
 
     def test_19b_import_dataset3d_xlsx(self):
         filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.xlsx")
-        ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
+        ds9 = self.aedtapp.import_dataset3d(filename, name="myExcel")
         assert ds9.name == "$myExcel"
 
     def test_20_get_3dComponents_properties(self):
@@ -432,7 +432,7 @@ class TestClass:
 
     def test_39_load_project(self, desktop):
         new_project = os.path.join(self.local_scratch.path, "new.aedt")
-        self.aedtapp.save_project(project_file=new_project)
+        self.aedtapp.save_project(file_name=new_project)
         self.aedtapp.close_project(name="new")
         aedtapp = desktop.load_project(new_project)
         assert aedtapp

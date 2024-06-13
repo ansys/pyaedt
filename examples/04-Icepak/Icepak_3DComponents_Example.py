@@ -88,7 +88,7 @@ ipk.modeler.create_3dcomponent(
     component_name="Heatsink",
     auxiliary_dict=True
 )
-ipk.close_project(save_project=False)
+ipk.close_project(save=False)
 
 ###############################################################################
 # Create QFP
@@ -100,18 +100,8 @@ ipk.plot(show=False, output_file=os.path.join(temp_folder, "QFP2.jpg"))
 # Create dataset for power dissipation.
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
-ipk.create_dataset(
-    "PowerDissipationDataset",
-    x_datalist,
-    y_datalist,
-    zlist=None,
-    vlist=None,
-    is_project_dataset=False,
-    xunit="cel",
-    yunit="W",
-    zunit="",
-    vunit="",
-)
+ipk.create_dataset("PowerDissipationDataset", x_datalist, y_datalist, z=None, v=None, is_project_dataset=False,
+                   x_unit="cel", y_unit="W", v_unit="")
 
 # Assign source power condition to the die.
 ipk.create_source_power(

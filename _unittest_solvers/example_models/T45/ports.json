@@ -1,0 +1,35 @@
+{
+  "ports": [
+    {
+      "name": "COAX_U1_AM17",
+      "reference_designator": "U1",
+      "type": "coax",
+      "positive_terminal": {
+        "pin": "AM17"
+      }
+    },
+    {
+      "name": "COAX_U1_PCIe_Gen4_TX2_CAP_N",
+      "reference_designator": "U1",
+      "type": "coax",
+      "positive_terminal": {
+        "net": "PCIe_Gen4_TX2_CAP_N"
+      }
+    },
+    {
+      "name": "CIRCUIT_U7_VDD_DDR_GND",
+      "reference_designator": "U7",
+      "type": "circuit",
+      "distributed": true,
+      "positive_terminal": {
+        "net": "VDD_DDR"
+      },
+      "negative_terminal": {
+        "nearest_pin": {
+          "reference_net": "GND",
+          "search_radius": 5e-3
+        }
+      }
+    }
+  ]
+}
