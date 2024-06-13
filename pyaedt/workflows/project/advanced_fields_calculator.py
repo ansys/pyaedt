@@ -53,7 +53,7 @@ def frontend():  # pragma: no cover
 
     # Get ports
     app = pyaedt.Desktop(
-        new_desktop_session=False,
+        new_desktop=False,
         specified_version=version,
         port=port,
         aedt_process_id=aedt_process_id,
@@ -182,8 +182,8 @@ def main(extension_args):
     assignment_selection = extension_args["assignment"]
 
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
