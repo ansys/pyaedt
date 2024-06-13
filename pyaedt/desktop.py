@@ -521,7 +521,7 @@ class Desktop(object):
         # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
         # the ``graphical`` argument.
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:  # pragma no cover
-            graphical = not os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
+            non_graphical = not os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
         # Used in Examples generation to force the desktop opening
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma no cover
             new_desktop = True

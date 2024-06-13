@@ -46,8 +46,8 @@ version = __version__
 #
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
     import pyaedt.downloads as downloads
-from pyaedt.edb import Edb
-from pyaedt.edb import Siwave
+from pyaedt.edb import Edb  # nosec
+from pyaedt.edb import Siwave  # nosec
 from pyaedt.generic import constants
 import pyaedt.generic.DataHandlers as data_handler
 from pyaedt.generic.design_types import Circuit
