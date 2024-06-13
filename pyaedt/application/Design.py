@@ -1251,6 +1251,47 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
+    def get_profile(self, name=None):
+        """Get profile information.
+
+        Parameters
+        ----------
+        name : str
+            Setup name. The default is ``None``, in which case all available setups are returned.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+        ``False`` when failed.
+        """
+        from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+
+        if not name:
+            name = self.setup_names
+        if not isinstance(name, list):
+            name = [name]
+
+        profile_setups_obj = self.get_oo_object(self.odesign, "results/profile")
+
+        profile_objs = {}
+        if profile_setups_obj:
+            profile_setup_names = self.get_oo_name(self.odesign, "results/profile")
+            for n in name:
+                for profile_setup_name in profile_setup_names:
+                    if n in profile_setup_name:
+                        profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
+                        if profile_setup_obj and self.get_oo_name(profile_setup_obj):
+                            try:
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_objs[profile_setup_name] = profile_tree
+                            except Exception:  # pragma: no cover
+                                self.logger.error("{} profile could not be obtained.".format(profile_setup_name))
+            return profile_objs
+        else:  # pragma: no cover
+            self.logger.error("Profile can not be obtained.")
+            return False
+
+    @pyaedt_function_handler()
     def get_oo_name(self, aedt_object, object_name=None):
         """Return the object-oriented AEDT property names.
 

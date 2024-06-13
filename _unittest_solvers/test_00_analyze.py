@@ -108,7 +108,13 @@ class TestClass:
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
-        sbr_platform.analyze(cores=6)
+        profile = sbr_platform.setups[0].get_profile()
+        assert profile is None
+        sbr_platform.analyze(cores=4)
+        profile = sbr_platform.setups[0].get_profile()
+        assert isinstance(profile, dict)
+        assert not sbr_platform.get_profile("Invented_setup")
+
         ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
 
@@ -176,7 +182,7 @@ class TestClass:
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        hfss_app.analyze_setup(name="test", cores=6)
+        hfss_app.analyze_setup(name="test", cores=4)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
@@ -214,7 +220,7 @@ class TestClass:
             monitor_quantity=["Temperature", "HeatFlowRate"],
             monitor_name="test_monitor2",
         )
-        self.icepak_app.analyze("SetupIPK", cores=6)
+        self.icepak_app.analyze("SetupIPK", cores=4)
         self.icepak_app.save_project()
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
@@ -321,14 +327,14 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     def test_04b_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6, blocking=False)
+        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
         while self.hfss3dl_solve.are_there_simulations_running:
             time.sleep(1)
 
     def test_04c_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6)
+        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4)
         self.hfss3dl_solve.save_project()
         assert os.path.exists(self.hfss3dl_solve.export_profile("Setup1"))
         assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
@@ -406,13 +412,13 @@ class TestClass:
                                                   use_number_of_last_cycles=True, last_cycles_number=3,
                                                   calculate_force="Harmonic")
         m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
                                                                 number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep, variations={},
                                                    output_dir=fld_file_3, assignment="Coil_A2", objects_type="Surf",
