@@ -448,7 +448,7 @@ class Desktop(object):
 
     def __new__(cls, *args, **kwargs):
         # The following commented lines will be useful when we will need to search among multiple saved desktop.
-        specified_version = kwargs.get("specified_version") or None if (not args or len(args) < 1) else args[0]
+        specified_version = kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
         new_desktop = kwargs.get("new_desktop") or False if (not args or len(args) < 3) else args[2]
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
@@ -484,6 +484,7 @@ class Desktop(object):
 
     @pyaedt_function_handler(
         specified_version="version",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
