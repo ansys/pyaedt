@@ -31,7 +31,6 @@ from collections import OrderedDict
 import copy
 import re
 
-from pyaedt import Hfss3dLayout
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
@@ -652,12 +651,12 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @pyaedt_function_handler()
     def identify_extent_poly(self):
+        from pyaedt import Hfss3dLayout
+
         prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
         if prj == "This Project*":
             prj = self._app.project_name
-        layout = Hfss3dLayout(
-            projectname=prj, designname=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
-        )
+        layout = Hfss3dLayout(project=prj, design=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"])
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:

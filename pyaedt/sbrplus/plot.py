@@ -30,8 +30,8 @@ import warnings
 import numpy as np
 import pyvista as pv
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import CommonPlotter
 from pyaedt.generic.plot import ObjClass
 

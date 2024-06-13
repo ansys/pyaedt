@@ -254,10 +254,10 @@ class TestLogMessages:
         from pyaedt import Hfss
 
         app = Hfss(
-            projectname="log_project",
-            designname="log_design",
-            specified_version=desktop_version,
-            new_desktop_session=True,
+            project="log_project",
+            design="log_design",
+            version=desktop_version,
+            new_desktop=True,
         )
         with pytest.raises(AttributeError):
             app.get_object_material_properties("MS1", "conductivity")

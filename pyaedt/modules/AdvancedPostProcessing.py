@@ -36,11 +36,11 @@ import re
 import warnings
 
 from pyaedt import generate_unique_name
-from pyaedt import settings
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
+from pyaedt.generic.settings import settings
 from pyaedt.modules.PostProcessor import FieldSummary
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 from pyaedt.modules.PostProcessor import TOTAL_QUANTITIES

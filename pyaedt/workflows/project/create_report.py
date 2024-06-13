@@ -45,8 +45,8 @@ extension_description = "Create report"
 
 def main(extension_args):
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,

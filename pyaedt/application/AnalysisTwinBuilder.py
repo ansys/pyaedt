@@ -70,14 +70,15 @@ class AnalysisTwinBuilder(Analysis):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -86,14 +87,15 @@ class AnalysisTwinBuilder(Analysis):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._modeler = None
         self._post = None

@@ -13,7 +13,7 @@ plot field line traces, relevant for an electrostatic analysis.
 # Perform required imports.
 
 from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import Maxwell2d
 
 ##########################################################
@@ -44,9 +44,9 @@ ctrl_prg_file = downloads.download_file("maxwell_ctrl_prg", "timestep_only.py", 
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D.
 
-m2d = Maxwell2d(projectname=aedt_file,
-                specified_version=aedt_version,
-                new_desktop_session=True,
+m2d = Maxwell2d(project=aedt_file,
+                version=aedt_version,
+                new_desktop=True,
                 non_graphical=non_graphical)
 
 ##################################################################################

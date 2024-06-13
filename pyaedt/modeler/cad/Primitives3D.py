@@ -1550,7 +1550,7 @@ class Primitives3D(GeometryModeler):
                         cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
                 temp_proj_name = generate_unique_project_name()
-                ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
+                ipkapp_temp = Icepak(project=os.path.join(self._app.toolkit_directory, temp_proj_name))
                 ipkapp_temp.delete_design(ipkapp_temp.design_name)
                 self._app.oproject.CopyDesign(self._app.design_name)
                 ipkapp_temp.oproject.Paste()

@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pyaedt import pyaedt_function_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_json
 from pyaedt.modeler.advanced_cad.multiparts import Actor
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent

@@ -44,7 +44,7 @@ NewThread = True
 # and starts it on the specified version in the specified graphical mode.
 
 desktop = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
-aedtapp = pyaedt.Circuit(projectname=project_name)
+aedtapp = pyaedt.Circuit(project=project_name)
 
 ###############################################################################
 # Define variable

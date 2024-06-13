@@ -33,8 +33,8 @@ import pytest
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import generate_unique_name
-from pyaedt import is_linux
 from pyaedt.generic.constants import AXIS
+from pyaedt.generic.settings import is_linux
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d

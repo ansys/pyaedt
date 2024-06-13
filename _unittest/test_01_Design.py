@@ -390,7 +390,7 @@ class TestClass:
         e = None
         exception_raised = False
         try:
-            h = Hfss("c:/dummy/test.aedt", specified_version=desktop_version)
+            h = Hfss("c:/dummy/test.aedt", version=desktop_version)
         except Exception as e:
             exception_raised = True
             assert e.args[0] == "Project doesn't exist. Check it and retry."
@@ -426,7 +426,7 @@ class TestClass:
         with open(file_name2_lock, "w") as f:
             f.write(" ")
         try:
-            hfss = Hfss(projectname=file_name2, specified_version=desktop_version)
+            hfss = Hfss(project=file_name2, version=desktop_version)
         except Exception:
             assert True
         try:
@@ -434,7 +434,7 @@ class TestClass:
             file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
             with open(file_name3, "w") as f:
                 f.write(" ")
-            hfss = Hfss3dLayout(projectname=file_name3, specified_version=desktop_version)
+            hfss = Hfss3dLayout(project=file_name3, version=desktop_version)
         except Exception:
             assert True
 

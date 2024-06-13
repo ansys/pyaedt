@@ -59,14 +59,15 @@ class FieldAnalysisCircuit(Analysis):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -75,14 +76,15 @@ class FieldAnalysisCircuit(Analysis):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
         self._modeler = None
@@ -147,7 +149,7 @@ class FieldAnalysisCircuit(Analysis):
             out_name = component
         try:
             self.desktop_class.active_design(self.oproject, out_name, self.design_type)
-            self.__init__(projectname=self.project_name, designname=out_name)
+            self.__init__(project=self.project_name, design=out_name)
         except Exception:  # pragma: no cover
             return False
         return True
@@ -164,7 +166,7 @@ class FieldAnalysisCircuit(Analysis):
         try:
             parent_name = self.odesign.GetName().split(";")[1].split("/")[0]
             self.desktop_class.active_design(self.oproject, parent_name, self.design_type)
-            self.__init__(projectname=self.project_name, designname=parent_name)
+            self.__init__(project=self.project_name, design=parent_name)
         except Exception:
             return False
         return True

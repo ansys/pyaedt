@@ -28,7 +28,6 @@ import re
 import time
 import warnings
 
-from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
@@ -36,6 +35,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.circuits.PrimitivesCircuit import ComponentCatalog
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
@@ -1980,7 +1980,7 @@ class NexximComponents(CircuitComponents):
         Examples
         --------
         >>> from pyaedt import Circuit
-        >>> cir = Circuit(specified_version="2023.2")
+        >>> cir = Circuit(version="2023.2")
         >>> model = os.path.join("Your path", "test.lib")
         >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
         >>> cir.release_desktop(False, False)

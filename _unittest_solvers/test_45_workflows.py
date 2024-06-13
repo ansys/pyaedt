@@ -3,7 +3,7 @@ import os
 import shutil
 
 import pyaedt
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 from _unittest.conftest import local_path
 from _unittest_solvers.conftest import local_path as solver_local_path
 

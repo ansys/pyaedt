@@ -1945,7 +1945,7 @@ class Setup3DLayout(CommonSetup):
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
         }
-        aedtapp = app(projectname=file_fullname)
+        aedtapp = app(project=file_fullname)
         units = aedtapp.modeler.model_units
         aedt_units = AEDT_UNITS["Length"][units]
         self._convert_edb_to_aedt_units(input_dict=primitives_3d_pts_per_nets, output_unit=aedt_units)

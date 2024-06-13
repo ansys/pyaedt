@@ -37,8 +37,8 @@ import warnings
 from defusedxml.ElementTree import ParseError
 from defusedxml.minidom import parseString
 
-from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+from pyaedt.generic.settings import is_linux
 import pyaedt.workflows
 import pyaedt.workflows.templates
 

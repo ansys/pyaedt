@@ -28,8 +28,8 @@ import sys
 import tempfile
 import time
 
-from pyaedt import is_ironpython
 from pyaedt.aedt_logger import pyaedt_logger as logger
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.settings import settings
 from pyaedt.misc import list_installed_ansysem
 
@@ -276,7 +276,7 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     t.start()
 
 
-def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=True):
+def create_session(server_name, client_port=None, launch_aedt_on_server=False, aedt_port=None, non_graphical=False):
     """
     Connect to an existing AEDT server session and create a new client session from it.
 

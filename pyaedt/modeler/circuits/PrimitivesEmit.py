@@ -788,7 +788,7 @@ class EmitRadioComponent(EmitComponent):
         Examples
         --------
         >>> from pyaedt import Emit
-        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
         >>> band =  radio.bands()[0]
         >>> start_freq = 10
@@ -834,7 +834,7 @@ class EmitRadioComponent(EmitComponent):
         Examples
         --------
         >>> from pyaedt import Emit
-        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
         >>> band =  radio.bands()[0]
         >>> stop_freq = 10
