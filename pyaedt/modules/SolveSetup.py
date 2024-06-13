@@ -101,7 +101,7 @@ class CommonSetup(PropsManager, object):
             that support automatic settings.
         solve_in_batch : bool, optional
             Whether to solve the project in batch or not.
-            If ``True`` the project will be saved, closed, solved and repened.
+            If ``True`` the project will be saved, closed, and solved.
         machine : str, optional
             Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
