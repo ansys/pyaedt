@@ -240,10 +240,10 @@ jobs:
         run: |
           python -m venv .venv
           .venv\Scripts\Activate.ps1
-          python -m pip install --upgrade \
-            --trusted-host pypi.org \
-            --trusted-host pypi.python.org \
-            --trusted-host files.pythonhosted.org \
+          python -m pip install --upgrade `
+            --trusted-host pypi.org `
+            --trusted-host pypi.python.org `
+            --trusted-host files.pythonhosted.org `
             pip
 
       - name: "Install tests dependencies"
@@ -255,7 +255,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           python -m pip uninstall --yes vtk
-          python -m pip install --extra-index-url https://wheels.vtk.org \
+          python -m pip install --extra-index-url https://wheels.vtk.org `
             vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
 
       - name: Run tests on _unittest
@@ -269,10 +269,10 @@ jobs:
           command: |
             .venv\Scripts\Activate.ps1
 
-            pytest ${{ matrix.tests.flags }} \
-              --durations=50 -v \
-              --cov=pyaedt --cov-report=xml --cov-report=html \
-              --junitxml=junit/test-results.xml \
+            pytest ${{ matrix.tests.flags }} `
+              --durations=50 -v `
+              --cov=pyaedt --cov-report=xml --cov-report=html `
+              --junitxml=junit/test-results.xml `
               ${{ matrix.tests.folder }}
 
       - name: "Upload ${{ matrix.tests.label }} tests coverage"
