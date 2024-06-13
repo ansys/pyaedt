@@ -9,6 +9,7 @@ from pyaedt.application.AnalysisTwinBuilder import AnalysisTwinBuilder
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.design_types import get_pyaedt_app
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
@@ -588,6 +589,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         stop=None,
         export_uniform_points=False,
         export_uniform_points_step=1e-5,
+        excitations=None,
     ):
         """
         Use the excitation component to assign output quantities in a Twin Builder design to a windings
@@ -605,14 +607,14 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             Whether to use the default values for the start and stop times for the chosen TR setup.
             The default value is ``True``.
         setup : str, optional
-            Name of the TR setup.
+            Name of the Twinbuilder setup.
             If not provided, the default value is the first setup in the design.
-        start : float, optional
-            Start time.
+        start : str, optional
+            Start time provided as value + units.
             The default value is ``None``.
             If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
         stop : float, optional
-            Stop time.
+            Stop time provided as value + units.
             The default value is ``None``.
             If not provided and ``use_default_values`` is ``True`` the value is chosen from the TR setup.
         export_uniform_points : bool, optional
@@ -621,6 +623,20 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         export_uniform_points_step : float, optional
             Step size used for the uniform interpolation.
             The default value is ``1E-5``.
+        excitations : dict, optional
+            List of excitations to extract from the Maxwell design.
+            It is a dictionary where the keys are the excitation names and value a list
+            containing respectively:
+            - The excitation value to assign to the winding, provided as a string.
+            - A boolean to enable the component.
+            - The excitation type. Possible options are ``Current`` or ``Voltage``.
+            - A boolean to enable the pin. If ``True`` the pin will be used to make connection on the schematic
+            and the excitation value will be zeroed, since the expectation is that the value is provided
+            through schematic connections.
+            To know which excitations will be extracted from the Maxwell design use
+            ``app.excitations_by_type["Winding Group"]`` where ``app`` is the Maxwell instance.
+            If not provided, the method automatically retrieves the excitations from the Maxwell Design
+            and sets the default excitation settings.
 
         Returns
         -------
@@ -630,43 +646,63 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         References
         ----------
         >>> oComponentManager.AddExcitationModel
+
+        Example
+        -------
+        >>> from pyaedt import TwinBuilder
+        >>> from pyaedt.generic.design_types import get_pyaedt_app
+        >>> tb = TwinBuilder(specified_version="2024.1")
+        >>> maxwell_app = get_pyaedt_app(project_name=project_name,
+        ...                              design_name="my_maxwell_design",
+        ...                              desktop=tb.desktop_class)
+        >>> excitations = {}
+        >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
+        ...    excitations[e.name] = ["20", True, e.props["Type"], False]
+        >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
+        >>> tb.release_desktop(False, False)
         """
-        if self.aedt_version_id < "2024.2":
+        dkp = self.desktop_class
+        if dkp.aedt_version_id < "2024.2":
             self.logger.error("This method only work for AEDT versions > 2024 R2.")
             return False
-        elif self.aedt_version_id < "2025.1":
+        elif dkp.aedt_version_id < "2025.1":
             self.odesktop.SetDesktopConfiguration("Twin Builder")
 
-        # get_pyaedt_app() check rather than dkp [[project, design]]
-        dkp = self.desktop_class
+        project_selection = 0
         if os.path.isfile(project):
             project_path = project
             project_name = os.path.splitext(os.path.basename(project))[0]
             if project_name in dkp.project_list():
-                app = dkp[[project_name, design]]
-                twin_app = dkp[[project_name, self.design_name]]
+                maxwell_app = get_pyaedt_app(project_name=project_name, design_name=design, desktop=dkp)
             else:
-                app = dkp.load_project(project_path, design)
-                twin_app = dkp[[project_path, self.design_name]]
+                maxwell_app = dkp.load_project(project_path, design)
                 project_selection = 1
         elif project in self.project_list:
             project_name = "$PROJECTDIR/{}.aedt".format(project)
-            project_path = os.path.join(self.project_path, project_name + ".aedt")
-            app = dkp[[project, design]]
-            twin_app = dkp[[project, self.design_name]]
-            project_selection = 0
+            maxwell_app = get_pyaedt_app(project_name=project, design_name=design, desktop=dkp)
         else:
+            self.odesktop.SetDesktopConfiguration("All")
             raise ValueError("Invalid project name or path provided.")
 
         if not setup:
-            setup = self.setups[0].name
+            setup = self.setups[0]
+        else:
+            setup = [s for s in self.setups if s.name == setup][0]
+        if use_default_values:
             start = 0
-            stop_value_units = decompose_variable_value(self.setups[0].props["TransientData"][0])
+            stop_value_units = decompose_variable_value(setup.props["TransientData"][0])
             stop = unit_converter(
                 stop_value_units[0], unit_system="Time", input_units=stop_value_units[1], output_units="s"
             )
-        elif not start or not stop:
-            pass
+        else:
+            start_value_units = decompose_variable_value(start)
+            start = unit_converter(
+                start_value_units[0], unit_system="Time", input_units=start_value_units[1], output_units="s"
+            )
+            stop_value_units = decompose_variable_value(stop)
+            stop = unit_converter(
+                stop_value_units[0], unit_system="Time", input_units=stop_value_units[1], output_units="s"
+            )
 
         settings = [
             "NAME:Project and Design Settings",
@@ -684,7 +720,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             "Link Type:=",
             "Excitations to Ansys Maxwell",
             "Setup Name:=",
-            setup,
+            setup.name,
             "Start Value:=",
             start,
             "Stop Value:=",
@@ -696,20 +732,44 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             "Export uniform points - Step size:=",
             export_uniform_points_step,
         ]
-        excitations = {}
-        grid_data = ["NAME:GridData"]
-        for e in app.excitations_by_type["Winding Group"]:
-            excitations[e.name] = [e.props[e.props["Type"]], True, e.props["Type"], True]
-            grid_data.append("{}:=".format(e.name))
-            grid_data.append([e.props[e.props["Type"]], True, e.props["Type"], True])
 
-        self.set_active_design(self.design_name)
-        o_def_manager = app.oproject.GetDefinitionManager()
-        o_component_manager = o_def_manager.GetManager("Component")
-        o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
-        # app.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
-        # self.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
-        # self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        grid_data = ["NAME:GridData"]
+        maxwell_excitations = {}
+        show_pin = False
+        if not maxwell_app.excitations_by_type["Winding Group"]:
+            self.odesktop.SetDesktopConfiguration("All")
+            raise ValueError("No voltage or current excitations detected in the design.")
+        elif excitations:
+            if [
+                e for e in excitations if e not in [me.name for me in maxwell_app.excitations_by_type["Winding Group"]]
+            ]:
+                self.odesktop.SetDesktopConfiguration("All")
+                raise ValueError("Excitation does not exist in Maxwell design.")
+            for k in excitations.keys():
+                if (
+                    not isinstance(excitations[k][0], str)
+                    or not isinstance(excitations[k][1], bool)
+                    or excitations[k][2].lower() not in ["current", "coltage"]
+                    or not isinstance(excitations[k][3], bool)
+                ):
+                    self.odesktop.SetDesktopConfiguration("All")
+                    raise ValueError("Excitation values are not correct or could have a wrong type.")
+                # maxwell_excitations[k] = [excitations[k][0],
+                #                           excitations[k][1],
+                #                           excitations[k][2],
+                #                           excitations[k][3]]
+                show_pin = excitations[k][3]
+                grid_data.append("{}:=".format(k))
+                grid_data.append(excitations[k])
+        else:
+            for e in maxwell_app.excitations_by_type["Winding Group"]:
+                maxwell_excitations[e.name] = ["0", True, e.props["Type"], False]
+                grid_data.append("{}:=".format(e.name))
+                grid_data.append(maxwell_excitations[e.name])
+
+        comp_name = self.o_component_manager.AddExcitationModel([settings, excitations_data, grid_data])
+        comp = self.modeler.schematic.create_component(component_library="", component_name=comp_name)
+        comp.set_property("ShowPin", show_pin)
 
         self.odesktop.SetDesktopConfiguration("All")
-        pass
+        return comp
