@@ -2553,7 +2553,7 @@ class Design(AedtObjects):
                 self.modeler._edb.close_edb()
 
     @pyaedt_function_handler(dsname="name", xlist="x", ylist="y", xunit="x_unit", yunit="y_unit")
-    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort=sort):
+    def create_dataset1d_design(self, name, x, y, x_unit="", y_unit="", sort=True):
         """Create a design dataset.
 
         Parameters
