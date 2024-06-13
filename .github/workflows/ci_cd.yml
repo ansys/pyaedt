@@ -139,34 +139,9 @@ jobs:
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
           retention-days: 7
 
-  tests-smoke:
-    name: "Tests / Smoke / ${{ matrix.os }} / Python ${{ matrix.python-version}} / ${{ matrix.target }}"
-    runs-on: ${{ matrix.os }}
-    if: |
-      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:smoke:skip')
-    needs: style
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        target: ['all', 'installer']
-        exclude:
-          - python-version: '3.7'
-            target: 'installer'
-    steps:
-      - uses: ansys/actions/build-wheelhouse@v6
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-          target: ${{ matrix.target }}
-
   tests-linux:
     name: "Linux / Tests / ${{ matrix.tests.name }}"
-    needs: tests-smoke
+    needs: style
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
@@ -242,7 +217,7 @@ jobs:
 
   tests-windows:
     name: "Windows / Tests / ${{ matrix.tests.name }}"
-    needs: tests-smoke
+    needs: style
     runs-on: [ self-hosted, Windows, pyaedt ]
     strategy:
       fail-fast: false
@@ -317,7 +292,7 @@ jobs:
 
   tests-ironpython:
     name: "Windows / Tests / IronPython"
-    needs: tests-smoke
+    needs: style
     runs-on: [ self-hosted, Windows, pyaedt ]
     if: | 
       !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
