@@ -196,7 +196,7 @@ def raise_exception_or_return_false(e):
             for v in list(_desktop_sessions.values())[:]:
                 v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
         raise e
-    elif "__init__" in str(e):
+    elif "__init__" in str(e):  # pragma: no cover
         return
     else:
         return False
