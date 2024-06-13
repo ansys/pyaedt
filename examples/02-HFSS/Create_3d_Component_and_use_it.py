@@ -30,7 +30,7 @@ aedt_version = "2024.1"
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one. 
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(specified_version=aedt_version, new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(version=aedt_version, new_desktop=True, close_on_exit=True)
 
 ##########################################################
 # Variables
@@ -92,7 +92,7 @@ hfss.wave_port(via_outer.bottom_face_z, name="P1")
 # Multiple options are available to partially select objects, cs, boundaries and mesh operations.
 # Furthermore, encrypted 3d comp can be created too.
 
-component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test")+".aedbcomp")
+component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test") + ".aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
 ##########################################################
@@ -100,7 +100,7 @@ hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
-hfss2 = Hfss(projectname="new_project", designname="new_design")
+hfss2 = Hfss(project="new_project", design="new_design")
 
 ##########################################################
 # Insert of 3d component
@@ -161,7 +161,7 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 # Save the project.
 
 hfss2.modeler.fit_all()
-hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss2.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT
@@ -170,5 +170,5 @@ hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.j
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized")+".aedt"))
+hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized") + ".aedt"))
 hfss2.release_desktop()

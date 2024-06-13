@@ -1,0 +1,19 @@
+{
+  "components": [
+    {
+      "reference_designator": "U1",
+      "part_type": "io",
+      "solder_ball_properties": {
+        "shape": "cylinder",
+        "diameter": "244um",
+        "height": "406um"
+      },
+      "port_properties": {
+        "reference_offset": "0.1mm",
+        "reference_size_auto": true,
+        "reference_size_x": 0,
+        "reference_size_y": 0
+      }
+    }
+  ]
+}

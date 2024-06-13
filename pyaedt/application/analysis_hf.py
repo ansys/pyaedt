@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -38,15 +62,13 @@ class ScatteringMethods(object):
                 k += 1
         return spar
 
-    @pyaedt_function_handler()
-    def get_all_return_loss_list(
-        self, excitation_names=None, excitation_name_prefix="", math_formula="", net_list=None
-    ):
+    @pyaedt_function_handler(excitation_names="excitations", net_list="nets")
+    def get_all_return_loss_list(self, excitations=None, excitation_name_prefix="", math_formula="", nets=None):
         """Get a list of all return losses for a list of excitations.
 
         Parameters
         ----------
-        excitation_names : list, optional
+        excitations : list, optional
             List of excitations. The default is ``None``, in which case
             the return losses for all excitations are provided.
             For example ``["1", "2"]``.
@@ -54,7 +76,7 @@ class ScatteringMethods(object):
              Prefix to add to the excitation names. The default is ``""``,
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
-        net_list : list, optional
+        nets : list, optional
             List of nets to filter the output. The default is ``None``, in which case all parameters are returned.
 
         Returns
@@ -68,42 +90,48 @@ class ScatteringMethods(object):
 
         >>> oEditor.GetAllPorts
         """
-        if excitation_names == None:
-            excitation_names = []
+        if excitations is None:
+            excitations = []
 
-        if not excitation_names:
-            excitation_names = list(self._app.excitations)
+        if not excitations:
+            excitations = list(self._app.excitations)
         if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
+            excitations = [i for i in excitations if excitation_name_prefix.lower() in i.lower()]
         spar = []
-        for i in excitation_names:
-            if not net_list or (net_list and [net for net in net_list if net in i]):
+        for i in excitations:
+            if not nets or (nets and [net for net in nets if net in i]):
                 if math_formula:
                     spar.append("{}(S({},{}))".format(math_formula, i, i))
                 else:
                     spar.append("S({},{})".format(i, i))
         return spar
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        trlist="drivers",
+        reclist="receivers",
+        tx_prefix="drivers_prefix_name",
+        rx_prefix="receivers_prefix_name",
+        net_list="nets",
+    )
     def get_all_insertion_loss_list(
-        self, trlist=None, reclist=None, tx_prefix="", rx_prefix="", math_formula="", net_list=None
+        self, drivers=None, receivers=None, drivers_prefix_name="", receivers_prefix_name="", math_formula="", nets=None
     ):
         """Get a list of all insertion losses from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
-        trlist : list, optional
+        drivers : list, optional
             List of drivers. The default is ``[]``. For example, ``["1"]``.
-        reclist : list, optional
+        receivers : list, optional
             List of receivers. The default is ``[]``. The number of drivers equals
             the number of receivers. For example, ``["2"]``.
-        tx_prefix : str, optional
+        drivers_prefix_name : str, optional
             Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
-        rx_prefix : str, optional
+        receivers_prefix_name : str, optional
             Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
-        net_list : list, optional
+        nets : list, optional
             List of nets to filter the output. The default is ``None``, in which
             case all parameters are returned.
 
@@ -118,23 +146,22 @@ class ScatteringMethods(object):
 
         >>> oEditor.GetAllPorts
         """
-        if trlist is None:
-            trlist = [i for i in list(self._app.excitations)]
-
-        if reclist is None:
-            reclist = [i for i in list(self._app.excitations)]
-        if tx_prefix:
-            trlist = [i for i in trlist if i.startswith(tx_prefix)]
-        if rx_prefix:
-            reclist = [i for i in reclist if i.startswith(rx_prefix)]
+        if drivers is None:
+            drivers = [i for i in list(self._app.excitations)]
+        if receivers is None:
+            receivers = [i for i in list(self._app.excitations)]
+        if drivers_prefix_name:
+            drivers = [i for i in drivers if i.startswith(drivers_prefix_name)]
+        if receivers_prefix_name:
+            receivers = [i for i in receivers if i.startswith(receivers_prefix_name)]
         spar = []
-        if not net_list and len(trlist) != len(reclist):
+        if not nets and len(drivers) != len(receivers):
             self.logger.error("The TX and RX lists should be the same length.")
             return False
-        if net_list:
-            for el in net_list:
-                x = [i for i in trlist if el in i]
-                y = [i for i in reclist if el in i]
+        if nets:
+            for el in nets:
+                x = [i for i in drivers if el in i]
+                y = [i for i in receivers if el in i]
                 for x1 in x:
                     for y1 in y:
                         if x1[-2:] == y1[-2:]:
@@ -144,27 +171,27 @@ class ScatteringMethods(object):
                                 spar.append("S({},{})".format(x1, y1))
                             break
         else:
-            for i, j in zip(trlist, reclist):
+            for i, j in zip(drivers, receivers):
                 if math_formula:
                     spar.append("{}(S({},{}))".format(math_formula, i, j))
                 else:
                     spar.append("S({},{})".format(i, j))
         return spar
 
-    @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=None, tx_prefix="", math_formula="", net_list=None):
+    @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
+    def get_next_xtalk_list(self, drivers=None, drivers_prefix_name="", math_formula="", nets=None):
         """Get a list of all the near end XTalks from a list of excitations (driver and receiver).
 
         Parameters
         ----------
-        trlist : list, optional
+        drivers : list, optional
             List of drivers. The default is ``None``. For example,
             ``["1", "2", "3"]``.
-        tx_prefix : str, optional
+        drivers_prefix_name : str, optional
             Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
-        net_list : list, optional
+        nets : list, optional
             List of nets to filter the output. The default is ``None``, in which case
             all parameters are returned.
 
@@ -180,43 +207,49 @@ class ScatteringMethods(object):
         >>> oEditor.GetAllPorts
         """
         next_xtalks = []
-        if not trlist:
-            trlist = [i for i in list(self._app.excitations) if tx_prefix in i]
-        for i in trlist:
-            if not net_list or (net_list and [net for net in net_list if net in i]):
-                k = trlist.index(i) + 1
-                while k < len(trlist):
+        if not drivers:
+            drivers = [i for i in list(self._app.excitations) if drivers_prefix_name in i]
+        for i in drivers:
+            if not nets or (nets and [net for net in nets if net in i]):
+                k = drivers.index(i) + 1
+                while k < len(drivers):
                     if math_formula:
-                        next_xtalks.append("{}(S({},{}))".format(math_formula, i, trlist[k]))
+                        next_xtalks.append("{}(S({},{}))".format(math_formula, i, drivers[k]))
                     else:
-                        next_xtalks.append("S({},{})".format(i, trlist[k]))
+                        next_xtalks.append("S({},{})".format(i, drivers[k]))
                     k += 1
         return next_xtalks
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        trlist="drivers",
+        reclist="receivers",
+        tx_prefix="drivers_prefix_name",
+        rx_prefix="receivers_prefix_name",
+        net_list="nets",
+    )
     def get_fext_xtalk_list(
         self,
-        trlist=None,
-        reclist=None,
-        tx_prefix="",
-        rx_prefix="",
+        drivers=None,
+        receivers=None,
+        drivers_prefix_name="",
+        receivers_prefix_name="",
         skip_same_index_couples=True,
         math_formula="",
-        net_list=None,
+        nets=None,
     ):
         """Geta list of all the far end XTalks from two lists of excitations (driver and receiver).
 
         Parameters
         ----------
-        trlist : list, optional
+        drivers : list, optional
             List of drivers. The default is ``[]``. For example,
             ``["1", "2"]``.
-        reclist : list, optional
-            List of receiver. The default is ``[]``. For example,
+        receivers : list, optional
+            List of receivers. The default is ``[]``. For example,
             ``["3", "4"]``.
-        tx_prefix : str, optional
+        drivers_prefix_name : str, optional
             Prefix for driver names. For example, ``"DIE"``.  The default is ``""``.
-        rx_prefix : str, optional
+        receivers_prefix_name : str, optional
             Prefix for receiver names. For examples, ``"BGA"`` The default is ``""``.
         skip_same_index_couples : bool, optional
             Whether to skip driver and receiver couples with the same index position.
@@ -225,7 +258,7 @@ class ScatteringMethods(object):
             excluded from the list.
         math_formula : str, optional
             One of the available AEDT mathematical formulas to apply. For example, ``abs, dB``.
-        net_list : list, optional
+        nets : list, optional
             List of nets to filter the output. The default is ``None``, in which case all
             parameters are returned.
 
@@ -242,30 +275,30 @@ class ScatteringMethods(object):
         """
 
         fext = []
-        if trlist is None:
-            trlist = [i for i in list(self._app.excitations) if tx_prefix in i]
-        if reclist is None:
-            reclist = [i for i in list(self._app.excitations) if rx_prefix in i]
-        for i in trlist:
-            if not net_list or (net_list and [net for net in net_list if net in i]):
-                for k in reclist:
-                    if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
+        if drivers is None:
+            drivers = [i for i in list(self._app.excitations) if drivers_prefix_name in i]
+        if receivers is None:
+            receivers = [i for i in list(self._app.excitations) if receivers_prefix_name in i]
+        for i in drivers:
+            if not nets or (nets and [net for net in nets if net in i]):
+                for k in receivers:
+                    if not skip_same_index_couples or receivers.index(k) != drivers.index(i):
                         if math_formula:
                             fext.append("{}(S({},{}))".format(math_formula, i, k))
                         else:
                             fext.append("S({},{})".format(i, k))
         return fext
 
-    @pyaedt_function_handler()
-    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
+    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
+    def get_touchstone_data(self, setup=None, sweep=None, variations=None):
         """
         Return a Touchstone data plot.
 
         Parameters
         ----------
-        setup_name : list
+        setup : list
             Name of the setup.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep. The default value is ``None``.
         variations : dict, optional
             Dictionary of variation names. The default value is ``None``.
@@ -282,16 +315,16 @@ class ScatteringMethods(object):
         """
         from pyaedt.generic.touchstone_parser import TouchstoneData
 
-        if not setup_name:
-            setup_name = self._app.setups[0].name
+        if not setup:
+            setup = self._app.setups[0].name
 
-        if self._app.design_type != "Circuit Design" and not sweep_name:
-            for setup in self._app.setups:
-                if setup.name == setup_name:
-                    sweep_name = setup.sweeps[0].name
-            solution = "{} : {}".format(setup_name, sweep_name)
+        if self._app.design_type != "Circuit Design" and not sweep:
+            for s in self._app.setups:
+                if s.name == setup:
+                    sweep = s.sweeps[0].name
+            solution = "{} : {}".format(setup, sweep)
         else:
-            solution = setup_name
+            solution = setup
         s_parameters = []
         expression = self._app.get_traces_for_plot(category="S")
         sol_data = self._app.post.get_solution_data(expression, solution, variations=variations)
@@ -300,12 +333,12 @@ class ScatteringMethods(object):
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep", file_name="output_file")
     def export_touchstone(
         self,
-        setup_name=None,
-        sweep_name=None,
-        file_name=None,
+        setup=None,
+        sweep=None,
+        output_file=None,
         variations=None,
         variations_value=None,
         renormalization=False,
@@ -316,11 +349,11 @@ class ScatteringMethods(object):
 
         Parameters
         ----------
-        setup_name : str, optional
+        setup : str, optional
             Name of the setup that has been solved.
-        sweep_name : str, optional
+        sweep : str, optional
             Name of the sweep that has been solved.
-        file_name : str, optional
+        output_file : str, optional
             Full path and name for the Touchstone file.
             The default is ``None``, in which case the Touchstone file is exported to
             the working directory.
@@ -351,9 +384,9 @@ class ScatteringMethods(object):
         >>> oDesign.ExportNetworkData
         """
         return self._app._export_touchstone(
-            setup_name=setup_name,
-            sweep_name=sweep_name,
-            file_name=file_name,
+            setup_name=setup,
+            sweep_name=sweep,
+            file_name=output_file,
             variations=variations,
             variations_value=variations_value,
             renormalization=renormalization,

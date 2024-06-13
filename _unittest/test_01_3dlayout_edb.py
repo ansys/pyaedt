@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from _unittest.conftest import config
@@ -5,7 +29,7 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Hfss3dLayout
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T40"
 original_project_name = "ANSYS-HSD_V1"
@@ -31,6 +55,12 @@ def dcir_example_project(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def ic_mode_design(add_app):
+    app = add_app(project_name="ic_mode_design", application=Hfss3dLayout, subfolder=test_subfolder)
+    return app
+
+
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch, aedtapp):
     design_name = aedtapp.design_name
@@ -39,10 +69,11 @@ def examples(local_scratch, aedtapp):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flipchip, dcir_example_project, local_scratch, examples):
+    def init(self, aedtapp, flipchip, dcir_example_project, ic_mode_design, local_scratch, examples):
         self.aedtapp = aedtapp
         self.flipchip = flipchip
         self.dcir_example_project = dcir_example_project
+        self.ic_mode_design = ic_mode_design
         self.local_scratch = local_scratch
         self.design_name = examples[0]
 
@@ -384,3 +415,6 @@ class TestClass:
         ]
         assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
         assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")
+
+    def test_24_open_ic_mode_design(self):
+        assert self.ic_mode_design.ic_mode

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ctypes import CFUNCTYPE
 from ctypes import PyDLL
 from ctypes import c_bool
@@ -6,6 +30,8 @@ from ctypes import c_wchar_p
 from ctypes import py_object
 import os
 import re
+import socket
+import time
 import types
 
 from pyaedt.generic.general_methods import GrpcApiError
@@ -292,6 +318,7 @@ class AEDT:
         self.AedtAPI = AedtAPI
         self.SetPyObjCalbacks()
         self.aedt = None
+        self.non_graphical = False
 
     def SetPyObjCalbacks(self):
         self.callback_type = CFUNCTYPE(py_object, c_int, c_bool, py_object)
@@ -303,9 +330,32 @@ class AEDT:
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
+    @staticmethod
+    def _check_grpc_port(port, machine_name=""):
+        s = socket.socket()
+        try:
+            if not machine_name:
+                machine_name = "127.0.0.1"
+            s.connect((machine_name, port))
+        except socket.error:
+            success = False
+        else:
+            success = True
+        finally:
+            s.close()
+        return success
+
     def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
-        self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+        try:
+            self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+        except Exception:  # pragma: no cover
+            if port and self._check_grpc_port(port):
+                time.sleep(5)  # waiting for Desktop to initialize Grpc Server
+                self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
+            if not self.aedt:
+                raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
+        self.non_graphical = NGmode
         if port == 0:
             self.port = self.aedt.GetAppDesktop().GetGrpcServerPort()
         else:
@@ -327,7 +377,7 @@ class AEDT:
             self.__init__(self.original_path)
             self.port = port
             self.machine = machine
-            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, False, False)
+            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, self.non_graphical, False)
             return self.aedt
 
         if force:

@@ -41,9 +41,9 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT in graphical mode.
 
-m3d = Maxwell3d(projectname=generate_unique_project_name(),
-                specified_version=aedt_version,
-                new_desktop_session=True,
+m3d = Maxwell3d(project=generate_unique_project_name(),
+                version=aedt_version,
+                new_desktop=True,
                 non_graphical=non_graphical)
 
 ###############################################################################
@@ -73,7 +73,7 @@ m3d.create_setup()
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Solve setup

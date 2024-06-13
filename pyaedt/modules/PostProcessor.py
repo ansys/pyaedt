@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
@@ -17,12 +41,12 @@ import re
 import string
 import tempfile
 
-from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict_items_to_list_items
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
@@ -5102,7 +5126,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         --------
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setup_name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
 
         """
 

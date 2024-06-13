@@ -35,9 +35,9 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version=aedt_version,
-                     new_desktop_session=True,
+cir = pyaedt.Circuit(project=pyaedt.generate_unique_project_name(),
+                     version=aedt_version,
+                     new_desktop=True,
                      non_graphical=non_graphical
                      )
 
@@ -121,7 +121,7 @@ new_report.create()
 if not non_graphical:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
-    vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
+    vout.set_trace_properties(style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
                               color=(0, 0, 255))
     vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
     ll = new_report.limit_lines[0]

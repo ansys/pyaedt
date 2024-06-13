@@ -57,14 +57,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
 
 ###############################################################################
 # Input parameters for eigenmode solver
@@ -151,7 +151,7 @@ print(str(resonance_frequencies))
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Save project and close AEDT

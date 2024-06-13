@@ -1,10 +1,34 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import time
 
 is_linux = os.name == "posix"
 
 
-class Settings(object):
+class Settings(object):  # pragma: no cover
     """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
@@ -48,6 +72,8 @@ class Settings(object):
         self._lsf_num_cores = 2
         self._lsf_ram = 1000
         self._use_lsf_scheduler = False
+        self._lsf_osrel = None
+        self._lsf_ui = None
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
         self._lsf_queue = None
@@ -71,7 +97,7 @@ class Settings(object):
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False
         self.__lazy_load = True
-        self.__objects_lazy_load = False
+        self.__objects_lazy_load = True
 
     @property
     def release_on_exception(self):
@@ -220,6 +246,15 @@ class Settings(object):
         self._lsf_ram = int(value)
 
     @property
+    def lsf_ui(self):
+        """Value passed in the LSF 'select' string to the ui resource."""
+        return self._lsf_ui
+
+    @lsf_ui.setter
+    def lsf_ui(self, value):
+        self._lsf_ui = int(value)
+
+    @property
     def lsf_timeout(self):
         """Timeout in seconds for trying to start the interactive session. The default is ``3600`` seconds."""
         return self._lsf_timeout
@@ -227,6 +262,16 @@ class Settings(object):
     @lsf_timeout.setter
     def lsf_timeout(self, value):
         self._lsf_timeout = int(value)
+
+    @property
+    def lsf_osrel(self):
+        """Operating system string.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
+        return self._lsf_osrel
+
+    @lsf_osrel.setter
+    def lsf_osrel(self, value):
+        self._lsf_osrel = value
 
     @property
     def custom_lsf_command(self):

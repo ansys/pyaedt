@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import random
 
 from _unittest.conftest import config
@@ -1112,3 +1136,19 @@ class TestClass:
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         assert len(dest2.modeler.objects) == 9
         assert "port1" in dest2.modeler.object_names
+
+    def test_63_create_conical_rings(self, add_app):
+        self.aedtapp.insert_design("rings")
+        position = self.aedtapp.modeler.Position(0, 0, 0)
+        rings1 = self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 1)
+        assert isinstance(rings1, list)
+        rings2 = self.aedtapp.modeler.create_conical_rings("X", position, 20, 10, 20, 1)
+        assert isinstance(rings2, list)
+        rings3 = self.aedtapp.modeler.create_conical_rings("Y", position, 20, 10, 20, 1)
+        assert isinstance(rings3, list)
+        assert not self.aedtapp.modeler.create_conical_rings("Y", position, 10, 20, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, -20, 10, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, -10, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)

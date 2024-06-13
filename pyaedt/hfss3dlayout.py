@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains the ``Hfss3dLayout`` class."""
 
 from __future__ import absolute_import  # noreorder
@@ -8,10 +32,10 @@ import io
 import os
 import re
 
-from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -29,32 +53,32 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open or the path to the ``aedb`` folder or
         ``edb.def`` file. The default is ``None``, in which case an
         attempt is made to get an active project. If no projects are present,
         an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False```, in which case AEDT is launched in graphical mode.
+        is ``True```, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -72,9 +96,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
     ic_mode : bool, optional
-        Whether to set the design to IC mode or not. The default is ``False``.
+        Whether to set the design to IC mode or not. The default is ``None``, which  means to retain
+        the existing setting.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -102,7 +131,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2023 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2023.1", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
@@ -112,42 +141,50 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
+    >>> aedtapp = pyaedt.Hfss3dLayout(version=231, project=edb_path)
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
+        remove_lock=False,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS 3D Layout Design",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
 
@@ -709,7 +746,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
-        self.__init__(projectname=project_name, designname=design_name)
+        self.__init__(project=project_name, design=design_name)
         return True
 
     @pyaedt_function_handler(outputdir="output_dir")
@@ -2053,14 +2090,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             self.design_datasets[ds_name_mag].y = mag
             self.design_datasets[ds_name_mag].update()
         else:
-            self.create_dataset1d_design(ds_name_mag, freq, mag, xunit="Hz")
+            self.create_dataset1d_design(ds_name_mag, freq, mag, x_unit="Hz")
         if self.dataset_exists(ds_name_phase, False):
             self.design_datasets[ds_name_phase].x = freq
             self.design_datasets[ds_name_phase].y = phase
             self.design_datasets[ds_name_phase].update()
 
         else:
-            self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
+            self.create_dataset1d_design(ds_name_phase, freq, phase, x_unit="Hz", y_unit="deg")
         for p in self.boundaries:
             if p.name == source:
                 str_val = ["TotalVoltage"]

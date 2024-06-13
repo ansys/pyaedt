@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +26,8 @@ import os
 import sys
 
 import pyaedt
-from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+from pyaedt.generic.settings import is_linux
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -47,8 +48,8 @@ extension_description = "Create Circuit design from Twin Builder design"
 def main(extension_args):
 
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -67,14 +68,14 @@ def main(extension_args):
 
     if active_design.GetDesignType() in ["Twin Builder"]:
         design_name = active_design.GetName().split(";")[1]
-        tb = pyaedt.TwinBuilder(designname=design_name, projectname=project_name)
+        tb = pyaedt.TwinBuilder(design=design_name, project=project_name)
     else:  # pragma: no cover
         app.logger.error("An active TwinBuilder Design is needed.")
         sys.exit()
 
     catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
-    cir = pyaedt.Circuit(designname=tb.design_name + "_Translated")
+    cir = pyaedt.Circuit(design=tb.design_name + "_Translated")
 
     from pyaedt.generic.constants import unit_converter
 

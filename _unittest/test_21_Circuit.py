@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import time
 
@@ -6,27 +30,25 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Circuit
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T21"
 
 if config["desktopVersion"] > "2022.2":
-    original_project_name = "Galileo_t21_231"
     diff_proj_name = "differential_pairs_231"
 else:
-    original_project_name = "Galileo_t21"
     diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_1.5_ssn.s6p"
 touchstone_custom = "SSN_custom.s6p"
-touchstone2 = "Galileo_V3P3S0.ts"
+touchstone2 = "V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app = add_app(application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
 

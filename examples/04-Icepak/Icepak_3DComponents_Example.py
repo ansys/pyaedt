@@ -38,11 +38,11 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
-ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"),
-             specified_version=aedt_version,
+ipk = Icepak(project=os.path.join(temp_folder, "Heatsink.aedt"),
+             version=aedt_version,
              non_graphical=non_graphical,
              close_on_exit=True,
-             new_desktop_session=True)
+             new_desktop=True)
 
 # Remove air region created by default because it is not needed as the heatsink will be exported as a 3DComponent.
 
@@ -55,7 +55,7 @@ hs_fin = ipk.modeler.create_box(origin=[0, 0, 2], sizes=[37.5, 1, 18], name="HS_
 hs_fin.material_name = "Al-Extruded"
 hs_fin.duplicate_along_line([0, 3.65, 0], nclones=11)
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Heatsink.jpg"))
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "Heatsink.jpg"))
 
 # Definition of a mesh region. First a non-model box is created, then the mesh region is assigned
 mesh_box = ipk.modeler.create_box(origin=[-2, -2, -3], sizes=[41.5, 41.5, 24])
@@ -88,30 +88,20 @@ ipk.modeler.create_3dcomponent(
     component_name="Heatsink",
     auxiliary_dict=True
 )
-ipk.close_project(save_project=False)
+ipk.close_project(save=False)
 
 ###############################################################################
 # Create QFP
 # ~~~~~~~~~~
 # Download and open a project containing a QPF.
-ipk = Icepak(projectname=qfp_temp_name)
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "QFP2.jpg"))
+ipk = Icepak(project=qfp_temp_name)
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "QFP2.jpg"))
 
 # Create dataset for power dissipation.
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
-ipk.create_dataset(
-    "PowerDissipationDataset",
-    x_datalist,
-    y_datalist,
-    zlist=None,
-    vlist=None,
-    is_project_dataset=False,
-    xunit="cel",
-    yunit="W",
-    zunit="",
-    vunit="",
-)
+ipk.create_dataset("PowerDissipationDataset", x_datalist, y_datalist, z=None, v=None, is_project_dataset=False,
+                   x_unit="cel", y_unit="W", v_unit="")
 
 # Assign source power condition to the die.
 ipk.create_source_power(
@@ -147,10 +137,10 @@ ipk.release_desktop(False, False)
 # Create electronic package
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
-ipk = Icepak(projectname=package_temp_name,
-             specified_version=aedt_version,
+ipk = Icepak(project=package_temp_name,
+             version=aedt_version,
              non_graphical=non_graphical)
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
 
 # The heatsink and the QFP are missing. They can be inserted as 3d components. The auxiliary files are needed since
 # the aim is to import also monitor objects and datasets. Also, a coordinate system is created for the heatsink so
@@ -169,7 +159,7 @@ heatsink_obj = ipk.modeler.insert_3d_component(
 
 QFP2_obj = ipk.modeler.insert_3d_component(input_file=os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
                                            coordinate_system="Global", auxiliary_parameters=True)
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package.jpg"))
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "electronic_package.jpg"))
 
 # Create a coordinate system at the xmin, ymin, zmin of the model
 bounding_box = ipk.modeler.get_model_bounding_box()

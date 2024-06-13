@@ -40,11 +40,11 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
+m3d = pyaedt.Maxwell3d(project=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
-                       specified_version=aedt_version,
+                       version=aedt_version,
                        non_graphical=non_graphical,
-                       new_desktop_session=True
+                       new_desktop=True
                        )
 
 ###############################################################################
@@ -209,7 +209,7 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT

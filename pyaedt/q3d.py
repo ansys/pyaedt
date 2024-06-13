@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
 
 from __future__ import absolute_import  # noreorder
@@ -7,12 +31,12 @@ import os
 import re
 import warnings
 
-from pyaedt import is_ironpython
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
@@ -23,7 +47,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 if not is_ironpython:
     try:
         import numpy as np
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pass
 
 
@@ -50,34 +74,36 @@ class QExtractor(FieldAnalysis3D, object):
     def __init__(
         self,
         Q3DType,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysis3D.__init__(
             self,
             Q3DType,
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.matrices = []
         for el in list(self.omatrix.ListReduceMatrixes()):
@@ -214,14 +240,14 @@ class QExtractor(FieldAnalysis3D, object):
         )
 
     @pyaedt_function_handler(setup_name="setup")
-    def export_mesh_stats(self, setup, variation_string="", mesh_path=None, setup_type="CG"):
+    def export_mesh_stats(self, setup, variations="", mesh_path=None, setup_type="CG"):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
         setup : str
             Setup name.
-        variation_string : str, optional
+        variations : str, optional
             Variation list. The default is ``""``.
         mesh_path : str, optional
             Full path to the mesh statistics file. The default is ``None``, in which
@@ -241,7 +267,7 @@ class QExtractor(FieldAnalysis3D, object):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup, variation_string, setup_type, mesh_path)
+        self.odesign.ExportMeshStats(setup, variations, setup_type, mesh_path)
         return mesh_path
 
     @pyaedt_function_handler()
@@ -366,14 +392,14 @@ class QExtractor(FieldAnalysis3D, object):
             source_list = ["NAME:Source Names"]
             excitation = self.sources(0, False)
             for key, value in dcrl.items():
-                if key not in excitation:
+                if key not in excitation:  # pragma: no cover
                     self.logger.error("Not existing excitation " + key)
                     return False
                 else:
                     source_list.append(key)
             if self.default_solution_type == "Q3D Extractor":
                 value_list = ["NAME:Source Values"]
-            else:
+            else:  # pragma: no cover
                 value_list = ["NAME:Magnitude"]
             for key, vals in dcrl.items():
                 magnitude = decompose_variable_value(vals)
@@ -581,7 +607,7 @@ class QExtractor(FieldAnalysis3D, object):
                 if not [matrix for matrix in self.matrices if matrix.name == reduce_matrix]:
                     self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
                     return False
-            else:
+            else:  # pragma: no cover
                 self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
@@ -706,7 +732,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
         else:
@@ -729,7 +755,7 @@ class QExtractor(FieldAnalysis3D, object):
                     use_sci_notation,
                 )
                 return True
-            except Exception:
+            except Exception:  # pragma: no cover
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
@@ -1204,23 +1230,23 @@ class Q3d(QExtractor, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or nothing
         is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
@@ -1229,7 +1255,7 @@ class Q3d(QExtractor, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``. This parameter is ignored when
@@ -1251,7 +1277,11 @@ class Q3d(QExtractor, object):
         running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -1263,36 +1293,44 @@ class Q3d(QExtractor, object):
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         QExtractor.__init__(
             self,
             "Q3D Extractor",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
@@ -1387,9 +1425,9 @@ class Q3d(QExtractor, object):
         sources = []
         net_id = -1
         for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)  # pragma: no cover
-                break  # pragma: no cover
+            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:  # pragma: no cover
+                net_id = i.props.get("ID", None)
+                break
         for i in self.boundaries:
             if i.type == "Source":
                 if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
@@ -1443,6 +1481,14 @@ class Q3d(QExtractor, object):
         >>> oModule.AutoIdentifyNets
         """
         original_nets = [i for i in self.nets]
+        has_conductor = False
+        for _, val in self.modeler.objects.items():
+            if val.material_name and self.materials[val.material_name].is_conductor():
+                has_conductor = True
+                break
+        if not has_conductor:
+            self.logger.warning("Nets not identified because no conductor material was found.")
+            return True
         self.oboundary.AutoIdentifyNets()
         new_nets = [i for i in self.nets if i not in original_nets]
         for net in new_nets:
@@ -2033,23 +2079,23 @@ class Q2d(QExtractor, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when a script is launched within AEDT.
@@ -2058,7 +2104,7 @@ class Q2d(QExtractor, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``. This parameter is ignored
@@ -2079,7 +2125,11 @@ class Q2d(QExtractor, object):
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -2107,36 +2157,44 @@ class Q2d(QExtractor, object):
         """Dimension."""
         return self.modeler.dimension
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         QExtractor.__init__(
             self,
             "2D Extractor",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
 
