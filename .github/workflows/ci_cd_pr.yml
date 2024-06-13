@@ -143,6 +143,9 @@ jobs:
     name: "Linux / Tests / ${{ matrix.tests.name }}"
     needs: style
     runs-on: [ self-hosted, Linux, pyaedt ]
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'tests:skip')
     env:
       ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
       ANS_NODEPCHECK: '1'
@@ -219,23 +222,78 @@ jobs:
     name: "Windows / Tests / ${{ matrix.tests.name }}"
     needs: style
     runs-on: [ self-hosted, Windows, pyaedt ]
+    if: | 
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'tests:skip')
     strategy:
       fail-fast: false
       matrix:
         tests:
           - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
           - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+          - {name: "IronPython", label: "ironpython", folder: "_unittest_ironpython", flags: ""}
+
+        tests-skip-units:
+           - contains(github.event.pull_request.labels.*.name, 'tests:units:skip')
+
+        tests-skip-solvers:
+           - contains(github.event.pull_request.labels.*.name, 'tests:solvers:skip')
+
+        tests-skip-ironpython:
+          - contains(github.event.pull_request.labels.*.name, 'tests:ironpython:skip')
+
+        exclude:
+
+          - tests-skip-units: true
+            tests:
+              - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+
+          - tests-skip-solvers: true
+            tests:
+              - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+
+          - tests-skip-ironpython: true
+            tests:
+              - {name: "IronPython", label: "ironpython", folder: "_unittest_ironpython", flags: ""}
+
     steps:
 
       - name: "Checkout project"
         uses: actions/checkout@v4
 
+      # IronPython tests
+
+      - name: "Tests IronPython"
+        if: ${{ matrix.tests.label }} == "ironpython" &&
+        timeout-minutes: 5
+        run: |
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $processA.WaitForExit()
+
+      - name: "Get logger content"
+        if: ${{ matrix.tests.label }} == "ironpython"
+        run: |
+          get-content .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log
+
+      - name: "Check for errors"
+        if: ${{ matrix.tests.label }} == "ironpython"
+        run: |
+          $test_errors_failures = Select-String -Path .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
+          if ($test_errors_failures -ne $null)
+          {
+            exit 1
+          }
+
+      # Solvers and units tests
+
       - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
+        if: ${{ matrix.tests.label }} != "ironpython"
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: "Create a virtual environment"
+        if: ${{ matrix.tests.label }} != "ironpython"
         run: |
           python -m venv .venv
           .venv\Scripts\Activate.ps1
@@ -246,19 +304,22 @@ jobs:
             pip
 
       - name: "Install tests dependencies"
+        if: ${{ matrix.tests.label }} != "ironpython"
         run: |
           .venv\Scripts\Activate.ps1
           python -m pip install .[tests] pytest-azurepipelines
 
       - name: "Install graphics dependencies"
+        if: ${{ matrix.tests.label }} != "ironpython"
         run: |
           .venv\Scripts\Activate.ps1
           python -m pip uninstall --yes vtk
           python -m pip install --extra-index-url https://wheels.vtk.org `
             vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
 
-      - name: Run tests on _unittest
+      - name: "Run tests"
         uses: nick-fields/retry@v3
+        if: ${{ matrix.tests.label }} != "ironpython"
         env:
           PYTHONMALLOC: malloc
         with:
@@ -276,6 +337,7 @@ jobs:
 
       - name: "Upload ${{ matrix.tests.label }} tests coverage"
         uses: codecov/codecov-action@v4
+        if: ${{ matrix.tests.label }} != "ironpython"
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: windows-${{ matrix.tests.label }}-tests-coverage
@@ -284,45 +346,14 @@ jobs:
 
       - name: "Upload ${{ matrix.tests.name }} tests results"
         uses: actions/upload-artifact@v3
-        if: ${{ always() }}
+        if: ${{ matrix.tests.label }} != "ironpython" && ${{ always() }}
         with:
           name: windows-${{ matrix.tests.label }}-tests-results
           path: junit/test-results.xml
 
-  tests-ironpython:
-    name: "Windows / Tests / IronPython"
-    needs: style
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    if: | 
-      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:skip') &&
-      !contains(github.event.pull_request.labels.*.name, 'tests:iron:skip')
-    steps:
-
-      - name: "Checkout project"
-        uses: actions/checkout@v4
-
-      - name: "Tests IronPython"
-        timeout-minutes: 5
-        run: |
-          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
-          $processA.WaitForExit()
-
-      - name: "Get logger content"
-        run: |
-          get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
-
-      - name: "Check for errors"
-        run: |
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
-          if ($test_errors_failures -ne $null)
-          {
-            exit 1
-          }
-
   build-library:
     name: "Build library"
-    needs: [doc-build-without-examples, tests-linux, tests-windows, tests-ironpython]
+    needs: [doc-build-without-examples, tests-linux, tests-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: ansys/actions/build-library@v6
