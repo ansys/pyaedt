@@ -2568,7 +2568,7 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
-        sort: bool, optional
+        sort : bool, optional
             Sort dataset. The default is ``True``.
 
         Returns
@@ -2599,7 +2599,7 @@ class Design(AedtObjects):
             Units for the X axis. The default is ``""``.
         y_unit : str, optional
             Units for the Y axis. The default is ``""``.
-        sort: bool, optional
+        sort : bool, optional
             Sort dataset. The default is ``True``.
 
         Returns
@@ -2653,7 +2653,7 @@ class Design(AedtObjects):
             Units for the V axis for a 3D dataset only. The default is ``""``.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
-        sort: bool, optional
+        sort : bool, optional
             Sort dataset. The default is ``True``.
 
         Returns
@@ -2698,7 +2698,7 @@ class Design(AedtObjects):
             Name of the dataset. The default is the file name.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
-        sort: bool, optional
+        sort : bool, optional
             Sort dataset. The default is ``True``.
 
         Returns
@@ -2756,7 +2756,7 @@ class Design(AedtObjects):
             File encoding to be provided for csv.
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
-        sort: bool, optional
+        sort : bool, optional
             Sort dataset. The default is ``True``.
 
         Returns

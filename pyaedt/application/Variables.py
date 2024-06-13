@@ -2132,7 +2132,7 @@ class DataSet(object):
         Units for the Z axis for a 3D dataset only. The default is ``""``.
     vunit : str, optional
         Units for the V axis for a 3D dataset only. The default is ``""``.
-    sort: bool, optional
+    sort : bool, optional
         Sort dataset. The default is ``True``.
     """
 
