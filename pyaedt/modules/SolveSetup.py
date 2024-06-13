@@ -124,7 +124,7 @@ class CommonSetup(PropsManager, object):
         >>> oDesign.Analyze
         """
         self._app.analyze(
-            name=self.name,
+            setup=self.name,
             cores=cores,
             tasks=tasks,
             gpus=gpus,
@@ -774,8 +774,8 @@ class Setup(CommonSetup):
         design : str
             Name of the design.
         solution : str, optional
-            Name of the solution in the format ``"setup_name : solution_name"``.
-            If ``None``, the default value is ``setup_name : LastAdaptive``.
+            Name of the solution in the format ``"name : solution_name"``.
+            If ``None``, the default value is ``name : LastAdaptive``.
         parameters : dict, optional
             Dictionary of the parameters.
             If ``None``, the default is `appname.available_variations.nominal_w_values_dict`.
@@ -889,7 +889,7 @@ class Setup(CommonSetup):
         design : str
             Name of the design.
         solution : str, optional
-            Name of the solution in the format ``"setup_name : solution_name"``.
+            Name of the solution in the format ``"name : solution_name"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
             Whether variables are mapped by name from the source design. The default is
@@ -1819,7 +1819,7 @@ class Setup3DLayout(CommonSetup):
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup.
 
         Returns
@@ -1842,7 +1842,7 @@ class Setup3DLayout(CommonSetup):
 
         Parameters
         ----------
-        setup_name : str, optional
+        name : str, optional
             Name of the setup.
 
         Returns
@@ -1968,7 +1968,7 @@ class Setup3DLayout(CommonSetup):
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
-        aedtapp.close_project(save_project=True)
+        aedtapp.close_project(save=True)
 
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):

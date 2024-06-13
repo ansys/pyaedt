@@ -96,8 +96,8 @@ h3d.close_project()
 # Launch the newly created q3d project and plot it.
 
 q3d = pyaedt.Q3d(output_q3d)
-q3d.plot(show=False, objects=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"],
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(assignment=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], show=False,
+         output_file=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Assign Source and Sink

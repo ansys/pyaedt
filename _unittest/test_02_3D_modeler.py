@@ -1112,3 +1112,19 @@ class TestClass:
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         assert len(dest2.modeler.objects) == 9
         assert "port1" in dest2.modeler.object_names
+
+    def test_63_create_conical_rings(self, add_app):
+        self.aedtapp.insert_design("rings")
+        position = self.aedtapp.modeler.Position(0, 0, 0)
+        rings1 = self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 1)
+        assert isinstance(rings1, list)
+        rings2 = self.aedtapp.modeler.create_conical_rings("X", position, 20, 10, 20, 1)
+        assert isinstance(rings2, list)
+        rings3 = self.aedtapp.modeler.create_conical_rings("Y", position, 20, 10, 20, 1)
+        assert isinstance(rings3, list)
+        assert not self.aedtapp.modeler.create_conical_rings("Y", position, 10, 20, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, -20, 10, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, -10, 20, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 0, 1)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", position, 20, 10, 20, 0)
+        assert not self.aedtapp.modeler.create_conical_rings("Z", [0], 20, 10, 20, 0)

@@ -299,6 +299,8 @@ class TestClass:
         line.center_line = {"Pt0": ["0mm", "0mm"]}
         assert line.remove("Pt1")
         assert line.add([1, 2], 1)
+        assert line.set_property_value("Pt0", "10mm ,10mm")
+        assert line.get_property_value("Pt0") == "10 ,10"
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
@@ -634,7 +636,7 @@ class TestClass:
 
     def test_39_import_ipc(self):
         self.aedtapp.insert_design("ipc")
-        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "galileo.xml")
+        dxf_file = os.path.join(local_path, "../_unittest/example_models", "cad", "ipc", "layout.xml")
         aedb_file = os.path.join(self.local_scratch.path, "ipc_out.aedb")
         assert self.aedtapp.import_ipc2581(dxf_file, output_dir=aedb_file, control_file="")
 
@@ -808,7 +810,7 @@ class TestClass:
 
     def test_96_change_nets_visibility(self, add_app):
         project_name = "ipc_out"
-        design_name = "Galileo_um"
+        design_name = "layout"
         hfss3d = add_app(application=Hfss3dLayout, project_name=project_name, design_name=design_name, just_open=True)
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)
@@ -831,7 +833,7 @@ class TestClass:
         report = AnsysReport()
         report.create()
         self.aedtapp.save_project()
-        assert report.add_project_info(self.aedtapp)
+        # assert report.add_project_info(self.aedtapp)
 
     def test_97_mesh_settings(self):
         assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)

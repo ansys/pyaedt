@@ -2,10 +2,9 @@ Client-server
 =============
 You can launch PyAEDT on a remote machine if these conditions are met:
 
-- PyAEDT is installed on client and server machines. (There is no need to have AEDT
-  installed on the client machine.)
-- The same Python version is used on the client and server machines. (CPython 3.7+ or
-  IronPython is embedded in the AEDT installation.)
+- AEDT and PyAEDT is installed on client and server machines.
+- The same Python version is used on the client and server machines. (CPython 3.7+
+  is embedded in the AEDT installation.)
 
 gRPC connection in AEDT 2022 R2 and later
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

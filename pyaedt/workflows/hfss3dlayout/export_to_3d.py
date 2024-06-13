@@ -142,12 +142,7 @@ def main(extension_args):
         elif choice == "Export to Icepak":
             aedtapp2 = pyaedt.Icepak(projectname=aedtapp.project_name)
         if aedtapp2:
-            aedtapp2.copy_solid_bodies_from(
-                aedtapp,
-                no_vacuum=False,
-                no_pec=False,
-                include_sheets=True,
-            )
+            aedtapp2.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False, include_sheets=True)
             aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
 

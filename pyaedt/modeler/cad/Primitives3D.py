@@ -1369,7 +1369,7 @@ class Primitives3D(GeometryModeler):
             design_parameters="",
             coordinate_system="Global",
             name=None,
-            password="",
+            password=None,
             auxiliary_parameters=False,
     ):
         """Insert a new 3D component.
@@ -1389,7 +1389,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             3D component name. The default is ``None``.
         password : str, optional
-            Password for encrypted components. The default is an empty string.
+            Password for encrypted components. The default value is ``None``.
         auxiliary_parameters : bool or str, optional
             Enable the advanced 3d component import. It is possible to set explicitly the json file.
             The default is ``False``.
@@ -1404,6 +1404,8 @@ class Primitives3D(GeometryModeler):
 
         >>> oEditor.Insert3DComponent
         """
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
@@ -1467,18 +1469,8 @@ class Primitives3D(GeometryModeler):
                             else:
                                 is_project_dataset = False
                                 dsname = key
-                            self._app.create_dataset(
-                                dsname,
-                                dat["x"],
-                                dat["y"],
-                                dat["z"],
-                                dat["v"],
-                                is_project_dataset,
-                                dat["xunit"],
-                                dat["yunit"],
-                                dat["zunit"],
-                                dat["vunit"],
-                            )
+                            self._app.create_dataset(dsname, dat["x"], dat["y"], dat["z"], dat["v"], is_project_dataset,
+                                                     dat["xunit"], dat["yunit"], dat["zunit"], dat["vunit"])
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_parameters:
                     udm_obj.name = name

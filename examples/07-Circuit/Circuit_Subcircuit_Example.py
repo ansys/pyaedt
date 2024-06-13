@@ -56,9 +56,9 @@ circuit.push_down(subcircuit)
 # the parameter values in the following code example. Connect them in series
 # and then use the ``pop_up`` # method to get back to the parent design.
 
-circuit.variable_manager.set_variable(variable_name="R_val", expression="35ohm")
-circuit.variable_manager.set_variable(variable_name="L_val", expression="1e-7H")
-circuit.variable_manager.set_variable(variable_name="C_val", expression="5e-10F")
+circuit.variable_manager.set_variable(name="R_val", expression="35ohm")
+circuit.variable_manager.set_variable(name="L_val", expression="1e-7H")
+circuit.variable_manager.set_variable(name="C_val", expression="5e-10F")
 p1 = circuit.modeler.schematic.create_interface_port(name="In")
 r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")

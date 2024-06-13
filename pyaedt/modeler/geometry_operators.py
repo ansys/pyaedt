@@ -102,7 +102,7 @@ class GeometryOperators(object):
         else:
             if variable_manager:
                 if not variable_manager.set_variable("temp_var", string):
-                    if not variable_manager.set_variable("temp_var", string, postprocessing=True):
+                    if not variable_manager.set_variable("temp_var", string, is_post_processing=True):
                         return string
                 value = variable_manager["temp_var"].value / sunit
                 del variable_manager["temp_var"]

@@ -237,7 +237,7 @@ class TestLogMessages:
         )
         with pytest.raises(AttributeError):
             app.get_object_material_properties("MS1", "conductivity")
-        assert ("Global", logging.ERROR, "Object 'MS1' not found.") in caplog.record_tuples
+        assert ("Global", logging.ERROR, "    assignment = MS1 ") in caplog.record_tuples
 
 
 class CaptureStdOut:

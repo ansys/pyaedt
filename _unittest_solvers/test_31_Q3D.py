@@ -26,9 +26,11 @@ def aedtapp(add_app):
 
 @pytest.fixture(scope="class", autouse=True)
 def examples(local_scratch):
-    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, bondwire_project_name)
+    example_project = os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder,
+                                   bondwire_project_name)
     test_project = local_scratch.copyfile(example_project)
-    test_matrix = local_scratch.copyfile(os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
+    test_matrix = local_scratch.copyfile(
+        os.path.join(local_path, "../_unittest_solvers/example_models", test_subfolder, q2d_q3d + ".aedt"))
     return test_project, test_matrix
 
 
@@ -125,13 +127,14 @@ class TestClass:
         sweep3 = mysetup.create_frequency_sweep(unit="GHz", freqstart=1, freqstop=4)
         assert sweep3
         with pytest.raises(AttributeError) as execinfo:
-            mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4, sweep_type="Invalid")
+            mysetup.create_frequency_sweep(sweepname="mysweep4", unit="GHz", freqstart=1, freqstop=4,
+                                           sweep_type="Invalid")
             assert (
                     execinfo.args[0]
                     == "Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'"
             )
 
-    def test_06c_autoidentify(self):
+    def test_06c_auto_identify(self):
         assert self.aedtapp.auto_identify_nets()
         assert self.aedtapp.delete_all_nets()
         assert self.aedtapp.auto_identify_nets()
@@ -185,7 +188,7 @@ class TestClass:
         assert len(obj_list[self.aedtapp.nets[0]]) == 0
 
     def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
+        self.aedtapp.load_project(self.test_project, close_active=True, set_active=False)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example", self.aedtapp.AXIS.Z,
                                                                               min_size=0.2, number_of_segments=8)
         assert test
@@ -267,7 +270,7 @@ class TestClass:
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_14_edit_sources(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -281,7 +284,7 @@ class TestClass:
         assert q3d.edit_sources(sources_cg, sources_ac, sources_dc)
 
         sources_cg = {"Box1": "2V"}
-        sources_ac = {"Box1:Source1": "2", "Box1_1:Source2": "5V"}
+        sources_ac = {"Box1:Source1": ["2"], "Box1_1:Source2": "5V"}
         assert q3d.edit_sources(sources_cg, sources_ac)
 
         sources_cg = {"Box1": ["20V"], "Box1_2": "4V"}
@@ -299,7 +302,11 @@ class TestClass:
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+
+        sources_dc = {"Box1:Source1": ["20v"]}
+        assert q3d.edit_sources(None, None, sources_dc)
+
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_15_export_matrix_data(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -321,6 +328,7 @@ class TestClass:
                                       matrix_type="Maxwell, Spice, Couple")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C",
                                       matrix_type="Maxwell, Spice, Couple")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="C")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
                                           problem_type="AC RL, DC RL", matrix_type="Maxwell, Spice, Couple")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
@@ -335,6 +343,8 @@ class TestClass:
                                       sweep="Last Adaptive")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup",
                                           sweep="LastAdaptive")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), setup="Setup1",
+                                          sweep="Last Adaptive Invented")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
                                       reduce_matrix="Original")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"),
@@ -360,7 +370,7 @@ class TestClass:
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_16_export_equivalent_circuit(self, add_app):
         test_matrix2 = self.local_scratch.copyfile(
@@ -405,7 +415,7 @@ class TestClass:
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test_14")
         assert not q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test")
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_17_export_results_q3d(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -419,17 +429,24 @@ class TestClass:
         q3d.analyze(cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
-        q3d.close_project(q3d.project_name, save_project=False)
+        q3d.close_project(q3d.project_name, save=False)
 
     def test_18_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
     def test_19_assign_thin_conductor(self, add_app):
         q3d = add_app(application=Q3d, project_name="thin", just_open=True)
-        box = q3d.modeler.create_box([1,1,1], [10,10,10])
+        box = q3d.modeler.create_box([1, 1, 1], [10, 10, 10])
         assert q3d.assign_thin_conductor(box.top_face_z, material="copper", thickness=1, name="Thin1")
-        rect =  q3d.modeler.create_rectangle("X", [1,1,1], [10,10])
+        rect = q3d.modeler.create_rectangle("X", [1, 1, 1], [10, 10])
         assert q3d.assign_thin_conductor(rect, material="aluminum", thickness="3mm", name="")
         assert not q3d.assign_thin_conductor(box, material="aluminum", thickness="3mm", name="")
+
+    def test_20_auto_identify_no_metal(self, add_app):
+        q3d = add_app(application=Q3d, project_name="no_metal", just_open=True)
+        q3d.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
+        assert q3d.auto_identify_nets()
+        assert not q3d.nets

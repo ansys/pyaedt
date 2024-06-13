@@ -20,7 +20,7 @@ from pyaedt.generic.spisim import SpiSim
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
-original_project_name = "Galileo_t21_231"
+original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
 if config["desktopVersion"] > "2022.2":
@@ -37,28 +37,28 @@ com_project_name = "com_unit_test_23r2"
 def sbr_platform(add_app):
     app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def array(add_app):
     app = add_app(project_name=array_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def hfss_app(add_app):
     app = add_app(project_name="Hfss_test")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture(scope="class")
@@ -359,7 +359,8 @@ class TestClass:
         assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_04i_3dl_get_all_insertion_loss_list(self):
-        assert self.hfss3dl_solve.get_all_insertion_loss_list(tx_prefix="Port1", rx_prefix="Port2") == ['S(Port1,Port2)']
+        assert self.hfss3dl_solve.get_all_insertion_loss_list(drivers_prefix_name="Port1",
+                                                              receivers_prefix_name="Port2") == ['S(Port1,Port2)']
 
     def test_04j_3dl_get_next_xtalk_list(self):
         assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
@@ -370,7 +371,7 @@ class TestClass:
     def test_05a_circuit_add_3dlayout_component(self, circuit_app):
         setup = circuit_app.create_setup("test_06b_LNA")
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
-        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
+        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         assert type(myedb.id) is int
         ports = myedb.pins
         tx = ports

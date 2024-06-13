@@ -3,7 +3,7 @@ name = "Antenna Wizard"
 script = "ansys/aedt/toolkits/antenna/run_toolkit.py"
 icon = "images/large/antenna.png"
 template = "run_pyaedt_toolkit_script"
-pip = "git+https://github.com/ansys/pyaedt-antenna-toolkit.git"
+pip = "ansys-aedt-toolkits-antenna"
 package = "ansys.aedt.toolkits.antenna"
 
 [PushfromTransient]

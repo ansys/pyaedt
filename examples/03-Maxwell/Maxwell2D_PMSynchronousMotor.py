@@ -245,7 +245,7 @@ stator_id = mod2D.create_udp(dll="RMxprt/VentSlotCore.dll", parameters=udp_par_l
 # Assign properties to the stator. The following code assigns
 # the material, name, color, and  ``solve_inside`` properties.
 
-M2D.assign_material(obj=stator_id, mat="30DH_20C_smooth")
+M2D.assign_material(assignment=stator_id, material="30DH_20C_smooth")
 stator_id.name = "Stator"
 stator_id.color = (0, 0, 255)  # rgb
 stator_id.solve_inside = True  # to be reassigned: M2D.assign material puts False if not dielectric

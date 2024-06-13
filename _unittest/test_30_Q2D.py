@@ -102,7 +102,7 @@ class TestClass:
         assert q2d.matrices[4].name == "Test4"
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5", "New_net")
         assert q2d.matrices[5].name == "Test5"
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_12_edit_sources(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
@@ -119,7 +119,7 @@ class TestClass:
 
         sources_ac = {"Circle5": "40A"}
         assert not q2d.edit_sources(sources_cg, sources_ac)
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_13_get_all_conductors(self):
         self.aedtapp.insert_design("condcutors")
@@ -189,7 +189,7 @@ class TestClass:
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
-        self.aedtapp.close_project(q2d.project_name, save_project=True)
+        self.aedtapp.close_project(q2d.project_name, save=True)
 
     def test_15_export_equivalent_circuit(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
@@ -274,13 +274,13 @@ class TestClass:
         assert not q2d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_16_export_results_q2d(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_17_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

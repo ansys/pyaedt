@@ -286,8 +286,13 @@ class TestClass:
         assert test
         test = initial_object.edges[4].chamfer(chamfer_type=4)
         assert not test
-
         self.aedtapp.modeler.delete(initial_object)
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest2", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=3)
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest3", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=1)
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest4", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[2].edges[0], chamfer_type=2)
 
     def test_11_fillet(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -590,7 +595,7 @@ class TestClass:
         assert box_clone_history.children["Rotate:1"].command == "Rotate"
         assert box_clone_history.children["SplitEdit:1"].command == "SplitEdit"
         project_path = self.aedtapp.project_file
-        self.aedtapp.close_project(save_project=True)
+        self.aedtapp.close_project(save=True)
         self.aedtapp.load_project(project_path)
         subtract = self.aedtapp.modeler["box_history1"].history().children["Subtract:1"].children
         assert len(subtract) == 1

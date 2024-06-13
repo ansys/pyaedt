@@ -1296,7 +1296,7 @@ class TestClass:
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_53_import_source_excitation(self, add_app):
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
@@ -1310,7 +1310,7 @@ class TestClass:
         assert aedtapp.edit_source_from_file(
             aedtapp.excitations[0], time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_54_assign_symmetry(self, add_app):
         aedtapp = add_app(project_name="test_54", solution_type="Modal")
@@ -1330,7 +1330,7 @@ class TestClass:
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
         assert aedtapp.set_impedance_multiplier(2)
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
@@ -1401,10 +1401,11 @@ class TestClass:
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
         example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
-        cads = self.aedtapp.modeler.import_nastran(example_project)
+        cads = self.aedtapp.modeler.import_nastran(example_project, lines_thickness=0.1)
         assert len(cads) > 0
         stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
-        assert os.path.exists(stl)
+        assert os.path.exists(stl[0])
+        assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
@@ -1629,13 +1630,13 @@ class TestClass:
         aedtapp.hybrid = True
         assert aedtapp.assign_febi(["inner"])
         assert len(aedtapp.boundaries) == 1
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_67_transient_composite(self, add_app):
         aedtapp = add_app(project_name="test_66")
         aedtapp.solution_type = "Transient Composite"
         assert aedtapp.solution_type == "Transient Composite"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_68_import_gds_3d(self):

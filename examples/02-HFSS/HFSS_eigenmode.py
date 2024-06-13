@@ -151,7 +151,7 @@ print(str(resonance_frequencies))
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Save project and close AEDT

@@ -693,6 +693,8 @@ class TestClass:
         assert o.edges[0].chamfer(chamfer_type=3)
         self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.chamfer(edges=o2.edges)
 
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
@@ -701,6 +703,8 @@ class TestClass:
         assert o.edges[0].fillet()
         r = self.create_rectangle(name="MyRect")
         assert not r.edges[0].fillet()
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.fillet(edges=o2.edges)
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -1061,7 +1065,7 @@ class TestClass:
         assert len(p3) == 3
         assert len(s3) == 1
 
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_55_create_bond_wires(self):
         self.aedtapp["$Ox"] = 0
@@ -1138,7 +1142,7 @@ class TestClass:
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     def test_60_get_edges_on_bounding_box(self):
-        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tolerance=1e-6)
         assert len(edges) == 2
