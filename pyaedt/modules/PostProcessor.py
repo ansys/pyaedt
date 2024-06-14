@@ -1735,12 +1735,14 @@ class PostProcessorCommon(object):
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
-        context : str, optional
+        context : str, dict, optional
             The default is ``None``.
             - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
               ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
             - For Q2D or Q3D, specify the name of a reduced matrix.
             - For a far fields plot, specify the name of an infinite sphere.
+            - For Maxwell 2D Eddy Current solution types this can be provided as a dictionary
+                where the key is the matrix name and value the reduced matrix.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1748,7 +1750,6 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
 
         Returns
         -------
@@ -1860,6 +1861,13 @@ class PostProcessorCommon(object):
             ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent" and context:
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
