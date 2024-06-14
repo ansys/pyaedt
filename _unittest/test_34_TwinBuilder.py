@@ -208,7 +208,7 @@ class TestClass:
             tb.add_q3d_dynamic_component(
                 "invalid", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", model_depth="100mm"
             )
-        shutil.rmtree(example_project_copy)
+        # shutil.rmtree(example_project_copy)
         tb.close_project(name=tb.project_name, save=False)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Feature not available before 2024R2")
@@ -228,11 +228,15 @@ class TestClass:
             excitations[e.name] = ["20", True, e.props["Type"], False]
 
         comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar", excitations=excitations)
+        assert comp
 
+        comp = tb.add_excitation_model(project=project_name, design="1 maxwell busbar")
         assert comp
 
         example_project_copy = os.path.join(self.local_scratch.path, project_name + "_copy.aedt")
         shutil.copyfile(self.excitation_model, example_project_copy)
+        comp = tb.add_excitation_model(project=example_project_copy, design="1 maxwell busbar", excitations=excitations)
+        assert comp
 
-        shutil.rmtree(example_project_copy)
+        # shutil.rmtree(example_project_copy)
         tb.close_project(name=project_name, save=False)
