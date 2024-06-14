@@ -1241,8 +1241,8 @@ class NexximComponents(CircuitComponents):
         time_stamp=1591858313,
         description="",
         refbase="x",
-        parameters=[],
-        values=[],
+        parameters=None,
+        values=None,
         gref="",
     ):
         """Create a component from a symbol.
@@ -1260,9 +1260,11 @@ class NexximComponents(CircuitComponents):
         refbase : str, optional
             Reference base. The default is ``"U"``.
         parameters : list
-            List of parameters. The default is ``[]``.
+            List of parameters.
+            If not provided the default is ``None``, in which case an empty list is set.
         values : list
-            List of parameter values. The default is ``[]``.
+            List of parameter values.
+            If not provided the default is ``None``, in which case an empty list is set.
         gref : str, optional
             Global Reference
 
@@ -1277,6 +1279,8 @@ class NexximComponents(CircuitComponents):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
+        parameters = [] if parameters is None else parameters
+        values = [] if values is None else values
         arg = [
             "NAME:" + name,
             "Info:=",

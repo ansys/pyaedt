@@ -973,7 +973,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+        setup_name="setup",
+        setupname="setup",
+        freqstart="start_frequency",
+        freqstop="stop_frequency",
+        sweepname="name",
+        sweep_name="name",
     )
     def create_linear_step_sweep(
         self,

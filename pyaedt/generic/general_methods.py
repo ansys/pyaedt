@@ -58,6 +58,16 @@ inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else
 if not is_ironpython:
     import psutil
 
+inclusion_list = [
+    "CreateVia",
+    "PasteDesign",
+    "Paste",
+    "PushExcitations",
+    "Rename",
+    "RestoreProjectArchive",
+    "ImportGerber",
+]
+
 
 class GrpcApiError(Exception):
     """ """
@@ -836,15 +846,6 @@ def _retry_ntimes(n, function, *args, **kwargs):
         pyaedt_logger.debug("An error occurred while accessing the arguments of a function " "called multiple times.")
     retry = 0
     ret_val = None
-    inclusion_list = [
-        "CreateVia",
-        "PasteDesign",
-        "Paste",
-        "PushExcitations",
-        "Rename",
-        "RestoreProjectArchive",
-        "ImportGerber",
-    ]
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
     if func_name and func_name not in inclusion_list:
         n = 1

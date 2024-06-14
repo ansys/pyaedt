@@ -36,6 +36,7 @@ import types
 
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import inclusion_list
 from pyaedt.generic.general_methods import settings
 
 logger = settings.logger
@@ -112,7 +113,7 @@ class AedtObjWrapper:
         if settings.enable_debug_grpc_api_logger:
             settings.logger.debug("{} {}".format(funcName, argv))
         try:
-            if settings.use_multi_desktop and funcName not in exclude_list:
+            if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,

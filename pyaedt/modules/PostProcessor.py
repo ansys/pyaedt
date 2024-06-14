@@ -4478,23 +4478,27 @@ class PostProcessor(PostProcessorCommon, object):
                         power_dict_obj[group] += power_dict_obj[power_comp]
 
         if output_type == "boundary":
-            for comp in power_dict.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            for comp, value in power_dict.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             return power_dict, sum(power_dict.values())
 
         elif output_type == "component":  # pragma: no cover
-            for comp in power_dict_obj.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            for comp, value in power_dict_obj.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values())
 
         else:  # pragma: no cover
-            for comp in power_dict.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            for comp, value in power_dict.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
-            for comp in power_dict_obj.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            for comp, value in power_dict_obj.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
