@@ -3219,8 +3219,9 @@ class AMIEyeDiagram(CommonReport):
                 expr_head = "Eye"
             found = False
             while not found:
-                available_quantities = self._post.available_report_quantities(self.report_category, self.report_type,
-                                                                              self.setup, expr_head, arg)
+                available_quantities = self._post.available_report_quantities(
+                    self.report_category, self.report_type, self.setup, expr_head, arg
+                )
                 if available_quantities[0] == expr:
                     found = True
                 else:
