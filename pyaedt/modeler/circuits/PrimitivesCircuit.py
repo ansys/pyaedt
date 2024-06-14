@@ -342,7 +342,7 @@ class CircuitComponents(object):
         return False
 
     @pyaedt_function_handler()
-    def create_page_port(self, name, location=[], angle=0):
+    def create_page_port(self, name, location=None, angle=0):
         """Create a page port.
 
         Parameters
@@ -350,7 +350,8 @@ class CircuitComponents(object):
         name : str
             Name of the port.
         location : list, optional
-            Position on the X and Y axis. The default is ``None``.
+            Position on the X and Y axis.
+            If not provided the default is ``None``, in which case an empty list is set.
         angle : optional
             Angle rotation in degrees. The default is ``0``.
 
@@ -364,6 +365,7 @@ class CircuitComponents(object):
 
         >>> oEditor.CreatePagePort
         """
+        location = [] if location is None else location
         xpos, ypos = self._get_location(location)
 
         id = self.create_unique_id()
