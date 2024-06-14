@@ -545,7 +545,7 @@ class Desktop(object):
         # Used in unit tests. The ``PYAEDT_NON_GRAPHICAL`` environment variable overrides
         # the ``graphical`` argument.
         if os.getenv("PYAEDT_NON_GRAPHICAL", None) is not None:  # pragma no cover
-            non_graphical = not os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
+            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "false").lower() in ("true", "1", "t")
         # Used in Examples generation to force the desktop opening
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma no cover
             new_desktop = True
@@ -1574,8 +1574,7 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
-        if settings.use_multi_desktop:  # pragma: no cover
-            self.grpc_plugin.recreate_application(True)
+        self.grpc_plugin.recreate_application(True)
         self.logger.oproject = None
         self.logger.odesign = None
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
