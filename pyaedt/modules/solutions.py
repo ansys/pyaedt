@@ -3917,7 +3917,7 @@ class VRTFieldPlot:
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity = quantity
-        self.intrinsics = [] if intrinsics is None else intrinsics
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency
