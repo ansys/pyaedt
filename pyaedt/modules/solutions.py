@@ -3159,29 +3159,29 @@ class FieldPlot:
     def __init__(
         self,
         postprocessor,
-        objects=[],
-        surfaces=[],
-        lines=[],
-        cutplanes=[],
+        objects=None,
+        surfaces=None,
+        lines=None,
+        cutplanes=None,
         solution="",
         quantity="",
-        intrinsics={},
-        seeding_faces=[],
-        layer_nets=[],
+        intrinsics=None,
+        seeding_faces=None,
+        layer_nets=None,
         layer_plot_type="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
-        self.volumes = objects
-        self.surfaces = surfaces
-        self.lines = lines
-        self.cutplanes = cutplanes
-        self.layer_nets = layer_nets
+        self.volumes = [] if objects is None else objects
+        self.surfaces = [] if surfaces is None else surfaces
+        self.lines = [] if lines is None else lines
+        self.cutplanes = [] if cutplanes is None else cutplanes
+        self.layer_nets = [] if layer_nets is None else layer_nets
         self.layer_plot_type = layer_plot_type
-        self.seeding_faces = seeding_faces
+        self.seeding_faces = [] if seeding_faces is None else seeding_faces
         self.solution = solution
         self.quantity = quantity
-        self.intrinsics = intrinsics
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.Filled = False
@@ -3911,13 +3911,13 @@ class VRTFieldPlot:
         max_frequency="1GHz",
         ray_density=2,
         bounces=5,
-        intrinsics={},
+        intrinsics=None,
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity = quantity
-        self.intrinsics = intrinsics
+        self.intrinsics = [] if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency

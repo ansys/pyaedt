@@ -3767,7 +3767,7 @@ class Design(AedtObjects):
         project_path=None,
         include_external_files=True,
         include_results_file=True,
-        additional_files=[],
+        additional_files=None,
         notes="",
     ):
         """Archive the AEDT project and add a message.
@@ -3781,7 +3781,8 @@ class Design(AedtObjects):
         include_results_file : bool, optional
             Whether to include simulation results files in the archive. The default is ``True``.
         additional_files : list, optional
-            List of additional files to add to the archive. The default is ``[]``.
+            List of additional files to add to the archive.
+            The default is ``None`` in which case an empty list is set.
         notes : str, optional
             Simulation notes to add to the archive. The default is ``""``.
 
@@ -3796,6 +3797,7 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveProjectArchive
         """
+        additional_files = [] if additional_files is None else additional_files
         msg_text = "Saving {0} Project".format(self.project_name)
         self.logger.info(msg_text)
         if not project_path:
