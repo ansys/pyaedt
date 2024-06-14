@@ -3308,21 +3308,11 @@ class FieldPlot:
         Returns
         -------
         list or dict
-            List or dictionary of the variables for the field plot.
+            Variables for the field plot.
         """
         var = ""
-        if isinstance(self.intrinsics, list):
-            l = 0
-            while l < len(self.intrinsics):
-                val = self.intrinsics[l + 1]
-                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
-                    val = self.intrinsics[l + 1][0]
-                ll = self.intrinsics[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsics:
-                var += a + "='" + str(self.intrinsics[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @property
@@ -3949,22 +3939,12 @@ class VRTFieldPlot:
 
         Returns
         -------
-        list or dict
-            List or dictionary of the variables for the field plot.
+        str
+            Variables for the field plot.
         """
         var = ""
-        if isinstance(self.intrinsics, list):
-            l = 0
-            while l < len(self.intrinsics):
-                val = self.intrinsics[l + 1]
-                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
-                    val = self.intrinsics[l + 1][0]
-                ll = self.intrinsics[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsics:
-                var += a + "='" + str(self.intrinsics[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @pyaedt_function_handler()
