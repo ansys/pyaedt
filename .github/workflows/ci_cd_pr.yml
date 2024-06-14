@@ -264,19 +264,19 @@ jobs:
       # IronPython tests
 
       - name: "Tests IronPython"
-        if: ${{ matrix.tests.label }} == "ironpython" &&
+        if: ${{ matrix.tests.label == 'ironpython' }}
         timeout-minutes: 5
         run: |
           $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
           $processA.WaitForExit()
 
       - name: "Get logger content"
-        if: ${{ matrix.tests.label }} == "ironpython"
+        if: ${{ matrix.tests.label == 'ironpython' }}
         run: |
           get-content .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log
 
       - name: "Check for errors"
-        if: ${{ matrix.tests.label }} == "ironpython"
+        if: ${{ matrix.tests.label == 'ironpython' }}
         run: |
           $test_errors_failures = Select-String -Path .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
           if ($test_errors_failures -ne $null)
@@ -287,13 +287,13 @@ jobs:
       # Solvers and units tests
 
       - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: "Create a virtual environment"
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         run: |
           python -m venv .venv
           .venv\Scripts\Activate.ps1
@@ -304,13 +304,13 @@ jobs:
             pip
 
       - name: "Install tests dependencies"
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         run: |
           .venv\Scripts\Activate.ps1
           python -m pip install .[tests] pytest-azurepipelines
 
       - name: "Install graphics dependencies"
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         run: |
           .venv\Scripts\Activate.ps1
           python -m pip uninstall --yes vtk
@@ -319,7 +319,7 @@ jobs:
 
       - name: "Run tests"
         uses: nick-fields/retry@v3
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         env:
           PYTHONMALLOC: malloc
         with:
@@ -337,7 +337,7 @@ jobs:
 
       - name: "Upload ${{ matrix.tests.label }} tests coverage"
         uses: codecov/codecov-action@v4
-        if: ${{ matrix.tests.label }} != "ironpython"
+        if: ${{ matrix.tests.label != 'ironpython' }}
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: windows-${{ matrix.tests.label }}-tests-coverage
@@ -346,7 +346,7 @@ jobs:
 
       - name: "Upload ${{ matrix.tests.name }} tests results"
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.tests.label }} != "ironpython" && ${{ always() }}
+        if: ${{ matrix.tests.label != 'ironpython' }}
         with:
           name: windows-${{ matrix.tests.label }}-tests-results
           path: junit/test-results.xml
