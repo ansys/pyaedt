@@ -3202,8 +3202,32 @@ class AMIEyeDiagram(CommonReport):
                     "QTID",
                     False,
                     str(self.quantity_type),
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
                 ],
             ]
+        if len(self.expressions) == 1:
+            sid = 0
+            pid = 0
+            expr = self.expressions[0]
+            expr_head = "Wave"
+            if self.report_category == "Statistical Eye":
+                expr_head = "Eye"
+            found = False
+            while not found:
+                available_quantities = self._post.available_report_quantities(self.report_category, self.report_type,
+                                                                              self.setup, expr_head, arg)
+                if available_quantities[0] == expr:
+                    found = True
+                else:
+                    sid += 1
+                    pid += 1
+                    arg[2][22] = str(sid)
+                    arg[2][31] = str(pid)
         return arg
 
     @property
