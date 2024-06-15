@@ -2613,7 +2613,7 @@ class AMIConturEyeDiagram(CommonReport):
             "0" if not self.enable_jitter_distribution else "1",
             "SID",
             False,
-            "0"
+            "0",
         ]
         if self.enable_jitter_distribution and str(self.quantity_type) == "3":
             sim_context = [
@@ -2693,8 +2693,9 @@ class AMIConturEyeDiagram(CommonReport):
             category = "Eye"
             found = False
             while not found:
-                available_quantities = self._post.available_report_quantities(self.report_category, self.report_type,
-                                                                              self.setup, category, arg)
+                available_quantities = self._post.available_report_quantities(
+                    self.report_category, self.report_type, self.setup, category, arg
+                )
                 if len(available_quantities) == 1 and available_quantities[0].lower() == expr.lower():
                     found = True
                 else:
@@ -3249,8 +3250,9 @@ class AMIEyeDiagram(CommonReport):
                 category = "Voltage"
             found = False
             while not found:
-                available_quantities = self._post.available_report_quantities(self.report_category, self.report_type,
-                                                                              self.setup, category, arg)
+                available_quantities = self._post.available_report_quantities(
+                    self.report_category, self.report_type, self.setup, category, arg
+                )
                 if len(available_quantities) == 1 and available_quantities[0].lower() == expr.lower():
                     found = True
                 else:
