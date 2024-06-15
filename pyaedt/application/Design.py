@@ -235,7 +235,8 @@ class Design(AedtObjects):
         ic_mode=None,
         remove_lock=False,
     ):
-
+        self._design_name = None
+        self._project_name = None
         self.__t = None
         if (
             not is_ironpython
@@ -639,11 +640,11 @@ class Design(AedtObjects):
 
         if not self.odesign:
             return None
-        name = _retry_ntimes(5, self.odesign.GetName)
-        if ";" in name:
-            return name.split(";")[1]
+        self._design_name = _retry_ntimes(5, self.odesign.GetName)
+        if ";" in self._design_name:
+            return self._design_name.split(";")[1]
         else:
-            return name
+            return self._design_name
 
     @design_name.setter
     def design_name(self, new_name):
@@ -666,6 +667,7 @@ class Design(AedtObjects):
                 timeout -= timestep
                 if timeout < 0:
                     raise RuntimeError("Timeout reached while checking design renaming.")
+        self._design_name = new_name
 
     @property
     def design_list(self):
@@ -722,7 +724,8 @@ class Design(AedtObjects):
         """
         if self.oproject:
             try:
-                return self.oproject.GetName()
+                self._project_name = self.oproject.GetName()
+                return self._project_name
             except Exception:
                 return None
         else:
@@ -1093,6 +1096,8 @@ class Design(AedtObjects):
         """
         if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
+            if self._design_name:
+                self._odesign = self.oproject.SetActiveDesign(self._design_name)
         return self._odesign
 
     @odesign.setter
