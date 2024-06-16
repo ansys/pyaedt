@@ -236,3 +236,9 @@ class TestClass:
         name = aedtapp.post.fields_calculator.add_expression("e_line", "Poly1")
         assert name
         assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
+
+        assert main({"is_test": True,
+                     "setup": "MySetupAuto : LastAdaptive",
+                     "calculation": "e_line",
+                     "assignment": ["Polyl1"]})
+
