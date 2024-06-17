@@ -78,7 +78,7 @@ def frontend():  # pragma: no cover
 
     if not port_selection:
         app.logger.error("No ports found.")
-        hfss.release_desktop(False, False)
+        hfss_3dl.release_desktop(False, False)
         output_dict = {"choice": "", "file_path": ""}
         return output_dict
 

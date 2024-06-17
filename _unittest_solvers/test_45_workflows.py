@@ -248,4 +248,4 @@ class TestClass:
         h3d.save_project()
         # In 3D Layout datasets are not retrieved
         # assert h3d.design_datasets
-        h3d.close_project(aedtapp.project_name)
+        h3d.close_project(h3d.project_name)
