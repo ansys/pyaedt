@@ -1611,7 +1611,8 @@ class Desktop(object):
             self.logger.info("Desktop has been released and closed.")
         else:
             self.logger.info("Desktop has been released.")
-        del _desktop_sessions[self.aedt_process_id]
+        if self.aedt_process_id in _desktop_sessions:
+            del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
