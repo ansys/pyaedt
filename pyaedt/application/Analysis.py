@@ -538,7 +538,7 @@ class Analysis(Design, object):
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
-        differential_pairs=[],
+        differential_pairs=None,
     ):
         # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
@@ -557,9 +557,9 @@ class Analysis(Design, object):
             This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str, optional
             Plot category name as in the report (including operator).
-            The default is ``"dB(S"``,  which is the plot category name for capacitance.
+            The default is ``"dB(S)"``,  which is the plot category name for capacitance.
         differential_pairs : list, optional
-            Differential pairs defined. The default is ``[]``.
+            Differential pairs defined. The default is ``None`` in which case an empty list is set.
 
         Returns
         -------
@@ -576,6 +576,7 @@ class Analysis(Design, object):
         ...                          first_element_filter="*_U1_data?",
         ...                          second_element_filter="*_U0_*", category="dB(S")
         """
+        differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
             first_element_filter = "*"
         if not second_element_filter:
