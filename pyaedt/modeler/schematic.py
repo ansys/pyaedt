@@ -15,7 +15,7 @@ if (3, 8) < sys.version_info < (3, 12):
     from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
     from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 else:
-    warnings.warn("Emit libraries not available for current Python version.")
+    warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.circuits.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.circuits.PrimitivesTwinBuilder import TwinBuilderComponents
