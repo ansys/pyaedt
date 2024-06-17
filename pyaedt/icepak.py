@@ -4032,7 +4032,7 @@ class Icepak(FieldAnalysis3D):
         )
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name=None, setup_type=None, **kwargs):
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -4045,7 +4045,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         name : str, optional
-            Name of the setup.
+            Name of the setup. The default is ``"Setup1"``.
         setup_type : int, str, optional
             Type of the setup. Options are ``"IcepakSteadyState"``
             and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.

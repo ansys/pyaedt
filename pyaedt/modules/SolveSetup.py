@@ -903,54 +903,6 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
-    def _parse_link_parameters(self, map_variables_by_name, parameters):
-        # parameters
-        params = OrderedDict({})
-        if map_variables_by_name:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
-            for k, v in parameters.items():
-                params[k] = k
-        elif parameters is None:
-            parameters = self.p_app.available_variations.nominal_w_values_dict
-            for k, v in parameters.items():
-                params[k] = v
-        else:
-            for k, v in parameters.items():
-                if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
-                    params[k] = v
-                else:
-                    params[k] = parameters[v]
-        return params
-
-    def _parse_link_solution(self, project, design, solution):
-        prev_solution = OrderedDict({})
-
-        # project name
-        if project != "This Project*":
-            if os.path.exists(project):
-                prev_solution["Project"] = project
-                self.props["PathRelativeTo"] = "SourceProduct"
-            else:
-                raise ValueError("Project file path provided does not exist.")
-        else:
-            prev_solution["Project"] = project
-            self.props["PathRelativeTo"] = "TargetProject"
-
-        # design name
-        if not design or design is None:
-            raise ValueError("Provide design name to add mesh link to.")
-        elif design not in self.p_app.design_list:
-            raise ValueError("Design does not exist in current project.")
-        else:
-            prev_solution["Design"] = design
-
-        # solution name
-        if solution:
-            prev_solution["Soln"] = solution
-        else:
-            raise ValueError("Provide a valid solution name.")
-        return prev_solution
-
     @pyaedt_function_handler(
         design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
     )
@@ -970,7 +922,7 @@ class Setup(CommonSetup):
         ----------
         design : str
             Name of the design.
-        solution : str
+        solution : str, optional
             Name of the solution in the format ``"name : solution_name"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
@@ -1010,9 +962,49 @@ class Setup(CommonSetup):
         try:
             self.auto_update = False
 
-            params = self._parse_link_parameters(map_variables_by_name, parameters)
+            # parameters
+            params = OrderedDict({})
+            if map_variables_by_name:
+                parameters = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters.items():
+                    params[k] = k
+            elif parameters is None:
+                parameters = self.p_app.available_variations.nominal_w_values_dict
+                for k, v in parameters.items():
+                    params[k] = v
+            else:
+                for k, v in parameters.items():
+                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        params[k] = v
+                    else:
+                        params[k] = parameters[v]
 
-            prev_solution = self._parse_link_solution(project, design, solution)
+            prev_solution = OrderedDict({})
+
+            # project name
+            if project != "This Project*":
+                if os.path.exists(project):
+                    prev_solution["Project"] = project
+                    self.props["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                prev_solution["Project"] = project
+                self.props["PathRelativeTo"] = "TargetProject"
+
+            # design name
+            if not design or design is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                prev_solution["Design"] = design
+
+            # solution name
+            if solution:
+                prev_solution["Soln"] = solution
+            else:
+                raise ValueError("Provide a valid solution name.")
 
             self.props["PrevSoln"] = prev_solution
 
@@ -3891,87 +3883,3 @@ class SetupQ3D(Setup, object):
 
         self.omodule.EditSetup(self.name, arg)
         return True
-
-
-class SetupIcepak(Setup, object):
-    def __init__(self, app, solution_type, setup_name=None, is_new_setup=True):
-        if setup_name is None:
-            setup_name = generate_unique_name("Setup")
-        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
-
-    def start_continue_from_previous_setup(
-        self,
-        design,
-        solution,
-        map_variables_by_name=True,
-        parameters=None,
-        project="This Project*",
-        force_source_to_solve=True,
-        preserve_partner_solution=True,
-        frozen_flow=False,
-    ):
-        """Start or continue from a previously solved setup.
-
-        Parameters
-        ----------
-        design : str
-            Name of the design.
-        solution : str
-            Name of the solution in the format ``"name : solution_name"``.
-            For example, ``"Setup1 : Transient"``, ``"Setup1 : SteadyState"``.
-        map_variables_by_name : bool, optional
-            Whether variables are mapped by name from the source design. The default is
-            ``True``.
-        parameters : dict, optional
-            Dictionary of the parameters. This parameter is not considered if
-            ``map_variables_by_name=True``. If ``None``, the default is
-            ``appname.available_variations.nominal_w_values_dict``.
-        project : str, optional
-            Name of the project with the design. The default is ``"This Project*"``.
-            However, you can supply the full path and name to another project.
-        force_source_to_solve : bool, optional
-            The default is ``True``.
-        preserve_partner_solution : bool, optional
-            The default is ``True``.
-        frozen_flow : bool, optional
-            Whether to freeze the flow to the previous solution. The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.EditSetup
-
-        Examples
-        --------
-        >>> ipk = pyaedt.Icepak()
-        >>> setup = ipk.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
-
-        """
-
-        auto_update = self.auto_update
-        try:
-            self.auto_update = False
-
-            params = self._parse_link_parameters(map_variables_by_name, parameters)
-
-            prev_solution = self._parse_link_solution(project, design, solution)
-
-            self.props["RestartSoln"] = prev_solution
-
-            self.props["RestartSoln"]["Params"] = params
-            self.props["RestartSoln"]["ForceSourceToSolve"] = force_source_to_solve
-            self.props["RestartSoln"]["PreservePartnerSoln"] = preserve_partner_solution
-            self.props["Frozen Flow Simulation"] = frozen_flow
-
-            self.update()
-            self.auto_update = auto_update
-            return True
-        except Exception:
-            self.auto_update = auto_update
-            return False
