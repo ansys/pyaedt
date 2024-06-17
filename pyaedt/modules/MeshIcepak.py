@@ -633,10 +633,20 @@ class MeshRegionCommon(object):
             return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        if "settings" in self.__dict__ and name in self.settings:
+        if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
+        elif (
+            ("settings" in self.__dict__)
+            and not (name in self.settings)
+            and name not in ["manual_settings", "settings", "_name", "_model_units", "_app"]
+        ):
+            self._app.logger.error(
+                "Setting name {} is not available. Available parameters are: {}.".format(
+                    name, ", ".join(self.settings.keys())
+                )
+            )
         else:
             super(MeshRegionCommon, self).__setattr__(name, value)
 
