@@ -41,10 +41,10 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
+cir = pyaedt.Circuit(project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
-                     specified_version=aedt_version,
-                     new_desktop_session=True
+                     version=aedt_version,
+                     new_desktop=True
                      )
 cir.analyze()
 

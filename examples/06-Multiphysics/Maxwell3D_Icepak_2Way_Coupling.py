@@ -41,10 +41,10 @@ maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=project_name,
-    designname=maxwell_design_name,
+    project=project_name,
+    design=maxwell_design_name,
     solution_type="EddyCurrent",
-    specified_version=aedt_version,
+    version=aedt_version,
     non_graphical=non_graphical,
 )
 
@@ -175,8 +175,8 @@ m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}
 # ~~~~~~~~~~~~~
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
-ipk = pyaedt.Icepak(designname=icepak_design_name)
-ipk.copy_solid_bodies_from(m3d, pec=False)
+ipk = pyaedt.Icepak(design=icepak_design_name)
+ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil
 ipk.modeler["Region"].delete()

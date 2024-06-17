@@ -38,7 +38,7 @@ new_thread = True
 # starts the specified version in the specified mode.
 
 desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
-aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
+aedt_app = pyaedt.Circuit(project=pyaedt.generate_unique_project_name())
 aedt_app.modeler.schematic.schematic_units = "mil"
 ###############################################################################
 # Create circuit setup

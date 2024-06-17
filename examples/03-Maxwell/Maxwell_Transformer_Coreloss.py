@@ -10,7 +10,7 @@ of Power-Volume [kw/m^3] curves at different frequencies.
 # Perform required imports.
 
 from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
@@ -60,10 +60,10 @@ curves_csv_1MHz = list(zip(data[data.columns[0]],
 # ~~~~~~~~~~~
 # Launch AEDT in graphical mode.
 
-m3d = Maxwell3d(projectname=aedt_file,
-                designname="02_3D eddycurrent_CmXY_for_thermal",
-                specified_version=aedt_version,
-                new_desktop_session=True,
+m3d = Maxwell3d(project=aedt_file,
+                design="02_3D eddycurrent_CmXY_for_thermal",
+                version=aedt_version,
+                new_desktop=True,
                 non_graphical=False)
 
 ###############################################################################

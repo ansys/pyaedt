@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
@@ -123,7 +147,6 @@ class Objects(dict):
         if self.__obj_type == "o":
             self.__parent._object_names_to_ids[value.name] = key
 
-    @pyaedt_function_handler()
     def __getitem__(self, item):
         if item in dict.keys(self):
             return dict.__getitem__(self, item)
@@ -208,11 +231,20 @@ class GeometryModeler(Modeler):
             return partId
         try:
             return self.objects[partId]
-        except Exception:
-            if partId in self.user_defined_components.keys():
-                return self.user_defined_components[partId]
-        self.logger.error("Object '{}' not found.".format(partId))
-        return None
+        except KeyError:
+            pass
+        try:
+            return self.user_defined_components[partId]
+        except KeyError:
+            pass
+        try:
+            return self.planes[partId]
+        except KeyError:
+            pass
+        try:
+            return self.points[partId]
+        except KeyError:
+            return
 
     def __init__(self, app, is3d=True):
         self._app = app
@@ -576,7 +608,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List
+        list
         """
         self._refresh_solids()
         return self._solids
@@ -587,7 +619,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        str
+        list
         """
         self._refresh_sheets()
         return self._sheets
@@ -598,7 +630,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        str
+        list
         """
         self._refresh_lines()
         return self._lines
@@ -609,7 +641,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        str
+        list
         """
         self._refresh_unclassified()
         return self._unclassified
@@ -620,7 +652,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        str
+        list
         """
         self._refresh_object_types()
         return [i for i in self._all_object_names if i not in self._unclassified and i not in self._points]
@@ -631,7 +663,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        str
+        list
         """
         self._refresh_points()
         return self._points
@@ -2896,6 +2928,7 @@ class GeometryModeler(Modeler):
             str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+        self.add_new_objects()
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
@@ -2964,6 +2997,7 @@ class GeometryModeler(Modeler):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(clones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+        self.add_new_objects()
         self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
@@ -3670,6 +3704,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Paste
         """
+        self.add_new_objects()
         self.oeditor.Paste()
         new_objects = self.add_new_objects()
         return new_objects
@@ -4599,6 +4634,108 @@ class GeometryModeler(Modeler):
 
         return position_list
 
+    @pyaedt_function_handler(
+        object_list="assignment_to_export",
+        removed_objects="assignment_to_remove",
+        fileName="file_name",
+        filePath="file_path",
+        fileFormat="file_format",
+    )
+    def export_3d_model(
+        self,
+        file_name="",
+        file_path="",
+        file_format=".step",
+        assignment_to_export=None,
+        assignment_to_remove=None,
+        major_version=-1,
+        minor_version=-1,
+    ):
+        """Export the 3D model.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Name of the file.
+        file_path : str, optional
+            Path for the file.
+        file_format : str, optional
+            Format of the file. The default is ``".step"``.
+        assignment_to_export : list, optional
+            List of objects to export. The default is ``None``.
+        assignment_to_remove : list, optional
+            List of objects to remove. The default is ``None``.
+        major_version : int, optional
+            File format major version. The default is -1.
+        minor_version : int, optional
+            File format major version. The default is -1.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Export
+        """
+
+        if not file_name:
+            file_name = self.project_name + "_" + self.design_name
+        if not file_path:
+            file_path = self.working_directory
+        if assignment_to_export is None:
+            assignment_to_export = []
+        if assignment_to_remove is None:
+            assignment_to_remove = []
+
+        sub_regions = []
+        if self._app.settings.aedt_version > "2023.2":
+            sub_regions = [o for o in self.non_model_objects if self[o].history().command == "CreateSubRegion"]
+
+        if not assignment_to_export:
+            allObjects = self.object_names
+            if assignment_to_remove:
+                for rem in assignment_to_remove:
+                    allObjects.remove(rem)
+            else:
+                if "Region" in allObjects:
+                    allObjects.remove("Region")
+            for o in sub_regions:
+                allObjects.remove(o)
+        else:
+            allObjects = assignment_to_export[:]
+
+        self.logger.debug("Exporting {} objects".format(len(allObjects)))
+
+        # actual version supported by AEDT is 29.0
+        if major_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                major_version = 29
+        if minor_version == -1:
+            if file_format in [".sm3", ".sat", ".sab"]:
+                minor_version = 0
+        stringa = ",".join(allObjects)
+        arg = [
+            "NAME:ExportParameters",
+            "AllowRegionDependentPartSelectionForPMLCreation:=",
+            True,
+            "AllowRegionSelectionForPMLCreation:=",
+            True,
+            "Selections:=",
+            stringa,
+            "File Name:=",
+            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
+            "Major Version:=",
+            major_version,
+            "Minor Version:=",
+            minor_version,
+        ]
+
+        self.oeditor.Export(arg)
+        return True
+
     @pyaedt_function_handler(filename="input_file")
     def import_3d_cad(
         self,
@@ -5391,7 +5528,7 @@ class GeometryModeler(Modeler):
         if components is None and groups is None and objects is None:
             raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
 
-        all_objects = self.object_names
+        all_objects = self.object_names[:] + self.oeditor.GetChildNames("Groups")[::]
         if objects:
             object_selection = self.convert_to_selections(objects, return_list=False)
         else:
@@ -5417,7 +5554,9 @@ class GeometryModeler(Modeler):
             group_selection,
         ]
         assigned_name = self.oeditor.CreateGroup(arg)
-        if group_name and group_name not in all_objects:
+        if group_name and group_name in all_objects:
+            group_name = generate_unique_name(group_name, n=2)
+        if group_name:
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
@@ -5429,8 +5568,7 @@ class GeometryModeler(Modeler):
                 ]
             )
             return group_name
-        else:
-            return assigned_name
+        return assigned_name
 
     @pyaedt_function_handler()
     def ungroup(self, groups):
@@ -6559,7 +6697,7 @@ class GeometryModeler(Modeler):
         >>> from pyaedt.modeler.cad.polylines import PolylineSegment
         >>> from pyaedt import Desktop
         >>> from pyaedt import Maxwell3d
-        >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
+        >>> desktop=Desktop(version="2021.2", new_desktop=False)
         >>> aedtapp = Maxwell3d()
         >>> aedtapp.modeler.model_units = "mm"
         >>> modeler = aedtapp.modeler

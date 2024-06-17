@@ -1,7 +1,30 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import csv
 import ntpath
 import os
-import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations
@@ -39,13 +62,13 @@ class FieldAnalysis3D(Analysis, object):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -55,8 +78,12 @@ class FieldAnalysis3D(Analysis, object):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     def __init__(
@@ -66,14 +93,15 @@ class FieldAnalysis3D(Analysis, object):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -82,14 +110,15 @@ class FieldAnalysis3D(Analysis, object):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._post = None
         self._modeler = None
@@ -422,8 +451,8 @@ class FieldAnalysis3D(Analysis, object):
                     return val
         return None
 
-    @pyaedt_function_handler(object_list="assignment", no_vacuum="vacuum", no_pec="pec")
-    def copy_solid_bodies_from(self, design, assignment=None, vacuum=True, pec=True, include_sheets=False):
+    @pyaedt_function_handler(object_list="assignment")
+    def copy_solid_bodies_from(self, design, assignment=None, no_vacuum=True, no_pec=True, include_sheets=False):
         """Copy a list of objects and user defined models from one design to the active design.
         If user defined models are selected, the project will be saved automatically.
 
@@ -433,10 +462,10 @@ class FieldAnalysis3D(Analysis, object):
             Starting application object. For example, ``hfss1= HFSS3DLayout``.
         assignment : list, optional
             List of objects and user defined components to copy. The default is ``None``.
-        vacuum : bool, optional
+        no_vacuum : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``True``.
-        pec :
+        no_pec :
             Whether to include pec objects for the copied objects. The
             default is ``True``.
         include_sheets :
@@ -487,9 +516,9 @@ class FieldAnalysis3D(Analysis, object):
                 include_object = True
                 for key, val in material_properties.items():
                     if val.name == body:
-                        if vacuum and val.material_name.lower() == "vacuum":
+                        if no_vacuum and val.material_name.lower() == "vacuum":
                             include_object = False
-                        if pec and val.material_name == "pec":
+                        if no_pec and val.material_name == "pec":
                             include_object = False
                 if include_object:
                     selection_list.append(body)
@@ -504,7 +533,99 @@ class FieldAnalysis3D(Analysis, object):
         self.modeler.refresh_all_ids()
         return True
 
-    @pyaedt_function_handler(object_list="assignment_to_export", removed_objects="assignment_to_remove")
+    @pyaedt_function_handler(filename="input_file")
+    def import_3d_cad(
+        self,
+        input_file,
+        healing=False,
+        refresh_all_ids=True,
+        import_materials=False,
+        create_lightweigth_part=False,
+        group_by_assembly=False,
+        create_group=True,
+        separate_disjoints_lumped_object=False,
+        import_free_surfaces=False,
+        point_coicidence_tolerance=1e-6,
+        heal_stl=True,
+        reduce_stl=False,
+        reduce_percentage=0,
+        reduce_error=0,
+        merge_planar_faces=True,
+    ):
+        """Import a CAD model.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path and name of the CAD file.
+        healing : bool, optional
+            Whether to perform healing. The default is ``False``.
+        refresh_all_ids : bool, optional
+            Whether to refresh all IDs after the CAD file is loaded. The
+            default is ``True``. Refreshing IDs can take a lot of time in
+            a big project.
+        import_materials : bool optional
+            Whether to import material names from the file if present. The
+            default is ``False``.
+        create_lightweigth_part : bool ,optional
+            Whether to import a lightweight part. The default is ``True``.
+        group_by_assembly : bool, optional
+            Whether to import by subassembly. The default is ``False``, in which
+            case the import is by individual parts.
+        create_group : bool, optional
+            Whether to create a group of imported objects. The default is ``True``.
+        separate_disjoints_lumped_object : bool, optional
+            Whether to automatically separate disjoint parts. The default is ``False``.
+        import_free_surfaces : bool, optional
+            Whether to import free surfaces parts. The default is ``False``.
+        point_coicidence_tolerance : float, optional
+            Tolerance on the point. The default is ``1e-6``.
+        heal_stl : bool, optional
+            Whether to heal the STL file on import. The default is ``True``.
+        reduce_stl : bool, optional
+            Whether to reduce the STL file on import. The default is ``True``.
+        reduce_percentage : int, optional
+            Percentage to reduce the STL file by if ``reduce_stl=True``. The default is ``0``.
+        reduce_error : int, optional
+            Error percentage during STL reduction operation. The default is ``0``.
+        merge_planar_faces : bool, optional
+            Whether to merge planar faces during import. The default is ``True``.
+
+        Returns
+        -------
+         bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Import
+        """
+        return self.modeler.import_3d_cad(
+            input_file=input_file,
+            healing=healing,
+            refresh_all_ids=refresh_all_ids,
+            import_materials=import_materials,
+            create_lightweigth_part=create_lightweigth_part,
+            group_by_assembly=group_by_assembly,
+            create_group=create_group,
+            separate_disjoints_lumped_object=separate_disjoints_lumped_object,
+            import_free_surfaces=import_free_surfaces,
+            point_coicidence_tolerance=point_coicidence_tolerance,
+            heal_stl=heal_stl,
+            reduce_stl=reduce_stl,
+            reduce_percentage=reduce_percentage,
+            reduce_error=reduce_error,
+            merge_planar_faces=merge_planar_faces,
+        )
+
+    @pyaedt_function_handler(
+        object_list="assignment_to_export",
+        removed_objects="assignment_to_remove",
+        fileName="file_name",
+        filePath="file_path",
+        fileFormat="file_format",
+    )
     def export_3d_model(
         self,
         file_name="",
@@ -514,7 +635,6 @@ class FieldAnalysis3D(Analysis, object):
         assignment_to_remove=None,
         major_version=-1,
         minor_version=-1,
-        **kwargs  # fmt: skip
     ):
         """Export the 3D model.
 
@@ -545,83 +665,15 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
-        if "fileName" in kwargs:
-            warnings.warn(
-                "`fileName` is deprecated. Use `file_name` instead.",
-                DeprecationWarning,
-            )
-
-            file_name = kwargs["fileName"]
-        if "filePath" in kwargs:
-            warnings.warn(
-                "`filePath` is deprecated. Use `file_path` instead.",
-                DeprecationWarning,
-            )
-
-            file_path = kwargs["filePath"]
-        if "fileFormat" in kwargs:
-            warnings.warn(
-                "`fileFormat` is deprecated. Use `file_format` instead.",
-                DeprecationWarning,
-            )
-
-            file_format = kwargs["fileFormat"]
-        if not file_name:
-            file_name = self.project_name + "_" + self.design_name
-        if not file_path:
-            file_path = self.working_directory
-        if assignment_to_export is None:
-            assignment_to_export = []
-        if assignment_to_remove is None:
-            assignment_to_remove = []
-
-        sub_regions = []
-        if self.settings.aedt_version > "2023.2":
-            sub_regions = [
-                o for o in self.modeler.non_model_objects if self.modeler[o].history().command == "CreateSubRegion"
-            ]
-
-        if not assignment_to_export:
-            allObjects = self.modeler.object_names
-            if assignment_to_remove:
-                for rem in assignment_to_remove:
-                    allObjects.remove(rem)
-            else:
-                if "Region" in allObjects:
-                    allObjects.remove("Region")
-            for o in sub_regions:
-                allObjects.remove(o)
-        else:
-            allObjects = assignment_to_export[:]
-
-        self.logger.debug("Exporting {} objects".format(len(allObjects)))
-
-        # actual version supported by AEDT is 29.0
-        if major_version == -1:
-            if file_format in [".sm3", ".sat", ".sab"]:
-                major_version = 29
-        if minor_version == -1:
-            if file_format in [".sm3", ".sat", ".sab"]:
-                minor_version = 0
-        stringa = ",".join(allObjects)
-        arg = [
-            "NAME:ExportParameters",
-            "AllowRegionDependentPartSelectionForPMLCreation:=",
-            True,
-            "AllowRegionSelectionForPMLCreation:=",
-            True,
-            "Selections:=",
-            stringa,
-            "File Name:=",
-            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
-            "Major Version:=",
-            major_version,
-            "Minor Version:=",
-            minor_version,
-        ]
-
-        self.modeler.oeditor.Export(arg)
-        return True
+        return self.modeler.export_3d_model(
+            file_name=file_name,
+            file_path=file_path,
+            file_format=file_format,
+            assignment_to_export=assignment_to_export,
+            assignment_to_remove=assignment_to_remove,
+            major_version=major_version,
+            minor_version=minor_version,
+        )
 
     @pyaedt_function_handler()
     def get_all_sources(self):
@@ -1023,7 +1075,7 @@ class FieldAnalysis3D(Analysis, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not password:
+        if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
         if not components:
@@ -1073,7 +1125,7 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
             obj_set = set(self.modeler.objects.values())
-            self.copy_solid_bodies_from(app, vacuum=False, pec=False, include_sheets=True)
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
             self.modeler.refresh_all_ids()
             self.modeler.set_working_coordinate_system(oldcs)
             if self.design_type == "Icepak":

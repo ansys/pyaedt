@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from _unittest.conftest import config
@@ -777,13 +801,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
@@ -808,13 +831,12 @@ class TestClass:
             "test_ignore",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         file_name = "Advanced3DComp1.a3dcomp"
         mon_list = list(self.aedtapp.monitor.all_monitors.keys())
@@ -863,13 +885,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp_T51.a3dcomp"
@@ -888,13 +909,12 @@ class TestClass:
             "test_ignore",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         mon_list = list(self.aedtapp.monitor.all_monitors.keys())
         self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
@@ -1433,7 +1453,7 @@ class TestClass:
 
         assert app.mesh.add_priority(entity_type=2, component="all_3d_objects1", priority=2)
 
-        app.close_project(name="3d_comp_mesh_prio_test", save_project=False)
+        app.close_project(name="3d_comp_mesh_prio_test", save=False)
 
     def test_69_recirculation_boundary(self):
         box = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
@@ -1588,7 +1608,7 @@ class TestClass:
     def test_74_boundary_conditions_dictionaries(self):
         box1 = self.aedtapp.modeler.create_box([5, 5, 5], [1, 2, 3])
         ds_temp = self.aedtapp.create_dataset(
-            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, xunit="cel", yunit="W"
+            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, x_unit="cel", y_unit="W"
         )
         bc1 = self.aedtapp.create_temp_dep_assignment(ds_temp.name)
         assert bc1
@@ -1598,7 +1618,7 @@ class TestClass:
         self.aedtapp.solution_type = "Transient"
 
         ds_time = self.aedtapp.create_dataset(
-            "ds_time3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, xunit="s", yunit="W"
+            "ds_time3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, x_unit="s", y_unit="W"
         )
         bc2 = self.aedtapp.create_dataset_transient_assignment(ds_time.name)
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [20, 10])
@@ -1645,7 +1665,7 @@ class TestClass:
         )
 
         ds1_temp = self.aedtapp.create_dataset(
-            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, xunit="cel", yunit="W"
+            "ds_temp3", [1, 2, 3], [3, 2, 1], is_project_dataset=True, x_unit="cel", y_unit="W"
         )
         assert not self.aedtapp.create_temp_dep_assignment(ds1_temp.name)
         assert not self.aedtapp.create_temp_dep_assignment("nods")

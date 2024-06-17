@@ -188,7 +188,7 @@ class TestClass:
         assert len(obj_list[self.aedtapp.nets[0]]) == 0
 
     def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
+        self.aedtapp.load_project(self.test_project, close_active=True, set_active=False)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface("bondwire_example", self.aedtapp.AXIS.Z,
                                                                               min_size=0.2, number_of_segments=8)
         assert test
@@ -270,7 +270,7 @@ class TestClass:
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_14_edit_sources(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -306,7 +306,7 @@ class TestClass:
         sources_dc = {"Box1:Source1": ["20v"]}
         assert q3d.edit_sources(None, None, sources_dc)
 
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_15_export_matrix_data(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -370,7 +370,7 @@ class TestClass:
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_16_export_equivalent_circuit(self, add_app):
         test_matrix2 = self.local_scratch.copyfile(
@@ -415,7 +415,7 @@ class TestClass:
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test_14")
         assert not q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test")
-        self.aedtapp.close_project(q3d.project_name, save_project=False)
+        self.aedtapp.close_project(q3d.project_name, save=False)
 
     def test_17_export_results_q3d(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.test_matrix, just_open=True)
@@ -429,7 +429,7 @@ class TestClass:
         q3d.analyze(cores=6)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
-        q3d.close_project(q3d.project_name, save_project=False)
+        q3d.close_project(q3d.project_name, save=False)
 
     def test_18_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

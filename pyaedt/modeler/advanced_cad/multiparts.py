@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from pyaedt.generic.filesystem import get_json_files
@@ -401,20 +424,18 @@ class MultiPartComponent(object):
             for m in range(3):
                 # app[self.offset_names[m]] = self.offset[m]
                 app.variable_manager.set_variable(
-                    variable_name=self.offset_names[m],
+                    name=self.offset_names[m],
                     expression=self.offset[m],
                     description=self.name + " " + xyz[m] + "-position",
                 )
+            app.variable_manager.set_variable(name=self.yaw_name, expression=self.yaw, description=self.name + " yaw")
+
             app.variable_manager.set_variable(
-                variable_name=self.yaw_name, expression=self.yaw, description=self.name + " yaw"
+                name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
             )
 
             app.variable_manager.set_variable(
-                variable_name=self.pitch_name, expression=self.pitch, description=self.name + " pitch"
-            )
-
-            app.variable_manager.set_variable(
-                variable_name=self.roll_name, expression=self.roll, description=self.name + " roll"
+                name=self.roll_name, expression=self.roll, description=self.name + " roll"
             )
 
             cs_origin = self.offset_names
@@ -618,7 +639,7 @@ class Actor(MultiPartComponent, object):
     @pyaedt_function_handler()
     def _add_speed(self, app):
         app.variable_manager.set_variable(
-            variable_name=self.speed_name, expression=self.speed_expression, description="object speed"
+            name=self.speed_name, expression=self.speed_expression, description="object speed"
         )
         # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (

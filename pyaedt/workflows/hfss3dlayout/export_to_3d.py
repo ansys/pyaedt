@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -100,8 +101,8 @@ def main(extension_args):
     choice = extension_args["choice"]
 
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -119,7 +120,7 @@ def main(extension_args):
         app.release_desktop(False, False)
         raise Exception("Hfss 3D Layout project is needed.")
 
-    h3d = pyaedt.Hfss3dLayout(projectname=project_name, designname=design_name)
+    h3d = pyaedt.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = suffixes[choice]
 
@@ -133,21 +134,16 @@ def main(extension_args):
     h3d.save_project()
 
     if choice == "Export to Q3D":
-        _ = pyaedt.Q3d(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        _ = pyaedt.Q3d(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
     else:
-        aedtapp = pyaedt.Hfss(projectname=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        aedtapp = pyaedt.Hfss(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
         aedtapp2 = None
         if choice == "Export to Maxwell 3D":
-            aedtapp2 = pyaedt.Maxwell3d(projectname=aedtapp.project_name)
+            aedtapp2 = pyaedt.Maxwell3d(project=aedtapp.project_name)
         elif choice == "Export to Icepak":
-            aedtapp2 = pyaedt.Icepak(projectname=aedtapp.project_name)
+            aedtapp2 = pyaedt.Icepak(project=aedtapp.project_name)
         if aedtapp2:
-            aedtapp2.copy_solid_bodies_from(
-                aedtapp,
-                no_vacuum=False,
-                no_pec=False,
-                include_sheets=True,
-            )
+            aedtapp2.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False, include_sheets=True)
             aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
 

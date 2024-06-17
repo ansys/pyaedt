@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +37,8 @@ import warnings
 from defusedxml.ElementTree import ParseError
 from defusedxml.minidom import parseString
 
-from pyaedt import is_linux
 from pyaedt.generic.general_methods import read_toml
+from pyaedt.generic.settings import is_linux
 import pyaedt.workflows
 import pyaedt.workflows.templates
 
