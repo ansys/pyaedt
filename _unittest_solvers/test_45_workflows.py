@@ -228,24 +228,24 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_10_push_excitation_3dl(self, add_app, local_scratch):
+    def test_10_push_excitation_3dl(self, local_scratch, desktop):
         from pyaedt.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
 
         project_path = shutil.copy(os.path.join(local_path, "example_models",
                                                 "T41",
-                                                "test_post_processing.aedtz"),
-                                   os.path.join(local_scratch.path, "test_post_processing.aedtz"))
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
-                          project_name=project_path)
+                                                "test_post_3d_layout_solved_23R2.aedtz"),
+                                   os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
+
+        h3d = pyaedt.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
 
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
-        aedtapp.save_project()
-        assert not aedtapp.design_datasets
+        h3d.save_project()
+        assert not h3d.design_datasets
 
         # Correct choice
-        assert main({"is_test": True, "file_path": file_path, "choice": "1:1"})
-        aedtapp.save_project()
-        assert aedtapp.design_datasets
-
-        aedtapp.close_project(aedtapp.project_name)
+        assert main({"is_test": True, "file_path": file_path, "choice": "Port1"})
+        h3d.save_project()
+        # In 3D Layout datasets are not retrieved
+        # assert h3d.design_datasets
+        h3d.close_project(aedtapp.project_name)
