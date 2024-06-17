@@ -945,21 +945,21 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def available_quantities_categories(
-        self, report_category=None, display_type=None, solution=None, context="", is_siwave_dc=False
+        self, report_category=None, display_type=None, solution=None, context=None, is_siwave_dc=False
     ):
         """Compute the list of all available report categories.
 
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is `None` which will take first default category.
+            Report Category. Default is ``None`` which will take first default category.
         display_type : str, optional
             Report Display Type.
             Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
-        context : str, optional
-            Report Category. Default is `""` which will take first default context.
+            Report Setup. Default is ``None`` which will take first nominal_adaptive solution.
+        context : str, dict, optional
+            Report Category. Default is ``None`` which will take first default context.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
@@ -994,7 +994,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:  # pragma: no cover
             context = ""
 
@@ -1009,7 +1016,7 @@ class PostProcessorCommon(object):
         display_type=None,
         solution=None,
         quantities_category=None,
-        context="",
+        context=None,
         is_siwave_dc=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
@@ -1026,8 +1033,10 @@ class PostProcessorCommon(object):
         quantities_category : str, optional
             The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
             Default is ``None`` which will take first default quantity.".
-        context : str, optional
-            Report Context. Default is ``""`` which will take first default context.
+        context : str, dict, optional
+            Report Context. Default is ``None`` which will take first default context.
+            For Maxwell 2D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
@@ -1062,7 +1071,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:
             context = ""
         if not quantities_category:

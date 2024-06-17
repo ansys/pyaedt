@@ -1282,7 +1282,6 @@ class MaxwellParameters(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
-        self.CATEGORIES = CATEGORIESQ3D()
 
     @property
     def object_properties(self):
@@ -1470,7 +1469,7 @@ class MaxwellParameters(BoundaryCommon, object):
         get_mutual_terms=True,
         first_element_filter=None,
         second_element_filter=None,
-        category="C",
+        category="L",
     ):
         """Return a list of source of specified matrix ready to be used in plot reports.
 
@@ -1485,7 +1484,7 @@ class MaxwellParameters(BoundaryCommon, object):
         second_element_filter : str, optional
             Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
         category : str
-            Plot category name as in the report. Eg. "C" is category Capacitance.
+            Plot category name as in the report. Eg. "L" is category Inductance.
             Matrix `CATEGORIES` property can be used to map available categories.
 
         Returns
@@ -1504,7 +1503,7 @@ class MaxwellParameters(BoundaryCommon, object):
         if not second_element_filter:
             second_element_filter = "*"
         is_cg = False
-        if category in [self.CATEGORIES.Q3D.C, self.CATEGORIES.Q3D.G]:
+        if category in [self.CATEGORIESMAXWELL.Maxwell2d.L, self.CATEGORIESMAXWELL.Maxwell2d.R]:
             is_cg = True
         list_output = []
         # params = oDesign.GetChildObject("Parameters")
@@ -2067,6 +2066,7 @@ class Matrix(object):
         >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
         ...                                      second_element_filter="GND*", category="DCL")
         """
+        # DO WE REALLY NEED IT?
         if not first_element_filter:
             first_element_filter = "*"
         if not second_element_filter:
