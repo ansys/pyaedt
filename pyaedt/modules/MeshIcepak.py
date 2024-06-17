@@ -258,7 +258,7 @@ class CommonRegion(object):
             return {
                 "CreateRegion": oo
                 for o, oo in self._app.modeler.objects_by_name.items()
-                if oo.history().command == "CreateRegion"
+                if oo.history() and oo.history().command == "CreateRegion"
             }.get("CreateRegion", None)
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
@@ -674,6 +674,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         args = ["NAME:Settings"]
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
+        if self.global_region.object:
+            args += ["Objects({})".format(str(self.global_region.object.id))]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
