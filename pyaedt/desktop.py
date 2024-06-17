@@ -472,8 +472,14 @@ class Desktop(object):
 
     def __new__(cls, *args, **kwargs):
         # The following commented lines will be useful when we will need to search among multiple saved desktop.
-        specified_version = kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
-        new_desktop = kwargs.get("new_desktop") or False if (not args or len(args) < 3) else args[2]
+        specified_version = (
+            kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
+        )
+        new_desktop = (
+            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or False
+            if (not args or len(args) < 3)
+            else args[2]
+        )
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         specified_version = get_string_version(specified_version)
@@ -1605,7 +1611,8 @@ class Desktop(object):
             self.logger.info("Desktop has been released and closed.")
         else:
             self.logger.info("Desktop has been released.")
-        del _desktop_sessions[self.aedt_process_id]
+        if self.aedt_process_id in _desktop_sessions:
+            del _desktop_sessions[self.aedt_process_id]
         props = [a for a in dir(self) if not a.startswith("__")]
         for a in props:
             self.__dict__.pop(a, None)
