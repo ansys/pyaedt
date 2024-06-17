@@ -233,7 +233,7 @@ class TestClass:
         aedtapp = add_app(application=pyaedt.Maxwell2d,
                           project_name=m2d_electrostatic,
                           subfolder=test_subfolder)
-        name = aedtapp.post.fields_calculator.add_expression("e_line", "Poly1")
+        name = aedtapp.post.fields_calculator.add_expression("e_line")
         assert name
         assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
 
