@@ -26,7 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Libraries",
+    "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
