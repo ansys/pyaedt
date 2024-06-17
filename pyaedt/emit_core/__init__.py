@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import imp
 from importlib import import_module
+from importlib.util import find_spec
 import os
 import sys
 
@@ -93,9 +93,12 @@ def _set_api(aedt_version):
         if override_path_key in os.environ:
             path = os.environ.get(override_path_key)
         sys.path.insert(0, path)
-        module_path = imp.find_module("EmitApiPython")[1]
-        logger.info("Importing EmitApiPython from: {}".format(module_path))
+        module_name = "EmitApiPython"
+        spec = find_spec(module_name)
+        if spec is None:
+            raise ImportError(f"Cannot find module {module_name}")
+        logger.info(f"Importing {module_name} from: {spec.origin}")
         global EMIT_API_PYTHON
-        EMIT_API_PYTHON = import_module("EmitApiPython")
+        EMIT_API_PYTHON = import_module(module_name)
         logger.info("Loaded {}".format(EMIT_API_PYTHON.EmitApi().get_version(True)))
         _init_enums(aedt_version)
