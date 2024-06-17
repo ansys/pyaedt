@@ -12,6 +12,13 @@ and run a Twin Builder time-domain simulation.
 
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,8 +30,6 @@ import pyaedt
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2023.2"
-
 non_graphical = False
 new_thread = True
 
@@ -34,10 +39,10 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=desktop_version,
+tb = pyaedt.TwinBuilder(project=pyaedt.generate_unique_project_name(),
+                        version=aedt_version,
                         non_graphical=non_graphical,
-                        new_desktop_session=new_thread
+                        new_desktop=new_thread
                         )
 tb.modeler.schematic_units = "mil"
 
@@ -94,7 +99,7 @@ E_Value = "E1.V"
 C_Value = "C1.V"
 
 x = tb.post.get_solution_data([E_Value, C_Value], "TR", "Time")
-x.plot([E_Value, C_Value], xlabel="Time", ylabel="Capacitor Voltage vs Input Pulse")
+x.plot([E_Value, C_Value], x_label="Time", y_label="Capacitor Voltage vs Input Pulse")
 
 tb.save_project()
 

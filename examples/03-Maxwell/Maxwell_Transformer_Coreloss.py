@@ -10,10 +10,17 @@ of Power-Volume [kw/m^3] curves at different frequencies.
 # Perform required imports.
 
 from pyaedt import downloads
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import read_csv_pandas
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 #################################################################################
 # Download .aedt file example
@@ -29,34 +36,34 @@ freq_curve_csv_400kHz = downloads.download_file("core_loss_transformer", "mf3_40
 freq_curve_csv_700kHz = downloads.download_file("core_loss_transformer", "mf3_700kHz.csv", temp_folder)
 freq_curve_csv_1MHz = downloads.download_file("core_loss_transformer", "mf3_1MHz.csv", temp_folder)
 
-data = read_csv_pandas(filename=freq_curve_csv_25kHz)
+data = read_csv_pandas(input_file=freq_curve_csv_25kHz)
 curves_csv_25kHz = list(zip(data[data.columns[0]],
                             data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_100kHz)
+data = read_csv_pandas(input_file=freq_curve_csv_100kHz)
 curves_csv_100kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_200kHz)
+data = read_csv_pandas(input_file=freq_curve_csv_200kHz)
 curves_csv_200kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_400kHz)
+data = read_csv_pandas(input_file=freq_curve_csv_400kHz)
 curves_csv_400kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_700kHz)
+data = read_csv_pandas(input_file=freq_curve_csv_700kHz)
 curves_csv_700kHz = list(zip(data[data.columns[0]],
                              data[data.columns[1]]))
-data = read_csv_pandas(filename=freq_curve_csv_1MHz)
+data = read_csv_pandas(input_file=freq_curve_csv_1MHz)
 curves_csv_1MHz = list(zip(data[data.columns[0]],
                            data[data.columns[1]]))
 
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+# Launch AEDT in graphical mode.
 
-m3d = Maxwell3d(projectname=aedt_file,
-                designname="02_3D eddycurrent_CmXY_for_thermal",
-                specified_version="2023.2",
-                new_desktop_session=True,
+m3d = Maxwell3d(project=aedt_file,
+                design="02_3D eddycurrent_CmXY_for_thermal",
+                version=aedt_version,
+                new_desktop=True,
                 non_graphical=False)
 
 ###############################################################################
@@ -79,7 +86,7 @@ pv = {freq_25kHz: curves_csv_25kHz,
 m3d.materials[mat.name].set_coreloss_at_frequency(points_list_at_freq=pv,
                                                   coefficient_setup="kw_per_cubic_meter",
                                                   core_loss_model_type="Power Ferrite")
-coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_list_at_freq=pv,
+coefficients = m3d.materials[mat.name].get_core_loss_coefficients(points_at_frequency=pv,
                                                                   coefficient_setup="kw_per_cubic_meter")
 
 ###################################################################################

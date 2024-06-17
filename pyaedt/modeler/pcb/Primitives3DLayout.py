@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 # import sys
@@ -165,13 +189,13 @@ class Primitives3DLayout(object):
             geom[k] = v
         return geom
 
-    @pyaedt_function_handler()
-    def objects_by_layer(self, layer_name, object_filter=None, include_voids=False):
+    @pyaedt_function_handler(layer_name="layer", object_filter="filter")
+    def objects_by_layer(self, layer, object_filter=None, include_voids=False):
         """Retrieve the list of objects that belongs to a specific layer.
 
         Parameters
         ----------
-        layer_name : str
+        layer : str
             Name of the layer to filter.
         object_filter : str, list, optional
             Name of the category to include in search. Options are `"poly"`, `"circle"`,
@@ -192,24 +216,24 @@ class Primitives3DLayout(object):
 
             for poly in object_filter:
                 objs = self.modeler.oeditor.FilterObjectList(
-                    "Type", poly, self.modeler.oeditor.FindObjects("Layer", layer_name)
+                    "Type", poly, self.modeler.oeditor.FindObjects("Layer", layer)
                 )
                 if include_voids:
                     objs = self.modeler.oeditor.FilterObjectList(
-                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Layer", layer_name)
+                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Layer", layer)
                     )
 
         else:
-            objs = self.modeler.oeditor.FindObjects("Layer", layer_name)
+            objs = self.modeler.oeditor.FindObjects("Layer", layer)
         return objs
 
-    @pyaedt_function_handler()
-    def objects_by_net(self, net_name, object_filter=None, include_voids=False):
+    @pyaedt_function_handler(net_name="net")
+    def objects_by_net(self, net, object_filter=None, include_voids=False):
         """Retrieve the list of objects that belongs to a specific net.
 
         Parameters
         ----------
-        net_name : str
+        net : str
             Name of the net to filter.
         object_filter : str, list, optional
             Name of the category to include in search. Options are `"poly"`, `"circle"`,
@@ -229,16 +253,14 @@ class Primitives3DLayout(object):
                 object_filter = [object_filter]
 
             for poly in object_filter:
-                objs = self.modeler.oeditor.FilterObjectList(
-                    "Type", poly, self.modeler.oeditor.FindObjects("Net", net_name)
-                )
+                objs = self.modeler.oeditor.FilterObjectList("Type", poly, self.modeler.oeditor.FindObjects("Net", net))
                 if include_voids:
                     objs = self.modeler.oeditor.FilterObjectList(
-                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Net", net_name)
+                        "Type", poly + " void", self.modeler.oeditor.FindObjects("Net", net)
                     )
 
         else:
-            objs = self.modeler.oeditor.FindObjects("Net", net_name)
+            objs = self.modeler.oeditor.FindObjects("Net", net)
         return objs
 
     @pyaedt_function_handler()
@@ -747,12 +769,12 @@ class Primitives3DLayout(object):
                 try:
                     if p[0] == "NAME:psd":
                         props = p
-                except:
+                except Exception:
                     pass
             self._padstacks[name] = Padstack(name, self.opadstackmanager, self.model_units)
 
             for prop in props:
-                if type(prop) is str:
+                if isinstance(prop, str):
                     if prop == "mat:=":
                         self._padstacks[name].mat = props[props.index(prop) + 1]
                     elif prop == "plt:=":
@@ -783,7 +805,7 @@ class Primitives3DLayout(object):
                             lay = prop[i]
                             lay_name = lay[2]
                             lay_id = int(lay[4])
-                            self._padstacks[name].add_layer(layername=lay_name, layer_id=lay_id)
+                            self._padstacks[name].add_layer(layer=lay_name, layer_id=lay_id)
                             self._padstacks[name].layers[lay_name].layername = lay_name
                             self._padstacks[name].layers[lay_name].pad = self._padstacks[name].add_hole(
                                 lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
@@ -799,18 +821,18 @@ class Primitives3DLayout(object):
                             self._padstacks[name].layers[lay_name].connectiondir = lay[16]
                             i += 1
                         pass
-                except:
+                except Exception:
                     pass
 
         return self._padstacks
 
-    @pyaedt_function_handler()
-    def change_net_visibility(self, netlist=None, visible=False):
+    @pyaedt_function_handler(netlist="assignment")
+    def change_net_visibility(self, assignment=None, visible=False):
         """Change the visibility of one or more nets.
 
         Parameters
         ----------
-        netlist : str  or list, optional
+        assignment : str  or list, optional
             One or more nets to visualize. The default is ``None``.
             If no nets are provided all the nets in the design will be selected.
         visible : bool, optional
@@ -828,13 +850,13 @@ class Primitives3DLayout(object):
         >>> oEditor.SetNetVisible
         """
         nets_dictionary = {}
-        if not netlist:
-            netlist = self.nets
-        elif [x for x in netlist if x not in self.nets]:
+        if not assignment:
+            assignment = self.nets
+        elif [x for x in assignment if x not in self.nets]:
             self.logger.error("Selected net doesn't exist in current design.")
             return False
-        if isinstance(netlist, str):
-            netlist = [netlist]
+        if isinstance(assignment, str):
+            assignment = [assignment]
 
         if isinstance(visible, str):
             if visible.lower() == "true":
@@ -849,7 +871,7 @@ class Primitives3DLayout(object):
             return False
 
         for net in self.nets:
-            if net not in netlist:
+            if net not in assignment:
                 nets_dictionary[net] = not visible
             else:
                 nets_dictionary[net] = visible
@@ -863,11 +885,11 @@ class Primitives3DLayout(object):
                 args.append(nets_dictionary[key])
             self.oeditor.SetNetVisible(args)
             return True
-        except:
+        except Exception:
             self.logger.error("Couldn't change nets visibility.")
             return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(netname="net")
     def create_via(
         self,
         padstack="PlanarEMVia",
@@ -878,7 +900,7 @@ class Primitives3DLayout(object):
         top_layer=None,
         bot_layer=None,
         name=None,
-        netname=None,
+        net=None,
     ):
         # type: (str, float | str, float | str, float, float, str, str, str, str) -> Pins3DLayout
         """Create a via based on an existing padstack.
@@ -902,7 +924,7 @@ class Primitives3DLayout(object):
             Bottom layer. If ``None`` the last layer is taken.
         name : str, optional
             Name of the via. If ``None`` a random name is generated.
-        netname : str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case no
             name is assigned.
 
@@ -947,14 +969,14 @@ class Primitives3DLayout(object):
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
             self.oeditor.CreateVia(arg)
-            if netname:
+            if net:
                 self.oeditor.ChangeProperty(
                     [
                         "NAME:AllTabs",
                         [
                             "NAME:BaseElementTab",
                             ["NAME:PropServers", name],
-                            ["NAME:ChangedProps", ["NAME:Net", "Value:=", netname]],
+                            ["NAME:ChangedProps", ["NAME:Net", "Value:=", net]],
                         ],
                     ]
                 )
@@ -964,13 +986,13 @@ class Primitives3DLayout(object):
             self.logger.error(str(e))
             return False
 
-    @pyaedt_function_handler()
-    def create_circle(self, layername, x, y, radius, name=None, net_name=None, **kwargs):
+    @pyaedt_function_handler(layername="layer", netname="net", net_name="net")
+    def create_circle(self, layer, x, y, radius, name=None, net=None, **kwargs):
         """Create a circle on a layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
         x : float
             Position on the X axis.
@@ -981,7 +1003,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
-        net_name : str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -995,12 +1017,6 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateCircle
         """
-        if "netname" in kwargs:
-            warnings.warn(
-                "`netname` is deprecated. Use `net_name` instead.",
-                DeprecationWarning,
-            )
-            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -1011,7 +1027,7 @@ class Primitives3DLayout(object):
         vArg1 = ["NAME:Contents", "circleGeometry:="]
         vArg2 = []
         vArg2.append("Name:="), vArg2.append(name)
-        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("LayerName:="), vArg2.append(layer)
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("x:="), vArg2.append(self.number_with_units(x))
         vArg2.append("y:="), vArg2.append(self.number_with_units(y))
@@ -1021,24 +1037,22 @@ class Primitives3DLayout(object):
         primitive = Circle3dLayout(self, name, False)
         self._circles[name] = primitive
 
-        if net_name:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+        if net:
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
-    @pyaedt_function_handler()
-    def create_rectangle(
-        self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None, **kwargs
-    ):
+    @pyaedt_function_handler(layername="layer", dimensions="sizes", net_name="net", netname="net")
+    def create_rectangle(self, layer, origin, sizes, corner_radius=0, angle=0, name=None, net=None, **kwargs):
         """Create a rectangle on a layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
         origin : list
             Origin of the coordinate system in a list of ``[x, y]`` coordinates.
-        dimensions : list
+        sizes : list
             Dimensions for the box in a list of ``[x, y]`` coordinates.
         corner_radius : float, optional
         angle : float, optional
@@ -1046,7 +1060,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the
             default name is assigned.
-        net_name : str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -1060,12 +1074,6 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateRectangle
         """
-        if "netname" in kwargs:
-            warnings.warn(
-                "`netname` is deprecated. Use `net_name` instead.",
-                DeprecationWarning,
-            )
-            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -1076,16 +1084,12 @@ class Primitives3DLayout(object):
         vArg1 = ["NAME:Contents", "rectGeometry:="]
         vArg2 = []
         vArg2.append("Name:="), vArg2.append(name)
-        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("LayerName:="), vArg2.append(layer)
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self.number_with_units(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self.number_with_units(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(
-            self.number_with_units(origin[0]) + "+" + self.number_with_units(dimensions[0])
-        )
-        vArg2.append("By:="), vArg2.append(
-            self.number_with_units(origin[1]) + "+" + self.number_with_units(dimensions[1])
-        )
+        vArg2.append("Bx:="), vArg2.append(self.number_with_units(origin[0]) + "+" + self.number_with_units(sizes[0]))
+        vArg2.append("By:="), vArg2.append(self.number_with_units(origin[1]) + "+" + self.number_with_units(sizes[1]))
         vArg2.append("cr:="), vArg2.append(self.number_with_units(corner_radius))
         vArg2.append("ang:=")
         vArg2.append(self.number_with_units(angle, "deg"))
@@ -1094,18 +1098,18 @@ class Primitives3DLayout(object):
         primitive = Rect3dLayout(self, name, False)
         self._rectangles[name] = primitive
 
-        if net_name:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+        if net:
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
-    @pyaedt_function_handler()
-    def create_polygon(self, layername, point_list, units=None, name=None, net_name=None):
+    @pyaedt_function_handler(layername="layer", net_name="net")
+    def create_polygon(self, layer, point_list, units=None, name=None, net=None):
         """Create a polygon on a specified layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
         point_list : list
             Origin of the coordinate system in a list of ``[x, y]`` coordinates.
@@ -1114,7 +1118,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the
             default name is assigned.
-        net_name : str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -1138,7 +1142,7 @@ class Primitives3DLayout(object):
         vArg1 = ["NAME:Contents", "polyGeometry:="]
         vArg2 = []
         vArg2.append("Name:="), vArg2.append(name)
-        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("LayerName:="), vArg2.append(layer)
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("n:="), vArg2.append(len(point_list))
         vArg2.append("U:="), vArg2.append(units if units else self.model_units)
@@ -1150,22 +1154,22 @@ class Primitives3DLayout(object):
         primitive = Polygons3DLayout(self, name, is_void=False)
         self._polygons[name] = primitive
 
-        if net_name:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+        if net:
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
 
         return primitive
 
-    @pyaedt_function_handler()
-    def create_polygon_void(self, layername, point_list, object_owner, units=None, name=None):
+    @pyaedt_function_handler(layername="layer", point_list="points", object_owner="assignment")
+    def create_polygon_void(self, layer, points, assignment, units=None, name=None):
         """Create a polygon void on a specified layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
-        point_list : list
+        points : list
             List of points in a list of ``[x, y]`` coordinates.
-        object_owner : str
+        assignment : str
             Object Owner.
         units : str, optional
             Polygon units. Default is modeler units.
@@ -1189,18 +1193,18 @@ class Primitives3DLayout(object):
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
-        if not self.oeditor.FindObjects("Name", object_owner):
+        if not self.oeditor.FindObjects("Name", assignment):
             self._app.logger.error("Owner Polygon not found.")
             return False
 
-        vArg1 = ["NAME:Contents", "owner:=", object_owner, "poly voidGeometry:="]
+        vArg1 = ["NAME:Contents", "owner:=", assignment, "poly voidGeometry:="]
         vArg2 = []
         vArg2.append("Name:="), vArg2.append(name)
-        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("LayerName:="), vArg2.append(layer)
         vArg2.append("lw:="), vArg2.append("0")
-        vArg2.append("n:="), vArg2.append(len(point_list))
+        vArg2.append("n:="), vArg2.append(len(points))
         vArg2.append("U:="), vArg2.append(units if units else self.model_units)
-        for point in point_list:
+        for point in points:
             vArg2.append("x:="), vArg2.append(point[0])
             vArg2.append("y:="), vArg2.append(point[1])
         vArg1.append(vArg2)
@@ -1210,18 +1214,20 @@ class Primitives3DLayout(object):
 
         return primitive
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        layername="layer", center_line_list="center_line_coordinates", net_name="net", netname="net"
+    )
     def create_line(
-        self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs
+        self, layer, center_line_coordinates, lw=1, start_style=0, end_style=0, name=None, net=None, **kwargs
     ):
         # type: (str, list, float|str, int, int, str, str, any) -> Line3dLayout
         """Create a line based on a list of points.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer to create the line on.
-        center_line_list : list
+        center_line_coordinates : list
             List of centerline coordinates in the form of ``[x, y]``.
         lw : float, optional
             Line width. The default is ``1``.
@@ -1239,7 +1245,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name  of the line. The default is ``None``, in which case the
             default name is assigned.
-        net_name : str, optional
+        net : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -1258,7 +1264,7 @@ class Primitives3DLayout(object):
                 "`netname` is deprecated. Use `net_name` instead.",
                 DeprecationWarning,
             )
-            net_name = kwargs["netname"]
+            net = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -1270,7 +1276,7 @@ class Primitives3DLayout(object):
             "Name:=",
             name,
             "LayerName:=",
-            layername,
+            layer,
             "lw:=",
             self.number_with_units(lw),
             "endstyle:=",
@@ -1278,11 +1284,11 @@ class Primitives3DLayout(object):
             "StartCap:=",
             start_style,
             "n:=",
-            len(center_line_list),
+            len(center_line_coordinates),
             "U:=",
             self.model_units,
         ]
-        for a in center_line_list:
+        for a in center_line_coordinates:
             arg2.append("x:=")
             arg2.append(a[0])
             arg2.append("y:=")
@@ -1292,32 +1298,9 @@ class Primitives3DLayout(object):
         primitive = Line3dLayout(self, name, False)
         self._lines[name] = primitive
 
-        if net_name:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+        if net:
+            primitive.change_property(value=["NAME:Net", "Value:=", net])
         return primitive
-
-    @pyaedt_function_handler()
-    def arg_with_dim(self, Value, sUnits=None):
-        """Format arguments with dimensions.
-
-        .. deprecated:: 0.6.56
-           Use :func:`number_with_units` instead.
-
-        Parameters
-        ----------
-        Value :
-            The value of the quantity.
-        sUnits :
-             The default is ``None``.
-
-        Returns
-        -------
-        str
-            String containing the value or value and the units if `sUnits` is not ``None``.
-
-        """
-        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
-        return self._app.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
     def number_with_units(self, value, units=None):
@@ -1340,7 +1323,7 @@ class Primitives3DLayout(object):
         """
         return self._app.number_with_units(value, units)
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def place_3d_component(
         self,
         component_path,
@@ -1381,14 +1364,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-
-        """
-        """
-
-        :param component_path:
-        :param number_of_terminals:
-        :param placement_layer:
-        :return:
+            :class:`pyaedt.modeler.pcb.object3dlayout.ComponentsSubCircuit3DLayout`
         """
         if not component_name:
             component_name = os.path.basename(component_path).split(".")[0]
@@ -1489,7 +1465,62 @@ class Primitives3DLayout(object):
             self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
-    def create_text(self, text, position, placement_layer="PostProcessing", angle=0, font_size=12):
+    @pyaedt_function_handler()
+    def create_component_on_pins(
+        self,
+        pins,
+        definition_name=None,
+        component_type="Other",
+        ref_des="U100",
+    ):
+        """Create a component based on a pin list.
+
+        Parameters
+        ----------
+        pins : list
+            Pins to include in the new component.
+        definition_name : str, optional
+            Name of the component definition. If no name is provided, a
+            name is automatically assigned.
+        component_type : str, optional
+            Component type. The default is ``"Other"``.
+        ref_des : str, optional
+            Reference designator. The default is ``"U100"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
+
+        """
+        if not definition_name:
+            definition_name = generate_unique_name("COMP")
+        placement_layer = list(self.layers.signals.keys())[0]
+        for pin in self.pins.items():
+            if pin[0] == pins[0]:
+                placement_layer = pin[1].start_layer
+                break
+        comp_name = self.modeler.oeditor.CreateComponent(
+            [
+                "NAME:Contents",
+                "isRCS:=",
+                True,
+                "definition_name:=",
+                definition_name,
+                "type:=",
+                component_type,
+                "ref_des:=",
+                ref_des,
+                "placement_layer:=",
+                placement_layer,
+                "elements:=",
+                pins,
+            ]
+        )
+        comp = Components3DLayout(self, comp_name.split(";")[-1])
+        return comp
+
+    @pyaedt_function_handler(placement_layer="layer")
+    def create_text(self, text, position, layer="PostProcessing", angle=0, font_size=12):
         """Create a text primitive object.
 
         Parameters
@@ -1498,7 +1529,7 @@ class Primitives3DLayout(object):
             Name for the text primitive object.
         position : list
             Position of the text.
-        placement_layer : str, optional
+        layer : str, optional
             Layer where text will be placed. The default value is ``"PostProcessing"``.
         angle : float, optional
             Angle of the text. The default value is ``0``.
@@ -1518,7 +1549,7 @@ class Primitives3DLayout(object):
                 "Name:=",
                 name,
                 "LayerName:=",
-                placement_layer,
+                layer,
                 "x:=",
                 position[0],
                 "y:=",

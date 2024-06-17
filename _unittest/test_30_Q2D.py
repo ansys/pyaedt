@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from _unittest.conftest import config
@@ -64,17 +88,17 @@ class TestClass:
     def test_07_single_signal_line(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o = self.aedtapp.modeler.create_rectangle(udp, [5, 3], name="Rectangle1")
-        assert self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
+        assert self.aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
 
     def test_08_assign_huray_finitecond_to_edges(self):
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
-        self.aedtapp.assign_single_conductor(target_objects=o, solve_option="SolveOnBoundary")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        self.aedtapp.assign_single_conductor(assignment=o, solve_option="SolveOnBoundary")
         assert self.aedtapp.assign_huray_finitecond_to_edges(o.edges, radius=0.5, ratio=2.9)
 
     def test_09_auto_assign(self):
         self.aedtapp.insert_design("test_auto")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
-        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", matname="Copper")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o = self.aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
         assert self.aedtapp.auto_assign_conductors()
         assert self.aedtapp.boundaries[0].object_properties
         assert len(self.aedtapp.boundaries) == 2
@@ -102,7 +126,7 @@ class TestClass:
         assert q2d.matrices[4].name == "Test4"
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5", "New_net")
         assert q2d.matrices[5].name == "Test5"
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_12_edit_sources(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
@@ -119,13 +143,13 @@ class TestClass:
 
         sources_ac = {"Circle5": "40A"}
         assert not q2d.edit_sources(sources_cg, sources_ac)
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_13_get_all_conductors(self):
         self.aedtapp.insert_design("condcutors")
-        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", matname="Copper")
-        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", matname="aluminum")
-        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", matname="air")
+        o = self.aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        o1 = self.aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
+        o3 = self.aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
         conductors = self.aedtapp.get_all_conductors_names()
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert self.aedtapp.get_all_dielectrics_names() == ["Rectangle3"]
@@ -155,12 +179,12 @@ class TestClass:
             os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="RL", matrix_type="Maxwell, Couple"
         )
         assert q2d.export_matrix_data(
-            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup_name="Setup1", sweep="Sweep1"
+            os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG", setup="Setup1", sweep="Sweep1"
         )
         assert q2d.export_matrix_data(
             os.path.join(self.local_scratch.path, "test_2d.txt"),
             problem_type="CG",
-            setup_name="Setup1",
+            setup="Setup1",
             sweep="LastAdaptive",
         )
         assert q2d.export_matrix_data(
@@ -189,7 +213,7 @@ class TestClass:
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
-        self.aedtapp.close_project(q2d.project_name, save_project=True)
+        self.aedtapp.close_project(q2d.project_name, save=True)
 
     def test_15_export_equivalent_circuit(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
@@ -200,87 +224,87 @@ class TestClass:
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
         assert not q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations=["r1:0.3mm"],
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations=[" r1 : 0.3 mm "],
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup_name="Setup1",
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup="Setup1",
             sweep="LastAdaptive",
             variations="r1:0.3mm",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Original"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Test1"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Test1"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             coupling_limit_type=0,
-            res_limit="6Mohm",
             ind_limit="12nH",
+            res_limit="6Mohm",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34mm"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34mm"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34nounits"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34nounits"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             rise_time_value="1e-6",
             rise_time_unit="s",
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             rise_time_value="23",
             rise_time_unit="m",
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="WELement"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="WELement"
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model=q2d_q3d
         )
         assert not q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
         )
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_16_export_results_q2d(self, add_app):
         q2d = add_app(application=Q2d, project_name=self.test_matrix, just_open=True)
         exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0
-        self.aedtapp.close_project(q2d.project_name, save_project=False)
+        self.aedtapp.close_project(q2d.project_name, save=False)
 
     def test_17_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")

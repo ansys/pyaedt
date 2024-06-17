@@ -1,14 +1,38 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import
 
 from collections import OrderedDict
 import math
+import time
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
 from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.elements3d import _dict2arg
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
@@ -131,13 +155,15 @@ class CircuitPins(object):
             deltay = point[1]
         return deltax, deltay
 
-    @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1):
+    @pyaedt_function_handler(component_pin="assignment")
+    def connect_to_component(
+        self, assignment, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
+    ):
         """Connect schematic components.
 
         Parameters
         ----------
-        component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
+        assignment : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -147,9 +173,12 @@ class CircuitPins(object):
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
         wire_name : str, optional
-            Wire name used only when user_wire is ``True``. Default value is ``""``.
+            Wire name used only when ``user_wire=True``. The default is ``""``.
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
+        page_port_angle : int, optional
+            Page port angle on the source pin. The default is ``None``, in which case
+            the angle is automatically computed.
 
         Returns
         -------
@@ -162,14 +191,14 @@ class CircuitPins(object):
         >>> oPadstackManager.CreatePagePort
         """
         tol = 1e-8
-        if not isinstance(component_pin, list):
-            component_pin = [component_pin]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
         if use_wire:
             direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
             negative = 0.0 >= direction >= (math.pi)
-            for cpin in component_pin:
+            for cpin in assignment:
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
                 pins_x = [i.location[0] for i in self._circuit_comp.pins if i.name != self.name]
@@ -243,7 +272,7 @@ class CircuitPins(object):
                         points.append(act)
 
                 cangles.append(cpin._circuit_comp.angle)
-            self._circuit_comp._circuit_components.create_wire(points, wire_name=wire_name)
+            self._circuit_comp._circuit_components.create_wire(points, name=wire_name)
             return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
@@ -256,33 +285,35 @@ class CircuitPins(object):
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
-            except:
+            except Exception:
                 pass
         else:
-            for cmp in component_pin:
+            for cmp in assignment:
                 if "Port" in cmp._circuit_comp.composed_name:
                     try:
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
                         break
-                    except:
+                    except Exception:
                         continue
         try:
             x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
                 decompose_variable_value(self._circuit_comp.location[1])[0]
             )
-        except:
+        except Exception:
             x_loc = float(self._circuit_comp.location[0])
-        if self.location[0] < x_loc:
+        if page_port_angle is not None:
+            angle = page_port_angle * math.pi / 180
+        elif self.location[0] < x_loc:
             angle = comp_angle
         else:
             angle = math.pi + comp_angle
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
-        for cmp in component_pin:
+        for cmp in assignment:
             try:
                 x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
                     decompose_variable_value(cmp._circuit_comp.location[0])[0]
                 )
-            except:
+            except Exception:
                 x_loc = float(cmp._circuit_comp.location[0])
             comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
             if len(cmp._circuit_comp.pins) == 2:
@@ -295,7 +326,7 @@ class CircuitPins(object):
                 page_name, location=cmp.location, angle=angle
             )
         if ret1 and ret2:
-            return True
+            return True, ret1, ret2
         else:
             return False
 
@@ -304,10 +335,7 @@ class ComponentParameters(dict):
     """Manages component parameters."""
 
     def __setitem__(self, key, value):
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            dict.__setitem__(self, key, value)
-        except:
+        if not isinstance(value, (int, float)):
             try:
                 self._component._oeditor.ChangeProperty(
                     [
@@ -322,8 +350,29 @@ class ComponentParameters(dict):
                         ],
                     ]
                 )
+                if (
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                    != value
+                ):
+                    try:
+                        self._component._oeditor.SetPropertyValue(
+                            self._tab, self._component.composed_name, key, str(value)
+                        )
+                        dict.__setitem__(self, key, value)
+                    except Exception:
+                        self._component._circuit_components.logger.warning(
+                            "Property %s has not been edited.Check if readonly", key
+                        )
                 dict.__setitem__(self, key, value)
-            except:
+            except Exception:
+                self._component._circuit_components.logger.warning(
+                    "Property %s has not been edited. Check if read-only.", key
+                )
+        else:
+            try:
+                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
+                dict.__setitem__(self, key, value)
+            except Exception:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
@@ -351,7 +400,7 @@ class ModelParameters(object):
             _dict2arg(self.props, arg)
             self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
             return True
-        except:
+        except Exception:
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
             return False
 
@@ -396,12 +445,27 @@ class CircuitComponent(object):
         self._component_info = {}
         self._model_data = {}
 
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the component.
+
+        Returns
+        -------
+        bool
+        """
+        self._oeditor.Delete(["NAME:Selections", "Selections:=", [self.composed_name]])
+        for k, v in self._circuit_components.components.items():
+            if v.name == self.name:
+                del self._circuit_components.components[k]
+                break
+        return True
+
     @property
     def refdes(self):
         """Reference designator."""
         try:
             return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
-        except:
+        except Exception:
             return ""
 
     @property
@@ -414,7 +478,7 @@ class CircuitComponent(object):
         """Property Data List."""
         try:
             return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
-        except:
+        except Exception:
             return []
 
     @property
@@ -437,8 +501,6 @@ class CircuitComponent(object):
         -------
         :class:`pyaedt.modeler.Object3d.ModelParameters`
         """
-        """Return the model data if the component has one.
-        """
         if self._model_data:
             return self._model_data
         if self.model_name:
@@ -460,21 +522,27 @@ class CircuitComponent(object):
         if self._parameters:
             return self._parameters
         _parameters = {}
-        if self._circuit_components._app.design_type == "Circuit Design":
-            tab = "PassedParameterTab"
+        if self._circuit_components._app.design_type == "Circuit Design" or self.name in [
+            "CompInst@FML_INIT",
+            "CompInst@Measurement",
+        ]:
+            tabs = ["PassedParameterTab"]
         elif self._circuit_components._app.design_type == "Maxwell Circuit":
-            tab = "PassedParameterTab"
+            tabs = ["PassedParameterTab"]
         else:
-            tab = "Quantities"
-        try:
-            proparray = self._oeditor.GetProperties(tab, self.composed_name)
-        except:
-            proparray = []
+            tabs = ["Quantities", "PassedParameterTab"]
+        proparray = {}
+        for tab in tabs:
+            try:
+                proparray[tab] = self._oeditor.GetProperties(tab, self.composed_name)
+            except Exception:
+                proparray[tab] = []
 
-        for j in proparray:
-            propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
-            _parameters[j] = propval
-        self._parameters = ComponentParameters(self, tab, _parameters)
+        for tab, props in proparray.items():
+            for j in props:
+                propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
+                _parameters[j] = propval
+            self._parameters = ComponentParameters(self, tab, _parameters)
         return self._parameters
 
     @property
@@ -574,7 +642,7 @@ class CircuitComponent(object):
             self._location = [
                 round(i[0] * AEDT_UNITS["Length"][i[1]] / AEDT_UNITS["Length"][self.units], 10) for i in loc
             ]
-        except:
+        except Exception:
             self._location = []
         return self._location
 
@@ -613,6 +681,12 @@ class CircuitComponent(object):
                 if "Angle=" in info:
                     self._angle = float(info[6:])
                     break
+        else:
+            self._angle = float(
+                self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Angle").replace(
+                    "deg", ""
+                )
+            )
         return self._angle
 
     @angle.setter
@@ -657,7 +731,7 @@ class CircuitComponent(object):
             self._mirror = (
                 self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Mirror") == "true"
             )
-        except:
+        except Exception:
             self._mirror = False
         return self._mirror
 
@@ -677,13 +751,13 @@ class CircuitComponent(object):
         vMaterial = ["NAME:Component Mirror", "Value:=", mirror_value]
         self.change_property(vMaterial)
 
-    @pyaedt_function_handler()
-    def set_use_symbol_color(self, symbol_color=None):
+    @pyaedt_function_handler(symbol_color="color")
+    def set_use_symbol_color(self, color=None):
         """Set symbol color usage.
 
         Parameters
         ----------
-        symbol_color : bool, optional
+        color : bool, optional
             The default is ``None``.
 
         Returns
@@ -696,23 +770,23 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if not symbol_color:
-            symbol_color = self.usesymbolcolor
-        vMaterial = ["NAME:Use Symbol Color", "Value:=", symbol_color]
+        if not color:
+            color = self.usesymbolcolor
+        vMaterial = ["NAME:Use Symbol Color", "Value:=", color]
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler()
-    def set_color(self, R=255, G=128, B=0):
+    @pyaedt_function_handler(R="red", G="green", B="blue")
+    def set_color(self, red=255, green=128, blue=0):
         """Set symbol color.
 
         Parameters
         ----------
-        R : int, optional
+        red : int, optional
             Red color value. The default is ``255``.
-        G : int, optional
+        green : int, optional
             Green color value. The default is ``128``.
-        B : int, optional
+        blue : int, optional
             Blue color value. The default is ``0``
 
         Returns
@@ -725,19 +799,19 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        vMaterial = ["NAME:Component Color", "R:=", R, "G:=", G, "B:=", B]
+        vMaterial = ["NAME:Component Color", "R:=", red, "G:=", green, "B:=", blue]
         self.change_property(vMaterial)
         return True
 
-    @pyaedt_function_handler()
-    def set_property(self, property_name, property_value):
+    @pyaedt_function_handler(property_name="name", property_value="value")
+    def set_property(self, name, value):
         """Set a part property.
 
         Parameters
         ----------
-        property_name : str
+        name : str
             Name of the property.
-        property_value :
+        value :
             Value for the property.
 
         Returns
@@ -750,8 +824,8 @@ class CircuitComponent(object):
 
         >>> oEditor.ChangeProperty
         """
-        if type(property_name) is list:
-            for p, v in zip(property_name, property_value):
+        if isinstance(name, list):
+            for p, v in zip(name, value):
                 v_prop = ["NAME:" + p, "Value:=", v]
                 self.change_property(v_prop)
                 if self.__dict__.get("_parameters", None) and p in self.__dict__["_parameters"]:
@@ -759,16 +833,14 @@ class CircuitComponent(object):
                 else:
                     self.__dict__[p] = v
         else:
-            v_prop = ["NAME:" + property_name, "Value:=", property_value]
+            v_prop = ["NAME:" + name, "Value:=", value]
             self.change_property(v_prop)
-            if self.__dict__.get("_parameters", None) and property_name in self.__dict__["_parameters"]:
-                self.__dict__["_parameters"][property_name] = property_value
-            elif self.__dict__.get("_component_info", None) and property_name in self.__dict__.get(
-                "_component_info", None
-            ):
-                self.__dict__["_component_info"][property_name] = property_value
+            if self.__dict__.get("_parameters", None) and name in self.__dict__["_parameters"]:
+                self.__dict__["_parameters"][name] = value
+            elif self.__dict__.get("_component_info", None) and name in self.__dict__.get("_component_info", None):
+                self.__dict__["_component_info"][name] = value
             else:
-                self.__dict__[property_name] = property_value
+                self.__dict__[name] = value
         return True
 
     @pyaedt_function_handler()
@@ -792,15 +864,15 @@ class CircuitComponent(object):
         self.__dict__[property_name] = property_value
         return True
 
-    @pyaedt_function_handler()
-    def change_property(self, vPropChange, names_list=None):
+    @pyaedt_function_handler(vPropChange="property", names_list="names")
+    def change_property(self, property_name, names=None):
         """Modify a property.
 
         Parameters
         ----------
-        vPropChange :
-
-        names_list : list, optional
+        property_name : list
+            Property value in AEDT syntax.
+        names : list, optional
              The default is ``None``.
 
         Returns
@@ -813,19 +885,19 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        vChangedProps = ["NAME:ChangedProps", vPropChange]
-        if names_list:
+        vChangedProps = ["NAME:ChangedProps", property_name]
+        if names:
             vPropServers = ["NAME:PropServers"]
-            for el in names_list:
+            for el in names:
                 vPropServers.append(el)
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
+        if property_name[0][5:] in self._oeditor.GetProperties(self.tabname, self.composed_name):
             tabname = self.tabname
-        elif vPropChange[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("PassedParameterTab", self.composed_name):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
+        elif property_name[0][5:] in self._oeditor.GetProperties("BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
@@ -835,16 +907,64 @@ class CircuitComponent(object):
             return self._oeditor.ChangeProperty(vOut)
         return False
 
+    @pyaedt_function_handler()
+    def enforce_touchstone_model_passive(self):
+        """Enforce touchstone model passive.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModelManager.EditWithComps
+        """
+        props = self.model_data.props
+        passive = OrderedDict(
+            [
+                ("DCOption", -1),
+                ("InterpOption", 1),
+                ("ExtrapOption", 3),
+                ("Convolution", 0),
+                ("Passivity", 6),
+                ("Reciprocal", False),
+                ("ModelOption", ""),
+                ("DataType", 2),
+            ]
+        )
+        props["NexximCustomization"] = passive
+        props["ModTime"] = int(time.time())
+        self.model_data.props = props
+        return self.model_data.update()
+
 
 class Wire(object):
     """Creates and manipulates a wire."""
 
-    def __init__(self, modeler):
+    def __init__(self, modeler, composed_name=None):
+        self.composed_name = composed_name
         self._app = modeler._app
         self._modeler = modeler
         self.name = ""
         self.id = 0
-        self.points_in_segment = {}
+        self._points_in_segment = {}
+
+    @property
+    def points_in_segment(self):
+        """Points in segment."""
+        if not self.composed_name:
+            return {}
+        for segment in self._app.oeditor.GetWireSegments(self.composed_name):
+            key = segment.split(" ")[3]
+            point1 = [float(x) for x in segment.split(" ")[1].split(",")]
+            point2 = [float(x) for x in segment.split(" ")[2].split(",")]
+            if key in self._points_in_segment:
+                self._points_in_segment[key].extend([point1, point2])
+            else:
+                self._points_in_segment[key] = [point1, point2]
+        return self._points_in_segment
 
     @property
     def _oeditor(self):
@@ -864,14 +984,14 @@ class Wire(object):
                 wire_names.append(wire)
         return wire_names
 
-    @pyaedt_function_handler()
-    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+    @pyaedt_function_handler(wire_name="name")
+    def display_wire_properties(self, name="", property_to_display="NetName", visibility="Name", location="Top"):
         """
         Display wire properties.
 
         Parameters
         ----------
-        wire_name : str, optional
+        name : str, optional
             Wire name to display.
             Default value is ``""``.
         property_to_display : str, optional
@@ -892,23 +1012,26 @@ class Wire(object):
             ``True`` when successful, ``False`` when failed.
         """
         try:
-            wire_exists = False
-            for wire in self.wires:
-                if wire_name == wire.split("@")[1].split(";")[0]:
-                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
-                    wire_exists = True
-                    break
-                else:
-                    continue
-            if not wire_exists:
-                raise ValueError("Invalid wire name provided.")
-
+            if name:
+                wire_exists = False
+                for wire in self.wires:
+                    if name == wire.split("@")[1].split(";")[0]:
+                        wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                        wire_exists = True
+                        break
+                    else:
+                        continue
+                if not wire_exists:
+                    raise ValueError("Invalid wire name provided.")
+                composed_name = "Wire@{};{};{}".format(name, wire_id, 1)
+            else:
+                composed_name = self.composed_name
             self._oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
                         "NAME:PropDisplayPropTab",
-                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        ["NAME:PropServers", composed_name],
                         [
                             "NAME:NewProps",
                             ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],

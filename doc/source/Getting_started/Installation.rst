@@ -12,45 +12,59 @@ In addition to the runtime dependencies listed in the installation information, 
 requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Version is also supported.
 
 
+Install from PyAEDT installer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following python script automatically installs PyAEDT from AEDT,
+using the CPython interpreter included in the AEDT installation.
 
-Install from a Python file
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-AEDT already includes CPython 3.7, which can be used to run PyAEDT.
-It is also possible to use CPython 3.7 (3.10 from AEDT 2023R2) as a virtual environment to run PyAEDT.
-In order to do that you can download the following file
-:download:`PyAEDT Installer Python file <../Resources/PyAEDTInstallerFromDesktop.py>`
-Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
-Offline install is also possible using wheelhouses.
-A wheelhouse is a zip containing all needed packages that can be installed offline.
-PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
-After downloading the wheelhouse zip specific for your distribution and Python release,
-run the script from Electronics Desktop using the zip full path as argument.
-Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
-and higher requires the Python 3.10 wheelhouse.
+In order to do that you can:
 
-After installation a new menu appears in AEDT Menu as in the image below.
+- Download the following file: :download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`
 
-.. image:: ../Resources/toolkits.png
+- Open an Electronics Desktop Session and click on Tools->Run Script and execute the file.
+
+- Offline install is also possible using wheelhouses.
+
+.. note::
+    A wheelhouse is a zip containing all needed packages that can be installed offline.
+    PyAEDT wheelhouse can be found at `Releases <https://github.com/ansys/pyaedt/releases>`_.
+    After downloading the wheelhouse zip specific for your distribution and Python release,
+    run the script from Electronics Desktop using the zip full path as argument.
+    Please note that AEDT 2023 R1 and lower requires Python 3.7 wheelhouse while AEDT 2023 R2
+    and higher requires the Python 3.10 wheelhouse.
+
+.. image:: ../Resources/wheelhouse_installation.png
   :width: 800
-  :alt: PyAEDT toolkit installed after batch run
+  :alt: PyAEDT run script
 
-
-Starting from 2023R2, a Ribbon button is available in Automation Tab as in the example below.
+Starting from 2023R2, buttons are available in the Automation Tab as in the example below.
 
 .. image:: ../Resources/toolkits_ribbon.png
   :width: 800
-  :alt: PyAEDT toolkit buttons available in AEDT 2023.2 after batch run
+  :alt: PyAEDT toolkit buttons available in AEDT
 
 
-Build Toolkits with PyAEDT
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can create and install external toolkits.
-The Antenna Wizard toolkit provides an example for modeling antennas using Ansys Electronics Desktop (AEDT).
-The Antenna Wizard can be found at `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna/>`_.
+Extension manager
+~~~~~~~~~~~~~~~~~
+The user can install or uninstall automated workflows using the extension manager.
+There are three options:
 
-.. image:: ../Resources/template_ribbon.png
+- Custom PyAEDT scripts.
+
+- Existing workflows in the PyAEDT library.
+
+- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
+
+.. image:: ../Resources/toolkit_manager_1.png
   :width: 800
-  :alt: PyAEDT template toolkit buttons available in AEDT 2023.2
+  :alt: PyAEDT toolkit manager 1
+
+The user can select the AEDT application to install the specific workflow.
+
+.. image:: ../Resources/toolkit_manager_2.png
+  :width: 400
+  :alt: PyAEDT toolkit manager 2
+
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,6 +79,18 @@ You can also install PyAEDT from Conda-Forge:
 .. code:: python
 
     conda install -c conda-forge pyaedt
+
+To ensure you have all the necessary dependencies, including optional components, use the following command:
+
+.. code:: python
+
+    pip install pyaedt[all]
+
+If you are not utilizing gRPC, you can install the required dotnet dependencies separately:
+
+.. code:: python
+
+    pip install pyaedt[dotnet]
 
 
 Linux support

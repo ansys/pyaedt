@@ -13,6 +13,13 @@ OpenStreeMaps.
 import os
 from pyaedt import Hfss
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,10 +35,10 @@ non_graphical = False
 # Each design is connected to a different object.
 
 app = Hfss(
-    designname="Ansys",
+    design="Ansys",
     solution_type="SBR+",
-    specified_version="2023.2",
-    new_desktop_session=True,
+    version=aedt_version,
+    new_desktop=True,
     non_graphical=non_graphical
 )
 

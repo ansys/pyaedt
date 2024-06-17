@@ -1,12 +1,36 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import
 
 from collections import OrderedDict
 import os
 import re
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 
 
@@ -25,7 +49,7 @@ class ComponentArray(object):
     Basic usage demonstrated with an HFSS design with an existing array:
 
     >>> from pyaedt import Hfss
-    >>> aedtapp = Hfss(projectname="Array.aedt")
+    >>> aedtapp = Hfss(project="Array.aedt")
     >>> array_names = aedtapp.component_array_names[0]
     >>> array = aedtapp.component_array[array_names[0]]
     """
@@ -43,7 +67,7 @@ class ComponentArray(object):
 
         # Leverage csv file if possible (aedt version > 2023.2)
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
             self.__array_info_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
         else:
             self.__app.save_project()
@@ -52,7 +76,7 @@ class ComponentArray(object):
         # Data that cannot be obtained from CSV
         try:
             self.__cs_id = app.design_properties["ArrayDefinition"]["ArrayObject"]["ReferenceCSID"]
-        except AttributeError:  # pragma: no cover
+        except (AttributeError, TypeError, KeyError):  # pragma: no cover
             self.__cs_id = 1
 
         self.__omodel = self.__app.get_oo_object(self.__app.odesign, "Model")
@@ -96,7 +120,7 @@ class ComponentArray(object):
             return self.__cells
 
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
 
@@ -320,7 +344,7 @@ class ComponentArray(object):
         """
         # From 2024R1, array information can be loaded from a CSV, and this method is not needed.
         if self.__app.settings.aedt_version > "2023.2":  # pragma: no cover
-            self.export_array_info(array_path=None)
+            self.export_array_info(output_file=None)
         else:
             self.__app.save_project()
         new_properties = self.properties
@@ -345,8 +369,8 @@ class ComponentArray(object):
         del self.__app.component_array[self.name]
         self.__app.component_array_names = list(self.__app.get_oo_name(self.__app.odesign, "Model"))
 
-    @pyaedt_function_handler()
-    def export_array_info(self, array_path=None):  # pragma: no cover
+    @pyaedt_function_handler(array_path="output_file")
+    def export_array_info(self, output_file=None):  # pragma: no cover
         """Export array information to a CSV file.
 
         Returns
@@ -364,18 +388,18 @@ class ComponentArray(object):
             self.logger.warning("This feature is not available in {}.".format(str(self.__app.settings.aedt_version)))
             return False
 
-        if not array_path:  # pragma: no cover
-            array_path = os.path.join(self.__app.toolkit_directory, "array_info.csv")
-        self.__app.omodelsetup.ExportArray(self.name, array_path)
-        return array_path
+        if not output_file:  # pragma: no cover
+            output_file = os.path.join(self.__app.toolkit_directory, "array_info.csv")
+        self.__app.omodelsetup.ExportArray(self.name, output_file)
+        return output_file
 
-    @pyaedt_function_handler()
-    def parse_array_info_from_csv(self, csv_file):  # pragma: no cover
+    @pyaedt_function_handler(csv_file="input_file")
+    def parse_array_info_from_csv(self, input_file):  # pragma: no cover
         """Parse component array information from the CSV file.
 
         Parameters
         ----------
-        csv_file : str
+        input_file : str
              Name of the CSV file.
 
         Returns
@@ -386,14 +410,14 @@ class ComponentArray(object):
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> aedtapp = Hfss(projectname="Array.aedt")
+        >>> aedtapp = Hfss(project="Array.aedt")
         >>> array_names = aedtapp.component_array_names[0]
         >>> array = aedtapp.component_array[array_names[0]]
         >>> array_csv = array.export_array_info()
         >>> array_info = array.array_info_parser(array_csv)
         """
 
-        info = read_csv(csv_file)
+        info = read_csv(input_file)
         if not info:
             self.logger.error("Data from CSV file is not loaded.")
             return False

@@ -18,6 +18,13 @@ import os
 import pyaedt
 from pyaedt.generic.pdf import AnsysReport
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +32,6 @@ from pyaedt.generic.pdf import AnsysReport
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2023.2"
 
 ###############################################################################
 # Open project
@@ -42,10 +48,10 @@ project_file = pyaedt.generate_unique_project_name()
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(projectname=project_file,
-                      specified_version=desktopVersion,
+aedtapp = pyaedt.Hfss(project=project_file,
+                      version=aedt_version,
                       non_graphical=non_graphical,
-                      new_desktop_session=NewThread
+                      new_desktop=NewThread
                       )
 
 ###############################################################################
@@ -68,12 +74,12 @@ aedtapp["inner"] = "3mm"
 # Optionally, you can assign a material using the :func:`assign_material` method.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
-                                     numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
-                                     numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=10, height="$coax_dimension",
-                                     numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius="inner", height="$coax_dimension",
+                                     num_sides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius=8, height="$coax_dimension",
+                                     num_sides=0, material="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(orientation=aedtapp.PLANE.ZX, origin=udp, radius=10, height="$coax_dimension",
+                                     num_sides=0, name="outer")
 
 ###############################################################################
 # Assign colors
@@ -112,8 +118,8 @@ aedtapp.modeler.subtract(o2, o1, True)
 # edit or review parameter values.
 
 aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
-aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
-aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
+aedtapp.mesh.assign_model_resolution(assignment=[o1.name, o3.name], defeature_length=None)
+aedtapp.mesh.assign_length_mesh(assignment=o2.faces, inside_selection=False, maximum_length=1, maximum_elements=2000)
 
 ###############################################################################
 # Create excitations
@@ -123,18 +129,10 @@ aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, max
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
 # creates a PEC cap.
 
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=1,
-                  create_port_sheet=True,
-                  create_pec_cap=True,
-                  name="P1")
-aedtapp.wave_port(signal="inner",
-                  reference="outer",
-                  integration_line=4,
-                  create_pec_cap=True,
-                  create_port_sheet=True,
-                  name="P2")
+aedtapp.wave_port(assignment="inner", reference="outer", create_port_sheet=True, create_pec_cap=True,
+                  integration_line=1, name="P1")
+aedtapp.wave_port(assignment="inner", reference="outer", create_port_sheet=True, create_pec_cap=True,
+                  integration_line=4, name="P2")
 
 port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
@@ -157,7 +155,7 @@ setup.props["MaximumPasses"] = 1
 # ~~~~~~~~~~~~
 # Create a sweep. A sweep is created with default values.
 
-sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
+sweepname = aedtapp.create_linear_count_sweep(setup="MySetup", units="GHz", start_frequency=0.8, stop_frequency=1.2,
                                               num_of_freq_points=401, sweep_type="Interpolating")
 
 ################################################################################
@@ -176,8 +174,8 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", sweepname="LastAdaptive",
-                        map_frequency="1GHz", surface_objects=surfaceobj, paramlist=["$coax_dimension", "inner"])
+ipkapp.assign_em_losses(design=aedtapp.design_name, setup="MySetup", sweep="LastAdaptive", map_frequency="1GHz",
+                        surface_objects=surfaceobj, parameters=["$coax_dimension", "inner"])
 
 #################################################################################
 # Edit gravity setting
@@ -251,16 +249,8 @@ results_folder = os.path.join(aedtapp.working_directory, "Coaxial_Results_NG")
 if not os.path.exists(results_folder):
     os.mkdir(results_folder)
 
-aedtapp.post.plot_field_from_fieldplot(
-    plot1.name,
-    project_path=results_folder,
-    meshplot=False,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-    plot_cad_objs=False,
-    log_scale=False,
-)
+aedtapp.post.plot_field_from_fieldplot(plot1.name, project_path=results_folder, mesh_plot=False, image_format="jpg",
+                                       view="isometric", show=False, plot_cad_objs=False, log_scale=False)
 
 ################################################################################
 # Generate animation from field plots
@@ -273,19 +263,11 @@ start = time.time()
 cutlist = ["Global:XY"]
 phases = [str(i * 5) + "deg" for i in range(18)]
 
-animated = aedtapp.post.plot_animated_field(
-    quantity="Mag_E",
-    object_list=cutlist,
-    plot_type="CutPlane",
-    setup_name=aedtapp.nominal_adaptive,
-    intrinsics={"Freq": "1GHz", "Phase": "0deg"},
-    export_path=results_folder,
-    variation_variable="Phase",
-    variation_list=phases,
-    show=False,
-    export_gif=False,
-    log_scale=True,
-)
+animated = aedtapp.post.plot_animated_field(quantity="Mag_E", assignment=cutlist, plot_type="CutPlane",
+                                            setup=aedtapp.nominal_adaptive,
+                                            intrinsics={"Freq": "1GHz", "Phase": "0deg"}, variation_variable="Phase",
+                                            variations=phases, show=False, log_scale=True, export_gif=False,
+                                            export_path=results_folder)
 animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
 # animated.camera_position = [0, 0, 300]
 # animated.focal_point = [0, 0, 0]
@@ -319,17 +301,14 @@ trace_names = aedtapp.get_traces_for_plot(category="S")
 cxt = ["Domain:=", "Sweep"]
 families = ["Freq:=", ["All"]]
 my_data = aedtapp.post.get_solution_data(expressions=trace_names)
-my_data.plot(trace_names, "db20",
-             xlabel="Frequency (Ghz)",
-             ylabel="SParameters(dB)",
-             title="Scattering Chart",
+my_data.plot(trace_names, "db20", x_label="Frequency (Ghz)", y_label="SParameters(dB)", title="Scattering Chart",
              snapshot_path=os.path.join(results_folder, "Touchstone_from_matplotlib.jpg"))
 
 ################################################################################
 # Generate pdf report
 # ~~~~~~~~~~~~~~~~~~~
 # Generate a pdf report with output of simultion.
-report = AnsysReport(project_name=aedtapp.project_name, design_name=aedtapp.design_name, version=desktopVersion)
+report = AnsysReport(version=aedt_version, design_name=aedtapp.design_name, project_name=aedtapp.project_name)
 report.create()
 report.add_section()
 report.add_chapter("Hfss Results")

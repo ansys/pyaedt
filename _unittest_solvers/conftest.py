@@ -35,7 +35,7 @@ settings.retry_n_times_time_interval = 0.5
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
-
+settings.release_on_exception = False
 
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.general_methods import generate_unique_name
@@ -51,7 +51,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2023.2"
+default_version = "2024.1"
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
@@ -79,7 +79,7 @@ if os.path.exists(local_config_file):
     try:
         with open(local_config_file) as f:
             local_config = json.load(f)
-    except:  # pragma: no cover
+    except Exception:  # pragma: no cover
         local_config = {}
     config.update(local_config)
 
@@ -164,10 +164,10 @@ def add_app(local_scratch):
         if not application:
             application = Hfss
         return application(
-            projectname=test_project,
-            designname=design_name,
+            project=test_project,
+            design=design_name,
             solution_type=solution_type,
-            specified_version=desktop_version,
+            version=desktop_version,
         )
 
     return _method

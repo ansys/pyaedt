@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from dataclasses import dataclass
 from dataclasses import field
 import json
@@ -8,6 +32,7 @@ from fpdf import FontFace
 
 from pyaedt import __version__
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import open_file
 
 
 @dataclass
@@ -77,7 +102,7 @@ class AnsysReport(FPDF):
         if template_file:
             self.report_specs.template_name = template_file
         if os.path.exists(self.report_specs.template_name):
-            with open(self.report_specs.template_name, "r") as f:
+            with open_file(self.report_specs.template_name, "r") as f:
                 tdata = json.load(f)
             self.report_specs = ReportSpec(**tdata)
 
@@ -258,10 +283,9 @@ class AnsysReport(FPDF):
             msg = f"Furthermore, the layout has {stats.num_nets} nets, {stats.num_traces} traces,"
             msg += f" {stats.num_vias} vias. The stackup total thickness is {stats.stackup_thickness}."
             image_path = os.path.join(design.working_directory, "model.jpg")
-            design.modeler.edb.nets.plot(
-                save_plot=image_path,
-            )
-            self.add_image(image_path, "Model Image")
+            design.modeler.edb.nets.plot()
+            if os.path.exists(image_path):
+                self.add_image(image_path, "Model Image")
         elif design.design_type in ["Circuit Design"]:
             msg = f"The schematic has {len(design.modeler.components.components)} components."
             self.add_text(msg)
@@ -574,7 +598,7 @@ class AnsysReport(FPDF):
         for section in self._outline:
             link = self.add_link()
             self.set_link(link, page=section.page_number)
-            string1 = f'{" " * section.level * 2} {section.name}'
+            string1 = f'{" " * section.level * 2} {section.name}'[:70]
             string2 = f"Page {section.page_number}"
             self.set_x(self.l_margin * 2)
             self.cell(

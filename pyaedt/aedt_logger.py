@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -133,7 +156,8 @@ class AedtLogger(object):
         Whether to write log messages to stdout. The default is ``False``.
     """
 
-    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
+    def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False, desktop=None):
+        self._desktop_class = desktop
         self._oproject = None
         self._odesign = None
         self._project_name = ""
@@ -240,9 +264,8 @@ class AedtLogger(object):
 
     @property
     def _desktop(self):
-        if "oDesktop" in dir(sys.modules["__main__"]):
-            MainModule = sys.modules["__main__"]
-            return MainModule.oDesktop
+        if self._desktop_class:
+            return self._desktop_class.odesktop
         return None  # pragma: no cover
 
     @property
@@ -252,7 +275,7 @@ class AedtLogger(object):
                 return True
             else:
                 return False
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             return False
 
     @_log_on_desktop.setter
@@ -431,12 +454,12 @@ class AedtLogger(object):
         if aedt_messages and self._desktop.GetVersion() > "2022.2":
             project_name = project_name or self.project_name
             design_name = design_name or self.design_name
-            global_message_data = self._desktop.GetMessages("", "", level)
+            global_message_data = list(self._desktop.GetMessages("", "", level))
             # if a 3d component is open, GetMessages without the project name argument returns messages with
             # "(3D Component)" appended to project name
             if not any(msg in global_message_data for msg in self._desktop.GetMessages(project_name, "", 0)):
                 project_name = project_name + " (3D Component)"
-            global_message_data.extend(self._desktop.GetMessages(project_name, design_name, level))
+            global_message_data.extend(list(self._desktop.GetMessages(project_name, design_name, level)))
             global_message_data = list(set(global_message_data))
             return MessageList(global_message_data)
         message_lists = []
@@ -579,7 +602,8 @@ class AedtLogger(object):
         if not level:
             level = "Design"
 
-        assert level in message_levels, "Message level must be `Design', 'Project', or 'Global'."
+        if level not in message_levels:
+            raise ValueError("Message level must be 'Design', 'Project', or 'Global'.")
 
         if self._log_on_desktop and self._desktop:
             if not proj_name and message_levels[level] > 0:
@@ -590,8 +614,8 @@ class AedtLogger(object):
                 des_name = des_name[des_name.find(";") + 1 :]
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
-            except:
-                print("PyAEDT INFO: Failed in Adding Desktop Message")
+            except Exception:  # pragma: no cover
+                self._global.info("Failed to add desktop message.")
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
         message_text = str(message_text)
@@ -658,8 +682,8 @@ class AedtLogger(object):
             des_name = self.design_name
         try:
             self._desktop.ClearMessages(proj_name, des_name, level)
-        except:
-            pass
+        except Exception:  # pragma: no cover
+            self._global.info("Failed to clear desktop messages.")
 
     @property
     def non_graphical(self):

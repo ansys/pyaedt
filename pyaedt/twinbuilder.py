@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains the ``TwinBuilder`` class."""
 
 from __future__ import absolute_import  # noreorder
@@ -10,6 +34,7 @@ from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -18,23 +43,23 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
@@ -43,7 +68,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``.
@@ -62,7 +87,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         The remote server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -90,44 +119,52 @@ class TwinBuilder(AnalysisTwinBuilder, object):
     >>> app = TwinBuilder("myfile.aedt")
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
             self,
             "Twin Builder",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -141,7 +178,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file.
 
         Returns
@@ -154,7 +191,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open(file_to_import, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
@@ -270,13 +307,13 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         self.set_sim_setup_parameter("Hmax", expression)
         return True
 
-    @pyaedt_function_handler()
-    def set_sim_setup_parameter(self, var_str, expression, analysis_name="TR"):
+    @pyaedt_function_handler(var_str="variable")
+    def set_sim_setup_parameter(self, variable, expression, analysis_name="TR"):
         """Set simulation setup parameters.
 
         Parameters
         ----------
-        var_str : string
+        variable : string
             Name of the variable.
         expression :
 
@@ -307,19 +344,19 @@ class TwinBuilder(AnalysisTwinBuilder, object):
                 [
                     "NAME:BaseElementTab",
                     ["NAME:PropServers", analysis_name],
-                    ["NAME:ChangedProps", ["NAME:" + var_str, "Value:=", value_str]],
+                    ["NAME:ChangedProps", ["NAME:" + variable, "Value:=", value_str]],
                 ],
             ]
         )
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(setup_name="setup", sweep_name="sweep")
     def add_q3d_dynamic_component(
         self,
         source_project,
         source_design_name,
-        setup_name,
-        sweep_name,
+        setup,
+        sweep,
         coupling_matrix_name,
         model_depth="1meter",
         maximum_order=10000,
@@ -336,11 +373,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         source_project : str
             Source project name or project path.
         source_design_name : str
-            Source Design name in specified project.
-        setup_name : str
+            Source design name.
+        setup : str
             Setup name.
-        sweep_name : str
-            Sweep name
+        sweep : str
+            Sweep name.
         coupling_matrix_name : str
             Coupling matrix name.
         model_depth : str, optional
@@ -379,10 +416,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         References
         ----------
+
         >>> oComponentManager.AddDynamicNPortData
 
         Examples
         --------
+
         Create an instance of Twin Builder.
 
         >>> from pyaedt import TwinBuilder
@@ -390,17 +429,12 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Add a Q2D dynamic link component.
 
-        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample",
-        ...                             "2D_Extractor_Cable",
-        ...                             "MySetupAuto",
-        ...                             "sweep1",
-        ...                             "Original",
-        ...                             "100mm")
+        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1",
+        ...                              "Original","100mm")
         >>> tb.release_desktop()
         """
         dkp = self.desktop_class
         is_loaded = False
-        app = None
         if os.path.isfile(source_project):
             project_path = source_project
             project_name = os.path.splitext(os.path.basename(source_project))[0]
@@ -417,13 +451,14 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Invalid project name or path provided.")
         if app is None:  # pragma: no cover
             raise ValueError("Invalid project or design name.")
+        setup_name = setup
         setup = [s for s in app.setups if s.name == setup_name]
         if not setup:
             raise ValueError("Invalid setup in selected design.")
         else:
-            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep_name]
+            sweeps = [s for s in app.get_sweeps(setup_name) if s == sweep]
             if sweeps:  # pragma: no cover
-                coupling_solution_name = "{} : {}".format(setup_name, sweep_name)
+                coupling_solution_name = "{} : {}".format(setup_name, sweep)
             else:  # pragma: no cover
                 raise ValueError("Invalid sweep name.")
         if not [m for m in app.matrices if m.name == coupling_matrix_name]:
@@ -447,7 +482,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             if not is_number(value) and not unit:
                 raise TypeError("Model depth must be provided as a string with value and unit.")
             design_type = "Q2D"
-            signal_list = [e.name for e in app.design_excitations if e.type == "SignalLine"]
+            signal_list = [k for k, v in app.excitation_objects.items() if v.type == "SignalLine"]
             for signal in signal_list:
                 port_info_list_A.append("OnePortInfo:=")
                 port_info_list_B.append("OnePortInfo:=")
@@ -481,9 +516,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             port_info_list.extend(port_info_list_A)
             port_info_list.extend(port_info_list_B)
         if not state_space_dynamic_link_type or state_space_dynamic_link_type == "RLGC":
-            if dkp.aedt_version_id >= "2024.1":  # pragma: no cover
+            if dkp.aedt_version_id >= "2024.1":
                 state_space_dynamic_link_type = "Q3DRLGCLink"
-            else:
+            else:  # pragma: no cover
                 state_space_dynamic_link_type = "{}RLGCTBLink".format(design_type)
             q3d_model_type = 1
             ref_pin_style = 5
@@ -572,7 +607,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         component = self.modeler.schematic.create_component(component_library="", component_name=component_name)
         if component:
             if is_loaded:
-                app.close_project(save_project=False)
+                app.close_project(save=False)
             return component
         else:  # pragma: no cover
             raise ValueError("Error in creating the component.")

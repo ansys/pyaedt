@@ -1,5 +1,5 @@
-Minimal example
-===============
+Basic tutorial
+==============
 
 You can initiate AEDT in non-graphical mode from Python using this code:
 
@@ -11,15 +11,15 @@ You can initiate AEDT in non-graphical mode from Python using this code:
                  student_version=False):
         circuit = pyaedt.Circuit()
         ...
-        # Any error here will be caught by Desktop.
+        # Any error here is caught by AEDT.
         ...
-    # Desktop is automatically closed here.
+    # AEDT is automatically closed here.
 
 The preceding code launches AEDT and initializes a new Circuit design.
 
 .. image:: ../Resources/aedt_first_page.png
   :width: 800
-  :alt: Electronics Desktop launched
+  :alt: AEDT launched
 
 This code creates a project and saves it with PyAEDT:
 
@@ -33,8 +33,7 @@ This code creates a project and saves it with PyAEDT:
     cir.release_desktop(save_project=True, close_desktop=True)
     # Desktop is released here.
 
-Ansys EDB proprietary layout format is accessible through pyaedt using the following
-code:
+This code uses PyAEDT to access the Ansys EDB proprietary layout format:
 
 .. code:: python
 
@@ -42,7 +41,7 @@ code:
     import pyaedt
     edb = pyaedt.Edb("mylayout.aedb")
 
-    # User can launch Edb directly from PyEDB class.
+    # User can launch EDB directly from the PyEDB class.
 
     import pyedb
     edb = pyedb.Edb("mylayout.aedb")

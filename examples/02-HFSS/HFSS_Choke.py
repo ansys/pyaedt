@@ -11,8 +11,24 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 import json
 import os
 import pyaedt
+import tempfile
 
-project_name = pyaedt.generate_unique_project_name(project_name="choke")
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
+
+project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, folder_name="choke",
+                                                   project_name="choke")
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -27,10 +43,10 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launches HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2023.2",
+hfss = pyaedt.Hfss(project=project_name,
+                   version=aedt_version,
                    non_graphical=non_graphical,
-                   new_desktop_session=True,
+                   new_desktop=True,
                    solution_type="Terminal")
 
 ###############################################################################
@@ -140,8 +156,8 @@ second_winding_list = list_object[3]
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", matname="copper")
-coat = hfss.assign_coating(ground, isinfgnd=True)
+ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
+coat = hfss.assign_coating(ground, is_infinite_ground=True)
 
 ###############################################################################
 # Create lumped ports
@@ -158,10 +174,8 @@ port_dimension_list = [2, dictionary_values[1]["Outer Winding"]["Wire Diameter"]
 for position in port_position_list:
     sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name="sheet_port")
     sheet.move([-dictionary_values[1]["Outer Winding"]["Wire Diameter"] / 2, 0, -1])
-    hfss.lumped_port(signal=sheet.name,
-                     name="port_" + str(port_position_list.index(position) + 1),
-                     reference=[ground]
-    )
+    hfss.lumped_port(assignment=sheet.name, reference=[ground],
+                     name="port_" + str(port_position_list.index(position) + 1))
 
 ###############################################################################
 # Create mesh
@@ -170,10 +184,9 @@ for position in port_position_list:
 
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
-mesh_operation_cylinder = hfss.modeler.create_cylinder(
-    "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
-)
-hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
+mesh_operation_cylinder = hfss.modeler.create_cylinder("XY", cylinder_position, ground_radius, cylinder_height,
+                                                       num_sides=36, name="mesh_cylinder")
+hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maximum_length=15, maximum_elements=None, name="choke_mesh")
 
 
 ###############################################################################
@@ -193,16 +206,8 @@ region = hfss.modeler.create_region(pad_percent=1000)
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
 setup["MaximumPasses"] = 10
-hfss.create_linear_count_sweep(
-    setupname=setup.name,
-    unit="MHz",
-    freqstart=0.1,
-    freqstop=100,
-    num_of_freq_points=100,
-    sweepname="sweep1",
-    sweep_type="Interpolating",
-    save_fields=False,
-)
+hfss.create_linear_count_sweep(setup=setup.name, units="MHz", start_frequency=0.1, stop_frequency=100,
+                               num_of_freq_points=100, name="sweep1", save_fields=False, sweep_type="Interpolating")
 
 ###############################################################################
 # Save project
@@ -210,7 +215,7 @@ hfss.create_linear_count_sweep(
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 
 ###############################################################################

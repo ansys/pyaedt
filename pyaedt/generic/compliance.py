@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os.path
+from pathlib import Path
 import time
 
 from pyaedt.generic.design_types import get_pyaedt_app
@@ -30,6 +55,155 @@ default_keys = [
 ]
 
 
+class CommonTemplate:
+    def __init__(self, report):
+        self._name = report["name"]
+        self.report_type = report.get("type", "frequency")
+        self.config_file = report.get("config", "")
+        self.design_name = report.get("design_name", "")
+        self.traces = report.get("traces", [])
+        self.pass_fail = report.get("pass_fail", False)
+        self.group_plots = report.get("group_plots", False)
+
+    @property
+    def name(self):
+        """Report name.
+
+        Returns
+        -------
+        str
+        """
+        return self._name
+
+    @property
+    def report_type(self):
+        """Report type.
+
+        Returns
+        -------
+        str
+        """
+        return self._report_type
+
+    @report_type.setter
+    def report_type(self, val):
+        self._report_type = val
+
+    @property
+    def config_file(self):
+        """Configuration file.
+
+        Returns
+        -------
+        str
+        """
+        return self._config_file
+
+    @config_file.setter
+    def config_file(self, val):
+        self._config_file = val
+
+    @property
+    def design_name(self):
+        """Design name in AEDT.
+
+        Returns
+        -------
+        str
+        """
+        return self._design_name
+
+    @design_name.setter
+    def design_name(self, val):
+        self._design_name = val
+
+    @property
+    def traces(self):
+        """Trace list.
+
+        Returns
+        -------
+        list
+        """
+        return self._traces
+
+    @traces.setter
+    def traces(self, val):
+        if not isinstance(val, list):
+            self._traces = [val]
+        else:
+            self._traces = val
+
+    @property
+    def pass_fail(self):
+        """Flag indicating if pass/fail criteria is applied.
+
+        Returns
+        -------
+        bool
+        """
+        return self._pass_fail
+
+    @pass_fail.setter
+    def pass_fail(self, val):
+        self._pass_fail = val
+
+
+class ReportTemplate(CommonTemplate):
+    def __init__(self, report):
+        CommonTemplate.__init__(self, report)
+        self.group_plots = report.get("group_plots", False)
+
+    @property
+    def group_plots(self):
+        """Flag indicating if plots are grouped into a single chart or kept independent.
+
+        Returns
+        -------
+        bool
+        """
+        return self._group_plots
+
+    @group_plots.setter
+    def group_plots(self, val):
+        self._group_plots = val
+
+
+class ParametersTemplate(CommonTemplate):
+    def __init__(self, report):
+        CommonTemplate.__init__(self, report)
+        self.trace_pins = report.get("trace_pins", [])
+        self.pass_fail_criteria = report.get("pass_fail", 0)
+
+    @property
+    def trace_pins(self):
+        """Trace pin coupling list.
+
+        Returns
+        -------
+        list
+        """
+        return self._trace_pins
+
+    @trace_pins.setter
+    def trace_pins(self, val):
+        self._trace_pins = val
+
+    @property
+    def pass_fail_criteria(self):
+        """Pass/fail criteria.
+
+        Returns
+        -------
+        float, int
+        """
+        return self._pass_fail_criteria
+
+    @pass_fail_criteria.setter
+    def pass_fail_criteria(self, val):
+        self._pass_fail_criteria = val
+
+
 class VirtualCompliance:
     """Provides automatic report generation with pass/fail criteria on virtual compliance.
 
@@ -39,6 +213,8 @@ class VirtualCompliance:
         Desktop object.
     template : str
         Full path to the template. Supported formats are JSON and TOML.
+    project_path : str, optional
+        Full path to the project. If a path is provided, the project field inside the template is ignored.
     """
 
     def __init__(self, desktop, template):
@@ -51,16 +227,113 @@ class VirtualCompliance:
         self._template_folder = os.path.dirname(template)
         self._project_file = None
         self._reports = {}
+        self._parameters = {}
+        self._project_name = None
+        self._output_folder = None
         self._parse_template()
         self._desktop_class = desktop
-        if self._project_file:
-            self._desktop_class.load_project(self._project_file)
-        project = self._desktop_class.odesktop.GetActiveProject()
+
+    @pyaedt_function_handler()
+    def load_project(self):
+        """Open the aedt project in Electronics Desktop.
+
+        Returns
+        -------
+        bool
+        """
+        if not self._project_file:
+            self._desktop_class.logger.error("Project path has not been provided.")
+            return False
+        self._desktop_class.load_project(self._project_file)
+        project = self._desktop_class.active_project()
         self._project_name = project.GetName()
         self._output_folder = os.path.join(
             project.GetPath(), self._project_name + ".pyaedt", generate_unique_name(self._template_name)
         )
         os.makedirs(self._output_folder, exist_ok=True)
+        return True
+
+    @property
+    def reports(self):
+        """Reports available in the virtual compliance.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.generic.compliance.ReportTemplate`]
+        """
+        return self._reports
+
+    @reports.setter
+    def reports(self, val):
+        self._reports = val
+
+    @property
+    def parameters(self):
+        """Parameters available in the Virtual compliance.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.generic.compliance.ParametersTemplate`]
+        """
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, val):
+        self._parameters = val
+
+    @property
+    def add_project_info(self):
+        return self._add_project_info
+
+    @add_project_info.setter
+    def add_project_info(self, val):
+        self._add_project_info = val
+
+    @property
+    def add_specs_info(self):
+        return self._add_specs_info
+
+    @add_specs_info.setter
+    def add_specs_info(self, val):
+        self._add_specs_info = val
+
+    @property
+    def specs_folder(self):
+        return self._specs_folder
+
+    @specs_folder.setter
+    def specs_folder(self, val):
+        self._specs_folder = val
+        if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
+            self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
+
+    @property
+    def template_name(self):
+        return self._template_name
+
+    @template_name.setter
+    def template_name(self, val):
+        self._template_name = val
+
+    @property
+    def project_file(self):
+        return self._project_file
+
+    @project_file.setter
+    def project_file(self, val):
+        self._project_file = val
+
+    @property
+    def project_name(self):
+        return Path(self.project_file).stem
+
+    @property
+    def use_portrait(self):
+        return self._use_portrait
+
+    @use_portrait.setter
+    def use_portrait(self, val):
+        self._use_portrait = val
 
     @pyaedt_function_handler()
     def _parse_template(self):
@@ -70,24 +343,27 @@ class VirtualCompliance:
                 self._add_project_info = self.local_config["general"].get("add_project_info", True)
                 self._add_specs_info = self.local_config["general"].get("add_specs_info", False)
                 self._specs_folder = self.local_config["general"].get("specs_folder", "")
-                if self._specs_folder and os.path.exists(os.path.join(self._template_folder, self._specs_folder)):
-                    self._specs_folder = os.path.join(self._template_folder, self._specs_folder)
                 self._template_name = self.local_config["general"].get("name", "Compliance")
                 self._project_file = self.local_config["general"].get("project", None)
                 self._use_portrait = self.local_config["general"].get("use_portrait", True)
+            if "reports" in self.local_config:
+                for report in self.local_config["reports"]:
+                    self._parse_reports(report)
+            if "parameters" in self.local_config:
+                for parameter in self.local_config["parameters"]:
+                    self._parse_reports(parameter, True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self):  # pragma: no cover
-        if "reports" in self.local_config:
-            for report in self.local_config["reports"]:
-                self._create_aedt_report(
-                    report["name"],
-                    report["type"],
-                    report["config"],
-                    report["design_name"],
-                    report["traces"],
-                    report["pass_fail"],
-                )
+    def _parse_reports(self, report, is_parameter=False):
+        name = report["name"]
+
+        if name in self._reports.values():
+            self._desktop_class.logger.warning(f"{name} already exists. The name must be unique.")
+        else:
+            if is_parameter:
+                self._parameters[report["name"]] = ParametersTemplate(report)
+            else:
+                self._reports[report["name"]] = ReportTemplate(report)
 
     @pyaedt_function_handler()
     def _get_frequency_range(self, data_list, f1, f2):
@@ -96,17 +372,26 @@ class VirtualCompliance:
 
     @pyaedt_function_handler()
     def _check_test_value(self, filtered_range, test_value, hatch_above):
-        ranges = [k[1] for k in filtered_range]
-        if hatch_above:
-            value_to_check = max(ranges)
+        worst = 1e9
+        worst_f = 0
+        val = None
+        for filt, t in zip(filtered_range, test_value):
+
+            if hatch_above:
+                if t - filt[1] < worst:
+                    worst = t - filt[1]
+                    worst_f = filt[0]
+                    val = filt[1]
+            else:
+                if filt[1] - t < worst:
+                    worst = filt[1] - t
+                    worst_f = filt[0]
+                    val = filt[1]
+        if worst < 0:
+            result = "FAIL"
         else:
-            value_to_check = min(ranges)
-        freq_to_check = filtered_range[ranges.index(value_to_check)][0]
-        if hatch_above and value_to_check >= test_value:
-            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
-        elif not hatch_above and value_to_check <= test_value:  # pragma: no cover
-            return round(value_to_check, 5), round(freq_to_check, 5), "FAIL"
-        return round(value_to_check, 5), round(freq_to_check, 5), "PASS"
+            result = "PASS"
+        return round(val, 5), round(worst_f, 5), result
 
     @pyaedt_function_handler()
     def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
@@ -133,17 +418,16 @@ class VirtualCompliance:
         -------
 
         """
-        self.local_config.reports.append(
-            {
-                "name": name,
-                "type": report_type,
-                "config": config_file,
-                "design_name": design_name,
-                "traces": traces,
-                "setup_name": setup_name,
-                "pass_fail": pass_fail,
-            }
-        )
+        new_rep = {
+            "name": name,
+            "type": report_type,
+            "config": config_file,
+            "design_name": design_name,
+            "traces": traces,
+            "setup_name": setup_name,
+            "pass_fail": pass_fail,
+        }
+        self._reports[name] = ReportTemplate(new_rep)
 
     @pyaedt_function_handler()
     def _get_sweep_name(self, design, solution_name):
@@ -161,14 +445,17 @@ class VirtualCompliance:
         start = True
         _design = None
         first_trace = True
-        for template_report in self.local_config["reports"]:
-            config_file = template_report["config"]
-            name = template_report["name"]
-            traces = template_report["traces"]
-            pass_fail = template_report["pass_fail"]
-            design_name = template_report["design_name"]
-            report_type = template_report["type"]
-            group = template_report.get("group_plots", False)
+        for template_report in self._reports.values():
+            config_file = template_report.config_file
+            if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
+                self._desktop_class.logger.error(f"{config_file} is not found.")
+                continue
+            name = template_report.name
+            traces = template_report.traces
+            pass_fail = template_report.pass_fail
+            design_name = template_report.design_name
+            report_type = template_report.report_type
+            group = template_report.group_plots
             if _design and _design.design_name != design_name or _design is None:
                 try:
                     _design = get_pyaedt_app(self._project_name, design_name)
@@ -190,7 +477,7 @@ class VirtualCompliance:
                 sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                 _design.logger.info(f"Creating report {name}")
                 aedt_report = _design.post.create_report_from_configuration(
-                    input_dict=local_config, solution_name=sw_name
+                    report_settings=local_config, solution_name=sw_name
                 )
                 if not aedt_report:  # pragma: no cover
                     _design.logger.error(f"Failed to create report {name}")
@@ -199,16 +486,28 @@ class VirtualCompliance:
                 time.sleep(1)
                 if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
                     time.sleep(1)
+                    if not first_trace:
+                        pdf_report.add_page_break()
+                    else:
+                        first_trace = False
                     pdf_report.add_sub_chapter(f"{name}")
                     sleep_time = 10
                     while sleep_time > 0:
                         # noinspection PyBroadException
                         try:
-                            pdf_report.add_image(
-                                os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                f"Plot {report_type} for {name}",
-                                width=pdf_report.epw - 40,
-                            )
+                            if self.use_portrait:
+                                pdf_report.add_image(
+                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                    f"Plot {report_type} for {name}",
+                                    width=pdf_report.epw - 50,
+                                )
+                            else:
+                                pdf_report.add_image(
+                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                    f"Plot {report_type} for {name}",
+                                    height=pdf_report.eph - 100,
+                                )
+
                             sleep_time = 0
                         except Exception:  # pragma: no cover
                             time.sleep(1)
@@ -216,7 +515,7 @@ class VirtualCompliance:
                 if (
                     pass_fail and report_type in ["frequency", "time"] and local_config.get("limitLines", None)
                 ):  # pragma: no cover
-                    _design.logger.info(f"Checking lines violations")
+                    _design.logger.info("Checking lines violations")
                     table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                     write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                 if self.local_config.get("delete_after_export", True):
@@ -229,7 +528,7 @@ class VirtualCompliance:
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
                     _design.logger.info(f"Creating report {name} for trace {trace}")
                     aedt_report = _design.post.create_report_from_configuration(
-                        input_dict=local_config, solution_name=sw_name
+                        report_settings=local_config, solution_name=sw_name
                     )
                     if report_type != "contour eye diagram":
                         aedt_report.hide_legend()
@@ -238,44 +537,53 @@ class VirtualCompliance:
                     time.sleep(1)
                     if out:
                         if not first_trace:
-                            pdf_report.add_section()
+                            pdf_report.add_page_break()
                         else:
                             first_trace = False
+
                         pdf_report.add_sub_chapter(f"{name} for trace {trace}")
                         sleep_time = 10
                         while sleep_time > 0:
                             # noinspection PyBroadException
                             try:
-                                pdf_report.add_image(
-                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                    f"Plot {report_type} for trace {trace}",
-                                    width=pdf_report.epw - 40,
-                                )
+                                if self.use_portrait:
+                                    pdf_report.add_image(
+                                        os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                        f"Plot {report_type} for trace {trace}",
+                                        width=pdf_report.epw - 40,
+                                    )
+                                else:
+                                    pdf_report.add_image(
+                                        os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                        f"Plot {report_type} for trace {trace}",
+                                        height=pdf_report.eph - 100,
+                                    )
+
                                 sleep_time = 0
                             except Exception:  # pragma: no cover
                                 time.sleep(1)
                                 sleep_time -= 1
                         if pass_fail:
                             if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                                _design.logger.info(f"Checking lines violations")
+                                _design.logger.info("Checking lines violations")
                                 table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
                             elif report_type == "statistical eye" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_statistical_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             elif report_type == "eye diagram" and local_config["eye_mask"]:
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
                             elif report_type == "contour eye diagram":
-                                _design.logger.info(f"Checking eye violations")
+                                _design.logger.info("Checking eye violations")
                                 table = self._add_contour_eye_diagram_violations(
                                     aedt_report, pdf_report, image_name, local_config
                                 )
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
 
                         if report_type in ["eye diagram", "statistical eye"]:
-                            _design.logger.info(f"Adding eye measurements")
+                            _design.logger.info("Adding eye measurements.")
                             table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
                             write_csv(os.path.join(self._output_folder, f"{name}{trace}_eye_meas.csv"), table)
                         if self.local_config.get("delete_after_export", True):
@@ -291,13 +599,16 @@ class VirtualCompliance:
         start = True
         _design = None
 
-        for template_report in self.local_config.get("parameters", []):
-            config_file = template_report["config"]
+        for template_report in self._parameters.values():
+            config_file = template_report.config_file
             if not os.path.exists(config_file):
                 config_file = os.path.join(self._template_folder, config_file)
-            name = template_report["name"]
-            pass_fail_criteria = template_report.get("pass_fail_criteria", "")
-            design_name = template_report["design_name"]
+            if not os.path.exists(config_file):
+                self._desktop_class.logger.error(f"{config_file} not found.")
+                continue
+            name = template_report.name
+            pass_fail_criteria = template_report.pass_fail_criteria
+            design_name = template_report.design_name
             if _design and _design.design_name != design_name or _design is None:
                 _design = get_pyaedt_app(self._project_name, design_name)
 
@@ -309,13 +620,20 @@ class VirtualCompliance:
             if name == "erl":
                 pdf_report.add_sub_chapter("Effective Return Loss")
                 table_out = [["ERL", "Value", "Pass/Fail"]]
-                traces = template_report["traces"]
-                trace_pins = template_report["trace_pins"]
+                traces = template_report.traces
+                trace_pins = template_report.trace_pins
                 for trace_name, trace_pin in zip(traces, trace_pins):
                     spisim.touchstone_file = _design.export_touchstone()
+                    if not isinstance(trace_pin[0], int):
+                        try:
+                            ports = list(_design.excitations)
+                            thrus4p = [ports.index(i) for i in trace_pin]
+                            trace_pin = thrus4p
+                        except IndexError:
+                            _design.logger.error("Port not found.")
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        table_out.append([trace_name, erl_value, pass_fail_criteria])
+                        table_out.append([trace_name, erl_value, "PASS" if pass_fail_criteria else "FAIL"])
                 pdf_report.add_table(
                     "Effective Return Losses",
                     table_out,
@@ -325,10 +643,6 @@ class VirtualCompliance:
     def _add_lna_violations(self, report, pdf_report, image_name, local_config):
         font_table = [["", None]]
         trace_data = report.get_solution_data()
-        if not trace_data:  # pragma: no cover
-            msg = "Failed to get Solution Data. Check if the design is solved or the report data are correct."
-            self._desktop_class.logger.error(msg)
-            return
         pass_fail_table = [
             [
                 "Check Zone",
@@ -340,6 +654,10 @@ class VirtualCompliance:
                 "Test Result",
             ]
         ]
+        if not trace_data:  # pragma: no cover
+            msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
+            self._desktop_class.logger.error(msg)
+            return pass_fail_table
         for trace_name in trace_data.expressions:
             trace_values = [(k[0], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
             for limit_v in local_config["limitLines"].values():
@@ -351,13 +669,19 @@ class VirtualCompliance:
                         result_range = self._get_frequency_range(
                             trace_values, limit_v["xpoints"][yy], limit_v["xpoints"][yy + 1]
                         )
+                        freq = [i[0] for i in result_range]
+                        slope = (limit_v["ypoints"][yy + 1] - limit_v["ypoints"][yy]) / (freq[-1] - freq[0])
+                        ypoints = []
+                        for i in range(len(freq)):
+                            if slope != 0:
+                                ypoints.append(limit_v["ypoints"][yy] + (freq[i] - freq[0]) / slope)
+                            else:
+                                ypoints.append(limit_v["ypoints"][yy])
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
                             hatch_above = True
                         test_value = limit_v["ypoints"][yy]
-                        range_value, x_value, result_value = self._check_test_value(
-                            result_range, test_value, hatch_above
-                        )
+                        range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("y_units", "")
                         xunits = limit_v.get("x_units", "")
                         mystr = f"Zone  {zones}"
@@ -391,6 +715,7 @@ class VirtualCompliance:
             self._desktop_class.logger.error(msg)
             return
         mag_data = {i: k for i, k in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if k > 0}
+        # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
@@ -411,13 +736,14 @@ class VirtualCompliance:
         if result_value == "FAIL":
             result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
-
+        result_value = "PASS"
         if local_config["eye_mask"]["enable_limits"]:
             mystr = "Upper/Lower Mask Violation:"
             for point in mag_data:
+                # checking if amplitude is overcoming limits.
                 if (
-                    point[1] > local_config["eye_mask"]["upper_limit"]
-                    or point[1] < local_config["eye_mask"]["lower_limit"]
+                    point[0] > local_config["eye_mask"]["upper_limit"]
+                    or point[0] < local_config["eye_mask"]["lower_limit"]
                 ):
                     result_value = "FAIL"
                     break
@@ -527,8 +853,8 @@ class VirtualCompliance:
         report.add_section()
         designs = []
         _design = None
-        for template_report in self.local_config["reports"]:
-            design_name = template_report["design_name"]
+        for template_report in self.reports.values():
+            design_name = template_report.design_name
             if design_name in designs:
                 continue
             designs.append(design_name)
@@ -558,19 +884,24 @@ class VirtualCompliance:
                     report.add_table("Components", components, col_widths=[75, 275])
 
     @pyaedt_function_handler()
-    def create_compliance_report(self, file_name="compliance_test.pdf"):
+    def create_compliance_report(self, file_name="compliance_test.pdf", close_project=True):
         """Create the Virtual Compliance report.
 
         Parameters
         ----------
         file_name : str
             Output file name.
+        close_project : bool, optional
+            Whether to close the project at the end of the report generation or not. Default is `True`.
 
         Returns
         -------
         str
             Path to the output file.
         """
+        if not self._project_name:
+            self.load_project()
+
         report = AnsysReport()
         report.aedt_version = self._desktop_class.aedt_version_id
         report.design_name = self._template_name
@@ -589,11 +920,19 @@ class VirtualCompliance:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
-                    report.add_image(file, caption=caption, width=report.epw - 50)
+                    if self.use_portrait:
+                        report.add_image(file, caption=caption, width=report.epw - 50)
+                    else:
+                        report.add_image(file, caption=caption, height=report.eph - 100)
 
         self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
             self._create_project_info(report)
         report.add_toc()
-        return report.save_pdf(self._output_folder, file_name=file_name)
+        output = report.save_pdf(self._output_folder, file_name=file_name)
+        if close_project:
+            self._desktop_class.odesktop.CloseProject(self.project_name)
+        if output:
+            self._desktop_class.logger.info(f"Report has been saved in {output}")
+        return output

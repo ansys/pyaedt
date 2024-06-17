@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import warnings
 
 from pyaedt.emit_core.emit_constants import EmiCategoryFilter
@@ -406,7 +430,7 @@ class Revision:
             engine.n_to_1_limit = max_instances
 
     @pyaedt_function_handler()
-    def interference_type_classification(self, domain, use_filter=False, filter_list=None):
+    def interference_type_classification(self, domain, use_filter=False, filter_list=None):  # pragma: no cover
         """
         Classify interference type as according to inband/inband,
         out of band/in band, inband/out of band, and out of band/out of band.
@@ -437,7 +461,6 @@ class Revision:
         # Get project results and radios
         modeRx = TxRxMode.RX
         modeTx = TxRxMode.TX
-        mode_power = ResultType.POWER_AT_RX
         tx_interferer = InterfererType().TRANSMITTERS
         rx_radios = self.get_receiver_names()
         tx_radios = self.get_interferer_names(tx_interferer)
@@ -497,9 +520,7 @@ class Revision:
                                     # should just be skipped
                                     continue
                             else:
-                                tx_prob = (
-                                    instance.get_largest_problem_type(ResultType.EMI).replace(" ", "").split(":")[1]
-                                )
+                                tx_prob = instance.get_largest_emi_problem_type().replace(" ", "").split(":")[1]
                                 power = instance.get_value(ResultType.EMI)
                             if (
                                 rx_start_freq - rx_channel_bandwidth / 2
@@ -521,7 +542,7 @@ class Revision:
                             if power > max_power and in_filters:
                                 max_power = power
                                 largest_rx_prob = rx_prob
-                                prob = instance.get_largest_problem_type(ResultType.EMI)
+                                prob = instance.get_largest_emi_problem_type()
                                 largest_tx_prob = prob.replace(" ", "").split(":")
 
                 if max_power > -200:
@@ -553,7 +574,7 @@ class Revision:
         protection_levels=None,
         use_filter=False,
         filter_list=None,
-    ):
+    ):  # pragma: no cover
         """
         Classify worst-case power at each Rx radio according to interference type.
 
@@ -736,10 +757,10 @@ class Revision:
     def get_license_session(self):
         """Get a license session.
 
-        A license session can be started with checkout(), and ended with checkin().
-        The `with` keyword can also be used, where checkout() is called on enter, and checkin() is called on exit.
+        A license session can be started with checkout(), and ended with check in().
+        The `with` keyword can also be used, where checkout() is called on enter, and check in() is called on exit.
 
-        Avoids having to wait for license checkin and checkout when doing many runs.
+        Avoids having to wait for license check in and checkout when doing many runs.
 
         Examples
         --------

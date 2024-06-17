@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from collections import defaultdict
 
 from pyaedt.emit_core import emit_constants as emit_consts
@@ -764,7 +788,7 @@ class EmitRadioComponent(EmitComponent):
         Examples
         --------
         >>> from pyaedt import Emit
-        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
         >>> band =  radio.bands()[0]
         >>> start_freq = 10
@@ -810,7 +834,7 @@ class EmitRadioComponent(EmitComponent):
         Examples
         --------
         >>> from pyaedt import Emit
-        >>> aedtapp = Emit(new_desktop_session=False)
+        >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
         >>> band =  radio.bands()[0]
         >>> stop_freq = 10
@@ -1133,7 +1157,7 @@ class EmitComponentPropNode(object):
         self._set_prop_value(sampling_props)
 
     @pyaedt_function_handler()
-    def _set_prop_value(self, props={}):
+    def _set_prop_value(self, props=None):
         """Sets the property values for this node.
 
         Parameters
@@ -1146,11 +1170,13 @@ class EmitComponentPropNode(object):
         -------
         None
         """
+        if props is None:
+            props = {}
         comp_name = self.parent_component.name
         prop_list = ["NAME:properties"]
         for prop_name, value in props.items():
             prop_list.append("{}:=".format(prop_name))
-            if type(value) is not str:
+            if not isinstance(value, str):
                 raise TypeError("Value for key {} is not a string.".format(prop_name))
             prop_list.append(value)
         properties_to_set = [

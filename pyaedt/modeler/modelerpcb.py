@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import re
 from warnings import warn
@@ -119,20 +143,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-        elif not inside_desktop:
-            if self._app.project_timestamp_changed:
-                if self._edb:
-                    self._edb.close_edb()
-                from pyedb import Edb
 
-                self._edb = Edb(
-                    self._edb_folder,
-                    self._app.design_name,
-                    True,
-                    self._app._aedt_version,
-                    isaedtowned=True,
-                    oproject=self._app.oproject,
-                )
         return self._edb
 
     @property
@@ -152,12 +163,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         try:
             self._desktop.RestoreWindow()
             self.oeditor.ZoomToFit()
-        except:
+        except Exception:
             self._desktop.RestoreWindow()
 
     @property
     def model_units(self):
-        """Model units.
+        """Model units as a string (for example, "mm").
 
         References
         ----------
@@ -170,7 +181,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     @model_units.setter
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
-        """Set the model units as a string (for example, "mm")."""
         self.oeditor.SetActiveUnits(units)
 
     @property
@@ -191,8 +201,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         warn(mess, DeprecationWarning)
         return self._primitives
 
-    @pyaedt_function_handler
-    def obounding_box(self, object_name):
+    @pyaedt_function_handler(object_name="assignment")
+    def obounding_box(self, assignment):
         """Bounding box of a specified object.
 
         Returns
@@ -205,7 +215,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.GetBBox
         """
-        bb = self.oeditor.GetBBox(object_name)
+        bb = self.oeditor.GetBBox(assignment)
         pll = bb.BBoxLL()
         pur = bb.BBoxUR()
         return [pll.GetX(), pll.GetY(), pur.GetX(), pur.GetY()]
@@ -214,11 +224,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def _arg_with_dim(self, value, units=None):
         if units is None:
             units = self.model_units
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -237,21 +247,23 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         return xpos, ypos, zpos
 
-    @pyaedt_function_handler()
-    def change_property(self, property_object, property_name, property_value, property_tab="BaseElementTab"):
+    @pyaedt_function_handler(
+        property_object="assignment", property_name="name", property_value="value", property_tab="aedt_tab"
+    )
+    def change_property(self, assignment, name, value, aedt_tab="BaseElementTab"):
         """Change an oeditor property.
 
         Parameters
         ----------
-        property_object : str
+        assignment : str
             Name of the property object. It can be the name of an excitation or field reporter.
             For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
-        property_name : str
+        name : str
             Name of the property. For example, ``Rotation Angle``.
-        property_value : str, list
+        value : str, list
             Value of the property. It is a string for a single value and a list of three elements for
             ``[x,y,z]`` coordianates.
-        property_tab : str
+        aedt_tab : str
             Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
             ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
 
@@ -265,71 +277,71 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.ChangeProperty
         """
-        if isinstance(property_value, list) and len(property_value) == 3:
-            xpos, ypos, zpos = self._pos_with_arg(property_value)
+        if isinstance(value, list) and len(value) == 3:
+            xpos, ypos, zpos = self._pos_with_arg(value)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:" + property_tab,
-                        ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                        "NAME:" + aedt_tab,
+                        ["NAME:PropServers", assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
                     ],
                 ]
             )
-        elif isinstance(property_value, bool):
+        elif isinstance(value, bool):
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:" + property_tab,
-                        ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                        "NAME:" + aedt_tab,
+                        ["NAME:PropServers", assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "Value:=", value]],
                     ],
                 ]
             )
-        elif isinstance(property_value, (float, int)):
-            xpos = self._arg_with_dim(property_value, self.model_units)
+        elif isinstance(value, (float, int)):
+            xpos = self._arg_with_dim(value, self.model_units)
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:" + property_tab,
-                        ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
+                        "NAME:" + aedt_tab,
+                        ["NAME:PropServers", assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "Value:=", xpos]],
                     ],
                 ]
             )
-        elif isinstance(property_value, str):
+        elif isinstance(value, str):
             self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
-                        "NAME:" + property_tab,
-                        ["NAME:PropServers", property_object],
-                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                        "NAME:" + aedt_tab,
+                        ["NAME:PropServers", assignment],
+                        ["NAME:ChangedProps", ["NAME:" + name, "Value:=", value]],
                     ],
                 ]
             )
         else:
             self.logger.error("Wrong Property Value")
             return False
-        self.logger.info("Property {} Changed correctly.".format(property_name))
+        self.logger.info("Property {} Changed correctly.".format(name))
         return True
 
-    @pyaedt_function_handler()
-    def merge_design(self, merged_design=None, pos_x="0.0", pos_y="0.0", pos_z="0.0", rotation="0.0"):
+    @pyaedt_function_handler(pos_x="x", pos_y="y", pos_z="z")
+    def merge_design(self, merged_design=None, x="0.0", y="0.0", z="0.0", rotation="0.0"):
         """Merge a design into another.
 
         Parameters
         ----------
         merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
             Design to merge.
-        pos_x : float, str
+        x : float, str
             X Offset.
-        pos_y : float, str
+        y : float, str
             Y Offset.
-        pos_z : float, str
+        z : float, str
             Z Offset.
         rotation : float, str
             Rotation angle in deg.
@@ -349,7 +361,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 if cmp_info and des_name in cmp_info[0]:
                     comp_name = str(i)
                     break
-            except:
+            except Exception:
                 continue
         if not comp_name:
             return False
@@ -357,23 +369,23 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.components_3d[comp_name] = comp
         comp.is_3d_placement = True
         comp.local_origin = [0.0, 0.0, 0.0]
-        pos_x = self._arg_with_dim(pos_x)
-        pos_y = self._arg_with_dim(pos_y)
-        pos_z = self._arg_with_dim(pos_z)
+        x = self._arg_with_dim(x)
+        y = self._arg_with_dim(y)
+        z = self._arg_with_dim(z)
         rotation = self._arg_with_dim(rotation, "deg")
         comp.angle = rotation
-        comp.location = [pos_x, pos_y, pos_z]
+        comp.location = [x, y, z]
         return comp
 
-    @pyaedt_function_handler()
-    def change_clip_plane_position(self, clip_name, position):
+    @pyaedt_function_handler(clip_name="name", position="location")
+    def change_clip_plane_position(self, name, location):
         """Change the clip plane position.
 
         Parameters
         ----------
-        clip_name : str
+        name : str
             Name of the clip plane.
-        position : list
+        location : list
             List of ``[x,y,z]`` coordinates for the new position.
 
         Returns
@@ -386,15 +398,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.ChangeProperty
         """
-        return self.change_property(clip_name, "Location", position)
+        return self.change_property(name, "Location", location)
 
-    @pyaedt_function_handler()
-    def colinear_heal(self, selection, tolerance=0.1):
+    @pyaedt_function_handler(selection="assignment")
+    def colinear_heal(self, assignment, tolerance=0.1):
         """Remove small edges of one or more primitives.
 
         Parameters
         ----------
-        selection : str or list
+        assignment : str or list
             One or more primitives to heal.
         tolerance :  float, optional
             Tolerance value. The default is ``0.1``.
@@ -414,21 +426,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.2")
+        >>> h3d=Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> l1=h3d.modeler.create_line("TOP", [[0,0],[100,0]],  0.5, name="poly_1")
-        >>> l2=h3d.modeler.create_line("TOP", [[100,0],[120,-35]],  0.5, name="poly_2")
+        >>> l1=h3d.modeler.create_line("TOP",[[0,0],[100,0]],0.5)
+        >>> l2=h3d.modeler.create_line("TOP",[[100,0],[120,-35]],0.5)
         >>> h3d.modeler.unite([l1,l2])
-        >>> h3d.modeler.colinear_heal("poly_2", 0.25)
+        >>> h3d.modeler.colinear_heal("poly_2",0.25)
         True
         """
-        if isinstance(selection, str):
-            selection = [selection]
+        if isinstance(assignment, str):
+            assignment = [assignment]
         self.oeditor.Heal(
             [
                 "NAME:Repair",
                 "Selection:=",
-                selection,
+                assignment,
                 "Type:=",
                 "Colinear",
                 "Tol:=",
@@ -438,13 +450,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         return True
 
-    @pyaedt_function_handler()
-    def expand(self, object_to_expand, size=1, expand_type="ROUND", replace_original=False):
+    @pyaedt_function_handler(object_to_expand="assignment")
+    def expand(self, assignment, size=1, expand_type="ROUND", replace_original=False):
         """Expand the object by a specific size.
 
         Parameters
         ----------
-        object_to_expand : str
+        assignment : str
             Name of the object.
         size : float, optional
             Size of the expansion. The default is ``1``.
@@ -469,24 +481,22 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.2")
+        >>> h3d=Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> h3d.modeler.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
-        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]], name="line_3")
+        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]])
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4
 
         """
-        object_to_expand = self.convert_to_selections(object_to_expand)
+        assignment = self.convert_to_selections(assignment)
         self.cleanup_objects()
-        layer = self.oeditor.GetPropertyValue("BaseElementTab", object_to_expand, "PlacementLayer")
-        poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
+        layer = self.oeditor.GetPropertyValue("BaseElementTab", assignment, "PlacementLayer")
+        poly = self.oeditor.GetPolygonDef(assignment).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(
-            self.number_with_units(size), expand_type, replace_original, ["NAME:elements", object_to_expand]
-        )
+        self.oeditor.Expand(self.number_with_units(size), expand_type, replace_original, ["NAME:elements", assignment])
         self.cleanup_objects()
         if not replace_original:
             new_geom_names = [
@@ -495,20 +505,20 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 if i not in geom_names
             ]
             return new_geom_names[0]
-        return object_to_expand
+        return assignment
 
-    @pyaedt_function_handler()
-    def import_cadence_brd(self, brd_filename, edb_path=None, edb_name=None):
+    @pyaedt_function_handler(brd_filename="input_file", edb_path="output_dir", edb_name="name")
+    def import_cadence_brd(self, input_file, output_dir=None, name=None):
         """Import a cadence board.
 
         Parameters
         ----------
-        brd_filename : str
+        input_file : str
             Full path and name of the BRD file to import.
-        edb_path : str, optional
+        output_dir : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
-        edb_name : str, optional
+        name : str, optional
             Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
@@ -522,16 +532,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oImportExport.ImportExtracta
         """
-        if not edb_path:
-            edb_path = self.projdir
-        if not edb_name:
-            name = os.path.basename(brd_filename)
-            edb_name = os.path.splitext(name)[0]
+        if not output_dir:
+            output_dir = self.projdir
+        if not name:
+            name = os.path.basename(input_file)
+            name = os.path.splitext(name)[0]
 
         self._oimportexport.ImportExtracta(
-            brd_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()
@@ -551,18 +561,18 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             return str(value) + self.model_units
 
-    @pyaedt_function_handler()
-    def import_ipc2581(self, ipc_filename, edb_path=None, edb_name=None):
+    @pyaedt_function_handler(ipc_filename="input_file", edb_path="output_dir", edb_name="name")
+    def import_ipc2581(self, input_file, output_dir=None, name=None):
         """Import an IPC file.
 
         Parameters
         ----------
-        ipc_filename : str
+        input_file : str
             Full path and name of the IPC file.
-        edb_path : str, optional
+        output_dir : str, optional
             Path where the EDB is to be created. The default is ``None``, in which
             case the project directory is used.
-        edb_name : str, optional
+        name : str, optional
             Name of the EDB. The default is ``None``, in which
             case the board name is used.
 
@@ -576,16 +586,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oImportExport.ImportIPC
         """
-        if not edb_path:
-            edb_path = self.projdir
-        if not edb_name:
-            name = os.path.basename(ipc_filename)
-            edb_name = os.path.splitext(name)[0]
+        if not output_dir:
+            output_dir = self.projdir
+        if not name:
+            name = os.path.basename(input_file)
+            name = os.path.splitext(name)[0]
 
         self._oimportexport.ImportIPC(
-            ipc_filename, os.path.join(edb_path, edb_name + ".aedb"), os.path.join(edb_path, edb_name + ".xml")
+            input_file, os.path.join(output_dir, name + ".aedb"), os.path.join(output_dir, name + ".xml")
         )
-        self._app.__init__(self._app._desktop.GetActiveProject().GetName())
+        self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
 
     @pyaedt_function_handler()
@@ -620,13 +630,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.oeditor.Subtract(vArg1)
         return self.cleanup_objects()
 
-    @pyaedt_function_handler()
-    def convert_to_selections(self, objects_to_split, return_list=False):
+    @pyaedt_function_handler(objects_to_split="assignment")
+    def convert_to_selections(self, assignment, return_list=False):
         """Convert one or more object to selections.
 
         Parameters
         ----------
-        objects_to_split : str, int, list
+        assignment : str, int, list
             One or more objects to convert to selections. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -641,10 +651,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         """
 
-        if not isinstance(objects_to_split, list):
-            objects_to_split = [objects_to_split]
+        if not isinstance(assignment, list):
+            assignment = [assignment]
         objnames = []
-        for el in objects_to_split:
+        for el in assignment:
             if isinstance(el, str):
                 objnames.append(el)
             elif "name" in dir(el):
@@ -656,13 +666,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         else:
             return ",".join(objnames)
 
-    @pyaedt_function_handler()
-    def unite(self, objectlists):
+    @pyaedt_function_handler(objectlists="assignment")
+    def unite(self, assignment):
         """Unite objects from names.
 
         Parameters
         ----------
-        objectlists : list
+        assignment : list
             List of objects to unite.
 
         Returns
@@ -677,11 +687,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
 
         vArg1 = ["NAME:primitives"]
-        if len(objectlists) >= 2:
-            objectlists = self.convert_to_selections(objectlists, True)
+        if len(assignment) >= 2:
+            assignment = self.convert_to_selections(assignment, True)
             self.cleanup_objects()
 
-            for el in objectlists:
+            for el in assignment:
                 vArg1.append(el)
             self.oeditor.Unite(vArg1)
             return self.cleanup_objects()
@@ -689,13 +699,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @pyaedt_function_handler()
-    def intersect(self, objectlists):
+    @pyaedt_function_handler(objectlists="assignment")
+    def intersect(self, assignment):
         """Intersect objects from names.
 
         Parameters
         ----------
-        objectlists : list
+        assignment : list
             List of objects to intersect.
 
         Returns
@@ -709,11 +719,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> oEditor.Intersect
         """
         vArg1 = ["NAME:primitives"]
-        if len(objectlists) >= 2:
-            objectlists = self.convert_to_selections(objectlists, True)
+        if len(assignment) >= 2:
+            assignment = self.convert_to_selections(assignment, True)
             self.cleanup_objects()
 
-            for el in objectlists:
+            for el in assignment:
                 vArg1.append(el)
             self.oeditor.Intersect(vArg1)
             return self.cleanup_objects()
@@ -721,17 +731,17 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             self.logger.error("Input list must contain at least two elements.")
             return False
 
-    @pyaedt_function_handler()
-    def duplicate(self, objectlists, count, direction_vector):
+    @pyaedt_function_handler(objectlists="assignment", direction_vector="vector")
+    def duplicate(self, assignment, count, vector):
         """Duplicate one or more elements along a vector.
 
         Parameters
         ----------
-        objectlists : list
+        assignment : list
             List of elements to duplicate.
         count : int
 
-        direction_vector : list
+        vector : list
             List of ``[x,y]`` coordinates for the direction vector.
 
         Returns
@@ -744,23 +754,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.Duplicate
         """
-        objectlists = self.convert_to_selections(objectlists, True)
+        assignment = self.convert_to_selections(assignment, True)
 
         self.cleanup_objects()
-        if isinstance(objectlists, str):
-            objectlists = [objectlists]
-        self.oeditor.Duplicate(
-            ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
-        )
+        if isinstance(assignment, str):
+            assignment = [assignment]
+        self.oeditor.Duplicate(["NAME:options", "count:=", count], ["NAME:elements", ",".join(assignment)], vector)
         return self.cleanup_objects()
 
-    @pyaedt_function_handler()
-    def duplicate_across_layers(self, objects, layers):
+    @pyaedt_function_handler(objects="assignment")
+    def duplicate_across_layers(self, assignment, layers):
         """Duplicate one or more elements along a vector.
 
         Parameters
         ----------
-        objects : list
+        assignment : list
             List of elements to duplicate.
         layers : str, list
             Layer name on which duplicate object.
@@ -775,12 +783,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.DuplicateAcrossLyrs
         """
-        objects = self.convert_to_selections(objects, True)
+        assignment = self.convert_to_selections(assignment, True)
         self.cleanup_objects()
 
         if isinstance(layers, str):
             layers = [layers]
-        varg1 = ["NAME:elements"] + objects
+        varg1 = ["NAME:elements"] + assignment
         varg2 = ["NAME:layers"] + layers
 
         self.oeditor.DuplicateAcrossLyrs(varg1, varg2)
@@ -835,22 +843,22 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ]
         try:
             self._odesign.SetTemperatureSettings(vargs1)
-        except:
+        except Exception:
             self.logger.error("Failed to enable the temperature dependence.")
             return False
         else:
             self.logger.info("Assigned Objects Temperature")
             return True
 
-    @pyaedt_function_handler()
-    def set_spice_model(self, component_name, model_path, model_name=None, subcircuit_name=None, pin_map=None):
+    @pyaedt_function_handler(component_name="assignment", model_path="input_file")
+    def set_spice_model(self, assignment, input_file, model_name=None, subcircuit_name=None, pin_map=None):
         """Assign a Spice model to a component.
 
         Parameters
         ----------
-        component_name : str
+        assignment : str
             Name of the component.
-        model_path : str, optional
+        input_file : str, optional
             Full path to the model file. The default is ``None``.
         model_name : str, optional
             Name of the model. The default is ``None``, in which case the model name is the file name without an
@@ -871,14 +879,11 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> from pyaedt import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
-        >>> h3d.modeler.set_spice_model(component_name="A1",
-        ...                             modelpath="pathtospfile",
-        ...                             modelname="spicemodelname",
-        ...                             subcircuit_name="SUBCK1")
+        >>> h3d.modeler.set_spice_model(assignment="A1",input_file=,subcircuit_name="SUBCK1")
 
         """
         if not model_name:
-            model_name = get_filename_without_extension(model_path)
+            model_name = get_filename_without_extension(input_file)
         if model_name not in list(self.o_model_manager.GetNames()):
             args = [
                 "NAME:" + model_name,
@@ -901,21 +906,21 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 ["NAME:PortInfoBlk"],
                 ["NAME:PortOrderBlk"],
                 "filename:=",
-                model_path,
+                input_file,
                 "modelname:=",
                 model_name,
             ]
             self.o_model_manager.Add(args)
         if not subcircuit_name:
             subcircuit_name = model_name
-        with open_file(model_path, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 if "subckt" in line.lower():
                     pinNames = [i.strip() for i in re.split(" |\t", line) if i]
                     pinNames.remove(pinNames[0])
                     pinNames.remove(pinNames[0])
                     break
-        componentPins = self.components[component_name].pins
+        componentPins = list(self.components[assignment].pins.keys())
         componentPins.reverse()
         if not pin_map:
             pin_map = []
@@ -939,7 +944,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "RLCModelType:=",
                 4,
                 "SPICE_file_path:=",
-                model_path,
+                input_file,
                 "SPICE_model_name:=",
                 model_name,
                 "SPICE_subckt:=",
@@ -948,9 +953,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 pin_map,
             ],
         ]
-        args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", component_name], "Prop:=", args2]]
+        args = ["NAME:ModelChanges", ["NAME:UpdateModel0", ["NAME:ComponentNames", assignment], "Prop:=", args2]]
         self.oeditor.UpdateModels(args)
-        self.logger.info("Spice Model Correctly assigned to {}.".format(component_name))
+        self.logger.info("Spice Model Correctly assigned to {}.".format(assignment))
         return True
 
     @pyaedt_function_handler()
@@ -1023,6 +1028,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             )
             self.logger.info("Geometry check succeed")
             return True
-        except:
+        except Exception:
             self.logger.error("Geometry check Failed.")
             return False

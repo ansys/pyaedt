@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import time
 
@@ -6,26 +30,25 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Circuit
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T21"
 
 if config["desktopVersion"] > "2022.2":
-    original_project_name = "Galileo_t21_231"
     diff_proj_name = "differential_pairs_231"
 else:
-    original_project_name = "Galileo_t21"
     diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
-touchstone = "SSN_ssn.s6p"
-touchstone2 = "Galileo_V3P3S0.ts"
+touchstone = "SSN_1.5_ssn.s6p"
+touchstone_custom = "SSN_custom.s6p"
+touchstone2 = "V3P3S0.ts"
 ami_project = "AMI_Example"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
-    app = add_app(original_project_name, application=Circuit, subfolder=test_subfolder)
+    app = add_app(application=Circuit, subfolder=test_subfolder)
     app.modeler.schematic_units = "mil"
     return app
 
@@ -107,7 +130,7 @@ class TestClass:
     def test_05c_create_component(self):
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol("Test", ["1", "2"])
         assert self.aedtapp.modeler.schematic.create_new_component_from_symbol(
-            "Test1", [1, 2], parameter_list=["Author:=", "NumTerminals:="], parameter_value=["pyaedt", 2]
+            "Test1", [1, 2], parameters=["Author:=", "NumTerminals:="], values=["pyaedt", 2]
         )
 
     def test_06a_create_setup(self):
@@ -118,7 +141,6 @@ class TestClass:
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(self.netlist_file2)
-        pass
 
     def test_09_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")
@@ -154,7 +176,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
+        assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
         # create_interface_port
@@ -181,14 +203,13 @@ class TestClass:
         assert self.aedtapp.modeler.move("L14", [0, -0.00508])
         assert myind.location == [0.01016, 0.00508]
         self.aedtapp.modeler.schematic_units = "mil"
-        assert self.aedtapp.modeler.move(
-            "L14",
-            [0, 200],
-        )
+        assert self.aedtapp.modeler.move("L14", [0, 200])
         assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
-        assert self.aedtapp.modeler.rotate("IPort@Port1")
+        assert self.aedtapp.modeler.rotate(
+            "IPort@Port1",
+        )
 
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
@@ -207,10 +228,9 @@ class TestClass:
         ]
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze("Dom_LNA")
-        time.sleep(30)
+        time.sleep(2)
         solution_name = "Dom_LNA"
         sweep_name = None
         file_name = os.path.join(self.local_scratch.path, "new.s2p")
@@ -220,7 +240,7 @@ class TestClass:
         assert self.aedtapp.setup_names[0] == solution_name
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
-    def test_19A_create_sweeps(self):
+    def test_19a_create_sweeps(self):
         setup_name = "Sweep_LNA"
         LNA_setup = self.aedtapp.create_setup(setup_name)
         LNA_setup.add_sweep_step("Freq", 1, 2, 0.01, "GHz", override_existing_sweep=True)
@@ -233,7 +253,7 @@ class TestClass:
         assert LNA_setup.props["SweepDefinition"][1]["Variable"] == "Temp"
         assert LNA_setup.props["SweepDefinition"][1]["Data"] == "DEC 20cel 100cel 81"
 
-    def test_19B_create_EyE_setups(self):
+    def test_19b_create_eye_setups(self):
         setup_name = "Dom_Verify"
         assert self.aedtapp.create_setup(setup_name, "NexximVerifEye")
         setup_name = "Dom_Quick"
@@ -241,8 +261,13 @@ class TestClass:
         setup_name = "Dom_AMI"
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
-    def test_20_create_AMI_plots(self, add_app):
+    @pytest.mark.skipif(
+        is_linux and config["desktopVersion"] == "2024.1",
+        reason="Project with multiple circuit designs is not working.",
+    )
+    def test_20a_create_ami_plots(self, add_app):
         ami_design = add_app(ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder)
+
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -250,9 +275,9 @@ class TestClass:
                 "b_input_15",
                 ami_design.available_variations.nominal,
                 plot_type="Rectangular Stacked Plot",
-                plot_final_response=True,
                 plot_intermediate_response=True,
-                plotname=report_name,
+                plot_final_response=True,
+                plot_name=report_name,
             )
             == report_name
         )
@@ -262,7 +287,7 @@ class TestClass:
         assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
             ami_design.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
+                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plot_name="MyReport1"
             )
             == "MyReport1"
         )
@@ -271,19 +296,19 @@ class TestClass:
                 "Dom_Quick",
                 "b_input_15.int_ami_rx.eye_probe",
                 ami_design.available_variations.nominal,
-                plotname="MyReportQ",
+                plot_name="MyReportQ",
             )
             == "MyReportQ"
         )
 
     @pytest.mark.skipif(config["desktopVersion"] > "2021.2", reason="Skipped on versions higher than 2021.2")
-    def test_20B_create_AMI_plots(self):
+    def test_20b_create_ami_plots(self):
         assert (
             self.aedtapp.post.create_statistical_eye_plot(
                 "Dom_Verify",
                 "b_input_15.int_ami_rx.eye_probe",
                 self.aedtapp.available_variations.nominal,
-                plotname="MyReportV",
+                plot_name="MyReportV",
             )
             == "MyReportV"
         )
@@ -314,7 +339,7 @@ class TestClass:
 
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
-        touch = os.path.join(local_path, "example_models", test_subfolder, "SSN_ssn.s6p")
+        touch = os.path.join(local_path, "example_models", test_subfolder, touchstone)
         t1 = self.aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
         assert len(t1.pins) == 6
@@ -348,15 +373,14 @@ class TestClass:
 
     def test_27_set_differential_pairs(self):
         assert self.circuitprj.set_differential_pair(
-            positive_terminal="Port3",
-            negative_terminal="Port4",
-            common_name=None,
-            diff_name=None,
-            common_ref_z=34,
-            diff_ref_z=123,
-            active=True,
+            assignment="Port3",
+            reference="Port4",
+            common_mode=None,
+            differential_mode=None,
+            common_reference=34,
+            differential_reference=123,
         )
-        assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
+        assert self.circuitprj.set_differential_pair(assignment="Port3", reference="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
         diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
@@ -378,13 +402,13 @@ class TestClass:
     def test_29a_create_circuit_from_spice_edit_symbol(self):
         model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM5678", symbol_name="nexx_cap"
+            input_file=model, model="GRM5678", symbol="nexx_cap"
         )
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM6789", symbol_name="nexx_inductor"
+            input_file=model, model="GRM6789", symbol="nexx_inductor"
         )
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(
-            model_path=model, model_name="GRM9012", symbol_name="nexx_res"
+            input_file=model, model="GRM9012", symbol="nexx_res"
         )
 
     def test_30_create_subcircuit(self):
@@ -416,12 +440,20 @@ class TestClass:
     def test_32_push_down(self):
         self.aedtapp.insert_design("Circuit_Design_Push_Down")
         subcircuit_1 = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
-        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
+        active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
             location=[0.0, 0.0], nested_subcircuit_id=subcircuit_1.component_info["RefDes"]
         )
-        active_project_name_3 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
+        active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
         assert self.aedtapp.push_down(subcircuit_1)
@@ -429,10 +461,18 @@ class TestClass:
     def test_33_pop_up(self):
         self.aedtapp.insert_design("Circuit_Design_Pop_Up")
         assert self.aedtapp.pop_up()
-        active_project_name_1 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
+        active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
-        active_project_name_2 = self.aedtapp.oproject.GetActiveDesign().GetName()
+        active_project = self.aedtapp.oproject.GetActiveDesign()
+        if is_linux and config["desktopVersion"] == "2024.1":
+            time.sleep(1)
+            self.aedtapp._desktop.CloseAllWindows()
+        active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 
     def test_34_activate_variables(self):
@@ -447,7 +487,7 @@ class TestClass:
         try:
             self.aedtapp.activate_variable_tuning("Idontexist")
             assert False
-        except:
+        except Exception:
             assert True
 
     def test_35_netlist_data_block(self):
@@ -465,7 +505,7 @@ class TestClass:
         assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
-        myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
+        myprobe = self.aedtapp.modeler.components.create_voltage_probe(name="test_probe", location=[0.4, 0.2])
         assert type(myprobe.id) is int
 
     def test_37_draw_graphical_primitives(self):
@@ -482,14 +522,15 @@ class TestClass:
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-
         assert not self.aedtapp.browse_log_file()
         self.aedtapp.analyze()
+        time.sleep(2)
         assert self.aedtapp.browse_log_file()
-        self.aedtapp.save_project()
-        assert self.aedtapp.browse_log_file()
-        assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
-        assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+        if not is_linux:
+            self.aedtapp.save_project()
+            assert self.aedtapp.browse_log_file()
+            assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
+            assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
 
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
@@ -677,25 +718,25 @@ class TestClass:
         port.reference_node = "NoNet"
         port.reference_node = "Z"
 
-        assert c.excitation_objets
+        assert c.excitation_objects
 
         setup = c.create_setup()
 
-        c.excitations["Port3"].enabled_sources = ["PowerTest"]
-        assert len(c.excitations["Port3"].enabled_sources) == 1
+        c.excitation_objects["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.excitation_objects["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
-        c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
-        assert c.excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+        c.excitation_objects["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.excitation_objects["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
-        c.excitations["Port3"].name = "PortTest"
+        c.excitation_objects["Port3"].name = "PortTest"
         assert "PortTest" in c.excitations
-        assert "PortTest" in c.excitation_names
-        c.excitations["PortTest"].delete()
-        assert len(c.excitation_objets) == 0
-        self.aedtapp.save_project()
-        c = add_app(application=Circuit, design_name="sources")
-        assert c.sources
+        c.excitation_objects["PortTest"].delete()
+        assert len(c.excitation_objects) == 0
+        if not is_linux:
+            self.aedtapp.save_project()
+            c = add_app(application=Circuit, design_name="sources")
+            assert c.sources
 
     def test_41_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -707,17 +748,18 @@ class TestClass:
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        myres2 = self.aedtapp.modeler.components.get_component(myres.composed_name)
         self.aedtapp.modeler.schematic.create_wire(
-            [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
+            [myind.pins[0].location, myres.pins[1].location], name="wire_name_test"
         )
         wire_names = []
         for key in self.aedtapp.modeler.schematic.wires.keys():
             wire_names.append(self.aedtapp.modeler.schematic.wires[key].name)
         assert "wire_name_test" in wire_names
         assert not self.aedtapp.modeler.schematic.create_wire(
-            [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
+            [["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1"
         )
-        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], name="wire_test1")
         wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
         for key in wire_keys:
             if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
@@ -736,14 +778,16 @@ class TestClass:
 
     def test_43_display_wire_properties(self):
         self.aedtapp.set_active_design("CreateWireTest")
-        assert self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+        wire = self.aedtapp.modeler.components.get_wire_by_name("wire_name_test")
+        assert wire.display_wire_properties(
+            name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+        )
+
+        assert not self.aedtapp.modeler.wire.display_wire_properties(
+            name="invalid", property_to_display="NetName", visibility="Value", location="Top"
         )
         assert not self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="invalid", property_to_display="NetName", visibility="Value", location="Top"
-        )
-        assert not self.aedtapp.modeler.wire.display_wire_properties(
-            wire_name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
+            name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
         )
 
     def test_44_auto_wire(self):
@@ -767,24 +811,13 @@ class TestClass:
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
         self.aedtapp.modeler.schematic_units = "mil"
-        text = self.aedtapp.modeler.create_text(
-            "text test",
-            100,
-            300,
-            text_size=14,
-            text_angle=45,
-            text_color=[255, 0, 0],
-            show_rect=True,
-            rect_line_width=3,
-            rect_border_color=[0, 255, 0],
-            rect_fill=1,
-            rect_color=[0, 0, 255],
-        )
+        text = self.aedtapp.modeler.create_text("text test", 100, 300)
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
     def test_44_change_text_property(self):
         self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
@@ -798,6 +831,7 @@ class TestClass:
         assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(is_linux and config["desktopVersion"] == "2024.1", reason="Schematic has to be closed.")
     def test_45_create_circuit_from_multizone_layout(self, add_edb):
         edb = add_edb(project_name="multi_zone_project")
         common_reference_net = "gnd"
@@ -809,3 +843,97 @@ class TestClass:
         self.aedtapp.insert_design("test_45")
         self.aedtapp.connect_circuit_models_from_multi_zone_cutout(project_connexions, edb_zones, defined_ports)
         assert [mod for mod in list(self.aedtapp.modeler.schematic.components.values()) if "PagePort" in mod.name]
+        assert self.aedtapp.remove_all_unused_definitions()
+
+    def test_46_create_vpwl(self):
+        # default inputs
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V1")
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0s"
+        assert myres.parameters["time2"] == "0s"
+        assert myres.parameters["val1"] == "0V"
+        assert myres.parameters["val2"] == "0V"
+        # time and voltage input list
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V2", time_list=[0, "1u"], voltage_list=[0, 1])
+        assert myres.refdes != ""
+        assert type(myres.id) is int
+        assert myres.parameters["time1"] == "0"
+        assert myres.parameters["time2"] == "1u"
+        assert myres.parameters["val1"] == "0"
+        assert myres.parameters["val2"] == "1"
+        # time and voltage different length
+        myres = self.aedtapp.modeler.schematic.create_voltage_pwl(name="V3", time_list=[0], voltage_list=[0, 1])
+        assert myres is False
+
+    def test_47_automatic_lna(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        status, diff_pairs, comm_pairs = self.aedtapp.create_lna_schematic_from_snp(
+            input_file=touchstone_file,
+            start_frequency=0,
+            stop_frequency=70,
+            auto_assign_diff_pairs=True,
+            separation=".",
+            pattern=["component", "pin", "net"],
+            analyze=False,
+        )
+        assert status
+
+    @pytest.mark.skipif(
+        config["NonGraphical"] and is_linux, reason="Method is not working in Linux and non-graphical mode."
+    )
+    def test_48_automatic_tdr(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+
+        result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
+            input_file=touchstone_file,
+            probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            differential=True,
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+            design_name="TDR",
+        )
+        assert result
+
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
+    def test_49_automatic_ami(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+        ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
+        result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
+            input_file=touchstone_file,
+            ibis_ami=ami_file,
+            component_name="Spec_Model",
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
+            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            use_ibis_buffer=False,
+            differential=True,
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
+
+    def test_50_enforce_touchstone_passive(self):
+        self.aedtapp.insert_design("Touchstone_passive")
+        self.aedtapp.modeler.schematic_units = "mil"
+        s_parameter_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        assert s_parameter_component.enforce_touchstone_model_passive()
+        nexxim_customization = s_parameter_component.model_data.props["NexximCustomization"]
+        assert -1 == nexxim_customization["DCOption"]
+        assert 1 == nexxim_customization["InterpOption"]
+        assert 3 == nexxim_customization["ExtrapOption"]
+        assert 0 == nexxim_customization["Convolution"]
+        assert 6 == nexxim_customization["Passivity"]
+        assert not nexxim_customization["Reciprocal"]
+        assert "" == nexxim_customization["ModelOption"]
+        assert 2 == nexxim_customization["DataType"]

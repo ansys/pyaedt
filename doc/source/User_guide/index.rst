@@ -4,10 +4,9 @@
 User guide
 ==========
 
-This section provides brief tutorials for helping you understand how to effectively use PyAEDT.
+This section provides brief tutorials for helping you understand how to use PyAEDT effectively.
 
-For additional practical demonstrations, see
-`PyAEDT examples <https://aedt.docs.pyansys.com/version/stable/examples>`_ page.
+For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/stable/examples>`_.
 
 
 .. grid:: 2
@@ -40,7 +39,7 @@ For additional practical demonstrations, see
 
             How to create a setup and run simulations.
 
-   .. grid-item-card:: Variables and Optimetrics
+   .. grid-item-card:: Variables
             :link: variables
             :link-type: doc
             :margin: 2 2 0 0
@@ -61,6 +60,13 @@ For additional practical demonstrations, see
 
             How to generate reports, images, and PDF files.
 
+   .. grid-item-card:: EMIT Modeler
+            :link: emit_modeler
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to create and analyze EMIT designs.
+
 .. toctree::
    :hidden:
    :maxdepth: 2
@@ -72,3 +78,4 @@ For additional practical demonstrations, see
    variables
    files
    postprocessing
+   emit_modeler

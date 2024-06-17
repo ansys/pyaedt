@@ -1,9 +1,35 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from copy import copy
 import itertools
 import os
 import re
+import subprocess
 
-from pyaedt import is_ironpython
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.misc.misc import installed_versions
 
 if not is_ironpython:
     import matplotlib.pyplot as plt
@@ -103,13 +129,16 @@ class TouchstoneData(rf.Network):
 
         """
         temp_list = []
-        freq_idx = 0
-        s_db = self.s_db[freq_idx, :, :]
+        s_db = self.s_db[0:2, :, :]
         for i in self.port_tuples:
             if i[0] != i[1]:
-                loss = s_db[i[0], i[1]]
+                loss = s_db[0, i[0], i[1]]
                 if loss > threshold:
                     temp_list.append(i)
+                elif loss < -90:
+                    loss = s_db[1, i[0], i[1]]
+                    if loss > threshold:
+                        temp_list.append(i)
         return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
@@ -143,14 +172,13 @@ class TouchstoneData(rf.Network):
         index_couples : list, optional
             List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
         show: bool
-            Whether to plot.
+            Whether to plot. Default is ``True``.
 
         Returns
         -------
         :class:`matplotlib.plt`
         """
-        temp_list = []
-        freq_idx = 0
+
         if not index_couples:
             index_couples = self.port_tuples[:]
 
@@ -251,8 +279,8 @@ class TouchstoneData(rf.Network):
 
         If no excitation is provided it will provide a full list of return losses.
 
-        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)",, S(2,2)]
-        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)",, S(2,2)]
+        Example: excitation_names ["1","2"] is_touchstone_expression=False output ["S(1,1)", S(2,2)]
+        Example: excitation_names ["S(1,1)","S(1,2)", S(2,2)] is_touchstone_expression=True output ["S(1,1)", S(2,2)]
 
         Parameters
         ----------
@@ -263,7 +291,7 @@ class TouchstoneData(rf.Network):
         Returns
         -------
         list
-            list of index couples representing Return Losses of excitations
+            List of index couples representing return losses of excitations.
 
         """
         values = []
@@ -475,3 +503,82 @@ def read_touchstone(file_path):
     """
     data = TouchstoneData(touchstone_file=file_path)
     return data
+
+
+@pyaedt_function_handler()
+def check_touchstone_files(folder="", passivity=True, causality=True):
+    """Check passivity and causality for all Touchstone files included in the folder.
+
+    Parameters
+    ----------
+    folder : str
+        Folder path. The default is ``""``.
+    passivity : bool, optional
+        Whether the passivity check is enabled, The default is ``True``.
+    causality : bool, optional
+        Whether the causality check is enabled. The default is ``True``.
+
+    Returns
+    ----------
+    dict
+        Dictionary with the SNP file name as the key and a list if the passivity and/or causality checks are enabled.
+        The first element in the list is a str with ``"passivity"`` or ``"causality"`` as a value. The second element
+        is a Boolean that is set to ``True`` when the criteria passed or ``False`` otherwise. The last element
+        is a string with the log information.
+
+    """
+    out = {}
+    if not os.path.exists(folder):
+        return out
+    aedt_install_folder = list(installed_versions().values())[0]
+    pat_snp = re.compile("\.s\d+p$")
+    sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
+    pat_ts = re.compile("\.ts$")
+    for f in os.listdir(folder):
+        if re.search(pat_ts, f):
+            sNpFiles[f] = os.path.join(folder, f)
+    if sNpFiles == {}:
+        return out
+    for snpf in sNpFiles:
+        out[snpf] = []
+        if os.name == "nt":
+            genequiv_path = os.path.join(aedt_install_folder, "genequiv.exe")
+        else:
+            genequiv_path = os.path.join(aedt_install_folder, "genequiv")
+        cmd = [genequiv_path]
+        if passivity:
+            cmd.append("-checkpassivity")
+        if causality:
+            cmd.append("-checkcausality")
+
+        cmd.append(sNpFiles[snpf])
+        my_env = os.environ.copy()
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env)  # nosec
+        output = p.communicate()
+        output_str = str(output[0])
+        output_lst = output_str.split("\\r\\n")
+
+        if len(output_lst) == 1:
+            output_lst = output_str.splitlines()
+        for line in output_lst:
+            if "Input data" in line and passivity:
+                msg_log = line[17:]
+                is_passive = True
+                if "non-passive" in msg_log:
+                    is_passive = False
+                out[snpf].append(["passivity", is_passive, msg_log])
+            if "Maximum causality" in line and causality:
+                msg_log = line[17:]
+                is_causal = True
+                try:
+                    causality_check = float(msg_log.split("Maximum causality error: ")[-1].split("for entry")[0])
+                    if not causality_check == 0.0:
+                        is_causal = False
+                except Exception:
+                    is_causal = False
+                    raise Exception("Failed evaluating causality value.")
+                out[snpf].append(["causality", is_causal, msg_log])
+            if "Causality check is inconclusive" in line and causality:
+                is_causal = False
+                out[snpf].append(["causality", is_causal, line[17:]])
+    return out

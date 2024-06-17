@@ -18,12 +18,19 @@ from pyaedt import Hfss
 from pyaedt.generic.general_methods import generate_unique_name
 
 ##########################################################
-# Launch HFSS 2023.2
-# ~~~~~~~~~~~~~~~~~~
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+##########################################################
+# Launch HFSS
+# ~~~~~~~~~~~
 # PyAEDT can initialize a new session of Electronics Desktop or connect to an existing one. 
 # Once Desktop is connected, a new HFSS session is started and a design is created.
 
-hfss = Hfss(specified_version="2023.2", new_desktop_session=True, close_on_exit=True)
+hfss = Hfss(version=aedt_version, new_desktop=True, close_on_exit=True)
 
 ##########################################################
 # Variables
@@ -40,13 +47,16 @@ hfss["width"] = "1mm"
 # Objects can be created, deleted and modified using all available boolean operations.
 # History is also fully accessible to PyAEDT.
 
-substrate = hfss.modeler.create_box(["-width","-width","-thick"],["2*width","2*width", "thick"], matname="FR4_epoxy", name="sub")
+substrate = hfss.modeler.create_box(["-width", "-width", "-thick"], ["2*width", "2*width", "thick"], name="sub",
+                                    material="FR4_epoxy")
 
 patch = hfss.modeler.create_rectangle("XY",["-width/2","-width/2","0mm"],["width","width"], name="patch1")
 
-via1 = hfss.modeler.create_cylinder(2, ["-width/8","-width/4","-thick"],"0.01mm", "thick", matname="copper", name="via_inner")
+via1 = hfss.modeler.create_cylinder(2, ["-width/8", "-width/4", "-thick"], "0.01mm", "thick", name="via_inner",
+                                    material="copper")
 
-via_outer = hfss.modeler.create_cylinder(2, ["-width/8","-width/4","-thick"],"0.025mm", "thick", matname="Teflon_based", name="via_teflon")
+via_outer = hfss.modeler.create_cylinder(2, ["-width/8", "-width/4", "-thick"], "0.025mm", "thick", name="via_teflon",
+                                         material="Teflon_based")
 
 ##########################################################
 # Boundaries
@@ -73,7 +83,7 @@ hfss.assign_perfecte_to_sheets(substrate.bottom_face_z)
 # ~~~~~~~~~~~~~~~~
 # Wave port can be assigned to a sheet or to a face of an object.
 
-hfss.wave_port(via_outer.bottom_face_z, name="P1", )
+hfss.wave_port(via_outer.bottom_face_z, name="P1")
 
 ##########################################################
 # Create 3D Component
@@ -82,7 +92,7 @@ hfss.wave_port(via_outer.bottom_face_z, name="P1", )
 # Multiple options are available to partially select objects, cs, boundaries and mesh operations.
 # Furthermore, encrypted 3d comp can be created too.
 
-component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test")+".aedbcomp")
+component_path = os.path.join(tempfile.gettempdir(), generate_unique_name("component_test") + ".aedbcomp")
 hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 
 ##########################################################
@@ -90,7 +100,7 @@ hfss.modeler.create_3dcomponent(component_path, "patch_antenna")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # PyAEDT allows to control multiple projects, design and solution type at the same time.
 
-hfss2 = Hfss(projectname="new_project", designname="new_design")
+hfss2 = Hfss(project="new_project", design="new_design")
 
 ##########################################################
 # Insert of 3d component
@@ -119,7 +129,7 @@ hfss2.modeler.user_defined_components["patch_antenna1"].parameters["thick"]="p_t
 
 hfss2.modeler.create_coordinate_system(origin=[20, 20, 10], name="Second_antenna")
 
-ant2 = hfss2.modeler.insert_3d_component(component_path, targetCS="Second_antenna")
+ant2 = hfss2.modeler.insert_3d_component(component_path, coordinate_system="Second_antenna")
 
 ##########################################################
 # Move components
@@ -151,7 +161,7 @@ optim = hfss2.parametrics.add("p_thick", "0.2mm", "1.5mm", step=14)
 # Save the project.
 
 hfss2.modeler.fit_all()
-hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
+hfss2.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT
@@ -160,5 +170,5 @@ hfss2.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.j
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
-hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized")+".aedt"))
+hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized") + ".aedt"))
 hfss2.release_desktop()

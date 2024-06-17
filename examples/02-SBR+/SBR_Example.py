@@ -15,6 +15,13 @@ import pyaedt
 
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -30,17 +37,17 @@ non_graphical = False
 # a different object.
 
 target = pyaedt.Hfss(
-    projectname=project_full_name,
-    designname="Cassegrain_",
+    project=project_full_name,
+    design="Cassegrain_",
     solution_type="SBR+",
-    specified_version="2023.2",
-    new_desktop_session=True,
+    version=aedt_version,
+    new_desktop=True,
     non_graphical=non_graphical
 )
 
-source = pyaedt.Hfss(projectname=target.project_name,
-                     designname="feeder",
-                     specified_version="2023.2",
+source = pyaedt.Hfss(project=target.project_name,
+                     design="feeder",
+                     version=aedt_version,
                      )
 
 ###############################################################################
@@ -48,7 +55,7 @@ source = pyaedt.Hfss(projectname=target.project_name,
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Define a linked antenna. This is HFSS far field applied to HFSS SBR+.
 
-target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="farfield")
+target.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
 
 ###############################################################################
 # Assign boundaries
@@ -63,8 +70,8 @@ target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
 # ~~~~~~~~~~
 # Plot the model
 
-source.plot(show=False, export_path=os.path.join(target.working_directory, "Source.jpg"), plot_air_objects=True)
-target.plot(show=False, export_path=os.path.join(target.working_directory, "Target.jpg"), plot_air_objects=False)
+source.plot(show=False, output_file=os.path.join(target.working_directory, "Source.jpg"), plot_air_objects=True)
+target.plot(show=False, output_file=os.path.join(target.working_directory, "Target.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create setup and solve
@@ -89,14 +96,8 @@ variations = target.available_variations.nominal_w_values_dict
 variations["Freq"] = ["10GHz"]
 variations["Theta"] = ["All"]
 variations["Phi"] = ["All"]
-target.post.create_report(
-    "db(GainTotal)",
-    target.nominal_adaptive,
-    variations=variations,
-    primary_sweep_variable="Theta",
-    context="ATK_3D",
-    report_category="Far Fields",
-)
+target.post.create_report("db(GainTotal)", target.nominal_adaptive, variations=variations,
+                          primary_sweep_variable="Theta", report_category="Far Fields", context="ATK_3D")
 
 ###############################################################################
 # Plot results outside AEDT

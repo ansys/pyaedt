@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 import re
 import sys
@@ -74,7 +97,7 @@ class GeometryOperators(object):
         >>> 2.0
 
         """
-        if type(string) is not str:
+        if not isinstance(string, str):
             try:
                 return float(string)
             except ValueError:  # pragma: no cover
@@ -102,7 +125,7 @@ class GeometryOperators(object):
         else:
             if variable_manager:
                 if not variable_manager.set_variable("temp_var", string):
-                    if not variable_manager.set_variable("temp_var", string, postprocessing=True):
+                    if not variable_manager.set_variable("temp_var", string, is_post_processing=True):
                         return string
                 value = variable_manager["temp_var"].value / sunit
                 del variable_manager["temp_var"]
@@ -712,7 +735,7 @@ class GeometryOperators(object):
         Returns
         -------
         bool
-            ``True`` when the projected segment is inside the other segmennt, ``False`` otherwise.
+            ``True`` when the projected segment is inside the other segment, ``False`` otherwise.
 
         """
         if not GeometryOperators.is_parallel(a1, a2, b1, b2):
@@ -1351,7 +1374,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def get_numeric(s):
         """Convert a string to a numeric value. Discard the suffix."""
-        if type(s) == str:
+        if isinstance(s, str):
             if s == "Global":
                 return 0.0
             else:
@@ -1389,14 +1412,14 @@ class GeometryOperators(object):
         cs_in : List of str or str
             ``["x", "y", "z"]`` or "Global".
         """
-        if type(cs_in) is str:
+        if isinstance(cs_in, str):
             if cs_in == "Global":
                 return [0.0, 0.0, 0.0]
             else:
                 return None
-        elif type(cs_in) is list:
+        elif isinstance(cs_in, list):
             if len(cs_in) == 3:
-                return [GeometryOperators.get_numeric(s) if type(s) is str else s for s in cs_in]
+                return [GeometryOperators.get_numeric(s) if isinstance(s, str) else s for s in cs_in]
             else:
                 return [0, 0, 0]
 
@@ -1558,6 +1581,8 @@ class GeometryOperators(object):
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
+        This version supports also self-intersecting polygons.
+
         point : List
             List of ``[x, y]`` coordinates.
         polygon : List
@@ -1591,9 +1616,10 @@ class GeometryOperators(object):
             if abs(abs(a) - math.pi) < tol:
                 return 0
             asum += a
+        r = asum % (2*math.pi)
         if abs(asum) < tol:
             return -1
-        elif abs(abs(asum) - 2*math.pi) < tol:
+        elif r < tol or (2*math.pi - r) < tol:
             return 1
         else:  # pragma: no cover
             raise Exception("Unexpected error!")

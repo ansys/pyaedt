@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: `CSVDataset`, `DataSet`, `Expression`, `Variable`, and `VariableManager`.
 
@@ -16,12 +40,12 @@ Examples
 from __future__ import absolute_import  # noreorder
 from __future__ import division
 
+import ast
 import os
 import re
 import types
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import _resolve_unit_system
@@ -31,6 +55,7 @@ from pyaedt.generic.general_methods import check_numeric_equivalence
 from pyaedt.generic.general_methods import is_array
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class CSVDataset:
@@ -146,8 +171,6 @@ class CSVDataset:
                         for quantity_name in self._header:
                             self._data[quantity_name] = []
 
-        pass
-
     @pyaedt_function_handler()
     def __getitem__(self, item):
         variable_list = item.split(",")
@@ -158,14 +181,17 @@ class CSVDataset:
                 if variable in key_string:
                     found_variable = True
                     break
-            assert found_variable, "Input string {} is not a key of the data dictionary.".format(variable)
+            if not found_variable:
+                raise KeyError("Input string {} is not a key of the data dictionary.".format(variable))
             data_out._data[variable] = self._data[key_string]
             data_out._header.append(variable)
         return data_out
 
     @pyaedt_function_handler()
     def __add__(self, other):
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        if self.number_of_columns != other.number_of_columns:
+            raise ValueError("Number of columns is inconsistent.")
+
         # Create a new object to return, avoiding changing the original inputs
         new_dataset = CSVDataset()
         # Add empty columns to new_dataset
@@ -200,7 +226,8 @@ class CSVDataset:
             for column in other.data:
                 self._data[column] = []
 
-        assert self.number_of_columns == other.number_of_columns, "Inconsistent number of columns"
+        if self.number_of_columns != other.number_of_columns:
+            raise ValueError("Number of columns is inconsistent.")
 
         # Append the data from 'other'
         for column, row_data in other.data.items():
@@ -455,13 +482,13 @@ class VariableManager(object):
         """
         return self._variable_dict([self._odesign, self._oproject])
 
-    @pyaedt_function_handler()
-    def decompose(self, variable_value):
+    @pyaedt_function_handler(variable_value="variable")
+    def decompose(self, variable):
         """Decompose a variable string to a floating with its unit.
 
         Parameters
         ----------
-        variable_value : str
+        variable : str
 
         Returns
         -------
@@ -480,12 +507,12 @@ class VariableManager(object):
         >>> print(hfss.variable_manager.decompose("v2"))
         >>> (6.0, 'N')
         """
-        if variable_value in self.independent_variable_names:
-            val, unit = decompose_variable_value(self[variable_value].expression)
-        elif variable_value in self.dependent_variable_names:
-            val, unit = decompose_variable_value(self[variable_value].evaluated_value)
+        if variable in self.independent_variable_names:
+            val, unit = decompose_variable_value(self[variable].expression)
+        elif variable in self.dependent_variable_names:
+            val, unit = decompose_variable_value(self[variable].evaluated_value)
         else:
-            val, unit = decompose_variable_value(variable_value)
+            val, unit = decompose_variable_value(variable)
         return val, unit
 
     @property
@@ -542,7 +569,7 @@ class VariableManager(object):
         """
         try:
             all_post_vars = list(self._odesign.GetPostProcessingVariables())
-        except:
+        except Exception:
             all_post_vars = []
         out = self.design_variables
         post_vars = {}
@@ -786,26 +813,26 @@ class VariableManager(object):
 
     @property
     def _independent_variables(self):
-        all = {}
-        all.update(self._independent_project_variables)
-        all.update(self._independent_design_variables)
-        return all
+        all_independent = {}
+        all_independent.update(self._independent_project_variables)
+        all_independent.update(self._independent_design_variables)
+        return all_independent
 
     @property
     def _dependent_variables(self):
-        all = {}
+        all_dependent = {}
         for k, v in self._dependent_project_variables.items():
-            all[k] = v
+            all_dependent[k] = v
         for k, v in self._dependent_design_variables.items():
-            all[k] = v
-        return all
+            all_dependent[k] = v
+        return all_dependent
 
     @property
     def _all_variables(self):
-        all = {}
-        all.update(self._independent_variables)
-        all.update(self._dependent_variables)
-        return all
+        all_variables = {}
+        all_variables.update(self._independent_variables)
+        all_variables.update(self._dependent_variables)
+        return all_variables
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
@@ -890,9 +917,14 @@ class VariableManager(object):
                 vars_to_output[k] = v
         return vars_to_output
 
-    @pyaedt_function_handler()
-    def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
+    @pyaedt_function_handler(variable_name="name")
+    def get_expression(self, name):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
+
+        Parameters
+        ----------
+        name : str
+            Name of the expression.
 
         References
         ----------
@@ -901,53 +933,53 @@ class VariableManager(object):
         >>> oDesign.GetVariableValue
         """
         invalid_names = ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName", "ModelName"]
-        if variable_name not in invalid_names:
+        if name not in invalid_names:
             try:
-                return self.aedt_object(variable_name).GetVariableValue(variable_name)
-            except:
+                return self.aedt_object(name).GetVariableValue(name)
+            except Exception:
                 return False
         else:
             return False
 
-    @pyaedt_function_handler()
-    def aedt_object(self, variable):
+    @pyaedt_function_handler(variable="name")
+    def aedt_object(self, name):
         """Retrieve an AEDT object.
 
         Parameters
         ----------
-        variable : str
-        Name of the variable.
+        name : str
+            Name of the variable.
 
         """
-        if variable[0] == "$":
+        if name[0] == "$":
             return self._oproject
         else:
             return self._odesign
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(variable_name="name", readonly="read_only", postprocessing="is_post_processing")
     def set_variable(
         self,
-        variable_name,
+        name,
         expression=None,
-        readonly=False,
+        read_only=False,
         hidden=False,
         description=None,
         overwrite=True,
-        postprocessing=False,
+        is_post_processing=False,
         circuit_parameter=True,
     ):
         """Set the value of a design property or project variable.
 
         Parameters
         ----------
-        variable_name : str
+        name : str
             Name of the design property or project variable
             (``$var``). If this variable does not exist, a new one is
             created and a value is set.
         expression : str
             Valid string expression within the AEDT design and project
             structure.  For example, ``"3*cos(34deg)"``.
-        readonly : bool, optional
+        read_only : bool, optional
             Whether to set the design property or project variable to
             read-only. The default is ``False``.
         hidden :  bool, optional
@@ -960,7 +992,7 @@ class VariableManager(object):
             Whether to overwrite an existing value for the design
             property or project variable. The default is ``False``, in
             which case this method is ignored.
-        postprocessing : bool, optional
+        is_post_processing : bool, optional
             Whether to define a postprocessing variable.
              The default is ``False``, in which case the variable is not used in postprocessing.
         circuit_parameter : bool, optional
@@ -979,21 +1011,27 @@ class VariableManager(object):
 
         Examples
         --------
+        >>> from pyaedt import Maxwell3d
+        >>> aedtapp = Maxwell3d(specified_version="2024.1")
+
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.
 
-        >>> aedtapp.variable_manager.set_variable("p1", expression="10mm")
+        >>> aedtapp.variable_manager.set_variable("p1",expression="10mm")
 
         Set the value of design property ``p1`` to ``"20mm"`` only if
         the property does not already exist.
 
-        >>> aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
+        >>> aedtapp.variable_manager.set_variable("p1",expression="20mm",overwrite=False)
 
         Set the value of design property ``p2`` to ``"10mm"``,
         creating the property if it does not already exist. Also make
         it read-only and hidden and add a description.
 
-        >>> aedtapp.variable_manager.set_variable(variable_name="p2", expression="10mm", readonly=True, hidden=True,
+        >>> aedtapp.variable_manager.set_variable(name="p2",
+        ...                                       expression="10mm",
+        ...                                       read_only=True,
+        ...                                       hidden=True,
         ...                                       description="This is the description of this variable.")
 
         Set the value of the project variable ``$p1`` to ``"30mm"``,
@@ -1002,23 +1040,23 @@ class VariableManager(object):
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
-        if variable_name in self._independent_variables:
-            del self._independent_variables[variable_name]
-            if variable_name in self._independent_design_variables:
-                del self._independent_design_variables[variable_name]
-            elif variable_name in self._independent_project_variables:
-                del self._independent_project_variables[variable_name]
-        elif variable_name in self._dependent_variables:
-            del self._dependent_variables[variable_name]
-            if variable_name in self._dependent_design_variables:
-                del self._dependent_design_variables[variable_name]
-            elif variable_name in self._dependent_project_variables:
-                del self._dependent_project_variables[variable_name]
+        if name in self._independent_variables:
+            del self._independent_variables[name]
+            if name in self._independent_design_variables:
+                del self._independent_design_variables[name]
+            elif name in self._independent_project_variables:
+                del self._independent_project_variables[name]
+        elif name in self._dependent_variables:
+            del self._dependent_variables[name]
+            if name in self._dependent_design_variables:
+                del self._dependent_design_variables[name]
+            elif name in self._dependent_project_variables:
+                del self._dependent_project_variables[name]
         if not description:
             description = ""
 
-        desktop_object = self.aedt_object(variable_name)
-        if variable_name.startswith("$"):
+        desktop_object = self.aedt_object(name)
+        if name.startswith("$"):
             tab_name = "ProjectVariableTab"
             prop_server = "ProjectVariables"
         else:
@@ -1035,7 +1073,7 @@ class VariableManager(object):
                 prop_server = "Instance:{}".format(desktop_object.GetName())
 
         prop_type = "VariableProp"
-        if postprocessing or "post" in variable_name.lower()[0:5]:
+        if is_post_processing or "post" in name.lower()[0:5]:
             prop_type = "PostProcessingVariableProp"
         if isinstance(expression, str):
             # Handle string type variable (including arbitrary expression)# Handle input type variable
@@ -1053,12 +1091,12 @@ class VariableManager(object):
             prop_type = "SeparatorProp"
             variable = ""
             try:
-                if self.delete_separator(variable_name):
+                if self.delete_separator(name):
                     desktop_object.Undo()
                     self._logger.clear_messages()
                     return
-            except:
-                pass
+            except Exception:
+                self._logger.debug("Something went wrong when deleting '{}'.".format(name))
         else:
             raise Exception("Unhandled input type to the design property or project variable.")  # pragma: no cover
 
@@ -1066,7 +1104,7 @@ class VariableManager(object):
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
 
-        if variable_name.lower() not in lower_case_vars:
+        if name.lower() not in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1077,7 +1115,7 @@ class VariableManager(object):
                             [
                                 "NAME:NewProps",
                                 [
-                                    "NAME:" + variable_name,
+                                    "NAME:" + name,
                                     "PropType:=",
                                     prop_type,
                                     "UserDef:=",
@@ -1087,7 +1125,7 @@ class VariableManager(object):
                                     "Description:=",
                                     description,
                                     "ReadOnly:=",
-                                    readonly,
+                                    read_only,
                                     "Hidden:=",
                                     hidden,
                                 ],
@@ -1095,7 +1133,7 @@ class VariableManager(object):
                         ],
                     ]
                 )
-            except:
+            except Exception:
                 if ";" in desktop_object.GetName() and prop_type == "PostProcessingVariableProp":
                     self._logger.info("PostProcessing Variable exists already. Changing value.")
                     desktop_object.ChangeProperty(
@@ -1107,13 +1145,13 @@ class VariableManager(object):
                                 [
                                     "NAME:ChangedProps",
                                     [
-                                        "NAME:" + variable_name,
+                                        "NAME:" + name,
                                         "Value:=",
                                         variable,
                                         "Description:=",
                                         description,
                                         "ReadOnly:=",
-                                        readonly,
+                                        read_only,
                                         "Hidden:=",
                                         hidden,
                                     ],
@@ -1131,13 +1169,13 @@ class VariableManager(object):
                         [
                             "NAME:ChangedProps",
                             [
-                                "NAME:" + variable_name,
+                                "NAME:" + name,
                                 "Value:=",
                                 variable,
                                 "Description:=",
                                 description,
                                 "ReadOnly:=",
-                                readonly,
+                                read_only,
                                 "Hidden:=",
                                 hidden,
                             ],
@@ -1148,17 +1186,17 @@ class VariableManager(object):
             self._cleanup_variables()
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if variable_name.lower() not in lower_case_vars:
+        if name.lower() not in lower_case_vars:
             return False
         return True
 
-    @pyaedt_function_handler()
-    def delete_separator(self, separator_name):
+    @pyaedt_function_handler(separator_name="name")
+    def delete_separator(self, name):
         """Delete a separator from either the active project or design.
 
         Parameters
         ----------
-        separator_name : str
+        name : str
             Value to use for the delimiter.
 
         Returns
@@ -1184,24 +1222,23 @@ class VariableManager(object):
                         [
                             "NAME:{0}VariableTab".format(var_type),
                             ["NAME:PropServers", "{0}Variables".format(var_type)],
-                            ["NAME:DeletedProps", separator_name],
+                            ["NAME:DeletedProps", name],
                         ],
                     ]
                 )
                 return True
-            except:
-                pass
+            except Exception:
+                self._logger.debug("Failed to change desktop object property.")
         return False
 
-    @pyaedt_function_handler()
-    def delete_variable(self, var_name):
+    @pyaedt_function_handler(var_name="name")
+    def delete_variable(self, name):
         """Delete a variable.
 
         Parameters
         ----------
-        var_name : str
+        name : str
             Name of the variable.
-
 
         Returns
         -------
@@ -1214,11 +1251,11 @@ class VariableManager(object):
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
-        desktop_object = self.aedt_object(var_name)
+        desktop_object = self.aedt_object(name)
         var_type = "Project" if desktop_object == self._oproject else "Local"
         var_list = self._get_var_list_from_aedt(desktop_object)
         lower_case_vars = [var_name.lower() for var_name in var_list]
-        if var_name.lower() in lower_case_vars:
+        if name.lower() in lower_case_vars:
             try:
                 desktop_object.ChangeProperty(
                     [
@@ -1226,51 +1263,50 @@ class VariableManager(object):
                         [
                             "NAME:{0}VariableTab".format(var_type),
                             ["NAME:PropServers", "{0}Variables".format(var_type)],
-                            ["NAME:DeletedProps", var_name],
+                            ["NAME:DeletedProps", name],
                         ],
                     ]
                 )
-            except:  # pragma: no cover
-                pass
+            except Exception:  # pragma: no cover
+                self._logger.debug("Failed to change desktop object property.")
             else:
                 self._cleanup_variables()
                 return True
         return False
 
-    @pyaedt_function_handler()
-    def is_used(self, var_name):
+    @pyaedt_function_handler(var_name="name")
+    def is_used(self, name):
         """Find if a variable is used.
 
         Parameters
         ----------
-        var_name : str
+        name : str
             Name of the variable.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         used = False
         # Modeler
         for obj in self._app.modeler.objects.values():
-            used = self._find_used_variable_history(obj.history(), var_name)
+            used = self._find_used_variable_history(obj.history(), name)
         if used:
-            self._logger.warning("{} used in modeler.".format(var_name))
+            self._logger.warning("{} used in modeler.".format(name))
             return used
 
         # Material
         for mat in self._app.materials.material_keys.values():
             for _, v in mat._props.items():
-                if isinstance(v, str) and var_name in re.findall("[$a-zA-Z0-9_]+", v):
+                if isinstance(v, str) and name in re.findall("[$a-zA-Z0-9_]+", v):
                     used = True
-                    self._logger.warning("{} used in the material: {}.".format(var_name, mat.name))
+                    self._logger.warning("{} used in the material: {}.".format(name, mat.name))
                     return used
         return used
 
-    @pyaedt_function_handler()
-    def is_used_variable(self, var_name):
+    @pyaedt_function_handler(var_name="name")
+    def is_used_variable(self, name):
         """Find if a variable is used.
 
         .. deprecated:: 0.7.4
@@ -1278,7 +1314,7 @@ class VariableManager(object):
 
         Parameters
         ----------
-        var_name : str
+        name : str
             Name of the variable.
 
         Returns
@@ -1288,7 +1324,7 @@ class VariableManager(object):
 
         """
         warnings.warn("`is_used_variable` is deprecated. Use `is_used` method instead.", DeprecationWarning)
-        return self.is_used(var_name)
+        return self.is_used(name)
 
     def _find_used_variable_history(self, history, var_name):
         """Find if a variable is used.
@@ -1426,9 +1462,12 @@ class Variable(object):
             self._value = self._calculated_value
         # If units have been specified, check for a conflict and otherwise use the specified unit system
         if units:
-            assert not self._units, "The unit specification {} is inconsistent with the identified units {}.".format(
-                specified_units, self._units
-            )
+            if self._units and self._units != specified_units:
+                raise RuntimeError(
+                    "The unit specification {} is inconsistent with the identified units {}.".format(
+                        specified_units, self._units
+                    )
+                )
             self._units = specified_units
 
         if not si_value and is_number(self._value):
@@ -1457,11 +1496,11 @@ class Variable(object):
             return self._app.variable_manager.set_variable(
                 self._variable_name,
                 self._expression,
-                readonly=self._readonly,
-                postprocessing=self._postprocessing,
-                circuit_parameter=self._circuit_parameter,
-                description=self._description,
+                read_only=self._readonly,
                 hidden=self._hidden,
+                description=self._description,
+                is_post_processing=self._postprocessing,
+                circuit_parameter=self._circuit_parameter,
             )
         return False
 
@@ -1494,8 +1533,8 @@ class Variable(object):
                 if result:
                     break
                 i += 1
-        except:
-            pass
+        except Exception:
+            self._app.logger.debug("Failed to set property '{}' value.".format(prop))
 
     @pyaedt_function_handler()
     def _get_prop_val(self, prop):
@@ -1516,8 +1555,8 @@ class Variable(object):
                 else:
                     name = "LocalVariables"
             return self._app.get_oo_object(self._aedt_obj, "{}/{}".format(name, self._variable_name)).GetPropValue(prop)
-        except:
-            pass
+        except Exception:
+            self._app.logger.debug("Failed to get property '{}' value.".format(prop))
 
     @property
     def name(self):
@@ -1726,7 +1765,7 @@ class Variable(object):
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
         if is_array(self._value):
-            return list(eval(self._value))
+            return list(ast.literal_eval(self._value))
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
             val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
@@ -1820,9 +1859,12 @@ class Variable(object):
 
         """
         new_unit_system = unit_system(units)
-        assert (
-            new_unit_system == self.unit_system
-        ), "New unit system {0} is inconsistent with the current unit system {1}."
+        if new_unit_system != self.unit_system:
+            raise ValueError(
+                "New unit system {} is inconsistent with the current unit system {}.".format(
+                    new_unit_system, self.unit_system
+                )
+            )
         self._units = units
         return self
 
@@ -1893,7 +1935,9 @@ class Variable(object):
                 >>> assert result_3.unit_system == "Power"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Multiplier must be a scalar quantity or a variable."
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Multiplier must be a scalar quantity or a variable.")
+
         if is_number(other):
             result_value = self.numeric_value * other
             result_units = self.units
@@ -1938,10 +1982,11 @@ class Variable(object):
         >>> assert result.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only add a variable with another variable."
-        assert (
-            self.unit_system == other.unit_system
-        ), "Only ``Variable`` objects with the same unit system can be added."
+        if not isinstance(other, Variable):
+            raise ValueError("You can only add a variable with another variable.")
+        if self.unit_system != other.unit_system:
+            raise ValueError("Only Variable objects with the same unit system can be added.")
+
         result_value = self.value + other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -1980,10 +2025,11 @@ class Variable(object):
         >>> assert result_2.unit_system == "Current"
 
         """
-        assert isinstance(other, Variable), "You can only subtract a variable from another variable."
-        assert (
-            self.unit_system == other.unit_system
-        ), "Only ``Variable`` objects with the same unit system can be subtracted."
+        if not isinstance(other, Variable):
+            raise ValueError("You can only subtract a variable from another variable.")
+        if self.unit_system != other.unit_system:
+            raise ValueError("Only Variable objects with the same unit system can be subtracted.")
+
         result_value = self.value - other.value
         result_units = SI_UNITS[self.unit_system]
         # If the units of the two operands are different, return SI-Units
@@ -2025,7 +2071,9 @@ class Variable(object):
         >>> assert result_1.unit_system == "Current"
 
         """
-        assert is_number(other) or isinstance(other, Variable), "Divisor must be a scalar quantity or a variable."
+        if not is_number(other) and not isinstance(other, Variable):
+            raise ValueError("Divisor must be a scalar quantity or a variable.")
+
         if is_number(other):
             result_value = self.numeric_value / other
             result_units = self.units
@@ -2108,10 +2156,11 @@ class DataSet(object):
         Units for the Z axis for a 3D dataset only. The default is ``""``.
     vunit : str, optional
         Units for the V axis for a 3D dataset only. The default is ``""``.
-
+    sort : bool, optional
+        Sort dataset. The default is ``True``.
     """
 
-    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit=""):
+    def __init__(self, app, name, x, y, z=None, v=None, xunit="", yunit="", zunit="", vunit="", sort=True):
         self._app = app
         self.name = name
         self.x = x
@@ -2122,12 +2171,12 @@ class DataSet(object):
         self.yunit = yunit
         self.zunit = zunit
         self.vunit = vunit
+        self.sort = sort
 
     @pyaedt_function_handler()
     def _args(self):
         """Retrieve arguments."""
-        arg = []
-        arg.append("Name:" + self.name)
+        arg = ["Name:" + self.name]
         arg2 = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
@@ -2135,16 +2184,25 @@ class DataSet(object):
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
         else:
             return False
+        z = {}
+        v = {}
         if self.z:
-            x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
+            if self.sort:
+                x, y, z, v = (
+                    list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0])))
+                )
+            else:
+                x, y, z, v = (list(t) for t in zip(*zip(self.x, self.y, self.z, self.v)))
         else:
-            x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+            if self.sort:
+                x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
+            else:
+                x, y = (list(t) for t in zip(*(zip(self.x, self.y))))
+
         ver = self._app._aedt_version
         for i in range(len(x)):
             if ver >= "2022.1":
-                arg3 = ["NAME:Point"]
-                arg3.append(float(x[i]))
-                arg3.append(float(y[i]))
+                arg3 = ["NAME:Point", float(x[i]), float(y[i])]
                 if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))
@@ -2320,13 +2378,13 @@ class DataSet(object):
             del self._app.design_datasets[self.name]
         return True
 
-    @pyaedt_function_handler()
-    def export(self, dataset_path=None):
+    @pyaedt_function_handler(dataset_path="output_dir")
+    def export(self, output_dir=None):
         """Export the dataset.
 
         Parameters
         ----------
-        dataset_path : str, optional
+        output_dir : str, optional
             Path to export the dataset to. The default is ``None``, in which
             case the dataset is exported to the working_directory path.
 
@@ -2341,10 +2399,10 @@ class DataSet(object):
         >>> oProject.ExportDataset
         >>> oDesign.ExportDataset
         """
-        if not dataset_path:
-            dataset_path = os.path.join(self._app.working_directory, self.name + ".tab")
+        if not output_dir:
+            output_dir = os.path.join(self._app.working_directory, self.name + ".tab")
         if self.name[0] == "$":
-            self._app._oproject.ExportDataset(self.name, dataset_path)
+            self._app._oproject.ExportDataset(self.name, output_dir)
         else:
-            self._app._odesign.ExportDataset(self.name, dataset_path)
+            self._app._odesign.ExportDataset(self.name, output_dir)
         return True

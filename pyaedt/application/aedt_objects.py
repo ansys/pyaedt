@@ -1,11 +1,51 @@
-import sys
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-from pyaedt import pyaedt_function_handler
+import sys
+import time
+
+from pyaedt.generic.desktop_sessions import _desktop_sessions
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 
 
 class AedtObjects(object):
-    def __init__(self, project=None, design=None, is_inherithed=False):
-        self._odesktop = sys.modules["__main__"].oDesktop
+    def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+        if desktop:
+            self._odesktop = desktop.odesktop
+        elif _desktop_sessions and project:
+            project_name = project.GetName()
+            for desktop in list(_desktop_sessions.values()):
+                if project_name in list(desktop.project_list):
+                    self._odesktop = desktop.odesktop
+                    break
+        elif _desktop_sessions:
+            self._odesktop = list(_desktop_sessions.values())[-1].odesktop
+        elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
+            self._odesktop = sys.modules["__main__"].oDesktop  # ironpython
+
         if not is_inherithed:
             if project:
                 self.oproject = project
@@ -60,7 +100,7 @@ class AedtObjects(object):
         if self.design_type not in ["EMIT"] and self.odesign:
             try:
                 return self.odesign.GetModule(module_name)
-            except:
+            except Exception:
                 return None
         return None
 
@@ -358,6 +398,9 @@ class AedtObjects(object):
         if not self._oeditor:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self.odesign.SetActiveEditor("SchematicEditor")
+                if is_linux and settings.aedt_version == "2024.1":
+                    time.sleep(1)
+                    self._odesktop.CloseAllWindows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self.odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:

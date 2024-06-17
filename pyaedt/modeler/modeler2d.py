@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 from warnings import warn
 
@@ -73,13 +97,13 @@ class Modeler2D(Primitives2D):
         warn(mess, DeprecationWarning)
         return self._primitives
 
-    @pyaedt_function_handler()
-    def calculate_radius_2D(self, object_name, inner=False):
+    @pyaedt_function_handler(object_name="assignment")
+    def calculate_radius_2D(self, assignment, inner=False):
         """Calculate the extremity of an object in the radial direction.
 
         Parameters
         ----------
-        object_name : str
+        assignment : str
             name of the object from which to calculate the radius.
         inner : bool, optional
             The default is ``False``.
@@ -95,7 +119,7 @@ class Modeler2D(Primitives2D):
 
         """
         radius = 0
-        oVertexIDs = self[object_name].vertices
+        oVertexIDs = self[assignment].vertices
         if oVertexIDs:
             if inner:
                 radius = 0
@@ -111,8 +135,8 @@ class Modeler2D(Primitives2D):
                 else:
                     if vertex_radius < radius:
                         radius = vertex_radius
-        elif self[object_name].edges:
-            radius = self[object_name].edges[0].length / (2 * math.pi)
+        elif self[assignment].edges:
+            radius = self[assignment].edges[0].length / (2 * math.pi)
 
         return radius
 
@@ -133,7 +157,7 @@ class Modeler2D(Primitives2D):
             ``True`` when successful, ``False`` when failed.
         """
 
-        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", matname="vacuum")
+        cir = self.create_circle([0, 0, 0], 3, name=name + "_split", material="vacuum")
         self.oeditor.Copy(["NAME:Selections", "Selections:=", name])
         objects = [i for i in self.object_names]
         self.oeditor.Paste()

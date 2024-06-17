@@ -21,7 +21,7 @@ def aedtapp(add_app):
 
 class TestClass(object):
     def test_create_pdf(self, local_scratch):
-        report = AnsysReport(project_name="Coaxial", design_name="Design1")
+        report = AnsysReport(design_name="Design1", project_name="Coaxial")
         report.aedt_version = desktop_version
         assert "AnsysTemplate" in report.template_name
         report.template_name = "AnsysTemplate"
@@ -97,4 +97,4 @@ class TestClass(object):
         assert len(raw_file["time"])
         assert len(raw_file.get_trace(0))
         assert len(raw_file.get_wave(raw_file.trace_names[0])) == len(raw_file.get_axis())
-        assert raw_file.__len__()>0
+        assert raw_file.__len__() > 0

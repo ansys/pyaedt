@@ -49,7 +49,7 @@ To access all available category, use the ``reports_by_category`` class.
     hfss.analyze_nominal()
     # Create a 3D far field
     new_report = hfss.post.reports_by_category.far_field(expressions="db(RealizedGainTotal)",
-                                                         setup_name=hfss.nominal_adaptive)
+                                                         setup=hfss.nominal_adaptive)
 
 
 You can plot the field plot directly in HFSS and export it to image files.
@@ -67,8 +67,8 @@ You can plot the field plot directly in HFSS and export it to image files.
     # Create a field plot
     plot1 = hfss.post.create_fieldplot_cutplane(objlist=cutlist,
                                                 quantityName=quantity_name,
-                                                setup_name=setup_name,
-                                                intrinsincDict=intrinsic)
+                                                setup=setup_name,
+                                                intrinsics=intrinsic)
 
 
 .. image:: ../Resources/field_plot.png
@@ -92,7 +92,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
             quantity="Mag_E",
             objects_list=cutlist,
             plot_type="CutPlane",
-            setup_name=setup_name,
+            setup=setup_name,
             intrinsics=intrinsic
         )
 

@@ -1,9 +1,34 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.configurations import Configurations3DLayout
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
 
@@ -34,13 +59,13 @@ class FieldAnalysis3DLayout(Analysis):
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT  to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-    NG : bool, optional
+    non_graphical : bool, optional
         Whether to run AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -50,8 +75,15 @@ class FieldAnalysis3DLayout(Analysis):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
-        of Electronics Desktop to point PyAEDT at.
+        Specifies by process ID the instance of AEDT to point PyAEDT at.
+        This parameter is only used when ``new_desktop=False``.
+    ic_mode : bool, optional
+        Whether to set the design to IC mode. The default is ``None``, which means to retain the
+        existing setting.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     """
 
@@ -62,14 +94,16 @@ class FieldAnalysis3DLayout(Analysis):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        ic_mode=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -78,19 +112,25 @@ class FieldAnalysis3DLayout(Analysis):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            ic_mode,
+            remove_lock=remove_lock,
         )
         self._modeler = None
         self._mesh = None
         self._post = None
         self._configurations = Configurations3DLayout(self)
+        if not settings.lazy_load:
+            self._modeler = self.modeler
+            self._mesh = self.mesh
+            self._post = self.post
 
     @property
     def configurations(self):
@@ -112,11 +152,14 @@ class FieldAnalysis3DLayout(Analysis):
             PostProcessor object.
         """
         if self._post is None:
+            self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
             self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+
         return self._post
 
     @property
@@ -140,7 +183,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         list
-            List of excitation names. Excitations with multiple modes will return one
+            Excitation list. Excitations with multiple modes return one
             excitation for each mode.
 
         References
@@ -149,35 +192,6 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetExcitations
         """
         return list(self.oboundary.GetAllPortsList())
-
-    @property
-    def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
-            the S parameters for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-
-        Returns
-        -------
-        list
-            List of strings representing the S parameters of the excitations.
-            For example, ``["S(1, 1)", "S(1, 2)", S(2, 2)]``.
-
-        """
-        if not excitation_names:
-            excitation_names = self.excitations
-        spar = []
-        k = 0
-        for i in excitation_names:
-            k = excitation_names.index(i)
-            while k < len(excitation_names):
-                spar.append("S({},{})".format(i, excitation_names[k]))
-                k += 1
-        return spar
 
     @pyaedt_function_handler()
     def change_design_settings(self, settings):
@@ -199,15 +213,15 @@ class FieldAnalysis3DLayout(Analysis):
         self.odesign.DesignOptions(arg)
         return True
 
-    @pyaedt_function_handler()
-    def export_mesh_stats(self, setup_name, variation_string="", mesh_path=None):
+    @pyaedt_function_handler(setup_name="setup", variation_string="variations")
+    def export_mesh_stats(self, setup, variations="", mesh_path=None):
         """Export mesh statistics to a file.
 
         Parameters
         ----------
-        setup_name : str
+        setup : str
             Setup name.
-        variation_string : str, optional
+        variations : str, optional
             Variation List.
         mesh_path : str, optional
             Full path to mesh statistics file. If `None` working_directory will be used.
@@ -215,7 +229,7 @@ class FieldAnalysis3DLayout(Analysis):
         Returns
         -------
         str
-            File Path.
+            Path to the mesh statistics file.
 
         References
         ----------
@@ -224,154 +238,8 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if not mesh_path:
             mesh_path = os.path.join(self.working_directory, "meshstats.ms")
-        self.odesign.ExportMeshStats(setup_name, variation_string, mesh_path)
+        self.odesign.ExportMeshStats(setup, variations, mesh_path)
         return mesh_path
-
-    @pyaedt_function_handler()
-    def get_all_return_loss_list(self, excitation_names=[], excitation_name_prefix=""):
-        """Retrieve a list of all return losses for a list of excitations.
-
-        Parameters
-        ----------
-        excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
-            the return losses for all excitations are to be provided.
-            For example, ``["1", "2"]``.
-        excitation_name_prefix : string, optional
-             Prefix to add to the excitation names. The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing the return losses of the excitations.
-            For example, ``["S(1, 1)", "S(2, 2)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        if not excitation_names:
-            excitation_names = self.excitations
-        if excitation_name_prefix:
-            excitation_names = [i for i in excitation_names if excitation_name_prefix.lower() in i.lower()]
-        spar = []
-        for i in excitation_names:
-            spar.append("S({},{})".format(i, i))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_all_insertion_loss_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix=""):
-        """Retrieve a list of all insertion losses from two lists of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1"]``.
-        reclist : list, optional
-            List of receivers. The default is ``[]``. The number of drivers equals
-            the number of receivers. For example, ``["2"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``. The default is ``""``.
-        rx_prefix : str, optional
-            Prefix to add to receiver names. For example, ``"BGA"``. The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing insertion losses of the excitations.
-            For example, ``["S(1, 2)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        spar = []
-        if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
-            reclist = [i for i in self.excitations if rx_prefix in i]
-        if len(trlist) != len(reclist):
-            self.logger.error("The TX and RX lists should be same length.")
-            return False
-        for i, j in zip(trlist, reclist):
-            spar.append("S({},{})".format(i, j))
-        return spar
-
-    @pyaedt_function_handler()
-    def get_next_xtalk_list(self, trlist=[], tx_prefix=""):
-        """Retrieve a list of all the near end XTalks from a list of excitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1", "2", "3"]``.
-        tx_prefix : str, optional
-            Prefix to add to driver names. For example, ``"DIE"``.  The default is ``""``.
-
-        Returns
-        -------
-        list
-            List of strings representing near end XTalks of the excitations.
-            For example, ``["S(1, 2)", "S(1, 3)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        next = []
-        if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        for i in trlist:
-            k = trlist.index(i) + 1
-            while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
-                k += 1
-        return next
-
-    @pyaedt_function_handler()
-    def get_fext_xtalk_list(self, trlist=[], reclist=[], tx_prefix="", rx_prefix="", skip_same_index_couples=True):
-        """Retrieve a list of all the far end XTalks from two lists of exctitations (driver and receiver).
-
-        Parameters
-        ----------
-        trlist : list, optional
-            List of drivers. The default is ``[]``. For example, ``["1", "2"]``.
-        reclist : list, optional
-            List of receivers. The default is ``[]``. For example, ``["3", "4"]``.
-        tx_prefix : str, optional
-            Prefix to add to the driver names. For example, ``"DIE"``.  The default is ``""``.
-        rx_prefix : str, optional
-            Prefix to add to the receiver names. For examples, ``"BGA"``. The default is ``""``.
-        skip_same_index_couples : bool, optional
-            Whether to skip driver and receiver couples with the same index position.
-            The default is ``True``, in which case the drivers and receivers
-            with the same index position are considered insertion losses and
-            excluded from the list.
-
-        Returns
-        -------
-        list
-            List of strings representing the far end XTalks of the excitations.
-            For example, ``["S(1, 4)", "S(2, 3)"]``.
-
-        References
-        ----------
-
-        >>> oModule.GetAllPorts
-        """
-        fext = []
-        if not trlist:
-            trlist = [i for i in self.excitations if tx_prefix in i]
-        if not reclist:
-            reclist = [i for i in self.excitations if rx_prefix in i]
-        for i in trlist:
-            for k in reclist:
-                if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
-                    fext.append("S({},{})".format(i, k))
-        return fext
 
     @property
     def modeler(self):
@@ -382,9 +250,12 @@ class FieldAnalysis3DLayout(Analysis):
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
         if self._modeler is None:
+            self.logger.reset_timer()
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 
             self._modeler = Modeler3DLayout(self)
+            self.logger.info_timer("Modeler class has been initialized!")
+
         return self._modeler
 
     @property
@@ -416,15 +287,15 @@ class FieldAnalysis3DLayout(Analysis):
             return list(setups)
         return []
 
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create a setup.
 
         Parameters
         ----------
-        setupname : str, optional
+        name : str, optional
             Name of the new setup. The default is ``"MySetupAuto"``.
-        setuptype : str, optional
+        setup_type : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
@@ -446,14 +317,15 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> from pyaedt import Hfss3dLayout
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(setupname="Setup1", MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> app.create_setup(name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        name = self.generate_unique_setup_name(setupname)
-        setup = Setup3DLayout(self, setuptype, name)
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        elif setup_type in SetupKeys.SetupNames:
+            setup_type = SetupKeys.SetupNames.index(setup_type)
+        name = self.generate_unique_setup_name(name)
+        setup = Setup3DLayout(self, setup_type, name)
+        tmp_setups = self.setups
         setup.create()
         setup.auto_update = False
 
@@ -467,18 +339,18 @@ class FieldAnalysis3DLayout(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
-        self.setups.append(setup)
+        self._setups = tmp_setups + [setup]
         return setup
 
-    @pyaedt_function_handler()
-    def get_setup(self, setupname, setuptype=None):
+    @pyaedt_function_handler(setupname="name", setuptype="setup_type")
+    def get_setup(self, name, setup_type=None):
         """Retrieve a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
-        setuptype : SETUPS, optional
+        setup_type : SETUPS, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
 
@@ -488,22 +360,22 @@ class FieldAnalysis3DLayout(Analysis):
             Setup object.
 
         """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        for setup in self.setups:
-            if setupname == setup.name:
+        if setup_type is None:
+            setup_type = self.design_solutions.default_setup
+        for setup in self._setups:
+            if name == setup.name:
                 return setup
-        setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.active_setup = setupname
+        setup = Setup3DLayout(self, setup_type, name, is_new_setup=False)
+        self.active_setup = name
         return setup
 
-    @pyaedt_function_handler()
-    def delete_setup(self, setupname):
+    @pyaedt_function_handler(setupname="name")
+    def delete_setup(self, name):
         """Delete a setup.
 
         Parameters
         ----------
-        setupname : str
+        name : str
             Name of the setup.
 
         Returns
@@ -522,15 +394,15 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> import pyaedt
         >>> hfss3dlayout = pyaedt.Hfss3dLayout()
-        >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
-        >>> hfss3dlayout.delete_setup(setupname='Setup1')
+        >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
+        >>> hfss3dlayout.delete_setup()
         ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
-        if setupname in self.existing_analysis_setups:
-            self.osolution.Delete(setupname)
+        if name in self.existing_analysis_setups:
+            self.osolution.Delete(name)
             for s in self.setups:
-                if s.name == setupname:
+                if s.name == name:
                     self.setups.remove(s)
             return True
         return False

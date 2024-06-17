@@ -15,6 +15,12 @@ import os
 import pyaedt
 from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -26,8 +32,6 @@ from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
 non_graphical = False
 NewThread = True
-desktop_version = "2023.2"
-
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -35,7 +39,7 @@ desktop_version = "2023.2"
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
 aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
 
 
@@ -67,7 +71,7 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
 
-if desktop_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+if aedt_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
     rev = aedtapp.results.analyze()
     rx_bands = rev.get_band_names(rad2.name, TxRxMode.RX) 
     tx_bands = rev.get_band_names(rad3.name, TxRxMode.TX) 

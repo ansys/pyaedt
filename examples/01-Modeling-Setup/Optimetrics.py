@@ -13,6 +13,13 @@ import pyaedt
 
 import os
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -27,7 +34,7 @@ non_graphical = False
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = pyaedt.Hfss(specified_version="2023.2", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(version=aedt_version, new_desktop=True, non_graphical=non_graphical, solution_type="Modal")
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -67,7 +74,13 @@ hfss.wave_port(p2, integration_line=hfss.AxisDir.ZPos, name="2")
 
 setup = hfss.create_setup()
 hfss.create_linear_step_sweep(
-    setupname=setup.name, unit="GHz", freqstart=1, freqstop=5, step_size=0.1, sweepname="Sweep1", save_fields=True
+    setup=setup.name,
+    unit="GHz",
+    start_frequency=1,
+    stop_frequency=5,
+    step_size=0.1,
+    name="Sweep1",
+    save_fields=True
 )
 
 ###############################################################################

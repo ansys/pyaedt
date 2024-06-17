@@ -4,41 +4,47 @@ Q3D Extractor: PCB DCIR analysis
 This example shows how you can use PyAEDT to create a design in
 Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
 """
-
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
+
 import os
 import pyaedt
+from pyedb import Edb
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set up project files and path
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download needed project file and set up temporary project directory.
+
 project_dir = pyaedt.generate_unique_folder_name()
 aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
 coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
 res = pyaedt.downloads.download_file('resistors', 'Res_0402.a3dcomp')
 project_name = pyaedt.generate_unique_name("HSD")
-output_edb = os.path.join(project_dir, project_name + '.aedb')
+output_edb = os.path.join(project_dir, project_name + '_out.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
-
 
 ###############################################################################
 # Open EDB
 # ~~~~~~~~
 # Open the EDB project and create a cutout on the selected nets
 # before exporting to Q3D.
-edb = pyaedt.Edb(aedb_project, edbversion="2023.2")
+
+edb = Edb(aedb_project, edbversion=aedt_version)
 edb.cutout(["1.2V_AVDLL_PLL", "1.2V_AVDDL", "1.2V_DVDDL", "NetR106_1"],
            ["GND"],
            output_aedb_path=output_edb,
            use_pyaedt_extent_computing=True,
            )
-
-
+edb.layout_validation.disjoint_nets("GND", keep_only_main_net=True)
 ###############################################################################
 # Identify pin positions
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -84,11 +90,10 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 # Save and close EDB
 # ~~~~~~~~~~~~~~~~~~
 # Save and close EDB. Then, open EDT in HFSS 3D Layout to generate the 3D model.
-
-edb.save_edb()
+edb.save_edb_as(output_edb)
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, specified_version="2023.2", non_graphical=False, new_desktop_session=True)
+h3d = pyaedt.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=False, new_desktop=True)
 
 ###############################################################################
 # Export to Q3D
@@ -99,8 +104,6 @@ setup = h3d.create_setup()
 setup.export_to_q3d(output_q3d, keep_net_name=True)
 h3d.close_project()
 
-
-
 ###############################################################################
 # Open Q3D
 # ~~~~~~~~
@@ -110,20 +113,19 @@ q3d = pyaedt.Q3d(output_q3d)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 
-
 ###############################################################################
 # Insert inductors
 # ~~~~~~~~~~~~~~~~
 # Create new coordinate systems and place 3D component inductors.
 
 q3d.modeler.create_coordinate_system(location_l2_1, name="L2")
-comp = q3d.modeler.insert_3d_component(coil, targetCS="L2")
+comp = q3d.modeler.insert_3d_component(coil, coordinate_system="L2")
 comp.rotate(q3d.AXIS.Z, -90)
 comp.parameters["n_turns"] = "3"
 comp.parameters["d_wire"] = "100um"
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_l4_1, name="L4")
-comp2 = q3d.modeler.insert_3d_component(coil, targetCS="L4",)
+comp2 = q3d.modeler.insert_3d_component(coil, coordinate_system="L4")
 comp2.rotate(q3d.AXIS.Z, -90)
 comp2.parameters["n_turns"] = "3"
 comp2.parameters["d_wire"] = "100um"
@@ -131,7 +133,7 @@ q3d.modeler.set_working_coordinate_system("Global")
 
 q3d.modeler.set_working_coordinate_system("Global")
 q3d.modeler.create_coordinate_system(location_r106_1, name="R106")
-comp3= q3d.modeler.insert_3d_component(res, targetCS="R106",geo_params={'$Resistance': 2000})
+comp3 = q3d.modeler.insert_3d_component(res, geometry_parameters={'$Resistance': 2000}, coordinate_system="R106")
 comp3.rotate(q3d.AXIS.Z, -90)
 
 q3d.modeler.set_working_coordinate_system("Global")
@@ -148,8 +150,8 @@ q3d.modeler.delete(q3d.modeler.get_objects_by_material("Solder Resist"))
 
 objs_copper = q3d.modeler.get_objects_by_material("copper")
 objs_copper_names = [i.name for i in objs_copper]
-q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
-         export_path=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
+q3d.plot(assignment=objs_copper_names, show=False, output_file=os.path.join(q3d.working_directory, "Q3D.jpg"),
+         plot_as_separate_objects=False, plot_air_objects=False)
 
 ###############################################################################
 # Assign source and sink
@@ -157,6 +159,7 @@ q3d.plot(show=False,objects=objs_copper_names, plot_as_separate_objects=False,
 # Use previously calculated positions to identify faces,
 # select the net "1_Top" and
 # assign sources and sinks on nets.
+
 sink_f = q3d.modeler.create_circle(q3d.PLANE.XY, location_u11_scl, 0.1)
 source_f1 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_1_scl, 0.1)
 source_f2 = q3d.modeler.create_circle(q3d.PLANE.XY, location_u9_2_scl, 0.1)
@@ -210,20 +213,12 @@ q3d.ofieldsreporter.AddNamedExpression(drop_name, "DC R/L Fields")
 # ~~~~~~~~
 # Compute ACL solutions and plot them.
 
-plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"), quantityName=drop_name,
-                                          intrinsincDict={"Freq": "1GHz"})
+plot1 = q3d.post.create_fieldplot_surface(q3d.modeler.get_objects_by_material("copper"),
+                                          quantity=drop_name,
+                                          intrinsics={"Freq": "1GHz"})
 
-q3d.post.plot_field_from_fieldplot(
-    plot1.name,
-    project_path=q3d.working_directory,
-    meshplot=False,
-    imageformat="jpg",
-    view="isometric",
-    show=False,
-    plot_cad_objs=False,
-    log_scale=False,
-)
-
+q3d.post.plot_field_from_fieldplot(plot1.name, project_path=q3d.working_directory, mesh_plot=False, image_format="jpg",
+                                   view="isometric", show=False, plot_cad_objs=False, log_scale=False)
 
 ###############################################################################
 # Computing Voltage on Source Circles
@@ -253,11 +248,11 @@ data = q3d.post.get_solution_data(
 for curve in curves:
     print(data.data_real(curve))
 
-
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
+
 q3d.save_project()
 q3d.release_desktop()

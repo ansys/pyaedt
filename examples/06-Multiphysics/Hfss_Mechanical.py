@@ -13,6 +13,13 @@ includes Circuit, HFSS, and Mechanical.
 import os
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -33,9 +40,8 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # ~~~~~~~~~~
 # Start HFSS and initialize the PyAEDT object.
 
-version = "2023.2"
-hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
-                   new_desktop_session=True)
+hfss = pyaedt.Hfss(project=project_temp_name, version=aedt_version, non_graphical=non_graphical,
+                   new_desktop=True)
 pin_names = hfss.excitations
 hfss.change_material_override(True)
 
@@ -90,7 +96,7 @@ source.phase = phase
 # Create a setup.
 
 setup_name = "MySetup"
-LNA_setup = circuit.create_setup(setupname=setup_name)
+LNA_setup = circuit.create_setup(name=setup_name)
 bw_start = 4.3
 bw_stop = 4.4
 n_points = 1001
@@ -105,7 +111,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # correct value of losses.
 
 circuit.analyze()
-circuit.push_excitations(instance_name="S1", setup_name=setup_name)
+circuit.push_excitations(instance="S1", setup=setup_name)
 
 
 ###############################################################################
@@ -122,16 +128,11 @@ mech.change_material_override(True)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get losses from HFSS and assign the convection to Mechanical.
 
-mech.assign_em_losses(
-    designname=hfss.design_name,
-    setupname=hfss.setups[0].name,
-    sweepname="LastAdaptive",
-    map_frequency=hfss.setups[0].props["Frequency"],
-    surface_objects=hfss.get_all_conductors_names(),
-)
+mech.assign_em_losses(design=hfss.design_name, setup=hfss.setups[0].name, sweep="LastAdaptive",
+                      map_frequency=hfss.setups[0].props["Frequency"], surface_objects=hfss.get_all_conductors_names())
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection(objects_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+    mech.assign_uniform_convection(assignment=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
                                    convection_value=3)
 
 ###############################################################################
@@ -139,7 +140,7 @@ for el in diels:
 # ~~~~~~~~~~
 # Plot the model.
 
-mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
+mech.plot(show=False, output_file=os.path.join(mech.working_directory, "Mech.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Solve and plot thermal results
@@ -152,7 +153,7 @@ mech.analyze()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
+mech.post.create_fieldplot_surface(assignment=surfaces, quantity="Temperature")
 
 ###############################################################################
 # Release AEDT

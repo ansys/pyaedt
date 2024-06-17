@@ -13,6 +13,13 @@ import os
 from math import radians, sin, cos, sqrt
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -26,9 +33,9 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(specified_version="2023.2",
+hfss = pyaedt.Hfss(version=aedt_version,
                    solution_type="DrivenTerminal",
-                   new_desktop_session=True,
+                   new_desktop=True,
                    non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
@@ -81,13 +88,8 @@ def create_bending(radius, extension=0):
 # Draw a signal line to create a bent signal wire.
 
 position_list = create_bending(r, 1)
-line = hfss.modeler.create_polyline(
-    position_list=position_list,
-    xsection_type="Rectangle",
-    xsection_width=height,
-    xsection_height=width,
-    matname="copper",
-)
+line = hfss.modeler.create_polyline(points=position_list, material="copper", xsection_type="Rectangle",
+                                    xsection_width=height, xsection_height=width)
 
 ###############################################################################
 # Draw ground line
@@ -99,9 +101,8 @@ gnd_l = [(x, -y, z) for x, y, z in gnd_r]
 
 gnd_objs = []
 for gnd in [gnd_r, gnd_l]:
-    x = hfss.modeler.create_polyline(
-        position_list=gnd, xsection_type="Rectangle", xsection_width=height, xsection_height=gnd_width, matname="copper"
-    )
+    x = hfss.modeler.create_polyline(points=gnd, material="copper", xsection_type="Rectangle", xsection_width=height,
+                                     xsection_height=gnd_width)
     x.color = (255, 0, 0)
     gnd_objs.append(x)
 
@@ -112,13 +113,8 @@ for gnd in [gnd_r, gnd_l]:
 
 position_list = create_bending(r + (height + gnd_thickness) / 2)
 
-fr4 = hfss.modeler.create_polyline(
-    position_list=position_list,
-    xsection_type="Rectangle",
-    xsection_width=gnd_thickness,
-    xsection_height=width + 2 * spacing + 2 * gnd_width,
-    matname="FR4_epoxy",
-)
+fr4 = hfss.modeler.create_polyline(points=position_list, material="FR4_epoxy", xsection_type="Rectangle",
+                                   xsection_width=gnd_thickness, xsection_height=width + 2 * spacing + 2 * gnd_width)
 
 ###############################################################################
 # Create bottom metals
@@ -127,13 +123,8 @@ fr4 = hfss.modeler.create_polyline(
 
 position_list = create_bending(r + height + gnd_thickness, 1)
 
-bot = hfss.modeler.create_polyline(
-    position_list=position_list,
-    xsection_type="Rectangle",
-    xsection_width=height,
-    xsection_height=width + 2 * spacing + 2 * gnd_width,
-    matname="copper",
-)
+bot = hfss.modeler.create_polyline(points=position_list, material="copper", xsection_type="Rectangle",
+                                   xsection_width=height, xsection_height=width + 2 * spacing + 2 * gnd_width)
 
 ###############################################################################
 # Create port interfaces
@@ -146,7 +137,7 @@ for face, blockname in zip([fr4.top_face_z, fr4.bottom_face_x], ["b1", "b2"]):
     positions = [i.position for i in face.vertices]
 
     port_sheet_list = [((x - xc) * 10 + xc, (y - yc) + yc, (z - zc) * 10 + zc) for x, y, z in positions]
-    s = hfss.modeler.create_polyline(port_sheet_list, close_surface=True, cover_surface=True)
+    s = hfss.modeler.create_polyline(port_sheet_list, cover_surface=True, close_surface=True)
     center = [round(i, 6) for i in s.faces[0].center]
 
     port_block = hfss.modeler.thicken_sheet(s.name, -5)
@@ -182,7 +173,7 @@ for face in [fr4.top_face_y, fr4.bottom_face_y]:
 for s, port_name in zip(port_faces, ["1", "2"]):
     reference = [i.name for i in gnd_objs + boundary + [bot]] + ["b1", "b2"]
 
-    hfss.wave_port(s.id, name=port_name, reference=reference)
+    hfss.wave_port(s.id, reference=reference, name=port_name)
 
 ###############################################################################
 # Create setup and sweep
@@ -193,16 +184,8 @@ setup = hfss.create_setup("setup1")
 setup["Frequency"] = "2GHz"
 setup.props["MaximumPasses"] = 10
 setup.props["MinimumConvergedPasses"] = 2
-hfss.create_linear_count_sweep(
-    setupname="setup1",
-    unit="GHz",
-    freqstart=1e-1,
-    freqstop=4,
-    num_of_freq_points=101,
-    sweepname="sweep1",
-    save_fields=False,
-    sweep_type="Interpolating",
-)
+hfss.create_linear_count_sweep(setup="setup1", units="GHz", start_frequency=1e-1, stop_frequency=4,
+                               num_of_freq_points=101, name="sweep1", save_fields=False, sweep_type="Interpolating")
 
 ###############################################################################
 # Plot model

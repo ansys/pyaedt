@@ -37,12 +37,12 @@ import pyaedt
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode.
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
 
-desktop_version = "2023.2"
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -57,14 +57,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(desktop_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
 
 ###############################################################################
 # Input parameters for eigenmode solver
@@ -105,7 +105,7 @@ def find_resonance():
     setup.props['MinimumPasses'] = 3
     setup.props['MaxDeltaFreq'] = 5
     # analyzing the eigenmode setup
-    hfss.analyze_setup(setup_name, num_cores=8, use_auto_settings=True)
+    hfss.analyze_setup(setup_name, cores=8, use_auto_settings=True)
     # getting the Q and real frequency of each mode
     eigen_q = hfss.post.available_report_quantities(quantities_category="Eigen Q")
     eigen_mode = hfss.post.available_report_quantities()
@@ -151,7 +151,7 @@ print(str(resonance_frequencies))
 # Save the project.
 
 hfss.modeler.fit_all()
-hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
+hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Save project and close AEDT

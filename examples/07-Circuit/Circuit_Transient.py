@@ -14,6 +14,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -28,9 +35,9 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version="2023.2",
-                     new_desktop_session=True,
+cir = pyaedt.Circuit(project=pyaedt.generate_unique_project_name(),
+                     version=aedt_version,
+                     new_desktop=True,
                      non_graphical=non_graphical
                      )
 
@@ -55,7 +62,7 @@ tr1.parameters["P"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor(compname="R1", value="1Meg")
+res = cir.modeler.components.create_resistor(name="R1", value="1Meg")
 gnd1 = cir.modeler.components.create_gnd()
 
 ###############################################################################
@@ -84,7 +91,7 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
+trans_setup = cir.create_setup(name="TransientRun", setup_type="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
@@ -114,7 +121,7 @@ new_report.create()
 if not non_graphical:
     new_report.add_limit_line_from_points([60, 80], [1, 1], "ns", "V")
     vout = new_report.traces[0]
-    vout.set_trace_properties(trace_style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
+    vout.set_trace_properties(style=vout.LINESTYLE.Dot, width=2, trace_type=vout.TRACETYPE.Continuous,
                               color=(0, 0, 255))
     vout.set_symbol_properties(style=vout.SYMBOLSTYLE.Circle, fill=True, color=(255, 255, 0))
     ll = new_report.limit_lines[0]
@@ -165,7 +172,7 @@ for a, b in zip(t, ys):
     bn = np.array(b)
     cellst = np.append(cellst, an)
     cellsv = np.append(cellsv, bn)
-plt.plot(cellst.T,  cellsv.T, zorder=0)
+plt.plot(cellst.T, cellsv.T, zorder=0)
 plt.show()
 
 ###############################################################################

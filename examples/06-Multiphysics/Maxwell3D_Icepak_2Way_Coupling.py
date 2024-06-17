@@ -15,6 +15,13 @@ Results are printed in AEDT Message Manager.
 import pyaedt
 from pyaedt.generic.constants import AXIS
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 ###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,16 +36,15 @@ non_graphical = False
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
 # the version. It also creates an instance of the ``Maxwell3d`` class named ``m3d``.
 
-version = "2023.2"  # AEDT version
 project_name = "Maxwell-Icepak-2way-Coupling"
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=project_name,
-    designname=maxwell_design_name,
+    project=project_name,
+    design=maxwell_design_name,
     solution_type="EddyCurrent",
-    specified_version=version,
+    version=aedt_version,
     non_graphical=non_graphical,
 )
 
@@ -48,19 +54,19 @@ m3d = pyaedt.Maxwell3d(
 # Create the coil, coil terminal, core, and region.
 
 coil = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil"
 )
 
-coil.sweep_around_axis(cs_axis=AXIS.Z)
+coil.sweep_around_axis(axis=AXIS.Z)
 
 coil_terminal = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[70, 0, -11], dimension_list=[11, 110], name="Coil_terminal"
+    orientation="XZ", origin=[70, 0, -11], sizes=[11, 110], name="Coil_terminal"
 )
 
 core = m3d.modeler.create_rectangle(
-    csPlane="XZ", position=[45, 0, -18], dimension_list=[7, 160], name="Core"
+    orientation="XZ", origin=[45, 0, -18], sizes=[7, 160], name="Core"
 )
-core.sweep_around_axis(cs_axis=AXIS.Z)
+core.sweep_around_axis(axis=AXIS.Z)
 
 # Magnetic flux is not concentrated by the core in +z-direction. Therefore, more padding is needed in that direction.
 region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
@@ -72,7 +78,7 @@ region = m3d.modeler.create_region(pad_percent=[20, 20, 500, 20, 20, 100])
 # Assign materials: Assign Coil to AWG40 copper, core to ferrite, and region to vacuum.
 
 no_strands = 24
-strand_diameter = 0.08 # mm
+strand_diameter = 0.08
 
 cu_litz = m3d.materials.duplicate_material("copper", "copper_litz")
 cu_litz.stacking_type = "Litz Wire"
@@ -92,14 +98,10 @@ m3d.assign_material(core.name, "ferrite")
 
 no_turns = 20
 coil_current = 10
-m3d.assign_coil(["Coil_terminal"], conductor_number=no_turns, name="Coil_terminal")
-m3d.assign_winding(
-    is_solid=False,
-    current_value=coil_current,
-    name="Winding1",
-)
+m3d.assign_coil(["Coil_terminal"], conductors_number=no_turns, name="Coil_terminal")
+m3d.assign_winding(is_solid=False, current=coil_current, name="Winding1")
 
-m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
+m3d.add_winding_coils(assignment="Winding1", coils=["Coil_terminal"])
 
 ###############################################################################
 # Assign mesh operations
@@ -107,12 +109,8 @@ m3d.add_winding_coils(windingname="Winding1", coil_names=["Coil_terminal"])
 # Mesh operations are not necessary in eddy current solver because of auto-adaptive meshing.
 # However, with appropriate mesh operations, less adaptive passes are needed.
 
-m3d.mesh.assign_length_mesh(
-    ["Core"], maxlength=15, meshop_name="Inside_Core", maxel=None
-)
-m3d.mesh.assign_length_mesh(
-    ["Coil"], maxlength=30, meshop_name="Inside_Coil", maxel=None
-)
+m3d.mesh.assign_length_mesh(["Core"], maximum_length=15, maximum_elements=None, name="Inside_Core")
+m3d.mesh.assign_length_mesh(["Coil"], maximum_length=30, maximum_elements=None, name="Inside_Coil")
 
 ###############################################################################
 # Set conductivity temperature coefficient
@@ -142,7 +140,7 @@ m3d.assign_matrix(["Winding1"], matrix_name="Matrix1")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Simulation frequency 150kHz.
 
-setup = m3d.create_setup(setupname="Setup1")
+setup = m3d.create_setup(name="Setup1")
 setup.props["Frequency"] = "150kHz"
 m3d.analyze_setup("Setup1")
 
@@ -162,7 +160,8 @@ em_loss = solution_loss.data_magnitude()[0]
 
 # Analytical calculation of the DC resistance of the coil
 cu_cond = float(cu_litz.conductivity.value)
-l_conductor = no_turns*2*0.125*3.1415 # average radius of a coil turn = 0.125m
+# average radius of a coil turn = 0.125m
+l_conductor = no_turns*2*0.125*3.1415
 # R = resistivity * length / area / no_strand
 r_analytical_DC = (1.0 / cu_cond) * l_conductor / (3.1415 * (strand_diameter / 1000 / 2) ** 2) / no_strands
 
@@ -176,26 +175,21 @@ m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}
 # ~~~~~~~~~~~~~
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
-ipk = pyaedt.Icepak(designname=icepak_design_name)
+ipk = pyaedt.Icepak(design=icepak_design_name)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil
 ipk.modeler["Region"].delete()
 coil_dim = coil.bounding_dimension[0]
 ipk.modeler.create_region(0, False)
-ipk.modeler.edit_region_dimensions([coil_dim/2, coil_dim/2, coil_dim/2, coil_dim/2, coil_dim*2, coil_dim])
+ipk.modeler.edit_region_dimensions([coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim / 2, coil_dim * 2, coil_dim])
 
 ###############################################################################
 # Map coil losses
 # ~~~~~~~~~~~~~~~
 # Map ohmic losses from Maxwell to the Icepak design.
 
-ipk.assign_em_losses(
-    designname="1 Maxwell",
-    setupname=m3d.setups[0].name,
-    sweepname="LastAdaptive",
-    object_list=["Coil"],
-)
+ipk.assign_em_losses(design="1 Maxwell", setup=m3d.setups[0].name, sweep="LastAdaptive", assignment=["Coil"])
 
 ###############################################################################
 # Boundary conditions
@@ -248,17 +242,11 @@ surface_list = []
 for name in ["Coil", "Core"]:
     surface_list.extend(ipk.modeler.get_object_faces(name))
 
-surf_temperature = ipk.post.create_fieldplot_surface(
-    surface_list,
-    quantityName="SurfTemperature",
-    plot_name="Surface Temperature"
-)
+surf_temperature = ipk.post.create_fieldplot_surface(surface_list, quantity="SurfTemperature",
+                                                     plot_name="Surface Temperature")
 
-velocity_cutplane = ipk.post.create_fieldplot_cutplane(
-        objlist="Global:XZ",
-        quantityName="Velocity Vectors",
-        plot_name="Velocity Vectors"
-    )
+velocity_cutplane = ipk.post.create_fieldplot_cutplane(assignment=["Global:XZ"], quantity="Velocity Vectors",
+                                                       plot_name="Velocity Vectors")
 
 surf_temperature.export_image()
 velocity_cutplane.export_image(orientation="right")
@@ -290,4 +278,4 @@ m3d.logger.info("*******Ohmic loss in coil AFTER temperature feedback =  {:.2f}W
 # Release desktop
 # ~~~~~~~~~~~~~~~
 
-ipk.release_desktop()
+ipk.release_desktop(True, True)

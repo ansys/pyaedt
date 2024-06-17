@@ -21,6 +21,12 @@ from pyaedt import Desktop
 from pyaedt import Hfss3dLayout
 from pyaedt.modules.Boundary import BoundaryObject
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -30,7 +36,6 @@ from pyaedt.modules.Boundary import BoundaryObject
 
 non_graphical = False
 
-
 ###############################################################################
 # Download and open project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -38,9 +43,9 @@ non_graphical = False
 
 temp_folder = pyaedt.generate_unique_folder_name()
 
-ipk = pyaedt.Icepak(projectname=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
-                    specified_version="2023.2",
-                    new_desktop_session=True,
+ipk = pyaedt.Icepak(project=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
+                    version=aedt_version,
+                    new_desktop=True,
                     non_graphical=non_graphical
                     )
 
@@ -89,7 +94,7 @@ ipk.import_idf(board_path, library_path=None, control_path=None,
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ipk.modeler.fit_all()    # scales to fit all objects in AEDT
-ipk.save_project()       # saves the project
+ipk.save_project()  # saves the project
 
 ###############################################################################
 # Add an HFSS 3D Layout design with the layout information of the PCB
@@ -100,8 +105,8 @@ Layout_name = 'A1_uprev'          # 3D layout name available for import, the ext
 hfss3dLO = Hfss3dLayout('Icepak_ECAD_Import', 'PCB_temp')      # adding a dummy HFSS 3D layout to the current project
 
 #edb_full_path = os.path.join(os.getcwd(), Layout_name+'.aedb\edb.def')   # path to the EDB file
-hfss3dLO.import_edb(def_path)                                       # importing the EDB file           
-hfss3dLO.save_project()                                                  # save the new project so files are stored in the path     
+hfss3dLO.import_edb(def_path)  # importing the EDB file
+hfss3dLO.save_project()  # save the new project so files are stored in the path
 
 ipk.delete_design(name='PCB_temp', fallback_design=None)                 # deleting the dummy layout from the original project
 

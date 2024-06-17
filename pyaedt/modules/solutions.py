@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from collections import OrderedDict
 import itertools
 import json
@@ -8,25 +32,27 @@ import shutil
 import sys
 import time
 
-from pyaedt import is_ironpython
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
+from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
-from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 np = None
 pd = None
@@ -44,6 +70,413 @@ if not is_ironpython:
         import pyvista as pv
     except ImportError:
         pv = None
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        plt = None
+
+
+@pyaedt_function_handler()
+def _parse_nastran(file_path):
+    logger = logging.getLogger("Global")
+    nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
+    includes = []
+
+    def parse_lines(input_lines, input_pid=0, in_assembly="Main"):
+        if in_assembly not in nas_to_dict["Assemblies"]:
+            nas_to_dict["Assemblies"][in_assembly] = {"Triangles": {}, "Solids": {}, "Lines": {}}
+
+        def get_point(ll, start, length):
+            n = ll[start : start + length].strip()
+            if "-" in n[1:] and "e" not in n[1:].lower():
+                n = n[0] + n[1:].replace("-", "e-")
+            return n
+
+        for lk in range(len(input_lines)):
+            line = input_lines[lk]
+            line_type = line[:8].strip()
+            obj_type = "Triangles"
+            if line.startswith("$") or line.startswith("*"):
+                continue
+            elif line_type in ["GRID", "GRID*"]:
+                num_points = 3
+                obj_type = "Grid"
+            elif line_type in [
+                "CTRIA3",
+                "CTRIA3*",
+            ]:
+                num_points = 3
+                obj_type = "Triangles"
+            elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
+                num_points = 2
+                obj_type = "Lines"
+            elif line_type in [
+                "CQUAD4",
+                "CQUAD4*",
+            ]:
+                num_points = 4
+                obj_type = "Triangles"
+            elif line_type in ["CTETRA", "CTETRA*"]:
+                num_points = 4
+                obj_type = "Solids"
+            elif line_type in ["CPYRA", "CPYRAM", "CPYRA*", "CPYRAM*"]:
+                num_points = 5
+                obj_type = "Solids"
+            else:
+                continue
+
+            points = []
+            start_pointer = 8
+            word_length = 8
+            if line_type.endswith("*"):
+                word_length = 16
+            grid_id = int(line[start_pointer : start_pointer + word_length])
+            pp = 0
+            start_pointer = start_pointer + word_length
+            object_id = line[start_pointer : start_pointer + word_length]
+            if obj_type != "Grid":
+                object_id = int(object_id)
+                if object_id not in nas_to_dict["Assemblies"][in_assembly][obj_type]:
+                    nas_to_dict["Assemblies"][in_assembly][obj_type][object_id] = []
+            while pp < num_points:
+                start_pointer = start_pointer + word_length
+                if start_pointer >= 72:
+                    lk += 1
+                    line = input_lines[lk]
+                    start_pointer = 8
+                points.append(get_point(line, start_pointer, word_length))
+                pp += 1
+
+            if line_type in ["GRID", "GRID*"]:
+                nas_to_dict["PointsId"][grid_id] = input_pid
+                nas_to_dict["Points"].append([float(i) for i in points])
+                input_pid += 1
+            elif line_type in [
+                "CTRIA3",
+                "CTRIA3*",
+            ]:
+                tri = [nas_to_dict["PointsId"][int(i)] for i in points]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+            elif line_type in ["CROD", "CBEAM", "CBAR", "CROD*", "CBEAM*", "CBAR*"]:
+                tri = [nas_to_dict["PointsId"][int(i)] for i in points]
+                nas_to_dict["Assemblies"][in_assembly]["Lines"][object_id].append(tri)
+            elif line_type in ["CQUAD4", "CQUAD4*"]:
+                tri = [
+                    nas_to_dict["PointsId"][int(points[0])],
+                    nas_to_dict["PointsId"][int(points[1])],
+                    nas_to_dict["PointsId"][int(points[2])],
+                ]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+                tri = [
+                    nas_to_dict["PointsId"][int(points[0])],
+                    nas_to_dict["PointsId"][int(points[2])],
+                    nas_to_dict["PointsId"][int(points[3])],
+                ]
+                nas_to_dict["Assemblies"][in_assembly]["Triangles"][object_id].append(tri)
+            else:
+                from itertools import combinations
+
+                for k in list(combinations(points, 3)):
+                    tri = [
+                        nas_to_dict["PointsId"][int(k[0])],
+                        nas_to_dict["PointsId"][int(k[1])],
+                        nas_to_dict["PointsId"][int(k[2])],
+                    ]
+                    tri.sort()
+                    tri = tuple(tri)
+                    nas_to_dict["Assemblies"][in_assembly]["Solids"][object_id].append(tri)
+
+        return input_pid
+
+    logger.info("Loading file")
+    with open_file(file_path, "r") as f:
+        lines = f.read().splitlines()
+        for line in lines:
+            if line.startswith("INCLUDE"):
+                includes.append(line.split(" ")[1].replace("'", "").strip())
+        pid = parse_lines(lines)
+    for include in includes:
+        with open_file(os.path.join(os.path.dirname(file_path), include), "r") as f:
+            lines = f.read().splitlines()
+            name = include.split(".")[0]
+            pid = parse_lines(lines, pid, name)
+    logger.info("File loaded")
+    for assembly in list(nas_to_dict["Assemblies"].keys())[::]:
+        if (
+            nas_to_dict["Assemblies"][assembly]["Triangles"]
+            == nas_to_dict["Assemblies"][assembly]["Solids"]
+            == nas_to_dict["Assemblies"][assembly]["Lines"]
+            == {}
+        ):
+            del nas_to_dict["Assemblies"][assembly]
+    for _, assembly_object in nas_to_dict["Assemblies"].items():
+
+        def domino(segments):
+
+            def check_new_connection(s, polylines, exclude_index=-1):
+                s = s[:]
+                polylines = [poly[:] for poly in polylines]
+                attached = False
+                p_index = None
+                for i, p in enumerate(polylines):
+                    if i == exclude_index:
+                        continue
+                    if s[0] == p[-1]:
+                        p.extend(s[1:])  # the new segment attaches to the end
+                        attached = True
+                    elif s[-1] == p[0]:
+                        for item in reversed(s[:-1]):
+                            p.insert(0, item)  # the new segment attaches to the beginning
+                        attached = True
+                    elif s[0] == p[0]:
+                        for item in s[1:]:
+                            p.insert(0, item)  # the new segment attaches to the beginning in reverse order
+                        attached = True
+                    elif s[-1] == p[-1]:
+                        p.extend(s[-2::-1])  # the new segment attaches to the end in reverse order
+                        attached = True
+                    if attached:
+                        p_index = i
+                        break
+                if not attached:
+                    polylines.append(s)
+                return polylines, attached, p_index
+
+            polylines = []
+            for segment in segments:
+                polylines, attached_flag, attached_p_index = check_new_connection(segment, polylines)
+                if attached_flag:
+                    other_polylines = polylines[:attached_p_index] + polylines[attached_p_index + 1 :]
+                    polylines, _, _ = check_new_connection(
+                        polylines[attached_p_index], other_polylines, attached_p_index
+                    )
+
+            return polylines
+
+        def remove_self_intersections(polylines):
+            polylines = [poly[:] for poly in polylines]
+            new_polylines = []
+            for p in polylines:
+                if p[0] in p[1:]:
+                    new_polylines.append([p[0], p[1]])
+                    p.pop(0)
+                if p[-1] in p[:-1]:
+                    new_polylines.append([p[-2], p[-1]])
+                    p.pop(-1)
+                new_polylines.append(p)
+            return new_polylines
+
+        if assembly_object["Lines"]:
+            for lname, lines in assembly_object["Lines"].items():
+                new_lines = lines[::]
+                new_lines = remove_self_intersections(domino(new_lines))
+                assembly_object["Lines"][lname] = new_lines
+
+    return nas_to_dict
+
+
+@pyaedt_function_handler()
+def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=True):
+    logger = logging.getLogger("Global")
+
+    def _write_solid_stl(triangle, pp):
+        try:
+            # points = [nas_to_dict["Points"][id] for id in triangle]
+            points = [pp[i] for i in triangle]
+        except KeyError:  # pragma: no cover
+            return
+        fc = GeometryOperators.get_polygon_centroid(points)
+        v1 = points[0]
+        v2 = points[1]
+        cv1 = GeometryOperators.v_points(fc, v1)
+        cv2 = GeometryOperators.v_points(fc, v2)
+        if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+            n = [0, 0, 1]  # pragma: no cover
+        elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+            n = [0, 1, 0]  # pragma: no cover
+        elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+            n = [1, 0, 0]  # pragma: no cover
+        else:
+            n = GeometryOperators.v_cross(cv1, cv2)
+
+        normal = GeometryOperators.normalize_vector(n)
+        if normal:
+            f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+            f.write("  outer loop\n")
+            f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+            f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+            f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+            f.write("  endloop\n")
+            f.write(" endfacet\n")
+
+    logger.info("Creating STL file with detected faces")
+    enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
+
+    def decimate(points_in, faces_in):
+        fin = [[3] + list(i) for i in faces_in]
+        mesh = pv.PolyData(points_in, faces=fin)
+        new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
+        points_out = list(new_mesh.points)
+        faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
+        return points_out, faces_out
+
+    output_stls = []
+    for assembly_name, assembly in nas_to_dict["Assemblies"].items():
+        output_stl = os.path.join(working_directory, assembly_name + ".stl")
+        f = open(output_stl, "w")
+        for tri_id, triangles in assembly["Triangles"].items():
+            tri_out = triangles
+            p_out = nas_to_dict["Points"][::]
+            if decimation > 0 and len(triangles) > 20:
+                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
+            f.write("solid Sheet_{}\n".format(tri_id))
+            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
+                enable_stl_merge = False  # pragma: no cover
+            for triangle in tri_out:
+                _write_solid_stl(triangle, p_out)
+            f.write("endsolid\n")
+        for solidid, solid_triangles in assembly["Solids"].items():
+            f.write("solid Solid_{}\n".format(solidid))
+            import pandas as pd
+
+            df = pd.Series(solid_triangles)
+            tri_out = df.drop_duplicates(keep=False).to_list()
+            p_out = nas_to_dict["Points"][::]
+            if decimation > 0 and len(solid_triangles) > 20:
+                p_out, tri_out = decimate(nas_to_dict["Points"], tri_out)
+            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
+                enable_stl_merge = False  # pragma: no cover
+            for triangle in tri_out:
+                _write_solid_stl(triangle, p_out)
+            f.write("endsolid\n")
+        f.close()
+        output_stls.append(output_stl)
+        logger.info("STL file created")
+    return output_stls, enable_stl_merge
+
+
+def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_merge="True", preview=False):
+    logger = logging.getLogger("Global")
+    nas_to_dict = _parse_nastran(input_file)
+
+    empty = True
+    for assembly in nas_to_dict["Assemblies"].values():
+        if assembly["Triangles"] or assembly["Solids"] or assembly["Lines"]:
+            empty = False
+            break
+    if empty:  # pragma: no cover
+        logger.error("Failed to import file. Check the model and retry")
+        return False
+    if output_folder is None:
+        output_folder = os.path.dirname(input_file)
+    output_stls, enable_stl_merge = _write_stl(nas_to_dict, decimation, output_folder, enable_planar_merge)
+    if preview:
+        logger.info("Generating preview...")
+        if decimation > 0:
+            pl = pv.Plotter(shape=(1, 2))
+        else:  # pragma: no cover
+            pl = pv.Plotter()
+        dargs = dict(show_edges=True)
+        colors = []
+        color_by_assembly = True
+        if len(nas_to_dict["Assemblies"]) == 1:
+            color_by_assembly = False
+
+        def preview_pyvista(dict_in):
+            css4_colors = list(CSS4_COLORS.values())
+            k = 0
+            p_out = nas_to_dict["Points"][::]
+            for assembly in dict_in["Assemblies"].values():
+                if color_by_assembly:
+                    h = css4_colors[k].lstrip("#")
+                    colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                    k += 1
+
+                for triangles in assembly["Triangles"].values():
+                    tri_out = triangles
+                    fin = [[3] + list(i) for i in tri_out]
+                    if not color_by_assembly:
+                        h = css4_colors[k].lstrip("#")
+                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                        k = k + 1 if k < len(css4_colors) - 1 else 0
+                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+
+                for triangles in assembly["Solids"].values():
+                    import pandas as pd
+
+                    df = pd.Series(triangles)
+                    tri_out = df.drop_duplicates(keep=False).to_list()
+                    p_out = nas_to_dict["Points"][::]
+                    fin = [[3] + list(i) for i in tri_out]
+                    if not color_by_assembly:
+                        h = css4_colors[k].lstrip("#")
+                        colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                        k = k + 1 if k < len(css4_colors) - 1 else 0
+
+                    pl.add_mesh(pv.PolyData(p_out, faces=fin), color=colors[-1], **dargs)
+
+        preview_pyvista(nas_to_dict)
+        pl.add_text("Input mesh", font_size=24)
+        pl.reset_camera()
+        if decimation > 0 and output_stls:
+            k = 0
+            pl.reset_camera()
+            pl.subplot(0, 1)
+            css4_colors = list(CSS4_COLORS.values())
+            for output_stl in output_stls:
+                mesh = pv.read(output_stl)
+                h = css4_colors[k].lstrip("#")
+                colors.append(tuple(int(h[i : i + 2], 16) for i in (0, 2, 4)))
+                pl.add_mesh(mesh, color=colors[-1], **dargs)
+                k = k + 1 if k < len(css4_colors) - 1 else 0
+            pl.add_text("Decimated mesh", font_size=24)
+            pl.reset_camera()
+            pl.link_views()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            pl.show()  # pragma: no cover
+    logger.info("STL files created")
+    return output_stls, nas_to_dict, enable_stl_merge
+
+
+def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
+    """Import and simplify a stl file using pyvista and fast-simplification.
+
+    Parameters
+    ----------
+    input_file : str
+        Input stl file.
+    output_file : str, optional
+        Output stl file.
+    decimation : float, optional
+        Fraction of the original mesh to remove before creating the stl file.  If set to ``0.9``,
+        this function will try to reduce the data set to 10% of its
+        original size and will remove 90% of the input triangles.
+    preview : bool, optional
+        Whether to preview the model in pyvista or skip it.
+    Returns
+    -------
+    str
+        Full path to output stl.
+    """
+    mesh = pv.read(input_file)
+    if not output_file:
+        output_file = os.path.splitext(input_file)[0] + "_output.stl"
+    simple = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
+    simple.save(output_file)
+    if preview:
+        pl = pv.Plotter(shape=(1, 2))
+        dargs = dict(show_edges=True, color=True)
+        pl.add_mesh(mesh, **dargs)
+        pl.add_text("Input mesh", font_size=24)
+        pl.reset_camera()
+        pl.subplot(0, 1)
+        pl.add_mesh(simple, **dargs)
+        pl.add_text("Decimated mesh", font_size=24)
+        pl.reset_camera()
+        pl.link_views()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            pl.show()
+    return output_file
 
 
 class SolutionData(object):
@@ -73,7 +506,7 @@ class SolutionData(object):
         for intrinsic in self.intrinsics:
             try:
                 self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
-            except:
+            except Exception:
                 self.units_sweeps[intrinsic] = None
         self.init_solutions_data()
         self._ifft = None
@@ -109,6 +542,7 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
@@ -128,26 +562,27 @@ class SolutionData(object):
             variations_lists.append(variations)
         return variations_lists
 
-    @pyaedt_function_handler()
-    def variation_values(self, variation_name):
+    @pyaedt_function_handler(variation_name="variation")
+    def variation_values(self, variation):
         """Get the list of the specific variation available values.
 
         Parameters
         ----------
-        variation_name : str
+        variation : str
             Name of variation to return.
 
         Returns
         -------
         list
+            List of variation values.
         """
-        if variation_name in self.intrinsics:
-            return self.intrinsics[variation_name]
+        if variation in self.intrinsics:
+            return self.intrinsics[variation]
         else:
             vars_vals = []
             for el in self.variations:
-                if variation_name in el and el[variation_name] not in vars_vals:
-                    vars_vals.append(el[variation_name])
+                if variation in el and el[variation] not in vars_vals:
+                    vars_vals.append(el[variation])
             return vars_vals
 
     @property
@@ -273,7 +708,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
 
             for data, comb in zip(self._original_data, self.variations):
                 solution = list(data.GetRealDataValues(expression, False))
@@ -284,9 +719,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -298,7 +733,7 @@ class SolutionData(object):
         sols_data = {}
 
         for expression in self.expressions:
-            solution_Data = {}
+            solution_data = {}
             for data, comb in zip(self._original_data, self.variations):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
@@ -311,9 +746,9 @@ class SolutionData(object):
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
-                    solution_Data[tuple(c + list(t))] = solution[i]
+                    solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
-            sols_data[expression] = solution_Data
+            sols_data[expression] = solution_data
         if self.enable_pandas_output:
             return pd.DataFrame.from_dict(sols_data)
         else:
@@ -391,7 +826,6 @@ class SolutionData(object):
         -------
         type
             List of inputs in radians.
-
         """
         if isinstance(input_list, (tuple, list)):
             return [i * 2 * math.pi / 360 for i in input_list]
@@ -425,21 +859,20 @@ class SolutionData(object):
         -------
         list
             List of data.
-
         """
         if not expression:
             expression = self.active_expression
         elif expression not in self.expressions:
             return False
         temp = self._variation_tuple()
-        solution_Data = self._solutions_mag[expression]
+        solution_data = self._solutions_mag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
         sw = self.variation_values(self.primary_sweep)
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -451,17 +884,18 @@ class SolutionData(object):
         return sol
 
     @staticmethod
-    @pyaedt_function_handler()
-    def _convert_list_to_SI(datalist, dataunits, units):
+    @pyaedt_function_handler(datalist="data", dataunits="data_units")
+    def _convert_list_to_SI(data, data_units, units):
         """Convert a data list to the SI unit system.
 
         Parameters
         ----------
-        datalist : list
+        data : list
            List of data to convert.
-        dataunits :
-
-        units :
+        data_units : str
+            Data units.
+        units : str
+            SI units to convert data into.
 
 
         Returns
@@ -470,9 +904,9 @@ class SolutionData(object):
            List of the data converted to the SI unit system.
 
         """
-        sol = datalist
-        if dataunits in AEDT_UNITS and units in AEDT_UNITS[dataunits]:
-            sol = [i * AEDT_UNITS[dataunits][units] for i in datalist]
+        sol = data
+        if data_units in AEDT_UNITS and units in AEDT_UNITS[data_units]:
+            sol = [i * AEDT_UNITS[data_units][units] for i in data]
         return sol
 
     @pyaedt_function_handler()
@@ -492,7 +926,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -517,7 +950,6 @@ class SolutionData(object):
         -------
         list
             List of the data in the database for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -542,7 +974,6 @@ class SolutionData(object):
         -------
         list
             Phase data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
@@ -561,7 +992,6 @@ class SolutionData(object):
         -------
         list
             List of the primary sweep valid points for the expression.
-
         """
         if self.enable_pandas_output:
             return pd.Series(self.variation_values(self.primary_sweep))
@@ -580,13 +1010,13 @@ class SolutionData(object):
         expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = list(self._solutions_real[expression].keys())
+        solution_data = list(self._solutions_real[expression].keys())
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if tuple(temp) in solution_Data:
+            if tuple(temp) in solution_data:
                 sol_dict = OrderedDict({})
                 i = 0
                 for sn in self._sweeps_names:
@@ -616,20 +1046,19 @@ class SolutionData(object):
         -------
         list
             List of the real data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = self._solutions_real[expression]
+        solution_data = self._solutions_real[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
 
         for el in self.primary_sweep_values:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
 
@@ -658,19 +1087,18 @@ class SolutionData(object):
         -------
         list
             List of the imaginary data for the expression.
-
         """
         if not expression:
             expression = self.active_expression
         temp = self._variation_tuple()
 
-        solution_Data = self._solutions_imag[expression]
+        solution_data = self._solutions_imag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
         for el in self.primary_sweep_values:
             temp[position] = el
             try:
-                sol.append(solution_Data[tuple(temp)])
+                sol.append(solution_data[tuple(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -719,14 +1147,32 @@ class SolutionData(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        header = [el for el in self._sweeps_names]
-        for el in self.expressions:
-            if not self.is_real_only(el):
-                header.append(el + " (Real)")
-                header.append(el + " (Imag)")
+        header = []
+        des_var = self._original_data[0].GetDesignVariableNames()
+        sweep_var = self._original_data[0].GetSweepNames()
+        for el in self._sweeps_names:
+            unit = ""
+            if el in des_var:
+                unit = self._original_data[0].GetDesignVariableUnits(el)
+            elif el in sweep_var:
+                unit = self._original_data[0].GetSweepUnits(el)
+            if unit == "":
+                header.append("{}".format(el))
             else:
-                header.append(el)
+                header.append("{} [{}]".format(el, unit))
+        # header = [el for el in self._sweeps_names]
+        for el in self.expressions:
+            data_unit = self._original_data[0].GetDataUnits(el)
+            if data_unit:
+                data_unit = " [{}]".format(data_unit)
+            if not self.is_real_only(el):
+
+                header.append(el + " (Real){}".format(data_unit))
+                header.append(el + " (Imag){}".format(data_unit))
+            else:
+                header.append(el + "{}".format(data_unit))
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
@@ -744,39 +1190,44 @@ class SolutionData(object):
 
         return write_csv(output, list_full, delimiter=delimiter)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(math_formula="formula", xlabel="x_label", ylabel="y_label")
     def plot(
         self,
         curves=None,
-        math_formula=None,
+        formula=None,
         size=(2000, 1000),
         show_legend=True,
-        xlabel="",
-        ylabel="",
+        x_label="",
+        y_label="",
         title="",
         snapshot_path=None,
         is_polar=False,
+        show=True,
     ):
-        """Create a matplotlib plot based on a list of data.
+        """Create a matplotlib figure based on a list of data.
 
         Parameters
         ----------
         curves : list
-            Curves to be plotted. If None, the first curve will be plotted.
-        math_formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
-            `None` value will plot only real value of the data stored in solution data.
+            Curves to be plotted. The default is ``None``, in which case
+            the first curve is plotted.
+        formula : str , optional
+            Mathematical formula to apply to the plot curve. The default is ``None``,
+            in which case only real value of the data stored in the solution data is plotted.
+            Options are ``"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
+            ``"phaserad"``, and ``"re"``.
         size : tuple, optional
-            Image size in pixel (width, height).
+            Image size in pixels (width, height).
         show_legend : bool
-            Either to show legend or not. Flag will be ignored if number of curves to plot is greater than 15.
-        xlabel : str
+            Whether to show the legend. The default is ``True``.
+            This parameter is ignored if the number of curves to plot is
+            greater than 15.
+        x_label : str
             Plot X label.
-        ylabel : str
+        y_label : str
             Plot Y label.
         title : str
-            Plot Title label.
+            Plot title label.
         snapshot_path : str
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
@@ -784,8 +1235,8 @@ class SolutionData(object):
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:  # pragma: no cover
             return False
@@ -800,80 +1251,87 @@ class SolutionData(object):
         else:
             sw = self.primary_sweep_values
         for curve in curves:
-            if not math_formula:
+            if not formula:
                 data_plot.append([sw, self.data_real(curve), curve])
-            elif math_formula == "re":
-                data_plot.append([sw, self.data_real(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "im":
-                data_plot.append([sw, self.data_imag(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "db20":
-                data_plot.append([sw, self.data_db20(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "db10":
-                data_plot.append([sw, self.data_db10(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "mag":
-                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(math_formula, curve)])
-            elif math_formula == "phasedeg":
-                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(math_formula, curve)])
-            elif math_formula == "phaserad":
-                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(math_formula, curve)])
-        if not xlabel:
-            xlabel = sweep_name
-        if not ylabel:
-            ylabel = math_formula
+            elif formula == "re":
+                data_plot.append([sw, self.data_real(curve), "{}({})".format(formula, curve)])
+            elif formula == "im":
+                data_plot.append([sw, self.data_imag(curve), "{}({})".format(formula, curve)])
+            elif formula == "db20":
+                data_plot.append([sw, self.data_db20(curve), "{}({})".format(formula, curve)])
+            elif formula == "db10":
+                data_plot.append([sw, self.data_db10(curve), "{}({})".format(formula, curve)])
+            elif formula == "mag":
+                data_plot.append([sw, self.data_magnitude(curve), "{}({})".format(formula, curve)])
+            elif formula == "phasedeg":
+                data_plot.append([sw, self.data_phase(curve, False), "{}({})".format(formula, curve)])
+            elif formula == "phaserad":
+                data_plot.append([sw, self.data_phase(curve, True), "{}({})".format(formula, curve)])
+        if not x_label:
+            x_label = sweep_name
+        if not y_label:
+            y_label = formula
         if not title:
             title = "Simulation Results Plot"
         if len(data_plot) > 15:
             show_legend = False
         if is_polar:
-            return plot_polar_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+            return plot_polar_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
         else:
-            return plot_2d_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
+            return plot_2d_chart(data_plot, size, show_legend, x_label, y_label, title, snapshot_path, show=show)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
     def plot_3d(
         self,
         curve=None,
         x_axis="Theta",
         y_axis="Phi",
-        xlabel="",
-        ylabel="",
+        x_label="",
+        y_label="",
         title="",
-        math_formula=None,
+        formula=None,
         size=(2000, 1000),
         snapshot_path=None,
+        show=True,
     ):
-        """Create a matplotlib 3d plot based on a list of data.
+        """Create a matplotlib 3D figure based on a list of data.
 
         Parameters
         ----------
         curve : str
             Curve to be plotted. If None, the first curve will be plotted.
         x_axis : str, optional
-            X Axis sweep. Default is `"Theta"`.
+            X-axis sweep. The default is ``"Theta"``.
         y_axis : str, optional
-            Y Axis sweep. Default is `"Phi"`.
-        math_formula : str , optional
-            Mathematical formula to apply to the plot curve.
-            Valid values are `"re"`, `"im"`, `"db20"`, `"db10"`, `"abs"`, `"mag"`, `"phasedeg"`, `"phaserad"`.
+            Y-axis sweep. The default is ``"Phi"``.
+        x_label : str
+            Plot X label.
+        y_label : str
+            Plot Y label.
+        title : str
+            Plot title label.
+        formula : str , optional
+            Mathematical formula to apply to the plot curve. The default is ``None``.
+            Options are `"abs"``, ``"db10"``, ``"db20"``, ``"im"``, ``"mag"``, ``"phasedeg"``,
+            ``"phaserad"``, and ``"re"``.
         size : tuple, optional
-            Image size in pixel (width, height).
-        snapshot_path : str
+            Image size in pixels (width, height). The default is ``(2000, 1000)``.
+        snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
-        is_polar : bool, optional
-            Set to `True` if this is a polar plot.
+            The default is ``None``.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Matplotlib fig object.
+        :class:`matplotlib.figure.Figure`
+            Matplotlib figure object.
         """
         if is_ironpython:
             return False  # pragma: no cover
         if not curve:
             curve = self.active_expression
 
-        if not math_formula:
-            math_formula = "mag"
+        if not formula:
+            formula = "mag"
         theta = self.variation_values(x_axis)
         y_axis_val = self.variation_values(y_axis)
 
@@ -883,19 +1341,19 @@ class SolutionData(object):
             self.active_variation[y_axis] = el
             phi.append(el * math.pi / 180)
 
-            if math_formula == "re":
+            if formula == "re":
                 r.append(self.data_real(curve))
-            elif math_formula == "im":
+            elif formula == "im":
                 r.append(self.data_imag(curve))
-            elif math_formula == "db20":
+            elif formula == "db20":
                 r.append(self.data_db20(curve))
-            elif math_formula == "db10":
+            elif formula == "db10":
                 r.append(self.data_db10(curve))
-            elif math_formula == "mag":
+            elif formula == "mag":
                 r.append(self.data_magnitude(curve))
-            elif math_formula == "phasedeg":
+            elif formula == "phasedeg":
                 r.append(self.data_phase(curve, False))
-            elif math_formula == "phaserad":
+            elif formula == "phaserad":
                 r.append(self.data_phase(curve, True))
         active_sweep = self.active_intrinsic[self.primary_sweep]
         position = self.variation_values(self.primary_sweep).index(active_sweep)
@@ -905,13 +1363,13 @@ class SolutionData(object):
                 new_r.append([el[position]])
             r = new_r
         data_plot = [theta, phi, r]
-        if not xlabel:
-            xlabel = x_axis
-        if not ylabel:
-            ylabel = y_axis
+        if not x_label:
+            x_label = x_axis
+        if not y_label:
+            y_label = y_axis
         if not title:
             title = "Simulation Results Plot"
-        return plot_3d_chart(data_plot, size, xlabel, ylabel, title, snapshot_path)
+        return plot_3d_chart(data_plot, size, x_label, y_label, title, snapshot_path, show=show)
 
     @pyaedt_function_handler()
     def ifft(self, curve_header="NearE", u_axis="_u", v_axis="_v", window=False):
@@ -939,60 +1397,60 @@ class SolutionData(object):
 
         freq = self.variation_values("Freq")
         if self.enable_pandas_output:
-            E_realx = np.reshape(self._solutions_real[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            E_imagx = np.reshape(self._solutions_imag[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
-            E_realy = np.reshape(self._solutions_real[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            E_imagy = np.reshape(self._solutions_imag[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
-            E_realz = np.reshape(self._solutions_real[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
-            E_imagz = np.reshape(self._solutions_imag[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
+            e_real_x = np.reshape(self._solutions_real[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
+            e_imag_x = np.reshape(self._solutions_imag[curve_header + "X"].copy().values, (len(freq), len(v), len(u)))
+            e_real_y = np.reshape(self._solutions_real[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
+            e_imag_y = np.reshape(self._solutions_imag[curve_header + "Y"].copy().values, (len(freq), len(v), len(u)))
+            e_real_z = np.reshape(self._solutions_real[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
+            e_imag_z = np.reshape(self._solutions_imag[curve_header + "Z"].copy().values, (len(freq), len(v), len(u)))
         else:
-            vals_real_Ex = [j for j in self._solutions_real[curve_header + "X"].values()]
-            vals_imag_Ex = [j for j in self._solutions_imag[curve_header + "X"].values()]
-            vals_real_Ey = [j for j in self._solutions_real[curve_header + "Y"].values()]
-            vals_imag_Ey = [j for j in self._solutions_imag[curve_header + "Y"].values()]
-            vals_real_Ez = [j for j in self._solutions_real[curve_header + "Z"].values()]
-            vals_imag_Ez = [j for j in self._solutions_imag[curve_header + "Z"].values()]
+            vals_e_real_x = [j for j in self._solutions_real[curve_header + "X"].values()]
+            vals_e_imag_x = [j for j in self._solutions_imag[curve_header + "X"].values()]
+            vals_e_real_y = [j for j in self._solutions_real[curve_header + "Y"].values()]
+            vals_e_imag_y = [j for j in self._solutions_imag[curve_header + "Y"].values()]
+            vals_e_real_z = [j for j in self._solutions_real[curve_header + "Z"].values()]
+            vals_e_imag_z = [j for j in self._solutions_imag[curve_header + "Z"].values()]
 
-            E_realx = np.reshape(vals_real_Ex, (len(freq), len(v), len(u)))
-            E_imagx = np.reshape(vals_imag_Ex, (len(freq), len(v), len(u)))
-            E_realy = np.reshape(vals_real_Ey, (len(freq), len(v), len(u)))
-            E_imagy = np.reshape(vals_imag_Ey, (len(freq), len(v), len(u)))
-            E_realz = np.reshape(vals_real_Ez, (len(freq), len(v), len(u)))
-            E_imagz = np.reshape(vals_imag_Ez, (len(freq), len(v), len(u)))
+            e_real_x = np.reshape(vals_e_real_x, (len(freq), len(v), len(u)))
+            e_imag_x = np.reshape(vals_e_imag_x, (len(freq), len(v), len(u)))
+            e_real_y = np.reshape(vals_e_real_y, (len(freq), len(v), len(u)))
+            e_imag_y = np.reshape(vals_e_imag_y, (len(freq), len(v), len(u)))
+            e_real_z = np.reshape(vals_e_real_z, (len(freq), len(v), len(u)))
+            e_imag_z = np.reshape(vals_e_imag_z, (len(freq), len(v), len(u)))
 
-        Temp_E_compx = E_realx + 1j * E_imagx  # Here is the complex FD data matrix, ready for transforming
-        Temp_E_compy = E_realy + 1j * E_imagy
-        Temp_E_compz = E_realz + 1j * E_imagz
+        temp_e_comp_x = e_real_x + 1j * e_imag_x  # Here is the complex FD data matrix, ready for transforming
+        temp_e_comp_y = e_real_y + 1j * e_imag_y
+        temp_e_comp_z = e_real_z + 1j * e_imag_z
 
-        E_compx = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        E_compy = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        E_compz = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
         if window:
             timewin = np.hanning(len(freq))
 
             for row in range(0, len(v)):
                 for col in range(0, len(u)):
-                    E_compx[:, row, col] = np.multiply(Temp_E_compx[:, row, col], timewin)
-                    E_compy[:, row, col] = np.multiply(Temp_E_compy[:, row, col], timewin)
-                    E_compz[:, row, col] = np.multiply(Temp_E_compz[:, row, col], timewin)
+                    e_comp_x[:, row, col] = np.multiply(temp_e_comp_x[:, row, col], timewin)
+                    e_comp_y[:, row, col] = np.multiply(temp_e_comp_y[:, row, col], timewin)
+                    e_comp_z[:, row, col] = np.multiply(temp_e_comp_z[:, row, col], timewin)
         else:
-            E_compx = Temp_E_compx
-            E_compy = Temp_E_compy
-            E_compz = Temp_E_compz
+            e_comp_x = temp_e_comp_x
+            e_comp_y = temp_e_comp_y
+            e_comp_z = temp_e_comp_z
 
-        E_time_x = np.fft.ifft(np.fft.fftshift(E_compx, 0), len(freq), 0, None)
-        E_time_y = np.fft.ifft(np.fft.fftshift(E_compy, 0), len(freq), 0, None)
-        E_time_z = np.fft.ifft(np.fft.fftshift(E_compz, 0), len(freq), 0, None)
-        E_time = np.zeros((np.size(freq), np.size(v), np.size(u)))
+        e_time_x = np.fft.ifft(np.fft.fftshift(e_comp_x, 0), len(freq), 0, None)
+        e_time_y = np.fft.ifft(np.fft.fftshift(e_comp_y, 0), len(freq), 0, None)
+        e_time_z = np.fft.ifft(np.fft.fftshift(e_comp_z, 0), len(freq), 0, None)
+        e_time = np.zeros((np.size(freq), np.size(v), np.size(u)))
         for i in range(0, len(freq)):
-            E_time[i, :, :] = np.abs(
-                np.sqrt(np.square(E_time_x[i, :, :]) + np.square(E_time_y[i, :, :]) + np.square(E_time_z[i, :, :]))
+            e_time[i, :, :] = np.abs(
+                np.sqrt(np.square(e_time_x[i, :, :]) + np.square(e_time_y[i, :, :]) + np.square(e_time_z[i, :, :]))
             )
-        self._ifft = E_time
+        self._ifft = e_time
 
         return self._ifft
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(csv_dir="csv_path", name_str="csv_file_header")
     def ifft_to_file(
         self,
         u_axis="_u",
@@ -1000,10 +1458,10 @@ class SolutionData(object):
         coord_system_center=None,
         db_val=False,
         num_frames=None,
-        csv_dir=None,
-        name_str="res_",
+        csv_path=None,
+        csv_file_header="res_",
     ):
-        """Save IFFT Matrix to a list of csv files (one per time step).
+        """Save IFFT matrix to a list of CSV files (one per time step).
 
         Parameters
         ----------
@@ -1014,13 +1472,13 @@ class SolutionData(object):
         coord_system_center : list, optional
             List of UV GlobalCS Center.
         db_val : bool, optional
-            Either if data has to be exported in db or not.
+            Whether data must be exported into a database. The default is ``False``.
         num_frames : int, optional
-            Number of frames to export.
-        csv_dir : str
-            Output path
-        name_str : str, optional
-            csv file header.
+            Number of frames to export. The default is ``None``.
+        csv_path : str, optional
+            Output path. The default is ``None``.
+        csv_file_header : str, optional
+            CSV file header. The default is ``"res_"``.
 
         Returns
         -------
@@ -1041,15 +1499,15 @@ class SolutionData(object):
         else:
             frames = t_matrix.shape[0]
         csv_list = []
-        if os.path.exists(csv_dir):
-            files = [os.path.join(csv_dir, f) for f in os.listdir(csv_dir) if name_str in f and ".csv" in f]
+        if os.path.exists(csv_path):
+            files = [os.path.join(csv_path, f) for f in os.listdir(csv_path) if csv_file_header in f and ".csv" in f]
             for file in files:
                 os.remove(file)
         else:
-            os.mkdir(csv_dir)
+            os.mkdir(csv_path)
 
         for frame in range(frames):
-            output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
+            output = os.path.join(csv_path, csv_file_header + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
                 for j, x in enumerate(x_c_list):
@@ -1065,7 +1523,7 @@ class SolutionData(object):
             write_csv(output, list_full, delimiter=",")
             csv_list.append(output)
 
-        txt_file_name = csv_dir + "fft_list.txt"
+        txt_file_name = csv_path + "fft_list.txt"
         textfile = open_file(txt_file_name, "w")
 
         for element in csv_list:
@@ -1075,34 +1533,37 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Contains information from the far field solution data.
+    """Provides antenna array far-field data.
 
-    Load far field data from the element pattern files.
+    Read embedded element patterns generated in HFSS and return the Python interface
+    to plot and analyze the array far-field data.
 
     Parameters
     ----------
     eep_files : list or str
-        List of element pattern files for each frequency.
-        If the input is string, it is assumed to be a single frequency.
+        List of embedded element pattern files for each frequency.
+        If data is only provided for a single frequency, then a string can be passed
+        instead of a one-element list.
     frequencies : list, str, int, or float
         List of frequencies.
-        If the input is not a list, it is assumed to be a single frequency.
+        If data is only available for a single frequency, then a float or integer may be passed
+        instead of a one-element list.
 
     Examples
     --------
 
     >>> import pyaedt
     >>> from pyaedt.modules.solutions import FfdSolutionData
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> eep_files = data.eep_files
     >>> frequencies = data.frequencies
     >>> app.release_desktop()
     >>> farfield_data = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
-    >>> farfield_data.polar_plot_3d_pyvista(qty_str="rETotal", quantity_format="dB10")
+    >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
     def __init__(
@@ -1110,7 +1571,7 @@ class FfdSolutionData(object):
         eep_files,
         frequencies,
     ):
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("Global")
 
         self._raw_data = {}
         self.farfield_data = {}
@@ -1158,7 +1619,7 @@ class FfdSolutionData(object):
         for eep in eep_files:
             metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
             if os.path.exists(metadata_file):
-                with open(metadata_file) as f:
+                with open_file(metadata_file) as f:
                     # Load JSON data from file
                     metadata = json.load(f)
                 self.model_info.append(metadata["model_info"])
@@ -1387,13 +1848,13 @@ class FfdSolutionData(object):
 
         lattice_vector = self._lattice_vector[self._freq_index]
 
-        Ax, Ay, Bx, By = [lattice_vector[0], lattice_vector[1], lattice_vector[3], lattice_vector[4]]
+        a_x, a_y, b_x, b_y = [lattice_vector[0], lattice_vector[1], lattice_vector[3], lattice_vector[4]]
 
-        phase_shift_A = -((Ax * k * np.sin(theta) * np.cos(phi)) + (Ay * k * np.sin(theta) * np.sin(phi)))
+        phase_shift_a = -((a_x * k * np.sin(theta) * np.cos(phi)) + (a_y * k * np.sin(theta) * np.sin(phi)))
 
-        phase_shift_B = -((Bx * k * np.sin(theta) * np.cos(phi)) + (By * k * np.sin(theta) * np.sin(phi)))
+        phase_shift_b = -((b_x * k * np.sin(theta) * np.cos(phi)) + (b_y * k * np.sin(theta) * np.sin(phi)))
 
-        phase_shift = a * phase_shift_A + b * phase_shift_B
+        phase_shift = a * phase_shift_a + b * phase_shift_b
 
         return np.rad2deg(phase_shift)
 
@@ -1504,17 +1965,23 @@ class FfdSolutionData(object):
         return farfield_data
 
     # fmt: off
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(farfield_quantity="quantity",
+                             phi_scan="phi",
+                             theta_scan="theta",
+                             export_image_path="image_path")
     def plot_farfield_contour(
             self,
-            farfield_quantity="RealizedGain",
-            phi_scan=0,
-            theta_scan=0,
-            title="RectangularPlot",
+            quantity="RealizedGain",
+            phi=0,
+            theta=0,
+            size=None,
+            title=None,
             quantity_format="dB10",
-            export_image_path=None,
+            image_path=None,
             levels=64,
             show=True,
+            polar=True,
+            max_theta=180,
             **kwargs
     ):
         # fmt: on
@@ -1522,98 +1989,139 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        farfield_quantity : str, optional
+        quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
-        phi_scan : float, int, optional
+        phi : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
-        theta_scan : float, int, optional
+        theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
+        size : tuple, optional
+            Image size in pixel (width, height). The default is ``None``, in which case resolution
+            is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        export_image_path : str, optional
+        image_path : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
             Color map levels. The default is ``64``.
         show : bool, optional
             Whether to show the plot. The default is ``True``. If ``False``, the Matplotlib
             instance of the plot is shown.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
+        max_theta : float or int, optional
+            Maxmum theta angle for plotting. The default is ``180``, which plots the far-field data for
+            all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
+            hemisphere, that is (0 < theta < 90).
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
-            If ``show=True``, a Matplotlib figure instance of the plot is returned.
-            If ``show=False``, the plotted curve is returned.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2024.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_farfield_contour()
 
         """
+        if not title:
+            title = quantity
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
                 quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
             elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
-                farfield_quantity = kwargs["qty_str"]
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
+                quantity = kwargs["qty_str"]
             else:  # pragma: no cover
                 msg = "{} not valid.".format(k)
                 self.logger.error(msg)
                 raise TypeError(msg)
 
-        data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:  # pragma: no cover
+        data = self.combine_farfield(phi, theta)
+        if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
+        select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
-        data_to_plot = data[farfield_quantity]
+        data_to_plot = data[quantity][select, :]
         data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
-        data_to_plot = np.reshape(data_to_plot, (data["nTheta"], data["nPhi"]))
-        th, ph = np.meshgrid(data["Theta"], data["Phi"])
-        if show:
-            return plot_contour(
-                x=th,
-                y=ph,
-                qty_to_plot=data_to_plot,
-                xlabel="Theta (degree)",
-                ylabel="Phi (degree)",
-                title=title,
-                levels=levels,
-                snapshot_path=export_image_path,
-            )
+        ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
+        ph = ph * np.pi/180 if polar else ph
+        # Convert to radians for polar plot.
+
+        # TODO: Is it necessary to set the plot size?
+
+        default_figsize = plt.rcParams["figure.figsize"]
+        if size:  # Retain this code to remain consistent with other plotting methods.
+            dpi = 100.0
+            figsize = (size[0] / dpi, size[1] / dpi)
+            plt.rcParams["figure.figsize"] = figsize
         else:
-            return data_to_plot
+            figsize = default_figsize
+
+        projection = 'polar' if polar else 'rectilinear'
+        fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
+
+        fig.suptitle(title)
+        ax.set_xlabel("$\phi$ (Degrees)")
+        if polar:
+            ax.set_rticks(np.linspace(0, max_theta, 3))
+        else:
+            ax.set_ylabel("$\\theta (Degrees")
+
+        plt.contourf(
+            ph,
+            th,
+            data_to_plot,
+            levels=levels,
+            cmap="jet",
+        )
+        cbar = plt.colorbar()
+        cbar.set_label(quantity_format, rotation=270, labelpad=20)
+
+        if image_path:
+            plt.savefig(image_path)
+        if show:  # pragma: no cover
+            plt.show()
+
+        plt.rcParams["figure.figsize"] = default_figsize
+        return fig
 
     # fmt: off
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(farfield_quantity="quantity",
+                             phi_scan="phi",
+                             theta_scan="theta",
+                             export_image_path="image_path")
     def plot_2d_cut(
             self,
-            farfield_quantity="RealizedGain",
+            quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=0,
-            phi_scan=0,
-            theta_scan=0,
+            phi=0,
+            theta=0,
             title="Far Field Cut",
             quantity_format="dB10",
-            export_image_path=None,
+            image_path=None,
             show=True,
             is_polar=False,
+            show_legend=True,
             **kwargs
     ):
         # fmt: on
@@ -1621,7 +2129,7 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        farfield_quantity : str, optional
+        quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
@@ -1630,9 +2138,9 @@ class FfdSolutionData(object):
         secondary_sweep_value : float, list, string, optional
             List of cuts on the secondary sweep to plot. The default is ``0``. Options are
             `"all"`, a single value float, or a list of float values.
-        phi_scan : float, int, optional
+        phi : float, int, optional
             Phi scan angle in degrees. The default is ``0``.
-        theta_scan : float, int, optional
+        theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
@@ -1640,52 +2148,51 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        export_image_path : str, optional
+        image_path : str, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
             If ``False``, the Matplotlib instance of the plot is shown.
         is_polar : bool, optional
             Whether this plot is a polar plot. The default is ``True``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
-
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
-        >>> data.plot_2d_cut(theta_scan=20)
-
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+        >>> data.plot_2d_cut(theta=20)
         """
-
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
                 quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
             elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
-                farfield_quantity = kwargs["qty_str"]
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
+                quantity = kwargs["qty_str"]
             else:  # pragma: no cover
                 msg = "{} not valid.".format(k)
                 self.logger.error(msg)
                 raise TypeError(msg)
 
-        data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:  # pragma: no cover
+        data = self.combine_farfield(phi, theta)
+        if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity not available")
             return False
 
-        data_to_plot = data[farfield_quantity]
+        data_to_plot = data[quantity]
 
         curves = []
         if primary_sweep == "phi":
@@ -1727,41 +2234,43 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        if show:
-            show_legend = True
-            if len(curves) > 15:
-                show_legend = False
-            if is_polar:
-                return plot_polar_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=farfield_quantity,
-                    title=title,
-                    snapshot_path=export_image_path,
-                    show_legend=show_legend,
-                )
-            else:
-                return plot_2d_chart(
-                    curves,
-                    xlabel=x_key,
-                    ylabel=farfield_quantity,
-                    title=title,
-                    snapshot_path=export_image_path,
-                    show_legend=show_legend,
-                )
+        # FIXME: See if we need to keep this check on the curves length
+        # if len(curves) > 15:
+        #     show_legend = False
+        if is_polar:
+            return plot_polar_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
         else:
-            return curves
+            return plot_2d_chart(
+                curves,
+                xlabel=x_key,
+                ylabel=quantity,
+                title=title,
+                snapshot_path=image_path,
+                show_legend=show_legend,
+                show=show,
+            )
 
     # fmt: off
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(farfield_quantity="quantity",
+                             phi_scan="phi",
+                             theta_scan="theta",
+                             export_image_path="image_path")
     def polar_plot_3d(
             self,
-            farfield_quantity="RealizedGain",
-            phi_scan=0,
-            theta_scan=0,
+            quantity="RealizedGain",
+            phi=0,
+            theta=0,
             title="3D Plot",
             quantity_format="dB10",
-            export_image_path=None,
+            image_path=None,
             show=True,
             **kwargs
     ):
@@ -1770,13 +2279,13 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        farfield_quantity : str, optional
+        quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
-        phi_scan : float, int, optional
+        phi : float, int, optional
             Phi scan angle in degree. The default is ``0``.
-        theta_scan : float, int, optional
+        theta : float, int, optional
             Theta scan angle in degree. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"3D Plot"``.
@@ -1784,48 +2293,47 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        export_image_path : str, optional
+        image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
-            If ``False``, the Matplotlib instance of the plot is shown.
+            If ``False``, the Matplotlib instance of the plot is not shown.
 
         Returns
         -------
-        :class:`matplotlib.plt`
-            Whether to show the plotted curve.
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
             If ``show=True``, a Matplotlib figure instance of the plot is returned.
             If ``show=False``, the plotted curve is returned.
 
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
-        >>> data.polar_plot_3d(theta_scan=10)
-
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+        >>> data.polar_plot_3d(theta=10)
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
                 quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
             elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
-                farfield_quantity = kwargs["qty_str"]
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
+                quantity = kwargs["qty_str"]
             else:  # pragma: no cover
                 msg = "{} not valid.".format(k)
                 self.logger.error(msg)
                 raise TypeError(msg)
 
-        data = self.combine_farfield(phi_scan, theta_scan)
-        if farfield_quantity not in data:  # pragma: no cover
+        data = self.combine_farfield(phi, theta)
+        if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
 
-        ff_data = conversion_function(data[farfield_quantity], quantity_format)
+        ff_data = conversion_function(data[quantity], quantity_format)
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
             self.logger.error("Format of the quantity is wrong.")
             return False
@@ -1843,19 +2351,16 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        if show:
-            plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=export_image_path)
-        else:
-            return x, y, z
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
 
     # fmt: off
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
     def polar_plot_3d_pyvista(
             self,
-            farfield_quantity="RealizedGain",
+            quantity="RealizedGain",
             quantity_format="dB10",
             rotation=None,
-            export_image_path=None,
+            image_path=None,
             show=True,
             show_as_standalone=False,
             pyvista_object=None,
@@ -1870,7 +2375,7 @@ class FfdSolutionData(object):
 
         Parameters
         ----------
-        farfield_quantity : str, optional
+        quantity : str, optional
             Quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
@@ -1878,7 +2383,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        export_image_path : str, optional
+        image_path : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         rotation : list, optional
             Far field rotation matrix. The matrix contains three vectors, around x, y, and z axes.
@@ -1909,21 +2414,20 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
-        >>> data.polar_plot_3d_pyvista(qty_str="RealizedGain", quantity_format="dB10")
-
+        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+        >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
                 self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
                 quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
             elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `farfield_quantity` instead.")
-                farfield_quantity = kwargs["qty_str"]
+                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
+                quantity = kwargs["qty_str"]
             else:  # pragma: no cover
                 msg = "{} not valid.".format(k)
                 self.logger.error(msg)
@@ -1939,17 +2443,17 @@ class FfdSolutionData(object):
             text_color = "black"
 
         farfield_data = self.combine_farfield(phi_scan=0, theta_scan=0)
-        if farfield_quantity not in farfield_data:  # pragma: no cover
+        if quantity not in farfield_data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
 
         self.farfield_data = farfield_data
 
-        self.mesh = self.get_far_field_mesh(farfield_quantity=farfield_quantity, quantity_format=quantity_format)
+        self.mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
-        if not export_image_path and not show:
+        if not image_path and not show:
             off_screen = False
         else:
             off_screen = not show
@@ -1962,7 +2466,7 @@ class FfdSolutionData(object):
         else:  # pragma: no cover
             p = pyvista_object
 
-        uf = UpdateBeamForm(self, farfield_quantity, quantity_format)
+        uf = UpdateBeamForm(self, quantity, quantity_format)
 
         default_background = [255, 255, 255]
         axes_color = [i / 255 for i in default_background]
@@ -1983,7 +2487,7 @@ class FfdSolutionData(object):
                 pointa=(0.55, 0.1),
                 pointb=(0.74, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )
@@ -1995,7 +2499,7 @@ class FfdSolutionData(object):
                 pointa=(0.77, 0.1),
                 pointb=(0.98, 0.1),
                 style="modern",
-                event_type="always",
+                interaction_event="always",
                 title_height=0.02,
                 color=axes_color,
             )
@@ -2019,7 +2523,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[farfield_quantity], function_str=quantity_format)
+        data = conversion_function(self.farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -2081,12 +2585,10 @@ class FfdSolutionData(object):
 
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
-        if export_image_path:
-            p.show(screenshot=export_image_path)
-            return True
-        elif show:  # pragma: no cover
+        if image_path:
+            p.show(screenshot=image_path)
+        if show:  # pragma: no cover
             p.show()
-            return True
         return p
 
     @pyaedt_function_handler()
@@ -2108,7 +2610,7 @@ class FfdSolutionData(object):
         valid_ffd = True
 
         if os.path.exists(eep_file_info[all_ports[0]][0]):
-            with open(eep_file_info[all_ports[0]][0], "r") as reader:
+            with open_file(eep_file_info[all_ports[0]][0], "r") as reader:
                 theta = [int(i) for i in reader.readline().split()]
                 phi = [int(i) for i in reader.readline().split()]
             reader.close()
@@ -2138,13 +2640,13 @@ class FfdSolutionData(object):
 
         return True
 
-    @pyaedt_function_handler()
-    def get_far_field_mesh(self, farfield_quantity="RealizedGain", quantity_format="dB10", **kwargs):
+    @pyaedt_function_handler(farfield_quantity="quantity")
+    def get_far_field_mesh(self, quantity="RealizedGain", quantity_format="dB10", **kwargs):
         """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
         ----------
-        farfield_quantity : str, optional
+        quantity : str, optional
             Far field quantity to plot. The default is ``"RealizedGain"``.
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Phi"``, ``"RealizedGain_Theta"``,
             ``"rEPhi"``, ``"rETheta"``, and ``"rETotal"``.
@@ -2157,7 +2659,6 @@ class FfdSolutionData(object):
         -------
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
-
         """
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
@@ -2168,11 +2669,11 @@ class FfdSolutionData(object):
                 self.logger.error(msg)
                 raise TypeError(msg)
 
-        if farfield_quantity not in self.farfield_data:
+        if quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
             return False
 
-        data = self.farfield_data[farfield_quantity]
+        data = self.farfield_data[quantity]
 
         ff_data = conversion_function(data, quantity_format)
 
@@ -2202,7 +2703,7 @@ class FfdSolutionData(object):
         """
         self._eep_file_info_list.append({})
         if os.path.exists(eep_path):
-            with open(eep_path, "r") as reader:
+            with open_file(eep_path, "r") as reader:
                 lines = [line.split(None) for line in reader]
             lines = lines[1:]  # remove header
             for pattern in lines:
@@ -2361,7 +2862,7 @@ class FfdSolutionData(object):
                 try:
                     str1 = port.split("[", 1)[1].split("]", 1)[0]
                     port_index[port] = [int(i) - index_offset for i in str1.split(",")]
-                except:
+                except Exception:
                     return False
             else:
                 if not port_index:
@@ -2398,7 +2899,19 @@ class FfdSolutionData(object):
 
 
 class FfdSolutionDataExporter(FfdSolutionData):
-    """Export far field solution data.
+    """Class to enable export of embedded element pattern data from HFSS.
+
+    An instance of this class is returned from the
+    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
+    the embedded
+    element pattern (EEP) files for an antenna array that have been solved in HFSS. The
+    ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
+    instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
+    subsequent analysis and postprocessing of the array data.
+
+    Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
+    far-field postprocessing and array analysis, but it remains a property of the
+    :class:`pyaedt.Hfss` application.
 
     Parameters
     ----------
@@ -2419,13 +2932,12 @@ class FfdSolutionDataExporter(FfdSolutionData):
     Examples
     --------
     >>> import pyaedt
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies, setup_name, sphere)
-    >>> data.polar_plot_3d_pyvista(qty_str="rETotal", quantity_format="dB10")
-
+    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+    >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
     def __init__(
@@ -2495,7 +3007,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                             self.setup_name,
                         ]
                     )
-                except:
+                except Exception:
                     self._app.logger.error("Failed to export one element pattern.")
                     self._app.logger.error(export_path + exported_name_base + ".ffd")
 
@@ -2529,7 +3041,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
                     ]
                     items["lattice_vector"] = component_array.lattice_vector()
 
-                with open(metadata_file_name, "w") as f:
+                with open_file(metadata_file_name, "w") as f:
                     json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
@@ -2582,13 +3094,14 @@ class UpdateBeamForm:
             and ``"real"``.
     """
 
+    @pyaedt_function_handler(farfield_quantity="quantity")
     def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
         self.output = ff.mesh
         self._phi = 0
         self._theta = 0
         # default parameters
         self.ff = ff
-        self.farfield_quantity = farfield_quantity
+        self.quantity = farfield_quantity
         self.quantity_format = quantity_format
 
     @pyaedt_function_handler()
@@ -2596,9 +3109,9 @@ class UpdateBeamForm:
         """Update far field."""
         self.ff.farfield_data = self.ff.combine_farfield(phi_scan=self._phi, theta_scan=self._theta)
 
-        self.ff.mesh = self.ff.get_far_field_mesh(self.farfield_quantity, self.quantity_format)
+        self.ff.mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
 
-        self.output.overwrite(self.ff.mesh)
+        self.output.copy_from(self.ff.mesh)
         return
 
     @pyaedt_function_handler()
@@ -2620,45 +3133,57 @@ class FieldPlot:
     Parameters
     ----------
     postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
-    objlist : list
+    objects : list
         List of objects.
-    solutionName : str
+    solution : str
         Name of the solution.
-    quantityName : str
+    quantity : str
         Name of the plot or the name of the object.
-    intrinsincList : dict, optional
+    intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
 
+    @pyaedt_function_handler(
+        objlist="objects",
+        surfacelist="surfaces",
+        linelist="lines",
+        cutplanelist="cutplanes",
+        solutionName="solution",
+        quantityName="quantity",
+        IntrinsincList="intrinsics",
+        seedingFaces="seeding_faces",
+        layers_nets="layer_nets",
+        layers_plot_type="layer_plot_type",
+    )
     def __init__(
         self,
         postprocessor,
-        objlist=[],
-        surfacelist=[],
-        linelist=[],
-        cutplanelist=[],
-        solutionName="",
-        quantityName="",
-        intrinsincList={},
-        seedingFaces=[],
-        layers_nets=[],
-        layers_plot_type="LayerNetsExtFace",
+        objects=None,
+        surfaces=None,
+        lines=None,
+        cutplanes=None,
+        solution="",
+        quantity="",
+        intrinsics=None,
+        seeding_faces=None,
+        layer_nets=None,
+        layer_plot_type="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
-        self.volume_indexes = objlist
-        self.surfaces_indexes = surfacelist
-        self.line_indexes = linelist
-        self.cutplane_indexes = cutplanelist
-        self.layers_nets = layers_nets
-        self.layers_plot_type = layers_plot_type
-        self.seeding_faces = seedingFaces
-        self.solutionName = solutionName
-        self.quantityName = quantityName
-        self.intrinsincList = intrinsincList
+        self.volumes = [] if objects is None else objects
+        self.surfaces = [] if surfaces is None else surfaces
+        self.lines = [] if lines is None else lines
+        self.cutplanes = [] if cutplanes is None else cutplanes
+        self.layer_nets = [] if layer_nets is None else layer_nets
+        self.layer_plot_type = layer_plot_type
+        self.seeding_faces = [] if seeding_faces is None else seeding_faces
+        self.solution = solution
+        self.quantity = quantity
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
-        self.plotFolder = "Field_Plot"
+        self.plot_folder = "Field_Plot"
         self.Filled = False
         self.IsoVal = "Fringe"
         self.SmoothShade = True
@@ -2704,32 +3229,32 @@ class FieldPlot:
     def plotGeomInfo(self):
         """Plot geometry information."""
         idx = 0
-        if self.volume_indexes:
+        if self.volumes:
             idx += 1
-        if self.surfaces_indexes:
+        if self.surfaces:
             idx += 1
-        if self.cutplane_indexes:
+        if self.cutplanes:
             idx += 1
-        if self.line_indexes:
+        if self.lines:
             idx += 1
-        if self.layers_nets:
+        if self.layer_nets:
             idx += 1
 
         info = [idx]
-        if self.volume_indexes:
+        if self.volumes:
             info.append("Volume")
             info.append("ObjList")
-            info.append(len(self.volume_indexes))
-            for index in self.volume_indexes:
+            info.append(len(self.volumes))
+            for index in self.volumes:
                 info.append(str(index))
-        if self.surfaces_indexes:
+        if self.surfaces:
             model_faces = []
             nonmodel_faces = []
             if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
-                model_faces = [str(i) for i in self.surfaces_indexes]
+                model_faces = [str(i) for i in self.surfaces]
             else:
                 models = self._postprocessor.modeler.model_objects
-                for index in self.surfaces_indexes:
+                for index in self.surfaces:
                     try:
                         if isinstance(index, FacePrimitive):
                             index = index.id
@@ -2738,7 +3263,7 @@ class FieldPlot:
                             model_faces.append(str(index))
                         else:
                             nonmodel_faces.append(str(index))
-                    except:
+                    except Exception:
                         pass
             info.append("Surface")
             if model_faces:
@@ -2751,26 +3276,26 @@ class FieldPlot:
                 info.append(len(nonmodel_faces))
                 for index in nonmodel_faces:
                     info.append(index)
-        if self.cutplane_indexes:
+        if self.cutplanes:
             info.append("Surface")
             info.append("CutPlane")
-            info.append(len(self.cutplane_indexes))
-            for index in self.cutplane_indexes:
+            info.append(len(self.cutplanes))
+            for index in self.cutplanes:
                 info.append(str(index))
-        if self.line_indexes:
+        if self.lines:
             info.append("Line")
-            info.append(len(self.line_indexes))
-            for index in self.line_indexes:
+            info.append(len(self.lines))
+            for index in self.lines:
                 info.append(str(index))
-        if self.layers_nets:
-            if self.layers_plot_type == "LayerNets":
+        if self.layer_nets:
+            if self.layer_plot_type == "LayerNets":
                 info.append("Volume")
                 info.append("LayerNets")
             else:
                 info.append("Surface")
                 info.append("LayerNetsExtFace")
-            info.append(len(self.layers_nets))
-            for index in self.layers_nets:
+            info.append(len(self.layer_nets))
+            for index in self.layer_nets:
                 info.append(index[0])
                 info.append(len(index[1:]))
                 info.extend(index[1:])
@@ -2783,21 +3308,11 @@ class FieldPlot:
         Returns
         -------
         list or dict
-            List or dictionary of the variables for the field plot.
+            Variables for the field plot.
         """
         var = ""
-        if type(self.intrinsincList) is list:
-            l = 0
-            while l < len(self.intrinsincList):
-                val = self.intrinsincList[l + 1]
-                if ":=" in self.intrinsincList[l] and isinstance(self.intrinsincList[l + 1], list):
-                    val = self.intrinsincList[l + 1][0]
-                ll = self.intrinsincList[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsincList:
-                var += a + "='" + str(self.intrinsincList[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @property
@@ -2809,11 +3324,7 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if (
-            self.surfaces_indexes
-            or self.cutplane_indexes
-            or (self.layers_nets and self.layers_plot_type == "LayerNetsExtFace")
-        ):
+        if self.surfaces or self.cutplanes or (self.layer_nets and self.layer_plot_type == "LayerNetsExtFace"):
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",
@@ -2846,7 +3357,7 @@ class FieldPlot:
                 "GridColor:=",
                 self.GridColor,
             ]
-        elif self.line_indexes:
+        elif self.lines:
             arg = [
                 "NAME:PlotOnLineSettings",
                 ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
@@ -2896,16 +3407,15 @@ class FieldPlot:
         -------
         list
             List of surface plot settings.
-
         """
         out = [
             "NAME:" + self.name,
             "SolutionName:=",
-            self.solutionName,
+            self.solution,
             "QuantityName:=",
-            self.quantityName,
+            self.quantity,
             "PlotFolder:=",
-            self.plotFolder,
+            self.plot_folder,
         ]
         if self.field_type:
             out.extend(["FieldType:=", self.field_type])
@@ -2930,6 +3440,8 @@ class FieldPlot:
                 self.plotsettings,
                 "EnableGaussianSmoothing:=",
                 False,
+                "SurfaceOnly:=",
+                True if self.surfaces or self.cutplanes else False,
             ]
         )
         return out
@@ -2945,12 +3457,11 @@ class FieldPlot:
         -------
         list
             List of plot settings for line traces.
-
         """
         out = [
             "NAME:" + self.name,
             "SolutionName:=",
-            self.solutionName,
+            self.solution,
             "UserSpecifyName:=",
             0,
             "UserSpecifyFolder:=",
@@ -2958,7 +3469,7 @@ class FieldPlot:
             "QuantityName:=",
             "QuantityName_FieldLineTrace",
             "PlotFolder:=",
-            self.plotFolder,
+            self.plot_folder,
         ]
         if self.field_type:
             out.extend(["FieldType:=", self.field_type])
@@ -2975,9 +3486,9 @@ class FieldPlot:
                 "Seeding Markers:=",
                 [0],
                 "Surface Tracing Objects:=",
-                self.surfaces_indexes,
+                self.surfaces,
                 "Volume Tracing Objects:=",
-                self.volume_indexes,
+                self.volumes,
                 "Seeding Sampling Option:=",
                 self.SeedingSamplingOption,
                 "Seeding Points Number:=",
@@ -3075,15 +3586,22 @@ class FieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.seeding_faces:
                 self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
             else:
                 self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            if (
+                "Maxwell" in self._postprocessor._app.design_type
+                and "Transient" in self._postprocessor.post_solution_type
+            ):
+                self._postprocessor.ofieldsreporter.SetPlotsViewSolutionContext(
+                    [self.name], self.solution, "Time:" + self.intrinsics["Time"]
+                )
+            self._postprocessor.field_plots[self.name] = self
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3112,33 +3630,33 @@ class FieldPlot:
                                 self.seeding_faces.remove(face)
                                 return False
                     self.seeding_faces[0] = len(self.seeding_faces) - 1
-                if self.volume_indexes[0] != len(self.volume_indexes) - 1:
-                    for obj in self.volume_indexes[1:]:
+                if self.volumes[0] != len(self.volumes) - 1:
+                    for obj in self.volumes[1:]:
                         if not isinstance(obj, int):
                             self._postprocessor.logger.error("Provide valid object id for in-volume object.")
                             return False
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
                                 self._postprocessor.logger.error("Invalid object id.")
-                                self.volume_indexes.remove(obj)
+                                self.volumes.remove(obj)
                                 return False
-                    self.volume_indexes[0] = len(self.volume_indexes) - 1
-                if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
-                    for obj in self.surfaces_indexes[1:]:
+                    self.volumes[0] = len(self.volumes) - 1
+                if self.surfaces[0] != len(self.surfaces) - 1:
+                    for obj in self.surfaces[1:]:
                         if not isinstance(obj, int):
                             self._postprocessor.logger.error("Provide valid object id for surface object.")
                             return False
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
                                 self._postprocessor.logger.error("Invalid object id.")
-                                self.surfaces_indexes.remove(obj)
+                                self.surfaces.remove(obj)
                                 return False
-                    self.surfaces_indexes[0] = len(self.surfaces_indexes) - 1
+                    self.surfaces[0] = len(self.surfaces) - 1
                 self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstructionLineTraces)
             else:
                 self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3180,11 +3698,10 @@ class FieldPlot:
         Returns
         -------
         bool
-            ``True`` if successful.
+            ``True`` when successful, ``False`` when failed.
 
         References
         ----------
-
         >>> oModule.SetPlotFolderSettings
         """
         args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
@@ -3216,11 +3733,23 @@ class FieldPlot:
                 1,
             ]
         ]
-        self.oField.SetPlotFolderSettings(self.plotFolder, args)
+        self.oField.SetPlotFolderSettings(self.plot_folder, args)
         return True
 
     @pyaedt_function_handler()
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
+    def export_image(
+        self,
+        full_path=None,
+        width=1920,
+        height=1080,
+        orientation="isometric",
+        display_wireframe=True,
+        selections=None,
+        show_region=True,
+        show_axis=True,
+        show_grid=True,
+        show_ruler=True,
+    ):
         """Export the active plot to an image file.
 
         .. note::
@@ -3238,7 +3767,22 @@ class FieldPlot:
             ``top``, ``bottom``, ``right``, ``left``, ``front``,
             ``back``, and any custom orientation.
         display_wireframe : bool, optional
-            Set to ``True`` if the objects has to be put in wireframe mode.
+            Whether the objects has to be put in wireframe mode. Default is ``True``.
+        selections : str or List[str], optional
+            Objects to fit for the zoom on the exported image.
+            Default is None in which case all the objects in the design will be shown.
+            One important note is that, if the fieldplot extension is larger than the
+            selection extension, the fieldplot extension will be the one considered
+            for the zoom of the exported image.
+        show_region : bool, optional
+            Whether to include the air region in the exported image. Default is ``True``.
+        show_grid : bool, optional
+            Whether to display the background grid in the exported image.
+            Default is ``True``.
+        show_axis : bool, optional
+            Whether to display the axis triad in the exported image. Default is ``True``.
+        show_ruler : bool, optional
+            Whether to display the ruler in the exported image. Default is ``True``.
 
         Returns
         -------
@@ -3247,23 +3791,28 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.ExportPlotImageToFile
         >>> oModule.ExportModelImageToFile
         >>> oModule.ExportPlotImageWithViewToFile
         """
-        self.oField.UpdateQuantityFieldsPlots(self.plotFolder)
+        self.oField.UpdateQuantityFieldsPlots(self.plot_folder)
         if not full_path:
             full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
         status = self._postprocessor.export_field_jpg(
             full_path,
             self.name,
-            self.plotFolder,
+            self.plot_folder,
             orientation=orientation,
             width=width,
             height=height,
             display_wireframe=display_wireframe,
+            selections=selections,
+            show_region=show_region,
+            show_axis=show_axis,
+            show_grid=show_grid,
+            show_ruler=show_ruler,
         )
+        full_path = check_and_download_file(full_path)
         if status:
             return full_path
         else:
@@ -3299,7 +3848,6 @@ class FieldPlot:
 
         References
         ----------
-
         >>> oModule.UpdateAllFieldsPlots
         >>> oModule.UpdateQuantityFieldsPlots
         >>> oModule.ExportFieldPlot
@@ -3313,7 +3861,7 @@ class FieldPlot:
                 meshplot=plot_mesh,
                 imageformat="jpg",
                 view=view,
-                plot_label=self.quantityName,
+                plot_label=self.quantity,
                 show=False,
                 scale_min=scale_min,
                 scale_max=scale_max,
@@ -3331,7 +3879,7 @@ class VRTFieldPlot:
     postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
     is_creeping_wave : bool
         Whether it is a creeping wave model or not.
-    quantity_name : str, optional
+    quantity : str, optional
         Name of the plot or the name of the object.
     max_frequency : str, optional
         Maximum Frequency. The default is ``"1GHz"``.
@@ -3339,26 +3887,27 @@ class VRTFieldPlot:
         Ray Density. The default is ``2``.
     bounces : int, optional
         Maximum number of bounces. The default is ``5``.
-    intrinsinc_list : dict, optional
+    intrinsics : dict, optional
         Name of the intrinsic dictionary. The default is ``{}``.
 
     """
 
+    @pyaedt_function_handler(quantity_name="quantity")
     def __init__(
         self,
         postprocessor,
         is_creeping_wave=False,
-        quantity_name="QuantityName_SBR",
+        quantity="QuantityName_SBR",
         max_frequency="1GHz",
         ray_density=2,
         bounces=5,
-        intrinsinc_list={},
+        intrinsics=None,
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
-        self.quantity_name = quantity_name
-        self.intrinsics = intrinsinc_list
+        self.quantity = quantity
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency
@@ -3390,22 +3939,12 @@ class VRTFieldPlot:
 
         Returns
         -------
-        list or dict
-            List or dictionary of the variables for the field plot.
+        str
+            Variables for the field plot.
         """
         var = ""
-        if isinstance(self.intrinsics, list):
-            l = 0
-            while l < len(self.intrinsics):
-                val = self.intrinsics[l + 1]
-                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
-                    val = self.intrinsics[l + 1][0]
-                ll = self.intrinsics[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsics:
-                var += a + "='" + str(self.intrinsics[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @pyaedt_function_handler()
@@ -3417,7 +3956,7 @@ class VRTFieldPlot:
             "UserSpecifyFolder:=",
             0,
             "QuantityName:=",
-            self.quantity_name,
+            self.quantity,
             "PlotFolder:=",
             "Visual Ray Trace SBR",
             "IntrinsicVar:=",
@@ -3453,7 +3992,7 @@ class VRTFieldPlot:
             if isinstance(self.ray_box, int):
                 box_id = self.ray_box
             elif isinstance(self.ray_box, str):
-                box_id = self._postprocessor._primitives._object_names_to_ids[self.ray_box]
+                box_id = self._postprocessor._primitives.objects[self.ray_box].id
             else:
                 box_id = self.ray_box.id
             args.extend("FilterBoxID:=", box_id)
@@ -3487,7 +4026,7 @@ class VRTFieldPlot:
             "UserSpecifyFolder:=",
             0,
             "QuantityName:=",
-            self.quantity_name,
+            self.quantity,
             "PlotFolder:=",
             "Visual Ray Trace CW",
             "IntrinsicVar:=",
@@ -3530,7 +4069,6 @@ class VRTFieldPlot:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         try:
             if self.is_creeping_wave:
@@ -3538,7 +4076,7 @@ class VRTFieldPlot:
             else:
                 self._ofield.CreateFieldPlot(self._create_args(), "VRT")
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3557,7 +4095,7 @@ class VRTFieldPlot:
             else:
                 self._ofield.ModifyFieldPlot(self.name, self._create_args())
             return True
-        except:
+        except Exception:
             return False
 
     @pyaedt_function_handler()
@@ -3566,21 +4104,22 @@ class VRTFieldPlot:
         self._ofield.DeleteFieldPlot([self.name])
         return True
 
-    @pyaedt_function_handler()
-    def export(self, path_to_hdm_file=None):
+    @pyaedt_function_handler(path_to_hdm_file="path")
+    def export(self, path=None):
         """Export the Visual Ray Tracing to ``hdm`` file.
 
         Parameters
         ----------
-        path_to_hdm_file : str, optional
-            Full path to output file. If ``None``, the file will be exported in working directory.
+        path : str, optional
+            Full path to the output file. The default is ``None``, in which case the file is
+            exported to the working directory.
 
         Returns
         -------
         str
             Path to the file.
         """
-        if not path_to_hdm_file:
-            path_to_hdm_file = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
-        self._ofield.ExportFieldPlot(self.name, False, path_to_hdm_file)
-        return path_to_hdm_file
+        if not path:
+            path = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
+        self._ofield.ExportFieldPlot(self.name, False, path)
+        return path

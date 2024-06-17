@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import itertools
 import json
 import os
@@ -5,6 +29,8 @@ import os
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 
 
@@ -108,6 +134,7 @@ class Cable:
         if json_file_name:
             self._init_from_json(json_file_name)
 
+    @pyaedt_function_handler()
     def create_cable(self):
         """Create a cable.
 
@@ -225,10 +252,11 @@ class Cable:
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable creation was unsuccessful.")
             return False
 
+    @pyaedt_function_handler()
     def update_cable_properties(self):
         """Update cable properties for all cable types.
 
@@ -298,10 +326,11 @@ class Cable:
                     ]
                 )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable properties not updated.")
             return False
 
+    @pyaedt_function_handler()
     def update_shielding(self):
         """Create jacket type when cable type is bundle and jacket type is braid shield.
 
@@ -345,10 +374,11 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Cable shielding properties not updated.")
             return False
 
+    @pyaedt_function_handler()
     def remove_cables(self):
         """Remove a list of cables.
 
@@ -369,10 +399,11 @@ class Cable:
                 try:
                     self._omodule.RemoveCable(cable_to_remove)
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Remove cable failed.")
                     return False
 
+    @pyaedt_function_handler()
     def add_cable_to_bundle(self):
         """Add a cable to an existing cable bundle.
 
@@ -392,13 +423,14 @@ class Cable:
                         ["NAME:CableInstAttribs", "Name:=", cable_to_add],
                     )
                     return True
-                except:
+                except Exception:
                     self._app.logger.error("Add cable to Bundle failed. Please check the provided cable names.")
                     return False
         else:
             self._app.logger.error("There is not any cable with the provided name.")
             return False
 
+    @pyaedt_function_handler()
     def create_clock_source(self):
         """Create a clock source.
 
@@ -427,10 +459,11 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
+    @pyaedt_function_handler()
     def update_clock_source(self):
         """Update clock source.
 
@@ -460,10 +493,11 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("Clock source not created.")
             return False
 
+    @pyaedt_function_handler()
     def remove_source(self):
         """Remove source.
 
@@ -475,10 +509,11 @@ class Cable:
         try:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
+    @pyaedt_function_handler()
     def remove_all_sources(self):
         """Remove all sources.
 
@@ -492,10 +527,11 @@ class Cable:
                 for source in self.existing_sources_names:
                     self._omodule.RemoveTimeDomainSource(source)
             return True
-        except:
+        except Exception:
             self._app.logger.error("Source could not be removed.")
             return False
 
+    @pyaedt_function_handler()
     def create_pwl_source(self):
         """Create a clock source.
 
@@ -518,10 +554,11 @@ class Cable:
                 ["NAME:TDSourceAttribs", "Name:=", self.pwl_source_name],
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
+    @pyaedt_function_handler()
     def create_pwl_source_from_file(self):
         """Create a pwl source from file.
 
@@ -535,10 +572,11 @@ class Cable:
                 self.pwl_source_file_path, ["NAME:TDSourceAttribs", "Name:=", generate_unique_name("pwl")]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source from file not created.")
             return False
 
+    @pyaedt_function_handler()
     def update_pwl_source(self):
         """Update pwl source.
 
@@ -576,10 +614,11 @@ class Cable:
                 ]
             )
             return True
-        except:
+        except Exception:
             self._app.logger.error("PWL source not created.")
             return False
 
+    @pyaedt_function_handler()
     def create_cable_harness(self):
         """Create cable harness.
 
@@ -688,7 +727,7 @@ class Cable:
             )
 
             return True
-        except:
+        except Exception:
             self._app.logger.error("Couldn't create cable harness.")
             return False
 
@@ -1409,6 +1448,6 @@ class Cable:
         omodule.ExportCableLibrary(file_path_export)
         file_path_export_as_json = os.path.join(working_dir, "export_cable_library_as_json_test.json")
         data = load_entire_aedt_file(file_path_export)
-        with open(file_path_export_as_json, "w") as f:
+        with open_file(file_path_export_as_json, "w") as f:
             json.dump(data, f)
         return data

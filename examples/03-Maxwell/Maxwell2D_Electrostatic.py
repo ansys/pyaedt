@@ -5,7 +5,6 @@ This example shows how you can use PyAEDT to create a Maxwell 2D electrostatic a
 It shows how to create the geometry, load material properties from an Excel file and
 set up the mesh settings. Moreover, it focuses on post-processing operations, in particular how to
 plot field line traces, relevant for an electrostatic analysis.
-
 """
 #################################################################################
 # Perform required imports
@@ -14,18 +13,23 @@ plot field line traces, relevant for an electrostatic analysis.
 
 import pyaedt
 
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
 #################################################################################
 # Initialize Maxwell 2D
 # ~~~~~~~~~~~~~~~~~~~~~
 # Initialize Maxwell 2D, providing the version, path to the project, and the design
 # name and type.
 
-desktopVersion = '2023.2'
-
-sName = 'MySetupAuto'
-sType = 'Electrostatic'
-dName = 'Design1'
-pName = pyaedt.generate_unique_project_name()
+setup_name = 'MySetupAuto'
+solver = 'Electrostatic'
+design_name = 'Design1'
+project_name = pyaedt.generate_unique_project_name()
 non_graphical = False
 
 #################################################################################
@@ -62,11 +66,11 @@ geom_params_rectangle = {
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(projectname=pName,
-                       specified_version=desktopVersion,
-                       designname=dName,
-                       solution_type=sType,
-                       new_desktop_session=True,
+M2D = pyaedt.Maxwell2d(project=project_name,
+                       version=aedt_version,
+                       design=design_name,
+                       solution_type=solver,
+                       new_desktop=True,
                        non_graphical=non_graphical
                        )
 
@@ -102,8 +106,8 @@ mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 # Create rectangle and a circle and assign the material read from the .xlsx file.
 # Create two new polylines and a region.
 
-rect = mod2D.create_rectangle(position=['r_x0', 'r_y0', 'r_z0'],
-                              dimension_list=['r_dx', 'r_dy', 0],
+rect = mod2D.create_rectangle(origin=['r_x0', 'r_y0', 'r_z0'],
+                              sizes=['r_dx', 'r_dy', 0],
                               name='Ground', matname=mats[0])
 rect.color = (0, 0, 255)  # rgb
 rect.solve_inside = False
@@ -115,8 +119,8 @@ circle.solve_inside = False
 
 poly1_points = [[-9, 2, 0], [-4, 2, 0], [2, -2, 0],[8, 2, 0]]
 poly2_points = [[-9, 0, 0], [9, 0, 0]]
-poly1_id = mod2D.create_polyline(position_list=poly1_points,segment_type='Spline', name='Poly1')
-poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
+poly1_id = mod2D.create_polyline(points=poly1_points, segment_type='Spline', name='Poly1')
+poly2_id = mod2D.create_polyline(points=poly2_points, name='Poly2')
 mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
 mod2D.create_region([20, 100, 20, 100])
 
@@ -133,18 +137,18 @@ M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
-M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
+M2D.mesh.assign_surface_mesh_manual(assignment=['Ground'], surface_deviation=0.001)
 
 ##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
 
-setup = M2D.create_setup(setupname=sName)
+setup = M2D.create_setup(name=setup_name)
 setup.props['PercentError'] = 0.5
 setup.update()
 M2D.validate_simple()
-M2D.analyze_setup(sName)
+M2D.analyze_setup(setup_name)
 
 ##################################################################################
 # Evaluate the E Field tangential component
@@ -152,7 +156,7 @@ M2D.analyze_setup(sName)
 # Evaluate the E Field tangential component along the given polylines.
 # Add these operations to the Named Expression list in Field Calculator.
 
-fields = M2D.odesign.GetModule('FieldsReporter')
+fields = M2D.ofieldsreporter
 fields.CalcStack("clear")
 fields.EnterQty("E")
 fields.EnterEdge("Poly1")
@@ -172,9 +176,8 @@ fields.AddNamedExpression("e_tan_poly2", "Fields")
 # the ground, the electrode and the region
 # and as ``In surface objects`` only the region.
 
-plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"],
-                                             "Region",
-                                             plot_name="LineTracesTest")
+plot = M2D.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
+                                             in_volume_tracing_objs="Region", plot_name="LineTracesTest")
 
 ###################################################################################
 # Update Field Line Traces Plot
@@ -186,6 +189,21 @@ plot.SeedingPointsNumber = 20
 plot.LineStyle = "Cylinder"
 plot.LineWidth = 3
 plot.update()
+
+###################################################################################
+# Export field line traces plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Export field line traces plot.
+# For field lint traces plot, the export file format is ``.fldplt``.
+
+M2D.post.export_field_plot(plot_name="LineTracesTest", output_dir=M2D.toolkit_directory, file_format="fldplt")
+
+##########################################################
+# Export the mesh field plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Export the mesh in ``aedtplt`` format.
+
+M2D.post.export_mesh_obj(setup=M2D.nominal_adaptive)
 
 ###################################################################################
 # Save project and close AEDT

@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os.path
 import re
 
@@ -23,10 +46,14 @@ def load_entire_aedt_file(filename):
         dictionary containing the decoded AEDT file
 
     """
-    return _load_entire_aedt_file(os.path.normpath(filename))
+    settings.logger.reset_timer()
+    settings.logger.info("Parsing {}.".format(filename))
+    f_d = _load_entire_aedt_file(os.path.normpath(filename))
+    settings.logger.info_timer("File {} correctly loaded.".format(filename))
+    return f_d
 
 
-def load_keyword_in_aedt_file(filename, keyword):
+def load_keyword_in_aedt_file(filename, keyword, design_name=None):
     """Load s specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -42,7 +69,7 @@ def load_keyword_in_aedt_file(filename, keyword):
         dictionary containing the decoded AEDT file
 
     """
-    return _load_keyword_in_aedt_file(filename, keyword)
+    return _load_keyword_in_aedt_file(filename, keyword, design_name)
 
 
 # --------------------------------------------------------------------
@@ -216,7 +243,7 @@ def _decode_recognized_key(keyword, line, d):
             _count += 1
             line = _all_lines[_count + 1]
     elif keyword == _recognized_keywords[2]:  # PropDisplayMap
-        pattern = ".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
+        pattern = r".+\((.+) Text\((.+) ExtentRect\((.+)\)\)\)"
         match = re.search(pattern, line)
         d["Name"] = []
         for i in match.group(1).split(", "):
@@ -358,7 +385,7 @@ def _decode_subkey(line, d):
         d[k] = None
 
 
-def _walk_through_structure(keyword, save_dict):
+def _walk_through_structure(keyword, save_dict, design_name=None):
     """
 
     Parameters
@@ -375,12 +402,19 @@ def _walk_through_structure(keyword, save_dict):
     global _count
     begin_key = "$begin '{}'".format(keyword)
     end_key = "$end '{}'".format(keyword)
+    design_key = None
+    design_found = True
+    if design_name:
+        design_key = "Name='{}'".format(design_name)
+        design_found = False
     found = False
     saved_value = None
     while _count < _len_all_lines:
         line = _all_lines[_count]
+        if design_key and design_key in line:
+            design_found = True
         # begin_key is found
-        if begin_key == line:
+        if begin_key == line and design_found:
             found = True
             saved_value = save_dict.get(keyword)  # if the keyword is already present, save it
             save_dict[keyword] = {}
@@ -406,7 +440,7 @@ def _walk_through_structure(keyword, save_dict):
     # recompose value if list
     if saved_value:
         # makes the value a list, if it's not already
-        if type(saved_value) is not list:
+        if not isinstance(saved_value, list):
             saved_value = [saved_value]
         saved_value.append(save_dict[keyword])
         save_dict[keyword] = saved_value
@@ -476,7 +510,7 @@ def _load_entire_aedt_file(filename):
     return main_dict
 
 
-def _load_keyword_in_aedt_file(filename, keyword):
+def _load_keyword_in_aedt_file(filename, keyword, design_name=None):
     """Load a specific keyword in the AEDT file and return the dictionary
 
     Parameters
@@ -495,5 +529,5 @@ def _load_keyword_in_aedt_file(filename, keyword):
     _read_aedt_file(filename)
     # load the aedt file
     main_dict = {}
-    _walk_through_structure(keyword, main_dict)
+    _walk_through_structure(keyword, main_dict, design_name)
     return main_dict

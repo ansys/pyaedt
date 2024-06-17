@@ -11,6 +11,21 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 import json
 import os
 import pyaedt
+import tempfile
+
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
+
+###########################################################################################
+# Create temporary directory
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create temporary directory.
+
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ###############################################################################
 # Set non-graphical mode
@@ -19,18 +34,17 @@ import pyaedt
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2023.2"
 
 ###############################################################################
 # Launch Maxwell3D
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
+m3d = pyaedt.Maxwell3d(project=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
-                       specified_version=version,
+                       version=aedt_version,
                        non_graphical=non_graphical,
-                       new_desktop_session=True
+                       new_desktop=True
                        )
 
 ###############################################################################
@@ -104,7 +118,7 @@ values = {
 # Covert a dictionary to a JSON file. PyAEDT methods ask for the path of the
 # JSON file as an argument. You can convert a dictionary to a JSON file.
 
-json_path = os.path.join(m3d.working_directory, "choke_example.json")
+json_path = os.path.join(temp_dir.name, "choke_example.json")
 
 with open(json_path, "w") as outfile:
     json.dump(values, outfile)
@@ -162,18 +176,10 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 # Create the mesh operation.
 
 mesh = m3d.mesh
-mesh.assign_skin_depth(
-    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    0.20,
-    triangulation_max_length="10mm",
-    meshop_name="skin_depth",
-)
-mesh.assign_surface_mesh_manual(
-    [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
-    surf_dev=None,
-    normal_dev="30deg",
-    meshop_name="surface_approx",
-)
+mesh.assign_skin_depth(assignment=[first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+                       skin_depth=0.20, triangulation_max_length="10mm", name="skin_depth")
+mesh.assign_surface_mesh_manual([first_winding_list[0], second_winding_list[0], third_winding_list[0]],
+                                surface_deviation=None, normal_dev="30deg", name="surface_approx")
 
 ###############################################################################
 # Create boundaries
@@ -203,7 +209,7 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 
 m3d.save_project()
 m3d.modeler.fit_all()
-m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Close AEDT
@@ -213,3 +219,4 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # All methods provide for saving the project before closing.
 
 m3d.release_desktop()
+temp_dir.cleanup()

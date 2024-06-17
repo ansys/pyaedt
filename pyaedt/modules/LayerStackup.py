@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: `Layer` and `Layers`.
 
@@ -54,12 +78,12 @@ def _conv_number(number, typen=float):
     if typen is float:
         try:
             return float(number)
-        except:
+        except Exception:
             return number
     elif typen is int:
         try:
             return int(number)
-        except:
+        except Exception:
             return number
 
 
@@ -908,11 +932,11 @@ class Layer(object):
         """
         if units is None:
             units = self.LengthUnit
-        if type(value) is str:
+        if isinstance(value, str):
             try:
                 float(value)
                 val = "{0}{1}".format(value, units)
-            except:
+            except Exception:
                 val = value
         else:
             val = "{0}{1}".format(value, units)
@@ -1385,17 +1409,17 @@ class Layers(object):
             layers[o.id] = o
         return layers
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(layername="layer", layertype="layer_type")
     def add_layer(
-        self, layername, layertype="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
+        self, layer, layer_type="signal", thickness="0mm", elevation="0mm", material="copper", isnegative=False
     ):
         """Add a layer.
 
         Parameters
         ----------
-        layername : str
+        layer : str
             Name of the layer.
-        layertype : str, optional
+        layer_type : str, optional
             Type of the layer. The default is ``"signal"``.
         thickness : str, optional
             Thickness with units. The default is ``"0mm"``.
@@ -1411,8 +1435,8 @@ class Layers(object):
         :class:`pyaedt.modules.LayerStackup.Layer`
             Layer object.
         """
-        newlayer = Layer(self, layertype, isnegative)
-        newlayer.name = layername
+        newlayer = Layer(self, layer_type, isnegative)
+        newlayer.name = layer
         newlayer._thickness = thickness
 
         if elevation == "0mm":

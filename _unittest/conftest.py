@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 Unit Test Configuration Module
 -------------------------------
@@ -38,7 +62,7 @@ settings.retry_n_times_time_interval = 0.5
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
-
+settings.release_on_exception = False
 
 from pyaedt import Edb
 from pyaedt import Hfss
@@ -55,11 +79,12 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2023.2"
+default_version = "2024.1"
+
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])
-os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
+
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
 config = {
@@ -83,7 +108,7 @@ if os.path.exists(local_config_file):
     try:
         with open(local_config_file) as f:
             local_config = json.load(f)
-    except:  # pragma: no cover
+    except Exception:  # pragma: no cover
         local_config = {}
     config.update(local_config)
 
@@ -92,7 +117,7 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
-
+settings.objects_lazy_load = False
 logger = pyaedt_logger
 
 
@@ -174,10 +199,10 @@ def add_app(local_scratch):
         if not application:
             application = Hfss
         return application(
-            projectname=test_project,
-            designname=design_name,
+            project=test_project,
+            design=design_name,
             solution_type=solution_type,
-            specified_version=desktop_version,
+            version=desktop_version,
             non_graphical=NONGRAPHICAL,
         )
 

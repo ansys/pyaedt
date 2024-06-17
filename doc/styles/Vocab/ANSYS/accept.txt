@@ -23,6 +23,7 @@ DesignXploration
 docstring
 [Dd]ocstrings
 doppler
+dotnet
 EDB
 EDT
 efields
@@ -83,6 +84,7 @@ stackups
 stripline
 subcircuit
 [Tt]oolkits
+[Tt]oolkit [Mm]anager
 Twin Builder
 Uncomment
 vias

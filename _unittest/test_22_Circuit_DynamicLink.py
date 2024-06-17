@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from _unittest.conftest import config
@@ -7,8 +31,8 @@ import pytest
 from pyaedt import Circuit
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import is_ironpython
-from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.settings import is_linux
 
 test_subfloder = "T22"
 test_project_name = "Dynamic_Link"
@@ -76,15 +100,15 @@ class TestClass:
         is_ironpython or config.get("skip_circuits", False), reason="Skipped because Desktop is crashing"
     )
     def test_02_add_subcircuits_3dlayout(self):
-        layout_design = "Galileo_G87173_205_cutout3"
+        layout_design = "layout_cutout"
         hfss3Dlayout_comp = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout(layout_design)
         assert hfss3Dlayout_comp.id == 86
         assert hfss3Dlayout_comp
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_03_add_subcircuits_hfss_link(self, add_app):
         pin_names = self.aedtapp.get_source_pin_names(src_design_name, src_project_name, self.src_project_file, 2)
-
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names
         hfss = add_app(project_name=self.src_project_file, design_name="uUSB", just_open=True)
@@ -92,23 +116,27 @@ class TestClass:
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_04_refresh_dynamic_link(self):
         assert self.aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_05_set_sim_option_on_hfss_subcircuit(self):
         hfss_comp = "CompInst@uUSB;87;3"
         assert self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp)
         assert self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="interpolate")
         assert not self.aedtapp.modeler.schematic.set_sim_option_on_hfss_subcircuit(hfss_comp, option="not_good")
 
-    @pytest.mark.skipif(is_linux or is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because AEDT is crashing.")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_06_set_sim_solution_on_hfss_subcircuit(self):
         hfss_comp = "CompInst@uUSB;87;3"
         assert self.aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_07_create_page_port_and_interface_port(self):
         hfss_comp_id = 87
         hfss3Dlayout_comp_id = 86
@@ -176,11 +204,12 @@ class TestClass:
             "Port_remove",
             [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
-        self.aedtapp.excitations[portname.name].delete()
+        self.aedtapp.excitation_objects[portname.name].delete()
 
-        assert "Port_remove" not in self.aedtapp.excitation_names
+        assert "Port_remove" not in self.aedtapp.excitations
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_08_assign_excitations(self):
         filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
@@ -205,7 +234,8 @@ class TestClass:
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_10_q2d_link(self, add_app):
         self.aedtapp.insert_design("test_link")
         q2d = add_app(application=Q2d, project_name=self.q3d, just_open=True)
@@ -215,7 +245,8 @@ class TestClass:
         assert c1.parameters["Length"] == "25mm"
         assert c1.parameters["r1"] == "0.3mm"
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_10_q3d_link(self, add_app):
         q3d = add_app(application=Q3d, project_name=self.q3d, just_open=True)
 
@@ -225,7 +256,8 @@ class TestClass:
         assert q3d_comp
         assert len(q3d_comp.pins) == 4
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_10_hfss_link(self, add_app):
         hfss = add_app(project_name=self.q3d, just_open=True)
 
@@ -237,18 +269,19 @@ class TestClass:
             hfss2, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    @pytest.mark.skipif(is_ironpython or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(is_ironpython, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_11_siwave_link(self):
-        model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
+        model = os.path.join(local_path, "example_models", test_subfloder, "siwave_syz.siw")
         model_out = self.local_scratch.copyfile(model)
         self.local_scratch.copyfolder(
-            model + "averesults", os.path.join(self.local_scratch.path, "Galileo_um.siwaveresults")
+            model + "averesults", os.path.join(self.local_scratch.path, "siwave_syz.siwaveresults")
         )
         siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
         assert siw_comp
-        assert len(siw_comp.pins) == 2
+        assert len(siw_comp.pins) == 4
 
-    @pytest.mark.skipif(config.get("skip_circuits", False) or is_linux, reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_12_create_interface_port(self):
         page_port = self.aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
         interface_port = self.aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])

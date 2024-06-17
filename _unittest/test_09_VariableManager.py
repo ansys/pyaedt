@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import division  # noreorder
 
 import math
@@ -119,7 +143,6 @@ class TestClass:
         v = self.aedtapp.variable_manager
         for var_name in v.variable_names:
             print("{} = {}".format(var_name, self.aedtapp[var_name]))
-        pass
         tol = 1e-9
         c2pi = math.pi * 2.0
         assert abs(v["$PrjVar1"].numeric_value - c2pi) < tol
@@ -157,9 +180,9 @@ class TestClass:
         assert self.aedtapp.variable_manager.set_variable("p1", expression="30mm")
         assert self.aedtapp["p1"] == "30mm"
         assert self.aedtapp.variable_manager.set_variable(
-            variable_name="p2",
+            name="p2",
             expression="10mm",
-            readonly=True,
+            read_only=True,
             hidden=True,
             description="This is a description of this variable",
         )
@@ -253,10 +276,10 @@ class TestClass:
         v2 = Variable(3)
         v3 = Variable("3mA")
         v4 = Variable("10A")
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v1 + v2
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v2 + v1
         result_1 = v2 + v2
         result_2 = v3 + v4
@@ -279,10 +302,10 @@ class TestClass:
         v3 = Variable("3mA")
         v4 = Variable("10A")
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v1 - v2
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             v2 - v1
 
         result_1 = v2 - v2
@@ -410,10 +433,10 @@ class TestClass:
         assert decompose_variable_value("3.123456kgm2") == (3.123456, "kgm2")
 
     def test_13_postprocessing(self):
-        v1 = self.aedtapp.variable_manager.set_variable("test_post1", 10, postprocessing=True)
+        v1 = self.aedtapp.variable_manager.set_variable("test_post1", 10, is_post_processing=True)
         assert v1
         assert not self.aedtapp.variable_manager.set_variable("test2", "v1+1")
-        assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", postprocessing=True)
+        assert self.aedtapp.variable_manager.set_variable("test2", "test_post1+1", is_post_processing=True)
         x1 = GeometryOperators.parse_dim_arg(
             self.aedtapp.variable_manager["test2"].evaluated_value, variable_manager=self.aedtapp.variable_manager
         )
@@ -436,7 +459,7 @@ class TestClass:
         assert self.aedtapp.variable_manager["getvalue2"].numeric_value == 1.0
 
     def test_16_maxwell_circuit_variables(self):
-        mc = MaxwellCircuit(specified_version=desktop_version)
+        mc = MaxwellCircuit(version=desktop_version)
         mc["var2"] = "10mm"
         assert mc["var2"] == "10mm"
         v_circuit = mc.variable_manager

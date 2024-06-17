@@ -19,11 +19,12 @@ netlist = pyaedt.downloads.download_netlist()
 project_name = pyaedt.generate_unique_project_name()
 print(project_name)
 
-###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
-# Launch AEDT 2023 R2 in graphical mode. This example uses SI units.
-desktopVersion = "2023.2"
+##########################################################
+# Set AEDT version
+# ~~~~~~~~~~~~~~~~
+# Set AEDT version.
+
+aedt_version = "2024.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -42,8 +43,8 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-desktop = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
-aedtapp = pyaedt.Circuit(projectname=project_name)
+desktop = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
+aedtapp = pyaedt.Circuit(project=project_name)
 
 ###############################################################################
 # Define variable

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import io
 import logging
 import os
@@ -6,12 +30,15 @@ import sys
 import tempfile
 import unittest.mock
 
+from _unittest.conftest import config
 import pytest
 
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
+
+desktop_version = config["desktopVersion"]
 
 
 @pytest.fixture(scope="class")
@@ -223,15 +250,18 @@ class TestLogMessages:
     """Class used to test log messages."""
 
     def test_log_when_accessing_non_existing_object(self, caplog):
-        """Check that accessing non existing object log an error message."""
+        """Check that accessing a non-existent object logs an error message."""
         from pyaedt import Hfss
 
         app = Hfss(
-            projectname="log_project", designname="log_design", specified_version="2023.2", new_desktop_session=True
+            project="log_project",
+            design="log_design",
+            version=desktop_version,
+            new_desktop=True,
         )
         with pytest.raises(AttributeError):
             app.get_object_material_properties("MS1", "conductivity")
-        assert ("Global", logging.ERROR, "Object 'MS1' not found.") in caplog.record_tuples
+        assert ("Global", logging.ERROR, "    assignment = MS1 ") in caplog.record_tuples
 
 
 class CaptureStdOut:

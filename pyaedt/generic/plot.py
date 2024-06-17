@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import ast
 from collections import defaultdict
 import csv
@@ -8,11 +32,11 @@ import tempfile
 import time
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if not is_ironpython:
     try:
@@ -38,13 +62,37 @@ if not is_ironpython:
         from matplotlib.path import Path
         import matplotlib.pyplot as plt
 
+        rc_params = {
+            "axes.titlesize": 26,  # Use these default settings for Matplotlb axes.
+            "axes.labelsize": 20,  # Apply the settings only in this module.
+            "xtick.labelsize": 18,
+            "ytick.labelsize": 18,
+        }
+
     except ImportError:
         warnings.warn(
             "The Matplotlib module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install matplotlib\n\nRequires CPython."
         )
-    except:
-        pass
+    except Exception:
+        warnings.warn("Unknown error occurred while attempting to import Matplotlib.")
+
+
+# Override default settings for matplotlib
+def update_plot_settings(func, *args, **kwargs):
+    if callable(func):
+
+        def wrapper(*args, **kwargs):
+            default_rc_params = plt.rcParams.copy()
+            plt.rcParams.update(rc_params)  # Apply new settings.
+            out = func(*args, **kwargs)
+            plt.rcParams.update(default_rc_params)
+            return out
+
+    else:
+        wrapper = None
+        raise TypeError("First argument must be callable.")
+    return wrapper
 
 
 @pyaedt_function_handler()
@@ -100,6 +148,7 @@ def is_float(istring):
     try:
         return float(istring.strip())
     except Exception:
+        warnings.warn("Unable to convert '" + istring.strip() + "' to a float.")
         return 0
 
 
@@ -293,10 +342,11 @@ def _parse_streamline(filepath):
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_polar_chart(
-    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
-    """Create a matplotlib polar plot based on a list of data.
+    """Create a Matplotlib polar plot based on a list of data.
 
     Parameters
     ----------
@@ -312,9 +362,17 @@ def plot_polar_chart(
     ylabel : str
         Plot Y label.
     title : str
-        Plot Title label.
+        Plot title label.
     snapshot_path : str
-        Full path to image file if a snapshot is needed.
+        Full path to the image file if a snapshot is needed.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If ``False``, the
+        figure is not drawn.
+
+    Returns
+    -------
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -344,14 +402,15 @@ def plot_polar_chart(
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show:
         fig.show()
     return fig
 
 
 @pyaedt_function_handler()
-def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib 3D plot based on a list of data.
+@update_plot_settings
+def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
+    """Create a Matplotlib 3D plot based on a list of data.
 
     Parameters
     ----------
@@ -371,8 +430,8 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
 
@@ -403,8 +462,11 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
 
 @pyaedt_function_handler()
-def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None):
-    """Create a matplotlib plot based on a list of data.
+@update_plot_settings
+def plot_2d_chart(
+    plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
+):
+    """Create a Matplotlib figure based on a list of data.
 
     Parameters
     ----------
@@ -427,25 +489,21 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
     label_id = 1
     for plo_obj in plot_data:
-        if len(plo_obj) == 3:
-            label = plo_obj[2]
-        else:
-            label = "Trace " + str(label_id)
         if isinstance(plo_obj[0], np.ndarray):
             x = plo_obj[0]
             y = plo_obj[1]
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y, label=label)
+        ax.plot(x, y)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -460,6 +518,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
 
 @pyaedt_function_handler()
+@update_plot_settings
 def plot_matplotlib(
     plot_data,
     size=(2000, 1000),
@@ -508,11 +567,10 @@ def plot_matplotlib(
     show : bool, optional
         Whether to show the plot or return the matplotlib object. Default is `True`.
 
-
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -569,14 +627,17 @@ def plot_matplotlib(
 
     if snapshot_path:
         plt.savefig(snapshot_path)
-    elif show:
+    if show:
         plt.show()
-    return plt
+    return fig
 
 
 @pyaedt_function_handler()
-def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None):
-    """Create a matplotlib contour plot.
+@update_plot_settings
+def plot_contour(
+    qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None, show=True
+):
+    """Create a Matplotlib contour plot.
 
     Parameters
     ----------
@@ -595,14 +656,17 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     title : str, optional
         Plot Title Label. Default is `""`.
     levels : int, optional
-        Color map levels. Default is `64`.
+        Color map levels. The default is ``64``.
     snapshot_path : str, optional
-        Full path to image to save. Default is None.
+        Full path to save the image save. The default is ``None``.
+    show : bool, optional
+        Whether to render the figure. The default is ``True``. If
+        ``False``, the image is not drawn.
 
     Returns
     -------
-    :class:`matplotlib.plt`
-        Matplotlib fig object.
+    :class:`matplotlib.pyplot.Figure`
+        Matplotlib figure object.
     """
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
@@ -625,9 +689,9 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
     plt.colorbar()
     if snapshot_path:
         plt.savefig(snapshot_path)
-    else:
+    if show:
         plt.show()
-    return plt
+    return fig
 
 
 class ObjClass(object):
@@ -721,6 +785,7 @@ class FieldClass(object):
         self._is_frame = False
         self.is_vector = False
         self.vector_scale = 1.0
+        self.scalar_name = None
 
 
 class CommonPlotter(object):
@@ -1073,21 +1138,21 @@ class ModelPlotter(CommonPlotter):
     Here an example of standalone project
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
+    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
+    >>> model.add_field_from_file(r'D:\\Simulation\\helic_antenna.csv', True, "meter", 1)
     >>> model.background_color = (0,0,0)
     >>> model.plot()
 
     And here an example of animation:
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    ...           r'D:\Simulation\helic_antenna_40.fld']
-    >>> model.gif_file = r"D:\Simulation\animation.gif"
+    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
+    >>> frames = [r'D:\\Simulation\\helic_antenna.csv', r'D:\\Simulation\\helic_antenna_10.fld',
+    ...           r'D:\\Simulation\\helic_antenna_20.fld', r'D:\\Simulation\\helic_antenna_30.fld',
+    ...           r'D:\\Simulation\\helic_antenna_40.fld']
+    >>> model.gif_file = r"D:\\Simulation\\animation.gif"
     >>> model.animate()
     """
 
@@ -1326,7 +1391,24 @@ class ModelPlotter(CommonPlotter):
                 if ".case" in field.path:
                     reader = pv.get_reader(os.path.abspath(field.path)).read()
                     field._cached_polydata = reader[reader.keys()[0]].extract_surface()
-                    field.label = field._cached_polydata.point_data.active_scalars_name
+
+                    if (
+                        hasattr(field._cached_polydata.point_data, "active_vectors")
+                        and field._cached_polydata.point_data.active_vectors_name
+                    ):
+                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                        vector_scale = (max(field._cached_polydata.bounds) - min(field._cached_polydata.bounds)) / (
+                            10
+                            * (
+                                np.vstack(field._cached_polydata.active_vectors).max()
+                                - np.vstack(field._cached_polydata.active_vectors).min()
+                            )
+                        )
+                        field._cached_polydata["vectors"] = field._cached_polydata.active_vectors * vector_scale
+
+                        field.is_vector = True
+                    else:
+                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
 
                 elif ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
@@ -1344,10 +1426,12 @@ class ModelPlotter(CommonPlotter):
                         field._cached_polydata.point_data[field.label] = np.array(
                             [np.linalg.norm(x) for x in np.vstack(scalars[0]).T]
                         )
+                        field.scalar_name = field.field._cached_polydata.point_data.active_scalars_name
 
                         field.is_vector = True
                     else:
                         field._cached_polydata.point_data[field.label] = scalars[0]
+                        field.scalar_name = field._cached_polydata.point_data.active_scalars_name
                         field.is_vector = False
                     field.log = log1
                 else:
@@ -1366,7 +1450,7 @@ class ModelPlotter(CommonPlotter):
                                 lines = list(dict.fromkeys(lines))
                                 # decimate = 2
                                 # del lines[decimate - 1 :: decimate]
-                        except:
+                        except Exception:
                             lines = []
                         for line in lines:
                             tmp = line.strip().split(delimiter)
@@ -1389,7 +1473,7 @@ class ModelPlotter(CommonPlotter):
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
-                        except:
+                        except Exception:
                             conv = 1
                         vertices = np.array(nodes) * conv
                         filedata = pv.PolyData(vertices)
@@ -1400,10 +1484,13 @@ class ModelPlotter(CommonPlotter):
                             filedata["vectors"] = np.vstack(values) * vector_scale
                             field.label = "Vector " + field.label
                             filedata.point_data[field.label] = np.array([np.linalg.norm(x) for x in np.vstack(values)])
+                            field.scalar_name = field._cached_polydata.point_data.active_scalars_name
+                            field.is_vector = True
                             field.is_vector = True
                         else:
                             filedata = filedata.delaunay_2d(tol=field.surface_mapping_tolerance)
                             filedata.point_data[field.label] = np.array(values)
+                            field.scalar_name = filedata.point_data.active_scalars_name
                         field._cached_polydata = filedata
 
     @pyaedt_function_handler()
@@ -1447,7 +1534,7 @@ class ModelPlotter(CommonPlotter):
             def __call__(self, state):
                 try:
                     self.plot.button_widgets = [self.plot.button_widgets[0]]
-                except:
+                except Exception:
                     self.plot.button_widgets = []
                 self.id += 1
                 k = 0
@@ -1510,14 +1597,19 @@ class ModelPlotter(CommonPlotter):
             )
 
     @pyaedt_function_handler()
-    def plot(self, export_image_path=None):
+    def plot(self, export_image_path=None, show=True):
         """Plot the current available Data. With `s` key a screenshot is saved in export_image_path or in tempdir.
 
         Parameters
         ----------
 
-        export_image_path : str
-            Path to image to save.
+        export_image_path : str, optional
+            Path to image to save. Default is None
+        show : bool, optional
+            Whether to display the pyvista plot.
+            When False, a :class::pyvista.Plotter object is created
+            and assigned to the pv property so that it can be
+            modified further. Default is True.
 
         Returns
         -------
@@ -1552,12 +1644,13 @@ class ModelPlotter(CommonPlotter):
                 position_y=2,
             )
         for field in self._fields:
+            sargs["title"] = field.label
             if field.is_vector:
                 field._cached_polydata.set_active_vectors("vectors")
                 field._cached_polydata["vectors"] = field._cached_polydata["vectors"] * field.vector_scale
                 self.pv.add_mesh(
                     field._cached_polydata.arrows,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
@@ -1566,7 +1659,7 @@ class ModelPlotter(CommonPlotter):
             elif self.range_max is not None and self.range_min is not None:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
@@ -1577,7 +1670,7 @@ class ModelPlotter(CommonPlotter):
             else:
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
-                    scalars=field.label,
+                    scalars=field.scalar_name,
                     log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
@@ -1605,6 +1698,12 @@ class ModelPlotter(CommonPlotter):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
                 self.pv.camera.viewup = self.view_up
+            elif self.camera_position == "xy":
+                self.pv.view_xy()
+            elif self.camera_position == "xz":
+                self.pv.view_xz()
+            elif self.camera_position == "yz":
+                self.pv.view_yz()
             else:
                 self.pv.camera_position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
@@ -1632,9 +1731,9 @@ class ModelPlotter(CommonPlotter):
         self.pv.add_key_event("s", s_callback)
         if export_image_path:
             self.pv.show(screenshot=export_image_path, full_screen=True)
-        elif self.is_notebook:  # pragma: no cover
+        elif show and self.is_notebook:  # pragma: no cover
             self.pv.show()  # pragma: no cover
-        else:
+        elif show:
             self.pv.show(full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
@@ -1745,9 +1844,10 @@ class ModelPlotter(CommonPlotter):
             )
 
         for field in self._fields:
+            sargs["title"] = field.label
             field._cached_mesh = self.pv.add_mesh(
                 field._cached_polydata,
-                scalars=field.label,
+                scalars=field.scalar_name,
                 log_scale=False if self.convert_fields_in_db else field.log_scale,
                 scalar_bar_args=sargs,
                 cmap=field.color_map,
@@ -1761,14 +1861,14 @@ class ModelPlotter(CommonPlotter):
             mins = 1e20
             maxs = -1e20
             for el in self.frames:
-                if np.min(el._cached_polydata.point_data[el.label]) < mins:
-                    mins = np.min(el._cached_polydata.point_data[el.label])
-                if np.max(el._cached_polydata.point_data[el.label]) > maxs:
-                    maxs = np.max(el._cached_polydata.point_data[el.label])
+                if np.min(el._cached_polydata.point_data[el.scalar_name]) < mins:
+                    mins = np.min(el._cached_polydata.point_data[el.scalar_name])
+                if np.max(el._cached_polydata.point_data[el.scalar_name]) > maxs:
+                    maxs = np.max(el._cached_polydata.point_data[el.scalar_name])
 
         self.frames[0]._cached_mesh = self.pv.add_mesh(
             self.frames[0]._cached_polydata,
-            scalars=self.frames[0].label,
+            scalars=self.frames[0].scalar_name,
             log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
             scalar_bar_args=sargs,
             cmap=self.frames[0].color_map,
@@ -1787,6 +1887,12 @@ class ModelPlotter(CommonPlotter):
                 self.pv.camera.position = self.camera_position
                 self.pv.camera.focal_point = self.focal_point
                 self.pv.camera.up = self.view_up
+            elif self.camera_position == "xy":
+                self.pv.view_xy()
+            elif self.camera_position == "xz":
+                self.pv.view_xz()
+            elif self.camera_position == "yz":
+                self.pv.view_yz()
             else:
                 self.pv.camera_position = self.camera_position
             self.pv.camera.azimuth += self.azimuth_angle
@@ -1800,7 +1906,7 @@ class ModelPlotter(CommonPlotter):
         start = time.time()
         try:
             self.pv.update(1, force_redraw=True)
-        except:
+        except Exception:
             pass
         if self.gif_file:
             first_loop = True
@@ -1819,7 +1925,7 @@ class ModelPlotter(CommonPlotter):
                     break
                 i = 0
                 first_loop = False
-            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].label]
+            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].scalar_name]
             self.pv.update_scalars(scalars, render=False)
             if not hasattr(self.pv, "ren_win"):
                 break

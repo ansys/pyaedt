@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import json
 import os
 import re
@@ -7,7 +31,7 @@ import pyaedt
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_if_path_exists
-from pyaedt.generic.settings import settings
+from pyaedt.generic.general_methods import open_file
 
 
 class Component:
@@ -93,6 +117,21 @@ class Pin:
         self._r_value = None
         self._l_value = None
         self._c_value = None
+        self._is_differential = False
+
+    @property
+    def is_differential(self):
+        """Flag indicating if the pin is differential.
+
+        Returns
+        -------
+        bool
+        """
+        return self._is_differential
+
+    @is_differential.setter
+    def is_differential(self, val):
+        self._is_differential = val
 
     @property
     def name(self):
@@ -236,7 +275,7 @@ class Pin:
                     [],
                 ],
             )
-        except:
+        except Exception:
             logger.error("Error adding {} pin component.".format(self.short_name))
             return False
 
@@ -260,10 +299,168 @@ class Pin:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.buffer_name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
+        )
+
+
+class DifferentialPin:
+    """Provides the differential pin from a component with all its data feature.
+
+    Parameters
+    ----------
+    name : str
+        Name of the pin.
+    circuit : class:`pyaedt.circuit.Circuit`
+        Circuit to add the pin to.
+    """
+
+    def __init__(self, name, buffer_name, circuit):
+        self._buffer_name = buffer_name
+        self._circuit = circuit
+        self._name = name
+        self._tdelay_min = None
+        self._tdelay_max = None
+        self._tdelay_type = None
+        self._vdiff = None
+        self._short_name = None
+        self._model = None
+
+    @property
+    def model(self):
+        """Model of the pin.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].signal
+        'POWER'
+
+        """
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
+
+    @property
+    def buffer_name(self):
+        """Full name of the buffer including the component name and Ibis filename."""
+        return self._buffer_name
+
+    @property
+    def short_name(self):
+        """Short name of the buffer, which excludes the Ibis filename."""
+        return self._short_name
+
+    @property
+    def negative_pin(self):
+        """Negative pin.
+
+        Returns
+        -------
+        str
+        """
+        return self._negative_pin
+
+    @property
+    def vdiff(self):
+        """Differential voltage.
+
+        Returns
+        -------
+        float
+        """
+        return self._vdiff
+
+    @property
+    def tdelay_min(self):
+        """Minimum delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_min
+
+    @property
+    def tdelay_max(self):
+        """Maximum delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_max
+
+    @property
+    def tdelay_typ(self):
+        """Typical delay.
+
+        Returns
+        -------
+        float
+        """
+        return self._tdelay_typ
+
+    @property
+    def name(self):
+        """Full name of the pin including the component name and Ibis filename.
+
+        Examples
+        --------
+        >>> ibis = ibis_reader.IbisReader(os.path.join(path_to_ibis_files, "u26a_800_modified.ibs"), circuit)
+        >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].name
+        'A1_MT47H64M4BP-3_25_u26a_800'
+
+        """
+        return self._name
+
+    def add(self):
+        """Add a pin to the list of components in the Project Manager."""
+        try:
+            return self._circuit.modeler.schematic.o_component_manager.AddSolverOnDemandModel(
+                self.buffer_name,
+                [
+                    "NAME:CosimDefinition",
+                    "CosimulatorType:=",
+                    7,
+                    "CosimDefName:=",
+                    "DefaultIBISNetlist",
+                    "IsDefinition:=",
+                    True,
+                    "Connect:=",
+                    True,
+                    "Data:=",
+                    [],
+                    "GRef:=",
+                    [],
+                ],
+            )
+        except Exception:
+            logger.error("Error adding {} pin component.".format(self.short_name))
+            return False
+
+    def insert(self, x, y, angle=0.0):
+        """Insert a pin at a defined location inside the graphical window.
+
+        Parameters
+        ----------
+        x : float
+            X position of the pin.
+        y : float
+            Y position of the pin.
+        angle : float, optional
+            Angle of the pin. The default value is ``"0.0"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+            Circuit Component Object.
+
+        """
+
+        return self._circuit.modeler.schematic.create_component(
+            component_library=None, component_name=self.buffer_name, location=[x, y], angle=angle
         )
 
 
@@ -324,10 +521,7 @@ class Buffer:
         """
 
         return self._circuit.modeler.schematic.create_component(
-            component_library=None,
-            component_name=self.name,
-            location=[x, y],
-            angle=angle,
+            component_library=None, component_name=self.name, location=[x, y], angle=angle
         )
 
 
@@ -620,11 +814,8 @@ class IbisReader(object):
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -720,13 +911,10 @@ class IbisReader(object):
                     elif is_started_with(model_spec.lower(), "enable ", True):
                         model.enable = model_spec.split()[-1].strip()
 
-            model_info_lower = {key.lower(): value for key, value in model_info.items()}
-
             if "gnd clamp" in [key.lower() for key in model_info.keys()]:
                 model.clamp = True
             if "algorithmic model" in [key.lower() for key in model_info.keys()]:
                 matching_key = next((key for key in model_info.keys() if "algorithmic model" in key.lower()), None)
-                ami_info = model_info[matching_key][matching_key].split()
                 model.ami = model_info[matching_key][matching_key].split()
                 ibis.AMI = True
             else:
@@ -810,6 +998,14 @@ class IbisReader(object):
                 pin = self.make_pin_object(pin_info, component.name, ibis)
                 component.pins[pin.name] = pin
 
+            try:
+                diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
+                for pin_info in diff_pin_list:
+
+                    pin = self.make_diff_pin_object(pin_info, component, ibis)
+                    component.pins[pin.name] = pin
+            except Exception as error:  # pragma: no cover
+                logger.warning("Cannot find Diff Pin. Ignore it. Exception message: {}".format(error))
             ibis.components[component.name] = component
 
     @classmethod
@@ -851,6 +1047,61 @@ class IbisReader(object):
 
         """
         return line.replace("[Component]", "").strip()
+
+    def make_diff_pin_object(self, line, component, ibis):
+        """Extract the model's differential pin information.
+
+        Parameters
+        ----------
+        line : str
+            Current line content.
+        component : str
+            Name of the component.
+        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+            Ibis object containing all pin information.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.ibis_reader.Pin`
+            Pin object.
+
+        """
+
+        current_string = ""
+        component_name = component.name
+        current_string = line.strip().replace("\t", " ")
+
+        pin_name = self.get_first_parameter(current_string)
+        current_string = current_string[len(pin_name) + 1 :].strip()
+
+        neg_pin = self.get_first_parameter(current_string)
+        current_string = current_string[len(neg_pin) + 1 :].strip()
+
+        vdiff = self.get_first_parameter(current_string)
+        current_string = current_string[len(vdiff) + 1 :].strip()
+
+        tdelay_typ = self.get_first_parameter(current_string)
+        current_string = current_string[len(tdelay_typ) + 1 :].strip()
+
+        tdelay_min = self.get_first_parameter(current_string)
+        current_string = current_string[len(tdelay_min) + 1 :].strip()
+
+        tdelay_max = self.get_first_parameter(current_string)
+
+        single_ended_pin_name = pin_name + "_" + component_name + "_" + ibis.name
+        diff_pin_name = single_ended_pin_name + "_diff"
+        for pin_name, pinval in component.pins.items():
+            if single_ended_pin_name == pin_name:
+                pin = DifferentialPin(diff_pin_name, pinval.buffer_name + "_diff", pinval._circuit)
+                pin._short_name = pinval.short_name
+                pin._tdelay_max = tdelay_max
+                pin._tdelay_min = tdelay_min
+                pin._tdelay_typ = tdelay_typ
+                pin._negative_pin = neg_pin
+                pin._vdiff = diff_pin_name
+                pin._model = pinval.model
+                return pin
+        return
 
     def make_pin_object(self, line, component_name, ibis):
         """Extracts model's info.
@@ -983,11 +1234,7 @@ class AMIReader(IbisReader):
 
         ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
-        if settings.remote_rpc_session_temp_folder:
-            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
-            file_to_open = check_and_download_file(local_path, self._filename)
-        else:
-            file_to_open = self._filename
+        check_and_download_file(self._filename)
 
         # Read *.ibis file.
         ibis_info = ibis_parsing(self._filename)
@@ -1036,10 +1283,13 @@ class AMIReader(IbisReader):
                 arg_component = ["NAME:{}".format(ibis.components[component].name)]
                 for pin in ibis.components[component].pins:
                     arg_component.append("{}:=".format(ibis.components[component].pins[pin].short_name))
-                    if ibis.components[component].pins[pin].model not in model_selector_names:
-                        arg_component.append([False, False])
+                    flag = True
+                    if not isinstance(ibis.components[component].pins[pin], DifferentialPin):
+                        flag = False
+                    if model_selector_names and ibis.components[component].pins[pin].model not in model_selector_names:
+                        arg_component.append([False, flag])
                     else:
-                        arg_component.append([True, False])
+                        arg_component.append([True, flag])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
@@ -1100,10 +1350,10 @@ def ibis_parsing(file):
     """
     ibis = {}
     # OPEN AND READ IBIS FILE
-    with open(file, "r") as fp:
+    with open_file(file, "r") as fp:
         ibis_data = list(enumerate(fp))
 
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
+    with open_file(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ibis_v7.json"), "r") as f:
         ibis_ref = json.load(f)
     ibis_ref = lowercase_json(ibis_ref)
 
