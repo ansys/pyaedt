@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from collections import OrderedDict
 import copy
 import os
@@ -56,7 +80,7 @@ class LimitLine(object):
         Returns
         -------
         bool
-            "True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         if style:
@@ -142,7 +166,7 @@ class Note(object):
         Returns
         -------
         bool
-            "True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
         if text:
@@ -217,6 +241,7 @@ class Trace(object):
         Returns
         -------
         str
+            Trace name.
         """
         report_name = self.aedt_name.split(":")[0]
         traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
@@ -256,13 +281,13 @@ class Trace(object):
         )
         return True
 
-    @pyaedt_function_handler()
-    def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
+    @pyaedt_function_handler(trace_style="style")
+    def set_trace_properties(self, style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
         Parameters
         ----------
-        trace_style : str, optional
+        style : str, optional
             Style for the trace line. The default is ``None``. You can also use
             the ``LINESTYLE`` property.
         width : int, optional
@@ -280,8 +305,8 @@ class Trace(object):
             ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
-        if trace_style:
-            props.append(["NAME:Line Style", "Value:=", trace_style])
+        if style:
+            props.append(["NAME:Line Style", "Value:=", style])
         if width and isinstance(width, (int, float, str)):
             props.append(["NAME:Line Width", "Value:=", str(width)])
         if trace_type:
@@ -308,7 +333,6 @@ class Trace(object):
         color : tuple, list
             Symbol fill color specified as a tuple (R,G,B) or a list of integers [0,255].
             The default is ``None``.
-
 
         Returns
         -------
@@ -368,6 +392,7 @@ class CommonReport(object):
         Returns
         -------
         bool
+            ``True`` when differential pairs is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("differential_pairs", False)
 
@@ -382,6 +407,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Matrix name.
         """
         return self.props["context"].get("matrix", None)
 
@@ -396,6 +422,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Polyline name.
         """
         return self.props["context"].get("polyline", None)
 
@@ -410,6 +437,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Expressions.
         """
         if self.props.get("expressions", None) is None:
             return []
@@ -439,6 +467,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Report category.
         """
         return self.props["report_category"]
 
@@ -455,6 +484,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Report type.
         """
         return self.props["report_type"]
 
@@ -518,7 +548,7 @@ class CommonReport(object):
                 symbol_fill = _props_with_default(trace_val, "symbol_fill", False)
                 symbol_color = _props_with_default(trace_val, "symbol_color", None)
                 trace.set_trace_properties(
-                    trace_style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                    style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
                 )
                 if self.report_category in ["Eye Diagram", "Spectrum"]:
                     continue
@@ -789,13 +819,13 @@ class CommonReport(object):
                         if self.report_category in ["Eye Diagram", "Statistical Eye"]:
                             continue
                         self.edit_y_axis_scaling(
+                            name=i.replace("axis", "").upper(),
                             linear_scaling=axis_linear_scaling,
                             min_scale=axis_min_scale,
                             max_scale=axis_max_scale,
                             minor_tick_divs=axis_min_trick_div,
                             min_spacing=axis_min_spacing,
                             units=axis_units,
-                            axis_name=i.replace("axis", "").upper(),
                         )
 
     @property
@@ -848,6 +878,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Plot name.
         """
         return self.props["plot_name"]
 
@@ -865,6 +896,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Variations.
         """
         return self.props["context"]["variations"]
 
@@ -879,6 +911,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Primary sweep.
         """
         return self.props["context"]["primary_sweep"]
 
@@ -901,6 +934,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Secondary sweep.
         """
         return self.props["context"].get("secondary_sweep", None)
 
@@ -923,6 +957,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Primary sweep range.
         """
         return self.props["context"]["primary_sweep_range"]
 
@@ -937,6 +972,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Secondary sweep range.
         """
         return self.props["context"]["secondary_sweep_range"]
 
@@ -955,12 +991,13 @@ class CommonReport(object):
         Parameters
         ----------
         quantities_category : str, optional
-            Quantity category to use. The default is ``None``, in which case the default
+            Quantities category to use. The default is ``None``, in which case the default
             category for the specified report is used.
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         self.expressions = self._post.available_report_quantities(
             self.report_category, self.report_type, self.setup, quantities_category
@@ -1006,6 +1043,7 @@ class CommonReport(object):
         Returns
         -------
         str
+            Plot domain.
         """
         return self.props["context"]["domain"]
 
@@ -1030,6 +1068,7 @@ class CommonReport(object):
         Returns
         -------
         bool
+            ``True`` when option is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("use_pulse_in_tdr", False)
 
@@ -1068,13 +1107,13 @@ class CommonReport(object):
                 sweep_list.append(["Nominal"])
         return sweep_list
 
-    @pyaedt_function_handler()
-    def create(self, plot_name=None):
+    @pyaedt_function_handler(plot_name="name")
+    def create(self, name=None):
         """Create a report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        name : str, optional
             Name for the plot. The default is ``None``, in which case the
             default name is used.
 
@@ -1083,10 +1122,10 @@ class CommonReport(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not plot_name:
+        if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
-            self.plot_name = plot_name
+            self.plot_name = name
         if self.setup not in self._post._app.existing_analysis_sweeps and "AdaptivePass" not in self.setup:
             self._post._app.logger.error("Setup doesn't exist in this design.")
             return False
@@ -1228,15 +1267,13 @@ class CommonReport(object):
             x position of the note. The default is ``0.0``.
         y_position : float, optional
             y position of the note. The default is ``0.0``.
-        note_name : string, optional
-            Internal name of the note.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        noteName = generate_unique_name("Note", n=3)
+        note_name = generate_unique_name("Note", n=3)
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddNote(
                 self.plot_name,
@@ -1245,7 +1282,7 @@ class CommonReport(object):
                     [
                         "NAME:NoteDataSource",
                         "SourceName:=",
-                        noteName,
+                        note_name,
                         "HaveDefaultPos:=",
                         True,
                         "DefaultXPos:=",
@@ -1260,8 +1297,8 @@ class CommonReport(object):
             return True
         return False
 
-    @pyaedt_function_handler()
-    def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
+    @pyaedt_function_handler(val="value")
+    def add_cartesian_x_marker(self, value, name=None):  # pragma: no cover
         """Add a cartesian X marker.
 
         .. note::
@@ -1269,7 +1306,7 @@ class CommonReport(object):
 
         Parameters
         ----------
-        val : str
+        value : str
             Value to apply with units.
         name : str, optional
             Marker name. The default is ``None``.
@@ -1281,12 +1318,12 @@ class CommonReport(object):
         """
         if not name:
             name = generate_unique_name("MX")
-            self._post.oreportsetup.AddCartesianXMarker(self.plot_name, name, GeometryOperators.parse_dim_arg(val))
+            self._post.oreportsetup.AddCartesianXMarker(self.plot_name, name, GeometryOperators.parse_dim_arg(value))
             return name
         return ""
 
-    @pyaedt_function_handler()
-    def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
+    @pyaedt_function_handler(val="value")
+    def add_cartesian_y_marker(self, value, name=None, y_axis=1):  # pragma: no cover
         """Add a cartesian Y marker.
 
         .. note::
@@ -1294,7 +1331,7 @@ class CommonReport(object):
 
         Parameters
         ----------
-        val : str, float
+        value : str, float
             Value to apply with units.
         name : str, optional
             Marker name. The default is ``None``.
@@ -1309,19 +1346,19 @@ class CommonReport(object):
         if not name:
             name = generate_unique_name("MY")
             self._post.oreportsetup.AddCartesianYMarker(
-                self.plot_name, name, "Y{}".format(y_axis), GeometryOperators.parse_dim_arg(val), ""
+                self.plot_name, name, "Y{}".format(y_axis), GeometryOperators.parse_dim_arg(value), ""
             )
             return name
         return ""
 
-    @pyaedt_function_handler()
-    def _change_property(self, tabname, property_name, property_val):
+    @pyaedt_function_handler(tabname="tab_name")
+    def _change_property(self, tab_name, property_name, property_val):
         if not self._is_created:
             self._post._app.logger.error("Plot has not been created. Create it and then change the properties.")
             return False
         arg = [
             "NAME:AllTabs",
-            ["NAME:" + tabname, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
+            ["NAME:" + tab_name, ["NAME:PropServers", "{}:{}".format(self.plot_name, property_name)], property_val],
         ]
         self._post.oreportsetup.ChangeProperty(arg)
         return True
@@ -1366,19 +1403,17 @@ class CommonReport(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        props = ["NAME:ChangedProps"]
-        props.append(["NAME:Show minor X grid", "Value:=", minor_x])
-        props.append(["NAME:Show minor Y grid", "Value:=", minor_y])
-        props.append(["NAME:Show major X grid", "Value:=", major_x])
-        props.append(["NAME:Show major Y grid", "Value:=", major_y])
-        props.append(["NAME:Minor grid line style", "Value:=", style_minor])
-        props.append(["NAME:Major grid line style", "Value:=", style_major])
-        props.append(
-            ["NAME:Minor grid line color", "R:=", minor_color[0], "G:=", minor_color[1], "B:=", minor_color[2]]
-        )
-        props.append(
-            ["NAME:Major grid line color", "R:=", major_color[0], "G:=", major_color[1], "B:=", major_color[2]]
-        )
+        props = [
+            "NAME:ChangedProps",
+            ["NAME:Show minor X grid", "Value:=", minor_x],
+            ["NAME:Show minor Y grid", "Value:=", minor_y],
+            ["NAME:Show major X grid", "Value:=", major_x],
+            ["NAME:Show major Y grid", "Value:=", major_y],
+            ["NAME:Minor grid line style", "Value:=", style_minor],
+            ["NAME:Major grid line style", "Value:=", style_major],
+            ["NAME:Minor grid line color", "R:=", minor_color[0], "G:=", minor_color[1], "B:=", minor_color[2]],
+            ["NAME:Major grid line color", "R:=", major_color[0], "G:=", major_color[1], "B:=", major_color[2]],
+        ]
         return self._change_property("Grid", "Grid", props)
 
     @pyaedt_function_handler()
@@ -1523,7 +1558,8 @@ class CommonReport(object):
 
         Returns
         -------
-
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:ChangedProps",
@@ -1535,7 +1571,8 @@ class CommonReport(object):
         ]
         return self._change_property("legend", "legend", props)
 
-    def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_height=1):
+    @pyaedt_function_handler(font_height="font_size")
+    def hide_legend(self, solution_name=True, trace_name=True, variation_key=True, font_size=1):
         """Hide the Legend.
 
         Parameters
@@ -1546,32 +1583,33 @@ class CommonReport(object):
             Whether to show or hide the trace name. Default is ``True``.
         variation_key : bool, optional
             Whether to show or hide the variations. Default is ``True``.
+        font_size : int
+            Font size. The default is ``1``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         try:
             legend = self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject("Legend")
             legend.Show_Solution_Name = not solution_name
             legend.Show_Trace_Name = not trace_name
             legend.Show_Variation_Key = not variation_key
-            legend.SetPropValue("Font/Height", font_height)
-            legend.SetPropValue("Header Row Font/Height", font_height)
+            legend.SetPropValue("Font/Height", font_size)
+            legend.SetPropValue("Header Row Font/Height", font_size)
             return True
         except Exception:
             self._post._app.logger.error("Failed to hide legend.")
             return False
 
-    @pyaedt_function_handler()
-    def edit_y_axis(
-        self, axis_name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None
-    ):
+    @pyaedt_function_handler(axis_name="name")
+    def edit_y_axis(self, name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
         """Edit the Y-axis settings.
 
         Parameters
         ----------
-        axis_name : str, optional
+        name : str, optional
             Name for the main Y axis. The default is ``"Y1"``.
         font : str, optional
             Font name. The default is ``"Arial"``.
@@ -1635,12 +1673,12 @@ class CommonReport(object):
         if label:
             props.append(["NAME:Name", "Value:=", label])
         props.append(["NAME:Axis Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
-        return self._change_property("Axis", "Axis" + axis_name, props)
+        return self._change_property("Axis", "Axis" + name, props)
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(axis_name="name")
     def edit_y_axis_scaling(
         self,
-        axis_name="Y1",
+        name="Y1",
         linear_scaling=True,
         min_scale=None,
         max_scale=None,
@@ -1688,7 +1726,7 @@ class CommonReport(object):
         if units:
             props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
-        return self._change_property("Scaling", "Axis" + axis_name, props)
+        return self._change_property("Scaling", "Axis" + name, props)
 
     @pyaedt_function_handler()
     def edit_general_settings(
@@ -1855,19 +1893,24 @@ class CommonReport(object):
         ]
         return self._change_property("Header", "Header", props)
 
-    @pyaedt_function_handler
-    def import_traces(self, file_path, plot_name):
+    @pyaedt_function_handler(file_path="input_file")
+    def import_traces(self, input_file, plot_name):
         """Import report data from a file into a specified report.
 
         Parameters
         ----------
-        file_path : str
+        input_file : str
             Path for the file to import. The extensions supported are ``".csv"``,
             ``".tab"``, ``".dat"``, and ``".rdat"``.
         plot_name : str
             Name of the plot to import the file data into.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
-        if not os.path.exists(file_path):
+        if not os.path.exists(input_file):
             msg = "File does not exist."
             raise FileExistsError(msg)
 
@@ -1880,7 +1923,7 @@ class CommonReport(object):
                 raise ValueError(msg)
             self.plot_name = plot_name
 
-        split_path = os.path.splitext(file_path)
+        split_path = os.path.splitext(input_file)
         extension = split_path[1]
 
         supported_ext = [".csv", ".tab", ".dat", ".rdat"]
@@ -1890,14 +1933,14 @@ class CommonReport(object):
 
         try:
             if extension == ".rdat":
-                self._post.oreportsetup.ImportReportDataIntoReport(self.plot_name, file_path)
+                self._post.oreportsetup.ImportReportDataIntoReport(self.plot_name, input_file)
             else:
-                self._post.oreportsetup.ImportIntoReport(self.plot_name, file_path)
+                self._post.oreportsetup.ImportIntoReport(self.plot_name, input_file)
             return True
         except Exception:
             return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def delete_traces(self, plot_name, traces_list):
         """Delete an existing trace or traces.
 
@@ -1907,6 +1950,11 @@ class CommonReport(object):
             Plot name.
         traces_list : list
             List of one or more traces to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if plot_name not in self._post.all_report_names:
             raise ValueError("Plot does not exist in current project.")
@@ -1915,16 +1963,14 @@ class CommonReport(object):
             if trace not in self._trace_info[3]:
                 raise ValueError("Trace does not exist in the selected plot.")
 
-        props = []
-        props.append("{}:=".format(plot_name))
-        props.append(traces_list)
+        props = ["{}:=".format(plot_name), traces_list]
         try:
             self._post.oreportsetup.DeleteTraces(props)
             return True
         except Exception:
             return False
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def add_trace_to_report(self, traces, setup_name=None, variations=None, context=None):
         """Add a trace to a specific report.
 
@@ -1940,6 +1986,11 @@ class CommonReport(object):
             Dictionary of variations. The default is ``None``.
         context : list, optional
             List of solution context.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -1958,7 +2009,7 @@ class CommonReport(object):
         finally:
             self.expressions = expr
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler()
     def update_trace_in_report(self, traces, setup_name=None, variations=None, context=None):
         """Update a trace in a specific report.
 
@@ -1972,6 +2023,11 @@ class CommonReport(object):
             Dictionary of variations. The default is ``None``.
         context : list, optional
             List of solution context.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -2000,11 +2056,12 @@ class Standard(CommonReport):
 
     @property
     def sub_design_id(self):
-        """Subdesign ID for a Circuit or HFSS 3D Layout subdesign.
+        """Sub design ID for a Circuit or HFSS 3D Layout sub design.
 
         Returns
         -------
         int
+            Number of the sub design ID.
         """
         return self.props["context"].get("Sub Design ID", None)
 
@@ -2019,6 +2076,7 @@ class Standard(CommonReport):
         Returns
         -------
         str
+            Time start value.
         """
         return self.props["context"].get("time_start", None)
 
@@ -2033,6 +2091,7 @@ class Standard(CommonReport):
         Returns
         -------
         str
+            Time stop value.
         """
         return self.props["context"].get("time_stop", None)
 
@@ -2056,6 +2115,7 @@ class Standard(CommonReport):
         Returns
         -------
         float
+            Pulse rise time.
         """
         return self.props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
 
@@ -2079,6 +2139,7 @@ class Standard(CommonReport):
         Returns
         -------
         int
+            Time windowing.
         """
         _time_windowing = self.props["context"].get("time_windowing", 0)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
@@ -2303,6 +2364,7 @@ class AntennaParameters(Standard):
         Returns
         -------
         str
+            Name of the far field sphere.
         """
         return self.props["context"].get("far_field_sphere", None)
 
@@ -2333,6 +2395,7 @@ class Fields(CommonReport):
         Returns
         -------
         str
+            Point number.
         """
         return self.props["context"].get("point_number", None)
 
@@ -2366,6 +2429,7 @@ class NearField(CommonReport):
         Returns
         -------
         str
+            Field name.
         """
         return self.props["context"].get("near_field", None)
 
@@ -2398,6 +2462,7 @@ class FarField(CommonReport):
         Returns
         -------
         str
+            Field name.
         """
         return self.props.get("far_field_sphere", None)
 
@@ -2486,6 +2551,7 @@ class AMIConturEyeDiagram(CommonReport):
         Returns
         -------
         int
+            Quantity type.
         """
         return self.props.get("quantity_type", 0)
 
@@ -2500,6 +2566,7 @@ class AMIConturEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Report category.
         """
         return self.props["report_category"]
 
@@ -2621,12 +2688,12 @@ class AMIConturEyeDiagram(CommonReport):
         return ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Z Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, plot_name=None):
+    def create(self, name=None):
         """Create an eye diagram report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        name : str, optional
             Plot name. The default is ``None``, in which case
             the default name is used.
 
@@ -2635,10 +2702,10 @@ class AMIConturEyeDiagram(CommonReport):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not plot_name:
+        if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
-            self.plot_name = plot_name
+            self.plot_name = name
         self._post.oreportsetup.CreateReport(
             self.plot_name,
             self.report_category,
@@ -2653,18 +2720,18 @@ class AMIConturEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
     def eye_mask(
         self,
         points,
-        xunits="ns",
-        yunits="mV",
+        x_units="ns",
+        y_units="mV",
         enable_limits=False,
         upper_limit=500,
         lower_limit=-500,
         color=(0, 255, 0),
-        xoffset="0ns",
-        yoffset="0V",
+        x_offset="0ns",
+        y_offset="0V",
         transparency=0.3,
     ):
         """Create an eye diagram in the plot.
@@ -2673,22 +2740,22 @@ class AMIConturEyeDiagram(CommonReport):
         ----------
         points : list
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
-        xunits : str, optional
+        x_units : str, optional
             X points units. The default is ``"ns"``.
-        yunits : str, optional
+        y_units : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.
-        upper_limits float, optional
+        upper_limit : float, optional
             Upper limit if limits are enabled. The default is ``500``.
-        lower_limits str, optional
+        lower_limit : str, optional
             Lower limit if limits are enabled. The default is ``-500``.
         color : tuple, optional
             Mask in (R, G, B) color. The default is ``(0, 255, 0)``.
             Each color value must be an integer in a range from 0 to 255.
-        xoffset : str, optional
+        x_offset : str, optional
             Mask time offset with units. The default is ``"0ns"``.
-        yoffset : str, optional
+        y_offset : str, optional
             Mask value offset with units. The default is ``"0V"``.
         transparency : float, optional
             Mask transparency. The default is ``0.3``.
@@ -2719,9 +2786,9 @@ class AMIConturEyeDiagram(CommonReport):
             "LowerLimit:=",
             lower_limit if lower_limit else 0,
             "XUnits:=",
-            xunits,
+            x_units,
             "YUnits:=",
-            yunits,
+            y_units,
         ]
         mask_points = ["NAME:MaskPoints"]
         for point in points:
@@ -2731,21 +2798,21 @@ class AMIConturEyeDiagram(CommonReport):
         args = ["NAME:ChangedProps", arg]
         if not ("quantity_type" in dir(self) and self.report_type == "Rectangular Contour Plot"):
             args.append(["NAME:Mask Fill Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
-            args.append(["NAME:X Offset", "Value:=", xoffset])
-            args.append(["NAME:Y Offset", "Value:=", yoffset])
+            args.append(["NAME:X Offset", "Value:=", x_offset])
+            args.append(["NAME:Y Offset", "Value:=", y_offset])
             args.append(["NAME:Mask Trans", "Transparency:=", transparency])
         props[1].append(args)
         self._post.oreportsetup.ChangeProperty(props)
 
         return True
 
-    @pyaedt_function_handler()
-    def rectangular_plot(self, value=True):
+    @pyaedt_function_handler(value="enable")
+    def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
         ----------
-        value : bool
+        enable : bool
             Whether to enable the rectangular plot. The default is ``True``. If
             ``False``, the rectangular plot is disabled.
 
@@ -2758,7 +2825,7 @@ class AMIConturEyeDiagram(CommonReport):
             "NAME:AllTabs",
             ["NAME:Eye", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
         ]
-        args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", value]]
+        args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", enable]]
         props[1].append(args)
         self._post.oreportsetup.ChangeProperty(props)
 
@@ -2788,13 +2855,13 @@ class AMIConturEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler()
-    def add_trace_characteristics(self, trace_name, arguments=None, solution_range=None):
+    @pyaedt_function_handler(trace_name="name")
+    def add_trace_characteristics(self, name, arguments=None, solution_range=None):
         """Add a trace characteristic to the plot.
 
         Parameters
         ----------
-        trace_name : str
+        name : str
             Name of the trace characteristic.
         arguments : list, optional
             Arguments if any. The default is ``None``.
@@ -2811,28 +2878,28 @@ class AMIConturEyeDiagram(CommonReport):
             arguments = []
         if not solution_range:
             solution_range = ["Full"]
-        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, solution_range)
+        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, name, arguments, solution_range)
         return True
 
-    @pyaedt_function_handler()
-    def export_mask_violation(self, out_file=None):
+    @pyaedt_function_handler(out_file="output_file")
+    def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
         Parameters
         ----------
-        out_file : str, optional
+        output_file : str, optional
             Full path to the TAB file. The default is ``None``, in which case
-            the violations are exoprted to a TAB file in the working directory.
+            the violations are exported to a TAB file in the working directory.
 
         Returns
         -------
         str
             Output file path if a TAB file is created.
         """
-        if not out_file:
-            out_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
-        self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, out_file)
-        return out_file
+        if not output_file:
+            output_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
+        self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
+        return output_file
 
 
 class AMIEyeDiagram(CommonReport):
@@ -2908,6 +2975,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         int
+            Quantity type.
         """
         return self.props.get("quantity_type", 0)
 
@@ -2922,6 +2990,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Report category.
         """
         return self.props["report_category"]
 
@@ -2946,6 +3015,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Unit interval.
         """
         return self.props["context"].get("unit_interval", None)
 
@@ -2960,6 +3030,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Offset value.
         """
         return self.props["context"].get("offset", None)
 
@@ -2974,6 +3045,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         bool
+            ``True`` if auto-delay is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("auto_delay", None)
 
@@ -2988,6 +3060,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            ``True`` if manual-delay is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("manual_delay", None)
 
@@ -3002,6 +3075,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         bool
+            ``True`` if auto-cross amplitude is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("auto_cross_amplitude", None)
 
@@ -3016,6 +3090,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Cross-amplitude.
         """
         return self.props["context"].get("cross_amplitude", None)
 
@@ -3030,6 +3105,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         bool
+            ``True`` to compute eye measurements, ``False`` otherwise.
         """
         return self.props["context"].get("auto_compute_eye_meas", None)
 
@@ -3044,6 +3120,7 @@ class AMIEyeDiagram(CommonReport):
         Returns
         -------
         str
+            Eye measurement point.
         """
         return self.props["context"].get("eye_measurement_point", None)
 
@@ -3144,12 +3221,12 @@ class AMIEyeDiagram(CommonReport):
         return ["Component:=", new_exprs]
 
     @pyaedt_function_handler()
-    def create(self, plot_name=None):
+    def create(self, name=None):
         """Create an eye diagram report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        name : str, optional
             Plot name. The default is ``None``, in which case
             the default name is used.
 
@@ -3158,10 +3235,10 @@ class AMIEyeDiagram(CommonReport):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not plot_name:
+        if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
-            self.plot_name = plot_name
+            self.plot_name = name
         options = [
             "Unit Interval:=",
             self.unit_interval,
@@ -3206,18 +3283,18 @@ class AMIEyeDiagram(CommonReport):
 
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(xunits="x_units", yunits="y_units", xoffset="x_offset", yoffset="y_offset")
     def eye_mask(
         self,
         points,
-        xunits="ns",
-        yunits="mV",
+        x_units="ns",
+        y_units="mV",
         enable_limits=False,
         upper_limit=500,
         lower_limit=-500,
         color=(0, 255, 0),
-        xoffset="0ns",
-        yoffset="0V",
+        x_offset="0ns",
+        y_offset="0V",
         transparency=0.3,
     ):
         """Create an eye diagram in the plot.
@@ -3226,22 +3303,22 @@ class AMIEyeDiagram(CommonReport):
         ----------
         points : list
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
-        xunits : str, optional
+        x_units : str, optional
             X points units. The default is ``"ns"``.
-        yunits : str, optional
+        y_units : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.
-        upper_limits float, optional
+        upper_limit : float, optional
             Upper limit if limits are enabled. The default is ``500``.
-        lower_limits str, optional
+        lower_limit : str, optional
             Lower limit if limits are enabled. The default is ``-500``.
         color : tuple, optional
             Mask in (R, G, B) color. The default is ``(0, 255, 0)``.
             Each color value must be an integer in a range from 0 to 255.
-        xoffset : str, optional
+        x_offset : str, optional
             Mask time offset with units. The default is ``"0ns"``.
-        yoffset : str, optional
+        y_offset : str, optional
             Mask value offset with units. The default is ``"0V"``.
         transparency : float, optional
             Mask transparency. The default is ``0.3``.
@@ -3266,9 +3343,9 @@ class AMIEyeDiagram(CommonReport):
             "LowerLimit:=",
             lower_limit if lower_limit else 0,
             "XUnits:=",
-            xunits,
+            x_units,
             "YUnits:=",
-            yunits,
+            y_units,
         ]
         mask_points = ["NAME:MaskPoints"]
         for point in points:
@@ -3277,21 +3354,21 @@ class AMIEyeDiagram(CommonReport):
         arg.append(mask_points)
         args = ["NAME:ChangedProps", arg]
         args.append(["NAME:Mask Fill Color", "R:=", color[0], "G:=", color[1], "B:=", color[2]])
-        args.append(["NAME:X Offset", "Value:=", xoffset])
-        args.append(["NAME:Y Offset", "Value:=", yoffset])
+        args.append(["NAME:X Offset", "Value:=", x_offset])
+        args.append(["NAME:Y Offset", "Value:=", y_offset])
         args.append(["NAME:Mask Trans", "Transparency:=", transparency])
         props[1].append(args)
         self._post.oreportsetup.ChangeProperty(props)
 
         return True
 
-    @pyaedt_function_handler()
-    def rectangular_plot(self, value=True):
+    @pyaedt_function_handler(value="enable")
+    def rectangular_plot(self, enable=True):
         """Enable or disable the rectangular plot on the chart.
 
         Parameters
         ----------
-        value : bool
+        enable : bool
             Whether to enable the rectangular plot. The default is ``True``. When
             ``False``, the rectangular plot is disabled.
 
@@ -3303,7 +3380,7 @@ class AMIEyeDiagram(CommonReport):
             "NAME:AllTabs",
             ["NAME:Eye", ["NAME:PropServers", "{}:EyeDisplayTypeProperty".format(self.plot_name)]],
         ]
-        args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", value]]
+        args = ["NAME:ChangedProps", ["NAME:Rectangular Plot", "Value:=", enable]]
         props[1].append(args)
         self._post.oreportsetup.ChangeProperty(props)
 
@@ -3333,13 +3410,13 @@ class AMIEyeDiagram(CommonReport):
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
 
-    @pyaedt_function_handler()
-    def add_trace_characteristics(self, trace_name, arguments=None, solution_range=None):
+    @pyaedt_function_handler(trace_name="name")
+    def add_trace_characteristics(self, name, arguments=None, solution_range=None):
         """Add a trace characteristic to the plot.
 
         Parameters
         ----------
-        trace_name : str
+        name : str
             Name of the trace characteristic.
         arguments : list, optional
             Arguments if any. The default is ``None``.
@@ -3356,28 +3433,28 @@ class AMIEyeDiagram(CommonReport):
             arguments = []
         if not solution_range:
             solution_range = ["Full"]
-        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, trace_name, arguments, solution_range)
+        self._post.oreportsetup.AddTraceCharacteristics(self.plot_name, name, arguments, solution_range)
         return True
 
-    @pyaedt_function_handler()
-    def export_mask_violation(self, out_file=None):
+    @pyaedt_function_handler(out_file="output_file")
+    def export_mask_violation(self, output_file=None):
         """Export the eye diagram mask violations to a TAB file.
 
         Parameters
         ----------
-        out_file : str, optional
+        output_file : str, optional
             Full path to the TAB file. The default is ``None``, in which case
-            the violations are exoprted to a TAB file in the working directory.
+            the violations are exported to a TAB file in the working directory.
 
         Returns
         -------
         str
             Output file path if a TAB file is created.
         """
-        if not out_file:
-            out_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
-        self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, out_file)
-        return out_file
+        if not output_file:
+            output_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
+        self._post.oreportsetup.ExportEyeMaskViolation(self.plot_name, output_file)
+        return output_file
 
 
 class EyeDiagram(AMIEyeDiagram):
@@ -3398,6 +3475,7 @@ class EyeDiagram(AMIEyeDiagram):
         Returns
         -------
         str
+            Expressions.
         """
         if self.props.get("expressions", None) is None:
             return []
@@ -3427,6 +3505,7 @@ class EyeDiagram(AMIEyeDiagram):
         Returns
         -------
         str
+            Time start.
         """
         return self.props["context"].get("time_start", None)
 
@@ -3441,6 +3520,7 @@ class EyeDiagram(AMIEyeDiagram):
         Returns
         -------
         str
+            Time stop.
         """
         return self.props["context"].get("time_stop", None)
 
@@ -3455,6 +3535,7 @@ class EyeDiagram(AMIEyeDiagram):
         Returns
         -------
         bool
+            ``True`` if thinning is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("thinning", None)
 
@@ -3469,6 +3550,7 @@ class EyeDiagram(AMIEyeDiagram):
         Returns
         -------
         float
+            DY DX tolerance.
         """
         return self.props["context"].get("dy_dx_tolerance", None)
 
@@ -3482,7 +3564,8 @@ class EyeDiagram(AMIEyeDiagram):
 
         Returns
         -------
-        float
+        int
+            Number of thinning points.
         """
         return self.props["context"].get("thinning_points", None)
 
@@ -3581,6 +3664,7 @@ class Spectral(CommonReport):
         Returns
         -------
         str
+            Time start.
         """
         return self.props["context"].get("time_start", None)
 
@@ -3595,6 +3679,7 @@ class Spectral(CommonReport):
         Returns
         -------
         str
+            Time stop.
         """
         return self.props["context"].get("time_stop", None)
 
@@ -3609,6 +3694,7 @@ class Spectral(CommonReport):
         Returns
         -------
         str
+            Window.
         """
         return self.props["context"].get("window", None)
 
@@ -3623,6 +3709,7 @@ class Spectral(CommonReport):
         Returns
         -------
         str
+            Kaiser coefficient.
         """
         return self.props["context"].get("kaiser_coeff", None)
 
@@ -3637,6 +3724,7 @@ class Spectral(CommonReport):
         Returns
         -------
         bool
+            ``True`` if coherent gain is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("adjust_coherent_gain", None)
 
@@ -3651,6 +3739,7 @@ class Spectral(CommonReport):
         Returns
         -------
         bool
+            ``True`` if continuous spectrum is enabled, ``False`` otherwise.
         """
         return self.props["context"].get("plot_continous_spectrum", None)
 
@@ -3660,11 +3749,12 @@ class Spectral(CommonReport):
 
     @property
     def max_frequency(self):
-        """Maximum spectrum  frequency.
+        """Maximum spectrum frequency.
 
         Returns
         -------
         str
+            Maximum spectrum frequency.
         """
         return self.props["context"].get("max_frequency", None)
 
@@ -3752,23 +3842,24 @@ class Spectral(CommonReport):
             return [self.expressions]
 
     @pyaedt_function_handler()
-    def create(self, plot_name=None):
+    def create(self, name=None):
         """Create an eye diagram report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        name : str, optional
             Plot name. The default is ``None``, in which case
             the default name is used.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
-        if not plot_name:
+        if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
-            self.plot_name = plot_name
+            self.plot_name = name
         self._post.oreportsetup.CreateReport(
             self.plot_name,
             "Standard",
@@ -3816,6 +3907,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         str
+            Net name.
         """
         return self._net
 
@@ -3833,6 +3925,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         str
+            Band name.
         """
         return self.props["context"].get("band", None)
 
@@ -3849,6 +3942,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         str
+            Emission.
         """
         return self._emission
 
@@ -3870,6 +3964,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         str
+            Time start.
         """
         return self.props["context"].get("time_start", None)
 
@@ -3884,6 +3979,7 @@ class EMIReceiver(CommonReport):
         Returns
         -------
         str
+            Time stop.
         """
         return self.props["context"].get("time_stop", None)
 
@@ -3971,12 +4067,12 @@ class EMIReceiver(CommonReport):
             return [self.expressions]
 
     @pyaedt_function_handler()
-    def create(self, plot_name=None):
+    def create(self, name=None):
         """Create an EMI receiver report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        name : str, optional
             Plot name. The default is ``None``, in which case
             the default name is used.
 
@@ -3985,10 +4081,10 @@ class EMIReceiver(CommonReport):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not plot_name:
+        if not name:
             self.plot_name = generate_unique_name("Plot")
         else:
-            self.plot_name = plot_name
+            self.plot_name = name
         self._post.oreportsetup.CreateReport(
             self.plot_name,
             "Standard",

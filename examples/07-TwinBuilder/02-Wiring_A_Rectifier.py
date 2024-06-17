@@ -41,10 +41,10 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
-                        specified_version=aedt_version,
+tb = pyaedt.TwinBuilder(project=pyaedt.generate_unique_project_name(),
+                        version=aedt_version,
                         non_graphical=non_graphical,
-                        new_desktop_session=new_thread
+                        new_desktop=new_thread
                         )
 
 ###############################################################################

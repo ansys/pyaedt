@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from _unittest.conftest import config
 import pytest
 
@@ -15,6 +39,7 @@ from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.settings import settings
 
 settings.lazy_load = False
+settings.wait_for_license = True
 
 
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
@@ -40,9 +65,9 @@ class TestClass:
         aedtapp = Hfss3dLayout(ic_mode=True)
         assert aedtapp.design_type == "HFSS 3D Layout Design"
         assert aedtapp.solution_type == "HFSS3DLayout"
-        assert aedtapp.ic_mode == True
+        assert aedtapp.ic_mode
         aedtapp.ic_mode = False
-        assert aedtapp.ic_mode == False
+        assert not aedtapp.ic_mode
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_run_desktop_twinbuilder(self):

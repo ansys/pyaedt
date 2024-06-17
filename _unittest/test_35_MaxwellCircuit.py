@@ -1,10 +1,39 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
+from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Maxwell2d
 from pyaedt import MaxwellCircuit
 from pyaedt.generic.constants import SOLUTIONS
+
+test_subfolder = "T35"
+
+netlist1 = "netlist.sph"
 
 
 @pytest.fixture(scope="class")
@@ -14,11 +43,18 @@ def aedtapp(add_app):
     return app
 
 
+@pytest.fixture(scope="class", autouse=True)
+def examples(local_scratch):
+    netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+    return [netlist_file1]
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
+        self.netlist_file1 = examples[0]
 
     def test_01_create_resistor(self):
         id = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0, 0])
@@ -74,3 +110,8 @@ class TestClass:
         m2d.assign_coil(assignment=["Circle_inner"])
         m2d.assign_winding(assignment=["Circle_inner"], winding_type="External", name="Ext_Wdg")
         assert m2d.edit_external_circuit(netlist_file, self.aedtapp.design_name)
+
+    def test_08_import_netlist(self):
+        self.aedtapp.insert_design("SchematicImport")
+        self.aedtapp.modeler.schematic.limits_mils = 5000
+        assert self.aedtapp.create_schematic_from_netlist(self.netlist_file1)

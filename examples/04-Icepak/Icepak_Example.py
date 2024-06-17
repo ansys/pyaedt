@@ -35,9 +35,9 @@ non_graphical = False
 temp_folder = pyaedt.generate_unique_folder_name()
 project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
-ipk = pyaedt.Icepak(projectname=project_temp_name,
-                    specified_version=aedt_version,
-                    new_desktop_session=True,
+ipk = pyaedt.Icepak(project=project_temp_name,
+                    version=aedt_version,
+                    new_desktop=True,
                     non_graphical=non_graphical
                     )
 
@@ -48,7 +48,7 @@ ipk.autosave_disable()
 # ~~~~~~~~~~
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(temp_folder, "Graphics_card.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Create source blocks

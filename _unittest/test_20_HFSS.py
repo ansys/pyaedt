@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 import os
 import shutil
@@ -1296,7 +1320,7 @@ class TestClass:
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_53_import_source_excitation(self, add_app):
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
@@ -1310,7 +1334,7 @@ class TestClass:
         assert aedtapp.edit_source_from_file(
             aedtapp.excitations[0], time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_54_assign_symmetry(self, add_app):
         aedtapp = add_app(project_name="test_54", solution_type="Modal")
@@ -1330,7 +1354,7 @@ class TestClass:
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
         assert aedtapp.set_impedance_multiplier(2)
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
@@ -1401,14 +1425,19 @@ class TestClass:
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad.nas")
         example_project2 = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "test_cad_2.nas")
 
-        cads = self.aedtapp.modeler.import_nastran(example_project)
+        cads = self.aedtapp.modeler.import_nastran(example_project, lines_thickness=0.1)
         assert len(cads) > 0
+        stl = self.aedtapp.modeler.import_nastran(example_project, decimation=0.3, preview=True, save_only_stl=True)
+        assert os.path.exists(stl[0])
+        assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
         from pyaedt.modules.solutions import simplify_stl
 
-        out = simplify_stl(example_project, decimation=0.8, aggressiveness=5)
+        out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
+        out = simplify_stl(example_project, decimation=0.8, preview=True)
+        assert out
 
     def test_60_set_variable(self):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
@@ -1625,13 +1654,13 @@ class TestClass:
         aedtapp.hybrid = True
         assert aedtapp.assign_febi(["inner"])
         assert len(aedtapp.boundaries) == 1
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_67_transient_composite(self, add_app):
         aedtapp = add_app(project_name="test_66")
         aedtapp.solution_type = "Transient Composite"
         assert aedtapp.solution_type == "Transient Composite"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_68_import_gds_3d(self):

@@ -26,12 +26,12 @@ aedt_version = "2024.1"
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version=aedt_version,
-    new_desktop_session=True,
+    version=aedt_version,
+    new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    projectname="M2D_DC_Conduction",
-    designname="Ansys_resistor"
+    project="M2D_DC_Conduction",
+    design="Ansys_resistor"
 )
 
 ##########################################################

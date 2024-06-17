@@ -47,8 +47,8 @@ NewThread = True
 # and starts the specified version in the specified mode.
 
 pyaedt.settings.enable_pandas_output = True
-cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
-                     specified_version=aedt_version, new_desktop_session=NewThread)
+cir = pyaedt.Circuit(project=os.path.join(project_path), non_graphical=non_graphical,
+                     version=aedt_version, new_desktop=NewThread)
 
 ###############################################################################
 # Solve AMI setup

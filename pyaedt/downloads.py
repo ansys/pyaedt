@@ -1,4 +1,28 @@
-"""Download example datasets from https://github.com/pyansys/example-data"""
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""Download example datasets from https://github.com/ansys/example-data"""
 
 import os
 import shutil
@@ -167,6 +191,7 @@ def _download_file(directory, name=None, destination=None, local_paths=None):
 # front-facing functions
 
 
+# TODO remove once examples repository is public
 def download_aedb(destination=None):
     """Download an example of AEDB File and return the def path.
 
@@ -188,8 +213,7 @@ def download_aedb(destination=None):
     Download an example result file and return the path of the file.
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_aedb()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
+
     """
     local_paths = []
     _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
@@ -502,8 +526,6 @@ def download_sherlock(destination=None):
 
     >>> import pyaedt
     >>> path = pyaedt.downloads.download_sherlock()
-    >>> path
-    'C:/Users/user/AppData/local/temp/Galileo.aedb'
     """
     if not destination:
         destination = EXAMPLES_PATH

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import copy
 import json
 from math import asin
@@ -1369,7 +1393,7 @@ class Primitives3D(GeometryModeler):
             design_parameters="",
             coordinate_system="Global",
             name=None,
-            password="",
+            password=None,
             auxiliary_parameters=False,
     ):
         """Insert a new 3D component.
@@ -1389,7 +1413,7 @@ class Primitives3D(GeometryModeler):
         name : str, optional
             3D component name. The default is ``None``.
         password : str, optional
-            Password for encrypted components. The default is an empty string.
+            Password for encrypted components. The default value is ``None``.
         auxiliary_parameters : bool or str, optional
             Enable the advanced 3d component import. It is possible to set explicitly the json file.
             The default is ``False``.
@@ -1404,6 +1428,8 @@ class Primitives3D(GeometryModeler):
 
         >>> oEditor.Insert3DComponent
         """
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         aedt_fh = open_file(input_file, "rb")
         if aedt_fh:
             temp = aedt_fh.read().splitlines()
@@ -1467,18 +1493,8 @@ class Primitives3D(GeometryModeler):
                             else:
                                 is_project_dataset = False
                                 dsname = key
-                            self._app.create_dataset(
-                                dsname,
-                                dat["x"],
-                                dat["y"],
-                                dat["z"],
-                                dat["v"],
-                                is_project_dataset,
-                                dat["xunit"],
-                                dat["yunit"],
-                                dat["zunit"],
-                                dat["vunit"],
-                            )
+                            self._app.create_dataset(dsname, dat["x"], dat["y"], dat["z"], dat["v"], is_project_dataset,
+                                                     dat["xunit"], dat["yunit"], dat["zunit"], dat["vunit"])
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_parameters:
                     udm_obj.name = name
@@ -1534,7 +1550,7 @@ class Primitives3D(GeometryModeler):
                         cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
                 temp_proj_name = generate_unique_project_name()
-                ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
+                ipkapp_temp = Icepak(project=os.path.join(self._app.toolkit_directory, temp_proj_name))
                 ipkapp_temp.delete_design(ipkapp_temp.design_name)
                 self._app.oproject.CopyDesign(self._app.design_name)
                 ipkapp_temp.oproject.Paste()

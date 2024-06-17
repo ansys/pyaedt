@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # standard imports
 import json
 import os
@@ -79,12 +103,12 @@ class TestClass:
         file_path = os.path.join(aedtapp.working_directory, filename + ".x_b")
         aedtapp.export_3d_model(filename, aedtapp.working_directory, ".x_b", [], [])
         app = add_app(project_name="new_proj", solution_type=aedtapp.solution_type, just_open=True)
-        app.modeler.import_3d_cad(file_path)
+        app.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_02_q3d_export(self, q3dtest, add_app):
         q3dtest.modeler.create_coordinate_system()
@@ -101,7 +125,7 @@ class TestClass:
         assert isinstance(out, dict)
         assert app.configurations.validate(out)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_03_q2d_export(self, q2dtest, add_app):
         conf_file = q2dtest.configurations.export_config()
@@ -153,7 +177,7 @@ class TestClass:
         assert q2dtest.configurations.options.import_mesh_operations
         assert q2dtest.configurations.options.import_object_properties
         assert q2dtest.configurations.options.import_parametrics
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     def test_04a_icepak(self, icepak_a, aedtapp, add_app):
         box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
@@ -184,13 +208,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         filename = icepak_a.design_name
         icepak_a.export_3d_model(filename, icepak_a.working_directory, ".x_b", [], [])
@@ -235,7 +258,7 @@ class TestClass:
         out = app.configurations.import_config(old_conf_file)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
-        app.close_project(save_project=False)
+        app.close_project(save=False)
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2023.1" and config["use_grpc"],
@@ -269,13 +292,12 @@ class TestClass:
             "test_dataset",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
-            zlist=None,
-            vlist=None,
+            z=None,
+            v=None,
             is_project_dataset=False,
-            xunit="cel",
-            yunit="W",
-            zunit="",
-            vunit="",
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
         )
         filename = icepak_b.design_name
         icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])

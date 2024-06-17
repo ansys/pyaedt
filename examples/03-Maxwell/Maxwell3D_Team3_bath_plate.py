@@ -48,12 +48,12 @@ design_name = "TEAM 3 Bath Plate"
 solver = "EddyCurrent"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=project_name,
-    designname=design_name,
+    project=project_name,
+    design=design_name,
     solution_type=solver,
-    specified_version=aedt_version,
+    version=aedt_version,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 m3d.modeler.model_units = "mm"
 
@@ -131,7 +131,7 @@ poly.set_crosssection_properties(type="Circle", width="0.5mm")
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Add Maxwell 3D setup

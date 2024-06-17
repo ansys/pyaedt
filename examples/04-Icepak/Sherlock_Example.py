@@ -52,7 +52,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -106,14 +106,14 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 # ~~~~~~~~~~~~~
 # Save the CAD file and refresh the properties from the parsing of the AEDT file.
 
-ipk.save_project(refresh_obj_ids_after_save=True)
+ipk.save_project(refresh_ids=True)
 
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
-ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Delete PCB objects
@@ -164,7 +164,7 @@ total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 # ~~~~~~~~~~
 # Plot the model again now that materials are assigned.
 
-ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
+ipk.plot(show=False, output_file=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Set up boundaries
