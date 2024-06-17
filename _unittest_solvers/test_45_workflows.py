@@ -152,16 +152,15 @@ class TestClass:
         assert main({"is_test": True})
 
     def test_08_configure_a3d(self, local_scratch):
-
         from pyaedt.workflows.project.configure_edb import main
 
         configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
-                                os.path.join(local_scratch.path, "ports.json"))
+                                         os.path.join(local_scratch.path, "ports.json"))
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
+                                 file_path)
 
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
-
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss,
@@ -226,5 +225,27 @@ class TestClass:
                      "assignment": ["Face9", "inner"]})
 
         assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_10_push_excitation_3dl(self, add_app, local_scratch):
+        from pyaedt.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
+
+        project_path = shutil.copy(os.path.join(local_path, "example_models",
+                                                "T41",
+                                                "test_post_processing.aedtz"),
+                                   os.path.join(local_scratch.path, "test_post_processing.aedtz"))
+        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+                          project_name=project_path)
+
+        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        assert main({"is_test": True, "file_path": file_path, "choice": ""})
+        aedtapp.save_project()
+        assert not aedtapp.design_datasets
+
+        # Correct choice
+        assert main({"is_test": True, "file_path": file_path, "choice": "1:1"})
+        aedtapp.save_project()
+        assert aedtapp.design_datasets
 
         aedtapp.close_project(aedtapp.project_name)

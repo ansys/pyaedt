@@ -24,7 +24,7 @@
 import os.path
 
 import pyaedt
-from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -64,11 +64,17 @@ def frontend():  # pragma: no cover
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
 
-    hfss = Hfss(project_name, design_name)
+    if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
+        design_name = active_design.GetName().split(";")[1]
+    else:  # pragma: no cover
+        app.logger.debug("Hfss 3D Layout project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("Hfss 3D Layout project is needed.")
 
-    port_selection = hfss.excitations
+    hfss_3dl = Hfss3dLayout(project_name, design_name)
+
+    port_selection = hfss_3dl.excitations
 
     if not port_selection:
         app.logger.error("No ports found.")
@@ -142,7 +148,7 @@ def frontend():  # pragma: no cover
     if not choice_ui:
         app.logger.error("Excitation not found.")
 
-    hfss.release_desktop(False, False)
+    hfss_3dl.release_desktop(False, False)
 
     output_dict = {"choice": choice_ui, "file_path": file_path_ui}
 
@@ -165,14 +171,24 @@ def main(extension_args):
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
 
-    hfss = Hfss(project_name, design_name)
+    if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
+        design_name = active_design.GetName().split(";")[1]
+    else:  # pragma: no cover
+        app.logger.debug("Hfss 3D Layout project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("Hfss 3D Layout project is needed.")
+
+    hfss_3dl = Hfss3dLayout(project_name, design_name)
 
     if not os.path.isfile(file_path):  # pragma: no cover
         app.logger.error("File does not exist.")
     elif choice:
-        hfss.edit_source_from_file(choice, file_path, is_time_domain=True)
+        hfss_3dl.edit_source_from_file(
+            choice,
+            file_path,
+            is_time_domain=True,
+        )
         app.logger.info("Excitation assigned correctly.")
     else:
         app.logger.error("Failed to select a port.")

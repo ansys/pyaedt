@@ -1775,9 +1775,9 @@ def conversion_function(data, function=None):  # pragma: no cover
     return data
 
 
-@pyaedt_function_handler()
+@pyaedt_function_handler(file_name="input_file")
 def parse_excitation_file(
-    file_name,
+    input_file,
     is_time_domain=True,
     x_scale=1,
     y_scale=1,
@@ -1791,7 +1791,7 @@ def parse_excitation_file(
 
     Parameters
     ----------
-    file_name : str
+    input_file : str
         Full name of the input file.
     is_time_domain : bool, optional
         Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
@@ -1820,7 +1820,7 @@ def parse_excitation_file(
     except ImportError:
         pyaedt_logger.error("NumPy is not available. Install it.")
         return False
-    df = read_csv_pandas(file_name, encoding=encoding)
+    df = read_csv_pandas(input_file, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale
