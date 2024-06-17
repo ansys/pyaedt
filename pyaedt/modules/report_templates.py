@@ -2703,9 +2703,11 @@ class AMIConturEyeDiagram(CommonReport):
                     pid += 1
                     arg[2][arg[2].index("SID") + 2] = str(sid)
                     arg[2][arg[2].index("PID") + 2] = str(pid)
-                # Limited maximum iterations to 1000 (Too many probes to analyze even in a single design)
+                # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
                 if sid > 1000:
-                    self._post.logger.error(f"Failed to find right context for expression : {self.expressions}")
+                    self._post.logger.error(
+                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                    )
                     arg[2][arg[2].index("SID") + 2] = "0"
                     arg[2][arg[2].index("PID") + 2] = "0"
                     break
@@ -3260,9 +3262,11 @@ class AMIEyeDiagram(CommonReport):
                     pid += 1
                     arg[2][arg[2].index("SID") + 2] = str(sid)
                     arg[2][arg[2].index("PID") + 2] = str(pid)
-                # Limited maximum iterations to 1000 (Too many probes to analyze even in a single design)
+                # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
                 if sid > 1000:
-                    self._post.logger.error(f"Failed to find right context for expression : {self.expressions}")
+                    self._post.logger.error(
+                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                    )
                     arg[2][arg[2].index("SID") + 2] = "0"
                     arg[2][arg[2].index("PID") + 2] = "0"
                     break
