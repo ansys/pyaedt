@@ -105,9 +105,19 @@ class TestClass:
             custom_y_resolution=500,
             extent_type="Polygon",
         )
-        assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
-        assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert cmp2.set_device_parts(True, "Steel-mild-surface")
+        assert cmp2.disable_device_parts()
+        assert cmp2.set_package_parts(solderballs="Boxes", connector="Solderbump", solderbumps_modeling="Lumped")
+        assert cmp2.set_package_parts(
+            solderballs="Lumped", connector="Bondwire", bondwire_material="Al-Extruded", bondwire_diameter="0.5mm"
+        )
+        assert not cmp2.set_package_parts(solderballs="Error1")  # invalid input
+        assert not cmp2.set_package_parts(connector="Error2")  # invalid input
+        assert not cmp2.set_package_parts(solderbumps_modeling="Error3")  # invalid input
+        assert not cmp2.set_package_parts(bondwire_material="Error4")  # material does not exist
         assert not bool(cmp2.overridden_components)
+        assert not cmp2.override_component("FCHIP", True)  # invalid part import selection
+        assert cmp2.set_device_parts()
         assert cmp2.override_component("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
         assert cmp2.override_component("FCHIP", False)
@@ -121,11 +131,11 @@ class TestClass:
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
+        assert not cmp.filters
+        assert cmp.set_device_parts()
         f = cmp.filters
         assert len(f.keys()) == 1
         assert all(not v for v in f["Type"].values())
-        assert not cmp.set_parts("Device Pt")
-        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
         assert cmp.height_filter is None
         assert cmp.footprint_filter is None
         assert cmp.power_filter is None
