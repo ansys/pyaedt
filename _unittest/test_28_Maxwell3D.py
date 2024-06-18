@@ -556,6 +556,26 @@ class TestClass:
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
         assert isinstance(expressions, list)
+        categories = self.aedtapp.post.available_quantities_categories(
+            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        )
+        assert isinstance(categories, list)
+        assert "R" in categories
+        assert "L" in categories
+        categories = self.aedtapp.post.available_quantities_categories(
+            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+        )
+        assert isinstance(categories, list)
+        assert "R" in categories
+        assert "L" in categories
+        assert "Z" in categories
+        categories = self.aedtapp.post.available_quantities_categories(
+            report_category="EddyCurrent", display_type="Data Table"
+        )
+        assert isinstance(categories, list)
+        assert "R" in categories
+        assert "L" in categories
+        assert "Z" in categories
         report = self.aedtapp.post.create_report(
             expressions=expressions,
             context={"Matrix1": "ReducedMatrix1"},
