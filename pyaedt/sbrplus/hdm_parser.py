@@ -123,7 +123,7 @@ class Parser:
         and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
         interpreted as a NumPy array.
         """
-        if base is None:
+        if base is None:  # pragma: no cover
             pyaedt_logger.warning("Invalid input provided when parsing for vector or list.")
         res = []
         bt = self.parser_types[base]
