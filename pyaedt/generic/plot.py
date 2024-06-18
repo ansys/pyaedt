@@ -493,8 +493,9 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    ax = plt.subplot(111, projection="polar")
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
     for plo_obj in plot_data:
         if isinstance(plo_obj[0], np.ndarray):
@@ -512,7 +513,7 @@ def plot_2d_chart(
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    elif show and not is_notebook():
         fig.show()
     return fig
 
