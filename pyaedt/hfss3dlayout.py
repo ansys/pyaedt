@@ -2076,9 +2076,59 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         bool
         """
+
+        def find_scale(data, header_line):
+            for td in data.keys():
+                if td in header_line:
+                    return data[td]
+            return None
+
+        with open(input_file, "r") as f:
+            header = f.readlines()[0]
+            time_data = {"[ps]": 1e-12, "[ns]": 1e-9, "[us]": 1e-6, "[ms]": 1e-3, "[s]": 1}
+            curva_data_V = {
+                "[nV]": 1e-9,
+                "[pV]": 1e-12,
+                "[uV]": 1e-6,
+                "[mV]": 1e-3,
+                "[V]": 1,
+                "[kV]": 1e3,
+            }
+            curva_data_W = {
+                "[nW]": 1e-9,
+                "[pW]": 1e-12,
+                "[uW]": 1e-6,
+                "[mW]": 1e-3,
+                "[W]": 1,
+                "[kW]": 1e3,
+            }
+            curva_data_A = {
+                "[nA]": 1e-9,
+                "[pA]": 1e-12,
+                "[uA]": 1e-6,
+                "[mA]": 1e-3,
+                "[A]": 1,
+                "[kA]": 1e3,
+            }
+            scale = find_scale(time_data, header)
+            x_scale = scale if scale else x_scale
+            scale = find_scale(curva_data_V, header)
+            if scale:
+                y_scale = scale
+                data_format = "Voltage"
+            else:
+                scale = find_scale(curva_data_W, header)
+                if scale:
+                    y_scale = scale
+                    data_format = "Power"
+                else:
+                    scale = find_scale(curva_data_A, header)
+                    if scale:
+                        y_scale = scale
+                        data_format = "Current"
         out = "Voltage"
         freq, mag, phase = parse_excitation_file(
-            file_name=input_file,
+            input_file=input_file,
             is_time_domain=is_time_domain,
             x_scale=x_scale,
             y_scale=y_scale,
