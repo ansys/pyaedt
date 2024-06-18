@@ -3894,9 +3894,7 @@ class SetupQ3D(Setup, object):
 
 
 class SetupIcepak(Setup, object):
-    def __init__(self, app, solution_type, setup_name=None, is_new_setup=True):
-        if setup_name is None:
-            setup_name = generate_unique_name("Setup")
+    def __init__(self, app, solution_type, setup_name, is_new_setup=True):
         Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
 
     def start_continue_from_previous_setup(
@@ -3923,7 +3921,7 @@ class SetupIcepak(Setup, object):
             Whether variables are mapped by name from the source design. The default is
             ``True``.
         parameters : dict, optional
-            Dictionary of the parameters. This parameter is not considered if
+            Dictionary of the parameters. This argument is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
             ``appname.available_variations.nominal_w_values_dict``.
         project : str, optional
