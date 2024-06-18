@@ -504,7 +504,7 @@ class TestClass:
         L = m3d.assign_matrix(assignment="Current1")
         assert not L
 
-    def test_32B_matrix(self, add_app):
+    def test_32a_matrix(self, add_app):
         m3d = add_app(application=Maxwell3d, design_name="Matrix2")
         m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         m3d.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
@@ -522,17 +522,17 @@ class TestClass:
         m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
         m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
 
-        L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"])
-        out = L.join_series(["Cur1", "Cur2"])
+        L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
         assert isinstance(out[0], str)
         assert isinstance(out[1], str)
-        out = L.join_parallel(["Cur1", "Cur3"])
+        out = L.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
         assert isinstance(out[0], str)
         assert isinstance(out[1], str)
         out = L.join_parallel(["Cur5"])
         assert not out[0]
 
-    def test_32a_export_rl_matrix(self):
+    def test_32b_export_rl_matrix(self):
         self.aedtapp.set_active_design("Matrix2")
         L = self.aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
@@ -550,6 +550,23 @@ class TestClass:
         export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
+
+    def test_32c_post_processing(self):
+        expressions = self.aedtapp.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        )
+        assert isinstance(expressions, list)
+        report = self.aedtapp.post.create_report(
+            expressions=expressions,
+            context={"Matrix1": "ReducedMatrix1"},
+            plot_type="Data Table",
+            plot_name="reduced_matrix",
+        )
+        assert report.expressions == expressions
+        assert report.matrix == "Matrix1"
+        assert report.reduced_matrix == "ReducedMatrix1"
+        data = self.aedtapp.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        assert data.expressions[::-1] == expressions
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings

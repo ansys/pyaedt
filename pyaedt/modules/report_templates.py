@@ -402,7 +402,7 @@ class CommonReport(object):
 
     @property
     def matrix(self):
-        """2D or Q3D matrix name.
+        """Maxwell 2D/3D or Q2D/Q3D matrix name.
 
         Returns
         -------
@@ -417,7 +417,7 @@ class CommonReport(object):
 
     @property
     def reduced_matrix(self):
-        """reduced matrix name.
+        """Maxwell 2D/3D reduced matrix name for Eddy current solvers.
 
         Returns
         -------
@@ -2191,7 +2191,10 @@ class Standard(CommonReport):
                 ctxt = ["Context:=", "Original"]
             else:
                 ctxt = ["Context:=", self.matrix]
-        elif self._post._app.design_type == "Maxwell 2D" and self._post._app.solution_type == "EddyCurrent":
+        elif (
+            self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._post._app.solution_type == "EddyCurrent"
+        ):
             if not self.matrix:
                 ctxt = ["Context:=", "Original"]
             elif not self.reduced_matrix:

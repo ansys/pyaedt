@@ -960,6 +960,8 @@ class PostProcessorCommon(object):
             Report Setup. Default is ``None`` which will take first nominal_adaptive solution.
         context : str, dict, optional
             Report Category. Default is ``None`` which will take first default context.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
@@ -994,7 +996,7 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -1035,7 +1037,7 @@ class PostProcessorCommon(object):
             Default is ``None`` which will take first default quantity.".
         context : str, dict, optional
             Report Context. Default is ``None`` which will take first default context.
-            For Maxwell 2D Eddy Current solution types this can be provided as a dictionary
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
@@ -1071,7 +1073,7 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
-        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent":
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
             if isinstance(context, dict):
                 for k, v in context.items():
                     context = ["Context:=", k, "Matrix:=", v]
@@ -1757,8 +1759,8 @@ class PostProcessorCommon(object):
               ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
             - For Q2D or Q3D, specify the name of a reduced matrix.
             - For a far fields plot, specify the name of an infinite sphere.
-            - For Maxwell 2D Eddy Current solution types this can be provided as a dictionary
-                where the key is the matrix name and value the reduced matrix.
+            - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1877,7 +1879,11 @@ class PostProcessorCommon(object):
             ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
-        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent" and context:
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
             if isinstance(context, dict):
                 for k, v in context.items():
                     report.matrix = k
@@ -1965,6 +1971,8 @@ class PostProcessorCommon(object):
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+            6. For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         subdesign_id : int, optional
             Subdesign ID for exporting a Touchstone file of this subdesign.
             This parameter is valid for ``Circuit`` only.
@@ -2075,7 +2083,11 @@ class PostProcessorCommon(object):
             report.differential_pairs = True
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
-        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent" and context:
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
             if isinstance(context, dict):
                 for k, v in context.items():
                     report.matrix = k
