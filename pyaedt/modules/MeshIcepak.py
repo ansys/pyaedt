@@ -282,7 +282,7 @@ class CommonRegion(object):
             return {
                 "CreateRegion": oo
                 for o, oo in self._app.modeler.objects_by_name.items()
-                if oo.history() and oo.history().command == "CreateRegion"
+                if oo.history().command == "CreateRegion"
             }.get("CreateRegion", None)
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
@@ -657,20 +657,10 @@ class MeshRegionCommon(object):
             return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        if ("settings" in self.__dict__) and (name in self.settings):
+        if "settings" in self.__dict__ and name in self.settings:
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
-        elif (
-            ("settings" in self.__dict__)
-            and not (name in self.settings)
-            and name not in ["manual_settings", "settings", "_name", "_model_units", "_app"]
-        ):
-            self._app.logger.error(
-                "Setting name {} is not available. Available parameters are: {}.".format(
-                    name, ", ".join(self.settings.keys())
-                )
-            )
         else:
             super(MeshRegionCommon, self).__setattr__(name, value)
 
@@ -708,8 +698,6 @@ class GlobalMeshRegion(MeshRegionCommon):
         args = ["NAME:Settings"]
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
-        if self.global_region.object:
-            args += ["Objects({})".format(str(self.global_region.object.id))]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
