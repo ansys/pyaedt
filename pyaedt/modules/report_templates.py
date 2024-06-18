@@ -2708,8 +2708,8 @@ class AMIConturEyeDiagram(CommonReport):
                     self._post.logger.error(
                         "Failed to find right context for expression : {}".format(",".join(self.expressions))
                     )
-                    arg[2][arg[2].index("SID") + 2] = "0"
-                    arg[2][arg[2].index("PID") + 2] = "0"
+                    # arg[2][arg[2].index("SID") + 2] = "0"
+                    # arg[2][arg[2].index("PID") + 2] = "0"
                     break
         return arg
 
@@ -3267,8 +3267,8 @@ class AMIEyeDiagram(CommonReport):
                     self._post.logger.error(
                         "Failed to find right context for expression : {}".format(",".join(self.expressions))
                     )
-                    arg[2][arg[2].index("SID") + 2] = "0"
-                    arg[2][arg[2].index("PID") + 2] = "0"
+                    # arg[2][arg[2].index("SID") + 2] = "0"
+                    # arg[2][arg[2].index("PID") + 2] = "0"
                     break
         return arg
 
