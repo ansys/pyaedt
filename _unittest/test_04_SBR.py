@@ -22,10 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import builtins
 import os
 import sys
+from unittest.mock import mock_open
 
+from mock import patch
 import pytest
+
+from pyaedt.sbrplus.hdm_parser import Parser
 
 try:
     import osmnx
@@ -52,6 +57,28 @@ else:
     bird = "bird1"
 
 test_subfolder = "T17"
+
+CORRECT_HDM_HEADER = b"""
+# The binary data starts immediately after the '#header end' line.
+{
+  'types':
+  {
+  'Int32': {'type': 'int', 'size' : 4, },
+  'Bundle': {'type': 'object', 'layout' : (
+     {'type': 'Int32', 'field_names': ('version', ), },
+     ),
+  },
+  },
+'message': {'type': 'Bundle'}
+}
+#header end
+"""
+INCORRECT_HDM_HEADER = b"""
+# The binary data starts immediately after the '#header end' line.
+{
+    12
+#header end
+"""
 
 
 @pytest.fixture(scope="class")
@@ -243,3 +270,24 @@ class TestClass:
         assert plotter
         plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))
+
+    @patch.object(builtins, "open", new_callable=mock_open, read_data=CORRECT_HDM_HEADER)
+    def test_hdm_parser_header_loading_success(self, mock_file_open):
+        """Test that HDM parser loads header correctly."""
+        expected_result = {
+            "message": {"type": "Bundle"},
+            "types": {
+                "Bundle": {"layout": ({"field_names": ("version",), "type": "Int32"},), "type": "object"},
+                "Int32": {"size": 4, "type": "int"},
+            },
+        }
+        hdm_parser = Parser("some path")
+
+        assert expected_result == hdm_parser.header
+
+    @patch.object(builtins, "open", new_callable=mock_open, read_data=INCORRECT_HDM_HEADER)
+    def test_hdm_parser_header_loading_failure(self, mock_file_open):
+        """Test that HDM parser fails to load header."""
+
+        with pytest.raises(SyntaxError):
+            Parser("some path")
