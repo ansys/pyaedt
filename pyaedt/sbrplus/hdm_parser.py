@@ -22,9 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from abc import abstractmethod
 import ast
-import re
 import struct
 import warnings
 
@@ -67,24 +65,14 @@ class Parser:
         header = header.decode().splitlines()[1:]
         header = [line for line in header if not line.startswith("#")]
         header = "".join(header)
-        if self.__is_safe_header(header):
-            try:
-                self.header = ast.literal_eval(header)
-            except (ValueError, SyntaxError) as e:
-                pyaedt_logger.error("Header of file '{}' is not a valid dictionary.".format(filename))
-                raise e
-        else:
-            pyaedt_logger.error("Header of file '{}' is not a safe dictionary format.".format(filename))
+        try:
+            self.header = ast.literal_eval(header)
+        except (ValueError, SyntaxError) as e:
+            pyaedt_logger.error("Header of file '{}' is not a valid dictionary.".format(filename))
+            raise e
 
         self._read_header()
         self.binarycontent = binarycontent
-
-    @abstractmethod
-    def __is_safe_header(header):
-        """Basic regex to check if argument is a dictionary-like string."""
-
-        dict_pattern = r"^\{(?:[^{}]|(?R))*\}$"
-        return re.match(dict_pattern, header.strip()) is not None
 
     def parse_message(self):
         """Parse the binary content of the HDM file."""
