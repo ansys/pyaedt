@@ -417,7 +417,7 @@ class CommonReport(object):
 
     @property
     def reduced_matrix(self):
-        """Maxwell 2D/3D reduced matrix name for Eddy current solvers.
+        """Maxwell 2D/3D reduced matrix name for eddy current solvers.
 
         Returns
         -------

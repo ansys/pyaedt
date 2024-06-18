@@ -954,16 +954,18 @@ class PostProcessorCommon(object):
         report_category : str, optional
             Report Category. Default is ``None`` which will take first default category.
         display_type : str, optional
-            Report Display Type.
-            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+            Report display type. The default is ``None``, in which case the first default type.
+             is used In most cases, this default is ``"Rectangular Plot"``.
         solution : str, optional
-            Report Setup. Default is ``None`` which will take first nominal_adaptive solution.
+            Report setup. The default is ``None``, in which case the first
+            nominal adaptive solution is used.
         context : str, dict, optional
-            Report Category. Default is ``None`` which will take first default context.
-            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
-            where the key is the matrix name and value the reduced matrix.
+            Report category. The default is ``None``, in which case the first default context
+            is used. For Maxwell 2D/3D eddy current solution types, the report category
+            can be provided as a dictionary, where the key is the matrix name and the value
+            the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+            Whether the setup is Siwave DCIR. The default is ``False``.
 
         Returns
         -------
@@ -1033,8 +1035,8 @@ class PostProcessorCommon(object):
         solution : str, optional
             Report Setup. Default is `None` which will take first nominal_adaptive solution.
         quantities_category : str, optional
-            The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
-            Default is ``None`` which will take first default quantity.".
+            The category that the quantities belong to. It must be one of the ``available_quantities_categories`` method.
+            The default is ``None``, in which case the first default quantity is used.
         context : str, dict, optional
             Report Context. Default is ``None`` which will take first default context.
             For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
@@ -2012,7 +2014,7 @@ class PostProcessorCommon(object):
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
-            6. For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            6. For Maxwell 2D/3D eddy current solution types, this can be provided as a dictionary,
             where the key is the matrix name and value the reduced matrix.
         subdesign_id : int, optional
             Subdesign ID for exporting a Touchstone file of this subdesign.
