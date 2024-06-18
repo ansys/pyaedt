@@ -1049,6 +1049,26 @@ class PostProcessorCommon(object):
         References
         ----------
         >>> oModule.GetAllQuantities
+
+        Examples
+        --------
+        The example shows how to get report expressions for a Maxwell design with Eddy current solution.
+        The context has to be provided as a dictionary where the key is the name of the original matrix
+        and the value is the name of the reduced matrix.
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -1797,8 +1817,8 @@ class PostProcessorCommon(object):
         ...                            report_category="Far Fields",
         ...                            plot_type="3D Polar Plot",
         ...                            context="3D")
-
         >>> hfss.post.create_report("S(1,1)",hfss.nominal_sweep,variations=variations,plot_type="Smith Chart")
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1806,6 +1826,27 @@ class PostProcessorCommon(object):
         ...                               domain="Time",
         ...                               primary_sweep_variable="Time",
         ...                               plot_name="Winding Plot 1")
+        >>> m2d.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> report = m3d.post.create_report(
+        ...    expressions=expressions,
+        ...    context={"Matrix1": "ReducedMatrix1"},
+        ...    plot_type="Data Table",
+        ...    plot_name="reduced_matrix")
+        >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -2019,6 +2060,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -2026,12 +2068,30 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
+        >>> m2d.release_desktop(False, False)
 
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
         >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
         ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> circuit.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         expressions = [expressions] if isinstance(expressions, str) else expressions
         if not setup_sweep_name:
