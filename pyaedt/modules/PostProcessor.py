@@ -2075,6 +2075,13 @@ class PostProcessorCommon(object):
             report.differential_pairs = True
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif self._app.design_type == "Maxwell 2D" and self._app.solution_type == "EddyCurrent" and context:
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name

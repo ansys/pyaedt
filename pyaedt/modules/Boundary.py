@@ -1459,71 +1459,6 @@ class MaxwellParameters(BoundaryCommon, object):
             red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
         )
 
-    @pyaedt_function_handler()
-    def get_sources_for_plot(
-        self,
-        matrix,
-        reduced_matrix,
-        reduced_matrix_type,
-        get_self_terms=True,
-        get_mutual_terms=True,
-        first_element_filter=None,
-        second_element_filter=None,
-        category="L",
-    ):
-        """Return a list of source of specified matrix ready to be used in plot reports.
-
-        Parameters
-        ----------
-        get_self_terms : bool
-            Either if self terms have to be returned or not.
-        get_mutual_terms : bool
-            Either if mutual terms have to be returned or not.
-        first_element_filter : str, optional
-            Filter to apply to first element of equation. It accepts `*` and `?` as special characters.
-        second_element_filter : str, optional
-            Filter to apply to second element of equation. It accepts `*` and `?` as special characters.
-        category : str
-            Plot category name as in the report. Eg. "L" is category Inductance.
-            Matrix `CATEGORIES` property can be used to map available categories.
-
-        Returns
-        -------
-        list
-
-        Examples
-        --------
-        >>> from pyaedt import Q3d
-        >>> q3d = Q3d(project_path)
-        >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
-        ...                                      second_element_filter="GND*", category="DCL")
-        """
-        if not first_element_filter:
-            first_element_filter = "*"
-        if not second_element_filter:
-            second_element_filter = "*"
-        is_cg = False
-        if category in [self.CATEGORIESMAXWELL.Maxwell2d.L, self.CATEGORIESMAXWELL.Maxwell2d.R]:
-            is_cg = True
-        list_output = []
-        # params = oDesign.GetChildObject("Parameters")
-        # matrix1 = params.GetChildObject("Matrix1")
-        # matrix1.GetChildObject("Secondary").GetChildObject("JoinParallel1").GetPropValue("Source")
-        # 'sec, tert'
-        if get_self_terms:
-            for el in self.sources(is_gc_sources=is_cg):
-                value = "{}({},{})".format(category, el, el)
-                if filter_tuple(value, first_element_filter, second_element_filter):
-                    list_output.append(value)
-        if get_mutual_terms:
-            for el1 in self.sources(is_gc_sources=is_cg):
-                for el2 in self.sources(is_gc_sources=is_cg):
-                    if el1 != el2:
-                        value = "{}({},{})".format(category, el1, el2)
-                        if filter_tuple(value, first_element_filter, second_element_filter):
-                            list_output.append(value)
-        return list_output
-
 
 class FieldSetup(BoundaryCommon, object):
     """Manages Far Field and Near Field Component data and execution.
@@ -2066,7 +2001,6 @@ class Matrix(object):
         >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
         ...                                      second_element_filter="GND*", category="DCL")
         """
-        # DO WE REALLY NEED IT?
         if not first_element_filter:
             first_element_filter = "*"
         if not second_element_filter:
