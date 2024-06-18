@@ -153,16 +153,15 @@ class TestClass:
         assert main({"is_test": True})
 
     def test_08_configure_a3d(self, local_scratch):
-
         from pyaedt.workflows.project.configure_edb import main
 
         configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
-                                os.path.join(local_scratch.path, "ports.json"))
+                                         os.path.join(local_scratch.path, "ports.json"))
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
+                                 file_path)
 
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
-
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss,
@@ -242,3 +241,25 @@ class TestClass:
                      "calculation": "e_line",
                      "assignment": ["Polyl1"]})
 
+
+    def test_10_push_excitation_3dl(self, local_scratch, desktop):
+        from pyaedt.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
+
+        project_path = shutil.copy(os.path.join(local_path, "example_models",
+                                                "T41",
+                                                "test_post_3d_layout_solved_23R2.aedtz"),
+                                   os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
+
+        h3d = pyaedt.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
+
+        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        assert main({"is_test": True, "file_path": file_path, "choice": ""})
+        h3d.save_project()
+        assert not h3d.design_datasets
+
+        # Correct choice
+        assert main({"is_test": True, "file_path": file_path, "choice": "Port1"})
+        h3d.save_project()
+        # In 3D Layout datasets are not retrieved
+        # assert h3d.design_datasets
+        h3d.close_project(h3d.project_name)
