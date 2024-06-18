@@ -1,0 +1,362 @@
+name: pull-request
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+env:
+  ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
+  MAIN_PYTHON_VERSION: '3.10'
+  PACKAGE_NAME: 'pyaedt'
+  DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+  MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
+  MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
+  MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
+  ON_CI: True
+  VTK_OSMESA_VERSION: '9.2.20230527.dev0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  labeler:
+    name: "Labels"
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      github.event.type != 'labeled'
+    steps:
+
+     - name: "Checkout repository"
+       uses: actions/checkout@v4
+
+     - name: "Sync labels"
+       uses: micnncim/action-label-syncer@v1
+       env:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+     - name: "Label pull-request"
+       uses: actions/labeler@v5.0.0
+       with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  style:
+    name: "Style checks"
+    runs-on: ubuntu-latest
+    needs: labeler
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'style:skip')
+    steps:
+
+      - name: "Style of branch name"
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'style:branch')
+        uses: ansys/actions/branch-name-style@v6
+
+      - name: "Style of pull-request title"
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'style:branch')
+        uses: ansys/actions/commit-style@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          use-upper-case: true
+
+      # INFO: 'Style of code' is performed by the pre-commit platform
+
+      # TODO: Update to ansys/actions/doc-style@v6
+      - name: "Style of doc"
+        if: |
+          !contains(github.event.pull_request.labels.*.name, 'style:docs')
+        uses: ansys/actions/doc-style@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          vale-config: "doc/.vale.ini"
+          vale-version: "2.29.6"
+
+  # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
+  # TODO: Allow conditional build of sections in docs via env vars
+  doc-build-without-examples:
+    name: "Docs without examples"
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'docs:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'docs:examples')
+    needs: style
+    steps:
+
+      - name: "Checkout project"
+        uses: actions/checkout@v4
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: "Install system dependencies"
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra \
+            graphviz
+
+      - name: "Install project dependencies"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .[doc-no-examples]
+
+      # TODO: Update this step once pyaedt-examples is ready
+      - name: "Build HTML documentation without examples"
+        run: |
+          make -C doc clean
+          make -C doc html-no-examples
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
+
+      - name: "Upload HTML documentation without examples artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-no-examples-html
+          path: doc/_build/html
+          retention-days: 7
+
+      - name: "Build PDF documentation without examples"
+        run: |
+          make -C doc pdf-no-examples
+
+      - name: "Upload PDF documentation without examples artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-no-examples-pdf
+          path: doc/_build/latex/PyAEDT-Documentation-*.pdf
+          retention-days: 7
+
+  tests-linux:
+    name: "Linux / Tests / ${{ matrix.tests.name }}"
+    needs: style
+    runs-on: [ self-hosted, Linux, pyaedt ]
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'tests:skip')
+    env:
+      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANS_NODEPCHECK: '1'
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+          - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+          - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+    steps:
+
+      - name: "Checkout project"
+        uses: actions/checkout@v4
+
+      - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: "Create a virtual environment"
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade \
+            --trusted-host pypi.org \
+            --trusted-host pypi.python.org \
+            --trusted-host files.pythonhosted.org \
+            pip
+
+      - name: "Install tests dependencies"
+        run: |
+          source .venv/bin/activate
+          python -m pip install .[tests] pytest-azurepipelines
+
+      - name: "Install graphics dependencies"
+        run: |
+          source .venv/bin/activate
+          python -m pip uninstall --yes vtk
+          python -m pip install --extra-index-url https://wheels.vtk.org \
+            vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
+
+      - name: "Run ${{ matrix.tests.label }} tests"
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 50
+          command: |
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+            source .venv/bin/activate
+
+            pytest ${{ matrix.tests.flags }} \
+              --durations=50 -v \
+              --cov=pyaedt --cov-report=xml --cov-report=html \
+              --junitxml=junit/test-results.xml \
+              ${{ matrix.tests.folder }}
+
+      - name: "Upload ${{ matrix.tests.label }} tests coverage"
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: linux-${{ matrix.tests.label }}-tests-coverage
+          file: ./coverage.xml
+          flags: system,solver
+
+      - name: "Upload ${{ matrix.tests.name }} tests results"
+        uses: actions/upload-artifact@v3
+        if: ${{ always() }}
+        with:
+          name: linux-${{ matrix.tests.label }}-tests-results
+          path: junit/test-results.xml
+
+  tests-windows:
+    name: "Windows / Tests / ${{ matrix.tests.name }}"
+    needs: style
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    if: | 
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'tests:skip')
+    strategy:
+      fail-fast: false
+      matrix:
+        tests:
+          - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+          - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+          - {name: "IronPython", label: "ironpython", folder: "_unittest_ironpython", flags: ""}
+
+        tests-skip-units:
+           - contains(github.event.pull_request.labels.*.name, 'tests:units:skip')
+
+        tests-skip-solvers:
+           - contains(github.event.pull_request.labels.*.name, 'tests:solvers:skip')
+
+        tests-skip-ironpython:
+          - contains(github.event.pull_request.labels.*.name, 'tests:ironpython:skip')
+
+        exclude:
+
+          - tests-skip-units: true
+            tests:
+              - {name: "Units", label: "units", folder: "_unittest", flags: "-n 4 --dist loadfile"}
+
+          - tests-skip-solvers: true
+            tests:
+              - {name: "Solvers", label: "solvers", folder: "_unittest_solvers", flags: ""}
+
+          - tests-skip-ironpython: true
+            tests:
+              - {name: "IronPython", label: "ironpython", folder: "_unittest_ironpython", flags: ""}
+
+    steps:
+
+      - name: "Checkout project"
+        uses: actions/checkout@v4
+
+      # IronPython tests
+
+      - name: "Tests IronPython"
+        if: ${{ matrix.tests.label == 'ironpython' }}
+        timeout-minutes: 5
+        run: |
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $processA.WaitForExit()
+
+      - name: "Get logger content"
+        if: ${{ matrix.tests.label == 'ironpython' }}
+        run: |
+          get-content .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log
+
+      - name: "Check for errors"
+        if: ${{ matrix.tests.label == 'ironpython' }}
+        run: |
+          $test_errors_failures = Select-String -Path .\${{ matrix.tests.folder }}\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
+          if ($test_errors_failures -ne $null)
+          {
+            exit 1
+          }
+
+      # Solvers and units tests
+
+      - name: "Setup Python ${{ env.MAIN_PYTHON_VERSION }}"
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: "Create a virtual environment"
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install --upgrade `
+            --trusted-host pypi.org `
+            --trusted-host pypi.python.org `
+            --trusted-host files.pythonhosted.org `
+            pip
+
+      - name: "Install tests dependencies"
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -m pip install .[tests] pytest-azurepipelines
+
+      - name: "Install graphics dependencies"
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        run: |
+          .venv\Scripts\Activate.ps1
+          python -m pip uninstall --yes vtk
+          python -m pip install --extra-index-url https://wheels.vtk.org `
+            vtk-osmesa==${{ env.VTK_OSMESA_VERSION }}
+
+      - name: "Run tests"
+        uses: nick-fields/retry@v3
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 50
+          command: |
+            .venv\Scripts\Activate.ps1
+
+            pytest ${{ matrix.tests.flags }} `
+              --durations=50 -v `
+              --cov=pyaedt --cov-report=xml --cov-report=html `
+              --junitxml=junit/test-results.xml `
+              ${{ matrix.tests.folder }}
+
+      - name: "Upload ${{ matrix.tests.label }} tests coverage"
+        uses: codecov/codecov-action@v4
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: windows-${{ matrix.tests.label }}-tests-coverage
+          file: ./coverage.xml
+          flags: system
+
+      - name: "Upload ${{ matrix.tests.name }} tests results"
+        uses: actions/upload-artifact@v3
+        if: ${{ matrix.tests.label != 'ironpython' }}
+        with:
+          name: windows-${{ matrix.tests.label }}-tests-results
+          path: junit/test-results.xml
+
+  build-library:
+    name: "Build library"
+    needs: [doc-build-without-examples, tests-linux, tests-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ansys/actions/build-library@v6
+        with:
+          library-name: ${{ env.PACKAGE_NAME }}
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}

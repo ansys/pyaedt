@@ -1,0 +1,96 @@
+name: main
+on:
+  push:
+    branches:
+      - main
+
+env:
+  MAIN_PYTHON_VERSION: '3.10'
+  DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+  ON_CI: True
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
+  # TODO: Allow conditional build of sections in docs via env vars
+  doc-build-without-examples:
+    name: "Docs without examples"
+    runs-on: ubuntu-latest
+    if: |
+      !contains(github.event.pull_request.labels.*.name, 'ci:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'docs:skip') &&
+      !contains(github.event.pull_request.labels.*.name, 'docs:examples')
+    needs: style
+    steps:
+
+      - name: "Checkout project"
+        uses: actions/checkout@v4
+
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: "Install system dependencies"
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra \
+            graphviz
+
+      - name: "Install project dependencies"
+        run: |
+          python pip install --upgrade pip
+          python pip install .[doc-no-examples]
+
+      # TODO: Update this step once pyaedt-examples is ready
+      - name: "Build HTML documentation without examples"
+        run: |
+          make -C doc clean
+          make -C doc html-no-examples
+
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
+
+      - name: "Upload HTML documentation without examples artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-no-examples-html
+          path: doc/_build/html
+          retention-days: 7
+
+      - name: "Download the nightly documentation"
+        uses: actions/checkout@v4
+        with:
+          ref: "gh-pages"
+          path: "gh-pages"
+
+      - name: "Include 'API' and 'Examples' sections from nightly build docs"
+        run: |
+          # Copy content pages of the 'Examples' sections
+          cp -r gh-pages/version/dev/examples doc/_build/html/examples
+          # Copy landing page to include links to previous sections
+          cp gh-pages/version/dev/index.html doc/_build/html/index.html
+
+      - name: "Upload combined artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          path: doc/_build/html
+          name: complete-documentation-html
+
+  doc-deploy-dev:
+    name: "Deploy dev docs"
+    runs-on: ubuntu-latest
+    needs: doc-build
+    steps:
+      - uses: ansys/actions/doc-deploy-dev@v6
+        with:
+          doc-artifact-name: "complete-documentation-html"
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}

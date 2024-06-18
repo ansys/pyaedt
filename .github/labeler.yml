@@ -23,3 +23,93 @@ examples:
 - changed-files:
   - any-glob-to-any-file:
     - "examples/**/*"
+
+# -- Labels based on PR title ------------------------------------------------
+'fix':
+  - head-branch: ['fix']
+  
+'enhancement':
+  - head-branch: ['feat']
+
+# -- Documentation labels ----------------------------------------------------
+'docs':
+  - all:
+      - changed-files:
+          - any-glob-to-any-file: ['doc/source/**/*.rst']
+          - all-globs-to-all-files: ['!doc/source/API/**/*.rst', '!doc/styles/**', '!doc/.vale.ini']
+
+'docs:api':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['doc/source/API/**/*.rst']
+
+'docs:examples':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['examples/**/*.py']
+
+## -- Other labels ------------------------------------------------------------
+'code-style':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['.pre-commit-config.yaml', 'doc/.vale.ini']
+
+'docker':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['docker/**']
+
+'ci':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['.github/workflows/**']
+
+'tests:unit':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['_unittest/**']
+
+'tests:iron':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['_unittest_ironpython/**']
+
+'tests:solvers':
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: ['_unittest_solvers/**']
+
+# HACK: the following labels are declared with the only purpose of avoiding the
+# GitHub labeler bot to remove those. This is a known issue reported in the
+# official action/labeler repo https://github.com/actions/labeler/issues/763
+
+'ci:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
+'docs:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
+'tests:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
+'tests:unit:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
+'tests:iron:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
+'tests:solvers:skip':
+  - all:
+      - changed-files:
+          - all-globs-to-all-files: ['THIS-NEVER-MATCHES-A-FILE']
+
