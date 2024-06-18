@@ -840,6 +840,7 @@ class PostProcessor(Post):
         primary_sweep="Theta",
         secondary_sweep="Phi",
         snapshot_path=None,
+        show=True,
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -858,6 +859,8 @@ class PostProcessor(Post):
         snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
             The default is ``None``.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -868,7 +871,9 @@ class PostProcessor(Post):
             solution_data.intrinsics[nominal_sweep] = nominal_value
         if nominal_value:
             solution_data.primary_sweep = primary_sweep
-        return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep, snapshot_path=snapshot_path)
+        return solution_data.plot_3d(
+            x_axis=primary_sweep, y_axis=secondary_sweep, snapshot_path=snapshot_path, show=show
+        )
 
     @pyaedt_function_handler(frames_list="frames", output_gif_path="gif_path")
     def plot_scene(

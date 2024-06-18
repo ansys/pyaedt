@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ast
 import struct
 import warnings
 
@@ -37,6 +38,8 @@ except ImportError:
         "The NumPy module is required to run some functionalities of PostProcess.\n"
         "Install with \n\npip install numpy\n\nRequires CPython."
     )
+
+from pyaedt.aedt_logger import pyaedt_logger
 
 
 class Parser:
@@ -61,7 +64,13 @@ class Parser:
         header, binarycontent = binarycontent.split(b"#header end\n")
         header = header.decode().splitlines()[1:]
         header = [line for line in header if not line.startswith("#")]
-        self.header = eval(" ".join(header))
+        header = "".join(header)
+        try:
+            self.header = ast.literal_eval(header)
+        except (ValueError, SyntaxError) as e:
+            pyaedt_logger.error("Header of file '{}' is not a valid dictionary.".format(filename))
+            raise e
+
         self._read_header()
         self.binarycontent = binarycontent
 
@@ -114,7 +123,8 @@ class Parser:
         and converted to a NumPy array. A list is converted to a Python list. Only simple base types can be
         interpreted as a NumPy array.
         """
-        assert base != None
+        if base is None:  # pragma: no cover
+            pyaedt_logger.warning("Invalid input provided when parsing for vector or list.")
         res = []
         bt = self.parser_types[base]
 
@@ -131,7 +141,7 @@ class Parser:
             if type == "vector":
                 res = np.array(res)
         else:
-            res = [self._parse(base) for iel in range(size)]
+            res = [self._parse(base) for _ in range(size)]
 
         if len(res) == 1:
             return res[0]
