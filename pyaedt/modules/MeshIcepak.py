@@ -664,7 +664,8 @@ class MeshRegionCommon(object):
         elif (
             ("settings" in self.__dict__)
             and not (name in self.settings)
-            and name not in ["manual_settings", "settings", "_name", "_model_units", "_app"]
+            and name
+            not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
         ):
             self._app.logger.error(
                 "Setting name {} is not available. Available parameters are: {}.".format(
@@ -748,6 +749,7 @@ class MeshRegion(MeshRegionCommon):
             app,
             name,
         )
+        self._assignment = None
         self.enable = True
         if settings.aedt_version > "2023.2" and objects is not None:
             if not isinstance(objects, list):
