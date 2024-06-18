@@ -37,7 +37,7 @@ from pyaedt.modeler.cad.Modeler import Modeler
 if (3, 8) < sys.version_info < (3, 12):
     from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
     from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
-else:
+else:  # pragma: no cover
     warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.circuits.PrimitivesNexxim import NexximComponents
@@ -746,7 +746,7 @@ class ModelerEmit(ModelerCircuit):
         self.logger.info("ModelerEmit class has been initialized!")
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):
+    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
         sels = []
         if not isinstance(selections, list):
             selections = [selections]

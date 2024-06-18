@@ -36,7 +36,7 @@ from pyaedt.emit_core.emit_constants import UnitType
 # TODO: Remove once IronPython compatibility is removed
 if sys.version_info < (3, 12):
     import imp
-else:
+else:  # pragma: no cover
     from importlib.util import find_spec
 
 
@@ -103,7 +103,7 @@ def _set_api(aedt_version):
         if sys.version_info < (3, 12):
             module_path = imp.find_module("EmitApiPython")[1]
             logger.info("Importing EmitApiPython from: {}".format(module_path))
-        else:
+        else:  # pragma: no cover
             spec = find_spec("EmitApiPython")
             if spec is None:
                 logger.warning("Module {} not found".format("EmitApiPython"))
