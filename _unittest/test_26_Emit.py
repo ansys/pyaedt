@@ -2,7 +2,6 @@
 import os
 import sys
 import tempfile
-import re
 
 from _unittest_solvers.conftest import config
 import pytest
@@ -13,23 +12,11 @@ from pyaedt.emit_core.emit_constants import EmiCategoryFilter
 from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
-from pyaedt.emit_core.components.antenna import AntennaPropertyKey
 from pyaedt.generic import constants as consts
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
-
-
-from remote_dialog_pb2_grpc import RemoteDialogServiceStub
-import grpc
-from remote_dialog_pb2 import ResultDialogIcon
-from remote_dialog_pb2 import DialogParametersMessage
-from remote_dialog_pb2 import ProjectPathMessage
-from remote_dialog_pb2 import DialogCloseType
-from remote_dialog_pb2 import SolverOptionsMessage
-from remote_dialog_pb2 import DialogType
-from remote_dialog_pb2 import DialogCloseMessage
 
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
@@ -40,22 +27,6 @@ def aedtapp(add_app):
     app = add_app(application=Emit)
     return app
 
-# DEBUG: These two functions are temporary while AEDT doesn't have complete synchronization with iemit.exe
-def most_recent_iemit_port_file():
-    folder = tempfile.gettempdir()
-    files = os.listdir(folder)
-    paths = [os.path.join(folder, basename) for basename in files if basename.startswith("iemit_rpc_")]
-    return max(paths, key=os.path.getctime)
-def iemit_port():
-    port_file = most_recent_iemit_port_file()
-    port = open(port_file).read().strip().strip("{}")
-    return port
-@pytest.fixture
-def stub(scope="class"):
-    address = f"localhost:{iemit_port()}"
-    with grpc.insecure_channel(address) as channel:
-        stub = RemoteDialogServiceStub(channel)
-        yield stub
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 @pytest.mark.skipif(sys.version_info < (3,8), reason="Emit API is only available for Python 3.8+.")
@@ -65,33 +36,6 @@ class TestClass:
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-
-
-    def test_01_antenna(self, add_app, stub):
-        self.aedtapp = add_app(application=Emit)
-        # force AEDT to sync with iemit.exe
-        stub.ShowDialog(DialogParametersMessage(dialog_type=DialogType.FRAMED_RESULT_DIALOG))
-        stub.CloseDialog(DialogCloseMessage(close_type=DialogCloseType.CANCEL, prompt_to_save_for_cancel=False))
-        params = DialogParametersMessage(dialog_type=DialogType.COUPLINGS_DIALOG)
-        stub.ShowDialog(params)
-        params = DialogParametersMessage(dialog_type=DialogType.COUPLINGS_DIALOG)
-        stub.ShowDialog(params)
-        # create antenna and verify the name
-        antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
-        assert antenna.name == "TestAntenna"
-        # set/get antenna temperature
-        antenna.set_property(AntennaPropertyKey.TEMPERATURE, 300)
-        assert antenna.get_property(AntennaPropertyKey.TEMPERATURE) == 300
-        # confirm enum matches keys
-        def camel_to_snake_upper(name):
-            new_name = re.sub(r'(?<!^)(?=[A-Z])', '_', name).upper()
-            return new_name
-        enum_values = [(e.name, e.value) for e in AntennaPropertyKey]
-        antenna_keys = antenna.odesign.GetComponentPropertyKeys(antenna.name)
-        expected_enum_values = [(camel_to_snake_upper(key), key) for key in antenna_keys]
-        assert enum_values == expected_enum_values
-        assert isinstance(antenna, EmitAntennaComponent)
-
 
     def test_01_objects(self):
         assert self.aedtapp.solution_type
@@ -115,7 +59,6 @@ class TestClass:
                 assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython311.EmitApi'>"
                 assert self.aedtapp.results is not None
 
-    """
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_02_create_components(self, add_app):
         self.aedtapp = add_app(application=Emit)
@@ -1142,11 +1085,10 @@ class TestClass:
             assert protection_power_matrix == expected_protection_power
 
     """
-    """
     .. note::
     The following test should be maintained as the last test within this file to ensure
     that the AEDT app functions as intended.
-    """
+
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
@@ -1327,4 +1269,3 @@ class TestClass:
         expected_checkins = checkins_per_run * (number_of_runs + 1)
 
         assert checkouts == expected_checkouts and checkins == expected_checkins
-    """

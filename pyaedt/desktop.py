@@ -88,6 +88,8 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 def launch_aedt(full_path, non_graphical, port, student_version, first_run=True):
     """Launch AEDT in gRPC mode."""
 
+    full_path = 'C:\\AnsysDev\\emit\\build_output\\64Debug\\ansysedt.exe'
+
     def launch_desktop_on_port():
         command = [full_path, "-grpcsrv", str(port)]
         if non_graphical:

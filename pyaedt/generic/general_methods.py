@@ -1574,19 +1574,27 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
         version = version[-4:].replace(".", "")
     if version and version < "221":
         version = version[:2] + "." + version[2]
+    def ansysedt_exe_version(exe_file_path):
+        product_info_file = os.path.join(os.path.dirname(exe_file_path), "product.info")
+        with open(product_info_file, "r") as f:
+            for line in f:
+                if "AnsProductVersion" in line:
+                    version = line.split("=")[1].strip('\n"').replace(".","")
+                    return version
+        return None
+
     for p in psutil.process_iter():
         try:
             if p.name() in keys:
                 cmd = p.cmdline()
                 if non_graphical and "-ng" in cmd or not non_graphical:
-                    if not version or (version and version in cmd[0]):
+                    if not version or (version and version == ansysedt_exe_version(cmd[0])):
                         if "-grpcsrv" in cmd:
-                            if not version or (version and version in cmd[0]):
-                                try:
-                                    return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
-                                except (IndexError, ValueError):
-                                    # default desktop grpc port.
-                                    return_dict[p.pid] = 50051
+                            try:
+                                return_dict[p.pid] = int(cmd[cmd.index("-grpcsrv") + 1])
+                            except (IndexError, ValueError):
+                                # default desktop grpc port.
+                                return_dict[p.pid] = 50051
                         else:
                             return_dict[p.pid] = -1
                             for i in psutil.net_connections():

@@ -27,6 +27,7 @@ from collections import defaultdict
 from pyaedt.emit_core import emit_constants as emit_consts
 import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from enum import Enum
 
 
 class EmitComponents(object):
@@ -443,6 +444,15 @@ class EmitComponent(object):
         return None, None
 
     @pyaedt_function_handler()
+    def get_property(self, property_key : Enum):
+        value = self.odesign.GetComponentProperty(self.name, property_key.value)
+        return value
+    
+    @pyaedt_function_handler()
+    def set_property(self, property_key : Enum, value):
+        self.odesign.SetComponentProperties(self.name, [f"{property_key.value}:=", f"{value}"])
+
+    @pyaedt_function_handler()
     def update_property_tree(self):
         """Update the nodes (property groups) for this component.
 
@@ -469,6 +479,10 @@ class EmitComponent(object):
             nodes[node_name] = new_node
         self.root_prop_node = nodes[root_node_name]
         return self.root_prop_node
+
+    @pyaedt_function_handler()
+    def get_property_keys(self):
+        return self.odesign.GetComponentPropertyKeys(self.name)
 
     @pyaedt_function_handler()
     def get_node_properties(self, node=None):

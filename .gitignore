@@ -397,5 +397,6 @@ model.index\+
 /.env
 /doc/source/local_config.json
 
+.venv-py311
 # test coverage output
 /.cov/

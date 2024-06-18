@@ -136,7 +136,7 @@ def desktop():
 
     yield d
 
-    d.release_desktop(True, True)
+    #d.release_desktop(True, True)
 
 
 @pytest.fixture(scope="module")
