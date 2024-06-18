@@ -1028,17 +1028,20 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. The default is ``None``, in which case the default category is used.
         display_type : str, optional
             Report Display Type.
-            Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
+            The default is ``None``, in which case the default type is used,in most of the case "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
+            Report Setup.
+            The default is ``None``, in which case the first nominal adaptive solution is used.
         quantities_category : str, optional
-            The category that the quantities belong to. It must be one of the ``available_quantities_categories`` method.
+            The category that the quantities belong to.
+            It must be one of the ``available_quantities_categories`` method.
             The default is ``None``, in which case the first default quantity is used.
         context : str, dict, optional
-            Report Context. Default is ``None`` which will take first default context.
+            Report Context.
+            The default is ``None``, in which case the default context is used.
             For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
@@ -1127,7 +1130,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. Default is ``None`` which takes default category.
 
         Returns
         -------
@@ -1259,7 +1262,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         plot_name : str, optional
-            Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
+            Name of the plot to delete. The default  value is ``None`` and in this case, all reports are deleted.
 
         Returns
         -------
@@ -1498,7 +1501,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         project_dir : str
-            Path to the project directory. The csv file will be plot_name.csv.
+            Path to the project directory. The csv file is plot_name.csv.
         plot_name : str
             Name of the plot to export.
         uniform : bool, optional
@@ -1767,12 +1770,12 @@ class PostProcessorCommon(object):
         secondary_sweep_variable : str, optional
             Name of the secondary sweep variable in 3D Plots.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If `None` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, dict, optional
@@ -1980,7 +1983,7 @@ class PostProcessorCommon(object):
         ----------
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
-            Default is `None` which will return all traces.
+            Default is ``None`` which returns all traces.
         setup_sweep_name : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
             setup is used. Be sure to build a setup string in the form of
@@ -1990,21 +1993,21 @@ class PostProcessorCommon(object):
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
             Dictionary of all families including the primary sweep.
-            The default is ``None`` which will use the nominal variations of the setup.
+            The default is ``None`` which uses the nominal variations of the setup.
         primary_sweep_variable : str, optional
             Name of the primary sweep. The default is ``"None"`` which, depending on the context,
-            will internally assign the primary sweep to:
+            internally assigns the primary sweep to:
             1. ``Freq`` for frequency domain results,
             2. ``Time`` for transient results,
             3. ``Theta`` for radiation patterns,
             4. ``distance`` for field plot over a polyline.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If ``None`` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
             To get the list of available categories user can use method ``available_report_types``.
         context : str, dict, optional
             This is the context of the report.
@@ -3483,7 +3486,7 @@ class PostProcessor(PostProcessorCommon, object):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
-        It will also work when a layout components in 3d modeler is used.
+        It works when a layout components in 3d modeler is used.
         In order to plot on signal layers use the method ``create_fieldplot_layers_nets``.
 
         Parameters
@@ -3491,7 +3494,7 @@ class PostProcessor(PostProcessorCommon, object):
         layers : list
             List of layers to plot. For example:
             ``["Layer1","Layer2"]``. If empty list is provided
-            all layers will be considered.
+            all layers are considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3578,8 +3581,8 @@ class PostProcessor(PostProcessorCommon, object):
         layers_nets : list
             List of layers and nets to plot. For example:
             ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``. If ``"no-layer"`` is provided as first argument,
-            all layers will be considered. If ``"no-net"`` is provided or the list contains only layer name, all the
-            nets will be automatically considered.
+            all layers are considered. If ``"no-net"`` is provided or the list contains only layer name, all the
+            nets are automatically considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3957,7 +3960,7 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         full_name : str, optional
-            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir is used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
@@ -4247,8 +4250,8 @@ class PostProcessor(PostProcessorCommon, object):
         output_type : str, optional
             Output data presentation. The default is ``"component"``.
             The options are ``"component"``, or ``"boundary"``.
-            ``"component"`` will return the power based on each component.
-            ``"boundary"`` will return the power based on each boundary.
+            ``"component"`` returns the power based on each component.
+            ``"boundary"`` returns the power based on each boundary.
 
         Returns
         -------
