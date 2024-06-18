@@ -952,7 +952,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report category. The default is ``None``, in which case the first default category is used.
         display_type : str, optional
             Report display type. The default is ``None``, in which case the first default type.
              is used In most cases, this default is ``"Rectangular Plot"``.
