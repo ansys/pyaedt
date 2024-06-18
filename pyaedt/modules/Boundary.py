@@ -787,6 +787,75 @@ class NativeComponentPCB(NativeComponentObject, object):
         return True
 
     @pyaedt_function_handler()
+    @disable_auto_update
+    def set_package_parts(
+        self,
+        solderballs=None,
+        connector=None,
+        solderbumps_modeling="Boxes",
+        bondwire_material="Au-Typical",
+        bondwire_diameter="0.05mm",
+    ):
+        """Set how to include PCB device parts.
+
+        Parameters
+        ----------
+        solderballs : str, optional
+            Specifies whether the solderballs located below the stackup are modeled,
+            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
+        connector : str, optional
+            Specifies whether the connectors located above the stackup are modeled,
+            and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
+            Default is ``None`` in which case they are not modeled.
+        solderbumps_modeling : str, optional
+            Specifies how to model solderbumps if ``connector`` is set to ``"Solderbump"``.
+            Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
+            Default is ``"Boxes"``.
+        bondwire_material : str, optional
+            Specifies bondwires material if ``connector`` is set to ``"Bondwire"``.
+            Default is ``"Au-Typical"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        # sanity check
+        valid_connectors = ["Solderbump", "Bondwire"]
+        if connector is not None and connector not in valid_connectors:
+            self._app.logger.error(
+                "{} option is not supported. Use one of the following: {}".format(
+                    connector, ", ".join(valid_connectors)
+                )
+            )
+            return False
+        solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
+        for arg in [solderbumps_modeling, solderballs]:
+            if arg is not None and arg not in solderbumps_map:
+                self._app.logger.error(
+                    "{} option is not supported. Use one of the following: "
+                    "{}".format(arg, ", ".join(list(solderbumps_map.keys())))
+                )
+                return False
+        if bondwire_material not in self._app.materials.mat_names_aedt:
+            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
+            return False
+
+        update_properties = {
+            "PartsChoice": 2,
+            "CreateTopSolderballs": connector is not None,
+            "TopConnectorType": connector,
+            "TopSolderballsModelType": solderbumps_map[solderbumps_modeling],
+            "BondwireMaterial": bondwire_material,
+            "BondwireDiameter": bondwire_diameter,
+            "CreateBottomSolderballs": solderballs is not None,
+            "BottomSolderballsModelType": solderbumps_map[solderballs],
+        }
+
+        self.props["NativeComponentDefinitionProvider"].update(update_properties)
+        return True
+
+    @pyaedt_function_handler()
     def identify_extent_poly(self):
         from pyaedt import Hfss3dLayout
 
