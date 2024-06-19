@@ -421,7 +421,7 @@ class NativeComponentPCB(NativeComponentObject, object):
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
-        if self._app.settings.aedt_version < "2024.2":
+        if self._app.settings.aedt_version < "2024.2":  # pragma : no cover
             return
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "FootPrint" in new_filters:

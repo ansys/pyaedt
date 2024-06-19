@@ -127,6 +127,18 @@ class TestClass:
         assert cmp2.set_board_settings("Polygon")
         assert cmp2.set_board_settings("Bounding Box")
         assert cmp2.set_board_settings("Polygon", "outline:poly_0")
+        cmp2.disable_device_parts()
+        cmp2.footprint_filter = "1mm2"
+        assert cmp2.footprint_filter is None
+        cmp2.power_filter = "1W"
+        assert cmp2.power_filter is None
+        cmp2.type_filters = "Resistors"
+        assert cmp2.type_filters is None
+        cmp2.height_filter = "1mm"
+        assert cmp2.height_filter is None
+        cmp2.objects_2d_filter = True
+        assert cmp2.objects_2d_filter is None
+
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
