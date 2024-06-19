@@ -12,6 +12,7 @@ export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
+m2d_electrostatic = "m2d_elec_fields_calc"
 
 test_subfolder = "T45"
 
@@ -225,6 +226,20 @@ class TestClass:
                      "assignment": ["Face9", "inner"]})
 
         assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
+
+        aedtapp.close_project(aedtapp.project_name)
+
+        aedtapp = add_app(application=pyaedt.Maxwell2d,
+                          project_name=m2d_electrostatic,
+                          subfolder=test_subfolder)
+        name = aedtapp.post.fields_calculator.add_expression("e_line", "Poly1")
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
+
+        assert main({"is_test": True,
+                     "setup": "MySetupAuto : LastAdaptive",
+                     "calculation": "e_line",
+                     "assignment": ["Polyl1"]})
 
         aedtapp.close_project(aedtapp.project_name)
 
