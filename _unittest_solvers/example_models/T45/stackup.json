@@ -1,0 +1,95 @@
+{
+  "stackup": {
+    "materials": [
+      {
+        "name": "copper",
+        "conductivity": 570000000
+      },
+      {
+        "name": "Megtron4",
+        "permittivity": 3.77,
+        "dielectric_loss_tangent": 0.005
+      },
+      {
+        "name": "Megtron4_2",
+        "permittivity": 3.77,
+        "dielectric_loss_tangent": 0.005
+      },
+      {
+        "name": "Solder Resist",
+        "permittivity": 4,
+        "dielectric_loss_tangent": 0
+      }
+    ],
+    "layers": [
+      {
+        "fill_material": "Solder Resist",
+        "material": "copper",
+        "name": "1_Top",
+        "thickness": "0.5mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner1",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "material": "Megtron4",
+        "name": "DE2",
+        "thickness": "0.088mm",
+        "type": "dielectric"
+      },
+      {
+        "material": "Megtron4",
+        "name": "DE3",
+        "thickness": "0.1mm",
+        "type": "dielectric"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner2",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner3",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner4",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner5",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Megtron4",
+        "material": "copper",
+        "name": "Inner6",
+        "thickness": "0.017mm",
+        "type": "signal"
+      },
+      {
+        "fill_material": "Solder Resist",
+        "material": "copper",
+        "name": "16_Bottom",
+        "thickness": "0.035mm",
+        "type": "signal"
+      }
+    ]
+  }
+}

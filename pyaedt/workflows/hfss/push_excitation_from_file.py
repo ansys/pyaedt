@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -52,8 +53,8 @@ def frontend():  # pragma: no cover
 
     # Get ports
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -153,8 +154,8 @@ def main(extension_args):
     file_path = extension_args["file_path"]
 
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -171,11 +172,7 @@ def main(extension_args):
     if not os.path.isfile(file_path):  # pragma: no cover
         app.logger.error("File does not exist.")
     elif choice:
-        hfss.edit_source_from_file(
-            choice,
-            file_path,
-            is_time_domain=True,
-        )
+        hfss.edit_source_from_file(choice, file_path, is_time_domain=True)
         app.logger.info("Excitation assigned correctly.")
     else:
         app.logger.error("Failed to select a port.")

@@ -4,8 +4,7 @@
 *** PyAEDT README
 -->
 
-
-# PyAEDT
+[![PyAEDT logo](https://github.com/ansys/pyaedt/blob/main/doc/source/_static/logo.png)](https://aedt.docs.pyansys.com)
 
 <p style="text-align: center;">
     <br> English | <a href="README_CN.md">中文</a>

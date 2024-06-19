@@ -1,4 +1,27 @@
-import imp
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from importlib import import_module
 import os
 import sys
@@ -9,6 +32,13 @@ from pyaedt.emit_core.emit_constants import InterfererType
 from pyaedt.emit_core.emit_constants import ResultType
 from pyaedt.emit_core.emit_constants import TxRxMode
 from pyaedt.emit_core.emit_constants import UnitType
+
+# TODO: Remove once IronPython compatibility is removed
+if sys.version_info < (3, 12):
+    import imp
+else:  # pragma: no cover
+    from importlib.util import find_spec
+
 
 EMIT_API_PYTHON = None
 
@@ -69,8 +99,17 @@ def _set_api(aedt_version):
         if override_path_key in os.environ:
             path = os.environ.get(override_path_key)
         sys.path.insert(0, path)
-        module_path = imp.find_module("EmitApiPython")[1]
-        logger.info("Importing EmitApiPython from: {}".format(module_path))
+        # TODO: Remove once IronPython compatibility is removed
+        if sys.version_info < (3, 12):
+            module_path = imp.find_module("EmitApiPython")[1]
+            logger.info("Importing EmitApiPython from: {}".format(module_path))
+        else:  # pragma: no cover
+            spec = find_spec("EmitApiPython")
+            if spec is None:
+                logger.warning("Module {} not found".format("EmitApiPython"))
+            else:
+                module_path = spec.origin
+                logger.info("Importing EmitApiPython from: {}".format(module_path))
         global EMIT_API_PYTHON
         EMIT_API_PYTHON = import_module("EmitApiPython")
         logger.info("Loaded {}".format(EMIT_API_PYTHON.EmitApi().get_version(True)))

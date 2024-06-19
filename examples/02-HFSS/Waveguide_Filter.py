@@ -61,11 +61,11 @@ if not os.path.exists(project_folder):
 project_name = os.path.join(project_folder, general_methods.generate_unique_name("wgf", n=2))
 
 # Instantiate the HFSS application
-hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version=aedt_version,
-                   designname="filter",
+hfss = pyaedt.Hfss(project=project_name + '.aedt',
+                   version=aedt_version,
+                   design="filter",
                    non_graphical=non_graphical,
-                   new_desktop_session=True,
+                   new_desktop=True,
                    close_on_exit=True,
                    solution_type="Modal")
 

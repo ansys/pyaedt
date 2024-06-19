@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import sys
 import time
@@ -9,8 +33,8 @@ import pytest
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import generate_unique_name
-from pyaedt import is_linux
 from pyaedt.generic.constants import AXIS
+from pyaedt.generic.settings import is_linux
 from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
@@ -698,6 +722,8 @@ class TestClass:
         assert o.edges[0].chamfer(chamfer_type=3)
         self.aedtapp._odesign.Undo()
         assert not o.edges[0].chamfer(chamfer_type=4)
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.chamfer(edges=o2.edges)
 
     def test_43_fillet_and_undo(self):
         o = self.create_copper_box(name="MyBox")
@@ -706,6 +732,8 @@ class TestClass:
         assert o.edges[0].fillet()
         r = self.create_rectangle(name="MyRect")
         assert not r.edges[0].fillet()
+        o2 = self.create_copper_box(name="MyBox2")
+        assert o2.fillet(edges=o2.edges)
 
     def test_44_create_polyline_basic_segments(self):
         prim3D = self.aedtapp.modeler
@@ -1066,7 +1094,7 @@ class TestClass:
         assert len(p3) == 3
         assert len(s3) == 1
 
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_55_create_bond_wires(self):
         self.aedtapp["$Ox"] = 0
@@ -1143,7 +1171,7 @@ class TestClass:
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     def test_60_get_edges_on_bounding_box(self):
-        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tolerance=1e-6)
         assert len(edges) == 2

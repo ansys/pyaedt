@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains the ``analysis`` class.
 
@@ -14,9 +38,6 @@ import shutil
 import tempfile
 import time
 
-from pyaedt import is_ironpython
-from pyaedt import is_linux
-from pyaedt import is_windows
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
@@ -29,6 +50,9 @@ from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -40,6 +64,7 @@ from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
+from pyaedt.modules.SolveSetup import SetupIcepak
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupQ3D
 from pyaedt.modules.SolveSetup import SetupSBR
@@ -77,7 +102,7 @@ class Analysis(Design, object):
         Version of AEDT  to use.
     NG : bool
         Whether to run AEDT in the non-graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.
@@ -86,12 +111,15 @@ class Analysis(Design, object):
     student_version : bool
         Whether to enable the student version of AEDT.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
     ic_mode : bool, optional
-        Whether to set the design to IC mode. The default is ``False``.
-        This parameter applies only to HFSS 3D Layout.
-
+        Whether to set the design to IC mode. The default is ``None``, which means to retain the
+        existing setting. This parameter applies only to HFSS 3D Layout.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     def __init__(
@@ -103,13 +131,14 @@ class Analysis(Design, object):
         setup_name,
         specified_version,
         non_graphical,
-        new_desktop_session,
+        new_desktop,
         close_on_exit,
         student_version,
         machine="",
         port=0,
         aedt_process_id=None,
-        ic_mode=False,
+        ic_mode=None,
+        remove_lock=False,
     ):
         Design.__init__(
             self,
@@ -119,13 +148,14 @@ class Analysis(Design, object):
             solution_type,
             specified_version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock,
         )
         self._excitation_objects = {}
         self._setup = None
@@ -509,7 +539,7 @@ class Analysis(Design, object):
         first_element_filter=None,
         second_element_filter=None,
         category="dB(S",
-        differential_pairs=[],
+        differential_pairs=None,
     ):
         # type: (bool, bool, str, str, str, list) -> list
         """Retrieve a list of traces of specified designs ready to use in plot reports.
@@ -528,9 +558,9 @@ class Analysis(Design, object):
             This parameter accepts ``*`` and ``?`` as special characters. The default is ``None``.
         category : str, optional
             Plot category name as in the report (including operator).
-            The default is ``"dB(S"``,  which is the plot category name for capacitance.
+            The default is ``"dB(S)"``,  which is the plot category name for capacitance.
         differential_pairs : list, optional
-            Differential pairs defined. The default is ``[]``.
+            Differential pairs defined. The default is ``None`` in which case an empty list is set.
 
         Returns
         -------
@@ -547,6 +577,7 @@ class Analysis(Design, object):
         ...                          first_element_filter="*_U1_data?",
         ...                          second_element_filter="*_U0_*", category="dB(S")
         """
+        differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
             first_element_filter = "*"
         if not second_element_filter:
@@ -633,6 +664,7 @@ class Analysis(Design, object):
         impedance=50,
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
+        variations=None,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
@@ -665,6 +697,8 @@ class Analysis(Design, object):
         support_non_standard_touchstone_extension : bool, optional
             Specifies whether to support non-standard Touchstone extensions for mixed reference impedance.
             The default is ``False``.
+        variations : list, optional
+            List of variation values with units. The default is all variations.
 
         Returns
         -------
@@ -739,16 +773,18 @@ class Analysis(Design, object):
                     if len(sweeps) == 0:
                         sweeps = ["LastAdaptive"]
                     # variations
-                    variations_list = []
-                    if not self.available_variations.nominal_w_values_dict:
-                        variations_list.append("")
-                    else:
-                        for x in range(0, len(self.available_variations.nominal_w_values_dict)):
-                            variation = "{}='{}'".format(
-                                list(self.available_variations.nominal_w_values_dict.keys())[x],
-                                list(self.available_variations.nominal_w_values_dict.values())[x],
-                            )
-                            variations_list.append(variation)
+                    variations_list = variations
+                    if not variations:
+                        variations_list = []
+                        if not self.available_variations.nominal_w_values_dict:
+                            variations_list.append("")
+                        else:
+                            for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                                variation = "{}='{}'".format(
+                                    list(self.available_variations.nominal_w_values_dict.keys())[x],
+                                    list(self.available_variations.nominal_w_values_dict.values())[x],
+                                )
+                                variations_list.append(variation)
                     # sweeps
                     for sweep in sweeps:
                         if sweep == "LastAdaptive":
@@ -1291,6 +1327,8 @@ class Analysis(Design, object):
             setup = SetupMaxwell(self, setup_type, name)
         elif setup_type == 14:
             setup = SetupQ3D(self, setup_type, name)
+        elif setup_type in [11, 36]:
+            setup = SetupIcepak(self, setup_type, name)
         else:
             setup = SetupHFSS(self, setup_type, name)
 
@@ -1917,7 +1955,7 @@ class Analysis(Design, object):
             Number of tasks to use in the simulation.
             Set ``num_tasks`` to ``-1`` to apply auto settings and distributed mode.
         setup : str
-            Name of the setup, which can be an optimetric setup or a simple setup.
+            Name of the setup, which can be an optimetrics setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         revert_to_initial_mesh : bool, optional
             Whether to revert to the initial mesh before solving. The default is ``False``.

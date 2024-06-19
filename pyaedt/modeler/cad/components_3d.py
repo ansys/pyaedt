@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import
 
 from collections import OrderedDict
@@ -6,10 +30,10 @@ import random
 import re
 import warnings
 
-from pyaedt import Edb
-from pyaedt import pyaedt_function_handler
+from pyaedt.edb import Edb
 from pyaedt.generic.desktop_sessions import _edb_sessions
 from pyaedt.generic.general_methods import _uname
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
 
@@ -820,13 +844,13 @@ class UserDefinedComponent(object):
         )
 
     @pyaedt_function_handler(new_filepath="output_file")
-    def update_definition(self, password="", output_file="", local_update=False):
+    def update_definition(self, password=None, output_file="", local_update=False):
         """Update 3d component definition.
 
         Parameters
         ----------
         password : str, optional
-            Password for encrypted models. The default value is ``""``.
+            Password for encrypted models. The default value is ``None``.
         output_file : str, optional
             New path containing the 3d component file. The default value is ``""``, which means
             that the 3d component file has not changed.
@@ -838,7 +862,8 @@ class UserDefinedComponent(object):
         bool
             True if successful.
         """
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         self._primitives._app.oeditor.UpdateComponentDefinition(
             [
                 "NAME:UpdateDefinitionData",
@@ -856,7 +881,7 @@ class UserDefinedComponent(object):
         return True
 
     @pyaedt_function_handler()
-    def edit_definition(self, password=""):
+    def edit_definition(self, password=None):
         """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
 
         Parameters
@@ -874,7 +899,8 @@ class UserDefinedComponent(object):
         from pyaedt.generic.design_types import get_pyaedt_app
 
         # from pyaedt.generic.general_methods import is_linux
-
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         project_list = [i for i in self._primitives._app.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(

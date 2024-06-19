@@ -98,7 +98,7 @@ appedb.close_edb()
 # Analysis DCIR in AEDT
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and import the configured EDB and analysis DCIR
-desktop = pyaedt.Desktop(aedt_version, non_graphical=False, new_desktop_session=True)
+desktop = pyaedt.Desktop(aedt_version, non_graphical=False, new_desktop=True)
 hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze()
 hfss3dl.save_project()
