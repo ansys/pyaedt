@@ -2015,4 +2015,3 @@ class TestClass:
         self.aedtapp.insert_design("DiscoImport")
         assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
         assert len(self.aedtapp.modeler.objects) == 1
-
