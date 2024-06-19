@@ -1232,6 +1232,8 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -1319,6 +1321,8 @@ class SolutionData(object):
         snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
             The default is ``None``.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------

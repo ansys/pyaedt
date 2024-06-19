@@ -94,11 +94,15 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
-    def test_02b_PCB_filters(self):
+    def test_02b_PCB_filters(self, local_scratch):
         new_component = os.path.join(local_path, "example_models", "T40", "Package.aedt")
+        new_component_edb = os.path.join(local_path, "example_models", "T40", "Package.aedb")
+        new_component_dest = os.path.join(local_scratch.path, "Package.aedt")
+        local_scratch.copyfolder(new_component_edb, os.path.join(local_scratch.path, "Package.aedb"))
+        local_scratch.copyfile(new_component, new_component_dest)
         cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board_w_cmp",
-            [new_component, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
+            [new_component_dest, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
             solution_freq,
             resolution,
             custom_x_resolution=400,
@@ -1691,3 +1695,27 @@ class TestClass:
         assert d["GravityDir"] == "Positive"
         d["GravityVec"] = "Global::Y"
         assert d["GravityVec"] == "Global::Y"
+
+    def test_78_restart_solution(self):
+        self.aedtapp.insert_design("test_78-1")
+        self.aedtapp.insert_design("test_78-2")
+        self.aedtapp.set_active_design("test_78-1")
+        self.aedtapp["a"] = "1mm"
+        self.aedtapp.modeler.create_box([0, 0, 0], ["a", "1", "2"])
+        s1 = self.aedtapp.create_setup()
+        self.aedtapp.set_active_design("test_78-2")
+        self.aedtapp["b"] = "1mm"
+        self.aedtapp.modeler.create_box([0, 0, 0], ["b", "1", "2"])
+        s2 = self.aedtapp.create_setup()
+        assert s2.start_continue_from_previous_setup(
+            "test_78-1", "{} : SteadyState".format(s1.name), parameters={"a": "1mm"}
+        )
+        s2.delete()
+        s2 = self.aedtapp.create_setup()
+        assert s2.start_continue_from_previous_setup("test_78-1", "{} : SteadyState".format(s1.name), parameters=None)
+        s2.delete()
+        s2 = self.aedtapp.create_setup()
+        assert not s2.start_continue_from_previous_setup(
+            "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
+        )
+        assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))
