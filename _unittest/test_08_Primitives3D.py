@@ -2010,8 +2010,9 @@ class TestClass:
         assert len(out_obj) == 3
         assert all(isinstance(o, Object3d) for o in out_obj)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available before 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
         assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
         assert len(self.aedtapp.modeler.objects) == 1
+
