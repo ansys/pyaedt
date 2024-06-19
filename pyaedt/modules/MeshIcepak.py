@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from abc import abstractmethod
 from collections import OrderedDict
 import warnings
@@ -258,7 +282,7 @@ class CommonRegion(object):
             return {
                 "CreateRegion": oo
                 for o, oo in self._app.modeler.objects_by_name.items()
-                if oo.history().command == "CreateRegion"
+                if oo.history() and oo.history().command == "CreateRegion"
             }.get("CreateRegion", None)
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
@@ -633,10 +657,21 @@ class MeshRegionCommon(object):
             return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        if "settings" in self.__dict__ and name in self.settings:
+        if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
+        elif (
+            ("settings" in self.__dict__)
+            and not (name in self.settings)
+            and name
+            not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
+        ):
+            self._app.logger.error(
+                "Setting name {} is not available. Available parameters are: {}.".format(
+                    name, ", ".join(self.settings.keys())
+                )
+            )
         else:
             super(MeshRegionCommon, self).__setattr__(name, value)
 
@@ -674,6 +709,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         args = ["NAME:Settings"]
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
+        if self.global_region.object:
+            args += ["Objects({})".format(str(self.global_region.object.id))]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
@@ -712,6 +749,7 @@ class MeshRegion(MeshRegionCommon):
             app,
             name,
         )
+        self._assignment = None
         self.enable = True
         if settings.aedt_version > "2023.2" and objects is not None:
             if not isinstance(objects, list):

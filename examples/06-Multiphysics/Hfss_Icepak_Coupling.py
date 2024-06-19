@@ -48,10 +48,10 @@ project_file = pyaedt.generate_unique_project_name()
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(projectname=project_file,
-                      specified_version=aedt_version,
+aedtapp = pyaedt.Hfss(project=project_file,
+                      version=aedt_version,
                       non_graphical=non_graphical,
-                      new_desktop_session=NewThread
+                      new_desktop=NewThread
                       )
 
 ###############################################################################

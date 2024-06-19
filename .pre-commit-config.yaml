@@ -27,7 +27,7 @@ repos:
       args: ['--force-single-line-imports', '--profile', 'black']
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.0.0
+  rev: 7.1.0
   hooks:
   - id: flake8
     args:
@@ -48,7 +48,7 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.28.4
+  rev: 0.28.5
   hooks:
     - id: check-github-workflows
 
@@ -64,6 +64,14 @@ repos:
   hooks:
   -   id: check-pre-commit-ci-config
 
+- repo: https://github.com/ansys/pre-commit-hooks
+  rev: v0.3.1
+  hooks:
+    - id: add-license-headers
+      files: '(pyaedt|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'
+      args:
+      - --custom_template=mit_license.jinja2
+      - --start_year=2021
 
 # - repo: https://github.com/numpy/numpydoc
 #   rev: v1.6.0

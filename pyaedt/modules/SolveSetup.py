@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: `Setup`, `Setup3DLayout`, and `SetupCircuit`.
 
@@ -101,7 +125,7 @@ class CommonSetup(PropsManager, object):
             that support automatic settings.
         solve_in_batch : bool, optional
             Whether to solve the project in batch or not.
-            If ``True`` the project will be saved, closed, solved and repened.
+            If ``True`` the project will be saved, closed, and solved.
         machine : str, optional
             Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
@@ -220,6 +244,20 @@ class CommonSetup(PropsManager, object):
     def name(self, name):
         self._name = name
         self.props["Name"] = name
+
+    @pyaedt_function_handler()
+    def get_profile(self):
+        """Solution profile.
+
+        Returns
+        -------
+        dict of :class:pyaedt.modeler.cad.elements3d.BinaryTree when solved setups exist,
+        ``None`` when no solved setups or no compatible application exists.
+        """
+        profile = self._app.get_profile(self.name)
+        if not isinstance(profile, dict) or not profile:
+            profile = None
+        return profile
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
@@ -865,6 +903,54 @@ class Setup(CommonSetup):
             self.auto_update = auto_update
             return False
 
+    def _parse_link_parameters(self, map_variables_by_name, parameters):
+        # parameters
+        params = OrderedDict({})
+        if map_variables_by_name:
+            parameters = self.p_app.available_variations.nominal_w_values_dict
+            for k, v in parameters.items():
+                params[k] = k
+        elif parameters is None:
+            parameters = self.p_app.available_variations.nominal_w_values_dict
+            for k, v in parameters.items():
+                params[k] = v
+        else:
+            for k, v in parameters.items():
+                if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                    params[k] = v
+                else:
+                    params[k] = parameters[v]
+        return params
+
+    def _parse_link_solution(self, project, design, solution):
+        prev_solution = OrderedDict({})
+
+        # project name
+        if project != "This Project*":
+            if os.path.exists(project):
+                prev_solution["Project"] = project
+                self.props["PathRelativeTo"] = "SourceProduct"
+            else:
+                raise ValueError("Project file path provided does not exist.")
+        else:
+            prev_solution["Project"] = project
+            self.props["PathRelativeTo"] = "TargetProject"
+
+        # design name
+        if not design or design is None:
+            raise ValueError("Provide design name to add mesh link to.")
+        elif design not in self.p_app.design_list:
+            raise ValueError("Design does not exist in current project.")
+        else:
+            prev_solution["Design"] = design
+
+        # solution name
+        if solution:
+            prev_solution["Soln"] = solution
+        else:
+            raise ValueError("Provide a valid solution name.")
+        return prev_solution
+
     @pyaedt_function_handler(
         design_name="design", solution_name="solution", parameters_dict="parameters", project_name="project"
     )
@@ -884,7 +970,7 @@ class Setup(CommonSetup):
         ----------
         design : str
             Name of the design.
-        solution : str, optional
+        solution : str
             Name of the solution in the format ``"name : solution_name"``.
             For example, ``"Setup1 : Transient", "MySetup : LastAdaptive"``.
         map_variables_by_name : bool, optional
@@ -924,49 +1010,9 @@ class Setup(CommonSetup):
         try:
             self.auto_update = False
 
-            # parameters
-            params = OrderedDict({})
-            if map_variables_by_name:
-                parameters = self.p_app.available_variations.nominal_w_values_dict
-                for k, v in parameters.items():
-                    params[k] = k
-            elif parameters is None:
-                parameters = self.p_app.available_variations.nominal_w_values_dict
-                for k, v in parameters.items():
-                    params[k] = v
-            else:
-                for k, v in parameters.items():
-                    if k in list(self._app.available_variations.nominal_w_values_dict.keys()):
-                        params[k] = v
-                    else:
-                        params[k] = parameters[v]
+            params = self._parse_link_parameters(map_variables_by_name, parameters)
 
-            prev_solution = OrderedDict({})
-
-            # project name
-            if project != "This Project*":
-                if os.path.exists(project):
-                    prev_solution["Project"] = project
-                    self.props["PathRelativeTo"] = "SourceProduct"
-                else:
-                    raise ValueError("Project file path provided does not exist.")
-            else:
-                prev_solution["Project"] = project
-                self.props["PathRelativeTo"] = "TargetProject"
-
-            # design name
-            if not design or design is None:
-                raise ValueError("Provide design name to add mesh link to.")
-            elif design not in self.p_app.design_list:
-                raise ValueError("Design does not exist in current project.")
-            else:
-                prev_solution["Design"] = design
-
-            # solution name
-            if solution:
-                prev_solution["Soln"] = solution
-            else:
-                raise ValueError("Provide a valid solution name.")
+            prev_solution = self._parse_link_solution(project, design, solution)
 
             self.props["PrevSoln"] = prev_solution
 
@@ -1907,7 +1953,7 @@ class Setup3DLayout(CommonSetup):
             lay.name: lay.lower_elevation + lay.thickness / 2
             for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
         }
-        aedtapp = app(projectname=file_fullname)
+        aedtapp = app(project=file_fullname)
         units = aedtapp.modeler.model_units
         aedt_units = AEDT_UNITS["Length"][units]
         self._convert_edb_to_aedt_units(input_dict=primitives_3d_pts_per_nets, output_unit=aedt_units)
@@ -1964,7 +2010,7 @@ class Setup3DLayout(CommonSetup):
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
-        aedtapp.close_project(save_project=True)
+        aedtapp.close_project(save=True)
 
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
@@ -3845,3 +3891,85 @@ class SetupQ3D(Setup, object):
 
         self.omodule.EditSetup(self.name, arg)
         return True
+
+
+class SetupIcepak(Setup, object):
+    def __init__(self, app, solution_type, setup_name, is_new_setup=True):
+        Setup.__init__(self, app, solution_type, setup_name, is_new_setup)
+
+    def start_continue_from_previous_setup(
+        self,
+        design,
+        solution,
+        map_variables_by_name=True,
+        parameters=None,
+        project="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+        frozen_flow=False,
+    ):
+        """Start or continue from a previously solved setup.
+
+        Parameters
+        ----------
+        design : str
+            Name of the design.
+        solution : str
+            Name of the solution in the format ``"name : solution_name"``.
+            For example, ``"Setup1 : Transient"``, ``"Setup1 : SteadyState"``.
+        map_variables_by_name : bool, optional
+            Whether variables are mapped by name from the source design. The default is
+            ``True``.
+        parameters : dict, optional
+            Dictionary of the parameters. This argument is not considered if
+            ``map_variables_by_name=True``. If ``None``, the default is
+            ``appname.available_variations.nominal_w_values_dict``.
+        project : str, optional
+            Name of the project with the design. The default is ``"This Project*"``.
+            However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            The default is ``True``.
+        preserve_partner_solution : bool, optional
+            The default is ``True``.
+        frozen_flow : bool, optional
+            Whether to freeze the flow to the previous solution. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+
+        Examples
+        --------
+        >>> ipk = pyaedt.Icepak()
+        >>> setup = ipk.get_setup("Setup1")
+        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
+
+        """
+
+        auto_update = self.auto_update
+        try:
+            self.auto_update = False
+
+            params = self._parse_link_parameters(map_variables_by_name, parameters)
+
+            prev_solution = self._parse_link_solution(project, design, solution)
+
+            self.props["RestartSoln"] = prev_solution
+
+            self.props["RestartSoln"]["Params"] = params
+            self.props["RestartSoln"]["ForceSourceToSolve"] = force_source_to_solve
+            self.props["RestartSoln"]["PreservePartnerSoln"] = preserve_partner_solution
+            self.props["Frozen Flow Simulation"] = frozen_flow
+
+            self.update()
+            self.auto_update = auto_update
+            return True
+        except Exception:
+            self.auto_update = auto_update
+            return False

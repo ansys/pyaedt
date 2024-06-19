@@ -35,8 +35,8 @@ non_graphical = False
 # Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version=aedt_version, non_graphical=non_graphical, designname="A1",
-                   new_desktop_session=True)
+hfss = pyaedt.Hfss(version=aedt_version, non_graphical=non_graphical, design="A1",
+                   new_desktop=True)
 hfss.solution_type = "Modal"
 hfss.modeler.model_units = "um"
 p = hfss.modeler

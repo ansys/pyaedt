@@ -251,3 +251,17 @@ operations = ["NameOfExpression('<Dx,Dy,Dz>')",
 	"Operation('SurfaceValue')",
 	"Operation('Integrate')"]
 report = ["Data Table", "Rectangular Plot"]
+
+[e_line]
+name = "E_Line"
+description = "E field tangential component along a line"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["NameOfExpression('<Ex,Ey,0>')",
+	"Operation('Tangent')",
+	"Operation('Dot')"]
+report = ["Data Table", "Rectangular Plot"]

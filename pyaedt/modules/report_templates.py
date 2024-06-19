@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from collections import OrderedDict
 import copy
 import os
@@ -378,7 +402,7 @@ class CommonReport(object):
 
     @property
     def matrix(self):
-        """2D or Q3D matrix name.
+        """Maxwell 2D/3D or Q2D/Q3D matrix name.
 
         Returns
         -------
@@ -390,6 +414,21 @@ class CommonReport(object):
     @matrix.setter
     def matrix(self, value):
         self.props["context"]["matrix"] = value
+
+    @property
+    def reduced_matrix(self):
+        """Maxwell 2D/3D reduced matrix name for eddy current solvers.
+
+        Returns
+        -------
+        str
+            Reduced matrix name.
+        """
+        return self.props["context"].get("reduced_matrix", None)
+
+    @reduced_matrix.setter
+    def reduced_matrix(self, value):
+        self.props["context"]["reduced_matrix"] = value
 
     @property
     def polyline(self):
@@ -2152,6 +2191,16 @@ class Standard(CommonReport):
                 ctxt = ["Context:=", "Original"]
             else:
                 ctxt = ["Context:=", self.matrix]
+        elif (
+            self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._post._app.solution_type == "EddyCurrent"
+        ):
+            if not self.matrix:
+                ctxt = ["Context:=", "Original"]
+            elif not self.reduced_matrix:
+                ctxt = ["Context:=", self.matrix]
+            elif self.reduced_matrix:
+                ctxt = ["Context:=", self.matrix, "Matrix:=", self.reduced_matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
             if self.domain == "DCIR":
                 ctxt = [
@@ -2587,6 +2636,9 @@ class AMIConturEyeDiagram(CommonReport):
             "USE_PRI_DIST",
             False,
             "0" if not self.enable_jitter_distribution else "1",
+            "SID",
+            False,
+            "0",
         ]
         if self.enable_jitter_distribution and str(self.quantity_type) == "3":
             sim_context = [
@@ -2631,6 +2683,9 @@ class AMIConturEyeDiagram(CommonReport):
                 "PID",
                 False,
                 "0",
+                "SID",
+                False,
+                "0",
                 "PRIDIST",
                 False,
                 "0",
@@ -2656,6 +2711,31 @@ class AMIConturEyeDiagram(CommonReport):
             "SimValueContext:=",
             sim_context,
         ]
+        if len(self.expressions) == 1:
+            sid = 0
+            pid = 0
+            expr = self.expressions[0]
+            category = "Eye"
+            found = False
+            while not found:
+                available_quantities = self._post.available_report_quantities(
+                    self.report_category, self.report_type, self.setup, category, arg
+                )
+                if len(available_quantities) == 1 and available_quantities[0].lower() == expr.lower():
+                    found = True
+                else:
+                    sid += 1
+                    pid += 1
+                    arg[2][arg[2].index("SID") + 2] = str(sid)
+                    arg[2][arg[2].index("PID") + 2] = str(pid)
+                # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
+                if sid > 1000:
+                    self._post.logger.error(
+                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                    )
+                    # arg[2][arg[2].index("SID") + 2] = "0"
+                    # arg[2][arg[2].index("PID") + 2] = "0"
+                    break
         return arg
 
     @property
@@ -3178,8 +3258,43 @@ class AMIEyeDiagram(CommonReport):
                     "QTID",
                     False,
                     str(self.quantity_type),
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
                 ],
             ]
+        if len(self.expressions) == 1:
+            sid = 0
+            pid = 0
+            expr = self.expressions[0]
+            category = "Wave"
+            if self.report_category == "Statistical Eye":
+                category = "Eye"
+            if self.report_category == "Eye Diagram" and self.report_type == "Rectangular Plot":
+                category = "Voltage"
+            found = False
+            while not found:
+                available_quantities = self._post.available_report_quantities(
+                    self.report_category, self.report_type, self.setup, category, arg
+                )
+                if len(available_quantities) == 1 and available_quantities[0].lower() == expr.lower():
+                    found = True
+                else:
+                    sid += 1
+                    pid += 1
+                    arg[2][arg[2].index("SID") + 2] = str(sid)
+                    arg[2][arg[2].index("PID") + 2] = str(pid)
+                # Limited maximum iterations to 1000 in While loop (Too many probes to analyze even in a single design)
+                if sid > 1000:
+                    self._post.logger.error(
+                        "Failed to find right context for expression : {}".format(",".join(self.expressions))
+                    )
+                    # arg[2][arg[2].index("SID") + 2] = "0"
+                    # arg[2][arg[2].index("PID") + 2] = "0"
+                    break
         return arg
 
     @property

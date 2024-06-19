@@ -26,7 +26,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Topic :: Scientific/Engineering :: Libraries",
+    "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -39,7 +39,7 @@ dependencies = [
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0",
-    "pytomlpp; python_version < '3.12'",
+    "pytomlpp",
     "rpyc>=6.0.0,<6.1",
 ]
 
@@ -63,7 +63,7 @@ tests = [
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6",
+    "vtk==9.2.6; python_version < '3.12'",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -104,7 +104,7 @@ doc = [
     #"sphinxcontrib-websupport",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6",
+    "vtk==9.2.6; python_version < '3.12'",
 ]
 doc-no-examples = [
     "ansys-sphinx-theme>=0.10.0,<0.17",
@@ -138,7 +138,7 @@ all = [
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6",
+    "vtk==9.2.6; python_version < '3.12'",
 ]
 installer = [
     "imageio>=2.30.0,<2.35",
@@ -153,7 +153,7 @@ installer = [
     "scikit-rf>=0.30.0,<1.1",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6",
+    "vtk==9.2.6; python_version < '3.12'",
     "jupyterlab>=3.6.0,<4.3",
     "ipython>=7.30.0,<8.26",
     "ipyvtklink>=0.2.0,<0.2.4",

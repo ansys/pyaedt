@@ -164,10 +164,10 @@ def add_app(local_scratch):
         if not application:
             application = Hfss
         return application(
-            projectname=test_project,
-            designname=design_name,
+            project=test_project,
+            design=design_name,
             solution_type=solution_type,
-            specified_version=desktop_version,
+            version=desktop_version,
         )
 
     return _method

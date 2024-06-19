@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ctypes import CFUNCTYPE
 from ctypes import PyDLL
 from ctypes import c_bool
@@ -12,6 +36,7 @@ import types
 
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import inclusion_list
 from pyaedt.generic.general_methods import settings
 
 logger = settings.logger
@@ -88,7 +113,7 @@ class AedtObjWrapper:
         if settings.enable_debug_grpc_api_logger:
             settings.logger.debug("{} {}".format(funcName, argv))
         try:
-            if settings.use_multi_desktop and funcName not in exclude_list:
+            if (settings.use_multi_desktop and funcName not in exclude_list) or funcName in inclusion_list:
                 self.dllapi.recreate_application(True)
             ret = _retry_ntimes(
                 settings.number_of_grpc_api_retries,
@@ -294,6 +319,7 @@ class AEDT:
         self.AedtAPI = AedtAPI
         self.SetPyObjCalbacks()
         self.aedt = None
+        self.non_graphical = False
 
     def SetPyObjCalbacks(self):
         self.callback_type = CFUNCTYPE(py_object, c_int, c_bool, py_object)
@@ -330,6 +356,7 @@ class AEDT:
             if not self.aedt:
                 raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine
+        self.non_graphical = NGmode
         if port == 0:
             self.port = self.aedt.GetAppDesktop().GetGrpcServerPort()
         else:
@@ -351,7 +378,7 @@ class AEDT:
             self.__init__(self.original_path)
             self.port = port
             self.machine = machine
-            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, False, False)
+            self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, self.non_graphical, False)
             return self.aedt
 
         if force:
