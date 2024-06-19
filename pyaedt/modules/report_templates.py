@@ -402,7 +402,7 @@ class CommonReport(object):
 
     @property
     def matrix(self):
-        """2D or Q3D matrix name.
+        """Maxwell 2D/3D or Q2D/Q3D matrix name.
 
         Returns
         -------
@@ -414,6 +414,21 @@ class CommonReport(object):
     @matrix.setter
     def matrix(self, value):
         self.props["context"]["matrix"] = value
+
+    @property
+    def reduced_matrix(self):
+        """Maxwell 2D/3D reduced matrix name for eddy current solvers.
+
+        Returns
+        -------
+        str
+            Reduced matrix name.
+        """
+        return self.props["context"].get("reduced_matrix", None)
+
+    @reduced_matrix.setter
+    def reduced_matrix(self, value):
+        self.props["context"]["reduced_matrix"] = value
 
     @property
     def polyline(self):
@@ -2176,6 +2191,16 @@ class Standard(CommonReport):
                 ctxt = ["Context:=", "Original"]
             else:
                 ctxt = ["Context:=", self.matrix]
+        elif (
+            self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._post._app.solution_type == "EddyCurrent"
+        ):
+            if not self.matrix:
+                ctxt = ["Context:=", "Original"]
+            elif not self.reduced_matrix:
+                ctxt = ["Context:=", self.matrix]
+            elif self.reduced_matrix:
+                ctxt = ["Context:=", self.matrix, "Matrix:=", self.reduced_matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
             if self.domain == "DCIR":
                 ctxt = [
