@@ -94,20 +94,34 @@ class TestClass:
         assert len(self.aedtapp.native_components) == 1
         assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
-    def test_02b_PCB_filters(self):
+    def test_02b_PCB_filters(self, local_scratch):
         new_component = os.path.join(local_path, "example_models", "T40", "Package.aedt")
+        new_component_edb = os.path.join(local_path, "example_models", "T40", "Package.aedb")
+        new_component_dest = os.path.join(local_scratch.path, "Package.aedt")
+        local_scratch.copyfolder(new_component_edb, os.path.join(local_scratch.path, "Package.aedb"))
+        local_scratch.copyfile(new_component, new_component_dest)
         cmp2 = self.aedtapp.create_ipk_3dcomponent_pcb(
             "Board_w_cmp",
-            [new_component, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
+            [new_component_dest, "FlipChip_TopBot", "HFSS PI Setup 1", en_ForceSimulation, en_PreserveResults],
             solution_freq,
             resolution,
             custom_x_resolution=400,
             custom_y_resolution=500,
             extent_type="Polygon",
         )
-        assert cmp2.set_parts("Package Parts", True, "Steel-mild-surface")
-        assert cmp2.set_parts("Device Parts", True, "Steel-mild-surface")
+        assert cmp2.set_device_parts(True, "Steel-mild-surface")
+        assert cmp2.disable_device_parts()
+        assert cmp2.set_package_parts(solderballs="Boxes", connector="Solderbump", solderbumps_modeling="Lumped")
+        assert cmp2.set_package_parts(
+            solderballs="Lumped", connector="Bondwire", bondwire_material="Al-Extruded", bondwire_diameter="0.5mm"
+        )
+        assert not cmp2.set_package_parts(solderballs="Error1")  # invalid input
+        assert not cmp2.set_package_parts(connector="Error2")  # invalid input
+        assert not cmp2.set_package_parts(solderbumps_modeling="Error3")  # invalid input
+        assert not cmp2.set_package_parts(bondwire_material="Error4")  # material does not exist
         assert not bool(cmp2.overridden_components)
+        assert not cmp2.override_component("FCHIP", True)  # invalid part import selection
+        assert cmp2.set_device_parts()
         assert cmp2.override_component("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
         assert cmp2.override_component("FCHIP", False)
@@ -117,15 +131,27 @@ class TestClass:
         assert cmp2.set_board_settings("Polygon")
         assert cmp2.set_board_settings("Bounding Box")
         assert cmp2.set_board_settings("Polygon", "outline:poly_0")
+        cmp2.disable_device_parts()
+        cmp2.footprint_filter = "1mm2"
+        assert cmp2.footprint_filter is None
+        cmp2.power_filter = "1W"
+        assert cmp2.power_filter is None
+        cmp2.type_filters = "Resistors"
+        assert cmp2.type_filters is None
+        cmp2.height_filter = "1mm"
+        assert cmp2.height_filter is None
+        cmp2.objects_2d_filter = True
+        assert cmp2.objects_2d_filter is None
+
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
+        assert not cmp.filters
+        assert cmp.set_device_parts()
         f = cmp.filters
         assert len(f.keys()) == 1
         assert all(not v for v in f["Type"].values())
-        assert not cmp.set_parts("Device Pt")
-        assert cmp.set_parts("Device Parts", True, "Steel-mild-surface")
         assert cmp.height_filter is None
         assert cmp.footprint_filter is None
         assert cmp.power_filter is None
@@ -1691,3 +1717,27 @@ class TestClass:
         assert d["GravityDir"] == "Positive"
         d["GravityVec"] = "Global::Y"
         assert d["GravityVec"] == "Global::Y"
+
+    def test_78_restart_solution(self):
+        self.aedtapp.insert_design("test_78-1")
+        self.aedtapp.insert_design("test_78-2")
+        self.aedtapp.set_active_design("test_78-1")
+        self.aedtapp["a"] = "1mm"
+        self.aedtapp.modeler.create_box([0, 0, 0], ["a", "1", "2"])
+        s1 = self.aedtapp.create_setup()
+        self.aedtapp.set_active_design("test_78-2")
+        self.aedtapp["b"] = "1mm"
+        self.aedtapp.modeler.create_box([0, 0, 0], ["b", "1", "2"])
+        s2 = self.aedtapp.create_setup()
+        assert s2.start_continue_from_previous_setup(
+            "test_78-1", "{} : SteadyState".format(s1.name), parameters={"a": "1mm"}
+        )
+        s2.delete()
+        s2 = self.aedtapp.create_setup()
+        assert s2.start_continue_from_previous_setup("test_78-1", "{} : SteadyState".format(s1.name), parameters=None)
+        s2.delete()
+        s2 = self.aedtapp.create_setup()
+        assert not s2.start_continue_from_previous_setup(
+            "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
+        )
+        assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))

@@ -172,11 +172,7 @@ def main(extension_args):
     if not os.path.isfile(file_path):  # pragma: no cover
         app.logger.error("File does not exist.")
     elif choice:
-        hfss.edit_source_from_file(
-            choice,
-            file_path,
-            is_time_domain=True,
-        )
+        hfss.edit_source_from_file(choice, file_path, is_time_domain=True)
         app.logger.info("Excitation assigned correctly.")
     else:
         app.logger.error("Failed to select a port.")

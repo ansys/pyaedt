@@ -64,6 +64,7 @@ from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
+from pyaedt.modules.SolveSetup import SetupIcepak
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupQ3D
 from pyaedt.modules.SolveSetup import SetupSBR
@@ -1326,6 +1327,8 @@ class Analysis(Design, object):
             setup = SetupMaxwell(self, setup_type, name)
         elif setup_type == 14:
             setup = SetupQ3D(self, setup_type, name)
+        elif setup_type in [11, 36]:
+            setup = SetupIcepak(self, setup_type, name)
         else:
             setup = SetupHFSS(self, setup_type, name)
 
