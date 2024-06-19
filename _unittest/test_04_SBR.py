@@ -24,6 +24,7 @@
 
 import builtins
 import os
+import sys
 from unittest.mock import mock_open
 
 from mock import patch
@@ -253,6 +254,7 @@ class TestClass:
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
+    @pytest.mark.skipif(sys.version_info > (3, 8), reason="Bug in VTK with 3.12")
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
