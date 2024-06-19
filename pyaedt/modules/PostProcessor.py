@@ -954,8 +954,8 @@ class PostProcessorCommon(object):
         report_category : str, optional
             Report category. The default is ``None``, in which case the first default category is used.
         display_type : str, optional
-            Report display type. The default is ``None``, in which case the first default type.
-             is used In most cases, this default is ``"Rectangular Plot"``.
+            Report display type. The default is ``None``, in which case the first default type
+             is used. In most cases, this default type is ``"Rectangular Plot"``.
         solution : str, optional
             Report setup. The default is ``None``, in which case the first
             nominal adaptive solution is used.
@@ -1031,7 +1031,8 @@ class PostProcessorCommon(object):
             Report Category. The default is ``None``, in which case the default category is used.
         display_type : str, optional
             Report Display Type.
-            The default is ``None``, in which case the default type is used,in most of the case "Rectangular Plot".
+            The default is ``None``, in which case the default type is used.
+            In most of the cases the default type is "Rectangular Plot".
         solution : str, optional
             Report Setup.
             The default is ``None``, in which case the first nominal adaptive solution is used.
@@ -1501,7 +1502,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         project_dir : str
-            Path to the project directory. The csv file is plot_name.csv.
+            Path to the project directory. The CSV file is plot_name.csv.
         plot_name : str
             Name of the plot to export.
         uniform : bool, optional
