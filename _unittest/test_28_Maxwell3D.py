@@ -586,7 +586,26 @@ class TestClass:
         assert report.matrix == "Matrix1"
         assert report.reduced_matrix == "ReducedMatrix1"
         data = self.aedtapp.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
-        assert data.expressions[::-1] == expressions
+        assert data
+        expressions = self.aedtapp.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table"
+        )
+        assert isinstance(expressions, list)
+        expressions = self.aedtapp.post.available_report_quantities(
+            report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
+        )
+        assert isinstance(expressions, list)
+        report = self.aedtapp.post.create_report(
+            expressions=expressions,
+            context="Matrix1",
+            plot_type="Data Table",
+            plot_name="reduced_matrix",
+        )
+        assert report.expressions == expressions
+        assert report.matrix == "Matrix1"
+        assert not report.reduced_matrix
+        data = self.aedtapp.post.get_solution_data(expressions=expressions, context="Matrix1")
+        assert data
 
     def test_33_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
