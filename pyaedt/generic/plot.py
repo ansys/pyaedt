@@ -353,17 +353,17 @@ def plot_polar_chart(
     plot_data : list of list
         List of plot data. Every item has to be in the following format
         `[x points, y points, label]`.
-    size : tuple, optional
+    size : tuple, optional, optional
         Image size in pixel (width, height).
-    show_legend : bool
+    show_legend : bool, optional
         Either to show legend or not.
-    xlabel : str
+    xlabel : str, optional
         Plot X label.
-    ylabel : str
+    ylabel : str, optional
         Plot Y label.
-    title : str
+    title : str, optional
         Plot title label.
-    snapshot_path : str
+    snapshot_path : str, optional
         Full path to the image file if a snapshot is needed.
     show : bool, optional
         Whether to render the figure. The default is ``True``. If ``False``, the
@@ -419,14 +419,16 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         `[x points, y points, z points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
-    xlabel : str
+    xlabel : str, optional
         Plot X label.
-    ylabel : str
+    ylabel : str, optional
         Plot Y label.
-    title : str
+    title : str, optional
         Plot Title label.
-    snapshot_path : str
+    snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
     Returns
     -------
@@ -456,7 +458,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show:
         fig.show()
     return fig
 
@@ -486,6 +488,8 @@ def plot_2d_chart(
     snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
         The default value is ``None``.
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
     Returns
     -------
@@ -493,7 +497,7 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    ax = plt.subplot(111, projection="polar")
+    ax = plt.subplot(111)
     fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
@@ -504,7 +508,10 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y)
+        label = f"Plot {str(label_id)}"
+        if len(plo_obj) > 2:
+            label = plo_obj[2]
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)

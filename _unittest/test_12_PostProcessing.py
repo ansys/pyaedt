@@ -603,10 +603,10 @@ class TestClass:
         frequencies = [0.9e9, "0.9GHz"]
         eep_files = [eep_file1, eep_file2]
 
-        ffdata = FfdSolutionData(frequencies=frequencies[1], eep_files=eep_file1)
+        ffdata = FfdSolutionData(eep_files=eep_file1)
         assert len(ffdata.frequencies) == 1
 
-        ffdata = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
+        ffdata = FfdSolutionData(eep_files=eep_files)
         assert len(ffdata.frequencies) == 2
         farfield = ffdata.combine_farfield()
         assert "rETheta" in farfield

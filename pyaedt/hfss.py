@@ -5512,7 +5512,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(setup_name="setup", sphere_name="sphere")
     def get_antenna_ffd_solution_data(
         self,
-        frequencies,
+        frequencies=None,
         setup=None,
         sphere=None,
         variations=None,
@@ -5527,8 +5527,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        frequencies : float, list
-            Frequency value or list of frequencies to compute far field data.
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute far field data. The default is ``None,`` in which case
+            all available frequencies are computed.
         setup : str, optional
             Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
         sphere : str, optional
@@ -5558,6 +5559,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             variations = self.available_variations.nominal_w_values_dict_w_dependent
         if not setup:
             setup = self.nominal_adaptive
+
         if sphere:
             names = [i.name for i in self.field_setups]
             if sphere in names:
@@ -5577,6 +5579,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 x_start=0, x_stop=180, x_step=5, y_start=-180, y_stop=180, y_step=5, name=sphere
             )
             self.logger.info("Far field sphere %s is created.", setup)
+
+        if setup in self.existing_analysis_sweeps and not frequencies:
+            trace_name = "mag(rETheta)"
+            solnData = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
+            if solnData and getattr(solnData, "primary_sweep_values", None):
+                frequencies = solnData.primary_sweep_values
+                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequencies = [str(freq) + frequency_units for freq in frequencies]
+
+        if not frequencies:  # pragma: no cover
+            self.logger.info("Frequencies could not be obtained.")
+            return False
 
         ffd = FfdSolutionDataExporter(
             self,

@@ -1548,10 +1548,6 @@ class FfdSolutionData(object):
         List of embedded element pattern files for each frequency.
         If data is only provided for a single frequency, then a string can be passed
         instead of a one-element list.
-    frequencies : list, str, int, or float
-        List of frequencies.
-        If data is only available for a single frequency, then a float or integer may be passed
-        instead of a one-element list.
 
     Examples
     --------
@@ -1564,16 +1560,14 @@ class FfdSolutionData(object):
     >>> sphere = "3D"
     >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
     >>> eep_files = data.eep_files
-    >>> frequencies = data.frequencies
     >>> app.release_desktop()
-    >>> farfield_data = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
+    >>> farfield_data = FfdSolutionData(eep_files=eep_files)
     >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
     def __init__(
         self,
         eep_files,
-        frequencies,
     ):
         self.logger = logging.getLogger("Global")
 
@@ -1582,26 +1576,17 @@ class FfdSolutionData(object):
         self._eep_file_info_list = []
         self.port_position = {}
 
-        if isinstance(frequencies, (float, str, int)):
-            frequencies = [frequencies]
         self._freq_index = 0
-        self.frequencies = frequencies
+        self.frequencies = []
 
         if isinstance(eep_files, str):
             eep_files = [eep_files]
         self.eep_files = eep_files
 
-        if len(self.eep_files) != len(self.frequencies):  # pragma: no cover
-            raise Exception("Number of frequencies are different than the number of EEP files.")
-
         for eep in eep_files:
             self._read_eep_files(eep)
 
-        if (
-            not self._eep_file_info_list
-            or not self.port_position
-            or len(self._eep_file_info_list) != len(self.frequencies)
-        ):  # pragma: no cover
+        if not self._eep_file_info_list or not self.port_position:  # pragma: no cover
             raise Exception("Wrong farfield file load.")
 
         self.eep_file_info = self._eep_file_info_list[0]
@@ -1627,6 +1612,7 @@ class FfdSolutionData(object):
                     # Load JSON data from file
                     metadata = json.load(f)
                 self.model_info.append(metadata["model_info"])
+                self.frequencies.append(metadata["frequency"])
                 if "array_dimension" in metadata and "component_objects" in metadata and "cell_position" in metadata:
                     self._is_array.append(True)
                     self._component_objects.append(metadata["component_objects"])
@@ -2238,9 +2224,6 @@ class FfdSolutionData(object):
                 return False
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
-        # FIXME: See if we need to keep this check on the curves length
-        # if len(curves) > 15:
-        #     show_legend = False
         if is_polar:
             return plot_polar_chart(
                 curves,
@@ -2276,7 +2259,6 @@ class FfdSolutionData(object):
             quantity_format="dB10",
             image_path=None,
             show=True,
-            **kwargs
     ):
         # fmt: on
         """Create a 3D plot of a specified quantity.
@@ -2320,18 +2302,6 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
         """
-        for k in kwargs:
-            if k == "convert_to_db":  # pragma: no cover
-                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
-                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-            elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
-                quantity = kwargs["qty_str"]
-            else:  # pragma: no cover
-                msg = "{} not valid.".format(k)
-                self.logger.error(msg)
-                raise TypeError(msg)
-
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
@@ -2968,7 +2938,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
         else:
             self._app.logger.warning("Set phase center in port location manually.")
         eep_files = self._export_all_ffd()
-        FfdSolutionData.__init__(self, eep_files, self.frequencies)
+        FfdSolutionData.__init__(self, eep_files)
 
     @pyaedt_function_handler()
     def _export_all_ffd(self):
