@@ -270,7 +270,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
-      - uses: codecov/c aodecov-action@v4
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           name: codecov-system-solver-tests
