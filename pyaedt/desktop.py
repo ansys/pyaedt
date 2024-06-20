@@ -1593,7 +1593,7 @@ class Desktop(object):
             except Exception:
                 self.logger.warning("Failed to close Edb object.")
 
-        if close_projects:
+        if close_projects and "PYTEST_CURRENT_TEST" not in os.environ:
             projects = self.odesktop.GetProjectList()
             for project in projects:
                 try:

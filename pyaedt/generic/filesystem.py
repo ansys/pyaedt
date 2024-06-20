@@ -148,9 +148,7 @@ class Scratch:
         -------
 
         """
-        from distutils.dir_util import copy_tree
-
-        copy_tree(src_folder, destfolder)
+        shutil.copytree(src_folder, destfolder, dirs_exist_ok=True)
         return True
 
     def __enter__(self):
