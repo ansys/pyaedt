@@ -12,7 +12,7 @@ export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
-m2d_electrostatic = "m2d_elec_fields_calc"
+m2d_electrostatic = "maxwell_fields_calculator"
 
 test_subfolder = "T45"
 
@@ -231,8 +231,9 @@ class TestClass:
 
         aedtapp = add_app(application=pyaedt.Maxwell2d,
                           project_name=m2d_electrostatic,
+                          design_name="e_tangential",
                           subfolder=test_subfolder)
-        name = aedtapp.post.fields_calculator.add_expression("e_line", "Poly1")
+        name = aedtapp.post.fields_calculator.add_expression("e_line", None)
         assert name
         assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
 
@@ -240,6 +241,19 @@ class TestClass:
                      "setup": "MySetupAuto : LastAdaptive",
                      "calculation": "e_line",
                      "assignment": ["Polyl1"]})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+        aedtapp = add_app(application=pyaedt.Maxwell2d,
+                          project_name=m2d_electrostatic,
+                          design_name="stress_tensor",
+                          subfolder=test_subfolder)
+        name = aedtapp.post.fields_calculator.add_expression("radial_stress_tensor", None)
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("radial_stress_tensor", "Polyline1", [name])
+        name = aedtapp.post.fields_calculator.add_expression("tangential_stress_tensor", None)
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("tangential_stress_tensor", "Polyline1", [name])
 
         aedtapp.close_project(aedtapp.project_name)
 

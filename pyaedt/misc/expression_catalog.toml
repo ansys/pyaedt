@@ -26,6 +26,7 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('Integrate')",
 	"Operation('CmplxI')",
 	"Operation('+')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [voltage_line_time]
@@ -44,6 +45,7 @@ operations = ["Fundamental_Quantity('E_t')",
     "Operation('LineValue')",
 	"Operation('Integrate')"
 ]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [voltage_line_maxwell]
@@ -72,6 +74,7 @@ operations = ["NameOfExpression('<Ex,Ey,Ez>')",
 	"Operation('Integrate')",
 	"Operation('CmplxI')",
 	"Operation('+')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [voltage_drop]
@@ -87,6 +90,7 @@ constants = {"vrm"= 3.3}
 operations = ["Fundamental_Quantity('dcvPhi')",
     "Scalar_Function(FuncValue='vrm')",
 	"Operation('+')"]
+dependent_expressions = []
 report = ["Field_3D"]
 
 # Current
@@ -117,6 +121,7 @@ operations = ["NameOfExpression('<Hx,Hy,Hz>')",
 	"Operation('Integrate')",
 	"Operation('CmplxI')",
 	"Operation('+')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [current_line_time]
@@ -134,6 +139,7 @@ operations = ["Fundamental_Quantity('H_t')",
     "EnterLine('assignment')",
     "Operation('LineValue')",
 	"Operation('Integrate')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 # Power
@@ -154,6 +160,7 @@ operations = ["NameOfExpression('Poynting')",
 	"EnterSurface('assignment')",
 	"Operation('SurfaceValue')",
 	"Operation('Integrate')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 # Misc
@@ -181,6 +188,7 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('Mag')",
 	"Operation('/')"
 ]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [wave_impedance_y]
@@ -206,6 +214,7 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('Mag')",
 	"Operation('/')"
 ]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [wave_impedance_z]
@@ -231,6 +240,7 @@ operations = ["Fundamental_Quantity('E')",
 	"Operation('Mag')",
 	"Operation('/')"
 ]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 # Electrostatic
@@ -250,6 +260,7 @@ operations = ["NameOfExpression('<Dx,Dy,Dz>')",
 	"EnterSurface('assignment')",
 	"Operation('SurfaceValue')",
 	"Operation('Integrate')"]
+dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
 [e_line]
@@ -264,4 +275,93 @@ assignment_type = ["Line"]
 operations = ["NameOfExpression('<Ex,Ey,0>')",
 	"Operation('Tangent')",
 	"Operation('Dot')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[b_radial]
+name = "Radial_Component_Magnetic_Field"
+description = "Radial component of magnetic field"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('B')",
+	"Operation('ScalarX')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Cos')",
+	"Operation('*')",
+	"Fundamental_Quantity('B')",
+	"Operation('ScalarY')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Sin')",
+	"Operation('*')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[b_tangential]
+name = "Tangential_Component_Magnetic_Field"
+description = "Tangential component of magnetic field"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+operations = ["Fundamental_Quantity('B')",
+	"Operation('ScalarX')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Sin')",
+	"Operation('*')",
+	"Operation('Neg')",
+	"Fundamental_Quantity('B')",
+	"Operation('ScalarY')",
+	"Scalar_Function(FuncValue='PHI')",
+	"Operation('UMathFunc', 'Cos')",
+	"Operation('*')",
+	"Operation('+')"]
+dependent_expressions = []
+report = ["Data Table", "Rectangular Plot"]
+
+[radial_stress_tensor]
+name = "Radial_Stress_Tensor"
+description = "Radial stress tensor"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+dependent_expressions = ["b_radial", "b_tangential"]
+operations = ["NameOfExpression('b_radial')",
+	"NameOfExpression('b_radial')",
+	"Operation('*')",
+	"NameOfExpression('b_tangential')",
+	"NameOfExpression('b_tangential')",
+	"Operation('*')",
+	"Operation('Neg')",
+	"Operation('+')",
+	"Scalar_Constant(1.25664e-06)",
+	"Operation('/')",
+	"Scalar_Constant(2)",
+	"Operation('/')"]
+report = ["Data Table", "Rectangular Plot"]
+
+[tangential_stress_tensor]
+name = "Tangential_Stress_Tensor"
+description = "Tangential stress tensor"
+design_type = ["Maxwell 2D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Distance"
+assignment = ""
+assignment_type = ["Line"]
+dependent_expressions = ["b_radial", "b_tangential"]
+operations = ["NameOfExpression('b_radial')",
+	"NameOfExpression('b_tangential')",
+	"Operation('*')",
+	"Scalar_Constant(1.25664e-06)",
+	"Operation('/')"]
 report = ["Data Table", "Rectangular Plot"]
