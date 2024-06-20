@@ -21,9 +21,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from abc import abstractmethod
 from collections import OrderedDict
+import os.path
 import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -1638,6 +1638,7 @@ class IcepakMesh(object):
             for el in self.meshoperations:
                 if el.name == name:
                     name = generate_unique_name(name)
+                    break
         else:
             name = generate_unique_name("MeshLevel")
         props = OrderedDict(
@@ -1648,6 +1649,48 @@ class IcepakMesh(object):
                 "Groups": [str(group_name)],
                 "Local Mesh Parameters Type": local_mesh_parameters,
             }
+        )
+        mop = MeshOperation(self, name, props, "Icepak")
+        mop.create()
+        self.meshoperations.append(mop)
+        return mop
+
+    def assign_mesh_reuse(self, assignment, mesh_file, name=None):
+        """Assign a mesh file to objects.
+
+        Parameters
+        ----------
+        assignment : str or list
+            Names of objects to which the mesh file is assignment.
+        mesh_file : str
+            Path to the mesh file.
+        name : str, optional
+            Name of the mesh operation. The default is ``None``, in which case it will be
+            generated automatically.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+
+        References
+        ----------
+
+        >>> oModule.AssignMeshOperation
+        """
+        if not os.path.exists(mesh_file):
+            self._app.logger.error("Mesh file does not exist.")
+            return False
+        if name:
+            for el in self.meshoperations:
+                if el.name == name:
+                    name = generate_unique_name(name)
+                    break
+        else:
+            name = generate_unique_name("MeshLevel")
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        props = OrderedDict(
+            {"Enable": True, "Mesh Reuse Enabled": True, "Mesh Reuse File": mesh_file, "Objects": assignment}
         )
         mop = MeshOperation(self, name, props, "Icepak")
         mop.create()
