@@ -34,6 +34,8 @@ from pyaedt.filtersolutions_core.lumped_topology import LumpedTopology
 from pyaedt.filtersolutions_core.multiple_bands_table import MultipleBandsTable
 from pyaedt.filtersolutions_core.transmission_zeros import TableFormat
 from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
+from pyaedt.misc.misc import current_version
+from pyaedt.misc.misc import installed_versions
 
 
 class FilterSolutions:
@@ -61,8 +63,11 @@ class FilterSolutions:
     >>> )
     """
 
-    def __init__(self, implementation_type=FilterImplementation.LUMPED):
+    def __init__(self, version=None, implementation_type=FilterImplementation.LUMPED):
+        version = version
         implementation_type = implementation_type
+        self.version_check(version)
+
         if implementation_type == FilterImplementation.LUMPED:
             self._init_lumped_design()
         else:
@@ -82,3 +87,14 @@ class FilterSolutions:
         self.multiple_bands_table = MultipleBandsTable()
         self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
         self.transmission_zeros_frequency = TransmissionZeros(TableFormat.FREQUENCY)
+
+    def version_check(self, version):
+        self_current_version = current_version()
+        if current_version == "":
+            raise Exception("AEDT is not installed on your system. Install AEDT version 2025 R1 or higher.")
+        if version is None:
+            version = self_current_version
+        if float(version[0:6]) < 2024:
+            raise ValueError("PyAEDT supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later.")
+        if not (version in installed_versions()) and not (version + "CL" in installed_versions()):
+            raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))

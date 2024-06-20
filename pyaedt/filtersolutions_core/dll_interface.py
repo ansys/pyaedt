@@ -29,6 +29,9 @@ import threading
 import time
 from typing import Callable
 
+from pyaedt.misc.misc import current_version
+from pyaedt.misc.misc import installed_versions
+
 
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
@@ -47,9 +50,8 @@ class DllInterface:
         relative_path = "../../../build_output/64Release/nuhertz/FilterSolutionsAPI.dll"
         self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
         if not os.path.isfile(self.dll_path):
-            self.dll_path = os.path.join(
-                os.environ["ANSYSEM_ROOT242"], "nuhertz/FilterSolutionsAPI.dll"
-            )  # pragma: no cover
+            self.dll_path = os.path.join(installed_versions()[current_version()], "nuhertz/FilterSolutionsAPI.dll")
+            # pragma: no cover
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolution' API DLL was not found at {self.dll_path}.")  # pragma: no cover

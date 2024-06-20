@@ -49,6 +49,18 @@ from pyaedt.twinbuilder import TwinBuilder
 Simplorer = TwinBuilder
 
 
+def FilterSolutions(
+    version=None,
+    implementation_type=None,
+):
+    from pyaedt.filtersolutions import FilterSolutions as app
+
+    return app(
+        version=version,
+        implementation_type=implementation_type,
+    )
+
+
 def launch_desktop(
     version=None,
     non_graphical=False,
