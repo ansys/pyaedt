@@ -945,23 +945,27 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def available_quantities_categories(
-        self, report_category=None, display_type=None, solution=None, context="", is_siwave_dc=False
+        self, report_category=None, display_type=None, solution=None, context=None, is_siwave_dc=False
     ):
         """Compute the list of all available report categories.
 
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is `None` which will take first default category.
+            Report category. The default is ``None``, in which case the first default category is used.
         display_type : str, optional
-            Report Display Type.
-            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+            Report display type. The default is ``None``, in which case the first default type
+             is used. In most cases, this default type is ``"Rectangular Plot"``.
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
-        context : str, optional
-            Report Category. Default is `""` which will take first default context.
+            Report setup. The default is ``None``, in which case the first
+            nominal adaptive solution is used.
+        context : str, dict, optional
+            Report category. The default is ``None``, in which case the first default context
+            is used. For Maxwell 2D/3D eddy current solution types, the report category
+            can be provided as a dictionary, where the key is the matrix name and the value
+            the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+            Whether the setup is Siwave DCIR. The default is ``False``.
 
         Returns
         -------
@@ -994,7 +998,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:  # pragma: no cover
             context = ""
 
@@ -1009,7 +1020,7 @@ class PostProcessorCommon(object):
         display_type=None,
         solution=None,
         quantities_category=None,
-        context="",
+        context=None,
         is_siwave_dc=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
@@ -1017,17 +1028,23 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. The default is ``None``, in which case the default category is used.
         display_type : str, optional
             Report Display Type.
-            Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
+            The default is ``None``, in which case the default type is used.
+            In most of the cases the default type is "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
+            Report Setup.
+            The default is ``None``, in which case the first nominal adaptive solution is used.
         quantities_category : str, optional
-            The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
-            Default is ``None`` which will take first default quantity.".
-        context : str, optional
-            Report Context. Default is ``""`` which will take first default context.
+            The category that the quantities belong to.
+            It must be one of the ``available_quantities_categories`` method.
+            The default is ``None``, in which case the first default quantity is used.
+        context : str, dict, optional
+            Report Context.
+            The default is ``None``, in which case the default context is used.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
@@ -1038,6 +1055,26 @@ class PostProcessorCommon(object):
         References
         ----------
         >>> oModule.GetAllQuantities
+
+        Examples
+        --------
+        The example shows how to get report expressions for a Maxwell design with Eddy current solution.
+        The context has to be provided as a dictionary where the key is the name of the original matrix
+        and the value is the name of the reduced matrix.
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -1062,7 +1099,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:
             context = ""
         if not quantities_category:
@@ -1087,7 +1131,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. Default is ``None`` which takes default category.
 
         Returns
         -------
@@ -1219,7 +1263,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         plot_name : str, optional
-            Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
+            Name of the plot to delete. The default  value is ``None`` and in this case, all reports are deleted.
 
         Returns
         -------
@@ -1458,7 +1502,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         project_dir : str
-            Path to the project directory. The csv file will be plot_name.csv.
+            Path to the project directory. The CSV file is plot_name.csv.
         plot_name : str
             Name of the plot to export.
         uniform : bool, optional
@@ -1727,20 +1771,22 @@ class PostProcessorCommon(object):
         secondary_sweep_variable : str, optional
             Name of the secondary sweep variable in 3D Plots.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If `None` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
-        context : str, optional
+        context : str, dict, optional
             The default is ``None``.
             - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
               ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
             - For Q2D or Q3D, specify the name of a reduced matrix.
             - For a far fields plot, specify the name of an infinite sphere.
+            - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1748,7 +1794,6 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
 
         Returns
         -------
@@ -1778,8 +1823,8 @@ class PostProcessorCommon(object):
         ...                            report_category="Far Fields",
         ...                            plot_type="3D Polar Plot",
         ...                            context="3D")
-
         >>> hfss.post.create_report("S(1,1)",hfss.nominal_sweep,variations=variations,plot_type="Smith Chart")
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1787,6 +1832,27 @@ class PostProcessorCommon(object):
         ...                               domain="Time",
         ...                               primary_sweep_variable="Time",
         ...                               plot_name="Winding Plot 1")
+        >>> m2d.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> report = m3d.post.create_report(
+        ...    expressions=expressions,
+        ...    context={"Matrix1": "ReducedMatrix1"},
+        ...    plot_type="Data Table",
+        ...    plot_name="reduced_matrix")
+        >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -1860,6 +1926,17 @@ class PostProcessorCommon(object):
             ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
@@ -1907,7 +1984,7 @@ class PostProcessorCommon(object):
         ----------
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
-            Default is `None` which will return all traces.
+            Default is ``None`` which returns all traces.
         setup_sweep_name : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
             setup is used. Be sure to build a setup string in the form of
@@ -1917,21 +1994,21 @@ class PostProcessorCommon(object):
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
             Dictionary of all families including the primary sweep.
-            The default is ``None`` which will use the nominal variations of the setup.
+            The default is ``None`` which uses the nominal variations of the setup.
         primary_sweep_variable : str, optional
             Name of the primary sweep. The default is ``"None"`` which, depending on the context,
-            will internally assign the primary sweep to:
+            internally assigns the primary sweep to:
             1. ``Freq`` for frequency domain results,
             2. ``Time`` for transient results,
             3. ``Theta`` for radiation patterns,
             4. ``distance`` for field plot over a polyline.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If ``None`` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
             To get the list of available categories user can use method ``available_report_types``.
         context : str, dict, optional
             This is the context of the report.
@@ -1941,6 +2018,8 @@ class PostProcessorCommon(object):
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+            6. For Maxwell 2D/3D eddy current solution types, this can be provided as a dictionary,
+            where the key is the matrix name and value the reduced matrix.
         subdesign_id : int, optional
             Subdesign ID for exporting a Touchstone file of this subdesign.
             This parameter is valid for ``Circuit`` only.
@@ -1987,6 +2066,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1994,12 +2074,30 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
+        >>> m2d.release_desktop(False, False)
 
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
         >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
         ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> circuit.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         expressions = [expressions] if isinstance(expressions, str) else expressions
         if not setup_sweep_name:
@@ -2051,6 +2149,17 @@ class PostProcessorCommon(object):
             report.differential_pairs = True
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
@@ -3378,7 +3487,7 @@ class PostProcessor(PostProcessorCommon, object):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
-        It will also work when a layout components in 3d modeler is used.
+        It works when a layout components in 3d modeler is used.
         In order to plot on signal layers use the method ``create_fieldplot_layers_nets``.
 
         Parameters
@@ -3386,7 +3495,7 @@ class PostProcessor(PostProcessorCommon, object):
         layers : list
             List of layers to plot. For example:
             ``["Layer1","Layer2"]``. If empty list is provided
-            all layers will be considered.
+            all layers are considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3473,8 +3582,8 @@ class PostProcessor(PostProcessorCommon, object):
         layers_nets : list
             List of layers and nets to plot. For example:
             ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``. If ``"no-layer"`` is provided as first argument,
-            all layers will be considered. If ``"no-net"`` is provided or the list contains only layer name, all the
-            nets will be automatically considered.
+            all layers are considered. If ``"no-net"`` is provided or the list contains only layer name, all the
+            nets are automatically considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3852,7 +3961,7 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         full_name : str, optional
-            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir is used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
@@ -4142,8 +4251,8 @@ class PostProcessor(PostProcessorCommon, object):
         output_type : str, optional
             Output data presentation. The default is ``"component"``.
             The options are ``"component"``, or ``"boundary"``.
-            ``"component"`` will return the power based on each component.
-            ``"boundary"`` will return the power based on each boundary.
+            ``"component"`` returns the power based on each component.
+            ``"boundary"`` returns the power based on each boundary.
 
         Returns
         -------

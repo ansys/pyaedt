@@ -54,7 +54,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
         target: ['all', 'installer']
         exclude:
           - python-version: '3.7'
@@ -205,11 +205,11 @@ jobs:
           .venv\Scripts\Activate.ps1
           .\doc\make.bat pdf
 
-      - name: Add assets to HTML docs
-        run: |
-          zip -r documentation-html.zip ./doc/_build/html
-          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
-          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+      # - name: Add assets to HTML docs
+      #   run: |
+      #     zip -r documentation-html.zip ./doc/_build/html
+      #     mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+      #     cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
 
       - name: Upload HTML documentation with examples artifact
         uses: actions/upload-artifact@v3

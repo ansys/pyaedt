@@ -195,6 +195,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         projectname="project",
         specified_version="version",
         setup_name="setup",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
@@ -3626,11 +3627,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
         return True
 
-    @pyaedt_function_handler(portandmode="assignment")
+    @pyaedt_function_handler(portandmode="assignment", file_name="input_file")
     def edit_source_from_file(
         self,
         assignment,
-        file_name,
+        input_file,
         is_time_domain=True,
         x_scale=1,
         y_scale=1,
@@ -3647,7 +3648,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment : str
             Port name and mode. For example, ``"Port1:1"``.
             The port name must be defined if the solution type is other than Eigenmodal.
-        file_name : str
+        input_file : str
             Full name of the input file.
         is_time_domain : bool, optional
             Whether the input data is time-based or frequency-based. Frequency based data are Mag/Phase (deg).
@@ -3679,7 +3680,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     return data[td]
             return None
 
-        with open(file_name, "r") as f:
+        with open(input_file, "r") as f:
             header = f.readlines()[0]
             time_data = {"[ps]": 1e-12, "[ns]": 1e-9, "[us]": 1e-6, "[ms]": 1e-3, "[s]": 1}
             curva_data_V = {
@@ -3727,7 +3728,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             out = "Voltage"
         freq, mag, phase = parse_excitation_file(
-            file_name=file_name,
+            input_file=input_file,
             is_time_domain=is_time_domain,
             x_scale=x_scale,
             y_scale=y_scale,
