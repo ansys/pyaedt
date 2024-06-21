@@ -1298,6 +1298,7 @@ class Q3d(QExtractor, object):
         projectname="project",
         specified_version="version",
         setup_name="setup",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
@@ -2162,6 +2163,7 @@ class Q2d(QExtractor, object):
         projectname="project",
         specified_version="version",
         setup_name="setup",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
