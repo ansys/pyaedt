@@ -117,6 +117,14 @@ class FieldsCalculator:
                 for k, v in constants.items():
                     self.__app.variable_manager.set_variable(k, v, postprocessing=True)
 
+        # Check for dependent expressions
+        if expression_info["dependent_expressions"]:
+            for expression in expression_info["dependent_expressions"]:
+                expression_name = self.add_expression(calculation=expression, assignment=None)
+                expression_info["operations"] = [
+                    operation.replace(expression, expression_name) for operation in expression_info["operations"]
+                ]
+
         if assignment is not None:
             expression_info["assignment"] = assignment
 
