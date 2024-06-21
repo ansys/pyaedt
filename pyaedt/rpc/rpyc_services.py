@@ -14,11 +14,12 @@ from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.settings import is_linux
 from pyaedt import is_windows
+from pyaedt.misc.misc import is_safe_path
 
 if is_linux and is_ironpython:
-    import subprocessdotnet as subprocess
+    import subprocessdotnet as subprocess  # nosec
 else:
-    import subprocess
+    import subprocess  # nosec
 
 if not is_ironpython:
     import rpyc
@@ -270,24 +271,37 @@ class PyaedtServiceWindows(rpyc.Service):
         elif os.path.exists(script):
             script_file = script
         else:
-            return "File wrong or wrong commands."
+            return "Wrong file or wrong commands."
+        if not is_safe_path(script_file):
+            return "Script file {} not safe.".format(script_file)
         executable = "ansysedt.exe"
         if is_linux and not ansysem_path and not env_path(aedt_version):
             ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if env_path(aedt_version) or ansysem_path:
             if not ansysem_path:
                 ansysem_path = env_path(aedt_version)
-
-            ng_feature = " -features=SF159726_SCRIPTOBJECT"
+            exe_path = os.path.join(ansysem_path, executable)
+            if not is_safe_path(exe_path):
+                return "Ansys EM path not safe."
+            command = [exe_path]
+            if non_graphical:
+                command.append("-ng")
+            ng_feature = "-features=SF159726_SCRIPTOBJECT"
             if self._beta_options:
                 for opt in range(self._beta_options.__len__()):
                     if self._beta_options[opt] not in ng_feature:
                         ng_feature += "," + self._beta_options[opt]
             if non_graphical:
-                ng_feature += ",SF6694_NON_GRAPHICAL_COMMAND_EXECUTION -ng"
-            command = os.path.join(ansysem_path, executable) + ng_feature + " -RunScriptAndExit " + script_file
-            p = subprocess.Popen(command)
-            p.wait()
+                ng_feature += ",SF6694_NON_GRAPHICAL_COMMAND_EXECUTION"
+            command.append(ng_feature)
+            command = [exe_path, ng_feature, "-RunScriptAndExit", script_file]
+            try:
+                p = subprocess.Popen(command)  # nosec
+                p.wait()
+            except subprocess.CalledProcessError as e:
+                msg = "Command failed with error: {}".format(e)
+                logger.error(msg)
+                return msg
             return "Script Executed."
 
         else:
@@ -871,7 +885,13 @@ class GlobalService(rpyc.Service):
         from pyaedt.generic.general_methods import grpc_active_sessions
         sessions = grpc_active_sessions()
         if not port:
-            port = check_port(random.randint(18500, 20000))
+            # TODO: Remove once IronPython is deprecated
+            if is_ironpython:
+                port = check_port(random.randint(18500, 20000))  # nosec
+            else:
+                import secrets
+                secure_random = secrets.SystemRandom()
+                port = check_port(secure_random.randint(18500, 20000))
 
         if port == 0:
             print("Error. No ports are available.")
@@ -1097,7 +1117,7 @@ class ServiceManager(rpyc.Service):
             try:
                 edb.close_edb()
             except Exception:
-                pass
+                logger.warning("Error when trying to close EDB.")
 
     def start_service(self, port):
         """Connect to remove service manager and run a new server on specified port.
@@ -1157,5 +1177,11 @@ class ServiceManager(rpyc.Service):
 
     @staticmethod
     def exposed_check_port():
-        port_number = random.randint(18500, 20000)
-        return check_port(port_number)
+        # TODO: Remove once IronPython is deprecated
+        if is_ironpython:  # nosec
+            port = check_port(random.randint(18500, 20000))  # nosec
+        else:
+            import secrets
+            secure_random = secrets.SystemRandom()
+            port = check_port(secure_random.randint(18500, 20000))
+        return port

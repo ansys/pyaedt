@@ -81,7 +81,7 @@ class Primitives3DLayout(object):
         if partname in self.geometries:
             return self.geometries[partname]
         if partname in self.vias:
-            return self.nets[partname]
+            return self.vias[partname]
         if partname in self.nets:
             return self.nets[partname]
         if not isinstance(partname, (str, int, float, list, tuple)):
