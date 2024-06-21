@@ -42,10 +42,10 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {
-    "choice": "Convex Hull",
+    "choice": "ConvexHull",
     "signals": [],
     "reference": [],
-    "expansion_factor": 0.03,
+    "expansion_factor": 3,
     "fix_disjoints": True,
 }
 extension_description = "Layout Cutout"
