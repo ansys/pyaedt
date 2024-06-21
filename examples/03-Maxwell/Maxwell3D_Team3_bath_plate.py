@@ -43,7 +43,7 @@ non_graphical = False
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell3d`` class named ``M3D``. 
 
-project_name = "COMPUMAG"
+project_name = os.path.join(temp_dir.name, "COMPUMAG.aedt")
 design_name = "TEAM 3 Bath Plate"
 solver = "EddyCurrent"
 
@@ -235,5 +235,6 @@ m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsics=intrin
 # ~~~~~~~~~~~~
 # Release AEDT from the script engine, leaving both AEDT and the project open.
 
-m3d.release_desktop(False, False)
+m3d.release_desktop()
+
 temp_dir.cleanup()

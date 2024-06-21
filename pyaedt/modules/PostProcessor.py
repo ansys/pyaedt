@@ -1935,6 +1935,8 @@ class PostProcessorCommon(object):
                 for k, v in context.items():
                     report.matrix = k
                     report.reduced_matrix = v
+            elif context in self.modeler.line_names or context in self.modeler.point_names:
+                report.polyline = context
             else:
                 report.matrix = context
         elif report_category == "Far Fields":
@@ -2158,6 +2160,12 @@ class PostProcessorCommon(object):
                 for k, v in context.items():
                     report.matrix = k
                     report.reduced_matrix = v
+            elif (
+                hasattr(self.modeler, "line_names")
+                and hasattr(self.modeler, "point_names")
+                and context in self.modeler.point_names + self.modeler.line_names
+            ):
+                report.polyline = context
             else:
                 report.matrix = context
         elif report_category == "Far Fields":

@@ -124,6 +124,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         projectname="project",
         specified_version="version",
         setup_name="setup",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
