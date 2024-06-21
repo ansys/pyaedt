@@ -504,7 +504,7 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        label = f"Plot {str(label_id)}"
+        label = "Plot {}".format(str(label_id))
         if len(plo_obj) > 2:
             label = plo_obj[2]
         ax.plot(x, y, label=label)
