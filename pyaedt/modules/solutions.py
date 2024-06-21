@@ -1548,6 +1548,10 @@ class FfdSolutionData(object):
         List of embedded element pattern files for each frequency.
         If data is only provided for a single frequency, then a string can be passed
         instead of a one-element list.
+    frequencies : list, str, int, or float, optional
+        List of frequencies to load. The default is ``None``, in which case all available frequencies are loaded.
+        If data is only available for a single frequency, then a float or integer may be passed
+        instead of a one-element list.
 
     Examples
     --------
@@ -1565,10 +1569,7 @@ class FfdSolutionData(object):
     >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
-    def __init__(
-        self,
-        eep_files,
-    ):
+    def __init__(self, eep_files, frequencies=None):
         self.logger = logging.getLogger("Global")
 
         self._raw_data = {}
@@ -2902,6 +2903,8 @@ class FfdSolutionDataExporter(FfdSolutionData):
         Dictionary of all families including the primary sweep. The default value is ``None``.
     overwrite : bool, optional
         Whether to overwrite the existing far field solution data. The default is ``True``.
+    export_touchstone : bool, optional
+        Whether to export touchstone file. The default is ``False``. Working from 2024 R1.
 
     Examples
     --------
@@ -2915,13 +2918,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     """
 
     def __init__(
-        self,
-        app,
-        sphere_name,
-        setup_name,
-        frequencies,
-        variations=None,
-        overwrite=True,
+        self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, export_touchstone=True
     ):
         self._app = app
         self.sphere_name = sphere_name
@@ -2932,11 +2929,15 @@ class FfdSolutionDataExporter(FfdSolutionData):
             self.frequencies = frequencies
         self.variations = variations
         self.overwrite = overwrite
+        self.export_touchstone = False
+        if self._app.aedt_version_id >= "2024.1":
+            self.export_touchstone = export_touchstone
         self.model_info = []
         if self._app.desktop_class.is_grpc_api:
             self._app.set_phase_center_per_port()
         else:
             self._app.logger.warning("Set phase center in port location manually.")
+
         eep_files = self._export_all_ffd()
         FfdSolutionData.__init__(self, eep_files)
 
@@ -2947,76 +2948,52 @@ class FfdSolutionDataExporter(FfdSolutionData):
         exported_name_map = exported_name_base + ".txt"
         sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
         path_dict = []
-        for frequency in self.frequencies:
-            full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
-            export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
-            if settings.remote_rpc_session:
-                settings.remote_rpc_session.filemanager.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.filemanager.pathexists(export_path + exported_name_map)
-            elif not os.path.exists(export_path):
-                os.makedirs(export_path)
-                file_exists = False
-            else:
-                file_exists = os.path.exists(export_path + exported_name_map)
-            time_before = time.time()
-            if self.overwrite or not file_exists:
-                self._app.logger.info("Exporting embedded element patterns...")
-                var = []
-                if self.variations:
-                    for k, v in self.variations.items():
-                        var.append("{}='{}'".format(k, v))
-                variation = " ".join(var)
-                try:
-                    self._app.oradfield.ExportElementPatternToFile(
-                        [
-                            "ExportFileName:=",
-                            export_path + exported_name_base + ".ffd",
-                            "SetupName:=",
-                            self.sphere_name,
-                            "IntrinsicVariationKey:=",
-                            "Freq='" + str(frequency) + "'",
-                            "DesignVariationKey:=",
-                            variation,
-                            "SolutionName:=",
-                            self.setup_name,
-                        ]
-                    )
-                except Exception:
-                    self._app.logger.error("Failed to export one element pattern.")
-                    self._app.logger.error(export_path + exported_name_base + ".ffd")
+        # for frequency in self.frequencies:
+        full_setup_str = "{}-{}".format(sol_setup_name_str, self.sphere_name)
+        export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
+        if settings.remote_rpc_session:
+            settings.remote_rpc_session.filemanager.makedirs(export_path)
+            file_exists = settings.remote_rpc_session.filemanager.pathexists(export_path + exported_name_map)
+        elif not os.path.exists(export_path):
+            os.makedirs(export_path)
+            file_exists = False
+        else:
+            file_exists = os.path.exists(export_path + exported_name_map)
+        time_before = time.time()
+        if self.overwrite or not file_exists:
+            self.__export_element_pattern(export_path, exported_name_base)
+        else:
+            self._app.logger.info("Using Existing Embedded Element Patterns")
+        local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
+        export_path = check_and_download_folder(local_path, export_path)
+        if os.path.exists(os.path.join(export_path, exported_name_map)):
+            geometry_path = os.path.join(export_path, "geometry")
+            if not os.path.exists(geometry_path):
+                os.mkdir(geometry_path)
 
-            else:
-                self._app.logger.info("Using Existing Embedded Element Patterns")
-            local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
-            export_path = check_and_download_folder(local_path, export_path)
-            if os.path.exists(os.path.join(export_path, exported_name_map)):
-                geometry_path = os.path.join(export_path, "geometry")
-                if not os.path.exists(geometry_path):
-                    os.mkdir(geometry_path)
+            path_dict.append(os.path.join(export_path, exported_name_map))
+            metadata_file_name = os.path.join(export_path, "eep.json")
+            items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": self.frequencies}
 
-                path_dict.append(os.path.join(export_path, exported_name_map))
-                metadata_file_name = os.path.join(export_path, "eep.json")
-                items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": frequency}
+            obj_list = self._create_geometries(geometry_path)
+            if obj_list:
+                items["model_info"] = obj_list
+                self.model_info.append(obj_list)
 
-                obj_list = self._create_geometries(geometry_path)
-                if obj_list:
-                    items["model_info"] = obj_list
-                    self.model_info.append(obj_list)
+            if self._app.component_array:
+                component_array = self._app.component_array[self._app.component_array_names[0]]
+                items["component_objects"] = component_array.get_component_objects()
+                items["cell_position"] = component_array.get_cell_position()
+                items["array_dimension"] = [
+                    component_array.a_length,
+                    component_array.b_length,
+                    component_array.a_length / component_array.a_size,
+                    component_array.b_length / component_array.b_size,
+                ]
+                items["lattice_vector"] = component_array.lattice_vector()
 
-                if self._app.component_array:
-                    component_array = self._app.component_array[self._app.component_array_names[0]]
-                    items["component_objects"] = component_array.get_component_objects()
-                    items["cell_position"] = component_array.get_cell_position()
-                    items["array_dimension"] = [
-                        component_array.a_length,
-                        component_array.b_length,
-                        component_array.a_length / component_array.a_size,
-                        component_array.b_length / component_array.b_size,
-                    ]
-                    items["lattice_vector"] = component_array.lattice_vector()
-
-                with open_file(metadata_file_name, "w") as f:
-                    json.dump(items, f, indent=2)
+            with open_file(metadata_file_name, "w") as f:
+                json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
         return path_dict
@@ -3047,6 +3024,30 @@ class FfdSolutionDataExporter(FfdSolutionData):
                 obj.units,
             ]
         return obj_list
+
+    @pyaedt_function_handler()
+    def __export_element_pattern(self, export_path, exported_name_base):
+        self._app.logger.info("Exporting embedded element patterns...")
+        var = []
+        if self.variations:
+            for k, v in self.variations.items():
+                var.append("{}='{}'".format(k, v))
+        variation = " ".join(var)
+
+        command = ["ExportFileName:=", export_path + exported_name_base + ".ffd", "SetupName:=", self.sphere_name]
+        for frequency in self.frequencies:
+            command.append("IntrinsicVariationKey:=")
+            command.append("Freq='" + str(frequency) + "'")
+        command.append("DesignVariationKey:=")
+        command.append(variation)
+        command.append("SolutionName:=")
+        command.append(self.setup_name)
+
+        try:
+            self._app.oradfield.ExportElementPatternToFile(command)
+        except Exception:
+            self._app.logger.error("Failed to export one element pattern.")
+            self._app.logger.error(export_path + exported_name_base + ".ffd")
 
 
 class UpdateBeamForm:

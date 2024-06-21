@@ -5518,6 +5518,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         variations=None,
         overwrite=True,
         link_to_hfss=True,
+        export_touchstone=True,
     ):
         """Export the antenna parameters to Far Field Data (FFD) files and return an
         instance of the
@@ -5546,6 +5547,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             The default is `` True``. If ``False``, returns an instance of
             :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
             independent from the running HFSS instance.
+        export_touchstone : bool, optional
+            Whether to export touchstone file. The default is ``False``. Working from 2024 R1.
 
         Returns
         -------
@@ -5599,6 +5602,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             frequencies=frequencies,
             variations=variations,
             overwrite=overwrite,
+            export_touchstone=export_touchstone,
         )
         if link_to_hfss:
             return ffd
