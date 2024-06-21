@@ -493,7 +493,7 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    ax = plt.subplot(111, projection="polar")
+    ax = plt.subplot(111)
     fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1

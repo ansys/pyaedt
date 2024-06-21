@@ -235,5 +235,6 @@ m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsics=intrin
 # ~~~~~~~~~~~~
 # Release AEDT from the script engine, leaving both AEDT and the project open.
 
-m3d.release_desktop(False, False)
+m3d.release_desktop()
+
 temp_dir.cleanup()
