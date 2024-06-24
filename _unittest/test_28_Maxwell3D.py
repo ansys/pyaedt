@@ -517,6 +517,8 @@ class TestClass:
         rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
         rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
 
+        m3d.modeler.create_polyline(points=[[1, 2.75, 2.5], [8.5, 2.75, 2.5]], name="line_test")
+
         m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
         m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
         m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
@@ -605,6 +607,19 @@ class TestClass:
         assert report.matrix == "Matrix1"
         assert not report.reduced_matrix
         data = self.aedtapp.post.get_solution_data(expressions=expressions, context="Matrix1")
+        assert data
+
+        report = self.aedtapp.post.create_report(
+            expressions="Mag_H", context="line_test", primary_sweep_variable="Distance", report_category="Fields"
+        )
+        assert report.expressions == ["Mag_H"]
+        assert report.polyline == "line_test"
+        data = self.aedtapp.post.get_solution_data(
+            expressions=["Mag_H"],
+            context="line_test",
+            report_category="Fields",
+            primary_sweep_variable="Distance",
+        )
         assert data
 
     def test_33_mesh_settings(self):
