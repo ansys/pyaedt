@@ -10,10 +10,10 @@ of the sources.
 Deprecation of function argument names
 --------------------------------------
 
-In the next major version, several function argument names will be deprecated and will no longer
-be allowed. Please review your code and check the warning that are logged at run time.
+In the next major version, several function argument names are deprecated and are no longer 
+allowed. Please review your code and check the warning that are logged at run time.
 Below is an example of a warning triggered by the use of an argument that is currently tolerated
-but which will not work with version `1.0`.
+but which is not going to work with version `1.0`.
 
 .. code-block:: python
 
@@ -26,14 +26,14 @@ Expected log output:
 
     PyAEDT WARNING: Argument `designname` is deprecated for method `__init__`; use `design` instead.
 
-Restructuration of the codebase
--------------------------------
+Restructuring of the codebase
+-----------------------------
 
-To facilitate the maintenance of our package and to adhere to PyAnsys' guidelines, we are
-restructuring the codebase. The sources will be moved from `pyaedt` to `src.ansys.aedt`.
+To facilitate the maintenance of our package and to adhere to PyAnsys' guidelines, the codebase
+is being restructurated. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
 This change aims to improve the organization and maintainability of the codebase.
 
-The new structure will be as follows:
+The new structure is going to be as follow:
 
 .. code-block:: text
 
@@ -67,11 +67,11 @@ should be updated into
 Other changes to reach release 1.0
 ==================================
 
-In addition to the major changes described above, we are continuously making regular
-modifications to improve the quality of the project, its maintainability, its documentation, and
-to ensure we can meet user needs as efficiently as possible. This includes ensuring
-consistency on argument names; strengthening our CI/CD; extracting examples to a dedicated
-project to increase clarity, homogeneity and facilite integration; ...
+In addition to the major changes described above, modifications are continuously performed to
+improve the quality of the project, its maintainability, its documentation, and
+to ensure users' need are met as efficiently as possible. This includes ensuring
+consistency on argument names; improving data encapsulation; strengthening our CI/CD; extracting
+examples to a dedicated project to increase clarity, homogeneity and facilite integration; ...
 
 See `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ for more information on
 the status of the release.
