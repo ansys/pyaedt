@@ -1741,3 +1741,21 @@ class TestClass:
             "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
         )
         assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))
+
+    def test_79_mesh_reuse(self):
+        self.aedtapp.insert_design("test_79")
+        self.aedtapp.set_active_design("test_79")
+        cylinder = self.aedtapp.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name, os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh")
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
