@@ -3184,7 +3184,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
         command.append("DesignVariable:=")
         command.append(variation)
 
-        for excitation in self.__app.excitations:
+        for excitation in self.__app.get_all_sources():
             command.append("ElementPatterns:=")
             command.append(excitation)
 
