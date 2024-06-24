@@ -108,7 +108,7 @@ ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.fo
 # Release AEDT.
 # Far field post-processing can be performed without AEDT because the data is stored.
 
-eep_file = ffdata.eep_files
+eep_file = ffdata.eep_file
 working_directory = hfss.working_directory
 
 hfss.release_desktop()
@@ -118,7 +118,7 @@ hfss.release_desktop()
 # ~~~~~~~~~~~~~~~~~~~
 # Load far field data stored.
 
-ffdata = FfdSolutionData(eep_files=eep_file[0])
+ffdata = FfdSolutionData(eep_file=eep_file)
 
 ##########################################################
 # Generate contour plot

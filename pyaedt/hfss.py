@@ -5606,10 +5606,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         )
         if link_to_hfss:
             return ffd
-        else:
-            eep_file = ffd.eep_files
-            frequencies = ffd.frequencies
-            return FfdSolutionData(frequencies=frequencies, eep_files=eep_file)
+        elif ffd.eep_file:
+            return FfdSolutionData(eep_file=ffd.eep_file)
+        else:  # pragma: no cover
+            self.logger.error("Farfield solution data could not be exported.")
+            return False
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=100000):

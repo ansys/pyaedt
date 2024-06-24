@@ -1537,21 +1537,19 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Provides antenna array far-field data.
+    """Provides antenna far-field data.
 
-    Read embedded element patterns generated in HFSS and return the Python interface
-    to plot and analyze the array far-field data.
+    Read embedded element pattern generated in HFSS and return the Python interface
+    to plot and analyze the far-field data.
 
     Parameters
     ----------
-    eep_files : list or str
+    eep_file : str
         List of embedded element pattern files for each frequency.
         If data is only provided for a single frequency, then a string can be passed
         instead of a one-element list.
-    frequencies : list, str, int, or float, optional
-        List of frequencies to load. The default is ``None``, in which case all available frequencies are loaded.
-        If data is only available for a single frequency, then a float or integer may be passed
-        instead of a one-element list.
+    frequency : str, optional
+        Active frequency. The default is ``None``, in which case the first frequency is active.
 
     Examples
     --------
@@ -1563,82 +1561,81 @@ class FfdSolutionData(object):
     >>> frequencies = [77e9]
     >>> sphere = "3D"
     >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
-    >>> eep_files = data.eep_files
+    >>> eep_file = data.eep_file
     >>> app.release_desktop()
-    >>> farfield_data = FfdSolutionData(eep_files=eep_files)
+    >>> farfield_data = FfdSolutionData(eep_file=eep_file)
     >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
-    def __init__(self, eep_files, frequencies=None):
-        self.logger = logging.getLogger("Global")
-
-        self._raw_data = {}
+    def __init__(self, eep_file, frequency=None):
+        self.__raw_data = {}
         self.farfield_data = {}
-        self._eep_file_info_list = []
         self.port_position = {}
+        self.eep_file_info = {}
+        self.__frequency_text_list = []
 
-        self._freq_index = 0
+        self.__freq_index = 0
         self.frequencies = []
 
-        if isinstance(eep_files, str):
-            eep_files = [eep_files]
-        self.eep_files = eep_files
+        self.eep_file = eep_file
 
-        for eep in eep_files:
-            self._read_eep_files(eep)
+        self.__read_eep_files(eep_file)
 
-        if not self._eep_file_info_list or not self.port_position:  # pragma: no cover
+        if not self.eep_file_info or not self.port_position:  # pragma: no cover
             raise Exception("Wrong farfield file load.")
 
-        self.eep_file_info = self._eep_file_info_list[0]
         self.all_port_names = list(self.eep_file_info.keys())
 
-        self._phase_offset = [0] * len(self.all_port_names)
-        self._mag_offset = [1] * len(self.all_port_names)
-        self._origin = [0, 0, 0]
-        self._taper = "flat"
+        self.__phase_offset = [0] * len(self.all_port_names)
+        self.__mag_offset = [1] * len(self.all_port_names)
+        self.__origin = [0, 0, 0]
+        self.__taper = "flat"
 
         self.model_info = []
-        self._is_array = []
-        self._component_objects = []
-        self._array_dimension = []
-        self._cell_position = []
-        self._lattice_vector = []
+        self.__is_array = False
+        self.__component_objects = []
+        self.__array_dimension = []
+        self.__cell_position = []
+        self.__lattice_vector = []
         self.mesh = None
 
-        for eep in eep_files:
-            metadata_file = os.path.join(os.path.dirname(eep), "eep.json")
-            if os.path.exists(metadata_file):
-                with open_file(metadata_file) as f:
-                    # Load JSON data from file
-                    metadata = json.load(f)
-                self.model_info.append(metadata["model_info"])
-                self.frequencies.append(metadata["frequency"])
-                if "array_dimension" in metadata and "component_objects" in metadata and "cell_position" in metadata:
-                    self._is_array.append(True)
-                    self._component_objects.append(metadata["component_objects"])
-                    self._array_dimension.append(metadata["array_dimension"])
-                    self._cell_position.append(metadata["cell_position"])
-                    self._lattice_vector.append(metadata["lattice_vector"])
-                else:
-                    self._is_array.append(False)
+        metadata_file = os.path.join(os.path.dirname(eep_file), "eep.json")
+        if os.path.exists(metadata_file):
+            with open_file(metadata_file) as f:
+                # Load JSON data from file
+                metadata = json.load(f)
+            self.model_info.append(metadata["model_info"])
+            self.frequencies = metadata["frequency"]
+            if "array_dimension" in metadata and "component_objects" in metadata and "cell_position" in metadata:
+                self.__is_array = True
+                self.__component_objects.append(metadata["component_objects"])
+                self.__array_dimension.append(metadata["array_dimension"])
+                self.__cell_position.append(metadata["cell_position"])
+                self.__lattice_vector.append(metadata["lattice_vector"])
+            else:
+                self.__is_array = False
 
-        self.port_index = self._get_port_index()
-        if not self._get_port_index:  # pragma: no cover
+        self.port_index = self.__get_port_index()
+        if not self.__get_port_index:  # pragma: no cover
             raise Exception("Wrong port index load.")
         self.__model_units = "meter"
-        self.frequency = self.frequencies[0]
 
-        self.a_min = sys.maxsize
-        self.a_max = 0
-        self.b_min = sys.maxsize
-        self.b_max = 0
+        if frequency and frequency in self.frequencies:
+            freq_index = self.frequencies.index(frequency)
+            self.frequency = self.frequencies[freq_index]
+        else:
+            self.frequency = self.frequencies[0]
+
+        self.__a_min = sys.maxsize
+        self.__a_max = 0
+        self.__b_min = sys.maxsize
+        self.__b_max = 0
         if self.port_index:
             for row, col in self.port_index.values():
-                self.a_min = min(self.a_min, row - 1)
-                self.a_max = max(self.a_max, row - 1)
-                self.b_min = min(self.b_min, col - 1)
-                self.b_max = max(self.b_max, col - 1)
+                self.__a_min = min(self.__a_min, row - 1)
+                self.__a_max = max(self.__a_max, row - 1)
+                self.__b_min = min(self.__b_min, col - 1)
+                self.__b_max = max(self.__b_max, col - 1)
 
     @property
     def frequency(self):
@@ -1648,13 +1645,10 @@ class FfdSolutionData(object):
     @frequency.setter
     def frequency(self, val):
         if val in self.frequencies:
-            freq_index = self.frequencies.index(val)
-            eep_file_info = self._eep_file_info_list[freq_index]
-            init_flag = self._init_ffd(eep_file_info)
+            init_flag = self.__init_ffd(self.eep_file_info)
             if init_flag:
                 self._frequency = val
-                self._freq_index = self.frequencies.index(val)
-                self.eep_file_info = self._eep_file_info_list[self._freq_index]
+                self.__freq_index = self.frequencies.index(val)
                 self.farfield_data = self.combine_farfield()
             else:  # pragma: no cover
                 self.logger.error("Wrong farfield information.")
@@ -1674,28 +1668,28 @@ class FfdSolutionData(object):
     def phase_offset(self):
         """List of additional phase offsets in degrees on each port. This property
         is useful when an element has more than one port."""
-        return self._phase_offset
+        return self.__phase_offset
 
     @phase_offset.setter
     def phase_offset(self, phases):
         if len(phases) != len(self.all_port_names):
             self.logger.error("Number of phases must be equal to number of ports.")
         else:
-            self._phase_offset = phases
+            self.__phase_offset = phases
             self.farfield_data = self.combine_farfield()
 
     @property
     def mag_offset(self):
         """List of additional magnitudes on each port. This property is
         useful when an element has more than one port."""
-        return self._mag_offset
+        return self.__mag_offset
 
     @mag_offset.setter
     def mag_offset(self, mags):
         if len(mags) != len(self.all_port_names):
             self.logger.error("Number of magnitude must be equal to number of ports.")
         else:
-            self._mag_offset = mags
+            self.__mag_offset = mags
             self.farfield_data = self.combine_farfield()
 
     @property
@@ -1710,30 +1704,30 @@ class FfdSolutionData(object):
         - ``"triangular"``
         - ``"uniform"``
         """
-        return self._taper
+        return self.__taper
 
     @taper.setter
     def taper(self, val):
         if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
-            self._taper = val
+            self.__taper = val
         else:
             self.logger.error("This taper is not implemented")
 
     @property
     def origin(self):
         """Far field origin in meters."""
-        return self._origin
+        return self.__origin
 
     @origin.setter
     def origin(self, vals):
         if len(vals) != 3:
             self.logger.error("Origin is wrong.")
         else:
-            self._origin = vals
+            self.__origin = vals
             self.farfield_data = self.combine_farfield()
 
     @pyaedt_function_handler()
-    def _assign_weight(self, a, b):
+    def __assign_weight(self, a, b):
         """Assign weight to array.
 
         Parameters
@@ -1750,7 +1744,7 @@ class FfdSolutionData(object):
         """
         taper = self.taper
 
-        if taper.lower() in ("flat", "uniform") or not self._is_array[self._freq_index]:
+        if taper.lower() in ("flat", "uniform") or not self.__is_array:
             return 1
 
         cosinePow = 1
@@ -1761,17 +1755,17 @@ class FfdSolutionData(object):
         threshold = 1e-10
 
         # find the distance between current cell and array center in terms of index
-        lattice_vector = self._lattice_vector[self._freq_index]
+        lattice_vector = self.__lattice_vector[self.__freq_index]
         if not lattice_vector or not len(lattice_vector) == 6:
             return 1
 
-        center_a = (self.a_min + self.a_max) / 2
-        center_b = (self.b_min + self.b_max) / 2
+        center_a = (self.__a_min + self.__a_max) / 2
+        center_b = (self.__b_min + self.__b_max) / 2
 
         length_in_direction1 = a - center_a
         length_in_direction2 = b - center_b
-        max_length_in_dir1 = self.a_max - self.a_min
-        max_length_in_dir2 = self.b_max - self.b_min
+        max_length_in_dir1 = self.__a_max - self.__a_min
+        max_length_in_dir2 = self.__b_max - self.__b_min
 
         if taper.lower() == "cosine":  # Cosine
             if max_length_in_dir1 < threshold:
@@ -1809,7 +1803,7 @@ class FfdSolutionData(object):
 
         return w1 * w2
 
-    def _phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
+    def __phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
         """Shift element phase for a specific Theta and Phi scan angle in degrees.
 
         This method calculates phase shifts between array elements in A and B directions given the lattice vector.
@@ -1837,7 +1831,7 @@ class FfdSolutionData(object):
         theta = np.deg2rad(theta)
         phi = np.deg2rad(phi)
 
-        lattice_vector = self._lattice_vector[self._freq_index]
+        lattice_vector = self.__lattice_vector[self.__freq_index]
 
         a_x, a_y, b_x, b_y = [lattice_vector[0], lattice_vector[1], lattice_vector[3], lattice_vector[4]]
 
@@ -1877,9 +1871,9 @@ class FfdSolutionData(object):
             index_str = self.port_index[port_name]
             a = index_str[0] - 1
             b = index_str[1] - 1
-            if self._is_array[self._freq_index]:
-                phase_shift = self._phase_shift_steering(a, b, theta_scan, phi_scan)
-                magnitude = self._assign_weight(a=a, b=b)
+            if self.__is_array:
+                phase_shift = self.__phase_shift_steering(a, b, theta_scan, phi_scan)
+                magnitude = self.__assign_weight(a=a, b=b)
             else:
                 phase_shift = 0
                 magnitude = 1
@@ -1892,13 +1886,15 @@ class FfdSolutionData(object):
             port_cont += 1
 
         # Combine farfield of each port
-        length_of_ff_data = len(self._raw_data[initial_port]["rETheta"])
-        theta_range = self._raw_data[initial_port]["Theta"]
-        phi_range = self._raw_data[initial_port]["Phi"]
+        freq_name_key = self.__frequency_text_list[self.__freq_index]
+        data = self.__raw_data[initial_port][freq_name_key]
+        length_of_ff_data = len(data["rETheta"])
+        theta_range = data["Theta"]
+        phi_range = data["Phi"]
         Ntheta = len(theta_range)
         Nphi = len(phi_range)
         incident_power = 0
-        ph, th = np.meshgrid(self._raw_data[initial_port]["Phi"], self._raw_data[initial_port]["Theta"])
+        ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
         c = 299792458
@@ -1914,6 +1910,7 @@ class FfdSolutionData(object):
 
         # Farfield superposition
         for _, port in enumerate(self.all_port_names):
+            data = self.__raw_data[port][freq_name_key]
             if port not in w_dict:
                 w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
             incident_power += w_dict_mag[port]
@@ -1921,8 +1918,8 @@ class FfdSolutionData(object):
             array_factor = (
                 np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * w_dict[port]
             )
-            rEphi_fields_sum += array_factor * self._raw_data[port]["rEPhi"]
-            rETheta_fields_sum += array_factor * self._raw_data[port]["rETheta"]
+            rEphi_fields_sum += array_factor * data["rEPhi"]
+            rETheta_fields_sum += array_factor * data["rETheta"]
 
         # Farfield origin sift
         origin = self.origin
@@ -2197,7 +2194,7 @@ class FfdSolutionData(object):
             x = [i * 2 * math.pi / 360 for i in x]
         if secondary_sweep_value == "all":
             for el in data[y_key]:
-                idx = self._find_nearest(data[y_key], el)
+                idx = self.__find_nearest(data[y_key], el)
                 y = temp[idx]
                 y = conversion_function(y, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
@@ -2207,7 +2204,7 @@ class FfdSolutionData(object):
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
             for el in secondary_sweep_value:
-                theta_idx = self._find_nearest(data[y_key], el)
+                theta_idx = self.__find_nearest(data[y_key], el)
                 if theta_idx not in list_inserted:
                     y = temp[theta_idx]
                     y = conversion_function(y, quantity_format)
@@ -2217,7 +2214,7 @@ class FfdSolutionData(object):
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
-            theta_idx = self._find_nearest(data[y_key], secondary_sweep_value)
+            theta_idx = self.__find_nearest(data[y_key], secondary_sweep_value)
             y = temp[theta_idx]
             y = conversion_function(y, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
@@ -2313,10 +2310,11 @@ class FfdSolutionData(object):
             self.logger.error("Format of the quantity is wrong.")
             return False
 
-        # renormalize to 0 and 1
+        # re-normalize to 0 and 1
         ff_max = np.max(ff_data)
         ff_min = np.min(ff_data)
-        ff_data_renorm = (ff_data - ff_max) / (ff_max - ff_min)
+
+        ff_data_renorm = (ff_data - ff_min) / (ff_max - ff_min)
 
         theta = np.deg2rad(np.array(data["Theta"]))
         phi = np.deg2rad(np.array(data["Phi"]))
@@ -2426,7 +2424,7 @@ class FfdSolutionData(object):
 
         self.mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
-        rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
+        rotation_euler = self.__rotation_to_euler_angles(rotation) * 180 / np.pi
 
         if not image_path and not show:
             off_screen = False
@@ -2453,7 +2451,7 @@ class FfdSolutionData(object):
         elif isinstance(background, str):  # pragma: no cover
             p.add_background_image(background, scale=2.5)
 
-        if show_beam_slider and self._is_array[self._freq_index]:
+        if show_beam_slider and self.__is_array:
             p.add_slider_widget(
                 uf.update_phi,
                 rng=[0, 360],
@@ -2524,9 +2522,9 @@ class FfdSolutionData(object):
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
             if not scale_farfield:
-                if self._is_array[self._freq_index]:
+                if self.__is_array:
                     slider_max = int(
-                        np.ceil(np.abs(np.max(self._array_dimension[self._freq_index]) / np.min(np.abs(p.bounds))))
+                        np.ceil(np.abs(np.max(self.__array_dimension[self.__freq_index]) / np.min(np.abs(p.bounds))))
                     )
                 else:  # pragma: no cover
                     slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
@@ -2567,7 +2565,7 @@ class FfdSolutionData(object):
         return p
 
     @pyaedt_function_handler()
-    def _init_ffd(self, eep_file_info):
+    def __init_ffd(self, eep_file_info):
         """Load far field information.
 
         Parameters
@@ -2581,42 +2579,63 @@ class FfdSolutionData(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        all_ports = self.all_port_names
-        valid_ffd = True
 
-        if os.path.exists(eep_file_info[all_ports[0]][0]):
-            with open_file(eep_file_info[all_ports[0]][0], "r") as reader:
-                theta = [int(i) for i in reader.readline().split()]
-                phi = [int(i) for i in reader.readline().split()]
-            reader.close()
-            for port in eep_file_info.keys():
-                temp_dict = {}
+        for port, port_data in eep_file_info.items():
+            self.__raw_data[port] = {}
+            if os.path.exists(port_data[0]):
+                # Extract ports
+                with open_file(port_data[0], "r") as reader:
+                    theta = [int(i) for i in reader.readline().split()]
+                    phi = [int(i) for i in reader.readline().split()]
+                reader.close()
+
+                # Extract ffd information
+                with open(port_data[0], "r") as file:
+                    ffd_text = file.read()
+
+                segments = ffd_text.split("Frequency")
+                eep_text_list = {}
+                frequency_text_list = []
+
+                for i, segment in enumerate(segments[1:]):
+                    segment = segment.strip()
+                    if segment:
+                        lines = segment.split('\n')
+                        frequency_text_list.append(lines[0])
+                        eep_text_list[lines[0]] = lines[1:]
+
+                if len(frequency_text_list) != len(self.frequencies):  # pragma: no cover
+                    self.logger.error(
+                        "Number of frequencies in metadata is different than number of frequencies in FFD "
+                        "file.")
+                    return False
+
+                self.__frequency_text_list = frequency_text_list
+
                 if ":" in port:
                     port = port.split(":")[0]
                 theta_range = np.linspace(*theta)
                 phi_range = np.linspace(*phi)
-                if os.path.exists(eep_file_info[port][0]):
-                    eep_txt = np.loadtxt(eep_file_info[port][0], skiprows=4)
+
+                for freq in frequency_text_list:
+                    temp_dict = {}
+                    self.__raw_data[port][freq] = {}
+                    eep_txt = np.loadtxt(eep_text_list[freq])
                     Etheta = np.vectorize(complex)(eep_txt[:, 0], eep_txt[:, 1])
                     Ephi = np.vectorize(complex)(eep_txt[:, 2], eep_txt[:, 3])
                     temp_dict["Theta"] = theta_range
                     temp_dict["Phi"] = phi_range
                     temp_dict["rETheta"] = Etheta
                     temp_dict["rEPhi"] = Ephi
-                    self._raw_data[port] = temp_dict
-                else:
-                    valid_ffd = False
-        else:
-            self.logger.error("Wrong far fields were imported.")
-            return False
-
-        if not valid_ffd:
-            return False
+                    self.__raw_data[port][freq] = temp_dict
+            else:
+                self.logger.error("Wrong far fields were imported.")
+                return False
 
         return True
 
-    @pyaedt_function_handler(farfield_quantity="quantity")
-    def get_far_field_mesh(self, quantity="RealizedGain", quantity_format="dB10", **kwargs):
+    @pyaedt_function_handler()
+    def get_far_field_mesh(self, quantity="RealizedGain", quantity_format="dB10"):
         """Generate a PyVista ``UnstructuredGrid`` object that represents the far field mesh.
 
         Parameters
@@ -2635,15 +2654,6 @@ class FfdSolutionData(object):
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
         """
-        for k in kwargs:
-            if k == "convert_to_db":  # pragma: no cover
-                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
-                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-            else:  # pragma: no cover
-                msg = "{} not valid.".format(k)
-                self.logger.error(msg)
-                raise TypeError(msg)
-
         if quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
             return False
@@ -2662,7 +2672,7 @@ class FfdSolutionData(object):
         return mesh
 
     @pyaedt_function_handler()
-    def _read_eep_files(self, eep_path):
+    def __read_eep_files(self, eep_path):
         """Read the EEP file and populate all attributes with information about each port in the file.
 
         Parameters
@@ -2676,7 +2686,7 @@ class FfdSolutionData(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._eep_file_info_list.append({})
+        self.eep_file_info = {}
         if os.path.exists(eep_path):
             with open_file(eep_path, "r") as reader:
                 lines = [line.split(None) for line in reader]
@@ -2686,7 +2696,7 @@ class FfdSolutionData(object):
                     port = pattern[0]
                     if ":" in port:
                         port = port.split(":")[0] + "_" + port.split(":")[1]
-                    self._eep_file_info_list[-1][port] = [
+                    self.eep_file_info[port] = [
                         os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd"),
                         pattern[2],
                         pattern[3],
@@ -2701,17 +2711,17 @@ class FfdSolutionData(object):
         """Get 3D meshes."""
         from pyaedt.generic.plot import ModelPlotter
 
-        eep_file_path = os.path.abspath(self.eep_files[self._freq_index])
-        model_info = self.model_info[self._freq_index]
+        eep_file_path = os.path.abspath(self.eep_file[self.__freq_index])
+        model_info = self.model_info[self.__freq_index]
         obj_meshes = []
-        if self._is_array[self._freq_index]:
+        if self.__is_array:
             non_array_geometry = model_info.copy()
-            components_info = self._component_objects[self._freq_index]
-            array_dimension = self._array_dimension[self._freq_index]
+            components_info = self.__component_objects[self.__freq_index]
+            array_dimension = self.__array_dimension[self.__freq_index]
             first_value = next(iter(model_info.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
-            cell_info = self._cell_position[self._freq_index]
+            cell_info = self.__cell_position[self.__freq_index]
 
             for cell_row in cell_info:
                 for cell_col in cell_row:
@@ -2739,7 +2749,7 @@ class FfdSolutionData(object):
                     row, col = cell_col[3]
 
                     # Perpendicular lattice vector
-                    if self._lattice_vector[self._freq_index][0] != 0:
+                    if self.__lattice_vector[self.__freq_index][0] != 0:
                         pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
                         pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
                     else:
@@ -2805,7 +2815,7 @@ class FfdSolutionData(object):
         return obj_meshes
 
     @pyaedt_function_handler()
-    def _get_port_index(self, port_name=None):
+    def __get_port_index(self, port_name=None):
         """Get index of a given port.
 
         Parameters
@@ -2826,14 +2836,14 @@ class FfdSolutionData(object):
             port_name = [port_name]
 
         index_offset = 0
-        if self._is_array[self._freq_index]:
+        if self.__is_array:
             port = port_name[0]
             first_index = port.split("[", 1)[1].split("]", 1)[0]
             if first_index[0] != "1":
                 index_offset = int(float(first_index[0])) - 1
 
         for port in port_name:
-            if self._is_array[self._freq_index]:
+            if self.__is_array:
                 try:
                     str1 = port.split("[", 1)[1].split("]", 1)[0]
                     port_index[port] = [int(i) - index_offset for i in str1.split(",")]
@@ -2850,7 +2860,7 @@ class FfdSolutionData(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def _find_nearest(array, value):
+    def __find_nearest(array, value):
         idx = np.searchsorted(array, value, side="left")
         if idx > 0 and (idx == len(array) or math.fabs(value - array[idx - 1]) < math.fabs(value - array[idx])):
             return idx - 1
@@ -2859,7 +2869,7 @@ class FfdSolutionData(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def _rotation_to_euler_angles(R):
+    def __rotation_to_euler_angles(R):
         sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
         singular = sy < 1e-6
         if not singular:
@@ -2880,7 +2890,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
     the embedded
     element pattern (EEP) files for an antenna array that have been solved in HFSS. The
-    ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
+    ``frequencies`` and ``eep_file`` properties can then be passed as arguments to
     instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
@@ -2905,6 +2915,8 @@ class FfdSolutionDataExporter(FfdSolutionData):
         Whether to overwrite the existing far field solution data. The default is ``True``.
     export_touchstone : bool, optional
         Whether to export touchstone file. The default is ``False``. Working from 2024 R1.
+    element_name : str, optional
+        Element pattern file name. The default is ``"element"``,
 
     Examples
     --------
@@ -2918,9 +2930,17 @@ class FfdSolutionDataExporter(FfdSolutionData):
     """
 
     def __init__(
-        self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, export_touchstone=True
+        self,
+        app,
+        sphere_name,
+        setup_name,
+        frequencies,
+        variations=None,
+        overwrite=True,
+        export_touchstone=True,
+        element_name="element",
     ):
-        self._app = app
+        self.__app = app
         self.sphere_name = sphere_name
         self.setup_name = setup_name
         if not isinstance(frequencies, list):
@@ -2930,58 +2950,59 @@ class FfdSolutionDataExporter(FfdSolutionData):
         self.variations = variations
         self.overwrite = overwrite
         self.export_touchstone = False
-        if self._app.aedt_version_id >= "2024.1":
+        self.exported_name_base = element_name
+        if self.__app.aedt_version_id >= "2024.1":
             self.export_touchstone = export_touchstone
         self.model_info = []
-        if self._app.desktop_class.is_grpc_api:
-            self._app.set_phase_center_per_port()
+        if self.__app.desktop_class.is_grpc_api:
+            self.__app.set_phase_center_per_port()
         else:
-            self._app.logger.warning("Set phase center in port location manually.")
-
-        eep_files = self._export_all_ffd()
-        FfdSolutionData.__init__(self, eep_files)
+            self.__app.logger.warning("Set phase center in port location manually.")
+        self.eep_file = self.__export_all_ffd()
+        FfdSolutionData.__init__(self, self.eep_file)
 
     @pyaedt_function_handler()
-    def _export_all_ffd(self):
+    def __export_all_ffd(self):
         """Export far field solution data of each port."""
-        exported_name_base = "eep"
-        exported_name_map = exported_name_base + ".txt"
+
+        exported_name_map = self.exported_name_base + ".txt"
         sol_setup_name_str = self.setup_name.replace(":", "_").replace(" ", "")
-        path_dict = []
-        # for frequency in self.frequencies:
+        element_path = None
+
         full_setup_str = "{}-{}".format(sol_setup_name_str, self.sphere_name)
-        export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
+        export_path = "{}/{}/".format(self.__app.working_directory, full_setup_str)
+        file_path = os.path.join(export_path, exported_name_map)
         if settings.remote_rpc_session:
             settings.remote_rpc_session.filemanager.makedirs(export_path)
-            file_exists = settings.remote_rpc_session.filemanager.pathexists(export_path + exported_name_map)
+            file_exists = settings.remote_rpc_session.filemanager.pathexists(file_path)
         elif not os.path.exists(export_path):
             os.makedirs(export_path)
             file_exists = False
         else:
-            file_exists = os.path.exists(export_path + exported_name_map)
+            file_exists = os.path.exists(file_path)
         time_before = time.time()
         if self.overwrite or not file_exists:
-            self.__export_element_pattern(export_path, exported_name_base)
+            self.__export_element_pattern(export_path)
         else:
-            self._app.logger.info("Using Existing Embedded Element Patterns")
-        local_path = "{}/{}/eep/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
-        export_path = check_and_download_folder(local_path, export_path)
+            self.__app.logger.info("Using Existing Embedded Element Patterns")
+        local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
+        export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
         if os.path.exists(os.path.join(export_path, exported_name_map)):
             geometry_path = os.path.join(export_path, "geometry")
             if not os.path.exists(geometry_path):
                 os.mkdir(geometry_path)
 
-            path_dict.append(os.path.join(export_path, exported_name_map))
+            element_path = os.path.abspath(os.path.join(export_path, exported_name_map))
             metadata_file_name = os.path.join(export_path, "eep.json")
-            items = {"variation": self._app.odesign.GetNominalVariation(), "frequency": self.frequencies}
+            items = {"variation": self.__app.odesign.GetNominalVariation(), "frequency": self.frequencies}
 
-            obj_list = self._create_geometries(geometry_path)
+            obj_list = self.__create_geometries(geometry_path)
             if obj_list:
                 items["model_info"] = obj_list
                 self.model_info.append(obj_list)
 
-            if self._app.component_array:
-                component_array = self._app.component_array[self._app.component_array_names[0]]
+            if self.__app.component_array:
+                component_array = self.__app.component_array[self.__app.component_array_names[0]]
                 items["component_objects"] = component_array.get_component_objects()
                 items["cell_position"] = component_array.get_cell_position()
                 items["array_dimension"] = [
@@ -2995,14 +3016,14 @@ class FfdSolutionDataExporter(FfdSolutionData):
             with open_file(metadata_file_name, "w") as f:
                 json.dump(items, f, indent=2)
         elapsed_time = time.time() - time_before
-        self._app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
-        return path_dict
+        self.__app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
+        return element_path
 
     @pyaedt_function_handler()
-    def _create_geometries(self, export_path):
+    def __create_geometries(self, export_path):
         """Export the geometry in OBJ format."""
-        self._app.logger.info("Exporting geometry...")
-        model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
+        self.__app.logger.info("Exporting geometry...")
+        model_pv = self.__app.post.get_model_plotter_geometries(plot_air_objects=False)
         obj_list = {}
         for obj in model_pv.objects:
             object_name = os.path.basename(obj.path)
@@ -3026,15 +3047,20 @@ class FfdSolutionDataExporter(FfdSolutionData):
         return obj_list
 
     @pyaedt_function_handler()
-    def __export_element_pattern(self, export_path, exported_name_base):
-        self._app.logger.info("Exporting embedded element patterns...")
+    def __export_element_pattern(self, export_path):
+        self.__app.logger.info("Exporting embedded element patterns...")
         var = []
         if self.variations:
             for k, v in self.variations.items():
                 var.append("{}='{}'".format(k, v))
         variation = " ".join(var)
 
-        command = ["ExportFileName:=", export_path + exported_name_base + ".ffd", "SetupName:=", self.sphere_name]
+        command = [
+            "ExportFileName:=",
+            os.path.join(export_path, self.exported_name_base + ".ffd"),
+            "SetupName:=",
+            self.sphere_name,
+        ]
         for frequency in self.frequencies:
             command.append("IntrinsicVariationKey:=")
             command.append("Freq='" + str(frequency) + "'")
@@ -3044,10 +3070,10 @@ class FfdSolutionDataExporter(FfdSolutionData):
         command.append(self.setup_name)
 
         try:
-            self._app.oradfield.ExportElementPatternToFile(command)
-        except Exception:
-            self._app.logger.error("Failed to export one element pattern.")
-            self._app.logger.error(export_path + exported_name_base + ".ffd")
+            self.__app.oradfield.ExportElementPatternToFile(command)
+        except Exception:  # pragma: no cover
+            self.__app.logger.error("Failed to export one element pattern.")
+            self.__app.logger.error(export_path + exported_name_base + ".ffd")
 
 
 class UpdateBeamForm:
