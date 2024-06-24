@@ -5537,7 +5537,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
             one is created.
         variations : dict, optional
-            Variation dictionary.
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional

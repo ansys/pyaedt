@@ -2961,6 +2961,56 @@ class FfdSolutionDataExporter(FfdSolutionData):
         self.eep_file = self.__export_all_ffd()
         FfdSolutionData.__init__(self, self.eep_file)
 
+    @staticmethod
+    @pyaedt_function_handler()
+    def antenna_metadata(input_file):
+        """Obtain metadata information from metadata XML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the XML file.
+
+        Returns
+        -------
+        dict
+            Metadata information.
+
+        """
+        import xml.etree.ElementTree as ET  # nosec
+
+        # Load the XML file
+        tree = ET.parse(input_file)
+        root = tree.getroot()
+
+        element_patterns = root.find("ElementPatterns")
+
+        sources = []
+        if element_patterns is None:  # pragma: no cover
+            print("Element Patterns section not found in XML.")
+        else:
+            cont = 0
+            # Iterate over each Source element
+            for source in element_patterns.findall("Source"):
+                source_info = {
+                    "name": source.get("name"),
+                    "file_name": source.find("Filename").text.strip(),
+                    "location": source.find("ReferenceLocation").text.strip().split(","),
+                }
+
+                # Iterate over Power elements
+                power_info = source.find("PowerInfo")
+                if power_info is not None:
+                    source_info["power"] = {}
+                    for power in power_info.findall("Power"):
+                        freq = power.get("Freq")
+                        source_info["power"][freq] = {}
+                        source_info["power"][freq]["IncidentPower"] = power.find("IncidentPower").text.strip()
+                        source_info["power"][freq]["AcceptedPower"] = power.find("AcceptedPower").text.strip()
+                sources.append(source_info)
+                cont += 1
+        return sources
+
     @pyaedt_function_handler()
     def __export_all_ffd(self):
         """Export far field solution data of each port."""
@@ -2982,9 +3032,41 @@ class FfdSolutionDataExporter(FfdSolutionData):
             file_exists = os.path.exists(file_path)
         time_before = time.time()
         if self.overwrite or not file_exists:
-            self.__export_element_pattern(export_path)
+            if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+                self.__export_element_pattern(export_path)
+            else:
+                self.__export_metadata(export_path)
+
+                # Convert output data to PyAEDT compatible data
+                file_path = os.path.join(export_path, self.__app.design_name + ".xml")
+                if os.path.isfile(file_path):
+                    metadata_info = self.antenna_metadata(file_path)
+
+                    with open(os.path.join(export_path, exported_name_map), "w") as output_file:
+                        output_file.write("Source Name\tFile Name\tX\t\t\tY\t\t\tZ\n")
+                        for source in metadata_info:
+                            output_file.write(f"{source['name']}\t{source['file_name'][:-4]}\t")
+                            output_file.write(
+                                f"{source['location'][0]}\t{source['location'][1]}\t{source['location'][1]}\n"
+                            )
+
+                    for source in metadata_info:
+                        output_file = os.path.join(export_path, source["file_name"])
+                        pattern_file = os.path.join(
+                            export_path, self.__app.design_name, "element_pattern", source["file_name"]
+                        )
+                        if not os.path.isfile(pattern_file):  # pragma: no cover
+                            self._postprocessor.logger.error("Pattern {} not found.".format(pattern_file))
+                            return False
+                        shutil.move(pattern_file, output_file)
+
+                else:  # pragma: no cover
+                    self.__app.logger.info("Metadata export failed.")
+                    return False
+
         else:
-            self.__app.logger.info("Using Existing Embedded Element Patterns")
+            self.__app.logger.info("Using Existing Embedded Element Patterns.")
+
         local_path = "{}/{}/".format(settings.remote_rpc_session_temp_folder, full_setup_str)
         export_path = os.path.abspath(check_and_download_folder(local_path, export_path))
         if os.path.exists(os.path.join(export_path, exported_name_map)):
@@ -3074,6 +3156,57 @@ class FfdSolutionDataExporter(FfdSolutionData):
         except Exception:  # pragma: no cover
             self.__app.logger.error("Failed to export one element pattern.")
             self.__app.logger.error(export_path + exported_name_base + ".ffd")
+
+    @pyaedt_function_handler()
+    def __export_metadata(self, export_path):
+        self.__app.logger.info("Exporting antenna metadata...")
+        var = []
+        if self.variations:
+            for k, v in self.variations.items():
+                var.append("{}='{}'".format(k, v))
+        variation = " ".join(var)
+
+        command = [
+            "SolutionName:=",
+            self.setup_name,
+            "ExportElementPattern:=",
+            True,
+            "SetupName:=",
+            self.sphere_name,
+            "SourceGroupName:=",
+            "Use Edit Sources",
+        ]
+
+        for frequency in self.frequencies:
+            command.append("IntrinsicVariable:=")
+            command.append("Freq='" + str(frequency) + "'")
+
+        command.append("DesignVariable:=")
+        command.append(variation)
+
+        for excitation in self.__app.excitations:
+            command.append("ElementPatterns:=")
+            command.append(excitation)
+
+        command.append("ElementPowers:=")
+        command.append("IncidentPower")
+        command.append("ElementPowers:=")
+        command.append("AcceptedPower")
+        command.append("ExportObject:=")
+        command.append(False)
+        command.append("ExportTouchstone:=")
+        if self.export_touchstone:
+            command.append(True)
+        else:
+            command.append(False)
+
+        command.append("ExportDirectory:=")
+        command.append(os.path.join(export_path))
+
+        try:
+            self.__app.omodelsetup.ExportMetadata(command)
+        except Exception:  # pragma: no cover
+            self.__app.logger.error("Failed to export antenna metadata.")
 
 
 class UpdateBeamForm:
