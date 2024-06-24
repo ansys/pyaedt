@@ -282,7 +282,6 @@ class TestClass:
     def test_11_cutout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.cutout import main
 
-
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "choice": "ConvexHull",
@@ -291,11 +290,11 @@ class TestClass:
                      "expansion_factor": 3,
                      "fix_disjoints": True, })
         app.close_project()
+
     def test_12_export_layout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.export_layout import main
 
-
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
-        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
+        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True})
         app.close_project()
