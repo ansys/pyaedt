@@ -1686,7 +1686,7 @@ class IcepakMesh(object):
                     name = generate_unique_name(name)
                     break
         else:
-            name = generate_unique_name("MeshLevel")
+            name = generate_unique_name("MeshReuse")
         if not isinstance(assignment, list):
             assignment = [assignment]
         props = OrderedDict(
