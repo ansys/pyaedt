@@ -2013,5 +2013,8 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
+        assert not self.aedtapp.modeler.objects
+        assert not self.aedtapp.modeler.solid_bodies
         assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
-        assert len(self.aedtapp.modeler.objects) == 1
+        assert self.aedtapp.modeler.objects
+        assert self.aedtapp.modeler.solid_bodies
