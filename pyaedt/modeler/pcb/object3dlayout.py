@@ -832,6 +832,18 @@ class Nets3DLayout(object):
             comps[c] = self._primitives.components[c]
         return comps
 
+    @property
+    def geometry_names(self):
+        """List of geometry names.
+
+        Returns
+        -------
+        list
+            Geometries that belong to the selected net."""
+        comps = self._primitives._get_names(["component", "pin", "via"])
+        geo = [i for i in self._oeditor.FindObjects("Net", self.name) if i not in comps]
+        return geo
+
 
 class Pins3DLayout(Object3DLayout, object):
     """Contains the pins in HFSS 3D Layout."""

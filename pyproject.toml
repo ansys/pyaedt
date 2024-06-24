@@ -192,6 +192,7 @@ source = ["pyaedt"]
 
 [tool.coverage.report]
 show_missing = true
+omit = ["pyaedt/rpc/*.py"]
 
 [tool.pytest.ini_options]
 minversion = "7.1"

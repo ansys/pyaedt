@@ -353,17 +353,17 @@ def plot_polar_chart(
     plot_data : list of list
         List of plot data. Every item has to be in the following format
         `[x points, y points, label]`.
-    size : tuple, optional, optional
+    size : tuple, optional
         Image size in pixel (width, height).
-    show_legend : bool, optional
+    show_legend : bool
         Either to show legend or not.
-    xlabel : str, optional
+    xlabel : str
         Plot X label.
-    ylabel : str, optional
+    ylabel : str
         Plot Y label.
-    title : str, optional
+    title : str
         Plot title label.
-    snapshot_path : str, optional
+    snapshot_path : str
         Full path to the image file if a snapshot is needed.
     show : bool, optional
         Whether to render the figure. The default is ``True``. If ``False``, the
@@ -508,7 +508,7 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        label = f"Plot {str(label_id)}"
+        label = "Plot {}".format(str(label_id))
         if len(plo_obj) > 2:
             label = plo_obj[2]
         ax.plot(x, y, label=label)
