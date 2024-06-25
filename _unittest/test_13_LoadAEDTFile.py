@@ -29,10 +29,9 @@ import sys
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core.generic.LoadAEDTFile import load_entire_aedt_file
+from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
 import pytest
-
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":

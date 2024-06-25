@@ -11,7 +11,7 @@ These examples use EDB (Electronics Database) with PyAEDT.
 .. code:: python
 
     # Launch the latest installed version of AEDB.
-    import pyaedt
+    import ansys.aedt.core
     edb = pyaedt.Edb("mylayout.aedb")
 
     # You can also launch EDB directly from PyEDB.

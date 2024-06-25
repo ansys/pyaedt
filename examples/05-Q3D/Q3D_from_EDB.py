@@ -11,7 +11,7 @@ Q3D Extractor and run a simulation starting from an EDB Project.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

@@ -20,7 +20,7 @@ They are accessible through the mesh property:
 
 .. code:: python
 
-    from pyaedt import Maxwell3d
+    from ansys.aedt.core import Maxwell3d
     app = Maxwell3d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

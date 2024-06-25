@@ -14,8 +14,8 @@ import os
 import re
 import csv
 from collections import OrderedDict
-import pyaedt
-from pyaedt.modules.Boundary import BoundaryObject
+import ansys.aedt.core
+from ansys.aedt.core.modules.Boundary import BoundaryObject
 
 ##########################################################
 # Set AEDT version

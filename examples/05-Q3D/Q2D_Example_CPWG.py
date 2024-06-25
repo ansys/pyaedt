@@ -10,7 +10,7 @@ in 2D Extractor and run a simulation.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

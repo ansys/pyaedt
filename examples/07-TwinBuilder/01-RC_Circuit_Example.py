@@ -10,7 +10,7 @@ and run a Twin Builder time-domain simulation.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

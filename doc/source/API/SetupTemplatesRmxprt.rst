@@ -7,7 +7,7 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
 
     hfss = Hfss()
     # Any property of this setup can be found on this page.

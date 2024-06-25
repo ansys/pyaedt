@@ -10,7 +10,7 @@ The example file is an Icepak project with a model that is already created and h
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

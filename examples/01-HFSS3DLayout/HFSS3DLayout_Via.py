@@ -9,7 +9,7 @@ parametric via analysis.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
-import pyaedt
+import ansys.aedt.core
 import os
 
 ##########################################################

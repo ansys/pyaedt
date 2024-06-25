@@ -15,7 +15,7 @@ import os
 from matplotlib import pyplot as plt
 import numpy as np
 
-import pyaedt
+import ansys.aedt.core
 
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()

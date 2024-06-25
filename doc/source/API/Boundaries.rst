@@ -24,7 +24,7 @@ Example without ``Native Component Object``:
 
 .. code:: python
 
-    from pyaedt import Icepak
+    from ansys.aedt.core import Icepak
     ipk = Icepak()
     component_name = "RadioBoard1"
     native_comp = self.aedtapp.create_ipk_3dcomponent_pcb(

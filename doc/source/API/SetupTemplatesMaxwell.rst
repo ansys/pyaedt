@@ -8,7 +8,7 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    from pyaedt import Maxwell3d
+    from ansys.aedt.core import Maxwell3d
 
     Maxwell3d = Maxwell3d ()
     # Any property of this setup can be found on this page.

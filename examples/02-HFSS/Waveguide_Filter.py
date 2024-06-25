@@ -16,8 +16,8 @@ X-Band waveguide filter using inductive irises.
 
 import os
 import tempfile
-import pyaedt
-from pyaedt import general_methods
+import ansys.aedt.core
+from ansys.aedt.core import general_methods
 
 ##########################################################
 # Set AEDT version

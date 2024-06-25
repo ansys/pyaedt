@@ -12,8 +12,8 @@ the simulation of an antenna.
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
-import pyaedt
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+import ansys.aedt.core
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
 ##########################################################
 # Set AEDT version

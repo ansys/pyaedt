@@ -24,7 +24,7 @@ Install these libraries with:
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ##########################################################

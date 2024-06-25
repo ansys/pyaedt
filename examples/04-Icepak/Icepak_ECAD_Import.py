@@ -15,11 +15,11 @@ The *.emn/*.emp combination can also be used in a similar way.
 import os 
 
 # PyAEDT Packages
-import pyaedt
-from pyaedt import Icepak
-from pyaedt import Desktop
-from pyaedt import Hfss3dLayout
-from pyaedt.modules.Boundary import BoundaryObject
+import ansys.aedt.core
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Desktop
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.modules.Boundary import BoundaryObject
 
 ##########################################################
 # Set AEDT version

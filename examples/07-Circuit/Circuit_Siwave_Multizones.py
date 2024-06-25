@@ -9,9 +9,9 @@ This example shows how you can use PyAEDT simulate multi-zones with Siwave.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing a section.
 
-from pyaedt import Edb, Circuit
+from ansys.aedt.core import Edb, Circuit
 import os.path
-import pyaedt
+import ansys.aedt.core
 
 ###############################################################################
 # Download file

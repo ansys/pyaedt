@@ -7,7 +7,7 @@ analysis.
 
 import os
 import tempfile
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

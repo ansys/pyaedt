@@ -14,8 +14,8 @@ Summary of the workflow
 # Perform required imports.
 import os
 import tempfile
-from pyaedt import Hfss
-from pyaedt.generic.general_methods import generate_unique_name
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 
 ##########################################################
 # Set AEDT version

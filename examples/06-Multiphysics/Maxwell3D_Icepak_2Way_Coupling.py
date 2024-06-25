@@ -12,8 +12,8 @@ Results are printed in AEDT Message Manager.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
-from pyaedt.generic.constants import AXIS
+import ansys.aedt.core
+from ansys.aedt.core.generic.constants import AXIS
 
 ##########################################################
 # Set AEDT version

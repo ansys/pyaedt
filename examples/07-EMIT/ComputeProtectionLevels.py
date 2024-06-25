@@ -15,9 +15,9 @@ levels.
 import os
 import sys
 import subprocess
-import pyaedt
-from pyaedt import Emit
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
+import ansys.aedt.core
+from ansys.aedt.core import Emit
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType, InterfererType
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])

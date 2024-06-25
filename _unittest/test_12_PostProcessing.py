@@ -26,21 +26,20 @@ import os
 import sys
 
 from _unittest.conftest import config
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.generic.plot import _parse_aedtplt
+from ansys.aedt.core.generic.plot import _parse_streamline
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modules.solutions import FfdSolutionData
 from matplotlib.figure import Figure
 import pytest
 from pyvista.plotting.plotter import Plotter
-
-from pyaedt import Circuit
-from pyaedt import Icepak
-from pyaedt import Maxwell2d
-from pyaedt import Q2d
-from pyaedt import Q3d
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.pdf import AnsysReport
-from pyaedt.generic.plot import _parse_aedtplt
-from pyaedt.generic.plot import _parse_streamline
-from pyaedt.generic.settings import settings
-from pyaedt.modules.solutions import FfdSolutionData
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"

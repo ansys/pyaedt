@@ -11,7 +11,7 @@ includes Circuit, HFSS, and Mechanical.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

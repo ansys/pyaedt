@@ -11,7 +11,7 @@ This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar 
 
 import os
 from math import radians, sin, cos, sqrt
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

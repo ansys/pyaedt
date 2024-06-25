@@ -7,9 +7,9 @@ Keywords: DXF import, material sweep, expression cache
 """
 import os.path
 
-import pyaedt
+import ansys.aedt.core
 
-from pyaedt.generic.pdf import AnsysReport
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 ##########################################################
 # Set AEDT version

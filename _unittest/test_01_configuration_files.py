@@ -28,12 +28,11 @@ import os
 import time
 
 from _unittest.conftest import config
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt import Icepak
-from pyaedt import Q2d
-from pyaedt import Q3d
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 test_project_name = "dm boundary test"

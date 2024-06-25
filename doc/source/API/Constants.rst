@@ -7,7 +7,7 @@ Example of constants usage:
 
 .. code:: python
 
-    from pyaedt import constants
+    from ansys.aedt.core import constants
     ipk = Icepak()
     # Use of AXIS Constant
     cylinder = ipk.modeler.create_cylinder(constants.AXIS.X, [0,0,0],10,3)

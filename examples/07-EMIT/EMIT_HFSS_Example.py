@@ -15,9 +15,9 @@ as a coupling link in the EMIT design.
 import os
 
 # Import required modules
-import pyaedt
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+import ansys.aedt.core
+from ansys.aedt.core.generic.filesystem import Scratch
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
 ##########################################################
 # Set AEDT version

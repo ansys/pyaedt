@@ -13,7 +13,7 @@ https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
 import tempfile
-from pyaedt import Maxwell2d
+from ansys.aedt.core import Maxwell2d
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 

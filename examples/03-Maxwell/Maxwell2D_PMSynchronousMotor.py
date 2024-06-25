@@ -14,7 +14,7 @@ from math import sqrt as mysqrt
 
 import csv
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

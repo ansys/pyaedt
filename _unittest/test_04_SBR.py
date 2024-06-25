@@ -27,10 +27,9 @@ import os
 import sys
 from unittest.mock import mock_open
 
+from ansys.aedt.core.sbrplus.hdm_parser import Parser
 from mock import patch
 import pytest
-
-from pyaedt.sbrplus.hdm_parser import Parser
 
 try:
     import osmnx
@@ -39,8 +38,7 @@ except ImportError:
 
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-
-from pyaedt.generic.settings import is_linux
+from ansys.aedt.core.generic.settings import is_linux
 
 if desktop_version > "2022.2":
     test_project_name = "Cassegrain_231"

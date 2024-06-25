@@ -12,7 +12,7 @@ and run a Twin Builder time-domain simulation.
 
 import math
 import matplotlib.pyplot as plt
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

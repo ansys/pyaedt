@@ -4,7 +4,7 @@ HFSS: 3D Components
 This example shows how you can use PyAEDT to place 3D Components in Hfss and in Hfss 3D Layout.
 """
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

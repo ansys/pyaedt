@@ -10,7 +10,7 @@ It pushes down the child subcircuit and pops up to the parent design.
 # Perform the required import.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

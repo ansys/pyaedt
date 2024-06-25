@@ -11,7 +11,7 @@ and set up a doppler analysis.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

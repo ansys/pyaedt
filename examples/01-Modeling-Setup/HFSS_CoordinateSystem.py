@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create and modify coordinate system
 
 import os
 
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

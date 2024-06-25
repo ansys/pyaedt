@@ -10,11 +10,11 @@ worst-case interference.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-import pyaedt
+from ansys.aedt.core.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
+from ansys.aedt.core import Emit
+import ansys.aedt.core
 import os
-import pyaedt.generic.constants as consts
+import ansys.aedt.core.generic.constants as consts
 import subprocess
 
 ##########################################################

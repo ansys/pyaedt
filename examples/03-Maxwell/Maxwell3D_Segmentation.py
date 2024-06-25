@@ -9,8 +9,8 @@ The method is valid and usable for any object the user would like to segment.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt import Maxwell3d
+from ansys.aedt.core import downloads
+from ansys.aedt.core import Maxwell3d
 
 import tempfile
 

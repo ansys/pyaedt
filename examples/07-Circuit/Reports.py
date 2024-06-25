@@ -11,7 +11,7 @@ This example shows how you can use PyAEDT to create reports automatically using 
 
 import os
 from IPython.display import Image
-import pyaedt
+import ansys.aedt.core
 
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()

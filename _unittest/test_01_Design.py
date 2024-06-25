@@ -28,18 +28,17 @@ import tempfile
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.application.Design import DesignSettings
+from ansys.aedt.core.application.aedt_objects import AedtObjects
+from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.workflows import customize_automation_tab
 import pytest
-
-from pyaedt import Hfss
-from pyaedt import Hfss3dLayout
-from pyaedt import Icepak
-from pyaedt import get_pyaedt_app
-from pyaedt.application.Design import DesignSettings
-from pyaedt.application.aedt_objects import AedtObjects
-from pyaedt.application.design_solutions import model_names
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import settings
-from pyaedt.workflows import customize_automation_tab
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":

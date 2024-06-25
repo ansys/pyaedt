@@ -12,7 +12,7 @@ run a Nexxim time-domain simulation, and create an eye diagram.
 import os
 from matplotlib import pyplot as plt
 import numpy as np
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

@@ -11,13 +11,13 @@ worst-case interference.
 # Perform required imports.
 
 import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-from pyaedt import get_pyaedt_app
-import pyaedt
+from ansys.aedt.core.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
+from ansys.aedt.core import Emit
+from ansys.aedt.core import get_pyaedt_app
+import ansys.aedt.core
 import os
 import subprocess
-import pyaedt.generic.constants as consts
+import ansys.aedt.core.generic.constants as consts
 
 # Check that emit is a compatible version
 aedt_version = "2024.1"

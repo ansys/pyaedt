@@ -25,9 +25,8 @@
 import os
 
 from _unittest.conftest import desktop_version
+from ansys.aedt.core import Circuit
 import pytest
-
-from pyaedt import Circuit
 
 test_subfolder = "T11"
 if desktop_version > "2022.2":

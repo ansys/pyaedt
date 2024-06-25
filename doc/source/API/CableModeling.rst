@@ -32,9 +32,9 @@ Cable bundle creation example:
 
 .. code:: python
 
-    from pyaedt import Hfss
-    from pyaedt.generic.DataHandlers import json_to_dict
-    from pyaedt.modules.CableModeling import Cable
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.DataHandlers import json_to_dict
+    from ansys.aedt.core.modules.CableModeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
@@ -64,9 +64,9 @@ Clock source creation example:
 
 .. code:: python
 
-    from pyaedt import Hfss
-    from pyaedt.generic.DataHandlers import json_to_dict
-    from pyaedt.modules.CableModeling import Cable
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.DataHandlers import json_to_dict
+    from ansys.aedt.core.modules.CableModeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
@@ -96,9 +96,9 @@ Cable harness creation example:
 
 .. code:: python
 
-    from pyaedt import Hfss
-    from pyaedt.generic.DataHandlers import json_to_dict
-    from pyaedt.modules.CableModeling import Cable
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.DataHandlers import json_to_dict
+    from ansys.aedt.core.modules.CableModeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,

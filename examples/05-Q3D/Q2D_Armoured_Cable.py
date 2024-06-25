@@ -14,7 +14,7 @@ This example shows how you can use PyAEDT to perform these tasks:
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
-import pyaedt
+import ansys.aedt.core
 import math
 
 ##########################################################

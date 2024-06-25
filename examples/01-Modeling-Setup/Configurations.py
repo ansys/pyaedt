@@ -28,10 +28,10 @@ design has changed, the boundary fails to apply.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports from PyAEDT.
+# Perform required imports from ansys.aedt.core.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

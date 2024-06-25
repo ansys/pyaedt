@@ -9,11 +9,11 @@ of Power-Volume [kw/m^3] curves at different frequencies.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt.generic.general_methods import generate_unique_folder_name
-from pyaedt import Maxwell3d
-from pyaedt.generic.constants import unit_converter
-from pyaedt.generic.general_methods import read_csv_pandas
+from ansys.aedt.core import downloads
+from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.general_methods import read_csv_pandas
 
 ##########################################################
 # Set AEDT version

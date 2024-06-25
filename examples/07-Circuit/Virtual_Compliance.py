@@ -11,8 +11,8 @@ the ``VirtualCompliance`` class.
 # Perform required imports and set paths.
 
 import os.path
-import pyaedt
-from pyaedt.generic.compliance import VirtualCompliance
+import ansys.aedt.core
+from ansys.aedt.core.generic.compliance import VirtualCompliance
 
 ##########################################################
 # Set AEDT version

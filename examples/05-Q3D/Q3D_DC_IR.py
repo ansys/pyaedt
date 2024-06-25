@@ -10,7 +10,7 @@ Q3D Extractor and run a DC IR Drop simulation starting from an EDB Project.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 from pyedb import Edb
 ##########################################################
 # Set AEDT version

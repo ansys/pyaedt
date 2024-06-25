@@ -15,8 +15,8 @@ This examples runs only on Windows using CPython.
 # Perform required imports.
 
 import os
-import pyaedt
-from pyaedt.generic.pdf import AnsysReport
+import ansys.aedt.core
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 ##########################################################
 # Set AEDT version

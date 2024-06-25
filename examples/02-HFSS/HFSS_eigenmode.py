@@ -30,7 +30,7 @@ This continues until the maximum frequency in the desired range is achieved.
 
 import sys
 import os
-import pyaedt
+import ansys.aedt.core
 
 # Create a temporary folder to download the example to.
 

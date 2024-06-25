@@ -12,7 +12,7 @@ HSPICE files are fully supported. Mentor files are partially supported.
 
 import os
 
-import pyaedt
+import ansys.aedt.core
 
 netlist = pyaedt.downloads.download_netlist()
 

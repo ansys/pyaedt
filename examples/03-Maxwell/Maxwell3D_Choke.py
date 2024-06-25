@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 
 import json
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ##########################################################

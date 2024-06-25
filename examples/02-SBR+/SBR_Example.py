@@ -11,7 +11,7 @@ HFSS antenna and run a simulation.
 # directory.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 

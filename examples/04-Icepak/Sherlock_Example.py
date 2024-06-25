@@ -11,7 +11,7 @@ files (STEP and CSV) and an AEDB board.
 
 import time
 import os
-import pyaedt
+import ansys.aedt.core
 import datetime
 
 # Set paths

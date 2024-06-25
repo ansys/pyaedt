@@ -11,7 +11,7 @@ plot field line traces, relevant for an electrostatic analysis.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version

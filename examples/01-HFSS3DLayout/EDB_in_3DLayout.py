@@ -8,7 +8,7 @@ interact with a 3D layout.
 
 import os
 import tempfile
-import pyaedt
+import ansys.aedt.core
 
 tmpfold = tempfile.gettempdir()
 temp_folder = os.path.join(tmpfold, pyaedt.generate_unique_name("Example"))

@@ -8,7 +8,7 @@ They are accessible through the ``modeler`` property:
 
 .. code:: python
 
-    from pyaedt import Maxwell2d
+    from ansys.aedt.core import Maxwell2d
     app = Maxwell2d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -37,7 +37,7 @@ modeler, including all primitives methods and properties:
 
 .. code:: python
 
-    from pyaedt import Maxwell2d
+    from ansys.aedt.core import Maxwell2d
     app = Maxwell2d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

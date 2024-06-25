@@ -11,7 +11,7 @@ https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ##########################################################

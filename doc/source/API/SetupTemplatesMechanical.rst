@@ -8,7 +8,7 @@ You can edit a setup after it is created. Here is an example:
 .. code:: python
 
 
-    from pyaedt import Mechanical
+    from ansys.aedt.core import Mechanical
 
     app = Mechanical()
     # Any property of this setup can be found on this page.
