@@ -1718,9 +1718,9 @@ class Maxwell(object):
         output_frequency_range_type="Use All",
         output_frequency_range_start="0Hz",
         number_of_output_frequencies=10,
-        output_frequency_range_stop = "1000Hz",
+        output_frequency_range_stop="1000Hz",
         calculate_force="Harmonic",
-        enable_inverter_feedback=False
+        enable_inverter_feedback=False,
     ):
         """Enable the harmonic force calculation for the transient analysis.
 
@@ -1796,11 +1796,16 @@ class Maxwell(object):
                 stop_time,
                 "OutputFreqRangeType:=",
                 output_frequency_range_type,
-                "OutputFreqRangeStart:=", output_frequency_range_start,
-                "OutputFreqRangeNum:=", str(number_of_output_frequencies),
-                "OutputFreqRangeStop:=", output_frequency_range_stop,
-                "CaculateForceType:=", calculate_force + " Force",
-                "EnableInverterFeedback:=", enable_inverter_feedback
+                "OutputFreqRangeStart:=",
+                output_frequency_range_start,
+                "OutputFreqRangeNum:=",
+                str(number_of_output_frequencies),
+                "OutputFreqRangeStop:=",
+                output_frequency_range_stop,
+                "CaculateForceType:=",
+                calculate_force + " Force",
+                "EnableInverterFeedback:=",
+                enable_inverter_feedback,
             ]
         )
         return True
