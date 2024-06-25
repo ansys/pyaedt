@@ -30,7 +30,7 @@ Restructuring of the codebase
 -----------------------------
 
 To facilitate the maintenance of PyAEDT and to adhere to PyAnsys' guidelines, the codebase
-is being restructed. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
+is being restructured. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
 This change aims to improve the organization and maintainability of the codebase.
 
 The new structure is going to be as follow:
