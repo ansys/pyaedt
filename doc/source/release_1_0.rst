@@ -4,7 +4,7 @@ Breaking changes in release 1.0
 ===============================
 
 This document outlines the breaking changes expected in the upcoming major version `1.0` of PyAEDT.
-These changes include the deprecation of certain function argument names and the restructuration
+These changes include the deprecation of certain function argument names and the restructuring
 of the sources.
 
 Deprecation of function argument names
@@ -29,8 +29,8 @@ Expected log output:
 Restructuring of the codebase
 -----------------------------
 
-To facilitate the maintenance of our package and to adhere to PyAnsys' guidelines, the codebase
-is being restructurated. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
+To facilitate the maintenance of PyAEDT and to adhere to PyAnsys' guidelines, the codebase
+is being restructed. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
 This change aims to improve the organization and maintainability of the codebase.
 
 The new structure is going to be as follow:
@@ -70,8 +70,8 @@ Other changes to reach release 1.0
 In addition to the major changes described above, modifications are continuously performed to
 improve the quality of the project, its maintainability, its documentation, and
 to ensure users' need are met as efficiently as possible. This includes ensuring
-consistency on argument names; improving data encapsulation; strengthening our CI/CD; extracting
-examples to a dedicated project to increase clarity, homogeneity and facilite integration; ...
+consistency on argument names, improving data encapsulation, strengthening CI/CD, extracting
+examples to a dedicated project.
 
 See `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ for more information on
 the status of the release.
