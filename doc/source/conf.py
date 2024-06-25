@@ -65,6 +65,23 @@ class PrettyPrintDirective(Directive):
                 addnodes.desc_content('', literal)
         ]
 
+from ansys_sphinx_theme import get_autoapi_templates_dir_relative_path
+autoapi_type = "python"
+autoapi_dirs = ["../../pyaedt"]
+autoapi_root = "api"
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+]
+autoapi_template_dir = get_autoapi_templates_dir_relative_path(pathlib.Path(__file__))
+autoapi_python_use_implicit_namespaces = True
+autoapi_keep_files = True
+autoapi_own_page_level = "class"
+autoapi_add_toctree_entry = False
+
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     try:
@@ -140,6 +157,7 @@ use_gif = bool(int(os.getenv("PYAEDT_DOC_USE_GIF", "1")))
 # ones.
 extensions = [
     "ansys_sphinx_theme.extension.linkcode",
+    "ansys_sphinx_theme.extension.autoapi",
     "numpydoc",
     "recommonmark",
     "sphinx.ext.autodoc",
@@ -258,57 +276,57 @@ pygments_style = "sphinx"
 
 # gallery build requires AEDT install
 # if is_windows and bool(os.getenv("PYAEDT_CI_RUN_EXAMPLES", "0")):
-if run_examples:
-    import pyvista
+# if run_examples:
+#     import pyvista
 
-    # PyVista settings
+#     # PyVista settings
 
-    # Ensure that offscreen rendering is used for docs generation
-    pyvista.OFF_SCREEN = True
-    # Save figures in specified directory
-    pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
-    if not os.path.exists(pyvista.FIGURE_PATH):
-        os.makedirs(pyvista.FIGURE_PATH)
-    # Necessary for pyvista when building the sphinx gallery
-    pyvista.BUILDING_GALLERY = True
+#     # Ensure that offscreen rendering is used for docs generation
+#     pyvista.OFF_SCREEN = True
+#     # Save figures in specified directory
+#     pyvista.FIGURE_PATH = os.path.join(os.path.abspath("./images/"), "auto-generated/")
+#     if not os.path.exists(pyvista.FIGURE_PATH):
+#         os.makedirs(pyvista.FIGURE_PATH)
+#     # Necessary for pyvista when building the sphinx gallery
+#     pyvista.BUILDING_GALLERY = True
 
-    # Manage errors
-    pyvista.set_error_output_file("errors.txt")
-    # Must be less than or equal to the XVFB window size
-    pyvista.global_theme["window_size"] = np.array([1024, 768])
+#     # Manage errors
+#     pyvista.set_error_output_file("errors.txt")
+#     # Must be less than or equal to the XVFB window size
+#     pyvista.global_theme["window_size"] = np.array([1024, 768])
 
-    # suppress annoying matplotlib bug
-    warnings.filterwarnings(
-        "ignore",
-        category=UserWarning,
-        message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
-    )
+#     # suppress annoying matplotlib bug
+#     warnings.filterwarnings(
+#         "ignore",
+#         category=UserWarning,
+#         message="Matplotlib is currently using agg, which is a non-GUI backend, so it cannot show the figure.",
+#     )
 
-    extensions.append("sphinx_gallery.gen_gallery")
-    sphinx_gallery_conf = {
-        # convert rst to md for ipynb
-        "pypandoc": True,
-        # path to your examples scripts
-        "examples_dirs": ["../../examples/"],
-        # path where to save gallery generated examples
-        "gallery_dirs": ["examples"],
-        # Pattern to search for examples files
-        "filename_pattern": r"\.py",
-        # Remove the "Download all examples" button from the top level gallery
-        "download_all_examples": False,
-        # Sort gallery examples by file name instead of number of lines (default)
-        "within_subsection_order": FileNameSortKey,
-        # Directory where function granular galleries are stored
-        "backreferences_dir": None,
-        # Modules for which function level galleries are created.  In
-        "doc_module": "ansys-pyaedt",
-        "image_scrapers": ("pyvista", "matplotlib"),
-        "ignore_pattern": r"flycheck.*",
-        "thumbnail_size": (350, 350),
-    }
-    if not use_gif:
-        gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"
-        sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + gif_ignore_pattern
+#     extensions.append("sphinx_gallery.gen_gallery")
+#     sphinx_gallery_conf = {
+#         # convert rst to md for ipynb
+#         "pypandoc": True,
+#         # path to your examples scripts
+#         "examples_dirs": ["../../examples/"],
+#         # path where to save gallery generated examples
+#         "gallery_dirs": ["examples"],
+#         # Pattern to search for examples files
+#         "filename_pattern": r"\.py",
+#         # Remove the "Download all examples" button from the top level gallery
+#         "download_all_examples": False,
+#         # Sort gallery examples by file name instead of number of lines (default)
+#         "within_subsection_order": FileNameSortKey,
+#         # Directory where function granular galleries are stored
+#         "backreferences_dir": None,
+#         # Modules for which function level galleries are created.  In
+#         "doc_module": "ansys-pyaedt",
+#         "image_scrapers": ("pyvista", "matplotlib"),
+#         "ignore_pattern": r"flycheck.*",
+#         "thumbnail_size": (350, 350),
+#     }
+#     if not use_gif:
+#         gif_ignore_pattern = r"|.*Maxwell2D_Transient\.py|.*Maxwell2D_DCConduction\.py|.*Hfss_Icepak_Coupling\.py|.*SBR_Time_Plot\.py"
+#         sphinx_gallery_conf["ignore_pattern"] = sphinx_gallery_conf["ignore_pattern"] + gif_ignore_pattern
 
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
