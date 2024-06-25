@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import
 
 import ast
@@ -25,6 +48,7 @@ import traceback
 from pyaedt.aedt_logger import pyaedt_logger
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.settings import settings
+from pyaedt.misc.misc import installed_versions
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
@@ -33,6 +57,16 @@ inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else
 
 if not is_ironpython:
     import psutil
+
+inclusion_list = [
+    "CreateVia",
+    "PasteDesign",
+    "Paste",
+    "PushExcitations",
+    "Rename",
+    "RestoreProjectArchive",
+    "ImportGerber",
+]
 
 
 class GrpcApiError(Exception):
@@ -195,6 +229,8 @@ def raise_exception_or_return_false(e):
             for v in list(_desktop_sessions.values())[:]:
                 v.release_desktop(v.launched_by_pyaedt, v.launched_by_pyaedt)
         raise e
+    elif "__init__" in str(e):  # pragma: no cover
+        return
     else:
         return False
 
@@ -810,15 +846,6 @@ def _retry_ntimes(n, function, *args, **kwargs):
         pyaedt_logger.debug("An error occurred while accessing the arguments of a function " "called multiple times.")
     retry = 0
     ret_val = None
-    inclusion_list = [
-        "CreateVia",
-        "PasteDesign",
-        "Paste",
-        "PushExcitations",
-        "Rename",
-        "RestoreProjectArchive",
-        "ImportGerber",
-    ]
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
     if func_name and func_name not in inclusion_list:
         n = 1
@@ -942,6 +969,73 @@ def is_project_locked(project_path):
         else:
             return False
     return check_if_path_exists(project_path + ".lock")
+
+
+@pyaedt_function_handler()
+def is_license_feature_available(feature="electronics_desktop", count=1):  # pragma: no cover
+    """Check if license feature is available.
+
+    Parameters
+    ----------
+    feature : str
+        Feature increment name. The default is the electronics desktop one.
+    count : int
+        Number of increments of the same feature available.
+
+    Returns
+    -------
+    bool
+        ``True`` when feature available, ``False`` when feature not available.
+    """
+    import subprocess  # nosec B404
+
+    aedt_install_folder = list(installed_versions().values())[0]
+
+    if is_linux:
+        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "linx64", "ansysli_util")
+    else:
+        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
+    my_env = os.environ.copy()
+
+    tempfile_status = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
+    tempfile_checkout = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
+
+    # License server status
+    cmd = [ansysli_util_path, "-statli"]
+
+    f = open(tempfile_status, "w")
+
+    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
+
+    f.close()
+
+    is_server_down = False
+    with open_file(tempfile_status, "r") as f:
+        for line in f:
+            if line == "ansysli_server process could not be found.\n":
+                is_server_down = True
+                break
+
+    if is_server_down:
+        pyaedt_logger.warning("License server process could not be found.")
+        return False
+
+    cmd = [ansysli_util_path, "-checkcount", str(count), "-checkout", feature]
+
+    f = open(tempfile_checkout, "w")
+
+    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
+
+    f.close()
+
+    checkout_lines = []
+    with open_file(tempfile_checkout, "r") as f:
+        for line in f:
+            checkout_lines.append(line)
+    if "CHECKOUT FAILED" in checkout_lines[1] or len(checkout_lines) != 2:
+        pyaedt_logger.warning(checkout_lines[0])
+        return False
+    return True
 
 
 @pyaedt_function_handler()
@@ -1681,9 +1775,9 @@ def conversion_function(data, function=None):  # pragma: no cover
     return data
 
 
-@pyaedt_function_handler()
+@pyaedt_function_handler(file_name="input_file")
 def parse_excitation_file(
-    file_name,
+    input_file,
     is_time_domain=True,
     x_scale=1,
     y_scale=1,
@@ -1697,7 +1791,7 @@ def parse_excitation_file(
 
     Parameters
     ----------
-    file_name : str
+    input_file : str
         Full name of the input file.
     is_time_domain : bool, optional
         Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
@@ -1726,7 +1820,7 @@ def parse_excitation_file(
     except ImportError:
         pyaedt_logger.error("NumPy is not available. Install it.")
         return False
-    df = read_csv_pandas(file_name, encoding=encoding)
+    df = read_csv_pandas(input_file, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
         val = df[df.keys()[1]].values * y_scale

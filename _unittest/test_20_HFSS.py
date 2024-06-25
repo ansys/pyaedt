@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 import os
 import shutil
@@ -943,7 +967,7 @@ class TestClass:
         design_name = "HfssCopiedBodies"
         new_design = add_app(project_name=project_name, design_name=design_name)
         num_orig_bodies = len(self.aedtapp.modeler.solid_names)
-        assert new_design.copy_solid_bodies_from(self.aedtapp, vacuum=False, pec=False)
+        assert new_design.copy_solid_bodies_from(self.aedtapp, no_vacuum=False, no_pec=False)
         assert len(new_design.modeler.solid_bodies) == num_orig_bodies
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
@@ -1296,7 +1320,7 @@ class TestClass:
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_53_import_source_excitation(self, add_app):
         aedtapp = add_app(solution_type="Modal", project_name="test_53")
@@ -1310,7 +1334,7 @@ class TestClass:
         assert aedtapp.edit_source_from_file(
             aedtapp.excitations[0], time_domain, is_time_domain=True, x_scale=1e-6, y_scale=1e-3, data_format="Voltage"
         )
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_54_assign_symmetry(self, add_app):
         aedtapp = add_app(project_name="test_54", solution_type="Modal")
@@ -1330,7 +1354,7 @@ class TestClass:
         assert not aedtapp.assign_symmetry(ids[0])
         assert not aedtapp.assign_symmetry("test")
         assert aedtapp.set_impedance_multiplier(2)
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", material="vacuum")
@@ -1630,13 +1654,13 @@ class TestClass:
         aedtapp.hybrid = True
         assert aedtapp.assign_febi(["inner"])
         assert len(aedtapp.boundaries) == 1
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     def test_67_transient_composite(self, add_app):
         aedtapp = add_app(project_name="test_66")
         aedtapp.solution_type = "Transient Composite"
         assert aedtapp.solution_type == "Transient Composite"
-        aedtapp.close_project(save_project=False)
+        aedtapp.close_project(save=False)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_68_import_gds_3d(self):

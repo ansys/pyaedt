@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains the ``Circuit`` class."""
 
 from __future__ import absolute_import  # noreorder
@@ -10,8 +33,6 @@ import re
 import shutil
 import time
 
-from pyaedt import Hfss3dLayout
-from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
@@ -22,6 +43,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
+from pyaedt.hfss3dlayout import Hfss3dLayout
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
@@ -37,23 +60,23 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
@@ -62,7 +85,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``. This parameter is ignored when
@@ -84,7 +107,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -113,45 +140,54 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2023 R2 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(specified_version=2023.2, projectname="myfile.aedt")
+    >>> aedtapp = Circuit(version=2023.2, project="myfile.aedt")
 
     Create an instance of Circuit using the 2023 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Circuit(specified_version="2023.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysisCircuit.__init__(
             self,
             "Circuit Design",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
@@ -1620,7 +1656,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         active_project = hfss.desktop_class.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
-        hfss.close_project(save_project=False)
+        hfss.close_project(save=False)
         return hfss_3d_layout_model
 
     @pyaedt_function_handler(touchstone="input_file")

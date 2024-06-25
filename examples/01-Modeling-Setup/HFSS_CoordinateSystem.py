@@ -32,14 +32,14 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Insert HFSS design
 # ~~~~~~~~~~~~~~~~~~
 # Insert an HFSS design with the default name.
 
-hfss = pyaedt.Hfss(projectname=pyaedt.generate_unique_project_name(folder_name="CoordSysDemo"))
+hfss = pyaedt.Hfss(project=pyaedt.generate_unique_project_name(folder_name="CoordSysDemo"))
 
 ###############################################################################
 # Create coordinate system

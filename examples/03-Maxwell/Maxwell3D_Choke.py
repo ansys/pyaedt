@@ -40,11 +40,11 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
+m3d = pyaedt.Maxwell3d(project=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",
-                       specified_version=aedt_version,
+                       version=aedt_version,
                        non_graphical=non_graphical,
-                       new_desktop_session=True
+                       new_desktop=True
                        )
 
 ###############################################################################

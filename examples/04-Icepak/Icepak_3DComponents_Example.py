@@ -38,11 +38,11 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
-ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"),
-             specified_version=aedt_version,
+ipk = Icepak(project=os.path.join(temp_folder, "Heatsink.aedt"),
+             version=aedt_version,
              non_graphical=non_graphical,
              close_on_exit=True,
-             new_desktop_session=True)
+             new_desktop=True)
 
 # Remove air region created by default because it is not needed as the heatsink will be exported as a 3DComponent.
 
@@ -88,30 +88,20 @@ ipk.modeler.create_3dcomponent(
     component_name="Heatsink",
     auxiliary_dict=True
 )
-ipk.close_project(save_project=False)
+ipk.close_project(save=False)
 
 ###############################################################################
 # Create QFP
 # ~~~~~~~~~~
 # Download and open a project containing a QPF.
-ipk = Icepak(projectname=qfp_temp_name)
+ipk = Icepak(project=qfp_temp_name)
 ipk.plot(show=False, output_file=os.path.join(temp_folder, "QFP2.jpg"))
 
 # Create dataset for power dissipation.
 x_datalist = [45, 53, 60, 70]
 y_datalist = [0.5, 3, 6, 9]
-ipk.create_dataset(
-    "PowerDissipationDataset",
-    x_datalist,
-    y_datalist,
-    zlist=None,
-    vlist=None,
-    is_project_dataset=False,
-    xunit="cel",
-    yunit="W",
-    zunit="",
-    vunit="",
-)
+ipk.create_dataset("PowerDissipationDataset", x_datalist, y_datalist, z=None, v=None, is_project_dataset=False,
+                   x_unit="cel", y_unit="W", v_unit="")
 
 # Assign source power condition to the die.
 ipk.create_source_power(
@@ -147,8 +137,8 @@ ipk.release_desktop(False, False)
 # Create electronic package
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
-ipk = Icepak(projectname=package_temp_name,
-             specified_version=aedt_version,
+ipk = Icepak(project=package_temp_name,
+             version=aedt_version,
              non_graphical=non_graphical)
 ipk.plot(show=False, output_file=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
 

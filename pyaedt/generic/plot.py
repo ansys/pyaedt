@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import ast
 from collections import defaultdict
 import csv
@@ -8,11 +32,11 @@ import tempfile
 import time
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if not is_ironpython:
     try:
@@ -469,8 +493,9 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    ax = plt.subplot(111)
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
     for plo_obj in plot_data:
         if isinstance(plo_obj[0], np.ndarray):
@@ -479,7 +504,10 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y)
+        label = "Plot {}".format(str(label_id))
+        if len(plo_obj) > 2:
+            label = plo_obj[2]
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -488,7 +516,7 @@ def plot_2d_chart(
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    elif show and not is_notebook():
         fig.show()
     return fig
 

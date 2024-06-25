@@ -19,9 +19,9 @@ import shutil
 import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
-from pyaedt import generate_unique_folder_name
+from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt import downloads
-from pyaedt import settings
+from pyaedt.generic.settings import settings
 
 ##########################################################
 # Set AEDT version
@@ -73,10 +73,10 @@ shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the dynamic ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),
-                 specified_version=aedt_version,
+tb = TwinBuilder(project=generate_unique_project_name(),
+                 version=aedt_version,
                  non_graphical=non_graphical,
-                 new_desktop_session=new_thread)
+                 new_desktop=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Dynamic ROM feature is only available with a twin builder license.
