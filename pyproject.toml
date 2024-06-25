@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 
 [project]
@@ -158,8 +158,8 @@ installer = [
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
-[tool.flit.module]
-name = "pyaedt"
+[tool.setuptools.dynamic]
+version = {attr = "ansys.aedt.core.__version__"}
 
 [project.urls]
 Bugs = "https://github.com/ansys/pyaedt/issues"
