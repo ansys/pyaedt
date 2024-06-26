@@ -5,7 +5,7 @@ __version__ = __version__
 
 import warnings
 
-WARNING_MESSAGE = """Module 'pyedt' has become an alias to the new package structure.
+WARNING_MESSAGE = """Module 'pyaedt' has become an alias to the new package structure.
 Please update you imports to use the new architecture based on 'ansys.aedt.core'.
 The old structure will be deprecated in future versions, see ...
 """
