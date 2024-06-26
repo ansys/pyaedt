@@ -715,7 +715,7 @@ class Configurations(object):
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
 
-        pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
+        pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
 
         schema_bytes = None
 
