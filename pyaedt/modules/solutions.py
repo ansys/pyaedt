@@ -1563,86 +1563,154 @@ class FfdSolutionData(object):
     >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
     """
 
-    def __init__(self, input_file, frequency=None):
+    def __init__(self, input_file, frequency=None, variation=None, model_info=None, power=None):
+
+        input_file_format = os.path.basename(input_file).split(".")[1]
 
         # Public
+        self.output_dir = os.path.dirname(input_file)
 
-        # Protected
-        self._farfield_data = {}
+        if input_file_format in ["txt", "xml"]:
+            if not variation:
+                variation = ""
+            if not model_info:
+                model_info = {}
+            if not power:
+                power = {}
 
+            input_file = FfdSolutionDataExporter.export_pyaedt_antenna_metadata(
+                input_file=input_file,
+                output_dir=self.output_dir,
+                variation=variation,
+                model_info=model_info,
+                power=power,
+            )
         # Private
+        self.__input_file = input_file
         self.__raw_data = {}
-
-        self.port_position = {}
-        self.eep_file_info = {}
-        self.__frequency_text_list = []
-
         self.__freq_index = 0
-        self.frequencies = []
+        self.__model_units = "meter"
 
-        self.eep_file = eep_file
-
-        self.__read_eep_files(eep_file)
-
-        if not self.eep_file_info or not self.port_position:  # pragma: no cover
-            raise Exception("Wrong farfield file load.")
-
-        self.all_port_names = list(self.eep_file_info.keys())
-
-        self.__phase_offset = [0] * len(self.all_port_names)
-        self.__mag_offset = [1] * len(self.all_port_names)
-        self.__origin = [0, 0, 0]
-        self.__taper = "flat"
-
-        self.model_info = []
+        self.__farfield_data = {}
+        self.__element_info = {}
+        self.__frequencies = []
+        self.__all_port_names = []
+        self.__phase_offset = []
+        self.__mag_offset = []
+        self.__origin = []
+        self.__taper = None
+        self.__model_info = {}
         self.__is_array = False
         self.__component_objects = []
         self.__array_dimension = []
         self.__cell_position = []
         self.__lattice_vector = []
-        self.mesh = None
+        self.__a_min = sys.maxsize
+        self.__a_max = 0
+        self.__b_min = sys.maxsize
+        self.__b_max = 0
+        self.__mesh = None
 
-        metadata_file = os.path.join(os.path.dirname(eep_file), "pyaedt_antenna_metadata.json")
-        if os.path.exists(metadata_file):
-            with open_file(metadata_file) as f:
-                # Load JSON data from file
-                metadata = json.load(f)
-            self.model_info.append(metadata["model_info"])
-            self.frequencies = metadata["frequency"]
-            if "array_dimension" in metadata and "component_objects" in metadata and "cell_position" in metadata:
-                self.__is_array = True
-                self.__component_objects.append(metadata["component_objects"])
-                self.__array_dimension.append(metadata["array_dimension"])
-                self.__cell_position.append(metadata["cell_position"])
-                self.__lattice_vector.append(metadata["lattice_vector"])
-            else:
-                self.__is_array = False
+        with open_file(input_file) as f:
+            self.__metadata = json.load(f)
 
-        self.port_index = self.__get_port_index()
-        if not self.__get_port_index:  # pragma: no cover
+        if not self.metadata:  # pragma: no cover
+            raise Exception("Metadata could not be loaded..")
+
+        elements = self.metadata["element_pattern"]
+        for element_name, element_props in elements.items():
+            location = element_props["location"]
+            pattern_file = os.path.join(self.output_dir, element_props["file_name"])
+            power = element_props["power"]
+            new_power = {}
+            if power:
+
+                for power_freq in power:
+                    if isinstance(power_freq, str):
+                        frequency, units = decompose_variable_value(power_freq)
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                        new_power[frequency] = power[power_freq]
+
+            power = new_power
+
+            self.__element_info[element_name] = {
+                "pattern_file": pattern_file,
+                "location": [float(location[0]), float(location[1]), float(location[2])],
+                "power": power,
+            }
+
+        if not self.element_info:  # pragma: no cover
+            raise Exception("Wrong farfield file load.")
+
+        # Update properties with the loaded information
+        self.__all_port_names = list(self.element_info.keys())
+        self.__phase_offset = [0] * len(self.all_port_names)
+        self.__mag_offset = [1] * len(self.all_port_names)
+        self.__origin = [0, 0, 0]
+        self.__taper = "flat"
+
+        # Load farfield data
+        is_farfield_loaded = self.__init_ffd(self.element_info)
+        if not is_farfield_loaded:  # pragma: no cover
+            raise Exception("Farfield information from ffd files can not be loaded.")
+
+        required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
+        if all(key in self.metadata for key in required_array_keys):
+            self.__is_array = True
+            self.__component_objects.append(self.metadata["component_objects"])
+            self.__array_dimension.append(self.metadata["array_dimension"])
+            self.__cell_position.append(self.metadata["cell_position"])
+            self.__lattice_vector.append(self.metadata["lattice_vector"])
+        else:
+            self.__is_array = False
+
+        # Get element indices
+        port_indices = self.get_port_index()
+        if not port_indices:  # pragma: no cover
             raise Exception("Wrong port index load.")
-        self.__model_units = "meter"
 
+        # Update active frequency if passed in the initialization
         if frequency and frequency in self.frequencies:
             freq_index = self.frequencies.index(frequency)
             self.frequency = self.frequencies[freq_index]
         else:
             self.frequency = self.frequencies[0]
 
-        self.__a_min = sys.maxsize
-        self.__a_max = 0
-        self.__b_min = sys.maxsize
-        self.__b_max = 0
-        if self.port_index:
-            for row, col in self.port_index.values():
-                self.__a_min = min(self.__a_min, row - 1)
-                self.__a_max = max(self.__a_max, row - 1)
-                self.__b_min = min(self.__b_min, col - 1)
-                self.__b_max = max(self.__b_max, col - 1)
+        # Update
+        for row, col in port_indices.values():
+            self.__a_min = min(self.__a_min, row - 1)
+            self.__a_max = max(self.__a_max, row - 1)
+            self.__b_min = min(self.__b_min, col - 1)
+            self.__b_max = max(self.__b_max, col - 1)
+
+    @property
+    def metadata(self):
+        return self.__metadata
+
+    @property
+    def input_file(self):
+        """Input file."""
+        return self.__input_file
 
     @property
     def farfield_data(self):
-        return self._farfield_data
+        """Farfield data."""
+        return self.__farfield_data
+
+    @property
+    def element_info(self):
+        """File information."""
+        return self.__element_info
+
+    @property
+    def frequencies(self):
+        """Available frequencies."""
+        return self.__frequencies
+
+    @property
+    def all_port_names(self):
+        """Available port names."""
+        return self.__all_port_names
 
     @property
     def frequency(self):
@@ -1651,25 +1719,16 @@ class FfdSolutionData(object):
 
     @frequency.setter
     def frequency(self, val):
+        if isinstance(val, str):
+            frequency, units = decompose_variable_value(val)
+            unit_converter(frequency, "Freq", units, "Hz")
+            val = frequency
         if val in self.frequencies:
-            init_flag = self.__init_ffd(self.eep_file_info)
-            if init_flag:
-                self._frequency = val
-                self.__freq_index = self.frequencies.index(val)
-                self._farfield_data = self.combine_farfield()
-            else:  # pragma: no cover
-                self.logger.error("Wrong farfield information.")
+            self._frequency = val
+            self.__freq_index = self.frequencies.index(val)
+            self.__farfield_data = self.combine_farfield()
         else:  # pragma: no cover
             self.logger.error("Frequency not available.")
-
-    @property
-    def frequency_value(self):
-        """Frequency value in Hz."""
-        if isinstance(self.frequency, str):
-            frequency, units = decompose_variable_value(str(self.frequency))
-            return unit_converter(frequency, "Freq", units, "Hz")
-        else:
-            return float(self.frequency)
 
     @property
     def phase_offset(self):
@@ -1683,7 +1742,7 @@ class FfdSolutionData(object):
             self.logger.error("Number of phases must be equal to number of ports.")
         else:
             self.__phase_offset = phases
-            self._farfield_data = self.combine_farfield()
+            self.__farfield_data = self.combine_farfield()
 
     @property
     def mag_offset(self):
@@ -1697,7 +1756,7 @@ class FfdSolutionData(object):
             self.logger.error("Number of magnitude must be equal to number of ports.")
         else:
             self.__mag_offset = mags
-            self._farfield_data = self.combine_farfield()
+            self.__farfield_data = self.combine_farfield()
 
     @property
     def taper(self):
@@ -1731,7 +1790,7 @@ class FfdSolutionData(object):
             self.logger.error("Origin is wrong.")
         else:
             self.__origin = vals
-            self._farfield_data = self.combine_farfield()
+            self.__farfield_data = self.combine_farfield()
 
     @pyaedt_function_handler()
     def __assign_weight(self, a, b):
@@ -1832,7 +1891,7 @@ class FfdSolutionData(object):
             Phase shift in degrees.
         """
         c = 299792458
-        k = (2 * math.pi * self.frequency_value) / c
+        k = (2 * math.pi * self.frequency) / c
         a = int(a)
         b = int(b)
         theta = np.deg2rad(theta)
@@ -1875,7 +1934,8 @@ class FfdSolutionData(object):
 
         # Obtain weights for each port
         for port_name in self.all_port_names:
-            index_str = self.port_index[port_name]
+            index_port = self.get_port_index(port_name)
+            index_str = index_port[port_name]
             a = index_str[0] - 1
             b = index_str[1] - 1
             if self.__is_array:
@@ -1889,11 +1949,11 @@ class FfdSolutionData(object):
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
             w_dict_mag[port_name] = w_mag
-            port_positions[port_name] = self.port_position[port_name]
+            port_positions[port_name] = self.element_info[port_name]["location"]
             port_cont += 1
 
         # Combine farfield of each port
-        freq_name_key = self.__frequency_text_list[self.__freq_index]
+        freq_name_key = self.frequencies[self.__freq_index]
         data = self.__raw_data[initial_port][freq_name_key]
         length_of_ff_data = len(data["rETheta"])
         theta_range = data["Theta"]
@@ -1901,11 +1961,13 @@ class FfdSolutionData(object):
         Ntheta = len(theta_range)
         Nphi = len(phi_range)
         incident_power = 0
+        radiated_power = 0
+        accepted_power = 0
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
         c = 299792458
-        k = 2 * np.pi * self.frequency_value / c
+        k = 2 * np.pi * self.frequency / c
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -1920,7 +1982,24 @@ class FfdSolutionData(object):
             data = self.__raw_data[port][freq_name_key]
             if port not in w_dict:
                 w_dict[port] = np.sqrt(0) * np.exp(1j * 0)
-            incident_power += w_dict_mag[port]
+
+            power_element = self.element_info[port]["power"]
+            incident_power_mult = 1
+            radiated_power_mult = 1
+            accepted_power_mult = 1
+
+            if power_element and freq_name_key in power_element:
+                power = power_element[freq_name_key]
+                required_power_keys = ["IncidentPower", "AcceptedPower", "RadiatedPower"]
+                if all(key in power for key in required_power_keys):
+                    incident_power_mult = float(power["IncidentPower"])
+                    accepted_power_mult = float(power["AcceptedPower"])
+                    radiated_power_mult = float(power["RadiatedPower"])
+
+            incident_power += w_dict_mag[port] * incident_power_mult
+            radiated_power += w_dict_mag[port] * radiated_power_mult
+            accepted_power += w_dict_mag[port] * accepted_power_mult
+
             xyz_pos = port_positions[port]
             array_factor = (
                 np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * w_dict[port]
@@ -1948,6 +2027,9 @@ class FfdSolutionData(object):
         farfield_data["nPhi"] = Nphi
         farfield_data["nTheta"] = Ntheta
         farfield_data["Pincident"] = incident_power
+        farfield_data["Paccepted"] = accepted_power
+        farfield_data["Pradiated"] = radiated_power
+
         real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / incident_power / 377
         farfield_data["RealizedGain"] = real_gain
         farfield_data["RealizedGain_Total"] = real_gain
@@ -1956,6 +2038,25 @@ class FfdSolutionData(object):
         farfield_data["RealizedGain_Theta"] = real_gain
         real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / incident_power / 377
         farfield_data["RealizedGain_Phi"] = real_gain
+
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / accepted_power / 377
+        farfield_data["Gain"] = gain
+        farfield_data["Gain_Total"] = gain
+        farfield_data["Gain_dB"] = 10 * np.log10(gain)
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / accepted_power / 377
+        farfield_data["Gain_Theta"] = gain
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / accepted_power / 377
+        farfield_data["Gain_Phi"] = gain
+
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / radiated_power / 377
+        farfield_data["Directivity"] = directivity
+        farfield_data["Directivity_Total"] = directivity
+        farfield_data["Directivity_dB"] = 10 * np.log10(directivity)
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Theta"] = directivity
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Phi"] = directivity
+
         farfield_data["Element_Location"] = port_positions
         return farfield_data
 
@@ -2427,9 +2528,9 @@ class FfdSolutionData(object):
             self.logger.error("Far field quantity is not available.")
             return False
 
-        self._farfield_data = farfield_data
+        self.__farfield_data = farfield_data
 
-        self.mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
+        self.__mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
         rotation_euler = self.__rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -2503,7 +2604,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self._farfield_data[quantity], function=quantity_format)
+        data = conversion_function(self.farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -2572,14 +2673,14 @@ class FfdSolutionData(object):
         return p
 
     @pyaedt_function_handler()
-    def __init_ffd(self, eep_file_info):
+    def __init_ffd(self, element_info):
         """Load far field information.
 
         Parameters
         ----------
-        eep_file_info : dict
+        element_info : dict
             Information about the far fields imported.
-            The keys of the dictionary represent the port names.
+            The keys of the dictionary represent the element names.
 
         Returns
         -------
@@ -2587,17 +2688,18 @@ class FfdSolutionData(object):
             ``True`` when successful, ``False`` when failed.
         """
 
-        for port, port_data in eep_file_info.items():
-            self.__raw_data[port] = {}
-            if os.path.exists(port_data[0]):
+        for element, element_data in element_info.items():
+            self.__raw_data[element] = {}
+            self.__frequencies = []
+            if os.path.exists(element_data["pattern_file"]):
                 # Extract ports
-                with open_file(port_data[0], "r") as reader:
+                with open_file(element_data["pattern_file"], "r") as reader:
                     theta = [int(i) for i in reader.readline().split()]
                     phi = [int(i) for i in reader.readline().split()]
                 reader.close()
 
                 # Extract ffd information
-                with open(port_data[0], "r") as file:
+                with open(element_data["pattern_file"], "r") as file:
                     ffd_text = file.read()
 
                 segments = ffd_text.split("Frequency")
@@ -2611,22 +2713,16 @@ class FfdSolutionData(object):
                         frequency_text_list.append(lines[0])
                         eep_text_list[lines[0]] = lines[1:]
 
-                if len(frequency_text_list) != len(self.frequencies):  # pragma: no cover
-                    self.logger.error(
-                        "Number of frequencies in metadata is different than number of frequencies in FFD "
-                        "file.")
-                    return False
-
-                self.__frequency_text_list = frequency_text_list
-
-                if ":" in port:
-                    port = port.split(":")[0]
+                if ":" in element:
+                    element = element.split(":")[0]
                 theta_range = np.linspace(*theta)
                 phi_range = np.linspace(*phi)
 
                 for freq in frequency_text_list:
+                    freq_hz = float(freq)
+                    self.__frequencies.append(freq_hz)
                     temp_dict = {}
-                    self.__raw_data[port][freq] = {}
+                    self.__raw_data[element][freq_hz] = {}
                     eep_txt = np.loadtxt(eep_text_list[freq])
                     Etheta = np.vectorize(complex)(eep_txt[:, 0], eep_txt[:, 1])
                     Ephi = np.vectorize(complex)(eep_txt[:, 2], eep_txt[:, 3])
@@ -2634,7 +2730,7 @@ class FfdSolutionData(object):
                     temp_dict["Phi"] = phi_range
                     temp_dict["rETheta"] = Etheta
                     temp_dict["rEPhi"] = Ephi
-                    self.__raw_data[port][freq] = temp_dict
+                    self.__raw_data[element][freq_hz] = temp_dict
             else:
                 self.logger.error("Wrong far fields were imported.")
                 return False
@@ -2661,11 +2757,11 @@ class FfdSolutionData(object):
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
         """
-        if quantity not in self._farfield_data:
+        if quantity not in self.farfield_data:
             self.logger.error("Far field quantity is not available.")
             return False
 
-        data = self._farfield_data[quantity]
+        data = self.farfield_data[quantity]
 
         ff_data = conversion_function(data, quantity_format)
 
@@ -2673,45 +2769,10 @@ class FfdSolutionData(object):
             self.logger.error("Format of the quantity is wrong.")
             return False
 
-        theta = np.deg2rad(np.array(self._farfield_data["Theta"]))
-        phi = np.deg2rad(np.array(self._farfield_data["Phi"]))
+        theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
+        phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
         return mesh
-
-    @pyaedt_function_handler()
-    def __read_eep_files(self, eep_path):
-        """Read the EEP file and populate all attributes with information about each port in the file.
-
-        Parameters
-        ----------
-        eep_path : str
-            Path to the EEP file.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        self.eep_file_info = {}
-        if os.path.exists(eep_path):
-            with open_file(eep_path, "r") as reader:
-                lines = [line.split(None) for line in reader]
-            lines = lines[1:]  # remove header
-            for pattern in lines:
-                if len(pattern) >= 2:
-                    port = pattern[0]
-                    if ":" in port:
-                        port = port.split(":")[0] + "_" + port.split(":")[1]
-                    self.eep_file_info[port] = [
-                        os.path.join(os.path.dirname(eep_path), pattern[1] + ".ffd"),
-                        pattern[2],
-                        pattern[3],
-                        pattern[4],
-                    ]
-                    self.port_position[port] = [float(pattern[2]), float(pattern[3]), float(pattern[4])]
-            return True
-        return False
 
     @pyaedt_function_handler()
     def _get_geometry(self):
@@ -2822,7 +2883,7 @@ class FfdSolutionData(object):
         return obj_meshes
 
     @pyaedt_function_handler()
-    def __get_port_index(self, port_name=None):
+    def get_port_index(self, port_name=None):
         """Get index of a given port.
 
         Parameters
@@ -2958,13 +3019,11 @@ class FfdSolutionDataExporter:
         else:
             self.frequencies = frequencies
 
-        # Protected
-        self._model_info = {}
-        self._farfield_data = None
-        self._metadata_file = None
-
         # Private
         self.__app = app
+        self.__model_info = {}
+        self.__farfield_data = None
+        self.__metadata_file = ""
 
         if self.__app.desktop_class.is_grpc_api and set_phase_center_per_port:
             self.__app.set_phase_center_per_port()
@@ -2973,15 +3032,15 @@ class FfdSolutionDataExporter:
 
     @property
     def model_info(self):
-        return self._model_info
+        return self.__model_info
 
     @property
     def farfield_data(self):
-        return self._farfield_data
+        return self.__farfield_data
 
     @property
     def metadata_file(self):
-        return self._metadata_file
+        return self.__metadata_file
 
     @pyaedt_function_handler()
     def export_farfield(self):
@@ -3000,21 +3059,19 @@ class FfdSolutionDataExporter:
         # 2023.2
         file_path_txt = os.path.join(export_path, exported_name_map)
 
+        input_file = file_path_xml
+        if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
+            input_file = file_path_txt
+
         # Create directory or check if files already exist
         if settings.remote_rpc_session:  # pragma: no cove
             settings.remote_rpc_session.filemanager.makedirs(export_path)
-            if self.__app.desktop_class.aedt_version_id < "2024.1":
-                file_exists = settings.remote_rpc_session.filemanager.pathexists(file_path_txt)
-            else:
-                file_exists = settings.remote_rpc_session.filemanager.pathexists(file_path_xml)
+            file_exists = settings.remote_rpc_session.filemanager.pathexists(input_file)
         elif not os.path.exists(export_path):
             os.makedirs(export_path)
             file_exists = False
         else:
-            if self.__app.desktop_class.aedt_version_id < "2024.1":  # pragma: no cove
-                file_exists = os.path.exists(file_path_txt)
-            else:
-                file_exists = os.path.exists(file_path_xml)
+            file_exists = os.path.exists(input_file)
 
         time_before = time.time()
 
@@ -3049,25 +3106,25 @@ class FfdSolutionDataExporter:
             self.__app.logger.info("Using existing element patterns files.")
 
         # Export geometry
-        if os.path.isfile(file_path_xml) or os.path.isfile(file_path_txt):
+        if os.path.isfile(input_file):
             geometry_path = os.path.join(export_path, "geometry")
             if not os.path.exists(geometry_path):
                 os.mkdir(geometry_path)
             obj_list = self.__create_geometries(geometry_path)
             if obj_list:
-                self._model_info["object_list"] = obj_list
+                self.__model_info["object_list"] = obj_list
 
             if self.__app.component_array:
                 component_array = self.__app.component_array[self.__app.component_array_names[0]]
-                self._model_info["component_objects"] = component_array.get_component_objects()
-                self._model_info["cell_position"] = component_array.get_cell_position()
-                self._model_info["array_dimension"] = [
+                self.__model_info["component_objects"] = component_array.get_component_objects()
+                self.__model_info["cell_position"] = component_array.get_cell_position()
+                self.__model_info["array_dimension"] = [
                     component_array.a_length,
                     component_array.b_length,
                     component_array.a_length / component_array.a_size,
                     component_array.b_length / component_array.b_size,
                 ]
-                self._model_info["lattice_vector"] = component_array.lattice_vector()
+                self.__model_info["lattice_vector"] = component_array.lattice_vector()
 
         # Create PyAEDT Metadata
         var = []
@@ -3078,32 +3135,11 @@ class FfdSolutionDataExporter:
         else:
             variation = self.__app.odesign.GetNominalVariation()
 
-        pyaedt_metadata_file = os.path.join(export_path, "pyaedt_antenna_metadata.json")
-        items = {"frequencies": self.frequencies, "variation": variation, "element_pattern": {}}
+        power = {}
 
-        if os.path.isfile(file_path_xml):
-            # Metada available from 2024.1
-            antenna_metadata = self.__app.antenna_metadata(file_path_xml)
-
-            for metadata in antenna_metadata:
-                pattern = {
-                    "file_name": metadata["file_name"],
-                    "location": metadata["location"],
-                    "power": metadata["power"],
-                }
-                items["element_pattern"][metadata["name"]] = pattern
-                # Move ffd file
-                output_file = os.path.join(export_path, metadata["file_name"])
-                pattern_file = os.path.join(
-                    export_path, self.__app.design_name, "element_pattern", metadata["file_name"]
-                )
-                if not os.path.isfile(pattern_file):  # pragma: no cover
-                    self._postprocessor.logger.error("Pattern {} not found.".format(pattern_file))
-                    return False
-                shutil.move(pattern_file, output_file)
-        elif os.path.isfile(file_path_txt):
+        if self.__app.desktop_class.aedt_version_id < "2024.1":
             power_list = ["IncidentPower", "AcceptedPower", "RadiatedPower"]
-            power = {}
+
             for power_str in power_list:
                 report = self.__app.post.reports_by_category.antenna_parameters(
                     power_str, self.setup_name, self.sphere_name
@@ -3115,7 +3151,94 @@ class FfdSolutionDataExporter:
                         power[freq_str] = {}
                     power[freq_str][power_str] = powers[freq_cont]
 
-            with open_file(file_path_txt, "r") as file:
+        pyaedt_metadata_file = FfdSolutionDataExporter.export_pyaedt_antenna_metadata(
+            input_file=input_file,
+            output_dir=export_path,
+            frequencies=self.frequencies,
+            variation=variation,
+            model_info=self.model_info,
+            power=power,
+        )
+        if not pyaedt_metadata_file:  # pragma: no cover
+            return False
+        elapsed_time = time.time() - time_before
+        self.__app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
+        self.__metadata_file = pyaedt_metadata_file
+        self.__farfield_data = FfdSolutionData(pyaedt_metadata_file)
+        return pyaedt_metadata_file
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def export_pyaedt_antenna_metadata(
+        input_file, output_dir, frequencies=None, variation=None, model_info=None, power=None
+    ):
+        """Obtain metadata information from metadata XML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the XML or TXT file.
+        output_dir : str
+            Full path to save the file to.
+        variation : str
+            Label to identify corresponding variation.
+        model_info : dict
+        power : dict, optional
+            Dictionary with information of the "IncidentPower", "AcceptedPower", "RadiatedPower" for each frequency.
+            The default is ``None``, in which case an empty dictionary is applied.
+            From AEDT 2024.1, this information is available from the input file.
+            For example, the dictionary format for a two element farfield
+            data = power["1GHz"]["IncidentPower"]
+            data = ["1W", "0.99W"]
+
+        Returns
+        -------
+        str
+            Metadata JSON file.
+        """
+        if not variation:
+            variation = "Nominal"
+
+        if not power:
+            power = {}
+
+        pyaedt_metadata_file = os.path.join(output_dir, "pyaedt_antenna_metadata.json")
+        items = {"variation": variation, "element_pattern": {}}
+
+        if os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "xml":
+            # Metadata available from 2024.1
+            antenna_metadata = FfdSolutionDataExporter.antenna_metadata(input_file)
+
+            # Find all ffd files and move them to main directory
+            for dir_path, _, filenames in os.walk(output_dir):
+                ffd_files = [file for file in filenames if file.endswith(".ffd")]
+
+                if ffd_files:
+                    # Move ffd files to main directory
+                    for ffd_file in ffd_files:
+                        output_file = os.path.join(output_dir, ffd_file)
+                        pattern_file = os.path.join(dir_path, ffd_file)
+                        shutil.move(pattern_file, output_file)
+
+            for metadata in antenna_metadata:
+                pattern = {
+                    "file_name": metadata["file_name"],
+                    "location": metadata["location"],
+                    "power": metadata["power"],
+                }
+
+                if power and isinstance(power, dict):
+                    pattern["power"] = power
+
+                items["element_pattern"][metadata["name"]] = pattern
+                pattern_file = os.path.join(output_dir, metadata["file_name"])
+                if not os.path.isfile(pattern_file):  # pragma: no cover
+                    self._postprocessor.logger.error("Pattern {} not found.".format(pattern_file))
+                    return False
+
+        elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
+
+            with open_file(input_file, "r") as file:
                 # Skip the first line
                 file.readline()
                 # Read and process the remaining lines
@@ -3129,13 +3252,72 @@ class FfdSolutionDataExporter:
                         }
                         items["element_pattern"][antenna_metadata[0]] = pattern
 
+        if model_info:
+            if "object_list" in model_info:
+                items["model_info"] = model_info["object_list"]
+
+            required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
+
+            if all(key in model_info for key in required_array_keys):
+                items["component_objects"] = model_info["object_list"]
+                items["cell_position"] = model_info["cell_position"]
+                items["array_dimension"] = model_info["array_dimension"]
+                items["lattice_vector"] = model_info["lattice_vector"]
+
         with open_file(pyaedt_metadata_file, "w") as f:
             json.dump(items, f, indent=2)
-        elapsed_time = time.time() - time_before
-        self.__app.logger.info("Exporting embedded element patterns.... Done: %s seconds", elapsed_time)
-        self._metadata_file = pyaedt_metadata_file
-        self._farfield_data = FfdSolutionData(self._metadata_file)
         return pyaedt_metadata_file
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def antenna_metadata(input_file):
+        """Obtain metadata information from metadata XML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the XML file.
+
+        Returns
+        -------
+        dict
+            Metadata information.
+
+        """
+        import xml.etree.ElementTree as ET  # nosec
+
+        # Load the XML file
+        tree = ET.parse(input_file)
+        root = tree.getroot()
+
+        element_patterns = root.find("ElementPatterns")
+
+        sources = []
+        if element_patterns is None:  # pragma: no cover
+            print("Element Patterns section not found in XML.")
+        else:
+            cont = 0
+            # Iterate over each Source element
+            for source in element_patterns.findall("Source"):
+                source_info = {
+                    "name": source.get("name"),
+                    "file_name": source.find("Filename").text.strip(),
+                    "location": source.find("ReferenceLocation").text.strip().split(","),
+                }
+
+                # Iterate over Power elements
+                power_info = source.find("PowerInfo")
+                if power_info is not None:
+                    source_info["power"] = {}
+                    for power in power_info.findall("Power"):
+                        freq = power.get("Freq")
+                        source_info["power"][freq] = {}
+                        source_info["power"][freq]["IncidentPower"] = power.find("IncidentPower").text.strip()
+                        source_info["power"][freq]["AcceptedPower"] = power.find("AcceptedPower").text.strip()
+                        source_info["power"][freq]["RadiatedPower"] = power.find("RadiatedPower").text.strip()
+                sources.append(source_info)
+                cont += 1
+        return sources
 
     @pyaedt_function_handler()
     def __create_geometries(self, export_path):
@@ -3186,7 +3368,7 @@ class UpdateBeamForm:
 
     @pyaedt_function_handler(farfield_quantity="quantity")
     def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
-        self.output = ff.mesh
+        self.output = ff.__mesh
         self._phi = 0
         self._theta = 0
         # default parameters
@@ -3197,11 +3379,11 @@ class UpdateBeamForm:
     @pyaedt_function_handler()
     def _update_both(self):
         """Update far field."""
-        self.ff._farfield_data = self.ff.combine_farfield(phi_scan=self._phi, theta_scan=self._theta)
+        self.ff.__farfield_data = self.ff.combine_farfield(phi_scan=self._phi, theta_scan=self._theta)
 
-        self.ff.mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
+        self.ff.__mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
 
-        self.output.copy_from(self.ff.mesh)
+        self.output.copy_from(self.ff.__mesh)
         return
 
     @pyaedt_function_handler()
