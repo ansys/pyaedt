@@ -65,6 +65,8 @@ The user can select the AEDT application to install the specific workflow.
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
+For more extension information, see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
+
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
