@@ -48,7 +48,7 @@ To modify the global region dimensions, access the `global_region` property and 
     glob_msh.global_region.positive_z_padding_type = "Absolute Offset"
     glob_msh.global_region.positive_z_padding = "5 mm"
 
-To modify the properties of the Region object (e.g., the gas inside the region), access the `object` property of the `global_region` object:
+To modify the properties of the Region object (for example the gas inside the region), access the `object` property of the `global_region` object:
 
 .. code:: python
 
