@@ -95,7 +95,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app : class:`pyaedt.Hfss`
+        app : class:`ansys.aedt.core.Hfss`
             HFSS application instance.
 
         Returns
@@ -412,12 +412,12 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
             HFSS application instance.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+        :class:`ansys.aedt.core.modeler.Modeler.CoordinateSystem`
         """
         if self.motion:
             xyz = ["x", "y", "z"]
@@ -457,7 +457,7 @@ class MultiPartComponent(object):
 
         Parameters
         ----------
-        app : :class:`pyaedt.hfss.Hfss`
+        app : :class:`ansys.aedt.core.hfss.Hfss`
             HFSS application where multi-part component is to be inserted.
         motion : bool, optional
             Whether variables (yaw, pitch, and roll) should be created in the app to set position.

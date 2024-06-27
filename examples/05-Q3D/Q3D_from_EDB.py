@@ -25,10 +25,10 @@ aedt_version = "2024.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download of needed project file and setup of temporary project directory.
 
-project_dir = pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
+project_dir = ansys.aedt.core.generate_unique_folder_name()
+aedb_project = ansys.aedt.core.downloads.download_file('edb/ANSYS-HSD_V1.aedb',destination=project_dir)
 
-project_name = pyaedt.generate_unique_name("HSD")
+project_name = ansys.aedt.core.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
@@ -38,7 +38,7 @@ output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 # Open the edb project and created a cutout on the selected nets
 # before exporting to Q3D.
 
-edb = pyaedt.Edb(aedb_project, edbversion=aedt_version)
+edb = ansys.aedt.core.Edb(aedb_project, edbversion=aedt_version)
 edb.cutout(["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], ["GND"], output_aedb_path=output_edb,
                               use_pyaedt_extent_computing=True, )
 
@@ -78,7 +78,7 @@ location_u1_sda.append(edb.components["U1"].upper_elevation * 1000)
 edb.save_edb()
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=True, new_desktop=True)
+h3d = ansys.aedt.core.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=True, new_desktop=True)
 
 ###############################################################################
 # Export to Q3D
@@ -95,7 +95,7 @@ h3d.close_project()
 # ~~~~~~~~
 # Launch the newly created q3d project and plot it.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = ansys.aedt.core.Q3d(output_q3d)
 q3d.plot(assignment=["CLOCK_I2C_SCL", "CLOCK_I2C_SDA"], show=False,
          output_file=os.path.join(q3d.working_directory, "Q3D.jpg"), plot_air_objects=False)
 

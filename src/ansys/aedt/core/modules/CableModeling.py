@@ -39,7 +39,7 @@ class Cable:
 
     Parameters
     ----------
-    app : :class:`pyaedt.hfss.Hfss`
+    app : :class:`ansys.aedt.core.hfss.Hfss`
     json_file_name : str, dict, optional
         Full path to either the JSON file or dictionary containing the cable information.
     working_dir : str, optional

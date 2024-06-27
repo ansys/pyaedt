@@ -167,7 +167,7 @@ hfss2.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.j
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing AEDT.
 
 hfss2.save_project(os.path.join(tempfile.gettempdir(), generate_unique_name("parametrized") + ".aedt"))

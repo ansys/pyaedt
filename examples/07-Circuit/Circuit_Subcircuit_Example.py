@@ -32,7 +32,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode with Circuit.
 
-circuit = pyaedt.Circuit(project=pyaedt.generate_unique_project_name(),
+circuit = ansys.aedt.core.Circuit(project=ansys.aedt.core.generate_unique_project_name(),
                          version=aedt_version,
                          non_graphical=non_graphical,
                          new_desktop=True

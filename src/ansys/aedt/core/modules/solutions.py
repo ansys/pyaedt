@@ -1558,7 +1558,7 @@ class FfdSolutionData(object):
 
     >>> import ansys.aedt.core
     >>> from ansys.aedt.core.modules.solutions import FfdSolutionData
-    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -2033,7 +2033,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Hfss(version="2024.1", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2024.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2172,7 +2172,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2313,7 +2313,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2418,7 +2418,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2906,7 +2906,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     """Class to enable export of embedded element pattern data from HFSS.
 
     An instance of this class is returned from the
-    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
+    :meth:`ansys.aedt.core.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
     the embedded
     element pattern (EEP) files for an antenna array that have been solved in HFSS. The
     ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
@@ -2915,11 +2915,11 @@ class FfdSolutionDataExporter(FfdSolutionData):
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
     far-field postprocessing and array analysis, but it remains a property of the
-    :class:`pyaedt.Hfss` application.
+    :class:`ansys.aedt.core.Hfss` application.
 
     Parameters
     ----------
-    app : :class:`pyaedt.Hfss`
+    app : :class:`ansys.aedt.core.Hfss`
         HFSS application instance.
     sphere_name : str
         Infinite sphere to use.
@@ -2936,7 +2936,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     Examples
     --------
     >>> import ansys.aedt.core
-    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"

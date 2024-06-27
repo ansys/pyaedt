@@ -63,7 +63,7 @@ class Primitives3D(GeometryModeler):
     class.
 
     Primitives created using methods of ``app.modeler`` are of the type
-    ``pyaedt.modeler.cad.object3d.Object3D``. All settable properties may be
+    ``ansys.aedt.core.modeler.cad.object3d.Object3D``. All settable properties may be
     initialized by passing optional named arguments when a method is used to create
     a primitive. Some examples are:
     - ``color`` : tuple, optional
@@ -128,7 +128,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -182,7 +182,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : int or str
             Axis of rotation of the starting point around the center point.
-            :class:`pyaedt.constants.AXIS` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.AXIS` Enumerator can be used as input.
         origin : list
             Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
@@ -201,7 +201,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -286,7 +286,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -367,7 +367,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -451,7 +451,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -518,11 +518,11 @@ class Primitives3D(GeometryModeler):
             invalid, the default material is assigned.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -624,11 +624,11 @@ class Primitives3D(GeometryModeler):
             Coordinate system axis. The default is ``"Z"``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -728,7 +728,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the rectangle.
-            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
         origin : list or Position
             List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
             the position ApplicationName.modeler.Position(x,y,z) object.
@@ -744,11 +744,11 @@ class Primitives3D(GeometryModeler):
             Whether the rectangle is covered. The default is ``True``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -787,7 +787,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the circle.
-            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float
@@ -804,11 +804,11 @@ class Primitives3D(GeometryModeler):
              Either if create the new object as model or non-model. The default is ``False``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -875,7 +875,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the ellipse.
-            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_radius : float
@@ -897,11 +897,11 @@ class Primitives3D(GeometryModeler):
             The default is ``0``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1004,11 +1004,11 @@ class Primitives3D(GeometryModeler):
             bend type should be set to ``"Curved"``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1105,11 +1105,11 @@ class Primitives3D(GeometryModeler):
         thread : float
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -1198,7 +1198,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+        bool, :class:`ansys.aedt.core.modeler.components_3d.UserDefinedComponent`
             User-defined component object or ``False`` if it fails.
 
         References
@@ -1295,11 +1295,11 @@ class Primitives3D(GeometryModeler):
             Spiral name. Default is `None`.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`pyaedt.modeler.Object3d.Polyline`
+        bool, :class:`ansys.aedt.core.modeler.Object3d.Polyline`
             Polyline object or ``False`` if it fails.
         """
         if internal_radius < 0:
@@ -1420,7 +1420,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+        :class:`ansys.aedt.core.modeler.components_3d.UserDefinedComponent`
             User defined component object.
 
         References
@@ -1681,7 +1681,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+        :class:`ansys.aedt.core.modeler.components_3d.UserDefinedComponent`
             User defined component object.
 
         References
@@ -2054,7 +2054,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.actors.Person`
+        :class:`ansys.aedt.core.modeler.actors.Person`
 
         References
         ----------
@@ -2143,7 +2143,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.actors.Vehicle`
+        :class:`ansys.aedt.core.modeler.actors.Vehicle`
 
         References
         ----------
@@ -2246,7 +2246,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.actors.Bird`
+        :class:`ansys.aedt.core.modeler.actors.Bird`
 
         References
         ----------
@@ -2327,7 +2327,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        :class:`pyaedt.modeler.multiparts.Environment`
+        :class:`ansys.aedt.core.modeler.multiparts.Environment`
 
         References
         ----------
@@ -2363,10 +2363,10 @@ class Primitives3D(GeometryModeler):
         List of
             bool
                 ``True`` when successful, ``False`` when failed.
-            :class:`pyaedt.modeler.cad.object3d.Object3d`
+            :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
                 3D object core.
             list of
-                :class:`pyaedt.modeler.cad.object3d.Object3d`
+                :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
                     3D object winding.
                 list
                     list of point coordinates of the winding.

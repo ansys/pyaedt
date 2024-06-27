@@ -48,7 +48,7 @@ class Modeler3D(Primitives3D):
 
     Parameters
     ----------
-    application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    application : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
 
     Examples
     --------
@@ -73,7 +73,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
 
         """
         mess = "The property `primitives` is deprecated.\n"
@@ -446,7 +446,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+        :class:`ansys.aedt.core.modeler.components_3d.UserDefinedComponent`
             User-defined component object.
 
         References
@@ -633,7 +633,7 @@ class Modeler3D(Primitives3D):
         -------
         tuple
             Contains the inner, outer, and dielectric coax as
-            :class:`pyaedt.modeler.Object3d.Object3d` objects.
+            :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects.
 
         References
         ----------
@@ -714,7 +714,7 @@ class Modeler3D(Primitives3D):
         Returns
         -------
         tuple
-            Tuple of :class:`Object3d <pyaedt.modeler.Object3d.Object3d>`
+            Tuple of :class:`Object3d <ansys.aedt.core.modeler.Object3d.Object3d>`
             objects created by the waveguide.
 
         References
@@ -885,7 +885,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.object3d.Object3d`, bool
+        list of :class:`ansys.aedt.core.modeler.object3d.Object3d`, bool
             List of 3D object or ``False`` if it fails.
 
         References
@@ -969,7 +969,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object3d`
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1059,7 +1059,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.Object3d`
+        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`
         """
         autosave = (
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
@@ -1355,7 +1355,7 @@ class Modeler3D(Primitives3D):
         objects_list : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
-            a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
+            a list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
@@ -1378,7 +1378,7 @@ class Modeler3D(Primitives3D):
             - Second dictionary is the mesh sheets eventually needed to apply the mesh.
             to inside the object. Keys are the object names, and values are respectively
             segments sheets and mesh sheets of the
-            :class:`pyaedt.modeler.cad.object3d.Object3d` class.
+            :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` class.
             If mesh sheets are not applied the method returns only the dictionary of
             segments that the object has been divided into.
             ``False`` is returned if the method fails.
@@ -1461,7 +1461,7 @@ class Modeler3D(Primitives3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         """
         available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
@@ -1545,7 +1545,7 @@ class Modeler3D(Primitives3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
         >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
         """

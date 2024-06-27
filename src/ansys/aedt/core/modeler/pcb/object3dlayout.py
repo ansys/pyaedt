@@ -43,7 +43,7 @@ class Object3DLayout(object):
 
     Parameters
     -----------
-    primitives : :class:`pyaedt.modeler.Model3DLayout.Modeler3dLayout`
+    primitives : :class:`ansys.aedt.core.modeler.Model3DLayout.Modeler3dLayout`
     """
 
     def __init__(self, primitives, prim_type=None):
@@ -804,7 +804,7 @@ class Components3DLayout(Object3DLayout, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.ModelInfoRlc`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.ModelInfoRlc`
         """
         if self._part_type_id in [1, 2, 3]:
             return ModelInfoRlc(self, self.name)
@@ -825,7 +825,7 @@ class Nets3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Components3DLayout`
         """
         comps = {}
         for c in self._oeditor.FilterObjectList("Type", "component", self._oeditor.FindObjects("Net", self.name)):
@@ -959,7 +959,7 @@ class Geometries3DLayout(Object3DLayout, object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.cad.object3dlayout.Points3dLayout`
+        List of :class:`ansys.aedt.core.modeler.cad.object3dlayout.Points3dLayout`
         """
         if self._points:
             return self._points
@@ -1574,7 +1574,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        :class:`ansys.aedt.core.modeler.pcb.object3dlayout.Line3dLayout`
         """
         points = [
             [self._primitives.number_with_units(j, self.object_units) for j in i] for i in (self.center_line.values())
@@ -1599,7 +1599,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        :class:`ansys.aedt.core.modeler.pcb.object3dlayout.Line3dLayout`
         """
         if isinstance(point, str):
             point = [point]
@@ -2112,7 +2112,7 @@ class Padstack(object):
         ----------
         layer : str, optional
             Name of layer. The default is ``"Start"``.
-        pad_hole : pyaedt.modeler.Object3d.Object3d.PDSHole
+        pad_hole : ansys.aedt.core.modeler.Object3d.Object3d.PDSHole
             Pad hole object, which you can create with the :func:`add_hole` method.
             The default is ``None``.
         antipad_hole :
@@ -2183,7 +2183,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d.PDSHole`
+        :class:`ansys.aedt.core.modeler.Object3d.Object3d.PDSHole`
             Hole object to be passed to padstack or layer.
 
         """

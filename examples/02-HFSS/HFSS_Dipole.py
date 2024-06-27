@@ -12,7 +12,7 @@ This example shows how you can use PyAEDT to create a dipole antenna in HFSS and
 import os
 import ansys.aedt.core
 
-project_name = pyaedt.generate_unique_project_name(project_name="dipole")
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="dipole")
 
 ##########################################################
 # Set AEDT version
@@ -34,14 +34,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(project=project_name, solution_type="Modal")
 
 ###############################################################################
 # Define variable
@@ -214,7 +214,7 @@ ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="theta", secondary_swe
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 d.release_desktop()

@@ -39,7 +39,7 @@ class ComponentArray(object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.Hfss`
+    app : :class:`ansys.aedt.core.Hfss`
         HFSS PyAEDT object.
     name : str, optional
         Array name. The default is ``None``, in which case a random name is assigned.
@@ -95,7 +95,7 @@ class ComponentArray(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.component_array.CellArray`
+        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
         """
 
         if key[0] > self.a_size or key[1] > self.b_size:
@@ -115,7 +115,7 @@ class ComponentArray(object):
 
     @property
     def cells(self):
-        """List of :class:`pyaedt.modeler.cad.component_array.CellArray` objects."""
+        """List of :class:`ansys.aedt.core.modeler.cad.component_array.CellArray` objects."""
         if not self.update_cells:
             return self.__cells
 
@@ -594,7 +594,7 @@ class ComponentArray(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.component_array.CellArray`
+        :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
 
         """
         return self[row, col]
@@ -758,7 +758,7 @@ class CellArray(object):
         Dictionary containing the properties of the array.
     component_names : list
         List of component names in the array.
-    array_obj : class:`pyaedt.modeler.cad.component_array.ComponentArray`
+    array_obj : class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
         Instance of the array containing the cell.
 
     """

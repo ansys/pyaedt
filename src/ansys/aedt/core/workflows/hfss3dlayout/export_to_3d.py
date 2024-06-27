@@ -58,7 +58,7 @@ def frontend():  # pragma: no cover
     master.title("Export to 3D")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
+    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -100,7 +100,7 @@ def frontend():  # pragma: no cover
 def main(extension_args):
     choice = extension_args["choice"]
 
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,
@@ -120,7 +120,7 @@ def main(extension_args):
         app.release_desktop(False, False)
         raise Exception("Hfss 3D Layout project is needed.")
 
-    h3d = pyaedt.Hfss3dLayout(project=project_name, design=design_name)
+    h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = suffixes[choice]
 
@@ -134,14 +134,14 @@ def main(extension_args):
     h3d.save_project()
 
     if choice == "Export to Q3D":
-        _ = pyaedt.Q3d(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        _ = ansys.aedt.core.Q3d(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
     else:
-        aedtapp = pyaedt.Hfss(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        aedtapp = ansys.aedt.core.Hfss(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
         aedtapp2 = None
         if choice == "Export to Maxwell 3D":
-            aedtapp2 = pyaedt.Maxwell3d(project=aedtapp.project_name)
+            aedtapp2 = ansys.aedt.core.Maxwell3d(project=aedtapp.project_name)
         elif choice == "Export to Icepak":
-            aedtapp2 = pyaedt.Icepak(project=aedtapp.project_name)
+            aedtapp2 = ansys.aedt.core.Icepak(project=aedtapp.project_name)
         if aedtapp2:
             aedtapp2.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False, include_sheets=True)
             aedtapp2.delete_design(aedtapp.design_name)

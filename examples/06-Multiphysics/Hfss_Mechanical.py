@@ -33,14 +33,14 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_folder_name())
+project_temp_name = ansys.aedt.core.downloads.download_via_wizard(ansys.aedt.core.generate_unique_folder_name())
 
 ###############################################################################
 # Start HFSS
 # ~~~~~~~~~~
 # Start HFSS and initialize the PyAEDT object.
 
-hfss = pyaedt.Hfss(project=project_temp_name, version=aedt_version, non_graphical=non_graphical,
+hfss = ansys.aedt.core.Hfss(project=project_temp_name, version=aedt_version, non_graphical=non_graphical,
                    new_desktop=True)
 pin_names = hfss.excitations
 hfss.change_material_override(True)
@@ -50,7 +50,7 @@ hfss.change_material_override(True)
 # ~~~~~~~~~~~~~
 # Start Circuit and add the HFSS dynamic link component to it.
 
-circuit = pyaedt.Circuit()
+circuit = ansys.aedt.core.Circuit()
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
@@ -119,7 +119,7 @@ circuit.push_excitations(instance="S1", setup=setup_name)
 # ~~~~~~~~~~~~~~~~
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = pyaedt.Mechanical()
+mech = ansys.aedt.core.Mechanical()
 mech.copy_solid_bodies_from(hfss)
 mech.change_material_override(True)
 

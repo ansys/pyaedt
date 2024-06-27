@@ -251,7 +251,7 @@ class CommonSetup(PropsManager, object):
 
         Returns
         -------
-        dict of :class:pyaedt.modeler.cad.elements3d.BinaryTree when solved setups exist,
+        dict of :class:ansys.aedt.core.modeler.cad.elements3d.BinaryTree when solved setups exist,
         ``None`` when no solved setups or no compatible application exists.
         """
         profile = self._app.get_profile(self.name)
@@ -476,7 +476,7 @@ class Setup(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -1000,7 +1000,7 @@ class Setup(CommonSetup):
 
         Examples
         --------
-        >>> m2d = pyaedt.Maxwell2d()
+        >>> m2d = ansys.aedt.core.Maxwell2d()
         >>> setup = m2d.get_setup("Setup1")
         >>> setup.start_continue_from_previous_setup(design="IM",solution="Setup1 : Transient")
 
@@ -1040,7 +1040,7 @@ class SetupCircuit(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited app object.
     solution_type : str, int
         Type of the setup.
@@ -1730,7 +1730,7 @@ class Setup3DLayout(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
+    app : :class:`ansys.aedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout`
         Inherited app object.
     solution_type : int or str
         Type of the setup.
@@ -2311,7 +2311,7 @@ class SetupHFSS(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -2769,7 +2769,7 @@ class SetupHFSS(Setup, object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> hfss = pyaedt.Hfss()
+        >>> hfss = ansys.aedt.core.Hfss()
         >>> setup = hfss.get_setup('Pyaedt_setup')
         >>> sweeps = setup.get_sweep_names()
         """
@@ -2799,7 +2799,7 @@ class SetupHFSS(Setup, object):
         Create a frequency sweep and then delete it.
 
         >>> import ansys.aedt.core
-        >>> hfss = pyaedt.Hfss()
+        >>> hfss = ansys.aedt.core.Hfss()
         >>> setup1 = hfss.create_setup(name='Setup1')
         >>> setup1.create_frequency_sweep(
             "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
@@ -2938,7 +2938,7 @@ class SetupHFSSAuto(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3203,7 +3203,7 @@ class SetupSBR(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3282,7 +3282,7 @@ class SetupMaxwell(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3422,7 +3422,7 @@ class SetupQ3D(Setup, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3946,7 +3946,7 @@ class SetupIcepak(Setup, object):
 
         Examples
         --------
-        >>> ipk = pyaedt.Icepak()
+        >>> ipk = ansys.aedt.core.Icepak()
         >>> setup = ipk.get_setup("Setup1")
         >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
 

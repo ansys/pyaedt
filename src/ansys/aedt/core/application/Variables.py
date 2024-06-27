@@ -376,7 +376,7 @@ class VariableManager(object):
     This class provides access to all variables or a subset of the
     variables. Manipulation of the numerical or string definitions of
     variable values is provided in the
-    :class:`pyaedt.application.Variables.Variable` class.
+    :class:`ansys.aedt.core.application.Variables.Variable` class.
 
     Parameters
     ----------
@@ -418,7 +418,7 @@ class VariableManager(object):
 
     See Also
     --------
-    pyaedt.application.Variables.Variable
+    ansys.aedt.core.application.Variables.Variable
 
     Examples
     --------
@@ -442,23 +442,23 @@ class VariableManager(object):
     Get a dictionary of all project and design variables.
 
     >>> v.variables
-    {'Var1': <pyaedt.application.Variables.Variable at 0x2661f34c448>,
-     'Var2': <pyaedt.application.Variables.Variable at 0x2661f34c308>,
-     'Var3': <pyaedt.application.Variables.Expression at 0x2661f34cb48>,
-     '$PrjVar1': <pyaedt.application.Variables.Expression at 0x2661f34cc48>}
+    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f34c448>,
+     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f34c308>,
+     'Var3': <ansys.aedt.core.application.Variables.Expression at 0x2661f34cb48>,
+     '$PrjVar1': <ansys.aedt.core.application.Variables.Expression at 0x2661f34cc48>}
 
     Get a dictionary of only the design variables.
 
     >>> v.design_variables
-    {'Var1': <pyaedt.application.Variables.Variable at 0x2661f339508>,
-     'Var2': <pyaedt.application.Variables.Variable at 0x2661f3415c8>,
-     'Var3': <pyaedt.application.Variables.Expression at 0x2661f341808>}
+    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f339508>,
+     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f3415c8>,
+     'Var3': <ansys.aedt.core.application.Variables.Expression at 0x2661f341808>}
 
     Get a dictionary of only the independent design variables.
 
     >>> v.independent_design_variables
-    {'Var1': <pyaedt.application.Variables.Variable at 0x2661f335d08>,
-     'Var2': <pyaedt.application.Variables.Variable at 0x2661f3557c8>}
+    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f335d08>,
+     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f3557c8>}
 
     """
 
@@ -1331,7 +1331,7 @@ class VariableManager(object):
 
         Parameters
         ----------
-        history : :class:`pyaedt.modeler.cad.elements3d.BinaryTree`
+        history : :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree`
             Object history.
 
         var_name : str
@@ -1962,7 +1962,7 @@ class Variable(object):
 
         Parameters
         ----------
-        other : class:`pyaedt.application.Variables.Variable`
+        other : class:`ansys.aedt.core.application.Variables.Variable`
             Object to be multiplied.
 
         Returns
@@ -2004,7 +2004,7 @@ class Variable(object):
 
         Parameters
         ----------
-        other : class:`pyaedt.application.Variables.Variable`
+        other : class:`ansys.aedt.core.application.Variables.Variable`
             Object to be subtracted.
 
         Returns

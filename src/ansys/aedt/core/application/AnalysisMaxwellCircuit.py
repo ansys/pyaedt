@@ -109,7 +109,7 @@ class AnalysisMaxwellCircuit(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modeler.schematic.ModelerMaxwellCircuit`
+        :class:`ansys.aedt.core.modeler.schematic.ModelerMaxwellCircuit`
         """
         if self._modeler is None:
             from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit

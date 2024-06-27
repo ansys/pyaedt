@@ -47,7 +47,7 @@ extension_description = "Create Circuit design from Twin Builder design"
 
 def main(extension_args):
 
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,
@@ -68,14 +68,14 @@ def main(extension_args):
 
     if active_design.GetDesignType() in ["Twin Builder"]:
         design_name = active_design.GetName().split(";")[1]
-        tb = pyaedt.TwinBuilder(design=design_name, project=project_name)
+        tb = ansys.aedt.core.TwinBuilder(design=design_name, project=project_name)
     else:  # pragma: no cover
         app.logger.error("An active TwinBuilder Design is needed.")
         sys.exit()
 
-    catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "tb_nexxim_mapping.toml"))
+    catalog = read_toml(os.path.join(ansys.aedt.core.__path__[0], "misc", "tb_nexxim_mapping.toml"))
     scale = catalog["General"]["scale"]
-    cir = pyaedt.Circuit(design=tb.design_name + "_Translated")
+    cir = ansys.aedt.core.Circuit(design=tb.design_name + "_Translated")
 
     from ansys.aedt.core.generic.constants import unit_converter
 

@@ -52,7 +52,7 @@ def frontend():  # pragma: no cover
     import PIL.ImageTk
 
     # Get ports
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,
@@ -84,7 +84,7 @@ def frontend():  # pragma: no cover
     master.title("Assign push excitation to port from transient data")
 
     # Load the logo for the main window
-    icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -153,7 +153,7 @@ def main(extension_args):
     choice = extension_args["choice"]
     file_path = extension_args["file_path"]
 
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,

@@ -128,7 +128,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component : str or :class:`pyaedt.modeler.cad.object3d.circuit.CircuitComponent`
+        component : str or :class:`ansys.aedt.core.modeler.cad.object3d.circuit.CircuitComponent`
             Component to initialize.
 
         Returns

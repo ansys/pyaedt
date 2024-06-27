@@ -40,7 +40,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2023 R2 in graphical mode.
 
-m3d = pyaedt.Maxwell3d(project=pyaedt.generate_unique_project_name(),
+m3d = ansys.aedt.core.Maxwell3d(project=ansys.aedt.core.generate_unique_project_name(),
                        solution_type="EddyCurrent",
                        version=aedt_version,
                        non_graphical=non_graphical,
@@ -215,7 +215,7 @@ m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 m3d.release_desktop()

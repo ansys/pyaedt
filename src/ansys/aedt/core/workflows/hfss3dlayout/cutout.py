@@ -52,7 +52,7 @@ extension_description = "Layout Cutout"
 
 
 def frontend():  # pragma: no cover
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,
@@ -76,7 +76,7 @@ def frontend():  # pragma: no cover
     master.title("Advanced Cutout")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
+    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -188,7 +188,7 @@ def main(extension_args):
     reference = extension_args["reference"]
     expansion = extension_args["expansion_factor"]
     disjoint = extension_args["fix_disjoints"]
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,

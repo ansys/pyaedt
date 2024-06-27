@@ -325,7 +325,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        Dict[str, :class:`ansys.aedt.core.application.Variables.DataSet`]
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
@@ -337,7 +337,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.application.Variables.DataSet`]
+        Dict[str, :class:`ansys.aedt.core.application.Variables.DataSet`]
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
@@ -1302,7 +1302,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+        dict of :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
         ``False`` when failed.
         """
         from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
@@ -1657,7 +1657,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        pyaedt.application.Variables.VariableManager
+        ansys.aedt.core.application.Variables.VariableManager
 
         """
         return self._variable_manager
@@ -2655,7 +2655,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
 
         References
         ----------
@@ -2686,7 +2686,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References
@@ -2740,7 +2740,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References
@@ -2785,7 +2785,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
 
         References
         ----------
@@ -2843,7 +2843,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
 
         References
         ----------
@@ -2963,7 +2963,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.Variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References

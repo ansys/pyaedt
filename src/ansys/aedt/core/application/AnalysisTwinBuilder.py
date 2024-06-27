@@ -121,7 +121,7 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modeler.schematic.ModelerTwinBuilder`
+        :class:`ansys.aedt.core.modeler.schematic.ModelerTwinBuilder`
         """
         if self._modeler is None:
             from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder

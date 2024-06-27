@@ -29,7 +29,7 @@ Unit Test Configuration Module
 Description
 ===========
 
-This module contains the configuration and fixture for the pytest-based unit tests for pyaedt.
+This module contains the configuration and fixture for the pytest-based unit tests for PyAEDT.
 
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json

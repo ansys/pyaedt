@@ -202,7 +202,9 @@ testpaths = [
 ]
 filterwarnings = [
     "ignore::UserWarning:pyaedt.*",
-    "ignore::DeprecationWarning:pyaedt.*"
+    "ignore::DeprecationWarning:pyaedt.*",
+    "ignore::UserWarning:ansys.aedt.core.*",
+    "ignore::DeprecationWarning:ansys.aedt.core.*"
 ]
 
 [tool.numpydoc_validation]

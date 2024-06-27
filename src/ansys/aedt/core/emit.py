@@ -202,7 +202,7 @@ class Emit(Design, object):
 
         Returns
         -------
-        pyaedt.modeler.schematic.ModelerEmit
+        ansys.aedt.core.modeler.schematic.ModelerEmit
             Design oModeler
         """
         return self._modeler
@@ -213,7 +213,7 @@ class Emit(Design, object):
 
         Returns
         -------
-        pyaedt.emit_core.Couplings.CouplingsEmit
+        ansys.aedt.core.emit_core.Couplings.CouplingsEmit
             Couplings within the EMIT Design
         """
         return self._couplings

@@ -53,7 +53,7 @@ class ModelerCircuit(Modeler):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
 
     Examples
     --------
@@ -495,7 +495,7 @@ class ModelerNexxim(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
 
     """
 
@@ -525,7 +525,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
+        :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -538,7 +538,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
+        :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -548,7 +548,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.Edb`
+        :class:`ansys.aedt.core.Edb`
             edb_core object if it exists.
 
         """
@@ -577,7 +577,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
         if self._app.design_type == "Twin Builder":
@@ -593,7 +593,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
         return self._primitives
@@ -699,7 +699,7 @@ class ModelerTwinBuilder(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisTwinBuilder.AnalysisTwinBuilder`
+    app : :class:`ansys.aedt.core.application.AnalysisTwinBuilder.AnalysisTwinBuilder`
 
     """
 
@@ -724,7 +724,7 @@ class ModelerTwinBuilder(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesTwinBuilder.TwinBuilderComponents`
+        :class:`ansys.aedt.core.modeler.PrimitivesTwinBuilder.TwinBuilderComponents`
 
         """
         return self._components
@@ -735,7 +735,7 @@ class ModelerEmit(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisEmit`
+    app : :class:`ansys.aedt.core.application.AnalysisEmit`
 
     """
 
@@ -769,7 +769,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisMaxwellCircuit`
+    app : :class:`ansys.aedt.core.application.AnalysisMaxwellCircuit`
 
     """
 
@@ -785,7 +785,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesMaxwellCircuit.MaxwellCircuitComponents`
+        :class:`ansys.aedt.core.modeler.PrimitivesMaxwellCircuit.MaxwellCircuitComponents`
 
         """
         return self._components

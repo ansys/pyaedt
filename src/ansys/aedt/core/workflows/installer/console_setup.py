@@ -48,8 +48,8 @@ except ImportError:
     import ansys.aedt.core
 
 
-# pyaedt.settings.use_grpc_api = False
-settings = pyaedt.settings
+# ansys.aedt.core.settings.use_grpc_api = False
+settings = ansys.aedt.core.settings
 from ansys.aedt.core import Desktop
 from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -74,7 +74,7 @@ sessions = active_sessions(version=version, student_version=False)
 if aedt_process_id in sessions:
     session_found = True
     if sessions[aedt_process_id] != -1:
-        # pyaedt.settings.use_grpc_api = True
+        # ansys.aedt.core.settings.use_grpc_api = True
         port = sessions[aedt_process_id]
 if not session_found:
     sessions = active_sessions(version=version, student_version=True)
@@ -82,7 +82,7 @@ if not session_found:
         session_found = True
         student_version = True
         if sessions[aedt_process_id] != -1:
-            # pyaedt.settings.use_grpc_api = True
+            # ansys.aedt.core.settings.use_grpc_api = True
             port = sessions[aedt_process_id]
 
 error = False
@@ -115,8 +115,8 @@ if not error:
     print("*  ElectronicsDesktop {} Process ID {}".format(version, aedt_process_id))
     print("*  CPython {}".format(sys.version.split(" ")[0]))
     print("*---------------------------------------------------------------")
-    print("*  Example: \033[94m hfss = pyaedt.Hfss() \033[92m")
-    print("*  Example: \033[94m m2d = pyaedt.Maxwell2d() \033[92m")
+    print("*  Example: \033[94m hfss = ansys.aedt.core.Hfss() \033[92m")
+    print("*  Example: \033[94m m2d = ansys.aedt.core.Maxwell2d() \033[92m")
     print("*  \033[31mType exit() to close the console and release the desktop.  \033[92m ")
     print("*  desktop object is initialized and available. Example: ")
     print("*  \033[94mdesktop.logger.info('Hello world')\033[92m")

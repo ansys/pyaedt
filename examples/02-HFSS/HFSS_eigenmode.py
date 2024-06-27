@@ -34,8 +34,8 @@ import ansys.aedt.core
 
 # Create a temporary folder to download the example to.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
+project_path = ansys.aedt.core.downloads.download_file("eigenmode", "emi_PCB_house.aedt", temp_folder)
 
 ##########################################################
 # Set AEDT version
@@ -57,14 +57,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(project=project_path, non_graphical=non_graphical)
+hfss = ansys.aedt.core.Hfss(project=project_path, non_graphical=non_graphical)
 
 ###############################################################################
 # Input parameters for eigenmode solver

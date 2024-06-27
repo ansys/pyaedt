@@ -62,7 +62,7 @@ class Modeler2D(Primitives2D):
 
     Parameters
     ----------
-    application : :class:`pyaedt.application.Analysis2D.FieldAnalysis2D`
+    application : :class:`ansys.aedt.core.application.Analysis2D.FieldAnalysis2D`
 
     Examples
     --------
@@ -89,7 +89,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives2D.Primitives2D`
+        :class:`ansys.aedt.core.modeler.Primitives2D.Primitives2D`
 
         """
         mess = "`primitives` is deprecated.\n"
@@ -182,7 +182,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object3d`
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

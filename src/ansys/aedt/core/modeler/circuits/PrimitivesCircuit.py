@@ -98,7 +98,7 @@ class CircuitComponents(object):
 
                 Returns
                 -------
-                :class:`pyaedt.modeler.circuits.object3dcircuit.Wire`
+                :class:`ansys.aedt.core.modeler.circuits.object3dcircuit.Wire`
         `
         """
         for _, w in self.wires.items():
@@ -357,7 +357,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -391,7 +391,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -726,7 +726,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -792,7 +792,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1208,7 +1208,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.Line`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.Line`
             Line Object.
 
         >>> oEditor.CreateLine
@@ -1234,7 +1234,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.Wire`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.Wire`
             Wire Object.
 
         References
@@ -1297,7 +1297,7 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1331,7 +1331,7 @@ class ComponentCatalog(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesCircuit.ComponentInfo`
+        :class:`ansys.aedt.core.modeler.PrimitivesCircuit.ComponentInfo`
             Circuit Component Info.
 
         """

@@ -163,7 +163,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        assignment : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
+        assignment : :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -499,7 +499,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.ModelParameters`
+        :class:`ansys.aedt.core.modeler.Object3d.ModelParameters`
         """
         if self._model_data:
             return self._model_data
@@ -600,7 +600,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.Object3d.CircuitPins`
+        list of :class:`ansys.aedt.core.modeler.Object3d.CircuitPins`
 
         """
         if self._pins:

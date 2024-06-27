@@ -44,7 +44,7 @@ extension_description = "Create report"
 
 
 def main(extension_args):
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,

@@ -862,7 +862,7 @@ class PostProcessorCommon(object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
@@ -2287,7 +2287,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analsis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.Analsis3D.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
@@ -2314,7 +2314,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        pyaedt.modeler.Primitives
+        ansys.aedt.core.modeler.Primitives
             Primitives object.
 
         """
@@ -4887,7 +4887,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 

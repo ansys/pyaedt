@@ -116,7 +116,7 @@ def add_automation_tab(
             panel_element.remove(b)
 
     if not icon_file:
-        icon_file = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "pyansys.png")
+        icon_file = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "pyansys.png")
 
     file_name = os.path.basename(icon_file)
 
@@ -312,7 +312,7 @@ def add_script_to_menu(
         version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
-    templates_dir = os.path.dirname(pyaedt.workflows.templates.__file__)
+    templates_dir = os.path.dirname(ansys.aedt.core.workflows.templates.__file__)
 
     ipython_executable = executable_version_agnostic.replace("python" + __exe(), "ipython" + __exe())
     jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
@@ -506,7 +506,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     tool_dir = os.path.join(toolkit_dir, product_name, toolkit_info["name"])
 
     script_image = os.path.abspath(
-        os.path.join(os.path.dirname(pyaedt.workflows.__file__), product_name.lower(), toolkit_info["icon"])
+        os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), product_name.lower(), toolkit_info["icon"])
     )
 
     if install:

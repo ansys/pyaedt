@@ -32,6 +32,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import check_if_path_exists
 from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.general_methods import get_filename_without_extension
 
 
 class Component:
@@ -103,7 +104,7 @@ class Pin:
     ----------
     name : str
         Name of the pin.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the pin will be added to.
     """
 
@@ -293,7 +294,7 @@ class Pin:
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -310,7 +311,7 @@ class DifferentialPin:
     ----------
     name : str
         Name of the pin.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit to add the pin to.
     """
 
@@ -454,7 +455,7 @@ class DifferentialPin:
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -515,7 +516,7 @@ class Buffer:
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.Object3d.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -644,7 +645,7 @@ class Ibis:
     ----------
     name : str
         Name of ibis model.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
 
@@ -705,7 +706,7 @@ class AMI:
     ----------
     name : str
         Name of ibis model.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
 
@@ -767,7 +768,7 @@ class IbisReader(object):
     ----------
     filename : str
         Name of ibis model.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
 
@@ -788,7 +789,7 @@ class IbisReader(object):
         ----------
         filename : str
             Name of ibis model.
-        circuit : class:`pyaedt.circuit.Circuit`
+        circuit : class:`ansys.aedt.core.circuit.Circuit`
             Circuit in which the ibis components will be used.
 
         Returns
@@ -812,7 +813,7 @@ class IbisReader(object):
         if not check_if_path_exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
-        ibis_name = from ansys.aedt.core.generic.general_methods.get_filename_without_extension(self._filename)
+        ibis_name = get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
 
         check_and_download_file(self._filename)
@@ -1188,7 +1189,7 @@ class AMIReader(IbisReader):
     ----------
     filename : str
         Name of ibis model.
-    circuit : class:`pyaedt.circuit.Circuit`
+    circuit : class:`ansys.aedt.core.circuit.Circuit`
         Circuit in which the ibis components will be used.
     """
 
@@ -1209,7 +1210,7 @@ class AMIReader(IbisReader):
         ----------
         filename : str
             Name of ibis model.
-        circuit : class:`pyaedt.circuit.Circuit`
+        circuit : class:`ansys.aedt.core.circuit.Circuit`
             Circuit in which the ibis components will be used.
 
         Returns
@@ -1232,7 +1233,7 @@ class AMIReader(IbisReader):
         if not check_if_path_exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
-        ami_name = from ansys.aedt.core.generic.general_methods.get_filename_without_extension(self._filename)
+        ami_name = get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
         check_and_download_file(self._filename)
 

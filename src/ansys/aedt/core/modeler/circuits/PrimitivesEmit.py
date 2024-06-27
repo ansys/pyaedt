@@ -773,7 +773,7 @@ class EmitRadioComponent(EmitComponent):
 
         Parameters
         ----------
-        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+        band_node : ansys.aedt.core.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
             Instance of the band node
         band_start_freq : float
             Start frequency of the band.
@@ -819,7 +819,7 @@ class EmitRadioComponent(EmitComponent):
 
         Parameters
         ----------
-        band_node : pyaedt.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
+        band_node : ansys.aedt.core.modeler.circuits.PrimitivesEmit.EmitComponentPropNode object
             Instance of the band node
         band_stop_freq : float
             Stop frequency of the band.

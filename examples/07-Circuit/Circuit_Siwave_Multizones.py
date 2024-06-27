@@ -18,8 +18,8 @@ import ansys.aedt.core
 # ~~~~~~~~~~~~~
 # Download the AEDB file and copy it in the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-edb_file = pyaedt.downloads.download_file(destination=temp_folder, directory="edb/siwave_multi_zones.aedb")
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
+edb_file = ansys.aedt.core.downloads.download_file(destination=temp_folder, directory="edb/siwave_multi_zones.aedb")
 working_directory = os.path.join(temp_folder, "workdir")
 aedt_file = os.path.splitext(edb_file)[0] + ".aedt"
 circuit_project_file = os.path.join(working_directory, os.path.splitext(os.path.basename(edb_file))[0] +

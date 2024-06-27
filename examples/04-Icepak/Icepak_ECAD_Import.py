@@ -41,9 +41,9 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
 
-ipk = pyaedt.Icepak(project=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
+ipk = ansys.aedt.core.Icepak(project=os.path.join(temp_folder, "Icepak_ECAD_Import.aedt"),
                     version=aedt_version,
                     new_desktop=True,
                     non_graphical=non_graphical
@@ -73,9 +73,9 @@ ipk.autosave_disable()                                                    # Save
 # The imported PCB here will be deleted later and replaced by a PCB that has the trace information for higher accuracy.
 
 
-def_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.aedb','edb.def',temp_folder)
-board_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',temp_folder)
-library_path = pyaedt.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.ldf',temp_folder)
+def_path = ansys.aedt.core.downloads.download_file('icepak/Icepak_ECAD_Import/A1_uprev.aedb','edb.def',temp_folder)
+board_path = ansys.aedt.core.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.bdf',temp_folder)
+library_path = ansys.aedt.core.downloads.download_file('icepak/Icepak_ECAD_Import/','A1.ldf',temp_folder)
 
 ipk.import_idf(board_path, library_path=None, control_path=None,
                filter_cap=False, filter_ind=False, filter_res=False,

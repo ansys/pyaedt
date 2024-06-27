@@ -137,11 +137,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = pyaedt.Edb(edb_path, edbversion=231)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=231)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = pyaedt.Hfss3dLayout(version=231, project=edb_path)
+    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=231, project=edb_path)
 
     """
 
@@ -231,7 +231,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or :class:`pyaedt.modeler.pcb.object3dlayout.Line3dLayout`
+        assignment : str or :class:`ansys.aedt.core.modeler.pcb.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edge_number :
             Edge number to create the edge port on.

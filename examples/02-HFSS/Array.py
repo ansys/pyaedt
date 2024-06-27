@@ -33,14 +33,14 @@ non_graphical = False
 # Download 3D component
 # ~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component that is needed to run the example.
-example_path = pyaedt.downloads.download_3dcomponent()
+example_path = ansys.aedt.core.downloads.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
-project_name = pyaedt.generate_unique_project_name(project_name="array")
-hfss = pyaedt.Hfss(project=project_name,
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="array")
+hfss = ansys.aedt.core.Hfss(project=project_name,
                    version=aedt_version,
                    design="Array_Simple",
                    non_graphical=non_graphical,
@@ -59,7 +59,7 @@ print("Project name " + project_name)
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = ansys.aedt.core.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 array = hfss.add_3d_component_array_from_json(dict_in)

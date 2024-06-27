@@ -212,7 +212,7 @@ def download_aedb(destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_aedb()
+    >>> path = ansys.aedt.core.downloads.download_aedb()
 
     """
     local_paths = []
@@ -243,7 +243,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_edb_merge_utility(force_download=True)
+    >>> path = ansys.aedt.core.downloads.download_edb_merge_utility(force_download=True)
     >>> path
     'C:/Users/user/AppData/local/temp/wpf_edb_merge/merge_wizard.py'
     """
@@ -282,7 +282,7 @@ def download_netlist(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_netlist()
+    >>> path = ansys.aedt.core.downloads.download_netlist()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/netlist_small.cir'
     """
@@ -313,7 +313,7 @@ def download_antenna_array(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_antenna_array()
+    >>> path = ansys.aedt.core.downloads.download_antenna_array()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
@@ -344,7 +344,7 @@ def download_sbr(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_antenna_array()
+    >>> path = ansys.aedt.core.downloads.download_antenna_array()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/FiniteArray_Radome_77GHz_3D_CADDM.aedt'
     """
@@ -375,7 +375,7 @@ def download_sbr_time(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_sbr_time()
+    >>> path = ansys.aedt.core.downloads.download_sbr_time()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/sbr/poc_scat_small.aedt'
     """
@@ -404,7 +404,7 @@ def download_icepak(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_icepak()
+    >>> path = ansys.aedt.core.downloads.download_icepak()
     >>> pathavoid
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
@@ -435,7 +435,7 @@ def download_icepak_3d_component(destination=None):  # pragma: no cover
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path1, path2 = pyaedt.downloads.download_icepak_3d_component()
+    >>> path1, path2 = ansys.aedt.core.downloads.download_icepak_3d_component()
     >>> path1
     'C:/Users/user/AppData/local/temp/pyaedtexamples/PCBAssembly.aedt',
     """
@@ -467,7 +467,7 @@ def download_via_wizard(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_via_wizard()
+    >>> path = ansys.aedt.core.downloads.download_via_wizard()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
@@ -495,7 +495,7 @@ def download_touchstone(destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_touchstone()
+    >>> path = ansys.aedt.core.downloads.download_touchstone()
     >>> path
     'C:/Users/user/AppData/local/temp/pyaedtexamples/ssn_ssn.s6p'
     """
@@ -525,7 +525,7 @@ def download_sherlock(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_sherlock()
+    >>> path = ansys.aedt.core.downloads.download_sherlock()
     """
     if not destination:
         destination = EXAMPLES_PATH
@@ -560,7 +560,7 @@ def download_leaf(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_leaf(r"c:\temp")
+    >>> path = ansys.aedt.core.downloads.download_leaf(r"c:\temp")
     >>> path
     ('C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab', 'C:/temp/BH_Arnold_Magnetics_N30UH_80C.tab')
     """
@@ -595,7 +595,7 @@ def download_custom_reports(force_download=False, destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_custom_reports(force_download=True)
+    >>> path = ansys.aedt.core.downloads.download_custom_reports(force_download=True)
     >>> path
     'C:/Users/user/AppData/local/temp/custom_reports'
     """
@@ -632,7 +632,7 @@ def download_3dcomponent(force_download=False, destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_3dcomponent(force_download=True)
+    >>> path = ansys.aedt.core.downloads.download_3dcomponent(force_download=True)
     >>> path
     'C:/Users/user/AppData/local/temp/array_3d_component'
     """
@@ -668,7 +668,7 @@ def download_FSS_3dcomponent(force_download=False, destination=None):
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_FSS_3dcomponent(force_download=True)
+    >>> path = ansys.aedt.core.downloads.download_FSS_3dcomponent(force_download=True)
     >>> path
     'C:/Users/user/AppData/local/temp/array_3d_component'
     """
@@ -703,7 +703,7 @@ def download_multiparts(destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_multiparts()
+    >>> path = ansys.aedt.core.downloads.download_multiparts()
     >>> path
     'C:/Users/user/AppData/local/temp/multiparts/library'
     """
@@ -742,7 +742,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     --------
     Download an example result file and return the path of the file.
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_twin_builder_data(file_name="Example1.zip",force_download=True)
+    >>> path = ansys.aedt.core.downloads.download_twin_builder_data(file_name="Example1.zip",force_download=True)
     >>> path
     'C:/Users/user/AppData/local/temp/twin_builder'
     """
@@ -788,7 +788,7 @@ def download_file(source, name=None, destination=None):
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core
-    >>> path = pyaedt.downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+    >>> path = ansys.aedt.core.downloads.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
     >>> path
     'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
     """

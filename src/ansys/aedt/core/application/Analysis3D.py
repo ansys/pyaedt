@@ -145,7 +145,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
+        :class:`ansys.aedt.core.modeler.modeler3d.Modeler3D` or :class:`ansys.aedt.core.modeler.modeler2d.Modeler2D`
             Modeler object.
         """
         if self._modeler is None:
@@ -1047,7 +1047,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
             Stackup class.
         """
         from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D

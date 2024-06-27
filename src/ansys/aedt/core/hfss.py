@@ -1179,7 +1179,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : pyaedt.Hfss
+        assignment : ansys.aedt.core.Hfss
             Source object.
         target_cs : str, optional
             Target coordinate system. The default is ``"Global"``.
@@ -1695,9 +1695,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             First solid connected to the spiral port.
-        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Second object connected to the spiral port.
         width : float, optional
             Width of the spiral port.
@@ -1876,11 +1876,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             First object connected to the voltage source.
-        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Second object connected to the voltage source.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1932,11 +1932,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             First object connected to the current source.
-        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Second object connected to the current source.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2188,7 +2188,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Object to assign a lattice to.
         coordinate_system : str, optional
             Coordinate system to look for the lattice on.
@@ -2417,11 +2417,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Starting object for the integration line.
-        reference :  str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
            Ending object for the integration line.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for
             ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
@@ -2488,11 +2488,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Starting object for the integration line.
-        reference : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2655,7 +2655,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference :
             Ending object for the integration line.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location.. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2757,11 +2757,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        start_assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Starting object for the integration line.
-        end_assignment : str or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2940,7 +2940,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -2992,7 +2992,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -3148,7 +3148,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -4216,7 +4216,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -4256,7 +4256,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -4302,7 +4302,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -4796,7 +4796,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modeler.actors.Radar`
+        :class:`ansys.aedt.core.modeler.actors.Radar`
             Radar  class object.
 
         References
@@ -5349,7 +5349,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        class:`pyaedt.modeler.cad.component_array.ComponentArray`
+        class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
 
         Examples
         --------
@@ -5620,7 +5620,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Parameters
         ----------
         assignment : list
-            List of IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+            List of IDs or :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
         name : str, optional
             Name of the boundary.
             If a name is not provided, one is automatically generated.
@@ -5800,7 +5800,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.sbrplus.plot.HDMPlotter`
+        :class:`ansys.aedt.core.sbrplus.plot.HDMPlotter`
 
         """
         from ansys.aedt.core.sbrplus.plot import HDMPlotter
@@ -5830,13 +5830,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
+        assignment : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+         :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Signal object.
-        reference : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.cad.FacePrimitive`or :class:`pyaedt.modeler.cad.EdgePrimitive`
+        reference : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+         :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Reference object.
-        port_location : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        port_location : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Position of the port when an object different from an edge is provided.
             It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -5921,14 +5921,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str, int, list, :class:`pyaedt.modeler.cad.object3d.Object3d` or
-            :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        assignment : str, int, list, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+            :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : int, list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port sheet.
-        integration_line : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -6040,17 +6040,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : int, str, :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        assignment : int, str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+         :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, str, list or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        reference : int, str, list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use the start object as the surface
             to create the port. The default is ``False``.
         create_pec_cap : bool, False
             Whether to create a port cap. The default is ``False``.
-        integration_line : list or int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : list or int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
             The default is ``Application.AxisDir.XNeg``.
@@ -6251,7 +6251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Hfss()
+        >>> app = ansys.aedt.core.Hfss()
         >>> app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],
         >>>                              volume_padding=[[0,0,0,0,0,0], [0,0,5,0,0,0]],priority=["Comp1"])
         """

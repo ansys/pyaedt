@@ -40,7 +40,7 @@ non_graphical = False
 
 NewThread = True
 
-project_file = pyaedt.generate_unique_project_name()
+project_file = ansys.aedt.core.generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and initialize HFSS
@@ -48,7 +48,7 @@ project_file = pyaedt.generate_unique_project_name()
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = pyaedt.Hfss(project=project_file,
+aedtapp = ansys.aedt.core.Hfss(project=project_file,
                       version=aedt_version,
                       non_graphical=non_graphical,
                       new_desktop=NewThread
@@ -69,7 +69,7 @@ aedtapp["inner"] = "3mm"
 # Create coaxial and cylinders
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a coaxial and three cylinders. You can apply parameters
-# directly using the :func:`pyaedt.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the :func:`ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the :func:`assign_material` method.
 
@@ -165,7 +165,7 @@ sweepname = aedtapp.create_linear_count_sweep(setup="MySetup", units="GHz", star
 # project and run a coupled physics analysis. The :func:`FieldAnalysis3D.copy_solid_bodies_from`
 # method imports a model from HFSS with all material settings.
 
-ipkapp = pyaedt.Icepak()
+ipkapp = ansys.aedt.core.Icepak()
 ipkapp.copy_solid_bodies_from(aedtapp)
 
 ################################################################################
@@ -216,8 +216,8 @@ ipkapp.assign_openings(airfaces)
 
 aedtapp.save_project()
 aedtapp.close_project(aedtapp.project_name)
-aedtapp = pyaedt.Hfss(project_file)
-ipkapp = pyaedt.Icepak()
+aedtapp = ansys.aedt.core.Hfss(project_file)
+ipkapp = ansys.aedt.core.Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
@@ -236,7 +236,7 @@ aedtapp.analyze_setup("MySetup")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate field plots on the HFSS project and export them as images.
 
-cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.constants.GLOBALCS.YZ]
+cutlist = [ansys.aedt.core.constants.GLOBALCS.XY, ansys.aedt.core.constants.GLOBALCS.ZX, ansys.aedt.core.constants.GLOBALCS.YZ]
 vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"

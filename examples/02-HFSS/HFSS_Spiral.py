@@ -12,7 +12,7 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 import os
 import ansys.aedt.core
 
-project_name = pyaedt.generate_unique_project_name(project_name="spiral")
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="spiral")
 
 ##########################################################
 # Set AEDT version
@@ -35,7 +35,7 @@ non_graphical = False
 # Launch HFSS 2023 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(version=aedt_version, non_graphical=non_graphical, design="A1",
+hfss = ansys.aedt.core.Hfss(version=aedt_version, non_graphical=non_graphical, design="A1",
                    new_desktop=True)
 hfss.solution_type = "Modal"
 hfss.modeler.model_units = "um"
@@ -100,12 +100,12 @@ p.create_box([x0 - width / 2, y0 - width / 2, -gap - thickness / 2], [width, wid
 # ~~~~~~~~~~~~~
 # Create port 1.
 
-p.create_rectangle(orientation=pyaedt.constants.PLANE.YZ,
+p.create_rectangle(orientation=ansys.aedt.core.constants.PLANE.YZ,
                    origin=[abs(x1) + 5, y0 - width / 2, -gap - thickness / 2],
                    sizes=[width, "-Tsub+{}{}".format(gap, hfss.modeler.model_units)],
                    name="port1"
                    )
-hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port1", integration_line=ansys.aedt.core.constants.AXIS.Z)
 
 ################################################################
 # Create port 2
@@ -113,10 +113,10 @@ hfss.lumped_port(assignment="port1", integration_line=pyaedt.constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(pyaedt.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2],
+p.create_rectangle(ansys.aedt.core.constants.PLANE.YZ, [x1 - 5, y1 - width / 2, -thickness / 2],
                    [width, "-Tsub"],
                    name="port2")
-hfss.lumped_port(assignment="port2", integration_line=pyaedt.constants.AXIS.Z)
+hfss.lumped_port(assignment="port2", integration_line=ansys.aedt.core.constants.AXIS.Z)
 
 ################################################################
 # Create silicon substrate and ground plane

@@ -1263,7 +1263,7 @@ class Icepak(FieldAnalysis3D):
            the heatsink. The default is ``[0, 0, 0]``.
         plane_enum : str, int, optional
             Plane for orienting the heat sink.
-            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
             The default is ``0``.
         rotation : int, float, optional
             The default is ``0``.
@@ -1375,7 +1375,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Heatsink created or ``False`` when failed.
         dict
             Variable mapping. Keys are the different parameters names, and values
@@ -3101,7 +3101,7 @@ class Icepak(FieldAnalysis3D):
         else:
             fl_ucommand = ["bash"] + fl_ucommand + ['"' + fl_uscript_file_pointer + '"']
         self.logger.info(" ".join(fl_ucommand))
-        from ansys.aedt.core.desktop.run_process(fl_ucommand)
+        ansys.aedt.core.desktop.run_process(fl_ucommand)
         if os.path.exists(mesh_file_pointer):
             self.logger.info("'" + mesh_file_pointer + "' has been created.")
             return self.mesh.assign_mesh_from_file(object_lists, mesh_file_pointer)
@@ -4704,7 +4704,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> icepak = pyaedt.Icepak()
+        >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_free_opening(f_id)
 
@@ -4843,7 +4843,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> icepak = pyaedt.Icepak()
+        >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_pressure_free_opening(f_id)
         """
@@ -4916,7 +4916,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> icepak = pyaedt.Icepak()
+        >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_velocity_free_opening(f_id)
         """
@@ -4997,7 +4997,7 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> icepak = pyaedt.Icepak()
+        >>> icepak = ansys.aedt.core.Icepak()
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_mass_flow_free_opening(f_id)
         """

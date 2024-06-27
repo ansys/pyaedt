@@ -47,7 +47,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3DLayout.FieldAnalysis3DLayout`
+    app : :class:`ansys.aedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout`
             Inherited parent object.
 
     Examples
@@ -120,7 +120,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.edb.Edb`
+        :class:`ansys.aedt.core.edb.Edb`
              EDB.
 
         """
@@ -193,7 +193,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
 
         """
         mess = "`primitives` is deprecated.\n"
@@ -335,7 +335,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Parameters
         ----------
-        merged_design : :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+        merged_design : :class:`ansys.aedt.core.hfss3dlayout.Hfss3dLayout`
             Design to merge.
         x : float, str
             X Offset.
@@ -348,7 +348,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.ComponentsSubCircuit3DLayout`
+        :class:`ansys.aedt.core.modeler.Object3d.ComponentsSubCircuit3DLayout`
             Object if successful.
         """
         des_name = merged_design.design_name

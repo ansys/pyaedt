@@ -32,7 +32,7 @@ aedt_version = "2024.1"
 setup_name = "MySetupAuto"
 solver = "TransientXY"
 
-project_name = pyaedt.generate_unique_project_name()
+project_name = ansys.aedt.core.generate_unique_project_name()
 design_name = "Sinusoidal"
 
 #################################################################################
@@ -123,7 +123,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(project=project_name,
+M2D = ansys.aedt.core.Maxwell2d(project=project_name,
                        version=aedt_version,
                        design=design_name,
                        solution_type=solver,
@@ -160,7 +160,7 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = pyaedt.downloads.download_leaf()
+filename_lam, filename_PM = ansys.aedt.core.downloads.download_leaf()
 
 ##########################################################
 # Create first material

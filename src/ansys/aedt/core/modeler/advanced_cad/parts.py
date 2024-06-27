@@ -349,7 +349,7 @@ class Part(object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
 
         Returns
         -------
@@ -391,7 +391,7 @@ class Part(object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
             HFSS application instance.
         aedt_object : str
             Name of the HFSS design.
@@ -425,7 +425,7 @@ class Part(object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
 
         Returns
         -------
@@ -524,7 +524,7 @@ class Antenna(Part, object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
         units :
             The default is ``None``.
 

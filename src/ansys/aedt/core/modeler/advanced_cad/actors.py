@@ -53,7 +53,7 @@ def read_actors(fn, actor_lib):
 class Generic(Actor, object):
     """Provides an instance of an actor.
 
-    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
+    This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction of the person
@@ -80,7 +80,7 @@ class Generic(Actor, object):
 class Person(Actor, object):
     """Provides an instance of a person.
 
-    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
+    This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction of the person coordinate system.
@@ -151,7 +151,7 @@ class Person(Actor, object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
             HFSS application instance.
         motion : bool, optional
             Whether the person is in motion. The default is ``True``.
@@ -173,7 +173,7 @@ class Person(Actor, object):
 class Bird(Actor, object):
     """Provides an instance of a bird.
 
-    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
+    This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
     .. note::
        Motion is always forward in the X-axis direction.
@@ -216,7 +216,7 @@ class Bird(Actor, object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
         motion : bool
             Whether the bird is in motion. The default is ``True``.
         Returns
@@ -235,7 +235,7 @@ class Bird(Actor, object):
 class Vehicle(Actor, object):
     """Provides an instance of a vehicle.
 
-    This class is derived from :class:`pyaedt.modeler.multiparts.MultiPartComponent`.
+    This class is derived from :class:`ansys.aedt.core.modeler.multiparts.MultiPartComponent`.
 
     .. note::
         Motion is always forward in the X-axis direction.
@@ -281,7 +281,7 @@ class Vehicle(Actor, object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
         motion : bool, optional
             Whether the vehicle is in motion. The default is ``True``.
 
@@ -404,7 +404,7 @@ class Radar(MultiPartComponent, object):
 
         Parameters
         ----------
-        app : pyaedt.Hfss
+        app : ansys.aedt.core.Hfss
         motion : bool, optional
             Whether the actor is in motion. The default is ``False``.
 

@@ -14,8 +14,8 @@ from IPython.display import Image
 import ansys.aedt.core
 
 # Set local path to path for PyAEDT
-temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.downloads.download_custom_reports(destination=temp_folder)
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
+project_path = ansys.aedt.core.downloads.download_custom_reports(destination=temp_folder)
 
 ##########################################################
 # Set AEDT version
@@ -38,10 +38,10 @@ NewThread = True
 ###############################################################################
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The :class:`ansys.aedt.core.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = pyaedt.Circuit(project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
+cir = ansys.aedt.core.Circuit(project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
                      version=aedt_version,
                      new_desktop=True
@@ -78,7 +78,7 @@ Image(out)
 # mode in AEDT 2023 R2 and later.
 
 
-props = pyaedt.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
+props = ansys.aedt.core.general_methods.read_json(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
 report2 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report2.plot_name)

@@ -39,7 +39,7 @@ new_session = True
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
 
-component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
+component3d = ansys.aedt.core.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
 
 ###############################################################################
 # Hfss Example
@@ -52,7 +52,7 @@ component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcom
 # ~~~~~~~~~~~
 # Launch HFSS application
 
-hfss = pyaedt.Hfss(new_desktop=True, version=aedt_version, non_graphical=non_graphical)
+hfss = ansys.aedt.core.Hfss(new_desktop=True, version=aedt_version, non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 
@@ -169,7 +169,7 @@ solutions.plot(traces, formula="db20")
 # ~~~~~~~~~~~~~~~~~~~
 # Launch HFSS3dLayout application
 
-h3d = pyaedt.Hfss3dLayout()
+h3d = ansys.aedt.core.Hfss3dLayout()
 
 ###############################################################################
 # Add stackup layers

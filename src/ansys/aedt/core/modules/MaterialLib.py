@@ -55,7 +55,7 @@ class Materials(object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
         Inherited parent object.
 
     Examples

@@ -32,7 +32,7 @@ non_graphical = True
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(version=aedt_version, new_desktop=True, non_graphical=non_graphical)
+h3d = ansys.aedt.core.Hfss3dLayout(version=aedt_version, new_desktop=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Set up variables
@@ -121,7 +121,7 @@ solutions.plot(formula="db20")
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 h3d.release_desktop()

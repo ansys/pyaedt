@@ -258,7 +258,7 @@ def button_is_clicked(
     if toolkit_level in toolkits and selected_toolkit_name in toolkits[toolkit_level]:
         selected_toolkit_info = toolkits[toolkit_level][selected_toolkit_name]
         if not selected_toolkit_info.get("pip"):
-            product_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), toolkit_level.lower())
+            product_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), toolkit_level.lower())
             file = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("script")))
             name = selected_toolkit_info.get("name")
             icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
@@ -292,7 +292,7 @@ def button_is_clicked(
             else:
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if not file:
-                file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "extension_template.py")
+                file = os.path.join(os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py")
             if os.path.isfile(executable_interpreter):
                 template_file = "run_pyaedt_toolkit_script"
                 if selected_toolkit_info:
@@ -323,7 +323,7 @@ root = tk.Tk()
 root.title("Extension Manager")
 
 # Load the logo for the main window
-icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
+icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
 im = PIL.Image.open(icon_path)
 photo = PIL.ImageTk.PhotoImage(im)
 

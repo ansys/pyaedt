@@ -51,7 +51,7 @@ class Primitives3DLayout(object):
 
     Parameters
     ----------
-    modeler : :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
+    modeler : :class:`ansys.aedt.core.modeler.modelerpcb.Modeler3DLayout`
         Name of the modeler.
 
     Examples
@@ -134,7 +134,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Components3DLayout`]
             Components objects.
 
         """
@@ -419,7 +419,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Polygons3DLayout`]
             Pyaedt Objects.
         """
         if self._polygons:
@@ -434,7 +434,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
 
@@ -451,7 +451,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Circle3dLayout`]
             Pyaedt Objects.
         """
         if self._circles:
@@ -466,7 +466,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Rect3dLayout`]
             Pyaedt Objects.
         """
         if self._rectangles:
@@ -481,7 +481,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Polygons3DLayout`]
             Pyaedt Objects.
         """
         if self._polygons_voids:
@@ -496,7 +496,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
 
@@ -512,7 +512,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Circle3dLayout`]
             Pyaedt Objects.
         """
         if self._circles:
@@ -527,7 +527,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Rect3dLayout`]
             Pyaedt Objects.
         """
         if self._rectangles:
@@ -542,7 +542,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Components3DLayout`]
             Pyaedt Objects.
         """
         if not self._components3d:
@@ -583,7 +583,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Pins3DLayout`]
             Pins Dictionary.
 
         """
@@ -598,7 +598,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Pins3DLayout`]
             Vias Dictionary.
         """
         if self._vias or len(self._get_names(["via"])) == len(self._vias):
@@ -613,7 +613,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Nets3DLayout`]
             Nets Dictionary.
 
         """
@@ -632,7 +632,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Nets3DLayout`]
             Power Nets Dictionary.
 
         """
@@ -650,7 +650,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Nets3DLayout`]
             Signal Nets Dictionary.
 
         """
@@ -668,7 +668,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modeler.cad.object3dlayout.Nets3DLayout`]
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object3dlayout.Nets3DLayout`]
             No Nets Dictionary.
 
         """
@@ -736,7 +736,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Padstack`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Padstack`
             Padstack object if a padstack with this name does not already exist.
 
         """
@@ -930,7 +930,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Pins3DLayout` or bool
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Pins3DLayout` or bool
             Object via created when successful, ``False`` when failed.
 
         References
@@ -1009,7 +1009,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Circle3dLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Circle3dLayout`
             Objects of the circle created when successful.
 
         References
@@ -1066,7 +1066,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Rect3dLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Rect3dLayout`
             Name of the rectangle created when successful.
 
         References
@@ -1124,7 +1124,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Polygons3DLayout`
             Object of the rectangle created when successful.
 
         References
@@ -1179,7 +1179,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Polygons3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Polygons3DLayout`
             Object of the rectangle created when successful.
 
         References
@@ -1251,7 +1251,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Line3dLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Line3dLayout`
             Object of the line created when successful.
 
         References
@@ -1364,7 +1364,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-            :class:`pyaedt.modeler.pcb.object3dlayout.ComponentsSubCircuit3DLayout`
+            :class:`ansys.aedt.core.modeler.pcb.object3dlayout.ComponentsSubCircuit3DLayout`
         """
         if not component_name:
             component_name = os.path.basename(component_path).split(".")[0]
@@ -1489,7 +1489,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3dlayout.Components3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.object3dlayout.Components3DLayout`
 
         """
         if not definition_name:

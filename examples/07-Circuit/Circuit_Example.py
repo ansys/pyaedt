@@ -34,11 +34,11 @@ new_thread = True
 ###############################################################################
 # Launch AEDT and Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
+# Launch AEDT and Circuit. The :class:`ansys.aedt.core.Desktop` class initializes AEDT and
 # starts the specified version in the specified mode.
 
-desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
-aedt_app = pyaedt.Circuit(project=pyaedt.generate_unique_project_name())
+desktop = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, new_thread)
+aedt_app = ansys.aedt.core.Circuit(project=ansys.aedt.core.generate_unique_project_name())
 aedt_app.modeler.schematic.schematic_units = "mil"
 ###############################################################################
 # Create circuit setup
@@ -120,7 +120,7 @@ fig = solutions.plot()
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# :func:`ansys.aedt.core.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 desktop.release_desktop()

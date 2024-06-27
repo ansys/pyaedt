@@ -33,7 +33,7 @@ from ansys.aedt.core.generic.general_methods import read_toml
 
 class FieldsCalculator:
     def __init__(self, app):
-        self.expression_catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "expression_catalog.toml"))
+        self.expression_catalog = read_toml(os.path.join(ansys.aedt.core.__path__[0], "misc", "expression_catalog.toml"))
         self.__app = app
         self.design_type = app.design_type
         self.ofieldsreporter = app.ofieldsreporter
@@ -56,8 +56,8 @@ class FieldsCalculator:
         ----------
         calculation :
             Calculation type.
-        assignment : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
-         :class:`pyaedt.modeler.cad.FacePrimitive
+        assignment : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+         :class:`ansys.aedt.core.modeler.cad.FacePrimitive
             Name of the object to add the named expression from.
         name : str, optional
             Name of the named expression. The default is ``None``.

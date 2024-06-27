@@ -289,7 +289,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.application.Analysis.Analysis.AvailableVariations`
+        :class:`ansys.aedt.core.application.Analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """
@@ -1426,7 +1426,7 @@ class Analysis(Design, object):
         Create a setup and then delete it.
 
         >>> import ansys.aedt.core
-        >>> hfss = pyaedt.Hfss()
+        >>> hfss = ansys.aedt.core.Hfss()
         >>> setup1 = hfss.create_setup(name='Setup1')
         >>> hfss.delete_setup()
         ...

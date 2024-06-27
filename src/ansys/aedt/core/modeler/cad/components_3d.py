@@ -89,7 +89,7 @@ class UserDefinedComponent(object):
 
     Parameters
     ----------
-    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
     name : str, optional
         Name of the component. The default value is ``None``.
@@ -106,7 +106,7 @@ class UserDefinedComponent(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.user_defined_components
 
-    Obtain user defined component names, to return a :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponent`.
+    Obtain user defined component names, to return a :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent`.
 
     >>> component_names = aedtapp.modeler.user_defined_components
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
@@ -223,7 +223,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
             ``False`` when failed.
 
         """
@@ -395,7 +395,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         dict
-            :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponentParameters`.
+            :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponentParameters`.
 
         References
         ----------
@@ -430,7 +430,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         dict
-           :class:`pyaedt.modeler.Object3d`
+           :class:`ansys.aedt.core.modeler.Object3d`
 
         """
         if self.is3dcomponent:
@@ -549,7 +549,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
+        ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -583,7 +583,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
+        ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -612,7 +612,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
+        ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -891,7 +891,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`
+        :class:`ansys.aedt.core.hfss.Hfss` or :class:`ansys.aedt.core.Icepak.Icepak`
             Pyaedt object.
         """
         # TODO: Edit documentation to include all supported returned classes.
@@ -931,7 +931,7 @@ class LayoutComponent(object):
 
     Parameters
     ----------
-    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
     name : str, optional
         Name of the component. The default value is ``None``.
@@ -973,7 +973,7 @@ class LayoutComponent(object):
 
         Returns
         -------
-        :class:`pyaedt.edb.Edb`
+        :class:`ansys.aedt.core.edb.Edb`
            EDB object.
 
         """

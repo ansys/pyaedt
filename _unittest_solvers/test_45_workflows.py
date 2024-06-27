@@ -24,7 +24,7 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
     def test_01_template(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
 
         from ansys.aedt.core.workflows.templates.extension_template import main
         assert main({"is_test": True})
@@ -50,7 +50,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
@@ -65,7 +65,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
@@ -80,7 +80,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
@@ -95,7 +95,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_04_project_report(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=report,
                           subfolder=test_subfolder)
 
@@ -107,7 +107,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_05_project_import_nastran(self, add_app, local_scratch):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_nastran")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_nastran")
 
         from ansys.aedt.core.workflows.project.import_nastran import main
 
@@ -130,7 +130,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_06_project_import_stl(self, add_app, local_scratch):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_stl")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
 
         from ansys.aedt.core.workflows.project.import_nastran import main
 
@@ -144,7 +144,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
-        aedtapp = add_app(application=pyaedt.TwinBuilder,
+        aedtapp = add_app(application=ansys.aedt.core.TwinBuilder,
                           project_name=twinbuilder_circuit,
                           subfolder=test_subfolder)
 
@@ -164,7 +164,7 @@ class TestClass:
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
@@ -204,7 +204,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_09_advanced_fields_calculator_general(self, add_app):
-        aedtapp = add_app(application=pyaedt.Q3d,
+        aedtapp = add_app(application=ansys.aedt.core.Q3d,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
@@ -229,7 +229,7 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-        aedtapp = add_app(application=pyaedt.Maxwell2d,
+        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d,
                           project_name=m2d_electrostatic,
                           design_name="e_tangential",
                           subfolder=test_subfolder)
@@ -244,7 +244,7 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-        aedtapp = add_app(application=pyaedt.Maxwell2d,
+        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d,
                           project_name=m2d_electrostatic,
                           design_name="stress_tensor",
                           subfolder=test_subfolder)
@@ -265,7 +265,7 @@ class TestClass:
                                                 "test_post_3d_layout_solved_23R2.aedtz"),
                                    os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
 
-        h3d = pyaedt.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
+        h3d = ansys.aedt.core.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
 
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
@@ -283,7 +283,7 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
 
 
-        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "choice": "ConvexHull",
                      "signals": ["DDR4_A0"],
@@ -295,7 +295,7 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
 
 
-        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
         app.close_project()

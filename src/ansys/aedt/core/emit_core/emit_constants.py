@@ -25,7 +25,7 @@
 """
 Enums from the ``EmitApiPython`` module are defined as ``None`` until this module initializes.
 This allows IDE auto-complete to find them and ``emit_constants`` to import before the
-``EmitApiPython`` module has loaded (typically when a ``pyaedt.Emit()`` object is created).
+``EmitApiPython`` module has loaded (typically when a ``ansys.aedt.core.Emit()`` object is created).
 
 Because the members must be reassigned at runtime, the Enum class cannot be used.
 """
@@ -39,7 +39,7 @@ class MutableEnum:
         ]
         if members[0] is None:
             raise Exception(
-                "Enum is uninitialized. Create a pyaedt.Emit() object before using {}.".format(cls.__name__)
+                "Enum is uninitialized. Create a ansys.aedt.core.Emit() object before using {}.".format(cls.__name__)
             )
         return members
 

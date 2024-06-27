@@ -247,7 +247,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
+        :class:`ansys.aedt.core.modeler.modelerpcb.Modeler3DLayout`
         """
         if self._modeler is None:
             self.logger.reset_timer()
@@ -393,7 +393,7 @@ class FieldAnalysis3DLayout(Analysis):
         Create a setup and then delete it.
 
         >>> import ansys.aedt.core
-        >>> hfss3dlayout = pyaedt.Hfss3dLayout()
+        >>> hfss3dlayout = ansys.aedt.core.Hfss3dLayout()
         >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
         >>> hfss3dlayout.delete_setup()
         ...

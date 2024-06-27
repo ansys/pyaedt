@@ -451,10 +451,10 @@ class Desktop(object):
     Launch AEDT 2023 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = pyaedt.Desktop(version="2023.2", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2023.2", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
+    >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
@@ -463,7 +463,7 @@ class Desktop(object):
     >>> desktop = Desktop(232)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
+    >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
     """
 
@@ -1101,7 +1101,7 @@ class Desktop(object):
             if self.machine and self.machine != "127.0.0.1":  # pragma: no cover
                 self.logger.error("New session of AEDT cannot be started on remote machine from Desktop Class.")
                 self.logger.error("Either use port argument or start an rpc session to start AEDT on remote machine.")
-                self.logger.error("Use client = pyaedt.common_rpc.client(machinename) to start a remote session.")
+                self.logger.error("Use client = ansys.aedt.core.common_rpc.client(machinename) to start a remote session.")
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
             elif new_aedt_session:
                 self.port = _find_free_port()
@@ -1531,7 +1531,7 @@ class Desktop(object):
 
         Returns
         -------
-        :def :`pyaedt.Hfss`
+        :def :`ansys.aedt.core.Hfss`
             Any of the PyAEDT App initialized.
 
         References
@@ -1574,7 +1574,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = pyaedt.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2021.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
@@ -1631,7 +1631,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = pyaedt.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2021.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
@@ -1645,7 +1645,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = pyaedt.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2021.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1659,7 +1659,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = pyaedt.Desktop("2021.2")
+        >>> desktop = ansys.aedt.core.Desktop("2021.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()

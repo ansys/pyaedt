@@ -60,7 +60,7 @@ proj_name = os.path.join(project_folder, "antenna")
 # -----------
 #
 
-hfss = pyaedt.Hfss(project=proj_name,
+hfss = ansys.aedt.core.Hfss(project=proj_name,
                    solution_type="Terminal",
                    design="patch",
                    non_graphical=non_graphical,

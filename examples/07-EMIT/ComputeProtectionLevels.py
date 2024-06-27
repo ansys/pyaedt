@@ -65,8 +65,8 @@ if aedt_version <= "2023.1":
     print("Warning: this example requires AEDT 2023.2 or later.")
     sys.exit()
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
-emitapp = Emit(pyaedt.generate_unique_project_name())
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, new_thread)
+emitapp = Emit(ansys.aedt.core.generate_unique_project_name())
 
 ###############################################################################
 # Specify the protection levels
@@ -259,7 +259,7 @@ if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# :func:`ansys.aedt.core.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 emitapp.save_project()

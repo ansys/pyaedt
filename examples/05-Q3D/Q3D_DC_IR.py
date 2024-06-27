@@ -24,11 +24,11 @@ aedt_version = "2024.1"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download needed project file and set up temporary project directory.
 
-project_dir = pyaedt.generate_unique_folder_name()
-aedb_project = pyaedt.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
-coil = pyaedt.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
-res = pyaedt.downloads.download_file('resistors', 'Res_0402.a3dcomp')
-project_name = pyaedt.generate_unique_name("HSD")
+project_dir = ansys.aedt.core.generate_unique_folder_name()
+aedb_project = ansys.aedt.core.downloads.download_file('edb/ANSYS-HSD_V1.aedb', destination=project_dir)
+coil = ansys.aedt.core.downloads.download_file('inductance_3d_component', 'air_coil.a3dcomp')
+res = ansys.aedt.core.downloads.download_file('resistors', 'Res_0402.a3dcomp')
+project_name = ansys.aedt.core.generate_unique_name("HSD")
 output_edb = os.path.join(project_dir, project_name + '_out.aedb')
 output_q3d = os.path.join(project_dir, project_name + '_q3d.aedt')
 
@@ -93,7 +93,7 @@ location_r106_1.append(edb.components["R106"].upper_elevation * 1000)
 edb.save_edb_as(output_edb)
 edb.close_edb()
 
-h3d = pyaedt.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=False, new_desktop=True)
+h3d = ansys.aedt.core.Hfss3dLayout(output_edb, version=aedt_version, non_graphical=False, new_desktop=True)
 
 ###############################################################################
 # Export to Q3D
@@ -109,7 +109,7 @@ h3d.close_project()
 # ~~~~~~~~
 # Launch the newly created q3d project.
 
-q3d = pyaedt.Q3d(output_q3d)
+q3d = ansys.aedt.core.Q3d(output_q3d)
 q3d.modeler.delete("GND")
 q3d.delete_all_nets()
 

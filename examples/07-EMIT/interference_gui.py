@@ -53,7 +53,7 @@ import openpyxl
 # Launch EMIT
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
+desktop = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, new_thread)
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")
@@ -62,7 +62,7 @@ import EmitApiPython
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
-ui_file = pyaedt.downloads.download_file("emit", "interference_gui.ui")
+ui_file = ansys.aedt.core.downloads.download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):

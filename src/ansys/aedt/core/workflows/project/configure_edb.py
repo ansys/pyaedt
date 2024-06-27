@@ -62,7 +62,7 @@ def frontend():  # pragma: no cover
     master.title(extension_description)
 
     # Load the logo for the main window
-    icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
+    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -141,7 +141,7 @@ def main(extension_args):
         configs += search_files(config, "*.toml")
     else:
         configs = [config]
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop_session=False,
         specified_version=version,
         port=port,

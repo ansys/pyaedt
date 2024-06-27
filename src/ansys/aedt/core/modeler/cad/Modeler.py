@@ -445,7 +445,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CSProps`
+        :class:`ansys.aedt.core.modeler.Modeler.CSProps`
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -739,7 +739,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CSProps`
+        :class:`ansys.aedt.core.modeler.Modeler.CSProps`
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -1277,7 +1277,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Modeler.CSProps`
+        :class:`ansys.aedt.core.modeler.Modeler.CSProps`
         """
         if self._props or settings.aedt_version <= "2022.2" or self.name is None:
             return self._props
@@ -1332,7 +1332,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
         Parameters
         ----------
-        assignment : str, :class:`pyaedt.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Origin where the object coordinate system is anchored.

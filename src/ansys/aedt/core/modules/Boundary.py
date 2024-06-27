@@ -173,7 +173,7 @@ class NativeComponentObject(BoundaryCommon, object):
     Parameters
     ----------
     app : object
-        An AEDT application from ``pyaedt.application``.
+        An AEDT application from ``ansys.aedt.core.application``.
     component_type : str
         Type of the component.
     component_name : str
@@ -372,7 +372,7 @@ class NativeComponentPCB(NativeComponentObject, object):
     Parameters
     ----------
     app : object
-        AEDT application from the ``pyaedt.application`` class.
+        AEDT application from the ``ansys.aedt.core.application`` class.
     component_type : str
         Type of the component.
     component_name : str
@@ -857,7 +857,7 @@ class BoundaryObject(BoundaryCommon, object):
     Parameters
     ----------
     app : object
-        An AEDT application from ``pyaedt.application``.
+        An AEDT application from ``ansys.aedt.core.application``.
     name : str
         Name of the boundary.
     props : dict, optional
@@ -896,7 +896,7 @@ class BoundaryObject(BoundaryCommon, object):
 
         Returns
         -------
-        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
 
         """
         from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
@@ -1383,7 +1383,7 @@ class MaxwellParameters(BoundaryCommon, object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+    app : :class:`ansys.aedt.core.maxwell.Maxwell3d`, :class:`ansys.aedt.core.maxwell.Maxwell2d`
         Either ``Maxwell3d`` or ``Maxwell2d`` application.
     name : str
         Name of the boundary.
@@ -1421,7 +1421,7 @@ class MaxwellParameters(BoundaryCommon, object):
 
         Returns
         -------
-        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
 
         """
 
@@ -2304,7 +2304,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
     Parameters
     ----------
     app : object
-        An AEDT application from ``pyaedt.application``.
+        An AEDT application from ``ansys.aedt.core.application``.
     name : str
         Name of the boundary.
     props : dict
@@ -2330,7 +2330,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
         Returns
         -------
-        class:`pyaedt.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
 
         """
         from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
@@ -4447,8 +4447,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> network.add_internal_node("TestNode", {"Type": "Transient",
         >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
         """
@@ -4502,8 +4502,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> network.add_boundary_node("TestNode", "Temperature", 2)
         >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
         >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
@@ -4577,8 +4577,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
@@ -4697,8 +4697,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
@@ -4767,8 +4767,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
@@ -4812,8 +4812,8 @@ class NetworkObject(BoundaryObject):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = pyaedt.Icepak()
-        >>> network = from ansys.aedt.core.modules.Boundary.Network(app)
+        >>> app = ansys.aedt.core.Icepak()
+        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]

@@ -57,7 +57,7 @@ def frontend():  # pragma: no cover
     master.title("Layout exporter")
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(pyaedt.workflows.__file__), "images", "large", "logo.png")
+    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -122,7 +122,7 @@ def main(extension_args):
     ipc = extension_args["export_ipc"]
     bom = extension_args["export_bom"]
     config = extension_args["export_configuration"]
-    app = pyaedt.Desktop(
+    app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
         port=port,

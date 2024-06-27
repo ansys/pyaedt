@@ -332,7 +332,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.edb.Edb`
+        :class:`ansys.aedt.core.edb.Edb`
         """
         self._beta()
         aedtapp = Edb(
@@ -386,7 +386,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.hfss.Hfss`
+        :class:`ansys.aedt.core.hfss.Hfss`
         """
         self._beta()
         aedtapp = Hfss(
@@ -441,7 +441,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.hfss3dlayout.Hfss3dLayout`
+        :class:`ansys.aedt.core.hfss3dlayout.Hfss3dLayout`
         """
         self._beta()
         aedtapp = Hfss3dLayout(
@@ -496,7 +496,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.maxwell.Maxwell3d`
+        :class:`ansys.aedt.core.maxwell.Maxwell3d`
         """
         self._beta()
         aedtapp = Maxwell3d(
@@ -551,7 +551,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.maxwell.Maxwell32`
+        :class:`ansys.aedt.core.maxwell.Maxwell32`
         """
         self._beta()
         aedtapp = Maxwell2d(
@@ -606,7 +606,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.icepak.Icepak`
+        :class:`ansys.aedt.core.icepak.Icepak`
         """
         self._beta()
         aedtapp = Icepak(
@@ -661,7 +661,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.circuit.Circuit`
+        :class:`ansys.aedt.core.circuit.Circuit`
         """
         self._beta()
         aedtapp = Circuit(
@@ -716,7 +716,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.mechanical.Mechanical`
+        :class:`ansys.aedt.core.mechanical.Mechanical`
         """
         self._beta()
         aedtapp = Mechanical(
@@ -771,7 +771,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.q3d.Q3d`
+        :class:`ansys.aedt.core.q3d.Q3d`
         """
         self._beta()
         aedtapp = Q3d(
@@ -826,7 +826,7 @@ class PyaedtServiceWindows(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.q3d.Q2d`
+        :class:`ansys.aedt.core.q3d.Q2d`
         """
         self._beta()
         aedtapp = Q2d(
@@ -1036,7 +1036,7 @@ class GlobalService(rpyc.Service):
 
         Returns
         -------
-        :class:`pyaedt.edb.Edb`
+        :class:`ansys.aedt.core.edb.Edb`
             Edb class.
         """
         return Edb(edbpath=edbpath,

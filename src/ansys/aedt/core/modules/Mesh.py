@@ -340,7 +340,7 @@ class Mesh(object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
 
     Examples
     --------
@@ -374,7 +374,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.mesh.meshoperations`
+        :class:`ansys.aedt.core.mesh.meshoperations`
             Returns None if the part ID or the object name is not found.
 
         Examples
@@ -627,7 +627,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        assignment : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        assignment : list or str or :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
             List of faces to apply the surface mesh to.
         surface_deviation : float or str, optional
             Surface deviation. The default is ``None``. You can specify a float value, a number with units, or `"inf"`.
@@ -1419,7 +1419,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        entity : int or str or :class:`pyaedt.modeler.cad.object3d.Object3d`
+        entity : int or str or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Object to assign cylindrical gap to.
         name : str, optional
             Name of the mesh. The default is ``None``, in which

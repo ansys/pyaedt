@@ -102,10 +102,10 @@ def launch_desktop(
     Launch AEDT 2021 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = pyaedt.launch_desktop("2022.2", non_graphical=True)
+    >>> desktop = ansys.aedt.core.launch_desktop("2022.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
+    >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: Project...
     PyAEDT INFO: Added design 'HFSSDesign1' of type HFSS.
 
@@ -114,7 +114,7 @@ def launch_desktop(
     >>> desktop = Desktop("2021.2")
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
-    >>> hfss = pyaedt.Hfss(design="HFSSDesign1")
+    >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
     PyAEDT INFO: No project is defined. Project...
     """
     d = Desktop(
@@ -161,7 +161,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
 
     Returns
     -------
-    :def :`pyaedt.Hfss`
+    :def :`ansys.aedt.core.Hfss`
         Any of the Pyaedt App initialized.
     """
     from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions

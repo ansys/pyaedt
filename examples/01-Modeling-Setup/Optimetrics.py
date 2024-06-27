@@ -34,7 +34,7 @@ non_graphical = False
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = pyaedt.Hfss(version=aedt_version, new_desktop=True, non_graphical=non_graphical, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(version=aedt_version, new_desktop=True, non_graphical=non_graphical, solution_type="Modal")
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -153,7 +153,7 @@ sweep6 = hfss.optimizations.add(
 # Close AEDT
 # ----------
 # After the simulaton completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 hfss.release_desktop()

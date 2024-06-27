@@ -57,7 +57,7 @@ class Object3d(object):
 
     Parameters
     ----------
-    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
     name : str
 
@@ -69,7 +69,7 @@ class Object3d(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler
 
-    Create a part, such as box, to return an :class:`pyaedt.modeler.Object3d.Object3d`.
+    Create a part, such as box, to return an :class:`ansys.aedt.core.modeler.Object3d.Object3d`.
 
     >>> id = prim.create_box([0, 0, 0],[10, 10, 5],"Mybox","Copper")
     >>> part = prim[id]
@@ -79,7 +79,7 @@ class Object3d(object):
         """
         Parameters
         ----------
-        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
             Inherited parent object.
         name : str
         """
@@ -318,7 +318,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
-        See :func:`pyaedt.application.Analysis3D.FieldAnalysis3D.identify_touching_conductors`.
+        See :func:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns
         -------
@@ -378,7 +378,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        list of :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -404,7 +404,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
         """
         f_list = []
         for face in self.faces:
@@ -418,7 +418,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
         """
         b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
         f_id = None
@@ -447,7 +447,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
         """
         f = []
         for face in self.faces:
@@ -462,7 +462,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive`
         """
         e = []
         for edge in self.edges:
@@ -477,7 +477,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        List of :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`
         """
         f = []
         for face in self.faces:
@@ -492,7 +492,7 @@ class Object3d(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modeler.Object3d.EdgePrimitive`
+        List of :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive`
         """
         e = []
         for edge in self.edges:
@@ -509,7 +509,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -530,7 +530,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -551,7 +551,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -572,7 +572,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -593,7 +593,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -614,7 +614,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
 
         References
         ----------
@@ -635,7 +635,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         References
         ----------
@@ -656,7 +656,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         """
         try:
@@ -672,7 +672,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         """
         try:
@@ -688,7 +688,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         """
         try:
@@ -704,7 +704,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         """
         try:
@@ -720,7 +720,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         """
         try:
@@ -736,7 +736,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        list of :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
 
         References
         ----------
@@ -758,7 +758,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.elements3d.VertexPrimitive`
+        list of :class:`ansys.aedt.core.modeler.elements3d.VertexPrimitive`
 
         References
         ----------
@@ -1354,7 +1354,7 @@ class Object3d(object):
 
         Returns
         -------
-            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
             ``False`` when failed.
 
         """
@@ -1404,12 +1404,12 @@ class Object3d(object):
 
         Parameters
         ----------
-        assignment : list of str or list of pyaedt.modeler.cad.object3d.Object3d
+        assignment : list of str or list of ansys.aedt.core.modeler.cad.object3d.Object3d
             List of objects.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
            Object 3D object.
 
         References
@@ -1435,7 +1435,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Retrieve the resulting 3D Object when succeeded.
 
         References
@@ -1491,7 +1491,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1521,7 +1521,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object. ``False`` when failed.
 
         References
@@ -1545,7 +1545,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1574,7 +1574,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1651,7 +1651,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_object : :class:`pyaedt.modeler.cad.object3d.Object3d`
+        sweep_object : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.
@@ -1665,7 +1665,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1694,7 +1694,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Swept object.
 
         References
@@ -1721,7 +1721,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
@@ -1744,7 +1744,7 @@ class Object3d(object):
 
         Returns
         -------
-        List[:class:`pyaedt.modeler.cad.object3d.Object3d`]
+        List[:class:`ansys.aedt.core.modeler.cad.object3d.Object3d`]
             List of object resulting from the operation.
 
         References
@@ -1761,7 +1761,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object that was added.
 
         References
@@ -1790,7 +1790,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Modified 3D object following the subtraction.
 
         References
@@ -1809,7 +1809,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+        object_name : str, :class:`ansys.aedt.core.modeler.Object3d.Object3d`
             Object name or solid object or sheet name.
         imprinted : bool, optional
             Either if imprint or not over the sheet. Default is `False`.
@@ -1860,7 +1860,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.elements3d.FacePrimitive`
+        list of :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
             List of face primitives.
         """
 
@@ -1904,7 +1904,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.elements3d.EdgePrimitive`
+        list of :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
             List of edge primitives.
         """
         filters = ["==", "<=", ">=", "<", ">"]
