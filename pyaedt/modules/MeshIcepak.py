@@ -334,6 +334,8 @@ class CommonRegion(object):
 
 
 class Region(CommonRegion):
+    """Provides Icepak global mesh region properties and methods."""
+
     def __init__(self, app):
         super(Region, self).__init__(app, None)
         try:
@@ -343,6 +345,8 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
+    """Provides Icepak mesh subregions properties and methods."""
+
     def __init__(self, app, parts, name=None):
         if name is None:
             name = generate_unique_name("SubRegion")
@@ -677,6 +681,8 @@ class MeshRegionCommon(object):
 
 
 class GlobalMeshRegion(MeshRegionCommon):
+    """Provides Icepak global mesh properties and methods."""
+
     def __init__(self, app):
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
@@ -741,6 +747,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
+    """Provides Icepak subregions mesh properties and methods."""
+
     def __init__(self, app, objects=None, name=None, **kwargs):
         if name is None:
             name = generate_unique_name("MeshRegion")
