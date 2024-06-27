@@ -29,3 +29,20 @@ They are accessible through the mesh property:
     # This call executes a Mesh method and creates an object to control the mesh operation
     mesh_operation_object = my_mesh.assign_surface_mesh("MyBox", 2)
     ...
+
+Icepak mesh
+~~~~~~~~~~~~~~~
+
+Relevant objects while using the ``MeshIcepak`` class are the following:
+
+.. currentmodule:: pyaedt.modules.MeshIcepak
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   Region
+   SubRegion
+   MeshRegion
+   GlobalMeshRegion
