@@ -1,18 +1,18 @@
 Extensions
 ==========
 
-PyAEDT extensions provide a simplified interface to perform automated workflows.
+Extensions provide a simplified interface to perform automated workflows in AEDT.
 The user can install or uninstall these extensions using the extension manager.
 For more information, see `Extension Manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_.
 
-Depending on the application, the user can find different extensions, the following sections describe each of them.
+Extensions are generally tool-specific and are therefore only accessible given the appropriate context. The following sections provide further clarification.
 
 Extensions can be launched in standalone mode from the console or from a python script. This is described on each extension section.
 
 Project extensions
 ==================
 
-Project extension apply to all extensions that are visible to all kind of AEDT applications.
+Project extension apply to all extensions that are applicable for all AEDT applications.
 
 .. grid:: 2
 
@@ -20,7 +20,7 @@ Project extension apply to all extensions that are visible to all kind of AEDT a
             :link: pyaedt_extensions_doc/project
             :link-type: doc
 
-            Import Nastran or STL file in any 3D modeler application.
+            Import a Nastran or STL file in any 3D modeler application.
 
 .. toctree::
    :hidden:
