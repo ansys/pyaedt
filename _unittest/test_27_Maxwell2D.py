@@ -593,10 +593,9 @@ class TestClass:
         assert wdg_group
         assert len(wdg_group) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Winding Group"])
 
-    def test_38_export_fields_calc(self, add_app):
-        m2d = add_app(application=Maxwell2d, design_name="e_tangential")
+    def test_38_export_fields_calc(self):
         output_file = os.path.join(self.local_scratch.path, "e_tang_field.fld")
-        assert m2d.post.export_field_file(
+        assert self.m2d_field_export.post.export_field_file(
             quantity="E_Line", output_dir=output_file, assignment="Poly1", objects_type="Line"
         )
         assert os.path.exists(output_file)
