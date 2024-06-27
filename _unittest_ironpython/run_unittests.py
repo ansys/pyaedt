@@ -3,16 +3,16 @@ from datetime import datetime
 import os
 
 
-from ansys.aedt.core import Circuit
-from ansys.aedt.core import Hfss
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Icepak
-from ansys.aedt.core import Maxwell2d
-from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core import Mechanical
-from ansys.aedt.core import Q2d
-from ansys.aedt.core import Q3d
-from ansys.aedt.core import TwinBuilder
+from pyaedt import Circuit
+from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
+from pyaedt import Icepak
+from pyaedt import Maxwell2d
+from pyaedt import Maxwell3d
+from pyaedt import Mechanical
+from pyaedt import Q2d
+from pyaedt import Q3d
+from pyaedt import TwinBuilder
 
 
 run_dir = os.path.abspath(os.path.dirname(__file__))
