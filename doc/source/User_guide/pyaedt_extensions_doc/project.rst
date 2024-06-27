@@ -8,7 +8,7 @@ The following image is the extension user interface:
 
 .. image:: import_nastran_ui.png
   :width: 800
-  :alt: Import nastran UI
+  :alt: Import Nastran UI
 
 User can launch the user interface from the terminal:
 
