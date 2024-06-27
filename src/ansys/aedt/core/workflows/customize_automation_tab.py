@@ -358,7 +358,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     Parameters
     ----------
-    desktop_object : :class:pyaedt.desktop.Desktop
+    desktop_object : :class:ansys.aedt.core.desktop.Desktop
         Desktop object.
     toolkit_name : str
         Name of toolkit to add.
@@ -543,7 +543,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
 
     Parameters
     ----------
-    desktop_object : :class:pyaedt.desktop.Desktop
+    desktop_object : :class:ansys.aedt.core.desktop.Desktop
         Desktop object.
     name : str
         Name of the toolkit to remove.

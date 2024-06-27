@@ -177,7 +177,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.AdvancedPostProcessing.CircuitPostProcessor`
             PostProcessor object.
         """
         if self._post is None:
@@ -273,7 +273,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.Boundary.Sources`
+        List of :class:`ansys.aedt.core.modules.Boundary.Sources`
             List of sources.
 
         """
@@ -405,7 +405,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
+        :class:`ansys.aedt.core.modules.SolveSetup.SetupCircuit`
             Setup object.
 
         References

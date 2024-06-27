@@ -315,7 +315,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.desktop.Desktop`
+        :class:`ansys.aedt.core.desktop.Desktop`
         """
         return self._desktop_class
 
@@ -349,7 +349,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.Boundary.BoundaryObject`
+        List of :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
         """
         bb = []
         if "GetBoundaries" in self.oboundary.__dir__():
@@ -531,7 +531,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`pyaedt.aedt_logger.AedtLogger`
+        :class:`ansys.aedt.core.aedt_logger.AedtLogger`
         """
         return self._logger
 
@@ -2322,7 +2322,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        [:class:`pyaedt.modules.Boundary.BoundaryObject`]
+        [:class:`ansys.aedt.core.modules.Boundary.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:

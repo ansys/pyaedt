@@ -16,9 +16,9 @@ You can edit a setup after it is created. Here is an example:
 
 Available turbulent models are: ``"ZeroEquation"``, ``"TwoEquation"``, ``"EnhancedTwoEquation"``, ``"RNG"``, ``"EnhancedRNG"``, ``"RealizableTwoEquation"``, ``"EnhancedRealizableTwoEquation"``, ``"SpalartAllmaras"``, ``"kOmegaSST"``.
 
-.. pprint:: pyaedt.modules.SetupTemplates.TransientFlowOnly
-.. pprint:: pyaedt.modules.SetupTemplates.TransientTemperatureOnly
-.. pprint:: pyaedt.modules.SetupTemplates.TransientTemperatureAndFlow
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyFlowOnly
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyTemperatureOnly
-.. pprint:: pyaedt.modules.SetupTemplates.SteadyTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientFlowOnly
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyFlowOnly
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyTemperatureAndFlow

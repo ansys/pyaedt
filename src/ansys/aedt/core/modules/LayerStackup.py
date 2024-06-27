@@ -133,7 +133,7 @@ class Layer(object):
 
     Parameters
     ----------
-    app : :class:`pyaedt.modules.LayerStackup.Layers`
+    app : :class:`ansys.aedt.core.modules.LayerStackup.Layers`
     layertype : string, optional
         The default is ``"signal"``.
     negative : bool, optional
@@ -1245,7 +1245,7 @@ class Layers(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.LayerStackup.Layer`
+        List of :class:`ansys.aedt.core.modules.LayerStackup.Layer`
            List of stackup layers.
 
         References
@@ -1261,7 +1261,7 @@ class Layers(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.LayerStackup.Layer`
+        List of :class:`ansys.aedt.core.modules.LayerStackup.Layer`
             List of signal layers.
         """
         return [v for k, v in self.layers.items() if v.type == "signal"]
@@ -1272,7 +1272,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.modules.LayerStackup.Layer`]
+        Dict[str, :class:`ansys.aedt.core.modules.LayerStackup.Layer`]
            Conductor layers.
 
         References
@@ -1288,7 +1288,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.modules.LayerStackup.Layer`]
+        Dict[str, :class:`ansys.aedt.core.modules.LayerStackup.Layer`]
            Dielectric layers.
 
         References
@@ -1304,7 +1304,7 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.modules.LayerStackup.Layer`]
+        Dict[str, :class:`ansys.aedt.core.modules.LayerStackup.Layer`]
            Drawing layers.
 
         References
@@ -1320,7 +1320,7 @@ class Layers(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.LayerStackup.Layer`
+        List of :class:`ansys.aedt.core.modules.LayerStackup.Layer`
             List of dielectric layers.
         """
         return [v for k, v in self.layers.items() if v.type == "dielectric"]
@@ -1336,7 +1336,7 @@ class Layers(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.LayerStackup.Layer`
+        :class:`ansys.aedt.core.modules.LayerStackup.Layer`
             Layer objecy if the layer name exists.
         """
         for el in self.layers:
@@ -1350,7 +1350,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int, :class:`pyaedt.modules.LayerStackup.Layer`]
+         Dict[int, :class:`ansys.aedt.core.modules.LayerStackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = OrderedDict({})
@@ -1432,7 +1432,7 @@ class Layers(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.LayerStackup.Layer`
+        :class:`ansys.aedt.core.modules.LayerStackup.Layer`
             Layer object.
         """
         newlayer = Layer(self, layer_type, isnegative)

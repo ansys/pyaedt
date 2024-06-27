@@ -1166,7 +1166,7 @@ class ParametricSetups(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.DesignXPloration.SetupParam`
+        :class:`ansys.aedt.core.modules.DesignXPloration.SetupParam`
             Optimization Object.
 
         References
@@ -1416,7 +1416,7 @@ class OptimizationSetups(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.DesignXPloration.SetupOpti`
+        :class:`ansys.aedt.core.modules.DesignXPloration.SetupOpti`
             Optimization object.
 
         References

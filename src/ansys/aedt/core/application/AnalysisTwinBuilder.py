@@ -135,7 +135,7 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
         """
         if self._post is None:  # pragma: no cover
             self.logger.reset_timer()
@@ -165,7 +165,7 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
+        :class:`ansys.aedt.core.modules.SolveSetup.SetupCircuit`
             Setup object.
         """
         if setup_type is None:

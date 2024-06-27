@@ -268,7 +268,7 @@ def _close_aedt_application(desktop_class, close_desktop, pid, is_grpc_api):
 
     Parameters
     ----------
-    desktop_class : :class:pyaedt.desktop.Desktop
+    desktop_class : :class:ansys.aedt.core.desktop.Desktop
         Desktop class.
     close_desktop : bool
         Whether to close the active AEDT session.

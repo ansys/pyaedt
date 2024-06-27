@@ -18,7 +18,7 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: pyaedt.modules.SetupTemplates.Matrix
-.. pprint:: pyaedt.modules.SetupTemplates.Close
-.. pprint:: pyaedt.modules.SetupTemplates.Open
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.Matrix
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.Close
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.Open
 

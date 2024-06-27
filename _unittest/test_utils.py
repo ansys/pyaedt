@@ -45,7 +45,7 @@ def foo(trigger_exception=True):
         raise Exception(ERROR_MESSAGE)
 
 
-@patch("pyaedt.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception(mock_sessions):
     """Test handler while activating or deactivating error handler."""
     mock_session = MagicMock()

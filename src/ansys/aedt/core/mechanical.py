@@ -211,7 +211,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
 
         References
         ----------
@@ -702,7 +702,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
             Solver Setup object.
 
         References

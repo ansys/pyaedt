@@ -476,7 +476,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.Material.Material`
             Material.
         """
         return self._material
@@ -498,7 +498,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.Material.Material`
             Material.
         """
         return self._fill_material
@@ -607,7 +607,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.Material.Material`
             Material object.
         """
 

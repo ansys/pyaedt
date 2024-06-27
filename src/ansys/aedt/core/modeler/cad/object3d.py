@@ -266,7 +266,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
 
         Notes
@@ -1685,7 +1685,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        axis : :class:`pyaedt.generic.constants.AXIS`
+        axis : :class:`ansys.aedt.core.generic.constants.AXIS`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1712,7 +1712,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane : pyaedt.generic.constants.PLANE
+        plane : from ansys.aedt.core.generic.constants.PLANE
             Coordinate system of the plane object. Application.PLANE object
         create_new : bool, optional
             Whether to create an object. The default is ``True``.

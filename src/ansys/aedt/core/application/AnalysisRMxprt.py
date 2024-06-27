@@ -87,7 +87,7 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
         """
         if self._post is None:  # pragma: no cover
             self.logger.reset_timer()
@@ -104,7 +104,7 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.modeler2d.ModelerRMxprt`
+        :class:`ansys.aedt.core.modules.modeler2d.ModelerRMxprt`
 
         """
         if self._modeler is None:

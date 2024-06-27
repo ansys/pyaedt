@@ -497,7 +497,7 @@ def read_touchstone(file_path):
 
     Returns
     -------
-    class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+    class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
         NPort holding data contained in the touchstone file.
 
     """

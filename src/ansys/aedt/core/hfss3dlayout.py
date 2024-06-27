@@ -254,7 +254,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -354,7 +354,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -395,7 +395,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port objcet port when successful, ``False`` when failed.
 
         References
@@ -473,7 +473,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        list of :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        list of :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port Objects when successful.
 
         References
@@ -550,7 +550,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port Object when successful, ``False`` when failed.
 
         References
@@ -599,7 +599,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
             Port Object when successful, ``False`` when failed.
 
         References
@@ -654,7 +654,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject3dLayout`
 
             ``True`` when successful, ``False`` when failed.
 
@@ -1020,7 +1020,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1133,7 +1133,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1215,7 +1215,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -2196,7 +2196,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
         Returns
         -------
-        pyaedt.modules.solutions.SolutionData
+        from ansys.aedt.core.modules.solutions.SolutionData
         """
 
         if is_ironpython:  # pragma: no cover

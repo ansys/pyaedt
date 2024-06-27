@@ -17,5 +17,5 @@ Example of constants usage:
     ipk.release_desktop()
 
 
-.. automodule:: pyaedt.generic.constants
+.. automodule:: ansys.aedt.core.generic.constants
    :members:

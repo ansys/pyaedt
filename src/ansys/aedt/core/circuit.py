@@ -467,7 +467,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.generic.ibis_reader.Ibis`
+        :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
         """
         if is_ami:
@@ -1142,7 +1142,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.Source`
+        :class:`ansys.aedt.core.modules.Boundary.Source`
             Circuit Source Object.
 
         References
@@ -1190,7 +1190,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.Source`
+        :class:`ansys.aedt.core.modules.Boundary.Source`
             Circuit Source Object.
 
         References
@@ -1216,7 +1216,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.Source`
+        :class:`ansys.aedt.core.modules.Boundary.Source`
             Circuit Source Object.
 
         References
@@ -1241,7 +1241,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.Source`
+        :class:`ansys.aedt.core.modules.Boundary.Source`
             Circuit Source Object.
 
         References
@@ -1268,7 +1268,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.Source`
+        :class:`ansys.aedt.core.modules.Boundary.Source`
             Circuit Source Object.
 
         References

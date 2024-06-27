@@ -82,7 +82,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.LayerStackup.Layers`
+        :class:`ansys.aedt.core.modules.LayerStackup.Layers`
         """
         return self.layers
 

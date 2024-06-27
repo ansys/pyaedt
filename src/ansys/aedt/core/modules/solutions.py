@@ -2910,7 +2910,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     the embedded
     element pattern (EEP) files for an antenna array that have been solved in HFSS. The
     ``frequencies`` and ``eep_files`` properties can then be passed as arguments to
-    instantiate an instance of the :class:`pyaedt.modules.solutions.FfdSolutionData` class for
+    instantiate an instance of the :class:`ansys.aedt.core.modules.solutions.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
@@ -3086,7 +3086,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    ff : :class:`pyaedt.modules.solutions.FfdSolutionData`
+    ff : :class:`ansys.aedt.core.modules.solutions.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
@@ -3136,7 +3136,7 @@ class FieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.PostProcessor.PostProcessor`
     objects : list
         List of objects.
     solution : str
@@ -3880,7 +3880,7 @@ class VRTFieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.PostProcessor.PostProcessor`
     is_creeping_wave : bool
         Whether it is a creeping wave model or not.
     quantity : str, optional

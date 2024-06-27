@@ -135,7 +135,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.generic.configurations.Configurations`
+        :class:`ansys.aedt.core.generic.configurations.Configurations`
         """
         return self._configurations
 
@@ -164,7 +164,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+        :class:`ansys.aedt.core.modules.Mesh.Mesh` or :class:`ansys.aedt.core.modules.MeshIcepak.IcepakMesh`
             Mesh object.
         """
         if self._mesh is None:
@@ -184,7 +184,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+        :class:`ansys.aedt.core.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
         if self._post is None:
@@ -286,7 +286,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         if is_ironpython:

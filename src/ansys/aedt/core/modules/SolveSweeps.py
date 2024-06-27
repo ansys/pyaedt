@@ -86,7 +86,7 @@ class SweepHFSS(object):
 
     Parameters
     ----------
-    setup : :class 'pyaedt.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
         Setup to use for the analysis.
     name : str
         Name of the sweep.
@@ -343,7 +343,7 @@ class SweepHFSS3DLayout(object):
 
     Parameters
     ----------
-    setup : :class 'pyaedt.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
         Setup to use for the analysis.
     name : str
         Name of the sweep.
@@ -596,7 +596,7 @@ class SweepMatrix(object):
 
     Parameters
     ----------
-    setup : :class 'pyaedt.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
         Setup used for the analysis.
     name : str
         Name of the sweep.

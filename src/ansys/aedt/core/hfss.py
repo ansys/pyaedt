@@ -246,7 +246,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.Boundary.FarFieldSetup` and :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        List of :class:`ansys.aedt.core.modules.Boundary.FarFieldSetup` and :class:`ansys.aedt.core.modules.Boundary.NearFieldSetup`
         """
         if not self._field_setups:
             self._field_setups = self._get_rad_fields()
@@ -384,7 +384,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -716,7 +716,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -816,7 +816,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`, :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
+        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`, :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSSAuto`
             3D Solver Setup object.
 
         References
@@ -907,7 +907,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -927,7 +927,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                                     units="MHz", start_frequency=1.1e3,
         ...                                                     stop_frequency=1200.1, num_of_freq_points=1658)
         >>> type(linear_count_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
 
         """
         if sweep_type in ["Interpolating", "Fast"]:
@@ -1020,7 +1020,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1039,7 +1039,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                                   start_frequency=1.1e3, stop_frequency=1200.1,
         ...                                                   step_size=153.8)
         >>> type(linear_step_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
@@ -1102,7 +1102,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1119,7 +1119,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> setup = hfss.create_setup("LinearStepSetup")
         >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup",unit="MHz",freq=1.1e3)
         >>> type(single_point_sweep)
-        <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
 
         """
         if name is None:
@@ -1510,7 +1510,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.Boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
@@ -1622,7 +1622,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.Boundary.NativeComponentObject`
 
         References
         ----------
@@ -1667,7 +1667,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -1709,7 +1709,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         Examples
@@ -1894,7 +1894,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -1950,7 +1950,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -1999,7 +1999,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -2061,7 +2061,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
 
@@ -2156,7 +2156,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -2270,7 +2270,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -2329,7 +2329,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -2437,7 +2437,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2455,7 +2455,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -2505,7 +2505,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2523,7 +2523,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -2680,7 +2680,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2781,7 +2781,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject` or bool
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject` or bool
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -2858,7 +2858,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         """
@@ -2950,7 +2950,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3002,7 +3002,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3052,7 +3052,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3069,7 +3069,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                       [10, 2], name="PerfectESheet", material="Copper")
         >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -3094,7 +3094,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3111,7 +3111,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                       [10, 2], name="PerfectHSheet", material="Copper")
         >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -3169,7 +3169,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3188,7 +3188,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,hfss.AxisDir.XPos,resistance=50,
         ...                                                       inductance=1e-9,capacitance=1e-6)
         >>> type(lumped_rlc_to_sheet)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
         >>> h2 = hfss.assign_lumped_rlc_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
         ...                                      sheet.bottom_edge_y.midpoint],resistance=50,inductance=1e-9,
         ...                                      capacitance=1e-6)
@@ -3250,7 +3250,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3268,7 +3268,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ...                                        material="Copper")
         >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,"ImpedanceFromSheet",100,50)
         >>> type(impedance_to_sheet)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -3334,7 +3334,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object if successful, ``False`` otherwise.
 
         References
@@ -3448,7 +3448,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4223,7 +4223,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4239,7 +4239,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
         >>> type(radiation)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -4266,7 +4266,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4282,7 +4282,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
         >>> type(sbr_box)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -4309,7 +4309,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4325,7 +4325,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
         >>> febi_box = hfss.assign_febi("Radiation_box")
         >>> type(febi_box)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
 
@@ -4351,7 +4351,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4369,7 +4369,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
         >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
         >>> type(radiation)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
         faces_list = self.modeler.convert_to_selections(assignment, True)
@@ -4490,8 +4490,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Returns
         -------
         tuple
-            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
+            The tuple contains: (:class:`ansys.aedt.core.modules.SolveSetup.Setup`,
+            :class:`ansys.aedt.core.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4596,8 +4596,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Returns
         -------
         tuple
-            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
+            The tuple contains: (:class:`ansys.aedt.core.modules.SolveSetup.Setup`,
+            :class:`ansys.aedt.core.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4693,8 +4693,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Returns
         -------
         tuple
-            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
+            The tuple contains: (:class:`ansys.aedt.core.modules.SolveSetup.Setup`,
+            :class:`ansys.aedt.core.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4854,7 +4854,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         definition : str
             Coordinate definition type. The default is ``"Theta-Phi"``.
-            It can be a ``pyaedt.generic.constants.INFINITE_SPHERE_TYPE`` enumerator value.
+            It can be a ``ansys.aedt.core.generic.constants.INFINITE_SPHERE_TYPE`` enumerator value.
         x_start : float, str, optional
             First angle start value. The default is ``0``.
         x_stop : float, str, optional
@@ -4883,7 +4883,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.FarFieldSetup`
+        :class:`ansys.aedt.core.modules.Boundary.FarFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -4975,7 +4975,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.Boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5052,7 +5052,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.Boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5121,7 +5121,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.Boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5176,7 +5176,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        :class:`ansys.aedt.core.modules.Boundary.NearFieldSetup`
         """
         if not self.oradfield:
             self.logger.error("Radiation Field not available in this solution.")
@@ -5540,15 +5540,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` class,
+            :class:`ansys.aedt.core.modules.solutions.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
-            :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
+            :class:`ansys.aedt.core.modules.solutions.FfdSolutionData` class, which is
             independent from the running HFSS instance.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
+        :class:`ansys.aedt.core.modules.solutions.FfdSolutionDataExporter`
             SolutionData object.
         """
         from ansys.aedt.core.modules.solutions import FfdSolutionData
@@ -5630,7 +5630,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -5647,7 +5647,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> type(symmetry)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        <class 'from ansys.aedt.core.modules.Boundary.BoundaryObject'>
 
         """
         try:
@@ -5780,7 +5780,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.hdm_parser.Parser`
+        :class:`ansys.aedt.core.modules.hdm_parser.Parser`
         """
 
         from ansys.aedt.core.sbrplus.hdm_parser import Parser
@@ -5856,7 +5856,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -5949,7 +5949,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         Examples
@@ -6081,7 +6081,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Port object.
 
         References

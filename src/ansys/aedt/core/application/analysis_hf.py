@@ -305,7 +305,7 @@ class ScatteringMethods(object):
 
         Returns
         -------
-        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+        :class:`ansys.aedt.core.generic.touchstone_parser.TouchstoneData`
            Class containing all requested data.
 
         References

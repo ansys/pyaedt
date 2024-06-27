@@ -527,7 +527,7 @@ class CommonReport(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.report_templates.Trace`
+        List of :class:`ansys.aedt.core.modules.report_templates.Trace`
         """
         _traces = []
         try:
@@ -853,7 +853,7 @@ class CommonReport(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.report_templates.LimitLine`
+        List of :class:`ansys.aedt.core.modules.report_templates.LimitLine`
         """
         _traces = []
         oo_names = self._post._app.get_oo_name(self._post.oreportsetup, self.plot_name)
@@ -873,7 +873,7 @@ class CommonReport(object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.report_templates.Note`
+        List of :class:`ansys.aedt.core.modules.report_templates.Note`
         """
         _notes = []
         try:
@@ -1163,7 +1163,7 @@ class CommonReport(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
             Solution data object.
         """
         if not self.expressions:

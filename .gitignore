@@ -361,7 +361,7 @@ doc/build_errors.txt
 _autosummary/
 
 # pip files
-*.egg-info/*
+*.egg-info*
 build/
 dist/
 
@@ -395,6 +395,7 @@ model.index\+
 
 # local environment settings used by e.g. Visual Studio Code
 /.env
+/.venv*
 /doc/source/local_config.json
 
 # test coverage output

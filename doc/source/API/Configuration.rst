@@ -24,7 +24,7 @@ reason, this face position has changed or the object name in the target design h
 the boundary fails to apply.
 
 
-.. currentmodule:: pyaedt.generic.configurations
+.. currentmodule:: ansys.aedt.core.generic.configurations
 
 .. autosummary::
    :toctree: _autosummary

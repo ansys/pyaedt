@@ -1174,7 +1174,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        list of :class:`pyaedt.modules.Mesh.MeshOperation`
+        list of :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -1215,7 +1215,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-         :class:`pyaedt.modules.Mesh.MeshOperation`
+         :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh Operation object. ``False`` when failed.
 
         References
@@ -1544,7 +1544,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        :class:`ansys.aedt.core.modules.MeshIcepak.IcepakMesh.MeshRegion`
 
         References
         ----------
@@ -1627,7 +1627,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
 
         References
         ----------
@@ -1670,7 +1670,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
 
         References
         ----------

@@ -221,7 +221,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
 
@@ -300,7 +300,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         model = self.get_model_plotter_geometries(
@@ -406,7 +406,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         is_pcb = False
@@ -539,7 +539,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         if filter_objects is None:
@@ -672,7 +672,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         if variations is None:
@@ -784,7 +784,7 @@ class PostProcessor(Post):
 
         Returns
         -------
-        :class:`pyaedt.generic.plot.ModelPlotter`
+        :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
         if not plot_folder:
@@ -846,7 +846,7 @@ class PostProcessor(Post):
 
         Parameters
         ----------
-        solution_data : :class:`pyaedt.modules.solutions.SolutionData`
+        solution_data : :class:`ansys.aedt.core.modules.solutions.SolutionData`
             Input data for the solution.
         nominal_sweep : str, optional
             Name of the nominal sweep. The default is ``None``.

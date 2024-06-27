@@ -10,7 +10,7 @@ Material management
 ~~~~~~~~~~~~~~~~~~~
 This section describes all material-related classes and methods.
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -45,7 +45,7 @@ Stackup management
 ~~~~~~~~~~~~~~~~~~
 This section describes all layer-related classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary

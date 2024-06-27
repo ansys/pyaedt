@@ -326,7 +326,7 @@ class AedtObjects(object):
 
         Returns
         -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
+        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
         References
         ----------
@@ -352,7 +352,7 @@ class AedtObjects(object):
 
         Returns
         -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
+        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.oreportsetup`
 
         References
         ----------

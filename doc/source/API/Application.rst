@@ -13,20 +13,20 @@ Available PyAEDT apps are:
 .. autosummary::
    :toctree: _autosummary
 
-   pyaedt.desktop.Desktop
-   pyaedt.hfss.Hfss
-   pyaedt.q3d.Q3d
-   pyaedt.q3d.Q2d
-   pyaedt.maxwell.Maxwell2d
-   pyaedt.maxwell.Maxwell3d
-   pyaedt.icepak.Icepak
-   pyaedt.hfss3dlayout.Hfss3dLayout
-   pyaedt.mechanical.Mechanical
-   pyaedt.rmxprt.Rmxprt
-   pyaedt.circuit.Circuit
-   pyaedt.maxwellcircuit.MaxwellCircuit
-   pyaedt.emit.Emit
-   pyaedt.twinbuilder.TwinBuilder
+   ansys.aedt.core.desktop.Desktop
+   ansys.aedt.core.hfss.Hfss
+   ansys.aedt.core.q3d.Q3d
+   ansys.aedt.core.q3d.Q2d
+   ansys.aedt.core.maxwell.Maxwell2d
+   ansys.aedt.core.maxwell.Maxwell3d
+   ansys.aedt.core.icepak.Icepak
+   ansys.aedt.core.hfss3dlayout.Hfss3dLayout
+   ansys.aedt.core.mechanical.Mechanical
+   ansys.aedt.core.rmxprt.Rmxprt
+   ansys.aedt.core.circuit.Circuit
+   ansys.aedt.core.maxwellcircuit.MaxwellCircuit
+   ansys.aedt.core.emit.Emit
+   ansys.aedt.core.twinbuilder.TwinBuilder
 
 
 All other classes and methods are inherited into the app class.

@@ -170,7 +170,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -211,7 +211,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -250,7 +250,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Fields`
+        :class:`ansys.aedt.core.modules.report_templates.Fields`
 
         Examples
         --------
@@ -291,7 +291,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Fields`
+        :class:`ansys.aedt.core.modules.report_templates.Fields`
 
         Examples
         --------
@@ -332,7 +332,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Fields`
+        :class:`ansys.aedt.core.modules.report_templates.Fields`
 
         Examples
         --------
@@ -373,7 +373,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Fields`
+        :class:`ansys.aedt.core.modules.report_templates.Fields`
 
         Examples
         --------
@@ -417,7 +417,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.FarField`
+        :class:`ansys.aedt.core.modules.report_templates.FarField`
 
         Examples
         --------
@@ -458,7 +458,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.AntennaParameters`
+        :class:`ansys.aedt.core.modules.report_templates.AntennaParameters`
 
         Examples
         --------
@@ -494,7 +494,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.NearField`
+        :class:`ansys.aedt.core.modules.report_templates.NearField`
 
         Examples
         --------
@@ -531,7 +531,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -567,7 +567,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -603,7 +603,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -646,7 +646,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.AMIConturEyeDiagram`
+        :class:`ansys.aedt.core.modules.report_templates.AMIConturEyeDiagram`
 
         Examples
         --------
@@ -704,7 +704,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
 
         Examples
         --------
@@ -757,7 +757,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Spectrum`
+        :class:`ansys.aedt.core.modules.report_templates.Spectrum`
 
         Examples
         --------
@@ -793,7 +793,7 @@ class Reports(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.EMIReceiver`
+        :class:`ansys.aedt.core.modules.report_templates.EMIReceiver`
 
         Examples
         --------
@@ -1172,7 +1172,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.oreportsetup`
+        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.oreportsetup`
 
         References
         ----------
@@ -1346,7 +1346,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        pyaedt.modules.solutions.SolutionData
+        from ansys.aedt.core.modules.solutions.SolutionData
 
 
         References
@@ -1797,7 +1797,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
             ``True`` when successful, ``False`` when failed.
 
 
@@ -2035,7 +2035,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
             Solution Data object.
 
         References
@@ -2225,7 +2225,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.Standard`
             Report object if succeeded.
 
         Examples
@@ -2348,7 +2348,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :attr:`pyaedt.modules.PostProcessor.PostProcessor.ofieldsreporter`
+        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.ofieldsreporter`
 
         References
         ----------
@@ -3521,7 +3521,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.solutions.FieldPlot`` or bool
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot`` or bool
             Plot object.
 
         References
@@ -3609,7 +3609,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.solutions.FieldPlot``
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -3689,7 +3689,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.solutions.FieldPlot``
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -3752,7 +3752,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.solutions.FieldPlot``
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -3805,7 +3805,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:``pyaedt.modules.solutions.FieldPlot``
+        :class:``ansys.aedt.core.modules.solutions.FieldPlot``
             Plot object.
 
         References
@@ -4089,7 +4089,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData`
+        :class:`ansys.aedt.core.modules.solutions.SolutionData`
 
         References
         ----------
@@ -4654,7 +4654,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
         """
         vrt = VRTFieldPlot(self, is_creeping_wave=True)
         vrt.max_frequency = max_frequency
@@ -4698,7 +4698,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
         """
         if custom_location is None:
             custom_location = [0, 0, 0]
@@ -4766,7 +4766,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
         """
         vrt = VRTFieldPlot(self, is_creeping_wave=False)
         vrt.max_frequency = max_frequency
@@ -4835,7 +4835,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
         """
         if custom_location is None:
             custom_location = [0, 0, 0]

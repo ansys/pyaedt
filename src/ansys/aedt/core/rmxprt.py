@@ -309,7 +309,7 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
             Solver Setup object.
 
         References

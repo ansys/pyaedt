@@ -186,7 +186,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.modules.Boundaries.NativeComponentObject`]
+        dict[str, :class:`ansys.aedt.core.modules.Boundaries.NativeComponentObject`]
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
@@ -213,7 +213,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
            Materials in the project.
 
         """
@@ -234,7 +234,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        List[:class:`pyaedt.modules.SolveSetup.Setup`]
+        List[:class:`ansys.aedt.core.modules.SolveSetup.Setup`]
             Setups in the project.
 
         """
@@ -249,7 +249,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.DesignXPloration.ParametricSetups`
+        :class:`ansys.aedt.core.modules.DesignXPloration.ParametricSetups`
             Parametric setups in the project.
 
         """
@@ -263,7 +263,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.DesignXPloration.OptimizationSetups`
+        :class:`ansys.aedt.core.modules.DesignXPloration.OptimizationSetups`
             Parametric setups in the project.
 
         """
@@ -1453,7 +1453,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class:`ansys.aedt.core.modules.SolveSetup.Setup`
 
         References
         ----------
@@ -1478,7 +1478,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class:`ansys.aedt.core.modules.SolveSetup.Setup`
 
         """
         setuptype = self.design_solutions.default_setup

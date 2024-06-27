@@ -114,7 +114,7 @@ class MeshOperation(object):
 
     Parameters
     ----------
-    mesh : class:`pyaedt.modules.Mesh.Mesh or :class:`pyaedt.modules.MeshIcepak.MeshIcepak`
+    mesh : class:`ansys.aedt.core.modules.Mesh.Mesh or :class:`ansys.aedt.core.modules.MeshIcepak.MeshIcepak`
 
     """
 
@@ -400,7 +400,7 @@ class Mesh(object):
         Returns
         -------
         List
-            List of :class:`pyaedt.modules.Mesh.MeshOperation`
+            List of :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
                         List of mesh operation object.
 
         Examples
@@ -454,7 +454,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -575,7 +575,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -640,7 +640,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -717,7 +717,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -868,7 +868,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -980,7 +980,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1081,7 +1081,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1150,7 +1150,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1203,7 +1203,7 @@ class Mesh(object):
 
          Returns
          -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1257,7 +1257,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1306,7 +1306,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1358,7 +1358,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
             Mesh operation object.
 
         References
@@ -1451,7 +1451,7 @@ class Mesh(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh.MeshOperation` or bool
+        :class:`ansys.aedt.core.modules.Mesh.MeshOperation` or bool
             Mesh operation object or ``False`` if it fails.
 
         References

@@ -342,8 +342,8 @@ class TestClass:
         assert str(type(self.aedtapp.odesktop)) in [
             "<class 'win32com.client.CDispatch'>",
             "<class 'PyDesktopPlugin.AedtObjWrapper'>",
-            "<class 'pyaedt.generic.grpc_plugin.AedtObjWrapper'>",
-            "<class 'pyaedt.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.generic.grpc_plugin.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
         ]
 
     def test_28_get_pyaedt_app(self):

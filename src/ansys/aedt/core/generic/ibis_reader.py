@@ -793,7 +793,7 @@ class IbisReader(object):
 
         Returns
         ----------
-        :class:`pyaedt.generic.ibis_reader.Ibis`
+        :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
 
         Examples
@@ -812,7 +812,7 @@ class IbisReader(object):
         if not check_if_path_exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
-        ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
+        ibis_name = from ansys.aedt.core.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
 
         check_and_download_file(self._filename)
@@ -884,7 +884,7 @@ class IbisReader(object):
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+        ibis : :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             ibis object containing all info.
         current_line : str
             Current line content.
@@ -928,7 +928,7 @@ class IbisReader(object):
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+        ibis : :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             ibis object containing all info.
         current_line : str
             Current line content.
@@ -961,7 +961,7 @@ class IbisReader(object):
 
         Returns
         -------
-        :class:`pyaedt.generic.ibis_reader.ModelSelectorItem`
+        :class:`ansys.aedt.core.generic.ibis_reader.ModelSelectorItem`
             Model selector item.
 
         """
@@ -981,7 +981,7 @@ class IbisReader(object):
 
         Parameters
         ----------
-        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+        ibis : :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             ibis object containing all info.
         comp_infos : list
 
@@ -1014,7 +1014,7 @@ class IbisReader(object):
 
         Parameters
         ----------
-        component : :class:`pyaedt.generic.ibis_reader.Component`
+        component : :class:`ansys.aedt.core.generic.ibis_reader.Component`
             Current line content.
         current_line : str
             Current line content.
@@ -1057,12 +1057,12 @@ class IbisReader(object):
             Current line content.
         component : str
             Name of the component.
-        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+        ibis : :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object containing all pin information.
 
         Returns
         -------
-        :class:`pyaedt.generic.ibis_reader.Pin`
+        :class:`ansys.aedt.core.generic.ibis_reader.Pin`
             Pin object.
 
         """
@@ -1112,12 +1112,12 @@ class IbisReader(object):
             Current line content.
         component_name : str
             Name of the component.
-        ibis : :class:`pyaedt.generic.ibis_reader.Ibis`
+        ibis : :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             ibis object containing all info.
 
         Returns
         -------
-        :class:`pyaedt.generic.ibis_reader.Pin`
+        :class:`ansys.aedt.core.generic.ibis_reader.Pin`
             Pin object.
 
         """
@@ -1214,7 +1214,7 @@ class AMIReader(IbisReader):
 
         Returns
         ----------
-        :class:`pyaedt.generic.ibis_reader.Ibis`
+        :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
 
         Examples
@@ -1232,7 +1232,7 @@ class AMIReader(IbisReader):
         if not check_if_path_exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
-        ami_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
+        ami_name = from ansys.aedt.core.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = AMI(ami_name, self._circuit)
         check_and_download_file(self._filename)
 

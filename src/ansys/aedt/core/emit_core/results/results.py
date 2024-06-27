@@ -178,7 +178,7 @@ class Results:
 
         Returns
         -------
-        rev:class:`pyaedt.modules.Revision`
+        rev:class:`ansys.aedt.core.modules.Revision`
             Specified ``Revision`` object that was loaded.
 
         Examples
@@ -223,7 +223,7 @@ class Results:
 
         Returns
         -------
-        rev:class:`pyaedt.modules.Revision`
+        rev:class:`ansys.aedt.core.modules.Revision`
             Specified ``Revision`` object that was generated.
 
         Examples

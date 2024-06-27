@@ -18,4 +18,4 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: pyaedt.modules.SetupTemplates.TR
+.. pprint:: ansys.aedt.core.modules.SetupTemplates.TR

@@ -413,7 +413,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
 
         """
         return self._app.materials
@@ -734,7 +734,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`pyaedt.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
             Material Manager that is used to manage materials in the project.
         """
         return self._app.materials
@@ -1453,7 +1453,7 @@ class GeometryModeler(Modeler):
         mode : str, optional
             Definition mode. Options are ``"axis"``, ``"axisrotation"``,
             ``"view"``, ``"zxz"``, and ``"zyz"`` The default
-            is ``"axis"``.  You can also use the ``pyaedt.generic.constants.CSMODE``
+            is ``"axis"``.  You can also use the ``ansys.aedt.core.generic.constants.CSMODE``
             enumerator.
 
             * If ``mode="axis"``, specify the ``x_pointing`` and ``y_pointing`` parameters.
@@ -1471,7 +1471,7 @@ class GeometryModeler(Modeler):
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
             default is ``"iso"``. the ``"rotate"`` option is obsolete. You can
-            also use the ``pyaedt.generic.constants.VIEW`` enumerator.
+            also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
 
             .. note::
               For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
@@ -6296,7 +6296,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        region : :class:`pyaedt.modules.MeshIcepak.SubRegion`
+        region : :class:`ansys.aedt.core.modules.MeshIcepak.SubRegion`
             Subregion to modify.
         parts : list of str
             One or more names of the parts to include in the subregion.

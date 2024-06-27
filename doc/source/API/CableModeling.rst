@@ -20,7 +20,7 @@ with the Cable Modeling HFSS Beta feature:
 
 They are accessible through:
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary

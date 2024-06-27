@@ -209,7 +209,7 @@ class VirtualCompliance:
 
     Parameters
     ----------
-    desktop : :class:``pyaedt.desktop.Desktop``
+    desktop : :class:``ansys.aedt.core.desktop.Desktop``
         Desktop object.
     template : str
         Full path to the template. Supported formats are JSON and TOML.
@@ -259,7 +259,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.generic.compliance.ReportTemplate`]
+        Dict[str, :class:`ansys.aedt.core.generic.compliance.ReportTemplate`]
         """
         return self._reports
 
@@ -273,7 +273,7 @@ class VirtualCompliance:
 
         Returns
         -------
-        Dict[str, :class:`pyaedt.generic.compliance.ParametersTemplate`]
+        Dict[str, :class:`ansys.aedt.core.generic.compliance.ParametersTemplate`]
         """
         return self._parameters
 

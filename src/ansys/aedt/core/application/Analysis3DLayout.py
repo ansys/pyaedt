@@ -138,7 +138,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.generic.configurations.Configurations`
+        :class:`ansys.aedt.core.generic.configurations.Configurations`
         """
         return self._configurations
 
@@ -148,7 +148,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+        :class:`ansys.aedt.core.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
         if self._post is None:
@@ -168,7 +168,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
+        :class:`ansys.aedt.core.modules.Mesh3DLayout.Mesh3d`
         """
         if self._mesh is None:
             from ansys.aedt.core.modules.Mesh3DLayout import Mesh3d
@@ -305,7 +305,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class:`ansys.aedt.core.modules.SolveSetup.Setup3DLayout`
 
         References
         ----------
@@ -356,7 +356,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup3DLayout`
+        :class:`ansys.aedt.core.modules.SolveSetup.Setup3DLayout`
             Setup object.
 
         """

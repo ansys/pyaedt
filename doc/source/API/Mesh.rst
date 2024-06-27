@@ -8,7 +8,7 @@ The ``Mesh`` module includes these classes:
 
 They are accessible through the mesh property:
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
