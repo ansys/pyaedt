@@ -2,12 +2,12 @@ Extensions
 ==========
 
 Extensions provide a simplified interface to perform automated workflows in AEDT.
-The user can install or uninstall these extensions using the extension manager.
+In AEDT, you can use the Extension Manager to add or remove extensions.
 For more information, see `Extension Manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_.
 
 Extensions are generally tool-specific and are therefore only accessible given the appropriate context. The following sections provide further clarification.
 
-Extensions can be launched in standalone mode from the console or from a python script. This is described on each extension section.
+You can launch extensions in standalone mode from the console or a Python script.
 
 Project extensions
 ==================

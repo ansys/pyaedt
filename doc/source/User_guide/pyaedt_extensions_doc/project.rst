@@ -1,16 +1,17 @@
 Import Nastran
 ==============
 
-Import Nastran or STL file in any 3D modeler application. The user can also preview the imported file and decimate it before import it.
+You can import a Nastran or STL file in any 3D modeler. You can also preview the imported file and decimate it prior to import.
 
-User can access the extension from the icon created in the Automation tab through the extension manager.
+You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
+
 The following image shows the extension user interface:
 
 .. image:: import_nastran_ui.png
   :width: 800
   :alt: Import Nastran UI
 
-User can launch the user interface from the terminal:
+You can also launch the extension user interface from the terminal:
 
 .. code::
 
@@ -18,7 +19,8 @@ User can launch the user interface from the terminal:
    SET PYAEDT_SCRIPT_VERSION=2024.1
    python.exe path/to/pyaedt/workflows/project/import_nastran.py
 
-The available arguments are: file_path, planar, lightweight, and decimate. These arguments can be obtained from the help:
+The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``decimate``.
+You can obtain these arguments from the help with this command:
 
 .. code::
 
@@ -32,7 +34,7 @@ This code shows how to pass the input file as an argument, which doesn't launch 
    export PYAEDT_SCRIPT_VERSION=2024.1
    python.exe path/to/pyaedt/workflows/project/import_nastran.py --file_path="my_file.stl"
 
-Fianlly, the extension can be used in a python script without the user interface with the following code:
+Finally, this code shows how you can run the extension directly from a Python script:
 
 .. code:: python
 
