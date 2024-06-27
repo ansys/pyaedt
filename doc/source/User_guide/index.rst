@@ -18,6 +18,13 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
             
             How to launch AEDT and create a project.
 
+   .. grid-item-card:: Extensions
+            :link: extensions
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to use PyAEDT extensions.
+
    .. grid-item-card:: Modeler
             :link: modeler
             :link-type: doc
@@ -72,6 +79,7 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
    :maxdepth: 2
 
    intro
+   extensions
    modeler
    mesh
    setup
