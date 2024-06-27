@@ -710,7 +710,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         if self.global_region.object:
-            args += ["Objects({})".format(str(self.global_region.object.id))]
+            args += ["Objects:=", [self.global_region.object.name]]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
@@ -1557,7 +1557,7 @@ class IcepakMesh(object):
             assignment = [i for i in self.modeler.object_names]
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
-        meshregion.Level = level
+        meshregion.settings["MeshRegionResolution"] = level
         all_objs = [i for i in self.modeler.object_names]
         created = bool(meshregion)
         if created:
