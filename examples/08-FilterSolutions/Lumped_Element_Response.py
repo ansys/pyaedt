@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 # Create the Lumped Design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
-design = pyaedt.FilterSolutions(version="2024.2", implementation_type= FilterImplementation.LUMPED)   
+design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
 design.attributes.filter_class = FilterClass.BAND_PASS
 design.attributes.filter_type = FilterType.BUTTERWORTH
 design.attributes.pass_band_center_frequency = "1G"

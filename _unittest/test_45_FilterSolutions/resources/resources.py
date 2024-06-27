@@ -34,3 +34,8 @@ def resources_driectory():
 
 def resource_path(resource_file_name):
     return os.path.join(resources_driectory(), resource_file_name)
+
+
+def read_resource_file(filename):
+    with open(resource_path(filename)) as f:
+        return f.read().splitlines()

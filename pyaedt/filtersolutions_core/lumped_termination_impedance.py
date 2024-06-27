@@ -49,12 +49,12 @@ class ComplexTerminationDefinition(Enum):
 
 
 class ComplexReactanceType(Enum):
-    """Selects type of complex impedance as reactance, equivalent inductance, or equivalent capacitqnce.
+    """Selects type of complex impedance as reactance, equivalent inductance, or equivalent capacitance.
 
     Attributes:
     REAC: Represents pure reactance of complex impedance.
-    IND: Represents equivalent inductance in Henrys.
-    CAP: Represents equivalent capacitance in Farads.
+    IND: Represents equivalent inductance in henries.
+    CAP: Represents equivalent capacitance in farads.
     """
 
     REAC = 0
@@ -78,20 +78,6 @@ class LumpedTerminationImpedance:
     """Manipulates access to the entries of source and load complex impedance tables.
 
     This class allows you to enter, edit or remove the entries of source and load complex impedance tables.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class
-        table_type: `TerminationType`
-            Whether selects source or load complex impedance table.
-
-    Methods
-    ----------
-    _define_termination_impedance_dll_functions:
-        Define argument types of DLL functions.
     """
 
     def __init__(self, table_type):
@@ -194,7 +180,7 @@ class LumpedTerminationImpedance:
         return int(table_row_count.value)
 
     def row(self, row_index):
-        """Export frequencies and complex impedances at given index of the complex impedances tables.
+        """Return frequencies and complex impedances at given index of the complex impedances tables.
 
         Parameters
         ----------

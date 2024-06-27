@@ -36,7 +36,8 @@ from pyaedt.misc.misc import installed_versions
 class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
-    def __init__(self, show_gui=True):
+    def __init__(self, show_gui=False, version=None):
+        self.version = version
         self._init_dll_path()
         self._init_dll(show_gui)
 
@@ -47,9 +48,18 @@ class DllInterface:
 
     def _init_dll_path(self):
         """Set DLL path and print the status of the DLL access to the screen."""
-        relative_path = "../../../build_output/64Release/nuhertz/FilterSolutionsAPI.dll"
-        self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
-        if not os.path.isfile(self.dll_path):
+        self_current_version = current_version()
+        if current_version() == "":
+            raise Exception("AEDT is not installed on your system. Install AEDT version 2025 R1 or higher.")
+        if self.version is None:
+            self.version = self_current_version
+        if float(self.version[0:6]) < 2025:
+            raise ValueError("PyAEDT supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later.")
+        if not (self.version in installed_versions()) and not (self.version + "CL" in installed_versions()):
+            raise ValueError("Specified version {} is not installed on your system".format(self.version[0:6]))
+        if self.version != self_current_version:
+            self.dll_path = os.path.join(installed_versions()[self.version], "nuhertz/FilterSolutionsAPI.dll")
+        else:
             self.dll_path = os.path.join(installed_versions()[current_version()], "nuhertz/FilterSolutionsAPI.dll")
             # pragma: no cover
         print("DLL Path:", self.dll_path)
@@ -98,10 +108,14 @@ class DllInterface:
         max_size: int
             Maximum number of string characters to return. This value is used for the string buffer size.
 
-        Returns
+        Raises
         -------
+        If there is an error in the execution of the DLL function, an exception is raised.
+
+        Returns
+        --------
         str
-            Requested string. If '`status`', an error message is returned.
+        The return value of the called DLL function.
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)
@@ -131,28 +145,26 @@ class DllInterface:
         Parameters
         ----------
         enum_type: Enum
-            Enum to call.
+            Type of Enum to convert.
         string: str
             String to convert.
 
         Returns
         -------
         str
-            Converted enum string.
+            Enum value of the converted string.
         """
         fixed_string = string.upper().replace(" ", "_")
         return enum_type[fixed_string]
 
     def enum_to_string(self, enum_value: Enum) -> str:
         """
-        Convert a string defined by an enum to a string.
+        Convert an enum value to a string.
 
         Parameters
         ----------
-        enum_type: Enum
-            Enum to call.
-        string: str
-            String to convert.
+        enum_value: Enum
+            Enum value to convert to string.
 
         Returns
         -------

@@ -144,24 +144,10 @@ class PoleZerosResponseColumn(Enum):
 
 
 class IdealResponse:
-    """Exports the data for available ideal filter responses.
+    """Returns the data for available ideal filter responses.
     Includes ``frequency``, ``time``, ``S parameters``, ``transfer function``, or ``pole zero location`` responses.
 
     This class allows you to construct all the necessary ideal response attributes for the ``FilterDesign`` class.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class
-    graph_setup: GraphSetup
-        Instance of the ``GraphSetup`` class
-
-    Methods
-    ----------
-    _define_response_dll_functions:
-        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -207,17 +193,17 @@ class IdealResponse:
         self._dll.getVSGAnalsyis.restype = c_int
 
     def _frequency_response_getter(self, column: FrequencyResponseColumn):
-        """Export the ideal filter frequency response.
+        """Return the ideal filter frequency response.
 
         Parameters
         ----------
         column: `FrequencyResponseColumn`
-            Parameter to export.
+            Parameter to return.
 
         Returns
         -------
         list
-            The requested parameter array.
+            The values for the requested frequency response column (e.g., magnitude, phase, etc.).
         """
         size = c_int()
         status = self._dll.getIdealFrequencyResponseSize(byref(size))
@@ -229,17 +215,17 @@ class IdealResponse:
         return values
 
     def _time_response_getter(self, column: TimeResponseColumn):
-        """Export the ideal filter time response.
+        """Return the ideal filter time response.
 
         Parameters
         ----------
         column: `TimeResponseColumn`
-            Parameter to export.
+            Parameter to return.
 
         Returns
         -------
         list
-            The requested parameter array.
+            The values for the requested time response column (e.g., step, pulse, etc.).
         """
         size = c_int()
         status = self._dll.getIdealTimeResponseSize(byref(size))
@@ -251,17 +237,17 @@ class IdealResponse:
         return values
 
     def _sparamaters_response_getter(self, column: SParametersResponseColumn):
-        """Export the ideal filter S parameters response.
+        """Return the ideal filter S parameters response.
 
         Parameters
         ----------
         column: `SParametersResponseColumn`
-            Parameter to export.
+            Parameter to return.
 
         Returns
         -------
         list
-            The requested parameter array.
+            The values for the requested S parameters response column (e.g., S11, S21, etc.).
         """
         size = c_int()
         status = self._dll.getIdealSParamatersResponseSize(byref(size))
@@ -273,17 +259,18 @@ class IdealResponse:
         return values
 
     def _pole_zeros_response_getter(self, column: PoleZerosResponseColumn):
-        """Export ideal pole zero location parameters.
+        """Return ideal pole zero location parameters (e.g., x coordinate of
+        the denominator of transmission zeros, etc.).
 
         Parameters
         ----------
         column: `PoleZerosResponseColumn`
-            Parameter to export.
+            Parameter to return.
 
         Returns
         -------
         list
-            The requested parameter array.
+            The values for the requested pole zero column.
         """
         size = c_int()
         status = self._dll.getIdealPoleZerosResponseSize(byref(size), column.value)
@@ -295,12 +282,18 @@ class IdealResponse:
         return values
 
     def transfer_function_response(self):
-        """Export ideal filter transfer function parameters.
+        """Return ideal filter transfer function parameters.
 
         Returns
         -------
-        list
+        str
             The requested parameter array.
+
+
+            str
+                Multi-line string where each line contains a coefficient from
+                the numerator and/or the denominator of the transfer function.
+                The coefficient for the highest-order term is first and the terms are in decreasing order.
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
@@ -336,12 +329,12 @@ class IdealResponse:
         maximum_frequency="5 GHz",
         vsg_analysis_enabled=False,
     ):
-        """Export the ideal filter frequency response for the given parameters.
+        """Return the ideal filter frequency response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `FrequencyResponseColumn`, optional
-            Parameter to export. The default is frequency response magnitude in dB.
+            Parameter to return. The default is frequency response magnitude in dB.
         minimum_frequency: str, optional
             The default is ``200 MHz``.
         maximum_frequency: str, optional
@@ -374,12 +367,12 @@ class IdealResponse:
         maximum_time="10 ns",
         vsg_analysis_enabled=False,
     ):
-        """Export the ideal filter time response for the given parameters.
+        """Return the ideal filter time response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `TimeResponseColumn`, optional
-            Parameter to export. The default is step time response.
+            Parameter to return. The default is step time response.
         minimum_time: str, optional
             The default is ``0 s``.
         maximum_time: str, optional
@@ -408,12 +401,12 @@ class IdealResponse:
         minimum_frequency="200 MHz",
         maximum_frequency="5 GHz",
     ):
-        """Export the ideal filter S parameters response for the given parameters.
+        """Return the ideal filter S parameters response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `SParametersResponseColumn`, optional
-            Parameter to export. The default is S21 parameter response in dB.
+            Parameter to return. The default is S21 parameter response in dB.
         minimum_frequency: str, optional
             The default is ``200 MHz``.
         maximum_frequency: str, optional
@@ -443,22 +436,22 @@ class IdealResponse:
         x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
         y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
     ):
-        """Export the ideal pole zero location for the given parameters.
+        """Return the ideal pole zero location for the given parameters.
 
         Parameters
         ----------
         x_axis_parameter: `PoleZerosResponseColumn`, optional
-            Parameter to export. The default is x coordinate of filter transmission zero denominator.
+            Parameter to return. The default is x coordinate of filter transmission zero denominator.
         y_axis_parameter: `PoleZerosResponseColumn`, optional
-            Parameter to export. The default is y coordinate of filter transmission zero denominator.
+            Parameter to return. The default is y coordinate of filter transmission zero denominator.
 
         Returns
         -------
         tuple: The tuple contains
                 list of str:
-                    The requested parameter.
+                    The x coordinates of the requested parameter.
                 list of str:
-                    The requested parameter.
+                    The y coordinates of the requested parameter.
         """
         x_parameter = self._pole_zeros_response_getter(x_axis_parameter)
         y_parameter = self._pole_zeros_response_getter(y_axis_parameter)

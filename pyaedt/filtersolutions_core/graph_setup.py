@@ -29,20 +29,7 @@ import pyaedt
 
 
 class GraphSetup:
-    """Defines the minimum and maximum of the frequency and time parameters of the filter
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class.
-
-    Methods
-    ----------
-    _define_graph_dll_functions:
-        Define argument types of DLL functions.
-    """
+    """Defines the frequency and time limits of the exported responses"""
 
     def __init__(self):
         self._dll = pyaedt.filtersolutions_core._dll_interface()._dll

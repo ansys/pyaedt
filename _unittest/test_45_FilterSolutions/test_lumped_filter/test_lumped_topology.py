@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from _unittest_solvers.conftest import config
-from filtersolutions_resource import resource_path
+from _unittest.conftest import config
 import pytest
 
 import pyaedt
@@ -33,8 +32,10 @@ from pyaedt.filtersolutions_core.attributes import FilterImplementation
 from pyaedt.filtersolutions_core.attributes import FilterType
 from pyaedt.generic.general_methods import is_linux
 
+from ..resources import read_resource_file
 
-@pytest.mark.skipif(is_linux, reason="FilterSolutions API fails on linux.")
+
+@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_lumped_generator_resistor_30(self):
@@ -42,60 +43,34 @@ class TestClass:
         assert lumpdesign.topology.generator_resistor == "50"
         lumpdesign.topology.generator_resistor = "30"
         assert lumpdesign.topology.generator_resistor == "30"
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("generator_resistor.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("generator_resistor.ckt")
 
     def test_lumped_load_resistor_30(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert lumpdesign.topology.load_resistor == "50"
         lumpdesign.topology.load_resistor = "30"
         assert lumpdesign.topology.load_resistor == "30"
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("laod_resistor.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("laod_resistor.ckt")
 
     def test_lumped_current_source(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert lumpdesign.topology.current_source is False
         lumpdesign.topology.current_source = True
         assert lumpdesign.topology.current_source
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("current_source.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
 
     def test_lumped_first_shunt(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert lumpdesign.topology.first_shunt
         lumpdesign.topology.first_shunt = True
         assert lumpdesign.topology.first_shunt
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("first_shunt.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_shunt.ckt")
 
     def test_lumped_first_series(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert lumpdesign.topology.first_shunt
         lumpdesign.topology.first_shunt = False
         assert lumpdesign.topology.first_shunt is False
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("first_series.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("first_series.ckt")
 
     def test_lumped_bridge_t(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -104,12 +79,7 @@ class TestClass:
         assert lumpdesign.topology.bridge_t is False
         lumpdesign.topology.bridge_t = True
         assert lumpdesign.topology.bridge_t
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("bridge_t.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t.ckt")
 
     def test_lumped_bridge_t_low(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -122,12 +92,7 @@ class TestClass:
         assert lumpdesign.topology.bridge_t_low is False
         lumpdesign.topology.bridge_t_low = True
         assert lumpdesign.topology.bridge_t_low
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("bridge_t_low.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_low.ckt")
 
     def test_lumped_bridge_t_high(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -140,12 +105,7 @@ class TestClass:
         assert lumpdesign.topology.bridge_t_high is False
         lumpdesign.topology.bridge_t_high = True
         assert lumpdesign.topology.bridge_t_high
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("bridge_t_high.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("bridge_t_high.ckt")
 
     def test_lumped_equal_inductors(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -154,12 +114,7 @@ class TestClass:
         assert lumpdesign.topology.equal_inductors is False
         lumpdesign.topology.equal_inductors = True
         assert lumpdesign.topology.equal_inductors
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("equal_inductors.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_inductors.ckt")
 
     def test_lumped_equal_capacitors(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -175,12 +130,7 @@ class TestClass:
         lumpdesign.topology.equal_capacitors = True
         assert lumpdesign.topology.min_cap
         assert lumpdesign.topology.equal_capacitors
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("equal_capacitors.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_capacitors.ckt")
 
     def test_lumped_equal_legs(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -189,12 +139,7 @@ class TestClass:
         assert lumpdesign.topology.equal_legs is False
         lumpdesign.topology.equal_legs = True
         assert lumpdesign.topology.equal_legs
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("equal_legs.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("equal_legs.ckt")
 
     def test_lumped_high_low_pass(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -203,12 +148,7 @@ class TestClass:
         assert lumpdesign.topology.high_low_pass is False
         lumpdesign.topology.high_low_pass = True
         assert lumpdesign.topology.high_low_pass
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("high_low_pass.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("high_low_pass.ckt")
 
     def test_lumped_high_low_pass_min_ind(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -219,12 +159,7 @@ class TestClass:
         assert lumpdesign.topology.high_low_pass_min_ind is False
         lumpdesign.topology.high_low_pass_min_ind = True
         assert lumpdesign.topology.high_low_pass_min_ind
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("high_low_pass_min_ind.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("high_low_pass_min_ind.ckt")
 
     def test_lumped_zig_zag(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -235,12 +170,7 @@ class TestClass:
         assert lumpdesign.topology.zig_zag is False
         lumpdesign.topology.zig_zag = True
         assert lumpdesign.topology.zig_zag
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("zig_zag.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("zig_zag.ckt")
 
     def test_lumped_min_ind(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -253,12 +183,7 @@ class TestClass:
         assert lumpdesign.topology.min_ind
         lumpdesign.topology.min_ind = True
         assert lumpdesign.topology.min_ind
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("min_ind.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_ind.ckt")
 
     def test_lumped_min_cap(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -271,12 +196,7 @@ class TestClass:
         assert lumpdesign.topology.min_cap is False
         lumpdesign.topology.min_cap = True
         assert lumpdesign.topology.min_cap
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("min_cap.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("min_cap.ckt")
 
     def test_lumped_set_source_res(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -290,12 +210,7 @@ class TestClass:
         assert lumpdesign.topology.zig_zag
         lumpdesign.topology.set_source_res = True
         assert lumpdesign.topology.set_source_res
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("set_source_res.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("set_source_res.ckt")
 
     def test_lumped_trap_topology(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -308,12 +223,7 @@ class TestClass:
         assert lumpdesign.topology.trap_topology is False
         lumpdesign.topology.trap_topology = True
         assert lumpdesign.topology.trap_topology
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("trap_topology.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("trap_topology.ckt")
 
     def test_lumped_node_cap_ground(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -324,12 +234,7 @@ class TestClass:
         assert lumpdesign.topology.node_cap_ground is False
         lumpdesign.topology.node_cap_ground = True
         assert lumpdesign.topology.node_cap_ground
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("node_cap_ground.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("node_cap_ground.ckt")
 
     def test_lumped_match_impedance(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -340,12 +245,7 @@ class TestClass:
         assert lumpdesign.topology.match_impedance is False
         lumpdesign.topology.match_impedance = True
         assert lumpdesign.topology.match_impedance
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("match_impedance.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("match_impedance.ckt")
 
     def test_lumped_complex_termination(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -362,12 +262,7 @@ class TestClass:
 
     def test_lumped_circuit_export(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("netlist.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("netlist.ckt")
 
     def test_lumped_diplexer1_hi_lo(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -375,12 +270,7 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.HI_LO
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.HI_LO
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer1_hi_lo.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_hi_lo.ckt")
 
     def test_lumped_diplexer1_bp_1(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -388,12 +278,7 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_1
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer1_bp_1.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_1.ckt")
 
     def test_lumped_diplexer1_bp_2(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -401,12 +286,7 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_2
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_1
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_2
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer1_bp_2.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer1_bp_2.ckt")
 
     def test_lumped_diplexer2_bp_bs(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -414,12 +294,7 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.BP_BS
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.BP_BS
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer2_bp_bs.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_bp_bs.ckt")
 
     def test_lumped_diplexer2_triplexer_1(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -427,12 +302,7 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.TRIPLEXER_1
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer2_triplexer_1.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_triplexer_1.ckt")
 
     def test_lumped_diplexer2_triplexer_2(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -440,9 +310,4 @@ class TestClass:
         lumpdesign.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert lumpdesign.attributes.filter_class == FilterClass.DIPLEXER_2
         assert lumpdesign.attributes.diplexer_type == DiplexerType.TRIPLEXER_2
-        netlist = lumpdesign.topology.circuit_response()
-        netlist_file = open(resource_path("diplexer2_triplexer_2.ckt"))
-        lines_netlist = netlist.splitlines()
-        lines_netlist_file = netlist_file.readlines()
-        for i in range(len(lines_netlist_file)):
-            assert lines_netlist_file[i] == lines_netlist[i] + "\n"
+        assert lumpdesign.topology.circuit_response().splitlines() == read_resource_file("diplexer2_triplexer_2.ckt")

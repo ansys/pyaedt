@@ -223,18 +223,6 @@ class Attributes:
     """Defines attributes and parameters of filters.
 
     This class allows you to construct all the necessary attributes for the ``FilterDesign`` class.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class.
-
-    Methods
-    ----------
-    _define_attributes_dll_functions:
-        Define argument types of DLL functions.
     """
 
     def __init__(self):

@@ -35,18 +35,6 @@ class LumpedTopology:
     """Defines attributes and parameters of lumped filters.
 
     This class allows you to construct all the necessary attributes for the LumpedDesign class.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class
-
-    Methods
-    ----------
-    _define_topology_dll_functions:
-        Define argument types of DLL functions.
     """
 
     def __init__(self):
@@ -216,8 +204,8 @@ class LumpedTopology:
 
     @property
     def first_shunt(self) -> bool:
-        """Flag indicating if the shunt element(s) as first element(s) in synthesized circuit is enabled.
-        If ``False`` implements series element(s) as first element(s) in synthesized circuit .
+        """Flag indicating if shunt element(s) are first in the synthesized circuit.
+        If ``False``, series element(s) are first.
 
         Returns
         -------

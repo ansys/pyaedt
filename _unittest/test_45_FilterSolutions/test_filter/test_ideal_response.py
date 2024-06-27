@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from _unittest_solvers.conftest import config
-from filtersolutions_resource import resource_path
+from _unittest.conftest import config
 import pytest
 
 import pyaedt
@@ -34,8 +33,10 @@ from pyaedt.filtersolutions_core.ideal_response import SParametersResponseColumn
 from pyaedt.filtersolutions_core.ideal_response import TimeResponseColumn
 from pyaedt.generic.general_methods import is_linux
 
+from ..resources import read_resource_file
 
-@pytest.mark.skipif(is_linux, reason="FilterSolutions API fails on linux.")
+
+@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_frequency_response_getter(self):
@@ -92,264 +93,260 @@ class TestClass:
         assert freqs[300] == 8669097136.772985
         assert freqs[-1] == 31214328219.225075
 
-        def test_time_response_getter(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            step_response = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
-            assert len(step_response) == 300
-            assert step_response[100] == pytest.approx(1.0006647872833518)
-            assert step_response[200] == pytest.approx(0.9999988501385255)
-            assert step_response[-1] == pytest.approx(0.9999999965045667)
-            ramp_response = design.ideal_response._time_response_getter(TimeResponseColumn.RAMP_RESPONSE)
-            assert len(ramp_response) == 300
-            assert ramp_response[100] == pytest.approx(2.8184497075983895e-09)
-            assert ramp_response[200] == pytest.approx(6.151630831481296e-09)
-            assert ramp_response[-1] == pytest.approx(9.45163045223663e-09)
-            impulse_response = design.ideal_response._time_response_getter(TimeResponseColumn.IMPULSE_RESPONSE)
-            assert len(impulse_response) == 300
-            assert impulse_response[100] == pytest.approx(-8537300.294689251)
-            assert impulse_response[200] == pytest.approx(-8538.227868086184)
-            assert impulse_response[-1] == pytest.approx(3.996366349798659)
-            step_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE_DB)
-            assert len(step_response_db) == 300
-            assert step_response_db[100] == pytest.approx(-1.0381882969997027)
-            assert step_response_db[200] == pytest.approx(-1.0439706350712086)
-            assert step_response_db[-1] == pytest.approx(-1.0439606778565478)
-            ramp_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.RAMP_RESPONSE_DB)
-            assert len(ramp_response_db) == 300
-            assert ramp_response_db[100] == pytest.approx(-10.540507747401335)
-            assert ramp_response_db[200] == pytest.approx(-3.7609082425924782)
-            assert ramp_response_db[-1] == pytest.approx(-0.03057888328183367)
-            impulse_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.IMPULSE_RESPONSE_DB)
-            assert len(impulse_response_db) == 300
-            assert impulse_response_db[100] == pytest.approx(-48.60282519370875)
-            assert impulse_response_db[200] == pytest.approx(-100.0)
-            assert impulse_response_db[-1] == pytest.approx(-100.0)
-            time = design.ideal_response._time_response_getter(TimeResponseColumn.TIME)
-            assert len(time) == 300
-            assert time[1] == pytest.approx(3.3333333333333335e-11)
-            assert time[200] == pytest.approx(6.666666666666667e-09)
-            assert time[-1] == pytest.approx(9.966666666666667e-09)
+    def test_time_response_getter(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        step_response = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE)
+        assert len(step_response) == 300
+        assert step_response[100] == pytest.approx(1.0006647872833518)
+        assert step_response[200] == pytest.approx(0.9999988501385255)
+        assert step_response[-1] == pytest.approx(0.9999999965045667)
+        ramp_response = design.ideal_response._time_response_getter(TimeResponseColumn.RAMP_RESPONSE)
+        assert len(ramp_response) == 300
+        assert ramp_response[100] == pytest.approx(2.8184497075983895e-09)
+        assert ramp_response[200] == pytest.approx(6.151630831481296e-09)
+        assert ramp_response[-1] == pytest.approx(9.45163045223663e-09)
+        impulse_response = design.ideal_response._time_response_getter(TimeResponseColumn.IMPULSE_RESPONSE)
+        assert len(impulse_response) == 300
+        assert impulse_response[100] == pytest.approx(-8537300.294689251)
+        assert impulse_response[200] == pytest.approx(-8538.227868086184)
+        assert impulse_response[-1] == pytest.approx(3.996366349798659)
+        step_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.STEP_RESPONSE_DB)
+        assert len(step_response_db) == 300
+        assert step_response_db[100] == pytest.approx(-1.0381882969997027)
+        assert step_response_db[200] == pytest.approx(-1.0439706350712086)
+        assert step_response_db[-1] == pytest.approx(-1.0439606778565478)
+        ramp_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.RAMP_RESPONSE_DB)
+        assert len(ramp_response_db) == 300
+        assert ramp_response_db[100] == pytest.approx(-10.540507747401335)
+        assert ramp_response_db[200] == pytest.approx(-3.7609082425924782)
+        assert ramp_response_db[-1] == pytest.approx(-0.03057888328183367)
+        impulse_response_db = design.ideal_response._time_response_getter(TimeResponseColumn.IMPULSE_RESPONSE_DB)
+        assert len(impulse_response_db) == 300
+        assert impulse_response_db[100] == pytest.approx(-48.60282519370875)
+        assert impulse_response_db[200] == pytest.approx(-100.0)
+        assert impulse_response_db[-1] == pytest.approx(-100.0)
+        time = design.ideal_response._time_response_getter(TimeResponseColumn.TIME)
+        assert len(time) == 300
+        assert time[1] == pytest.approx(3.3333333333333335e-11)
+        assert time[200] == pytest.approx(6.666666666666667e-09)
+        assert time[-1] == pytest.approx(9.966666666666667e-09)
 
-        def test_sparameters_response_getter(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            s11_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
-            assert len(s11_response_db) == 500
-            assert s11_response_db[100] == pytest.approx(-41.93847819973562)
-            assert s11_response_db[300] == pytest.approx(-0.1703333929877981)
-            assert s11_response_db[-1] == pytest.approx(-4.742889883456317e-07)
-            s21_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S21_DB)
-            assert len(s21_response_db) == 500
-            assert s21_response_db[100] == pytest.approx(-0.0002779395744451339)
-            assert s21_response_db[300] == pytest.approx(-14.14973347970826)
-            assert s21_response_db[-1] == pytest.approx(-69.61741290615645)
-            s11_response = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_ARITH)
-            assert len(s11_response) == 500
-            assert s11_response[100] == pytest.approx(0.007999744012287301)
-            assert s11_response[300] == pytest.approx(0.9805806756909208)
-            assert s11_response[-1] == pytest.approx(0.9999999453954638)
-            s21_response = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S21_ARITH)
-            assert len(s21_response) == 500
-            assert s21_response[100] == pytest.approx(0.9999680015359182)
-            assert s21_response[300] == pytest.approx(0.1961161351381822)
-            assert s21_response[-1] == pytest.approx(0.000330467956321812)
-            freqs = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.FREQUENCY)
-            assert len(freqs) == 500
-            assert freqs[100] == pytest.approx(2392202091.5388284)
-            assert freqs[300] == pytest.approx(8669097136.772985)
-            assert freqs[-1] == pytest.approx(31214328219.225075)
+    def test_sparameters_response_getter(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        s11_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_DB)
+        assert len(s11_response_db) == 500
+        assert s11_response_db[100] == pytest.approx(-41.93847819973562)
+        assert s11_response_db[300] == pytest.approx(-0.1703333929877981)
+        assert s11_response_db[-1] == pytest.approx(-4.742889883456317e-07)
+        s21_response_db = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S21_DB)
+        assert len(s21_response_db) == 500
+        assert s21_response_db[100] == pytest.approx(-0.0002779395744451339)
+        assert s21_response_db[300] == pytest.approx(-14.14973347970826)
+        assert s21_response_db[-1] == pytest.approx(-69.61741290615645)
+        s11_response = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S11_ARITH)
+        assert len(s11_response) == 500
+        assert s11_response[100] == pytest.approx(0.007999744012287301)
+        assert s11_response[300] == pytest.approx(0.9805806756909208)
+        assert s11_response[-1] == pytest.approx(0.9999999453954638)
+        s21_response = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.S21_ARITH)
+        assert len(s21_response) == 500
+        assert s21_response[100] == pytest.approx(0.9999680015359182)
+        assert s21_response[300] == pytest.approx(0.1961161351381822)
+        assert s21_response[-1] == pytest.approx(0.000330467956321812)
+        freqs = design.ideal_response._sparamaters_response_getter(SParametersResponseColumn.FREQUENCY)
+        assert len(freqs) == 500
+        assert freqs[100] == pytest.approx(2392202091.5388284)
+        assert freqs[300] == pytest.approx(8669097136.772985)
+        assert freqs[-1] == pytest.approx(31214328219.225075)
 
-        def test_pole_zeros_response_getter(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
-            assert len(pole_zero_den_x) == 5
-            assert pole_zero_den_x[0] == pytest.approx(-1000000000.0)
-            assert pole_zero_den_x[1] == pytest.approx(-809016994.3749474)
-            assert pole_zero_den_x[2] == pytest.approx(-809016994.3749474)
-            assert pole_zero_den_x[3] == pytest.approx(-309016994.3749475)
-            assert pole_zero_den_x[4] == pytest.approx(-309016994.3749475)
-            pole_zero_den_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_Y)
-            assert len(pole_zero_den_y) == 5
-            assert pole_zero_den_y[0] == pytest.approx(0.0)
-            assert pole_zero_den_y[1] == pytest.approx(587785252.2924731)
-            assert pole_zero_den_y[2] == pytest.approx(-587785252.2924731)
-            assert pole_zero_den_y[3] == pytest.approx(951056516.2951534)
-            assert pole_zero_den_y[4] == pytest.approx(-951056516.2951534)
-            pole_zero_num_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_NUM_X)
-            assert len(pole_zero_num_x) == 0
-            pole_zero_num_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_NUM_Y)
-            assert len(pole_zero_num_y) == 0
-            proto_pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_TX_ZERO_DEN_X
-            )
-            assert len(proto_pole_zero_den_x) == 5
-            assert proto_pole_zero_den_x[0] == pytest.approx(-0.30901699437494745)
-            assert proto_pole_zero_den_x[1] == pytest.approx(-0.30901699437494745)
-            assert proto_pole_zero_den_x[2] == pytest.approx(-0.8090169943749475)
-            assert proto_pole_zero_den_x[3] == pytest.approx(-0.8090169943749475)
-            assert proto_pole_zero_den_x[4] == pytest.approx(-1.0)
-            proto_pole_zero_den_y = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_TX_ZERO_DEN_Y
-            )
-            assert len(proto_pole_zero_den_y) == 5
-            assert proto_pole_zero_den_y[0] == pytest.approx(0.9510565162951534)
-            assert proto_pole_zero_den_y[1] == pytest.approx(-0.9510565162951534)
-            assert proto_pole_zero_den_y[2] == pytest.approx(-0.5877852522924731)
-            assert proto_pole_zero_den_y[3] == pytest.approx(0.5877852522924731)
-            assert proto_pole_zero_den_y[4] == pytest.approx(0.0)
-            proto_pole_zero_num_x = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_TX_ZERO_NUM_X
-            )
-            assert len(proto_pole_zero_num_x) == 0
-            proto_pole_zero_num_y = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_TX_ZERO_NUM_Y
-            )
-            assert len(proto_pole_zero_num_y) == 0
-            rx_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_X)
-            assert len(rx_zero_den_x) == 5
-            assert rx_zero_den_x[0] == pytest.approx(-1000000000.0)
-            assert rx_zero_den_x[1] == pytest.approx(-809016994.3749474)
-            assert rx_zero_den_x[2] == pytest.approx(-809016994.3749474)
-            assert rx_zero_den_x[3] == pytest.approx(-309016994.3749475)
-            assert rx_zero_den_x[4] == pytest.approx(-309016994.3749475)
-            rx_zero_den_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_Y)
-            assert len(rx_zero_den_y) == 5
-            assert rx_zero_den_y[0] == pytest.approx(0.0)
-            assert rx_zero_den_y[1] == pytest.approx(587785252.2924731)
-            assert rx_zero_den_y[2] == pytest.approx(-587785252.2924731)
-            assert rx_zero_den_y[3] == pytest.approx(951056516.2951534)
-            assert rx_zero_den_y[4] == pytest.approx(-951056516.2951534)
-            rx_zero_num_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_NUM_X)
-            assert len(rx_zero_num_x) == 5
-            assert rx_zero_num_x[0] == pytest.approx(0.0)
-            assert rx_zero_num_x[1] == pytest.approx(0.0)
-            assert rx_zero_num_x[2] == pytest.approx(0.0)
-            assert rx_zero_num_x[3] == pytest.approx(0.0)
-            assert rx_zero_num_x[4] == pytest.approx(0.0)
-            rx_zero_num_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_NUM_Y)
-            assert len(rx_zero_num_y) == 5
-            assert rx_zero_num_y[0] == pytest.approx(0.0)
-            assert rx_zero_num_y[1] == pytest.approx(0.0)
-            assert rx_zero_num_y[2] == pytest.approx(0.0)
-            assert rx_zero_num_y[3] == pytest.approx(0.0)
-            assert rx_zero_num_y[4] == pytest.approx(0.0)
-            proto_rx_zero_den_x = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_RX_ZERO_DEN_X
-            )
-            assert len(proto_rx_zero_den_x) == 5
-            assert proto_rx_zero_den_x[0] == pytest.approx(-0.30901699437494745)
-            assert proto_rx_zero_den_x[1] == pytest.approx(-0.30901699437494745)
-            assert proto_rx_zero_den_x[2] == pytest.approx(-0.8090169943749475)
-            assert proto_rx_zero_den_x[3] == pytest.approx(-0.8090169943749475)
-            assert proto_rx_zero_den_x[4] == pytest.approx(-1.0)
-            proto_rx_zero_den_y = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_RX_ZERO_DEN_Y
-            )
-            assert len(proto_rx_zero_den_y) == 5
-            assert proto_rx_zero_den_y[0] == pytest.approx(0.9510565162951534)
-            assert proto_rx_zero_den_y[1] == pytest.approx(-0.9510565162951534)
-            assert proto_rx_zero_den_y[2] == pytest.approx(-0.5877852522924731)
-            assert proto_rx_zero_den_y[3] == pytest.approx(0.5877852522924731)
-            assert proto_rx_zero_den_y[4] == pytest.approx(0.0)
-            proto_rx_zero_num_x = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_RX_ZERO_NUM_X
-            )
-            assert len(proto_rx_zero_num_x) == 5
-            assert proto_rx_zero_num_x[0] == pytest.approx(0.0)
-            assert proto_rx_zero_num_x[1] == pytest.approx(0.0)
-            assert proto_rx_zero_num_x[2] == pytest.approx(0.0)
-            assert proto_rx_zero_num_x[3] == pytest.approx(0.0)
-            assert proto_rx_zero_num_x[4] == pytest.approx(0.0)
-            proto_rx_zero_num_y = design.ideal_response._pole_zeros_response_getter(
-                PoleZerosResponseColumn.PROTO_RX_ZERO_NUM_Y
-            )
-            assert len(proto_rx_zero_num_y) == 5
-            assert proto_rx_zero_num_y[0] == pytest.approx(0.0)
-            assert proto_rx_zero_num_y[1] == pytest.approx(0.0)
-            assert proto_rx_zero_num_y[2] == pytest.approx(0.0)
-            assert proto_rx_zero_num_y[3] == pytest.approx(0.0)
-            assert proto_rx_zero_num_y[4] == pytest.approx(0.0)
+    def test_pole_zeros_response_getter(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
+        assert len(pole_zero_den_x) == 5
+        assert pole_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert pole_zero_den_x[1] == pytest.approx(-809016994.3749474)
+        assert pole_zero_den_x[2] == pytest.approx(-809016994.3749474)
+        assert pole_zero_den_x[3] == pytest.approx(-309016994.3749475)
+        assert pole_zero_den_x[4] == pytest.approx(-309016994.3749475)
+        pole_zero_den_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_Y)
+        assert len(pole_zero_den_y) == 5
+        assert pole_zero_den_y[0] == pytest.approx(0.0)
+        assert pole_zero_den_y[1] == pytest.approx(587785252.2924731)
+        assert pole_zero_den_y[2] == pytest.approx(-587785252.2924731)
+        assert pole_zero_den_y[3] == pytest.approx(951056516.2951534)
+        assert pole_zero_den_y[4] == pytest.approx(-951056516.2951534)
+        pole_zero_num_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_NUM_X)
+        assert len(pole_zero_num_x) == 0
+        pole_zero_num_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_NUM_Y)
+        assert len(pole_zero_num_y) == 0
+        proto_pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_TX_ZERO_DEN_X
+        )
+        assert len(proto_pole_zero_den_x) == 5
+        assert proto_pole_zero_den_x[0] == pytest.approx(-0.30901699437494745)
+        assert proto_pole_zero_den_x[1] == pytest.approx(-0.30901699437494745)
+        assert proto_pole_zero_den_x[2] == pytest.approx(-0.8090169943749475)
+        assert proto_pole_zero_den_x[3] == pytest.approx(-0.8090169943749475)
+        assert proto_pole_zero_den_x[4] == pytest.approx(-1.0)
+        proto_pole_zero_den_y = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_TX_ZERO_DEN_Y
+        )
+        assert len(proto_pole_zero_den_y) == 5
+        assert proto_pole_zero_den_y[0] == pytest.approx(0.9510565162951534)
+        assert proto_pole_zero_den_y[1] == pytest.approx(-0.9510565162951534)
+        assert proto_pole_zero_den_y[2] == pytest.approx(-0.5877852522924731)
+        assert proto_pole_zero_den_y[3] == pytest.approx(0.5877852522924731)
+        assert proto_pole_zero_den_y[4] == pytest.approx(0.0)
+        proto_pole_zero_num_x = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_TX_ZERO_NUM_X
+        )
+        assert len(proto_pole_zero_num_x) == 0
+        proto_pole_zero_num_y = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_TX_ZERO_NUM_Y
+        )
+        assert len(proto_pole_zero_num_y) == 0
+        rx_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_X)
+        assert len(rx_zero_den_x) == 5
+        assert rx_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert rx_zero_den_x[1] == pytest.approx(-809016994.3749474)
+        assert rx_zero_den_x[2] == pytest.approx(-809016994.3749474)
+        assert rx_zero_den_x[3] == pytest.approx(-309016994.3749475)
+        assert rx_zero_den_x[4] == pytest.approx(-309016994.3749475)
+        rx_zero_den_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_Y)
+        assert len(rx_zero_den_y) == 5
+        assert rx_zero_den_y[0] == pytest.approx(0.0)
+        assert rx_zero_den_y[1] == pytest.approx(587785252.2924731)
+        assert rx_zero_den_y[2] == pytest.approx(-587785252.2924731)
+        assert rx_zero_den_y[3] == pytest.approx(951056516.2951534)
+        assert rx_zero_den_y[4] == pytest.approx(-951056516.2951534)
+        rx_zero_num_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_NUM_X)
+        assert len(rx_zero_num_x) == 5
+        assert rx_zero_num_x[0] == pytest.approx(0.0)
+        assert rx_zero_num_x[1] == pytest.approx(0.0)
+        assert rx_zero_num_x[2] == pytest.approx(0.0)
+        assert rx_zero_num_x[3] == pytest.approx(0.0)
+        assert rx_zero_num_x[4] == pytest.approx(0.0)
+        rx_zero_num_y = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_NUM_Y)
+        assert len(rx_zero_num_y) == 5
+        assert rx_zero_num_y[0] == pytest.approx(0.0)
+        assert rx_zero_num_y[1] == pytest.approx(0.0)
+        assert rx_zero_num_y[2] == pytest.approx(0.0)
+        assert rx_zero_num_y[3] == pytest.approx(0.0)
+        assert rx_zero_num_y[4] == pytest.approx(0.0)
+        proto_rx_zero_den_x = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_RX_ZERO_DEN_X
+        )
+        assert len(proto_rx_zero_den_x) == 5
+        assert proto_rx_zero_den_x[0] == pytest.approx(-0.30901699437494745)
+        assert proto_rx_zero_den_x[1] == pytest.approx(-0.30901699437494745)
+        assert proto_rx_zero_den_x[2] == pytest.approx(-0.8090169943749475)
+        assert proto_rx_zero_den_x[3] == pytest.approx(-0.8090169943749475)
+        assert proto_rx_zero_den_x[4] == pytest.approx(-1.0)
+        proto_rx_zero_den_y = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_RX_ZERO_DEN_Y
+        )
+        assert len(proto_rx_zero_den_y) == 5
+        assert proto_rx_zero_den_y[0] == pytest.approx(0.9510565162951534)
+        assert proto_rx_zero_den_y[1] == pytest.approx(-0.9510565162951534)
+        assert proto_rx_zero_den_y[2] == pytest.approx(-0.5877852522924731)
+        assert proto_rx_zero_den_y[3] == pytest.approx(0.5877852522924731)
+        assert proto_rx_zero_den_y[4] == pytest.approx(0.0)
+        proto_rx_zero_num_x = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_RX_ZERO_NUM_X
+        )
+        assert len(proto_rx_zero_num_x) == 5
+        assert proto_rx_zero_num_x[0] == pytest.approx(0.0)
+        assert proto_rx_zero_num_x[1] == pytest.approx(0.0)
+        assert proto_rx_zero_num_x[2] == pytest.approx(0.0)
+        assert proto_rx_zero_num_x[3] == pytest.approx(0.0)
+        assert proto_rx_zero_num_x[4] == pytest.approx(0.0)
+        proto_rx_zero_num_y = design.ideal_response._pole_zeros_response_getter(
+            PoleZerosResponseColumn.PROTO_RX_ZERO_NUM_Y
+        )
+        assert len(proto_rx_zero_num_y) == 5
+        assert proto_rx_zero_num_y[0] == pytest.approx(0.0)
+        assert proto_rx_zero_num_y[1] == pytest.approx(0.0)
+        assert proto_rx_zero_num_y[2] == pytest.approx(0.0)
+        assert proto_rx_zero_num_y[3] == pytest.approx(0.0)
+        assert proto_rx_zero_num_y[4] == pytest.approx(0.0)
 
-        def test_filter_vsg_analysis_enabled(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            assert design.ideal_response.vsg_analysis_enabled is False
-            design.ideal_response.vsg_analysis_enabled = True
-            assert design.ideal_response.vsg_analysis_enabled
+    def test_filter_vsg_analysis_enabled(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.ideal_response.vsg_analysis_enabled is False
+        design.ideal_response.vsg_analysis_enabled = True
+        assert design.ideal_response.vsg_analysis_enabled
 
-        def test_frequency_response(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            freq, mag_db = design.ideal_response.frequency_response(
-                y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
-                minimum_frequency="200 MHz",
-                maximum_frequency="5 GHz",
-                vsg_analysis_enabled=False,
-            )
-            assert len(freq) == 500
-            assert freq[100] == pytest.approx(380730787.74317527)
-            assert freq[300] == pytest.approx(1379729661.4612174)
-            assert freq[-1] == pytest.approx(4967914631.382509)
-            assert len(mag_db) == 500
-            assert mag_db[100] == pytest.approx(-0.0002779395744451339)
-            assert mag_db[300] == pytest.approx(-14.14973347970826)
-            assert mag_db[-1] == pytest.approx(-69.61741290615645)
+    def test_frequency_response(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        freq, mag_db = design.ideal_response.frequency_response(
+            y_axis_parameter=FrequencyResponseColumn.MAGNITUDE_DB,
+            minimum_frequency="200 MHz",
+            maximum_frequency="5 GHz",
+            vsg_analysis_enabled=False,
+        )
+        assert len(freq) == 500
+        assert freq[100] == pytest.approx(380730787.74317527)
+        assert freq[300] == pytest.approx(1379729661.4612174)
+        assert freq[-1] == pytest.approx(4967914631.382509)
+        assert len(mag_db) == 500
+        assert mag_db[100] == pytest.approx(-0.0002779395744451339)
+        assert mag_db[300] == pytest.approx(-14.14973347970826)
+        assert mag_db[-1] == pytest.approx(-69.61741290615645)
 
-        def test_time_response(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            time, step_response = design.ideal_response.time_response(
-                y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
-                minimum_time="0 ns",
-                maximum_time="10 ns",
-                vsg_analysis_enabled=False,
-            )
-            assert len(time) == 300
-            assert time[100] == pytest.approx(3.334e-09)
-            assert time[200] == pytest.approx(6.667e-09)
-            assert time[-1] == pytest.approx(9.9667e-09)
+    def test_time_response(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        time, step_response = design.ideal_response.time_response(
+            y_axis_parameter=TimeResponseColumn.STEP_RESPONSE,
+            minimum_time="0 ns",
+            maximum_time="10 ns",
+            vsg_analysis_enabled=False,
+        )
+        assert len(time) == 300
+        assert time[100] == pytest.approx(3.334e-09)
+        assert time[200] == pytest.approx(6.667e-09)
+        assert time[-1] == pytest.approx(9.9667e-09)
+        assert len(step_response) == 300
+        assert step_response[100] == pytest.approx(1.0006647872833518)
+        assert step_response[200] == pytest.approx(0.9999988501385255)
+        assert step_response[-1] == pytest.approx(0.9999999965045667)
 
-            assert len(step_response) == 300
-            assert step_response[100] == pytest.approx(1.0006647872833518)
-            assert step_response[200] == pytest.approx(0.9999988501385255)
-            assert step_response[-1] == pytest.approx(0.9999999965045667)
+    def test_s_parameters(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        freq, s21_db = design.ideal_response.s_parameters(
+            y_axis_parameter=SParametersResponseColumn.S21_DB,
+            minimum_frequency="200 MHz",
+            maximum_frequency="5 GHz",
+        )
+        assert len(freq) == 500
+        assert freq[100] == pytest.approx(380730787.74317527)
+        assert freq[300] == pytest.approx(1379729661.4612174)
+        assert freq[-1] == pytest.approx(4967914631.382509)
+        assert len(s21_db) == 500
+        assert s21_db[100] == pytest.approx(-0.0002779395744451339)
+        assert s21_db[300] == pytest.approx(-14.14973347970826)
+        assert s21_db[-1] == pytest.approx(-69.61741290615645)
 
-        def test_s_parameters(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            freq, s21_db = design.ideal_response.s_parameters(
-                y_axis_parameter=SParametersResponseColumn.S21_DB,
-                minimum_frequency="200 MHz",
-                maximum_frequency="5 GHz",
-            )
-            assert len(freq) == 500
-            assert freq[100] == pytest.approx(380730787.74317527)
-            assert freq[300] == pytest.approx(1379729661.4612174)
-            assert freq[-1] == pytest.approx(4967914631.382509)
-            assert len(s21_db) == 500
-            assert s21_db[100] == pytest.approx(-0.0002779395744451339)
-            assert s21_db[300] == pytest.approx(-14.14973347970826)
-            assert s21_db[-1] == pytest.approx(-69.61741290615645)
+    def test_pole_zero_locations(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        tx_zero_den_x, tx_zero_den_y = design.ideal_response.pole_zero_locations(
+            x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
+            y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
+        )
+        assert len(tx_zero_den_x) == 5
+        assert tx_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert tx_zero_den_x[1] == pytest.approx(-809016994.3749474)
+        assert tx_zero_den_x[2] == pytest.approx(-809016994.3749474)
+        assert tx_zero_den_x[3] == pytest.approx(-309016994.3749475)
+        assert tx_zero_den_x[4] == pytest.approx(-309016994.3749475)
+        assert len(tx_zero_den_y) == 5
+        assert tx_zero_den_y[0] == pytest.approx(0.0)
+        assert tx_zero_den_y[1] == pytest.approx(587785252.2924731)
+        assert tx_zero_den_y[2] == pytest.approx(-587785252.2924731)
+        assert tx_zero_den_y[3] == pytest.approx(951056516.2951534)
+        assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
-        def test_pole_zero_locations(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            tx_zero_den_x, tx_zero_den_y = design.ideal_response.pole_zero_locations(
-                x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
-                y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
-            )
-            assert len(tx_zero_den_x) == 5
-            assert tx_zero_den_x[0] == pytest.approx(-1000000000.0)
-            assert tx_zero_den_x[1] == pytest.approx(-809016994.3749474)
-            assert tx_zero_den_x[2] == pytest.approx(-809016994.3749474)
-            assert tx_zero_den_x[3] == pytest.approx(-309016994.3749475)
-            assert tx_zero_den_x[4] == pytest.approx(-309016994.3749475)
-            assert len(tx_zero_den_y) == 5
-            assert tx_zero_den_y[0] == pytest.approx(0.0)
-            assert tx_zero_den_y[1] == pytest.approx(587785252.2924731)
-            assert tx_zero_den_y[2] == pytest.approx(-587785252.2924731)
-            assert tx_zero_den_y[3] == pytest.approx(951056516.2951534)
-            assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
-
-        def test_transfer_function_response(self):
-            design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-            list = design.ideal_response.transfer_function_response()
-            list_file = open(resource_path("transferfunction.ckt"))
-            lines_list = list.splitlines()
-            lines_list_file = list_file.readlines()
-            for i in range(len(lines_list_file)):
-                assert lines_list_file[i] == lines_list[i] + "\n"
+    def test_transfer_function_response(self):
+        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        assert design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
+            "transferfunction.ckt"
+        )

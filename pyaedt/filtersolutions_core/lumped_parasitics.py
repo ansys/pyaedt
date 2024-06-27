@@ -31,20 +31,8 @@ import pyaedt
 class LumpedParasitics:
     """Defines attributes of lumped element parasitics.
 
-    This class allows you to construct all the necessary parasitics
+    This class allows you to construct all the necessary parasitic
     attributes of lumped elements for the LumpedDesign class.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class
-
-    Methods
-    ----------
-    _define_parasitics_dll_functions:
-        Define argument types of DLL functions.
     """
 
     def __init__(self):

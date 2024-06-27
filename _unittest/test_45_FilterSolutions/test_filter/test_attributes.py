@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from _unittest_solvers.conftest import config
+from _unittest.conftest import config
 import pytest
 
 import pyaedt
@@ -40,7 +40,7 @@ from pyaedt.filtersolutions_core.attributes import StopbandDefinition
 from pyaedt.generic.general_methods import is_linux
 
 
-@pytest.mark.skipif(is_linux, reason="FilterSolutions API fails on linux.")
+@pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_filter_type(self):

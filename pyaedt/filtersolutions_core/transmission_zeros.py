@@ -38,31 +38,23 @@ class TableFormat(Enum):
 
     Attributes:
     RATIO: Represents transmission zeros ratio table.
-    FREQUENCY: Represents transmission zeros frequency table.
+    BANDWIDTH: Represents transmission zeros bandwidth table.
     """
 
     RATIO = 0
-    FREQUENCY = 1
+    BANDWIDTH = 1
 
 
 class TransmissionZeros:
-    """Manipulates access to the entries of ratio and frequency of tranmsission zeros table.
+    """Manipulates access to the entries of ratio and bandwidth of tranmsission zeros table.
 
-    This class allows you to enter, edit or remove the entries of ratio and frequency of tranmsission zeros table.
-
-    Attributes
-    ----------
-    _dll: CDLL
-        FilterSolutions C++ API DLL.
-    _dll_interface: DllInterface
-        Instance of the ``DllInterface`` class
-    table_format: TableFormat
-        Whether selects ratio or frequency transmission zeros table.
-
-    Methods
-    ----------
-    _define_transmission_zeros_dll_functions:
-        Define argument types of DLL functions.
+    This class allows you to enter, edit or remove the entries of ratio and bandwidth
+    of tranmsission zeros table.
+    The table includes the ratio or bandwidth and the position of the element creating
+    the transmission zero in the associated circuit.
+    The position of the transmission zero is the position of the element in
+    the associated circuit that creates the transmission zero.
+    The position is defined automatically if no value is provided.
     """
 
     def __init__(self, table_format):
@@ -118,20 +110,21 @@ class TransmissionZeros:
         self._dll.defaultPositionEnabled.restype = c_int
 
     def table_format_to_bool(self):
-        """Set a flag to recognize ratio or frequency transmission zeros tables.
+        """Return a boolean value to indicate whether the entry format of
+        the transmission zeros tables is ratio or bandwidth.
 
         Returns
         -------
         bool
         """
-        if self.table_format.value == TableFormat.FREQUENCY.value:
+        if self.table_format.value == TableFormat.BANDWIDTH.value:
             return False
         else:
             return True
 
     @property
     def row_count(self) -> int:
-        """The count of accumulated transmission zeros in the transmission zeros table.
+        """The number of transmission zeros in the transmission zeros table.
         The default is ``2``.
 
         Returns
@@ -144,20 +137,20 @@ class TransmissionZeros:
         return int(table_row_count.value)
 
     def row(self, row_index):
-        """Export ratios or frequencies at given index of the transmission zeros table.
+        """Retrieve the transmission zero ratio or bandwidth and the position of the element
+        causing the transmission zero for a specified entry in the transmission zeros table.
 
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
+            The index of the row to retrieve from the transmission zeros table.
+            Valid values range from ``0`` to ``9``, inclusive.
 
         Returns
         -------
-        tuple: The tuple contains
-                str:
-                    Transmission zero ratio or frequency value.
-                str:
-                    Position of the element creating transmission zero in the associated circuit.
+        tuple of (str, str)
+            A tuple containing the transmission zero ratio or bandwidth value and the position of the element causing
+            the transmission zero, both as strings.
         """
         zero_value_buffer = create_string_buffer(100)
         position_value_buffer = create_string_buffer(100)
@@ -174,18 +167,20 @@ class TransmissionZeros:
         return zero_value_string, position_value_string
 
     def update_row(self, row_index, zero="", position=""):
-        """Update ratios or frequencies at given index of the transmission zeros table.
+        """Update the transmission zero ratio or bandwidth and its position
+        for a specified row in the transmission zeros table.
 
         Parameters
         ----------
         row_index: int
-            The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
+            The index of the row to update in the transmission zeros table.
+            Valid values range from ``0`` to ``9``, inclusive.
         zero: str, optional
-            Transmission zero ratio or frequency value.
-            The default is blank.
+            The new transmission zero ratio or bandwidth value to set.
+            If not specified, the value remains unchanged.
         position: str, optional
-            Position of the element creating transmission zero in the associated circuit.
-            The default is blank.
+            The new position of the element causing the transmission zero in the circuit.
+            If not specified, the value remains unchanged.
         """
         zero_bytes_value = bytes(zero, "ascii")
         position_bytes_value = bytes(position, "ascii")
@@ -198,12 +193,12 @@ class TransmissionZeros:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, zero, position=""):
-        """Append ratios or frequencies at the end row of transmission zeros table.
+        """Append a new row which includes the ratio or bandwidth and position.
 
         Parameters
         ----------
         zero: str
-            Transmission zero ratio or frequency value.
+            Transmission zero ratio or bandwidth value.
         position: str
             Position of the element creating transmission zero in the associated circuit.
         """
@@ -215,14 +210,14 @@ class TransmissionZeros:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, zero, position=""):
-        """Insert ratios or frequencies at given index of the transmission zeros table.
+        """Insert a new row which includes the ratio or bandwidth and position.
 
         Parameters
         ----------
         row_index: int
             The row index on transmission zeros table. Starting value is ``0`` and maximum value is ``9``.
         zero: str
-            Transmission zero ratio or frequency value.
+            Transmission zero ratio or bandwidth value.
         position: str
             Position of the element creating transmission zero in the associated circuit.
         """
@@ -237,7 +232,7 @@ class TransmissionZeros:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def remove_row(self, row_index):
-        """Remove ratios or frequencies at given index of the transmission zeros table.
+        """Remove the specified row including the ratio or bandwidth and position.
 
         Parameters
         ----------
@@ -252,7 +247,7 @@ class TransmissionZeros:
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
-    def default_position(self):
-        """Restore default position of transmissison zeros."""
+    def restore_default_positions(self):
+        """Restore default positions of transmissison zeros."""
         status = self._dll.defaultPositionEnabled(self.table_format_to_bool())
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
