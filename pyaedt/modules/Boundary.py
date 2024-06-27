@@ -1414,6 +1414,16 @@ class MaxwellParameters(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+        self.reduced_matrices = []
+        self.assignment = None
+        for p in list(self._app.odesign.GetChildObject("Parameters").GetChildNames()):
+            if self._app.odesign.GetChildObject("Parameters").GetChildObject(p).GetPropValue("Type") == "Matrix":
+                self.assignment = (
+                    self._app.odesign.GetChildObject("Parameters")
+                    .GetChildObject(name)
+                    .GetPropValue("Selection")
+                    .split(",")
+                )
 
     @property
     def object_properties(self):
@@ -1530,6 +1540,9 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not self._app.solution_type == "EddyCurrent":
+            self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
+            return False, False
         if not matrix_name:
             matrix_name = generate_unique_name("ReducedMatrix", n=3)
         if not join_name:
@@ -1540,6 +1553,7 @@ class MaxwellParameters(BoundaryCommon, object):
                 matrix_name,
                 ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
             )
+            self.reduced_matrices = MaxwellMatrix(self._app, self.name)
             return matrix_name, join_name
         except Exception:
             self._app.logger.error("Failed to create Matrix Reduction")
@@ -1590,6 +1604,32 @@ class MaxwellParameters(BoundaryCommon, object):
         return self._create_matrix_reduction(
             red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
         )
+
+
+class MaxwellMatrix(object):
+    def __init__(self, app, parent_name):
+        self._app = app
+        self._parent_matrix = parent_name
+        self.names = []
+        self.sources = []
+        if self._app.solution_type == "EddyCurrent":
+            self.names = self._app.odesign.GetChildObject("Parameters").GetChildObject(parent_name).GetChildNames()
+            for m in self.names:
+                sources = (
+                    self._app.odesign.GetChildObject("Parameters")
+                    .GetChildObject(parent_name)
+                    .GetChildObject(m)
+                    .GetChildNames()
+                )
+                for s in sources:
+                    excitations = (
+                        self._app.odesign.GetChildObject("Parameters")
+                        .GetChildObject(parent_name)
+                        .GetChildObject(m)
+                        .GetChildObject(s)
+                        .GetPropValue("Source")
+                    )
+                    self.sources.append({m: {s: excitations}})
 
 
 class FieldSetup(BoundaryCommon, object):
