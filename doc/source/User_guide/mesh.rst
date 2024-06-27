@@ -33,7 +33,7 @@ The global mesh region object is accessed using:
 
     glob_msh = ipk.mesh.global_mesh_region
 
-This object allows for the editing of global mesh settings through its `settings` property, which functions like a dictionary. For example:
+This object allows for the editing of global mesh settings through its `settings` property, which functions like a dictionary.
 
 .. code:: python
 
@@ -41,7 +41,7 @@ This object allows for the editing of global mesh settings through its `settings
 
 Available keys differ depending on whether manual or automatic settings are used. This can be adjusted using the `manual_settings` boolean property of the global mesh region object.
 
-To modify the global region dimensions, access the `global_region` property and modify its attributes. For example:
+To modify the global region dimensions, access the `global_region` property and modify its attributes.
 
 .. code:: python
 
