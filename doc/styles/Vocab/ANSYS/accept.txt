@@ -30,6 +30,7 @@ efields
 EMIT
 FEBI
 FE-BI
+file_path
 getters
 globals
 [Gg]gRPC
@@ -47,6 +48,7 @@ Maxwell Circuit
 multiphysics
 multiplot
 namespaces
+Nastran
 netlist
 Nexxim
 numpy
