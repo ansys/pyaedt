@@ -5061,6 +5061,75 @@ class GeometryModeler(Modeler):
         self.refresh_all_ids()
         return True
 
+    def import_discovery_model(self, input_file):
+        """Import a Discovery file.
+
+        Parameters
+        ----------
+        input_file :
+            Full path and name of the Discovery file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedModel
+        """
+        version = self._app.aedt_version_id[-3:]
+
+        ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+
+        if ansys_install_dir:
+            if "Discovery" not in os.listdir(ansys_install_dir):
+                self.logger.error("Discovery installation not found.")
+        else:
+            self.logger.error("Discovery version is different from AEDT version.")
+            return False
+
+        model = self.oeditor.CreateUserDefinedModel(
+            [
+                "NAME:UserDefinedModelParameters",
+                [
+                    "NAME:Definition",
+                    [
+                        "NAME:UDMParam",
+                        "Name:=",
+                        "GeometryFilePath",
+                        "Value:=",
+                        '"' + input_file + '"',
+                    ],
+                ],
+                [
+                    "NAME:Options",
+                    [
+                        "NAME:UDMParam",
+                        "Name:=",
+                        "IsDiscoveryLink",
+                        "Value:=",
+                        "1",
+                    ],
+                ],
+                ["NAME:GeometryParams"],
+                "DllName:=",
+                "SACADIntegUDM",
+                "Library:=",
+                "installLib",
+                "Version:=",
+                "1.0",
+                "ConnectionID:=",
+                "",
+            ]
+        )
+        # Disconnect from the running Discovery instance.
+        args = ["NAME:Selections", "Selections:=", model]
+        self.oeditor.BreakUDMConnection(args)
+        self.refresh_all_ids()
+        return True
+
     @pyaedt_function_handler(input_dict="primitives")
     def import_primitives_from_file(self, input_file=None, primitives=None):
         """Import and create primitives from a JSON file or dictionary of properties.
