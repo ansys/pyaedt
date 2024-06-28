@@ -3508,6 +3508,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             - 1 value to setup 0deg as default
             - 2 values tuple or list (magnitude and phase) or
             - 3 values (magnitude, phase, and termination flag) for Terminal solution in case of incident voltage usage.
+        include_port_post_processing : bool, optional
+            Include port post-processing effects. The default is ``True``.
+        max_available_power : str, optional
+            System power for gain calculations.
+            The default is ``None``, in which case maximum available power is applied.
+        use_incident_voltage : bool, optional
+            Use incident voltage definition. The default is ``False``.
+            This argument applies only to the Terminal solution type.
 
         Returns
         -------
@@ -3562,8 +3570,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         args = [argument]
         args.extend(setting)
-        for arg in args:
-            self.osolution.EditSources(arg)
+        self.osolution.EditSources(args)
         return True
 
     @pyaedt_function_handler(portandmode="assignment", powerin="power")
@@ -5542,7 +5549,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` class,
+            :class:`pyaedt.application.analysis_hf.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
             :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
@@ -5554,7 +5561,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
+        :class:`pyaedt.application.analysis_hf.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples
@@ -5568,8 +5575,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ffdata = hfss.get_antenna_ffd_solution_data()
         >>> ffdata.farfield_data.plot_2d_cut(primary_sweep="theta", is_polar=False, theta=0)
         """
-        from pyaedt.modules.solutions import FfdSolutionData
-        from pyaedt.modules.solutions import FfdSolutionDataExporter
+        from pyaedt.application.analysis_hf import FfdSolutionData
+        from pyaedt.application.analysis_hf import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
@@ -6415,6 +6422,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         export_element_pattern=True,
         export_objects=False,
         export_touchstone=True,
+        export_all_power=False,
     ):
         """Export the element pattern.
 
@@ -6439,6 +6447,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to export the objects. The default is ``False``.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``True``.
+        export_all_power : bool, optional
+            Whether to export all available powers: ``IncidentPower``, ``RadiatedPower``, ``AcceptedPower``.
+            The default is ``False`` in which case only ``IncidentPower`` is exported.
 
         Returns
         -------
@@ -6494,10 +6505,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         command.append("ElementPowers:=")
         command.append("IncidentPower")
-        command.append("ElementPowers:=")
-        command.append("AcceptedPower")
-        command.append("ElementPowers:=")
-        command.append("RadiatedPower")
+        if export_all_power:
+            command.append("ElementPowers:=")
+            command.append("AcceptedPower")
+            command.append("ElementPowers:=")
+            command.append("RadiatedPower")
         command.append("ExportObject:=")
         command.append(export_objects)
         command.append("ExportTouchstone:=")

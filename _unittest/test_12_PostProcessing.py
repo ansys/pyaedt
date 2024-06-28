@@ -35,12 +35,12 @@ from pyaedt import Icepak
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt.application.analysis_hf import FfdSolutionData
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.generic.plot import _parse_aedtplt
 from pyaedt.generic.plot import _parse_streamline
 from pyaedt.generic.settings import settings
-from pyaedt.modules.solutions import FfdSolutionData
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"

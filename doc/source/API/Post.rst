@@ -22,8 +22,6 @@ plots in AEDT. They are accessible through the ``post`` property.
 
    AdvancedPostProcessing.PostProcessor
    solutions.SolutionData
-   solutions.FieldPlot
-   solutions.FfdSolutionData
 
 
 .. code:: python
@@ -93,7 +91,6 @@ and `pyvista <https://docs.pyvista.org/>`_.
 
    solutions.SolutionData
    solutions.FieldPlot
-   solutions.FfdSolutionData
    AdvancedPostProcessing.ModelPlotter
 
 
