@@ -186,6 +186,7 @@ class GaussianBesselReflection(Enum):
     - OPTION_2: The second method for filter synthesis.
     - OPTION_3: The third method for filter synthesis.
     """
+
     OPTION_1 = 0
     OPTION_2 = 1
     OPTION_3 = 2
@@ -239,8 +240,9 @@ class StopbandDefinition(Enum):
 
     - RATIO: The ratio between the stop band and pass band frequencies.
     - FREQUENCY: The explicit frequency.
-    - ATTENUATION_DB: The attenuation in decibels. 
+    - ATTENUATION_DB: The attenuation in decibels.
     """
+
     RATIO = 0
     FREQUENCY = 1
     ATTENUATION_DB = 2
