@@ -1,7 +1,7 @@
 """
-Design a Lumped Element Filter
+Design a lumped element filter
 ------------------------------
-This example shows how you can use PyAEDT to use the `FilterSolutions` library to design and 
+This example shows how to use PyAEDT to use the ``FilterSolutions`` library to design and 
 visualize the frequency response of a band-pass Butterworth filter. 
 """
 
