@@ -35,15 +35,17 @@ import pyaedt
 class FilterType(Enum):
     """Provides an enum of filter types with associated mathematical formulations.
 
-    Attributes:
-    GAUSSIAN: Represents a Gaussian filter.
-    BESSEL: Represents a Bessel filter.
-    BUTTERWORTH: Represents a Butterworth filter.
-    LEGENDRE: Represents a Legendre filter.
-    CHEBYSHEV_I: Represents a Chevyshev type I filter.
-    CHEBYSHEV_II: Represents a Chevyshev type II filter.
-    HOURGLASS: Represents an hourglass filter.
-    ELLIPTIC: Represents an elliptic filter.
+    **Attributes:**
+
+    - GAUSSIAN: Represents a Gaussian filter.
+    - BESSEL: Represents a Bessel filter.
+    - BUTTERWORTH: Represents a Butterworth filter.
+    - LEGENDRE: Represents a Legendre filter.
+    - CHEBYSHEV_I: Represents a Chevyshev type I filter.
+    - CHEBYSHEV_II: Represents a Chevyshev type II filter.
+    - HOURGLASS: Represents an hourglass filter.
+    - ELLIPTIC: Represents an elliptic filter.
+
     Custom, raised-cos, and matched filter types are not available in this release.
     """
 
@@ -67,17 +69,18 @@ class FilterType(Enum):
 class FilterClass(Enum):
     """Provides an enum of filter types for single-band and multiple-bands filters.
 
-    Attributes:
-    LOW_PASS: Represents a low-pass filter.
-    HIGH_PASS: Represents a high-pass filter.
-    DIPLEXER_1: Represents a first group of diplexer filter.
-    BAND_PASS: Represents a band pass filter.
-    BAND_STOP: Represents a band stop filter.
-    DIPLEXER_2: Represents a second group of diplexer filter.
-    LOW_BAND: Represents a combined low-pass and multi-band filter.
-    BAND_HIGH: Represents a combined high-pass and multi-band filter.
-    BAND_BAND: Represents a multi-band pass filter.
-    STOP_STOP: Represents a multi-band stop filter.
+    **Attributes:**
+
+    - LOW_PASS: Represents a low-pass filter.
+    - HIGH_PASS: Represents a high-pass filter.
+    - DIPLEXER_1: Represents a first group of diplexer filter.
+    - BAND_PASS: Represents a band pass filter.
+    - BAND_STOP: Represents a band stop filter.
+    - DIPLEXER_2: Represents a second group of diplexer filter.
+    - LOW_BAND: Represents a combined low-pass and multi-band filter.
+    - BAND_HIGH: Represents a combined high-pass and multi-band filter.
+    - BAND_BAND: Represents a multi-band pass filter.
+    - STOP_STOP: Represents a multi-band stop filter.
     """
 
     LOW_PASS = 0
@@ -95,12 +98,13 @@ class FilterClass(Enum):
 class FilterImplementation(Enum):
     """Provides an enum of filter implementation types.
 
-    Attributes:
-    LUMPED: Represents a lumped implementation.
-    DISTRIB: Represents a distributed implementation.
-    ACTIVE: Represents an active implementation.
-    SWCAP: Represents a switched capacitor implementation.
-    DIGITAL: Represents a digital implementation.
+    **Attributes:**
+
+    - LUMPED: Represents a lumped implementation.
+    - DISTRIB: Represents a distributed implementation.
+    - ACTIVE: Represents an active implementation.
+    - SWCAP: Represents a switched capacitor implementation.
+    - DIGITAL: Represents a digital implementation.
     """
 
     LUMPED = 0
@@ -113,13 +117,14 @@ class FilterImplementation(Enum):
 class DiplexerType(Enum):
     """Provides an enum of diplexer and triplexer types.
 
-    Attributes:
-    HI_LO: Represents a high-pass, low-pass diplexer type.
-    BP_1: Represents a band-pass, band-pass diplexer type.
-    BP_2: Represents a band-pass, band-pass diplexer type.
-    BP_BS: Represents a band-pass, band-stop diplexer type.
-    TRIPLEXER_1: Represents a low-pass, band-pass, and high-pass triplexer type.
-    TRIPLEXER_2: Represents a low-pass, band-pass, and high-pass triplexer type.
+    **Attributes:**
+
+    - HI_LO: Represents a high-pass, low-pass diplexer type.
+    - BP_1: Represents a band-pass, band-pass diplexer type.
+    - BP_2: Represents a band-pass, band-pass diplexer type.
+    - BP_BS: Represents a band-pass, band-stop diplexer type.
+    - TRIPLEXER_1: Represents a low-pass, band-pass, and high-pass triplexer type.
+    - TRIPLEXER_2: Represents a low-pass, band-pass, and high-pass triplexer type.
     """
 
     HI_LO = 0
@@ -133,13 +138,14 @@ class DiplexerType(Enum):
 class BesselRipplePercentage(Enum):
     """Provides an enum of peak-to-peak group delay ripple magnitudes as percents of averages for Bessel filters.
 
-    Attributes:
-    ZERO: 0%
-    HALF: 0.5%
-    ONE: 1%
-    TWO: 2%
-    FIVE: 5%
-    TEN: 10%
+    **Attributes:**
+
+    - ZERO: 0%
+    - HALF: 0.5%
+    - ONE: 1%
+    - TWO: 2%
+    - FIVE: 5%
+    - TEN: 10%
     """
 
     ZERO = 0
@@ -153,13 +159,14 @@ class BesselRipplePercentage(Enum):
 class GaussianTransition(Enum):
     """Provides an enum of transition attenuations in dB for Gaussian filters to improve group delay response.
 
-    Attributes:
-    TRANSITION_NONE: 0dB
-    TRANSITION_3_DB: 3dB
-    TRANSITION_6_DB: 6dB
-    TRANSITION_9_DB: 9dB
-    TRANSITION_12_DB: 12dB
-    TRANSITION_15_DB: 15dB
+    **Attributes:**
+
+    - TRANSITION_NONE: 0dB
+    - TRANSITION_3_DB: 3dB
+    - TRANSITION_6_DB: 6dB
+    - TRANSITION_9_DB: 9dB
+    - TRANSITION_12_DB: 12dB
+    - TRANSITION_15_DB: 15dB
     """
 
     TRANSITION_NONE = 0
@@ -171,8 +178,14 @@ class GaussianTransition(Enum):
 
 
 class GaussianBesselReflection(Enum):
-    """Provides an enum of synthesis methods for Gaussian and Bessel filters."""
+    """Provides an enum of synthesis methods for Gaussian and Bessel filters.
 
+    **Attributes:**
+
+    - OPTION_1: The first method for filter synthesis.
+    - OPTION_2: The second method for filter synthesis.
+    - OPTION_3: The third method for filter synthesis.
+    """
     OPTION_1 = 0
     OPTION_2 = 1
     OPTION_3 = 2
@@ -181,10 +194,11 @@ class GaussianBesselReflection(Enum):
 class RippleConstrictionBandSelect(Enum):
     """Provides an enum of the bands to apply constrict the ripple parameter.
 
-    Attributes:
-    STOP: Stop band
-    PASS: Pass band
-    BOTH: Stop and pass bands
+    **Attributes:**
+
+    - STOP: Stop band
+    - PASS: Pass band
+    - BOTH: Stop and pass bands
     """
 
     STOP = 0
@@ -195,9 +209,10 @@ class RippleConstrictionBandSelect(Enum):
 class SinglePointRippleInfZeros(Enum):
     """Provides an enum for either one or three non-Infinite zeros at the single frequency point to confine the ripple.
 
-    Attributes:
-    RIPPLE_INF_ZEROS_1: One zero
-    RIPPLE_INF_ZEROS_3: Three zeros
+    **Attributes:**
+
+    - RIPPLE_INF_ZEROS_1: One zero
+    - RIPPLE_INF_ZEROS_3: Three zeros
     """
 
     RIPPLE_INF_ZEROS_1 = 0
@@ -205,15 +220,27 @@ class SinglePointRippleInfZeros(Enum):
 
 
 class PassbandDefinition(Enum):
-    """Provides an enum to get either center frequency and bandwidth or corner frequencies."""
+    """Provides an enum to get either center frequency and bandwidth or corner frequencies.
+
+    **Attributes:**
+
+    - CENTER_FREQUENCY: Define the passband by the center frequency and bandwidth.
+    - CORNER_FREQUENCIES: Define the passband by the corner frequencies.
+    """
 
     CENTER_FREQUENCY = 0
     CORNER_FREQUENCIES = 1
 
 
 class StopbandDefinition(Enum):
-    """Provides an enum for comparing the stop band parameter to the pass band parameter."""
+    """Provides an enum for comparing the stop band parameter to the pass band parameter.
 
+    **ATTRIBUTES:**
+
+    - RATIO: The ratio between the stop band and pass band frequencies.
+    - FREQUENCY: The explicit frequency.
+    - ATTENUATION_DB: The attenuation in decibels. 
+    """
     RATIO = 0
     FREQUENCY = 1
     ATTENUATION_DB = 2
