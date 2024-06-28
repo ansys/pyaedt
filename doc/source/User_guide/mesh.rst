@@ -39,7 +39,7 @@ This object allows for the editing of global mesh settings through its ``setting
 
     glob_msh.settings["MeshRegionResolution"] = 3
 
-The keys available depend on whether manual or automatic settings are used. You can use the ``manual_settings`` Boolean property of the global mesh region object to chagne the setting.
+The keys available depend on whether manual or automatic settings are used. You can use the ``manual_settings`` Boolean property of the global mesh region object to change the setting.
 
 To modify the global region dimensions, access the '`global_region'` property and modify its attributes:
 
@@ -61,7 +61,7 @@ The following image summarizes these three objects:
 
 .. image:: ../Resources/icepak_global_mesh_region_objects.png
   :width: 80%
-  :alt: Global mesh objects and subobjects
+  :alt: Global mesh objects and sub-objects
 
 This code provides a complete example using the global mesh region:
 
