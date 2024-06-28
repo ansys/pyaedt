@@ -25,10 +25,9 @@
 import os
 
 from _unittest.conftest import local_path
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic import ibis_reader
 import pytest
-
-from pyaedt import Circuit
-from pyaedt.generic import ibis_reader
 
 test_subfolder = "T15"
 

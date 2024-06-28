@@ -1,0 +1,27 @@
+[Export3D]
+name = "Export to 3D"
+script = "export_to_3d.py"
+icon = "images/large/cad3d.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[PushfromTransient]
+name = "Push Excitation from transient data"
+script = "push_excitation_from_file_3dl.py"
+icon = "images/large/push.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[ExportFiles]
+name = "Export Layout info"
+script = "export_layout.py"
+icon = "images/large/export.png"
+template = "run_pyedb_toolkit_script"
+pip = ""
+
+[Cutout]
+name = "Advanced cutout"
+script = "cutout.py"
+icon = "images/large/cutout.png"
+template = "run_pyedb_toolkit_script"
+pip = ""

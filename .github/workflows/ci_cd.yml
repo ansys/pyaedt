@@ -70,7 +70,7 @@ jobs:
 
       - name: Import python package
         run: |
-          python -c "import pyaedt; from pyaedt import __version__"
+          python -c "import pyaedt; from ansys.aedt.core import __version__"
 
   # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
   doc-build:
@@ -97,8 +97,8 @@ jobs:
       - name: Retrieve PyAEDT version
         id: version
         run: |
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from ansys.aedt.core import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from ansys.aedt.core import __version__; print(__version__)")"
 
       - name: Install doc build requirements
         run: |
@@ -170,8 +170,8 @@ jobs:
         id: version
         run: |
           .venv\Scripts\Activate.ps1
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from ansys.aedt.core import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from ansys.aedt.core import __version__; print(__version__)")"
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -560,8 +560,8 @@ jobs:
 
       - name: Get the version to PyMeilisearch
         run: |
-          VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
-          VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
+          VERSION=$(python -c "from ansys.aedt.core import __version__; print('.'.join(__version__.split('.')[:2]))")
+          VERSION_MEILI=$(python -c "from ansys.aedt.core import __version__; print('-'.join(__version__.split('.')[:2]))")
           echo "Calculated VERSION: $VERSION"
           echo "Calculated VERSION_MEILI: $VERSION_MEILI"
           echo "VERSION=$VERSION" >> $GITHUB_ENV

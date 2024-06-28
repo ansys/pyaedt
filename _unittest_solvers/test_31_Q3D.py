@@ -4,7 +4,7 @@ from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 import pytest
 
-from pyaedt import Q3d
+from ansys.aedt.core import Q3d
 
 test_project_name = "coax_Q3D"
 if desktop_version > "2022.2":

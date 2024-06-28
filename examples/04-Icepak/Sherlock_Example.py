@@ -11,12 +11,12 @@ files (STEP and CSV) and an AEDB board.
 
 import time
 import os
-import pyaedt
+import ansys.aedt.core
 import datetime
 
 # Set paths
-project_folder = pyaedt.generate_unique_folder_name()
-input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
+project_folder = ansys.aedt.core.generate_unique_folder_name()
+input_dir = ansys.aedt.core.downloads.download_sherlock(destination=project_folder)
 
 ##########################################################
 # Set AEDT version
@@ -52,7 +52,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -66,7 +66,7 @@ project_name = os.path.join(project_folder, component_step[:-3] + "aedt")
 # ~~~~~~~~~~~~~~~~~~~~~
 # Create an Icepak project.
 
-ipk = pyaedt.Icepak(project_name)
+ipk = ansys.aedt.core.Icepak(project_name)
 
 ###############################################################################
 # Delete region to speed up import

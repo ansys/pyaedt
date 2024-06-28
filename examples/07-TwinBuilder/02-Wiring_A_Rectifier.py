@@ -12,7 +12,7 @@ and run a Twin Builder time-domain simulation.
 
 import math
 import matplotlib.pyplot as plt
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
@@ -41,7 +41,7 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = pyaedt.TwinBuilder(project=pyaedt.generate_unique_project_name(),
+tb = ansys.aedt.core.TwinBuilder(project=ansys.aedt.core.generate_unique_project_name(),
                         version=aedt_version,
                         non_graphical=non_graphical,
                         new_desktop=new_thread

@@ -1,0 +1,1 @@
+global-include ansys.aedt.core *.txt *.md *.toml *.json *.png *.xml *.areg *.joblib *.acf *.m *.ipynb *.py_build

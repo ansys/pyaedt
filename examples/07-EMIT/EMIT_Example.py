@@ -12,8 +12,8 @@ the simulation of an antenna.
 # sphinx_gallery_thumbnail_path = "Resources/emit_simple_cosite.png"
 
 import os
-import pyaedt
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+import ansys.aedt.core
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
 ##########################################################
 # Set AEDT version
@@ -39,8 +39,8 @@ NewThread = True
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
-aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, NewThread)
+aedtapp = ansys.aedt.core.Emit(ansys.aedt.core.generate_unique_project_name())
 
 
 ###############################################################################
@@ -88,7 +88,7 @@ if aedt_version > "2023.1" and os.getenv("PYAEDT_DOC_GENERATION", "False") != "1
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# :func:`ansys.aedt.core.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 aedtapp.save_project()

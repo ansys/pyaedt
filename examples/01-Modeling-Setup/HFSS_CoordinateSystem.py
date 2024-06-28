@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create and modify coordinate system
 
 import os
 
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
@@ -32,14 +32,14 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Insert HFSS design
 # ~~~~~~~~~~~~~~~~~~
 # Insert an HFSS design with the default name.
 
-hfss = pyaedt.Hfss(project=pyaedt.generate_unique_project_name(folder_name="CoordSysDemo"))
+hfss = ansys.aedt.core.Hfss(project=ansys.aedt.core.generate_unique_project_name(folder_name="CoordSysDemo"))
 
 ###############################################################################
 # Create coordinate system
@@ -275,7 +275,7 @@ print("CS5 :", p2)
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulaton completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 d.release_desktop()

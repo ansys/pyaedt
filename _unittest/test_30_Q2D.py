@@ -27,9 +27,8 @@ import os
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Q2d
 import pytest
-
-from pyaedt import Q2d
 
 test_project_name = "coax_Q2D"
 test_subfolder = "T30"

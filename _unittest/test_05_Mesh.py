@@ -24,9 +24,8 @@
 
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
+from ansys.aedt.core import Maxwell3d
 import pytest
-
-from pyaedt import Maxwell3d
 
 
 @pytest.fixture(scope="class")

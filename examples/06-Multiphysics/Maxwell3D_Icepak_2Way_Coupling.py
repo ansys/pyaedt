@@ -12,8 +12,8 @@ Results are printed in AEDT Message Manager.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
-from pyaedt.generic.constants import AXIS
+import ansys.aedt.core
+from ansys.aedt.core.generic.constants import AXIS
 
 ##########################################################
 # Set AEDT version
@@ -40,7 +40,7 @@ project_name = "Maxwell-Icepak-2way-Coupling"
 maxwell_design_name = "1 Maxwell"
 icepak_design_name = "2 Icepak"
 
-m3d = pyaedt.Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=project_name,
     design=maxwell_design_name,
     solution_type="EddyCurrent",
@@ -175,7 +175,7 @@ m3d.logger.info("*******Ohmic loss in coil BEFORE temperature feedback =  {:.2f}
 # ~~~~~~~~~~~~~
 # Insert Icepak design, copy solid objects from Maxwell, and modify region dimensions.
 
-ipk = pyaedt.Icepak(design=icepak_design_name)
+ipk = ansys.aedt.core.Icepak(design=icepak_design_name)
 ipk.copy_solid_bodies_from(m3d, no_pec=False)
 
 # Set domain dimensions suitable for natural convection using the diameter of the coil

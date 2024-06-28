@@ -29,7 +29,7 @@ Unit Test Configuration Module
 Description
 ===========
 
-This module contains the configuration and fixture for the pytest-based unit tests for pyaedt.
+This module contains the configuration and fixture for the pytest-based unit tests for PyAEDT.
 
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
@@ -51,9 +51,8 @@ import sys
 import tempfile
 import time
 
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt.generic.settings import settings
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -64,16 +63,16 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 
-from pyaedt import Edb
-from pyaedt import Hfss
-from pyaedt.aedt_logger import pyaedt_logger
-from pyaedt.desktop import Desktop
-from pyaedt.desktop import _delete_objects
-from pyaedt.generic.desktop_sessions import _desktop_sessions
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import inside_desktop
-from pyaedt.misc.misc import list_installed_ansysem
+from ansys.aedt.core import Edb
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.desktop import Desktop
+from ansys.aedt.core.desktop import _delete_objects
+from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.generic.filesystem import Scratch
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.misc.misc import list_installed_ansysem
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)

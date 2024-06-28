@@ -10,7 +10,7 @@ in 2D Extractor and run a simulation.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
@@ -33,10 +33,10 @@ non_graphical = False
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(version=aedt_version,
+q = ansys.aedt.core.Q2d(version=aedt_version,
                non_graphical=non_graphical,
                new_desktop=True,
-               project=pyaedt.generate_unique_name("pyaedt_q2d_example"),
+               project=ansys.aedt.core.generate_unique_name("pyaedt_q2d_example"),
                design="coplanar_waveguide")
 
 ###############################################################################

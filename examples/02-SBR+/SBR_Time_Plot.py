@@ -11,7 +11,7 @@ and save it to a GIF file. This example works only on CPython.
 # Perform required imports.
 
 import os
-from pyaedt import Hfss, downloads
+from ansys.aedt.core import Hfss, downloads
 
 ##########################################################
 # Set AEDT version

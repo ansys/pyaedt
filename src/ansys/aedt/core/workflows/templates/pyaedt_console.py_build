@@ -1,0 +1,97 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""
+* * * This script is meant to run in IronPython within AEDT. * * *
+
+This script executes the CPython script ``Lib/console_setup.py``.
+The ``console_setup.py`` launches an interactive Python session.
+
+"""
+import os
+import sys
+
+is_linux = os.name == "posix"
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.append(toolkits_dir)
+
+import pyaedt_utils
+
+
+def main():
+    # Get AEDT version
+    version_short = oDesktop.GetVersion()[2:6].replace(".", "")
+    # Extension directory
+    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    # CPython interpreter
+    python_exe = r"##IPYTHON_EXE##" % version
+    # Check if CPython interpreter and AEDT release match
+    python_exe = pyaedt_utils.sanitize_interpreter_path(python_exe, version_short)
+    # Console launcher
+    pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
+    # Check python executable
+    python_exe_flag = pyaedt_utils.check_file(python_exe, oDesktop)
+    if not python_exe_flag:
+        return
+    # Check console launcher file
+    pyaedt_script_flag = pyaedt_utils.check_file(pyaedt_script, oDesktop)
+    if not pyaedt_script_flag:
+        return
+    # Add environment variables
+    pyaedt_utils.environment_variables(oDesktop)
+    # Call console script
+    if is_linux:
+        term = pyaedt_utils.get_linux_terminal()
+        if not term:
+            pyaedt_utils.show_error("No Terminals found.", oDesktop)
+
+        command = [
+            term,
+            "-e",
+            python_exe,
+            "-i",
+            pyaedt_script,
+            str(oDesktop.GetProcessID()),
+            str(oDesktop.GetVersion()[:6]),
+        ]
+        subprocess.Popen(command)
+    else:
+        command = [
+            '"{}"'.format(python_exe),
+            "-i",
+            '"{}"'.format(pyaedt_script),
+            str(oDesktop.GetProcessID()),
+            str(oDesktop.GetVersion()[:6]),
+        ]
+        subprocess.Popen(" ".join(command))
+
+
+if __name__ == "__main__":
+    main()

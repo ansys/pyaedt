@@ -1,0 +1,97 @@
+# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""
+* * * This script launches a Jupyter Notebook. * * *
+
+This script makes a copy of the referenced Jupyter Notebook script, ``Lib/jupyter_template.ipynb``, to the project
+directory and launches it.
+
+"""
+import os
+import sys
+
+is_linux = os.name == "posix"
+
+if is_linux:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
+
+toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+sys.path.append(toolkits_dir)
+
+import pyaedt_utils
+
+
+def main():
+    # Get AEDT version
+    version_short = oDesktop.GetVersion()[2:6].replace(".", "")
+    proj_dir = oDesktop.GetProjectDirectory()
+    os.chdir(proj_dir)
+    # Extension directory
+    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    # Jupyter interpreter
+    jupyter_exe = r"##JUPYTER_EXE##" % version
+    # Check if Jupyter version and AEDT release match
+    python_exe = pyaedt_utils.sanitize_interpreter_path(jupyter_exe, version_short)
+    template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
+    target = os.path.join(proj_dir, pyaedt_utils.generate_unique_name("pyaedt", ".ipynb", n=3))
+    # Check executable
+    jupyter_exe_flag = pyaedt_utils.check_file(jupyter_exe, oDesktop)
+    if not jupyter_exe_flag:
+        return
+    pyaedt_script_flag = pyaedt_utils.check_file(template, oDesktop)
+    if not pyaedt_script_flag:
+        return
+
+    notebook_dir = os.environ.get("AEDT_NOTEBOOK_DIR",None)
+
+    with open(template, "r") as source:
+        with open(target, "w") as t:
+            for line in source:
+                line = line.replace("PROCESSID", str(oDesktop.GetProcessID())).replace(
+                    "AEDTVERSION", oDesktop.GetVersion()[:6]
+                )
+                t.write(line)
+
+    # Add environment variables
+    pyaedt_utils.environment_variables(oDesktop)
+
+    if is_linux:
+        if notebook_dir:
+            command = [jupyter_exe, "lab", target,"--notebook-dir",notebook_dir]
+        else:
+            command = [jupyter_exe, "lab", target]
+        subprocess.Popen(command)
+    else:
+        if notebook_dir:
+            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target),"--notebook-dir",'"{0}"'.format(notebook_dir)]
+        else:
+            command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
+        subprocess.Popen(" ".join(command))
+
+
+if __name__ == "__main__":
+    main()

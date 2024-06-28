@@ -14,7 +14,7 @@ This example shows how you can use PyAEDT to perform these tasks:
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
-import pyaedt
+import ansys.aedt.core
 import math
 
 ##########################################################
@@ -90,7 +90,7 @@ q2d_design_name = '2D_Extractor_Cable'
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
 tb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(project=project_name, design=q2d_design_name, version=aedt_version)
+q2d = ansys.aedt.core.Q2d(project=project_name, design=q2d_design_name, version=aedt_version)
 
 ##########################################################
 # Define variables from dictionaries
@@ -238,7 +238,7 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb = pyaedt.TwinBuilder(design=tb_design_name)
+tb = ansys.aedt.core.TwinBuilder(design=tb_design_name)
 
 ##########################################################
 # Add a Q3D dynamic component

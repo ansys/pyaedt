@@ -1,0 +1,7 @@
+[MagnetSegmentationWizard]
+name = "Magnet Segmentation Wizard"
+script = "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py"
+icon = "images/large/magnet_segmentation.png"
+template = "run_pyaedt_toolkit_script"
+pip = "ansys-magnet-segmentation-toolkit"
+package = "ansys-magnet-segmentation-toolkit"

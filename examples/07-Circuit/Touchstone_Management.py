@@ -13,7 +13,7 @@ This example runs only on Windows using CPython.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports and set the local path to the path for PyAEDT.
 
-from pyaedt import downloads
+from ansys.aedt.core import downloads
 
 example_path = downloads.download_touchstone()
 
@@ -22,7 +22,7 @@ example_path = downloads.download_touchstone()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Import Matplotlib, NumPy, and the Touchstone file.
 
-from pyaedt.generic.touchstone_parser import read_touchstone
+from ansys.aedt.core.generic.touchstone_parser import read_touchstone
 
 ###############################################################################
 # Read Touchstone file

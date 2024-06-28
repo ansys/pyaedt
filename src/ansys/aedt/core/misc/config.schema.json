@@ -1,0 +1,63 @@
+{
+   "$id":"https://github.com/ansys/pyaedt/tree/main/pyaedt/generic/config.schema.json",
+   "$schema":"https://json-schema.org/draft/2020-12/schema",
+   "title":"Pyaedt configuration file schema.",
+   "type":"object",
+   "properties":{
+      "general":{
+         "type":"object",
+         "description":"Model configuration meta-data.",
+         "properties": {
+            "pyaedt_version": {"type":  "string"},
+            "model_units":
+               {"type": "string",
+                "enum": ["nm", "um", "mm", "in", "inches", "mil", "cm", "dm", "meter", "km"]
+               },
+            "design_name": {"type": "string"},
+            "date": {"type":  "string", "format":  "date-time"},
+            "object_mapping": {"type":  "object"},
+            "output_variables": {"type":  "object"},
+            "variables": {"type":  "object"},
+            "postprocessing_variables": {"type":  "object"}
+         }
+      },
+      "setups":{
+         "type":"object",
+         "description":"Solution setup configuration. Keys are setup names."
+      },
+      "boundaries":{
+         "type":"object",
+         "description":"Assignment of boundary conditions. Keys are boundary names."
+      },
+      "mesh":{
+         "type":"object",
+         "description":"Assignment of mesh operations."
+      },
+      "coordinatesystems":{
+         "type":"object",
+         "description":"Relative coordinate systems."
+      },
+      "materials":{
+         "type":"object",
+         "description":"Material definitions."
+      },
+      "objects":{
+         "type":"object",
+         "description":"Material assignment and rendering of objects."
+      },
+      "datasets":{
+         "type":"array",
+         "description":"List of datasets"
+      },
+      "monitors":{
+         "type":"array"
+      },
+      "native components":{
+         "type":"object",
+         "description":"Icepak native components."
+      }
+   },
+   "required":[
+      "general"
+   ]
+}

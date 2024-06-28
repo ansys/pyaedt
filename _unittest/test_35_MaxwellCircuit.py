@@ -25,11 +25,10 @@
 import os
 
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import MaxwellCircuit
+from ansys.aedt.core.generic.constants import SOLUTIONS
 import pytest
-
-from pyaedt import Maxwell2d
-from pyaedt import MaxwellCircuit
-from pyaedt.generic.constants import SOLUTIONS
 
 test_subfolder = "T35"
 

@@ -10,12 +10,12 @@ from _unittest_solvers.conftest import local_path
 
 from pathlib import Path
 
-from pyaedt.generic.settings import is_linux
-from pyaedt import Icepak
-from pyaedt import Hfss3dLayout
-from pyaedt import Circuit, Maxwell3d
+from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Circuit, Maxwell3d
 from _unittest.conftest import config
-from pyaedt.generic.spisim import SpiSim
+from ansys.aedt.core.generic.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -164,7 +164,7 @@ class TestClass:
     )
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
-        from pyaedt.generic.general_methods import read_json
+        from ansys.aedt.core.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
@@ -524,7 +524,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-        from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+        from ansys.aedt.core.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
         com_param.load(os.path.join(spisim.working_directory, "custom.json"),)
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))

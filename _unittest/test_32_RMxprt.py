@@ -24,10 +24,9 @@
 
 import os
 
+from ansys.aedt.core import Rmxprt
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
-
-from pyaedt import Rmxprt
-from pyaedt.generic.general_methods import is_linux
 
 test_project_name = "motor"
 

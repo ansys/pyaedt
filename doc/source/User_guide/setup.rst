@@ -10,7 +10,7 @@ essential components of the simulation process:
 
 .. code:: python
 
-    from pyaedt import Maxwell3d
+    from ansys.aedt.core import Maxwell3d
     m3d = Maxwell3d()
     all_setups = m3d.setups
     my_setup = all_setups[0]

@@ -26,11 +26,10 @@ import os
 import shutil
 
 from _unittest.conftest import config
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Mechanical
 import pytest
-
-from pyaedt import Hfss
-from pyaedt import Icepak
-from pyaedt import Mechanical
 
 test_project_name = "coax_Mech"
 

@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
@@ -30,9 +30,9 @@ non_graphical = False
 ###############################################################################
 # Create Maxwell 3D object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a :class:`pyaedt.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
+# Create a :class:`ansys.aedt.core.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = pyaedt.Maxwell3d(solution_type="Transient", design="test_polyline_3D", version=aedt_version,
+M3D = ansys.aedt.core.Maxwell3d(solution_type="Transient", design="test_polyline_3D", version=aedt_version,
                        new_desktop=True, non_graphical=non_graphical, )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler

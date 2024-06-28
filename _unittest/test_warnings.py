@@ -26,8 +26,8 @@ import sys
 from unittest.mock import patch
 import warnings
 
-from pyaedt import LATEST_DEPRECATED_PYTHON_VERSION
-from pyaedt import deprecation_warning
+from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
+from ansys.aedt.core import deprecation_warning
 
 
 @patch.object(warnings, "warn")
