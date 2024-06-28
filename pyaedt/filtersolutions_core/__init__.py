@@ -29,8 +29,8 @@ from pyaedt.filtersolutions_core.dll_interface import DllInterface
 # Store the current module in a variable for easy access and modification within the module itself.
 _this = sys.modules[__name__]
 
-# Initialize the internal DLL interface attribute to None. This will be set to an actual
-# DllInterface instance when needed, implementing a lazy initialization pattern.
+# Initialize the internal DLL interface attribute to ``None``. This is set to an actual
+# ``DllInterface`` instance when needed, implementing a lazy initialization pattern.
 _this._internal_dll_interface = None
 
 

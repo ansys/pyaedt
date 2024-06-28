@@ -40,12 +40,12 @@ from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
 class FilterSolutions:
     """Provides the ``FilterSolutions`` application interface.
 
-    The class has access to ideal filter attributes and calculated output parameters.
+    This class has access to ideal filter attributes and calculated output parameters.
 
     Parameters
     ----------
     version: str, optional
-        The version of AEDT in ``xxxx.x`` format. The default is None.
+        The version of AEDT in ``xxxx.x`` format. The default is ``None``.
     implementation_type: FilterImplementation, optional
         The technology used to implement the filter. The default is ``LUMPED``.
         The ``FilterImplementation`` enum provides the list of implementations.

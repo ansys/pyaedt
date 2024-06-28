@@ -60,7 +60,7 @@ plt.show()
 ##############################################################################
 # Generate the netlist for the designed filter.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate and print the netlist for the designed filter with the transmission zero..
+# Generate and print the netlist for the designed filter with the transmission zero.
 
 netlist = design.topology.circuit_response()
 print("Netlist: \n", netlist)
