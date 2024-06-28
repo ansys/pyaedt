@@ -17,7 +17,7 @@ from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn
 import matplotlib.pyplot as plt
 
 ###############################################################################
-# Create the Lumped Design
+# Create the lumped design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
 design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
