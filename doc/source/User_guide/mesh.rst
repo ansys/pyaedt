@@ -82,7 +82,7 @@ This code provides a complete example using the global mesh region:
 
 **Local mesh regions**
 
-To create a mesh region, use the ``assign_mesh_region()`` function:
+To create a mesh region, use the ``assign_mesh_region()`` method:
 
 .. code:: python
 
@@ -104,7 +104,7 @@ This code accesses the parts included in the subregion:
 
     subregion.parts
 
-AEDT 2024 R1 introduced a significant revamp of the mesh region paradigm, resulting in limited support for older versions. To use the same functions in older versions, you must define the region box first and pass it as the first argument of the ``assign_mesh_region()`` function.
+AEDT 2024 R1 introduced a significant revamp of the mesh region paradigm, resulting in limited support for older versions. To use the same methods in older versions, you must define the region box first and pass it as the first argument of the ``assign_mesh_region()`` method.
 
 **Mesh operations**
 
