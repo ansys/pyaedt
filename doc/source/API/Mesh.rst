@@ -26,14 +26,14 @@ They are accessible through the mesh property:
                  close_on_exit=True, student_version=False)
     # This call returns the Mesh class
     my_mesh = app.mesh
-    # This call executes a Mesh method and creates an object to control the mesh operation
+    # This call executes a ``Mesh`` method and creates an object to control the mesh operation
     mesh_operation_object = my_mesh.assign_surface_mesh("MyBox", 2)
     ...
 
 Icepak mesh
 ~~~~~~~~~~~~~~~
 
-Relevant objects while using the ``MeshIcepak`` class are the following:
+These objects are relevant objects while using the ``MeshIcepak`` class:
 
 .. currentmodule:: pyaedt.modules.MeshIcepak
 

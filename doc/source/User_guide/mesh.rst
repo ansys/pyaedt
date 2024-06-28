@@ -23,47 +23,47 @@ All mesh operations are conveniently listed within the mesh object:
 Mesh in Icepak
 --------------
 
-Icepak employs a unique approach to mesh operations, managed through mesh regions, which can be edited directly from the pyaedt object.
+Icepak employs a unique approach to mesh operations, managed through mesh regions, which can be edited directly from the PyAEDT object.
 
-**Global Mesh Region**
+**Global mesh region**
 
-The global mesh region object is accessed using:
+This code accesses the global mesh region object:
 
 .. code:: python
 
     glob_msh = ipk.mesh.global_mesh_region
 
-This object allows for the editing of global mesh settings through its `settings` property, which functions like a dictionary.
+This object allows for the editing of global mesh settings through its ``settings`` property, which behaves like a dictionary.
 
 .. code:: python
 
     glob_msh.settings["MeshRegionResolution"] = 3
 
-Available keys differ depending on whether manual or automatic settings are used. This can be adjusted using the `manual_settings` boolean property of the global mesh region object.
+The keys available depend on whether manual or automatic settings are used. You can use the ``manual_settings`` Boolean property of the global mesh region object to chagne the setting.
 
-To modify the global region dimensions, access the `global_region` property and modify its attributes.
+To modify the global region dimensions, access the '`global_region'` property and modify its attributes:
 
 .. code:: python
 
     glob_msh.global_region.positive_z_padding_type = "Absolute Offset"
     glob_msh.global_region.positive_z_padding = "5 mm"
 
-To modify the properties of the Region object (for example the gas inside the region), access the `object` property of the `global_region` object:
+To modify the properties of the ``Region`` object (for example the gas inside the region), access the ``object`` property of the ``global_region`` object:
 
 .. code:: python
 
     glob_reg = glob_msh.global_region
     glob_reg.object.material_name = "Carbon Monoxide"
 
-This is a pointer to the same object accessible from `ipk.modeler["Region"]`.
+This is a pointer to the same object accessible from ``ipk.modeler["Region"]``.
 
-The image below summarizes these three objects:
+The following image summarizes these three objects:
 
 .. image:: ../Resources/icepak_global_mesh_region_objects.png
   :width: 80%
-  :alt: Global Mesh objects and sub-objects
+  :alt: Global mesh objects and subobjects
 
-A complete example using the global mesh region is provided:
+This code provides a complete example using the global mesh region:
 
 .. code:: python
 
@@ -80,17 +80,17 @@ A complete example using the global mesh region is provided:
     glob_msh.settings["BufferLayers"] = 1
     glob_msh.update()
 
-**Local Mesh Regions**
+**Local mesh regions**
 
-To create a mesh region, the `assign_mesh_region` function is used:
+To create a mesh region, use the ``assign_mesh_region()`` function:
 
 .. code:: python
 
     mesh_region = ipk.mesh.assign_mesh_region(name=object_name)
 
-The settings of the returned object can be modified using the same approach as with the global mesh region object.
+You can modify the settings of the returned object using the same approach as with the global mesh region object.
 
-To access the subregion that defines the local mesh region and modify its dimensions:
+This code accesses the subregion that defines the local mesh region and modifies its dimensions:
 
 .. code:: python
 
@@ -98,23 +98,23 @@ To access the subregion that defines the local mesh region and modify its dimens
     subregion.positive_z_padding_type = "Absolute Offset"
     subregion.positive_z_padding = "5 mm"
 
-To access the parts included in the subregion:
+This code accesses the parts included in the subregion:
 
 .. code:: python
 
     subregion.parts
 
-In AEDT 2024 R1, a significant revamp of the mesh region paradigm has been introduced, resulting in limited support for older versions. To use the same functions in older versions, the region box must be defined first and passed as the first argument of `assign_mesh_region`.
+AEDT 2024 R1 introduced a significant revamp of the mesh region paradigm, resulting in limited support for older versions. To use the same functions in older versions, you must define the region box first and pass it as the first argument of the ``assign_mesh_region()`` function.
 
-**Mesh Operations**
+**Mesh operations**
 
-- To assign a mesh level to some objects, use the `assign_mesh_level` method:
+- To assign a mesh level to some objects, use the ``assign_mesh_level()`` method:
 
   .. code:: python
 
     ipk.mesh.assign_mesh_level(mesh_order={"Box1": 2, "Cylinder1": 4})
 
-- To assign a mesh file for reuse to some objects, use the `assign_mesh_reuse` method:
+- To assign a mesh file for reuse to some objects, use the ``assign_mesh_reuse()`` method:
 
   .. code:: python
 
