@@ -37,6 +37,7 @@ from pyaedt import get_pyaedt_app
 from pyaedt.application.Design import DesignSettings
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import settings
 from pyaedt.workflows import customize_automation_tab
@@ -484,3 +485,26 @@ class TestClass:
             hfss.set_active_design(hfss.design_name)
             assert desktop._connected_app_instances == num_references + 1
         assert desktop._connected_app_instances == num_references
+
+    def test_42_save_project_with_file_name(self):
+        # Save into file_name path with existing parent dir
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        assert os.path.exists(self.local_scratch.path)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+        # Save into path with non-existing parent dir
+        new_parent_dir = os.path.join(self.local_scratch.path, "new_dir")
+        new_project = os.path.join(new_parent_dir, "new_2.aedt")
+        assert not os.path.exists(new_parent_dir)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+        # Save into path with non-existing parent dir without creating dir
+        # We expect AEDT to fail, and the parent dir should not be created
+        new_parent_dir = os.path.join(self.local_scratch.path, "new_dir_2")
+        new_project = os.path.join(new_parent_dir, "new_3.aedt")
+        assert not os.path.exists(new_parent_dir)
+        with pytest.raises(GrpcApiError, match="Failed to execute gRPC AEDT command: SaveAs"):
+            self.aedtapp.save_project(file_name=new_project, create_parent_dir=False)
+        assert not os.path.exists(new_parent_dir)
