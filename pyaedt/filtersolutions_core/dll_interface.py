@@ -37,8 +37,7 @@ class DllInterface:
     """Interfaces with the FilterSolutions C++ API DLL."""
 
     def __init__(self, show_gui=False, version=None):
-        self.version = version
-        self._init_dll_path()
+        self._init_dll_path(version)
         self._init_dll(show_gui)
 
     def restore_defaults(self):
@@ -46,25 +45,22 @@ class DllInterface:
         status = self._dll.startApplication(self.show_gui)
         self.raise_error(status)
 
-    def _init_dll_path(self):
+    def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
-        self_current_version = current_version()
-        if current_version() == "":
+        latest_version = current_version()
+        if latest_version == "":
             raise Exception("AEDT is not installed on your system. Install AEDT version 2025 R1 or higher.")
-        if self.version is None:
-            self.version = self_current_version
-        if float(self.version[0:6]) < 2025:
+        if version is None:
+            version = latest_version
+        if float(version[0:6]) < 2025:
             raise ValueError("PyAEDT supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later.")
-        if not (self.version in installed_versions()) and not (self.version + "CL" in installed_versions()):
-            raise ValueError("Specified version {} is not installed on your system".format(self.version[0:6]))
-        if self.version != self_current_version:
-            self.dll_path = os.path.join(installed_versions()[self.version], "nuhertz/FilterSolutionsAPI.dll")
-        else:
-            self.dll_path = os.path.join(installed_versions()[current_version()], "nuhertz/FilterSolutionsAPI.dll")
-            # pragma: no cover
+        if not (version in installed_versions()) and not (version + "CL" in installed_versions()):
+            raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))
+        self.dll_path = os.path.join(installed_versions()[version], "nuhertz/FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolution' API DLL was not found at {self.dll_path}.")  # pragma: no cover
+        self.version = version
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
