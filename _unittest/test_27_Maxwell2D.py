@@ -44,6 +44,8 @@ else:
 ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
+m2d_fields = "maxwell_e_line_export_field"
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
@@ -62,11 +64,18 @@ def m2d_ctrl_prg(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def m2d_field_export(add_app):
+    app = add_app(application=Maxwell2d, project_name=m2d_fields, subfolder=test_subfolder)
+    return app
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m2d_ctrl_prg, local_scratch):
+    def init(self, aedtapp, m2d_ctrl_prg, m2d_field_export, local_scratch):
         self.aedtapp = aedtapp
         self.m2d_ctrl_prg = m2d_ctrl_prg
+        self.m2d_field_export = m2d_field_export
         self.local_scratch = local_scratch
 
     def test_03_assign_initial_mesh_from_slider(self):
@@ -582,3 +591,10 @@ class TestClass:
         wdg_group = self.aedtapp.boundaries_by_type["Winding Group"]
         assert wdg_group
         assert len(wdg_group) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Winding Group"])
+
+    def test_38_export_fields_calc(self):
+        output_file = os.path.join(self.local_scratch.path, "e_tang_field.fld")
+        assert self.m2d_field_export.post.export_field_file(
+            quantity="E_Line", output_dir=output_file, assignment="Poly1", objects_type="Line"
+        )
+        assert os.path.exists(output_file)

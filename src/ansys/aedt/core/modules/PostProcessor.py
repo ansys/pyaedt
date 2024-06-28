@@ -3024,11 +3024,17 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.EnterVol(assignment)
             elif objects_type == "Surf":
                 self.ofieldsreporter.EnterSurf(assignment)
+            elif objects_type == "Line":
+                self.ofieldsreporter.EnterLine(assignment)
             else:
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(output_dir, ["Solution:=", solution], variation)
+            if objects_type == "Line":
+                args = ["Solution:=", solution, "Geometry:=", assignment, "GeometryType:=", objects_type]
+            else:
+                args = ["Solution:=", solution]
+            self.ofieldsreporter.CalculatorWrite(output_dir, args, variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
