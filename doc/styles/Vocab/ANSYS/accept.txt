@@ -30,6 +30,7 @@ efields
 EMIT
 FEBI
 FE-BI
+file_path
 getters
 globals
 [Gg]gRPC
@@ -47,6 +48,7 @@ Maxwell Circuit
 multiphysics
 multiplot
 namespaces
+Nastran
 netlist
 Nexxim
 numpy
@@ -88,3 +90,9 @@ subcircuit
 Twin Builder
 Uncomment
 vias
+manual_settings
+boolean
+global_region
+assign_mesh_region
+assign_mesh_level
+assign_mesh_reuse
