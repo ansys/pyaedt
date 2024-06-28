@@ -347,8 +347,11 @@ class TestClass:
         mesh_level_Filter = "2"
         component_name = ["RadioBoard1_1"]
         mesh_level_RadioPCB = "1"
-        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
         assert test
+        test2 = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name, name="Test")
+        assert test.name != test2.name
         # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
@@ -1741,3 +1744,25 @@ class TestClass:
             "test_78-1", "{} : SteadyState".format(s1.name), project="FakeFolder123"
         )
         assert not s2.start_continue_from_previous_setup("test_78-12", "{} : SteadyState".format(s1.name))
+
+    def test_79_mesh_reuse(self):
+        self.aedtapp.insert_design("test_79")
+        self.aedtapp.set_active_design("test_79")
+        cylinder = self.aedtapp.modeler.create_cylinder(1, [0, 0, 0], 5, 30)
+        assert not self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "nonexistent_cylinder_mesh.msh"),
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name, os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh")
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
+        assert self.aedtapp.mesh.assign_mesh_reuse(
+            cylinder.name,
+            os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
+            "name_reuse",
+        )
