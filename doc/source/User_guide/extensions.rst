@@ -32,5 +32,5 @@ HFSS extensions
 ===============
 
 
-HFSS 3D Layout extensions
+HFSS 3D layout extensions
 =========================
