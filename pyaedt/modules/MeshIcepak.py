@@ -334,6 +334,8 @@ class CommonRegion(object):
 
 
 class Region(CommonRegion):
+    """Provides Icepak global mesh region properties and methods."""
+
     def __init__(self, app):
         super(Region, self).__init__(app, None)
         try:
@@ -343,6 +345,8 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
+    """Provides Icepak mesh subregions properties and methods."""
+
     def __init__(self, app, parts, name=None):
         if name is None:
             name = generate_unique_name("SubRegion")
@@ -677,6 +681,8 @@ class MeshRegionCommon(object):
 
 
 class GlobalMeshRegion(MeshRegionCommon):
+    """Provides Icepak global mesh properties and methods."""
+
     def __init__(self, app):
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
@@ -710,7 +716,7 @@ class GlobalMeshRegion(MeshRegionCommon):
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
         if self.global_region.object:
-            args += ["Objects({})".format(str(self.global_region.object.id))]
+            args += ["Objects:=", [self.global_region.object.name]]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
@@ -741,6 +747,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
+    """Provides Icepak subregions mesh properties and methods."""
+
     def __init__(self, app, objects=None, name=None, **kwargs):
         if name is None:
             name = generate_unique_name("MeshRegion")
@@ -1557,7 +1565,7 @@ class IcepakMesh(object):
             assignment = [i for i in self.modeler.object_names]
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
-        meshregion.Level = level
+        meshregion.settings["MeshRegionResolution"] = level
         all_objs = [i for i in self.modeler.object_names]
         created = bool(meshregion)
         if created:

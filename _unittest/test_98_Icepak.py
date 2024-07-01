@@ -1766,3 +1766,33 @@ class TestClass:
             os.path.join(local_path, "../_unittest/example_models", test_subfolder, "cylinder_mesh.msh"),
             "name_reuse",
         )
+
+    def test_80_global_mesh_region(self):
+        self.aedtapp.insert_design("test_80")
+        self.aedtapp.set_active_design("test_80")
+        g_m_r = self.aedtapp.mesh.global_mesh_region
+        assert g_m_r
+        assert g_m_r.global_region.object.name == "Region"
+        assert g_m_r.global_region.padding_values == ["50", "50", "50", "50", "50", "50"]
+        assert g_m_r.global_region.padding_types == [
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+            "Percentage Offset",
+        ]
+        g_m_r.global_region.positive_z_padding_type = "Absolute Offset"
+        g_m_r.global_region.positive_z_padding = "5 mm"
+        assert g_m_r.global_region.padding_types[-2] == "Absolute Offset"
+        assert g_m_r.global_region.padding_values[-2] == "5mm"
+        g_m_r.settings["MeshRegionResolution"] = 3
+        g_m_r.update()
+        assert g_m_r.settings["MeshRegionResolution"] == 3
+        g_m_r.manual_settings = True
+        with pytest.raises(KeyError):
+            g_m_r.settings["MeshRegionResolution"]
+        g_m_r.settings["MaxElementSizeX"] = "500um"
+        g_m_r.update()
+        g_m_r.global_region.object.material_name = "Carbon Monoxide"
+        assert g_m_r.global_region.object.material_name == "Carbon Monoxide"

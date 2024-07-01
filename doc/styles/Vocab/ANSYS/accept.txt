@@ -90,3 +90,9 @@ subcircuit
 Twin Builder
 Uncomment
 vias
+manual_settings
+boolean
+global_region
+assign_mesh_region
+assign_mesh_level
+assign_mesh_reuse
