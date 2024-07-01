@@ -6422,7 +6422,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         export_element_pattern=True,
         export_objects=False,
         export_touchstone=True,
-        export_all_power=False,
+        export_power=False,
     ):
         """Export the element pattern.
 
@@ -6447,9 +6447,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to export the objects. The default is ``False``.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``True``.
-        export_all_power : bool, optional
+        export_power : bool, optional
             Whether to export all available powers: ``IncidentPower``, ``RadiatedPower``, ``AcceptedPower``.
-            The default is ``False`` in which case only ``IncidentPower`` is exported.
+            The default is ``False``.
 
         Returns
         -------
@@ -6503,9 +6503,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 command.append("ElementPatterns:=")
                 command.append(excitation)
 
-        command.append("ElementPowers:=")
-        command.append("IncidentPower")
-        if export_all_power:
+        if export_power:
+            command.append("ElementPowers:=")
+            command.append("IncidentPower")
             command.append("ElementPowers:=")
             command.append("AcceptedPower")
             command.append("ElementPowers:=")

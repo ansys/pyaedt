@@ -30,6 +30,7 @@ import shutil
 import sys
 import time
 
+from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
@@ -499,7 +500,7 @@ class FfdSolutionData(object):
                 output_dir=self.output_dir,
                 variation=variation,
                 model_info=model_info,
-                incident_power=incident_power,
+                power=incident_power,
                 touchstone_file=touchstone_file,
             )
 
@@ -507,17 +508,17 @@ class FfdSolutionData(object):
             raise Exception("JSON file does not exist.")
 
         # Private
+        self.__logger = logger
         self.__input_file = input_file
         self.__raw_data = {}
         self.__freq_index = 0
         self.__model_units = "meter"
 
-        self.__farfield_data = {}
         self.__element_info = {}
         self.__frequencies = []
         self.__all_element_names = []
-        self.__phase_offset = []
-        self.__magnitude_offset = []
+        self.__phase = {}
+        self.__magnitude = {}
         self.__origin = []
         self.__taper = None
         self.__model_info = {}
@@ -533,10 +534,10 @@ class FfdSolutionData(object):
         self.__mesh = None
         self.__touchstone_data = None
         self.__weight = {}
-        self.__w_dict_ang = {}
-        self.__w_dict_mag = {}
         self.__phi_scan = 0.0
         self.__theta_scan = 0.0
+
+        self.__incident_power_element = {}
 
         with open_file(input_file) as f:
             self.__metadata = json.load(f)
@@ -549,21 +550,44 @@ class FfdSolutionData(object):
             location = element_props["location"]
             pattern_file = os.path.join(self.output_dir, element_props["file_name"])
             incident_power = element_props["incident_power"]
-            new_power = {}
+            accepted_power = element_props["accepted_power"]
+            radiated_power = element_props["radiated_power"]
 
-            if incident_power:
-                for power_freq in incident_power:
-                    if isinstance(power_freq, str):
-                        frequency, units = decompose_variable_value(power_freq)
+            new_incident_power = {}
+            for power_freq in incident_power:
+                value = incident_power[power_freq]
+                frequency = power_freq
+                if isinstance(power_freq, str):
+                    frequency, units = decompose_variable_value(power_freq)
+                    if units:
                         frequency = unit_converter(frequency, "Freq", units, "Hz")
-                        new_power[frequency] = incident_power[power_freq]
 
-            incident_power = new_power
+                new_incident_power[frequency] = value
+
+            new_radiated_power = {}
+            for power_freq in radiated_power:
+                frequency = power_freq
+                if isinstance(power_freq, str):
+                    frequency, units = decompose_variable_value(power_freq)
+                    if units:
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                new_radiated_power[frequency] = radiated_power[power_freq]
+
+            new_accepted_power = {}
+            for power_freq in accepted_power:
+                frequency = power_freq
+                if isinstance(power_freq, str):
+                    frequency, units = decompose_variable_value(power_freq)
+                    if units:
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                new_accepted_power[frequency] = accepted_power[power_freq]
 
             self.__element_info[element_name] = {
                 "pattern_file": pattern_file,
                 "location": [float(location[0]), float(location[1]), float(location[2])],
-                "incident_power": incident_power,
+                "incident_power": new_incident_power,
+                "accepted_power": new_accepted_power,
+                "radiated_power": new_radiated_power,
             }
 
         if not self.element_info:  # pragma: no cover
@@ -571,8 +595,10 @@ class FfdSolutionData(object):
 
         # Update properties with the loaded information
         self.__all_element_names = list(self.element_info.keys())
-        self.__phase_offset = [0] * len(self.all_element_names)
-        self.__magnitude_offset = [1] * len(self.all_element_names)
+        for element in self.all_element_names:
+            self.__magnitude[element] = 1.0
+            self.__phase[element] = 0.0
+
         self.__origin = [0, 0, 0]
         self.__taper = "flat"
 
@@ -661,22 +687,65 @@ class FfdSolutionData(object):
 
     @property
     def incident_power_element(self):
-        """Accepted power per element in watts"""
+        """Incident power per element in watts"""
         incident_power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("incident_power", None)
             if element_power and element_power.get(self.frequency, None):
-                incident_power[element_name] = element_power.get(self.frequency) * self.__w_dict_mag[element_name]
-            else:
-                incident_power[element_name] = 1.0 * self.__w_dict_mag[element_name]
-
-        return incident_power
+                incident_power[element_name] = element_power.get(self.frequency) * self.magnitude[element_name]
+            else:  # pragma: no cover
+                incident_power[element_name] = 1.0 * self.magnitude[element_name]
+        self.__incident_power_element = incident_power
+        return self.__incident_power_element
 
     @property
     def incident_power(self):
         """Total incident power in watts"""
-        if self.incident_power_element:
-            return sum(self.incident_power_element.values())
+        incident_power_element = self.incident_power_element
+        if incident_power_element:
+            return sum(incident_power_element.values())
+        else:
+            return None
+
+    @property
+    def accepted_power_element(self):
+        """Accepted power per element in watts"""
+        power = {}
+        for element_name, element_props in self.element_info.items():
+            element_power = element_props.get("accepted_power", None)
+            if element_power and element_power.get(self.frequency, None):
+                power[element_name] = element_power.get(self.frequency) * self.magnitude[element_name]
+            else:  # pragma: no cover
+                power[element_name] = 1.0 * self.magnitude[element_name]
+        return power
+
+    @property
+    def accepted_power(self):
+        """Total accepted power in watts"""
+        power_element = self.accepted_power_element
+        if power_element:
+            return sum(power_element.values())
+        else:
+            return None
+
+    @property
+    def radiated_power_element(self):
+        """Radiated power per element in watts"""
+        power = {}
+        for element_name, element_props in self.element_info.items():
+            element_power = element_props.get("radiated_power", None)
+            if element_power and element_power.get(self.frequency, None):
+                power[element_name] = element_power.get(self.frequency) * self.magnitude[element_name]
+            else:  # pragma: no cover
+                power[element_name] = 1.0 * self.magnitude[element_name]
+        return power
+
+    @property
+    def radiated_power(self):
+        """Total radiated power in watts"""
+        power_element = self.radiated_power_element
+        if power_element:
+            return sum(power_element.values())
         else:
             return None
 
@@ -686,7 +755,7 @@ class FfdSolutionData(object):
         if self.s_parameters is not None:
             active_s_parameter = {}
             incident_power_list = list(self.incident_power_element.values())
-            phase_list = list(self.__w_dict_ang.values())
+            phase_list = list(self.phase.values())
 
             for element_cont, element in enumerate(self.all_element_names):
                 row_s_parameters = self.s_parameters[element_cont]
@@ -713,29 +782,35 @@ class FfdSolutionData(object):
         else:
             return None
 
-    @property
-    def accepted_power_element(self):
-        """Accepted power per element in watts"""
-        if self.active_s_parameters is not None:
-            accepted_power = {}
-            for element_cont, element in enumerate(self.all_element_names):
-                operation = 1 - np.power(np.abs(self.active_s_parameters[element]), 2)
-                accepted_power[element] = self.incident_power_element[element] * operation
-            return accepted_power
-        else:
-            return None
-
-    @property
-    def accepted_power(self):
-        """Total accepted power in watts"""
-        if self.accepted_power_element:
-            return sum(self.accepted_power_element.values())
-        else:
-            return None
-
-    def radiated_power(self):
-        """Radiated power"""
-        pass
+    # def radiated_power_element(self):
+    #     """Radiated power"""
+    #     freq_name_key = self.frequencies[self.__freq_index]
+    #     power = {}
+    #     for _, port in enumerate(self.all_element_names):
+    #         power[port] = 0.0
+    #         data = self.__raw_data[port][freq_name_key]
+    #         theta_range = data["Theta"]
+    #         phi_range = data["Phi"]
+    #         rEtheta = data["rETheta"]
+    #         rEphi = data["rEPhi"]
+    #
+    #         ntheta = len(theta_range)
+    #         nphi = len(phi_range)
+    #         rEtheta_reshape = np.reshape(rEtheta, (ntheta, nphi))
+    #         rEphi_reshape = np.reshape(rEphi, (ntheta, nphi))
+    #
+    #         dtheta = theta_range[1] - theta_range[0]
+    #         dphi = phi_range[1] - phi_range[0]
+    #
+    #         for theta_cont, theta in enumerate(theta_range):
+    #             for phi_cont, phi in enumerate(phi_range):
+    #                 rEtheta_abs = np.abs(rEtheta_reshape[theta_cont][phi_cont]) ** 2
+    #                 rEphi_abs = np.abs(rEphi_reshape[theta_cont][phi_cont]) ** 2
+    #                 operation = 1**2 * (rEtheta_abs + rEphi_abs)
+    #                 power[port] += operation * np.sin(np.deg2rad(theta)) * np.deg2rad(dtheta) * np.deg2rad(dphi)
+    #         power[port] = power[port] / (2 * 377)
+    #
+    #     return power
 
     @property
     def input_file(self):
@@ -745,7 +820,7 @@ class FfdSolutionData(object):
     @property
     def farfield_data(self):
         """Farfield data."""
-        return self.__farfield_data
+        return self.combine_farfield(self.theta_scan, self.phi_scan)
 
     @property
     def element_info(self):
@@ -781,37 +856,32 @@ class FfdSolutionData(object):
         if val in self.frequencies:
             self._frequency = val
             self.__freq_index = self.frequencies.index(val)
-            self.__farfield_data = self.combine_farfield()
         else:  # pragma: no cover
-            self.logger.error("Frequency not available.")
+            self.__logger.error("Frequency not available.")
 
     @property
-    def phase_offset(self):
-        """List of additional phase offsets in degrees on each port. This property
-        is useful when an element has more than one port."""
-        return self.__phase_offset
+    def phase(self):
+        """Phase offset in degrees on each port."""
+        return self.__phase
 
-    @phase_offset.setter
-    def phase_offset(self, phases):
+    @phase.setter
+    def phase(self, phases):
         if len(phases) != len(self.all_element_names):
-            self.logger.error("Number of phases must be equal to number of ports.")
+            self.__logger.error("Number of phases must be equal to number of ports.")
         else:
-            self.__phase_offset = phases
-            self.__farfield_data = self.combine_farfield()
+            self.__phase = phases
 
     @property
-    def magnitude_offset(self):
-        """List of additional magnitudes on each port. This property is
-        useful when an element has more than one port."""
-        return self.__magnitude_offset
+    def magnitude(self):
+        """Magnitude weight applied on each port."""
+        return self.__magnitude
 
-    @magnitude_offset.setter
-    def magnitude_offset(self, mags):
+    @magnitude.setter
+    def magnitude(self, mags):
         if len(mags) != len(self.all_element_names):
-            self.logger.error("Number of magnitude must be equal to number of ports.")
+            self.__logger.error("Number of magnitude values must be equal to number of ports.")
         else:
-            self.__magnitude_offset = mags
-            self.__farfield_data = self.combine_farfield()
+            self.__magnitude = mags
 
     @property
     def taper(self):
@@ -831,8 +901,9 @@ class FfdSolutionData(object):
     def taper(self, val):
         if val.lower() in ("flat", "uniform", "cosine", "triangular", "hamming"):
             self.__taper = val
+
         else:
-            self.logger.error("This taper is not implemented")
+            self.__logger.error("This taper is not implemented")
 
     @property
     def origin(self):
@@ -842,10 +913,84 @@ class FfdSolutionData(object):
     @origin.setter
     def origin(self, vals):
         if len(vals) != 3:
-            self.logger.error("Origin is wrong.")
+            self.__logger.error("Origin is wrong.")
         else:
             self.__origin = vals
-            self.__farfield_data = self.combine_farfield()
+
+    @pyaedt_function_handler()
+    def get_accepted_power(self):
+        """Compute the accepted power from active s-parameters and incident power.
+
+        Returns
+        -------
+        float
+            Total accepted power.
+        """
+
+        if self.active_s_parameters is not None:
+            accepted_power = {}
+            for element_cont, element in enumerate(self.all_element_names):
+                if self.active_s_parameters[element] is not None:
+                    operation = 1 - np.power(np.abs(self.active_s_parameters[element]), 2)
+                    accepted_power[element] = self.incident_power_element[element] * operation
+                else:
+                    accepted_power[element] = 0.0
+            total_accepted_power = sum(accepted_power.values())
+            return total_accepted_power
+        else:
+            return None
+
+    @pyaedt_function_handler()
+    def get_radiated_power(self):
+        """Compute the radiated power from the farfield data.
+
+        Returns
+        -------
+        float
+            Total accepted power.
+        """
+        data = self.farfield_data
+
+        if data:
+            theta = data["Theta"]
+            phi = data["Phi"]
+
+            rE_t_re = np.real(data["rETheta"])
+            rE_t_im = np.imag(data["rETheta"])
+            rE_p_re = np.real(data["rEPhi"])
+            rE_p_im = np.imag(data["rEPhi"])
+
+            T_M = np.tile(theta, (len(phi), 1)).T
+
+            # P_M is a matrix with phi over columns
+            P_M = np.tile(phi, (len(theta), 1))
+
+            # Calculate U_total
+            U_total = (rE_t_re**2 + rE_t_im**2 + rE_p_re**2 + rE_p_im**2) / (240 * np.pi)
+
+            # Reshape U_total to match the dimensions of phi and theta
+            U_tot_M = np.reshape(U_total, (len(phi), len(theta))).T
+
+            # Calculate the differentials for theta and phi
+            d_t = np.abs((theta[1] - theta[0])) * np.pi / 180
+            d_p = np.abs((phi[1] - phi[0])) * np.pi / 180
+
+            # Calculate Weights
+            Weights = d_t * d_p * np.sin(np.radians(T_M))
+
+            # Modify the edge values of Weights
+            Weights[:, -1] = np.zeros(len(theta))
+            Weights[0, :] = np.zeros(len(phi))
+            Weights[0, 0] = 0.25 * d_t * d_p * (len(phi) - 1) * np.sin(d_t / 4)
+            Weights[-1, :] = np.zeros(len(phi))
+            Weights[-1, :] = 0.25 * d_t * d_p * (len(phi) - 1) * np.sin(d_t / 4)
+
+            # Calculate PowerRad
+            power_rad = np.sum(U_tot_M * Weights)
+
+            return power_rad
+        else:
+            return None
 
     @pyaedt_function_handler()
     def __assign_weight_taper(self, a, b):
@@ -924,6 +1069,7 @@ class FfdSolutionData(object):
 
         return w1 * w2
 
+    @pyaedt_function_handler()
     def __phase_shift_steering(self, a, b, theta=0.0, phi=0.0):
         """Shift element phase for a specific Theta and Phi scan angle in degrees.
 
@@ -964,25 +1110,23 @@ class FfdSolutionData(object):
 
         return np.rad2deg(phase_shift)
 
+    @pyaedt_function_handler()
     def __element_weight(self):
         # Obtain weights for each element
-        for element_cont, element_name in enumerate(self.all_element_names):
-            index_port = self.get_port_index(element_name)
-            index_str = index_port[element_name]
-            a = index_str[0] - 1
-            b = index_str[1] - 1
+        for element_name in self.all_element_names:
+            amplitude = self.magnitude[element_name]
+            phase = self.phase[element_name]
             if self.__is_array:
-                phase_shift = self.__phase_shift_steering(a, b, self.theta_scan, self.phi_scan)
-                magnitude = self.__assign_weight_taper(a=a, b=b)
-            else:
-                phase_shift = 0
-                magnitude = 1
-            w_mag = magnitude * self.magnitude_offset[element_cont]
-            w_ang = np.deg2rad(self.phase_offset[element_cont] + phase_shift)
+                index_port = self.get_port_index(element_name)
+                index_str = index_port[element_name]
+                a = index_str[0] - 1
+                b = index_str[1] - 1
+                phase = self.__phase_shift_steering(a, b, self.theta_scan, self.phi_scan)
+                amplitude = self.__assign_weight_taper(a=a, b=b)
 
-            self.__weight[element_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
-            self.__w_dict_ang[element_name] = w_ang
-            self.__w_dict_mag[element_name] = w_mag
+            self.__weight[element_name] = np.sqrt(amplitude) * np.exp(1j * np.deg2rad(phase))
+            self.__magnitude[element_name] = amplitude
+            self.__phase[element_name] = phase
 
     @pyaedt_function_handler()
     def combine_farfield(self, phi_scan=0.0, theta_scan=0.0):
@@ -1000,9 +1144,11 @@ class FfdSolutionData(object):
         dict
             Far field data dictionary.
         """
+        # Modify theta and phi and compute weight
 
-        self.theta_scan = theta_scan
-        self.phi_scan = phi_scan
+        self.__theta_scan = theta_scan
+        self.__phi_scan = phi_scan
+        self.__element_weight()
 
         port_positions = {}
 
@@ -1018,9 +1164,11 @@ class FfdSolutionData(object):
         phi_range = data["Phi"]
         Ntheta = len(theta_range)
         Nphi = len(phi_range)
-        incident_power = 0
-        radiated_power = 0
-        accepted_power = 0
+
+        incident_power = self.incident_power
+        radiated_power = self.radiated_power
+        accepted_power = self.accepted_power
+
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
@@ -1041,22 +1189,13 @@ class FfdSolutionData(object):
             if port not in self.weight:
                 self.__weight[port] = np.sqrt(0) * np.exp(1j * 0)
 
-            power_element = self.element_info[port]["incident_power"]
-            incident_power_mult = 1
-
-            if power_element and freq_name_key in power_element:
-                power = power_element[freq_name_key]
-                incident_power_mult = float(power)
-
-            incident_power += self.__w_dict_mag[port] * incident_power_mult
-
             xyz_pos = port_positions[port]
             weight = self.weight[port]
             array_factor = np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * weight
             rEphi_fields_sum += array_factor * data["rEPhi"]
             rETheta_fields_sum += array_factor * data["rETheta"]
 
-        # Farfield origin sift
+        # Farfield origin shift
         origin = self.origin
         array_factor = np.exp(-1j * (origin[0] * kx_flat + origin[1] * ky_flat + origin[2] * kz_flat))
         rETheta_fields_sum = array_factor * rETheta_fields_sum
@@ -1075,9 +1214,6 @@ class FfdSolutionData(object):
         farfield_data["Phi"] = phi_range
         farfield_data["nPhi"] = Nphi
         farfield_data["nTheta"] = Ntheta
-        farfield_data["Pincident"] = incident_power
-        # farfield_data["Paccepted"] = accepted_power
-        # farfield_data["Pradiated"] = radiated_power
 
         real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / incident_power / 377
         farfield_data["RealizedGain"] = real_gain
@@ -1088,25 +1224,25 @@ class FfdSolutionData(object):
         real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / incident_power / 377
         farfield_data["RealizedGain_Phi"] = real_gain
 
-        # gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / accepted_power / 377
-        # farfield_data["Gain"] = gain
-        # farfield_data["Gain_Total"] = gain
-        # farfield_data["Gain_dB"] = 10 * np.log10(gain)
-        # gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / accepted_power / 377
-        # farfield_data["Gain_Theta"] = gain
-        # gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / accepted_power / 377
-        # farfield_data["Gain_Phi"] = gain
-        #
-        # directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / radiated_power / 377
-        # farfield_data["Directivity"] = directivity
-        # farfield_data["Directivity_Total"] = directivity
-        # farfield_data["Directivity_dB"] = 10 * np.log10(directivity)
-        # directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / radiated_power / 377
-        # farfield_data["Directivity_Theta"] = directivity
-        # directivity = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / radiated_power / 377
-        # farfield_data["Directivity_Phi"] = directivity
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / accepted_power / 377
+        farfield_data["Gain"] = gain
+        farfield_data["Gain_Total"] = gain
+        farfield_data["Gain_dB"] = 10 * np.log10(gain)
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / accepted_power / 377
+        farfield_data["Gain_Theta"] = gain
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / accepted_power / 377
+        farfield_data["Gain_Phi"] = gain
 
-        farfield_data["Element_Location"] = port_positions
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / radiated_power / 377
+        farfield_data["Directivity"] = directivity
+        farfield_data["Directivity_Total"] = directivity
+        farfield_data["Directivity_dB"] = 10 * np.log10(directivity)
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Theta"] = directivity
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Phi"] = directivity
+
+        # farfield_data["Element_Location"] = port_positions
         return farfield_data
 
     # fmt: off
@@ -1186,7 +1322,7 @@ class FfdSolutionData(object):
             title = quantity
         for k in kwargs:
             if k == "convert_to_db":  # pragma: no cover
-                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
+                self.__logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
                 quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
             elif k == "qty_str":  # pragma: no cover
                 self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
@@ -1577,8 +1713,6 @@ class FfdSolutionData(object):
             self.logger.error("Far field quantity is not available.")
             return False
 
-        self.__farfield_data = farfield_data
-
         self.__mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
         rotation_euler = self.__rotation_to_euler_angles(rotation) * 180 / np.pi
@@ -1653,7 +1787,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self._get_geometry()
-        data = conversion_function(self.farfield_data[quantity], function=quantity_format)
+        data = conversion_function(farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
             return False
@@ -1807,11 +1941,12 @@ class FfdSolutionData(object):
         :class:`Pyvista.Plotter`
             ``UnstructuredGrid`` object representing the far field mesh.
         """
-        if quantity not in self.farfield_data:
+        farfield_data = self.farfield_data
+        if quantity not in farfield_data:
             self.logger.error("Far field quantity is not available.")
             return False
 
-        data = self.farfield_data[quantity]
+        data = farfield_data[quantity]
 
         ff_data = conversion_function(data, quantity_format)
 
@@ -1819,8 +1954,8 @@ class FfdSolutionData(object):
             self.logger.error("Format of the quantity is wrong.")
             return False
 
-        theta = np.deg2rad(np.array(self.farfield_data["Theta"]))
-        phi = np.deg2rad(np.array(self.farfield_data["Phi"]))
+        theta = np.deg2rad(np.array(farfield_data["Theta"]))
+        phi = np.deg2rad(np.array(farfield_data["Phi"]))
         mesh = get_structured_mesh(theta=theta, phi=phi, ff_data=ff_data)
         return mesh
 
@@ -2168,6 +2303,7 @@ class FfdSolutionDataExporter:
                     export_element_pattern=True,
                     export_objects=False,
                     export_touchstone=True,
+                    export_power=True,
                 )
                 if not is_exported:  # pragma: no cover
                     return False
@@ -2204,7 +2340,8 @@ class FfdSolutionDataExporter:
         else:
             variation = self.__app.odesign.GetNominalVariation()
 
-        incident_power = {}
+        power = {}
+
         if self.__app.desktop_class.aedt_version_id < "2024.1":
 
             available_categories = self.__app.post.available_quantities_categories()
@@ -2224,14 +2361,21 @@ class FfdSolutionDataExporter:
                     excitations.append(excitation)
             for excitation_cont1 in range(len(excitations)):
                 sources = {}
+                incident_power = {}
+                accepted_power = {}
+                radiated_power = {}
                 unit = "V"
                 if is_power:
                     unit = "W"
+                active_element = excitations[0]
                 for excitation_cont2, port in enumerate(excitations):
                     if excitation_cont1 == excitation_cont2:
+                        active_element = port
                         sources[port] = (f"1{unit}", "0deg")
                     else:
                         sources[port] = (f"0{unit}", "0deg")
+
+                power[active_element] = {}
 
                 self.__app.edit_sources(sources)
 
@@ -2239,16 +2383,35 @@ class FfdSolutionDataExporter:
                     "IncidentPower", self.setup_name, self.sphere_name
                 )
                 data = report.get_solution_data()
-                powers = data.data_magnitude()
+                incident_powers = data.data_magnitude()
+
+                report = self.__app.post.reports_by_category.antenna_parameters(
+                    "RadiatedPower", self.setup_name, self.sphere_name
+                )
+                data = report.get_solution_data()
+                radiated_powers = data.data_magnitude()
+
+                report = self.__app.post.reports_by_category.antenna_parameters(
+                    "AcceptedPower", self.setup_name, self.sphere_name
+                )
+                data = report.get_solution_data()
+                accepted_powers = data.data_magnitude()
+
                 for freq_cont, freq_str in enumerate(self.frequencies):
-                    incident_power[freq_str] = powers[freq_cont]
+                    frequency = freq_str
+                    if isinstance(freq_str, str):
+                        frequency, units = decompose_variable_value(freq_str)
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    incident_power[frequency] = incident_powers[freq_cont]
+                    radiated_power[frequency] = radiated_powers[freq_cont]
+                    accepted_power[frequency] = accepted_powers[freq_cont]
+
+                power[active_element]["IncidentPower"] = incident_power
+                power[active_element]["AcceptedPower"] = accepted_power
+                power[active_element]["RadiatedPower"] = radiated_power
 
         pyaedt_metadata_file = FfdSolutionDataExporter.export_pyaedt_antenna_metadata(
-            input_file=input_file,
-            output_dir=export_path,
-            variation=variation,
-            model_info=self.model_info,
-            incident_power=incident_power,
+            input_file=input_file, output_dir=export_path, variation=variation, model_info=self.model_info, power=power
         )
         if not pyaedt_metadata_file:  # pragma: no cover
             return False
@@ -2261,7 +2424,7 @@ class FfdSolutionDataExporter:
     @staticmethod
     @pyaedt_function_handler()
     def export_pyaedt_antenna_metadata(
-        input_file, output_dir, variation=None, model_info=None, incident_power=None, touchstone_file=None
+        input_file, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
     ):
         """Obtain metadata information from metadata XML file.
 
@@ -2274,12 +2437,12 @@ class FfdSolutionDataExporter:
         variation : str, optional
             Label to identify corresponding variation.
         model_info : dict, optional
-        incident_power : dict, optional
+        power : dict, optional
             Dictionary with information of the incident power for each frequency.
             The default is ``None``, in which case an empty dictionary is applied.
             From AEDT 2024.1, this information is available from the XML input file.
             For example, the dictionary format for a two element farfield
-            data = incident_power["1GHz"]
+            data = power[1000000000.0]["IncidentPower"]
             data = [1, 0.99]
         touchstone_file : str, optional
             Touchstone file name. The default is ``None``.
@@ -2294,8 +2457,8 @@ class FfdSolutionDataExporter:
         if not variation:
             variation = "Nominal"
 
-        if not incident_power:
-            incident_power = {}
+        if not power:
+            power = {}
 
         if not touchstone_file:
             touchstone_file = ""
@@ -2326,17 +2489,41 @@ class FfdSolutionDataExporter:
                     items["touchstone_file"] = sNp_name
 
             for metadata in antenna_metadata:
-                float_incident_power = {
-                    i_freq: float(i_power_value) for i_freq, i_power_value in metadata["incident_power"].items()
-                }
+
+                incident_power = {}
+                for i_freq, i_power_value in metadata["incident_power"].items():
+                    frequency = i_freq
+                    if isinstance(i_freq, str):
+                        frequency, units = decompose_variable_value(i_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    incident_power[frequency] = i_power_value
+
+                radiated_power = {}
+                for i_freq, i_power_value in metadata["radiated_power"].items():
+                    frequency = i_freq
+                    if isinstance(i_freq, str):
+                        frequency, units = decompose_variable_value(i_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    radiated_power[frequency] = i_power_value
+
+                accepted_power = {}
+                for i_freq, i_power_value in metadata["accepted_power"].items():
+                    frequency = i_freq
+                    if isinstance(i_freq, str):
+                        frequency, units = decompose_variable_value(i_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    accepted_power[frequency] = i_power_value
+
                 pattern = {
                     "file_name": metadata["file_name"],
                     "location": metadata["location"],
-                    "incident_power": float_incident_power,
+                    "incident_power": incident_power,
+                    "radiated_power": radiated_power,
+                    "accepted_power": accepted_power,
                 }
-
-                if incident_power and isinstance(incident_power, dict):
-                    pattern["incident_power"] = incident_power
 
                 items["element_pattern"][metadata["name"]] = pattern
                 pattern_file = os.path.join(output_dir, metadata["file_name"])
@@ -2364,6 +2551,7 @@ class FfdSolutionDataExporter:
                 for line in file:
                     antenna_metadata = line.strip().split()
                     if len(antenna_metadata) == 5:
+                        element_name = antenna_metadata[0]
                         file_name = antenna_metadata[1]
                         if ".ffd" not in file_name:
                             file_name = file_name + ".ffd"
@@ -2374,7 +2562,9 @@ class FfdSolutionDataExporter:
                                 float(antenna_metadata[3]),
                                 float(antenna_metadata[4]),
                             ],
-                            "incident_power": incident_power,
+                            "incident_power": power[element_name]["IncidentPower"],
+                            "radiated_power": power[element_name]["RadiatedPower"],
+                            "accepted_power": power[element_name]["AcceptedPower"],
                         }
                         items["element_pattern"][antenna_metadata[0]] = pattern
 
@@ -2435,10 +2625,16 @@ class FfdSolutionDataExporter:
                 power_info = source.find("PowerInfo")
                 if power_info is not None:
                     source_info["incident_power"] = {}
+                    source_info["accepted_power"] = {}
+                    source_info["radiated_power"] = {}
                     for power in power_info.findall("Power"):
                         freq = power.get("Freq")
                         source_info["incident_power"][freq] = {}
                         source_info["incident_power"][freq] = power.find("IncidentPower").text.strip()
+                        source_info["accepted_power"][freq] = {}
+                        source_info["accepted_power"][freq] = power.find("AcceptedPower").text.strip()
+                        source_info["radiated_power"][freq] = {}
+                        source_info["radiated_power"][freq] = power.find("RadiatedPower").text.strip()
 
                 sources.append(source_info)
                 cont += 1
