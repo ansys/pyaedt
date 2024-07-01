@@ -3727,7 +3727,7 @@ class Design(AedtObjects):
         return design_data
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False, create_parent_dir=True):
+    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
@@ -3739,8 +3739,6 @@ class Design(AedtObjects):
         refresh_ids : bool, optional
             Whether to refresh object IDs after saving the project.
             The default is ``False``.
-        create_parent_dir : bool, optional
-            Whether to create the parent directory for the project if it does not exist.
 
         Returns
         -------
@@ -3753,9 +3751,12 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        if file_name and create_parent_dir and not os.path.exists(os.path.dirname(file_name)):
-            os.makedirs(os.path.dirname(file_name))
         if file_name:
+            file_parent_dir = os.path.dirname(os.path.normpath(file_name))
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(file_parent_dir):
+                settings.remote_rpc_session.filemanager.makedirs(file_parent_dir)
+            elif not os.path.isdir(file_parent_dir):
+                os.makedirs(file_parent_dir)
             self.oproject.SaveAs(file_name, overwrite)
             self._add_handler()
         else:
