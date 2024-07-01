@@ -46,7 +46,7 @@
 	"type": "statistical eye",
 	"config": "StatisticalEyeDiagram_Custom.json",
 	"quantity_type": 3, 
-     "traces": ["b_input_67"],
+     "traces": ["b_input_67", "b_input_119"],
      "pass_fail": true
      },
 	 {"name": "eye3",
@@ -54,7 +54,7 @@
 	"type": "contour eye diagram",
 	"config": "ContourEyeDiagram_Custom.json",
 	"quantity_type": 3, 
-     "traces": ["b_input_67"],
+     "traces": ["b_input_67", "b_input_119"],
      "pass_fail": true
      },
 	{"name": "eye2",
