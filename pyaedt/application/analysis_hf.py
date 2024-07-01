@@ -782,36 +782,6 @@ class FfdSolutionData(object):
         else:
             return None
 
-    # def radiated_power_element(self):
-    #     """Radiated power"""
-    #     freq_name_key = self.frequencies[self.__freq_index]
-    #     power = {}
-    #     for _, port in enumerate(self.all_element_names):
-    #         power[port] = 0.0
-    #         data = self.__raw_data[port][freq_name_key]
-    #         theta_range = data["Theta"]
-    #         phi_range = data["Phi"]
-    #         rEtheta = data["rETheta"]
-    #         rEphi = data["rEPhi"]
-    #
-    #         ntheta = len(theta_range)
-    #         nphi = len(phi_range)
-    #         rEtheta_reshape = np.reshape(rEtheta, (ntheta, nphi))
-    #         rEphi_reshape = np.reshape(rEphi, (ntheta, nphi))
-    #
-    #         dtheta = theta_range[1] - theta_range[0]
-    #         dphi = phi_range[1] - phi_range[0]
-    #
-    #         for theta_cont, theta in enumerate(theta_range):
-    #             for phi_cont, phi in enumerate(phi_range):
-    #                 rEtheta_abs = np.abs(rEtheta_reshape[theta_cont][phi_cont]) ** 2
-    #                 rEphi_abs = np.abs(rEphi_reshape[theta_cont][phi_cont]) ** 2
-    #                 operation = 1**2 * (rEtheta_abs + rEphi_abs)
-    #                 power[port] += operation * np.sin(np.deg2rad(theta)) * np.deg2rad(dtheta) * np.deg2rad(dphi)
-    #         power[port] = power[port] / (2 * 377)
-    #
-    #     return power
-
     @property
     def input_file(self):
         """Input file."""
@@ -918,6 +888,123 @@ class FfdSolutionData(object):
             self.__origin = vals
 
     @pyaedt_function_handler()
+    def combine_farfield(self, phi_scan=0.0, theta_scan=0.0):
+        """Compute the far field pattern calculated for a specific phi and theta scan angle requested.
+
+        Parameters
+        ----------
+        phi_scan : float, optional
+            Phi scan angle in degrees. The default is ``0.0``.
+        theta_scan : float, optional
+            Theta scan angle in degrees. The default is ``0.0``.
+
+        Returns
+        -------
+        dict
+            Far field data dictionary.
+        """
+        # Modify theta and phi and compute weight
+
+        self.__theta_scan = theta_scan
+        self.__phi_scan = phi_scan
+        self.__element_weight()
+
+        port_positions = {}
+
+        for port_name in self.all_element_names:
+            port_positions[port_name] = self.element_info[port_name]["location"]
+
+        # Combine farfield of each port
+        initial_port = self.all_element_names[0]
+        freq_name_key = self.frequencies[self.__freq_index]
+        data = self.__raw_data[initial_port][freq_name_key]
+        length_of_ff_data = len(data["rETheta"])
+        theta_range = data["Theta"]
+        phi_range = data["Phi"]
+        Ntheta = len(theta_range)
+        Nphi = len(phi_range)
+
+        incident_power = self.incident_power
+        radiated_power = self.radiated_power
+        accepted_power = self.accepted_power
+
+        ph, th = np.meshgrid(data["Phi"], data["Theta"])
+        ph = np.deg2rad(ph)
+        th = np.deg2rad(th)
+        c = 299792458
+        k = 2 * np.pi * self.frequency / c
+        kx_grid = k * np.sin(th) * np.cos(ph)
+        ky_grid = k * np.sin(th) * np.sin(ph)
+        kz_grid = k * np.cos(th)
+        kx_flat = kx_grid.ravel()
+        ky_flat = ky_grid.ravel()
+        kz_flat = kz_grid.ravel()
+        rEphi_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
+        rETheta_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
+
+        # Farfield superposition
+        for _, port in enumerate(self.all_element_names):
+            data = self.__raw_data[port][freq_name_key]
+            if port not in self.weight:
+                self.__weight[port] = np.sqrt(0) * np.exp(1j * 0)
+
+            xyz_pos = port_positions[port]
+            weight = self.weight[port]
+            array_factor = np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * weight
+            rEphi_fields_sum += array_factor * data["rEPhi"]
+            rETheta_fields_sum += array_factor * data["rETheta"]
+
+        # Farfield origin shift
+        origin = self.origin
+        array_factor = np.exp(-1j * (origin[0] * kx_flat + origin[1] * ky_flat + origin[2] * kz_flat))
+        rETheta_fields_sum = array_factor * rETheta_fields_sum
+        rEphi_fields_sum = array_factor * rEphi_fields_sum
+
+        rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (Ntheta, Nphi))
+        rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
+
+        farfield_data = OrderedDict()
+        farfield_data["rEPhi"] = rEphi_fields_sum
+        farfield_data["rETheta"] = rEtheta_fields_sum
+        farfield_data["rETotal"] = np.sqrt(
+            np.power(np.abs(rEphi_fields_sum), 2) + np.power(np.abs(rEtheta_fields_sum), 2)
+        )
+        farfield_data["Theta"] = theta_range
+        farfield_data["Phi"] = phi_range
+        farfield_data["nPhi"] = Nphi
+        farfield_data["nTheta"] = Ntheta
+
+        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / incident_power / 377
+        farfield_data["RealizedGain"] = real_gain
+        farfield_data["RealizedGain_Total"] = real_gain
+        farfield_data["RealizedGain_dB"] = 10 * np.log10(real_gain)
+        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / incident_power / 377
+        farfield_data["RealizedGain_Theta"] = real_gain
+        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / incident_power / 377
+        farfield_data["RealizedGain_Phi"] = real_gain
+
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / accepted_power / 377
+        farfield_data["Gain"] = gain
+        farfield_data["Gain_Total"] = gain
+        farfield_data["Gain_dB"] = 10 * np.log10(gain)
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / accepted_power / 377
+        farfield_data["Gain_Theta"] = gain
+        gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / accepted_power / 377
+        farfield_data["Gain_Phi"] = gain
+
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / radiated_power / 377
+        farfield_data["Directivity"] = directivity
+        farfield_data["Directivity_Total"] = directivity
+        farfield_data["Directivity_dB"] = 10 * np.log10(directivity)
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Theta"] = directivity
+        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / radiated_power / 377
+        farfield_data["Directivity_Phi"] = directivity
+
+        # farfield_data["Element_Location"] = port_positions
+        return farfield_data
+
+    @pyaedt_function_handler()
     def get_accepted_power(self):
         """Compute the accepted power from active s-parameters and incident power.
 
@@ -991,6 +1078,36 @@ class FfdSolutionData(object):
             return power_rad
         else:
             return None
+
+    # def radiated_power_element(self):
+    #     """Radiated power"""
+    #     freq_name_key = self.frequencies[self.__freq_index]
+    #     power = {}
+    #     for _, port in enumerate(self.all_element_names):
+    #         power[port] = 0.0
+    #         data = self.__raw_data[port][freq_name_key]
+    #         theta_range = data["Theta"]
+    #         phi_range = data["Phi"]
+    #         rEtheta = data["rETheta"]
+    #         rEphi = data["rEPhi"]
+    #
+    #         ntheta = len(theta_range)
+    #         nphi = len(phi_range)
+    #         rEtheta_reshape = np.reshape(rEtheta, (ntheta, nphi))
+    #         rEphi_reshape = np.reshape(rEphi, (ntheta, nphi))
+    #
+    #         dtheta = theta_range[1] - theta_range[0]
+    #         dphi = phi_range[1] - phi_range[0]
+    #
+    #         for theta_cont, theta in enumerate(theta_range):
+    #             for phi_cont, phi in enumerate(phi_range):
+    #                 rEtheta_abs = np.abs(rEtheta_reshape[theta_cont][phi_cont]) ** 2
+    #                 rEphi_abs = np.abs(rEphi_reshape[theta_cont][phi_cont]) ** 2
+    #                 operation = 1**2 * (rEtheta_abs + rEphi_abs)
+    #                 power[port] += operation * np.sin(np.deg2rad(theta)) * np.deg2rad(dtheta) * np.deg2rad(dphi)
+    #         power[port] = power[port] / (2 * 377)
+    #
+    #     return power
 
     @pyaedt_function_handler()
     def __assign_weight_taper(self, a, b):
@@ -1128,123 +1245,6 @@ class FfdSolutionData(object):
             self.__magnitude[element_name] = amplitude
             self.__phase[element_name] = phase
 
-    @pyaedt_function_handler()
-    def combine_farfield(self, phi_scan=0.0, theta_scan=0.0):
-        """Compute the far field pattern calculated for a specific phi and theta scan angle requested.
-
-        Parameters
-        ----------
-        phi_scan : float, optional
-            Phi scan angle in degrees. The default is ``0.0``.
-        theta_scan : float, optional
-            Theta scan angle in degrees. The default is ``0.0``.
-
-        Returns
-        -------
-        dict
-            Far field data dictionary.
-        """
-        # Modify theta and phi and compute weight
-
-        self.__theta_scan = theta_scan
-        self.__phi_scan = phi_scan
-        self.__element_weight()
-
-        port_positions = {}
-
-        for port_name in self.all_element_names:
-            port_positions[port_name] = self.element_info[port_name]["location"]
-
-        # Combine farfield of each port
-        initial_port = self.all_element_names[0]
-        freq_name_key = self.frequencies[self.__freq_index]
-        data = self.__raw_data[initial_port][freq_name_key]
-        length_of_ff_data = len(data["rETheta"])
-        theta_range = data["Theta"]
-        phi_range = data["Phi"]
-        Ntheta = len(theta_range)
-        Nphi = len(phi_range)
-
-        incident_power = self.incident_power
-        radiated_power = self.radiated_power
-        accepted_power = self.accepted_power
-
-        ph, th = np.meshgrid(data["Phi"], data["Theta"])
-        ph = np.deg2rad(ph)
-        th = np.deg2rad(th)
-        c = 299792458
-        k = 2 * np.pi * self.frequency / c
-        kx_grid = k * np.sin(th) * np.cos(ph)
-        ky_grid = k * np.sin(th) * np.sin(ph)
-        kz_grid = k * np.cos(th)
-        kx_flat = kx_grid.ravel()
-        ky_flat = ky_grid.ravel()
-        kz_flat = kz_grid.ravel()
-        rEphi_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
-        rETheta_fields_sum = np.zeros(length_of_ff_data, dtype=complex)
-
-        # Farfield superposition
-        for _, port in enumerate(self.all_element_names):
-            data = self.__raw_data[port][freq_name_key]
-            if port not in self.weight:
-                self.__weight[port] = np.sqrt(0) * np.exp(1j * 0)
-
-            xyz_pos = port_positions[port]
-            weight = self.weight[port]
-            array_factor = np.exp(1j * (xyz_pos[0] * kx_flat + xyz_pos[1] * ky_flat + xyz_pos[2] * kz_flat)) * weight
-            rEphi_fields_sum += array_factor * data["rEPhi"]
-            rETheta_fields_sum += array_factor * data["rETheta"]
-
-        # Farfield origin shift
-        origin = self.origin
-        array_factor = np.exp(-1j * (origin[0] * kx_flat + origin[1] * ky_flat + origin[2] * kz_flat))
-        rETheta_fields_sum = array_factor * rETheta_fields_sum
-        rEphi_fields_sum = array_factor * rEphi_fields_sum
-
-        rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (Ntheta, Nphi))
-        rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
-
-        farfield_data = OrderedDict()
-        farfield_data["rEPhi"] = rEphi_fields_sum
-        farfield_data["rETheta"] = rEtheta_fields_sum
-        farfield_data["rETotal"] = np.sqrt(
-            np.power(np.abs(rEphi_fields_sum), 2) + np.power(np.abs(rEtheta_fields_sum), 2)
-        )
-        farfield_data["Theta"] = theta_range
-        farfield_data["Phi"] = phi_range
-        farfield_data["nPhi"] = Nphi
-        farfield_data["nTheta"] = Ntheta
-
-        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / incident_power / 377
-        farfield_data["RealizedGain"] = real_gain
-        farfield_data["RealizedGain_Total"] = real_gain
-        farfield_data["RealizedGain_dB"] = 10 * np.log10(real_gain)
-        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / incident_power / 377
-        farfield_data["RealizedGain_Theta"] = real_gain
-        real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / incident_power / 377
-        farfield_data["RealizedGain_Phi"] = real_gain
-
-        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / accepted_power / 377
-        farfield_data["Gain"] = gain
-        farfield_data["Gain_Total"] = gain
-        farfield_data["Gain_dB"] = 10 * np.log10(gain)
-        gain = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / accepted_power / 377
-        farfield_data["Gain_Theta"] = gain
-        gain = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / accepted_power / 377
-        farfield_data["Gain_Phi"] = gain
-
-        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / radiated_power / 377
-        farfield_data["Directivity"] = directivity
-        farfield_data["Directivity_Total"] = directivity
-        farfield_data["Directivity_dB"] = 10 * np.log10(directivity)
-        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rETheta"], 2)) / radiated_power / 377
-        farfield_data["Directivity_Theta"] = directivity
-        directivity = 2 * np.pi * np.abs(np.power(farfield_data["rEPhi"], 2)) / radiated_power / 377
-        farfield_data["Directivity_Phi"] = directivity
-
-        # farfield_data["Element_Location"] = port_positions
-        return farfield_data
-
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
                              phi_scan="phi",
@@ -1255,7 +1255,6 @@ class FfdSolutionData(object):
             quantity="RealizedGain",
             phi=0,
             theta=0,
-            size=None,
             title=None,
             quantity_format="dB10",
             image_path=None,
@@ -1263,7 +1262,6 @@ class FfdSolutionData(object):
             show=True,
             polar=True,
             max_theta=180,
-            **kwargs
     ):
         # fmt: on
         """Create a contour plot of a specified quantity.
@@ -1278,9 +1276,6 @@ class FfdSolutionData(object):
             Phi scan angle in degrees. The default is ``0``.
         theta : float, int, optional
             Theta scan angle in degrees. The default is ``0``.
-        size : tuple, optional
-            Image size in pixel (width, height). The default is ``None``, in which case resolution
-            is determined automatically.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
@@ -1298,7 +1293,7 @@ class FfdSolutionData(object):
             Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
             generated is rectangular.
         max_theta : float or int, optional
-            Maxmum theta angle for plotting. The default is ``180``, which plots the far-field data for
+            Maximum theta angle for plotting. The default is ``180``, which plots the far-field data for
             all angles. Setting ``max_theta`` to 90 limits the displayed data to the upper
             hemisphere, that is (0 < theta < 90).
 
@@ -1320,21 +1315,10 @@ class FfdSolutionData(object):
         """
         if not title:
             title = quantity
-        for k in kwargs:
-            if k == "convert_to_db":  # pragma: no cover
-                self.__logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
-                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-            elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
-                quantity = kwargs["qty_str"]
-            else:  # pragma: no cover
-                msg = "{} not valid.".format(k)
-                self.logger.error(msg)
-                raise TypeError(msg)
 
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
-            self.logger.error("Far field quantity is not available.")
+            self.__logger.error("Far field quantity is not available.")
             return False
         select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
@@ -1344,18 +1328,8 @@ class FfdSolutionData(object):
             self.logger.error("Wrong format quantity")
             return False
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
-        ph = ph * np.pi / 180 if polar else ph
         # Convert to radians for polar plot.
-
-        # TODO: Is it necessary to set the plot size?
-
-        default_figsize = plt.rcParams["figure.figsize"]
-        if size:  # Retain this code to remain consistent with other plotting methods.
-            dpi = 100.0
-            figsize = (size[0] / dpi, size[1] / dpi)
-            plt.rcParams["figure.figsize"] = figsize
-        else:
-            figsize = default_figsize
+        ph = np.radians(ph) if polar else ph
 
         projection = 'polar' if polar else 'rectilinear'
         fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
@@ -1382,7 +1356,6 @@ class FfdSolutionData(object):
         if show:  # pragma: no cover
             plt.show()
 
-        plt.rcParams["figure.figsize"] = default_figsize
         return fig
 
     # fmt: off
