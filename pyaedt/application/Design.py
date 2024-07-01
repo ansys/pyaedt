@@ -3740,7 +3740,7 @@ class Design(AedtObjects):
             Whether to refresh object IDs after saving the project.
             The default is ``False``.
         create_parent_dir : bool, optional
-            Whether to create the parent directory of file_name if it does not exist.
+            Whether to create the parent directory for the project if it does not exist.
 
         Returns
         -------
