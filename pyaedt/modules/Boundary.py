@@ -1414,16 +1414,33 @@ class MaxwellParameters(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
-        self.reduced_matrices = []
-        self.assignment = None
-        for p in list(self._app.odesign.GetChildObject("Parameters").GetChildNames()):
-            if self._app.odesign.GetChildObject("Parameters").GetChildObject(p).GetPropValue("Type") == "Matrix":
-                self.assignment = (
-                    self._app.odesign.GetChildObject("Parameters")
-                    .GetChildObject(name)
-                    .GetPropValue("Selection")
-                    .split(",")
-                )
+        self.__reduced_matrices = None
+        self.matrix_assignment = None
+
+    @property
+    def reduced_matrices(self):
+        """List of reduced matrix groups given a parent matrix.
+
+        Returns
+        -------
+        dict
+            Dictionary of reduced matrices where key is the name of the parent matrix
+            and values is a list of reduced matrix groups.
+        """
+        if self._app.solution_type == "EddyCurrent":
+            self.__reduced_matrices = {}
+            cc = self._app.odesign.GetChildObject("Parameters")
+            parents = cc.GetChildNames()
+            if self.name in parents:
+                parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+                parent_type = parent_object.GetPropValue("Type")
+                if parent_type == "Matrix":
+                    self.matrix_assignment = parent_object.GetPropValue("Selection").split(",")
+                    child_names = parent_object.GetChildNames()
+                    self.__reduced_matrices = []
+                    for r in child_names:
+                        self.__reduced_matrices.append(MaxwellMatrix(self._app, self.name, r))
+        return self.__reduced_matrices
 
     @property
     def object_properties(self):
@@ -1553,7 +1570,6 @@ class MaxwellParameters(BoundaryCommon, object):
                 matrix_name,
                 ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
             )
-            self.reduced_matrices = MaxwellMatrix(self._app, self.name)
             return matrix_name, join_name
         except Exception:
             self._app.logger.error("Failed to create Matrix Reduction")
@@ -1607,29 +1623,96 @@ class MaxwellParameters(BoundaryCommon, object):
 
 
 class MaxwellMatrix(object):
-    def __init__(self, app, parent_name):
+    def __init__(self, app, parent_name, reduced_name):
         self._app = app
-        self._parent_matrix = parent_name
-        self.names = []
-        self.sources = []
+        self.parent_matrix = parent_name
+        self.name = reduced_name
+        self.__sources = None
+
+    @property
+    def sources(self):
+        """List of matrix sources.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        """
         if self._app.solution_type == "EddyCurrent":
-            self.names = self._app.odesign.GetChildObject("Parameters").GetChildObject(parent_name).GetChildNames()
-            for m in self.names:
-                sources = (
+            sources = (
+                self._app.odesign.GetChildObject("Parameters")
+                .GetChildObject(self.parent_matrix)
+                .GetChildObject(self.name)
+                .GetChildNames()
+            )
+            self.__sources = {}
+            for s in sources:
+                excitations = (
                     self._app.odesign.GetChildObject("Parameters")
-                    .GetChildObject(parent_name)
-                    .GetChildObject(m)
-                    .GetChildNames()
+                    .GetChildObject(self.parent_matrix)
+                    .GetChildObject(self.name)
+                    .GetChildObject(s)
+                    .GetPropValue("Source")
                 )
-                for s in sources:
-                    excitations = (
-                        self._app.odesign.GetChildObject("Parameters")
-                        .GetChildObject(parent_name)
-                        .GetChildObject(m)
-                        .GetChildObject(s)
-                        .GetPropValue("Source")
-                    )
-                    self.sources.append({m: {s: excitations}})
+                self.__sources[s] = excitations
+        return self.__sources
+
+    @pyaedt_function_handler()
+    def update(self, old_source, source_type, new_source=None, new_excitations=None):
+        """Update the reduced matrix.
+
+        Parameters
+        ----------
+        old_source : str
+            Original name of the source to update.
+        source_type : str
+            It can either be ``Series`` or ``Parallel``.
+        new_source : str, optional
+            New name of the source to update.
+            The default value is the old source name.
+        new_excitations : str, optional
+            List of excitations to be included in matrix reduction.
+            The default values are excitations included in the source to update.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if old_source not in self.sources.keys():
+            self._app.logger("Source does not exist.")
+            return False
+        else:
+            new_excitations = self.sources[old_source] if not new_excitations else new_excitations
+        if source_type.lower() not in ["series", "parallel"]:
+            self._app.logger("Join type not valid.")
+            return False
+        if not new_source:
+            new_source = old_source
+        args = ["NAME:" + new_source, "Type:=", "Join in " + source_type, "Sources:=", new_excitations]
+        self._app.o_maxwell_parameters.EditReduceOp(self.parent_matrix, self.name, old_source, args)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self, source):
+        """Delete a specified source in a reduced matrix.
+
+        Parameters
+        ----------
+        source : string
+            Name of the source to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if source not in self.sources.keys():
+            self._app.logger("Invalid source name.")
+            return False
+        self._app.o_maxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
+        return True
 
 
 class FieldSetup(BoundaryCommon, object):

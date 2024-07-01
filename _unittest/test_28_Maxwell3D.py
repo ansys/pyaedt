@@ -525,7 +525,9 @@ class TestClass:
         m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
 
         L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        assert not L.reduced_matrices
         out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        assert L.reduced_matrices
         assert isinstance(out[0], str)
         assert isinstance(out[1], str)
         out = L.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
@@ -534,7 +536,24 @@ class TestClass:
         out = L.join_parallel(["Cur5"])
         assert not out[0]
 
-    def test_32b_export_rl_matrix(self):
+    def test_32b_reduced_matrix(self):
+        self.aedtapp.set_active_design("Matrix2")
+        parent_matrix = [m for m in self.aedtapp.boundaries if m.type == "Matrix"][0]
+        assert parent_matrix.reduced_matrices
+        reduced_matrix_1 = parent_matrix.reduced_matrices[0]
+        assert reduced_matrix_1.name == "ReducedMatrix1"
+        assert reduced_matrix_1.parent_matrix == parent_matrix.name
+        source_name = list(reduced_matrix_1.sources.keys())[0]
+        assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert reduced_matrix_1.sources["new_series"] == "Cur1, Cur2"
+        assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert reduced_matrix_1.sources["new_series"] == "Cur2, Cur3"
+        assert reduced_matrix_1.delete(source="new_series")
+        assert len(parent_matrix.reduced_matrices) == 1
+
+    def test_32c_export_rl_matrix(self):
         self.aedtapp.set_active_design("Matrix2")
         L = self.aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
@@ -553,7 +572,7 @@ class TestClass:
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
-    def test_32c_post_processing(self):
+    def test_32d_post_processing(self):
         expressions = self.aedtapp.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
