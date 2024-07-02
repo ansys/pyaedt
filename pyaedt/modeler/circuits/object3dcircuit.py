@@ -688,6 +688,11 @@ class CircuitComponent(object):
                     "deg", ""
                 )
             )
+        else:  # pragma: no cover
+            self._circuit_components._app.logger.warning(
+                "Angles are not supported by GRPC in AEDT versions lower than 2024.1."
+            )
+
         return self._angle
 
     @angle.setter
