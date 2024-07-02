@@ -7,7 +7,7 @@ You can access the extension from the icon created on the **Automation** tab usi
 
 The following image shows the extension user interface:
 
-.. image:: import_nastran_ui.png
+.. image:: ../../../Resources/import_nastran_ui.png
   :width: 800
   :alt: Import Nastran UI
 
