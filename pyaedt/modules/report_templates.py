@@ -544,7 +544,7 @@ class CommonReport(object):
                 for i in oo1:
                     _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self.plot_name, el, i)))
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing element {}.".format(el))
         return _traces
 
     @pyaedt_function_handler()
