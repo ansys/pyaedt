@@ -1419,7 +1419,7 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @property
     def reduced_matrices(self):
-        """List of reduced matrix groups given a parent matrix.
+        """List of reduced matrix groups for the parent matrix.
 
         Returns
         -------
@@ -1631,14 +1631,7 @@ class MaxwellMatrix(object):
 
     @property
     def sources(self):
-        """List of matrix sources.
-
-        Parameters
-        ----------
-
-        Returns
-        -------
-        """
+        """List of matrix sources."""
         if self._app.solution_type == "EddyCurrent":
             sources = (
                 self._app.odesign.GetChildObject("Parameters")
