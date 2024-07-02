@@ -1424,8 +1424,8 @@ class MaxwellParameters(BoundaryCommon, object):
         Returns
         -------
         dict
-            Dictionary of reduced matrices where key is the name of the parent matrix
-            and values is a list of reduced matrix groups.
+            Dictionary of reduced matrices where the key is the name of the parent matrix
+            and the values are in a list of reduced matrix groups.
         """
         if self._app.solution_type == "EddyCurrent":
             self.__reduced_matrices = {}
