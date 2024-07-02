@@ -518,7 +518,7 @@ class TestClass:
             for i in range(10):
                 f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
                 f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
-        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
+        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
