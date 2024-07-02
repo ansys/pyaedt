@@ -356,47 +356,168 @@ class NativeComponentObject(BoundaryCommon, object):
 
 def disable_auto_update(func):
     def wrapper(self, *args, **kwargs):
-        auto_update = self.auto_update
-        self.auto_update = False
+        obj = self
+        if not hasattr(self, "auto_update"):
+            obj = self.pcb
+        auto_update = obj.auto_update
+        obj.auto_update = False
         out = func(self, *args, **kwargs)
-        self.update()
-        self.auto_update = auto_update
+        obj.update()
+        obj.auto_update = auto_update
         return out
 
     return wrapper
 
 
-class NativeComponentPCB(NativeComponentObject, object):
-    """Manages Native Component PCB data and execution.
+class PCBSettingsPackageParts(object):
+    def __init__(self, pcb_obj, app):
+        self._app = app
+        self.pcb = pcb_obj
+        self._solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
 
-    Parameters
-    ----------
-    app : object
-        AEDT application from the ``pyaedt.application`` class.
-    component_type : str
-        Type of the component.
-    component_name : str
-        Name of the component.
-    props : dict
-        Properties of the boundary.
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_solderballs_modeling(self, modelling=None):
+        """Set how to model solderballs.
 
-    Examples
-    --------
-    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
-    >>> from pyaedt import Icepak
-    >>> ipk = Icepak(solution_type="SBR+")
-    >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
-    """
+        Parameters
+        ----------
+        modelling : str, optional
+            Specifies whether the solderballs located below the stackup are modeled,
+            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
+            Default is ``None`` in which case they are not modeled.
 
-    def __init__(self, app, component_type, component_name, props):
-        NativeComponentObject.__init__(self, app, component_type, component_name, props)
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        update_properties = {
+            "CreateBottomSolderballs": modelling is not None,
+            "BottomSolderballsModelType": self._solderbumps_map[modelling],
+        }
+
+        self.pcb.props["NativeComponentDefinitionProvider"].update(update_properties)
+        return True
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_connectors_modeling(
+        self,
+        modelling=None,
+        solderbumps_modeling="Boxes",
+        bondwire_material="Au-Typical",
+        bondwire_diameter="0.05mm",
+    ):
+        """
+        Set how to model connectors.
+
+        Parameters
+        ----------
+            modelling : str, optional
+                Specifies whether the connectors located above the stackup are modeled,
+                and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
+                Default is ``None`` in which case they are not modeled.
+            solderbumps_modeling : str, optional
+                Specifies how to model solderbumps if ``modelling`` is set to ``"Solderbump"``.
+                Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
+                Default is ``"Boxes"``.
+            bondwire_material : str, optional
+                Specifies bondwires material if ``modelling`` is set to ``"Bondwire"``.
+                Default is ``"Au-Typical"``.
+            bondwire_diameter : str, optional
+                Specifies bondwires diameter if ``modelling`` is set to ``"Bondwire"``.
+                Default is ``"0.05mm"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        valid_connectors = ["Solderbump", "Bondwire"]
+        if modelling is not None and modelling not in valid_connectors:
+            self._app.logger.error(
+                "{} option is not supported. Use one of the following: {}".format(
+                    modelling, ", ".join(valid_connectors)
+                )
+            )
+            return False
+        if bondwire_material not in self._app.materials.mat_names_aedt:
+            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
+            return False
+        if self._solderbumps_map.get(solderbumps_modeling, None) is None:
+            self._app.logger.error(
+                "Solderbumps modeling option {} is not valid. Available options are: {}.".format(
+                    solderbumps_modeling, ", ".join(list(self._solderbumps_map.keys()))
+                )
+            )
+            return False
+
+        update_properties = {
+            "CreateTopSolderballs": modelling is not None,
+            "TopConnectorType": modelling,
+            "TopSolderballsModelType": self._solderbumps_map[solderbumps_modeling],
+            "BondwireMaterial": bondwire_material,
+            "BondwireDiameter": bondwire_diameter,
+        }
+
+        self.pcb.props["NativeComponentDefinitionProvider"].update(update_properties)
+        return True
+
+    def __repr__(self):
+        return "Package"
+
+
+class PCBSettingsDeviceParts(object):
+    def __init__(self, pcb_obj, app):
+        self._app = app
+        self.pcb = pcb_obj
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
+
+    def __repr__(self):
+        return "Device"
+
+    @property
+    @pyaedt_function_handler()
+    def simplify_parts(self):
+        """Get whether parts are simplified  as cuboid."""
+        return self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"]
+
+    @simplify_parts.setter
+    @pyaedt_function_handler()
+    def simplify_parts(self, value):
+        """Set whether parts are simplified as cuboid.
+
+        Parameters
+        ----------
+        value : bool
+            Whether parts are simplified as cuboid.
+        """
+        self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = value
+
+    @property
+    @pyaedt_function_handler()
+    def surface_material(self):
+        """Surface material to apply to parts."""
+        return self.pcb.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"]
+
+    @surface_material.setter
+    @pyaedt_function_handler()
+    def surface_material(self, value):
+        """Set surface material to apply to parts.
+
+        Parameters
+        ----------
+        value : str
+            Surface material to apply to parts.
+        """
+        self.pcb.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = value
 
     @property
     @pyaedt_function_handler()
     def footprint_filter(self):
         """Minimum component footprint for filtering."""
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -416,26 +537,26 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
         if self._app.settings.aedt_version < "2024.2":  # pragma : no cover
             return
-        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "FootPrint" in new_filters:
             new_filters.remove("FootPrint")
         if minimum_footprint is not None:
             new_filters.append("FootPrint")
-            self.props["NativeComponentDefinitionProvider"]["FootPrint"] = minimum_footprint
-        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+            self.pcb.props["NativeComponentDefinitionProvider"]["FootPrint"] = minimum_footprint
+        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     @pyaedt_function_handler()
     def power_filter(self):
         """Minimum component power for filtering."""
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -453,24 +574,24 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_power : str
             Value with unit of the minimum component power for filtering.
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
-        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Power" in new_filters:
             new_filters.remove("Power")
         if minimum_power is not None:
             new_filters.append("Power")
-            self.props["NativeComponentDefinitionProvider"]["PowerVal"] = minimum_power
-        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+            self.pcb.props["NativeComponentDefinitionProvider"]["PowerVal"] = minimum_power
+        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     @pyaedt_function_handler()
     def type_filters(self):
         """Types of component that are filtered."""
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -488,7 +609,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         object_type : str or list
             Types of object to filter. Accepted types are ``"Capacitors"``, ``"Inductors"``, ``"Resistors"``.
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -500,19 +621,19 @@ class NativeComponentPCB(NativeComponentObject, object):
                 "Accepted elements of the list are: {}".format(", ".join(list(self._filter_map2name.values())))
             )
         else:
-            new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+            new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
             map2arg = {v: k for k, v in self._filter_map2name.items()}
             for f in self._filter_map2name.keys():
                 if f in new_filters:
                     new_filters.remove(f)
             new_filters += [map2arg[o] for o in object_type]
-            self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+            self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     @pyaedt_function_handler()
     def height_filter(self):
         """Minimum component height for filtering."""
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -530,24 +651,24 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_height : str
             Value with unit of the minimum component power for filtering.
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
-        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Height" in new_filters:
             new_filters.remove("Height")
         if minimum_height is not None:
             new_filters.append("Height")
-            self.props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
-        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+            self.pcb.props["NativeComponentDefinitionProvider"]["HeightVal"] = minimum_height
+        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     @pyaedt_function_handler()
     def objects_2d_filter(self):
         """Whether 2d objects are filtered."""
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
@@ -565,29 +686,29 @@ class NativeComponentPCB(NativeComponentObject, object):
         filter : bool
             Whether 2d objects are filtered
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
-        new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "HeightExclude2D" in new_filters:
             new_filters.remove("HeightExclude2D")
         if filter:
             new_filters.append("HeightExclude2D")
-        self.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
+        self.pcb.props["NativeComponentDefinitionProvider"]["Filters"] = new_filters
 
     @property
     @pyaedt_function_handler()
     def filters(self):
         """All active filters."""
-        if self.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return None
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
-        filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
+        filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         filter_map2type = {
             "Cap": "Type",
             "FootPrint": "FootPrint",
@@ -612,7 +733,9 @@ class NativeComponentPCB(NativeComponentObject, object):
     def overridden_components(self):
         """All overridden components."""
         override_component = (
-            self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
+            self.pcb.props["NativeComponentDefinitionProvider"]
+            .get("instanceOverridesMap", {})
+            .get("oneOverrideBlk", [])
         )
         return {o["overrideName"]: o["overrideProps"] for o in override_component}
 
@@ -643,13 +766,15 @@ class NativeComponentPCB(NativeComponentObject, object):
         bool
             ``True`` if successful. ``False`` otherwise.
         """
-        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return False
         override_component = (
-            self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
+            self.pcb.props["NativeComponentDefinitionProvider"]
+            .get("instanceOverridesMap", {})
+            .get("oneOverrideBlk", [])
         )
         for o in override_component:
             if o["overrideName"] == reference_designator:
@@ -674,88 +799,69 @@ class NativeComponentPCB(NativeComponentObject, object):
                     }
                 )
             )
-        self.props["NativeComponentDefinitionProvider"]["instanceOverridesMap"] = {"oneOverrideBlk": override_component}
+        self.pcb.props["NativeComponentDefinitionProvider"]["instanceOverridesMap"] = {
+            "oneOverrideBlk": override_component
+        }
         return True
 
+
+class NativeComponentPCB(NativeComponentObject, object):
+    """Manages Native Component PCB data and execution.
+
+    Parameters
+    ----------
+    app : object
+        AEDT application from the ``pyaedt.application`` class.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
+    Examples
+    --------
+    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
+    >>> from pyaedt import Icepak
+    >>> ipk = Icepak(solution_type="SBR+")
+    >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
+    """
+
+    def __init__(self, app, component_type, component_name, props):
+        NativeComponentObject.__init__(self, app, component_type, component_name, props)
+
+    @property
+    def included_parts(self):
+        p = self.props["NativeComponentDefinitionProvider"].get("PartsChoice", 0)
+        if p == 0:
+            return None
+        elif p == 1:
+            return PCBSettingsDeviceParts(self, self._app)
+        elif p == 2:
+            return PCBSettingsPackageParts(self, self._app)
+
+    @included_parts.setter
+    def included_parts(self, value):
+        if value is None:
+            value = "None"
+        part_map = {"None": 0, "Device": 1, "Package": 2}
+        if not isinstance(value, int):
+            value = part_map.get(value, None)
+        if value is not None:
+            self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
+        else:
+            self._app.logger(
+                'Invalid part choice. Accepted options are "None", "Device", "Package" (or 0,1,2 respectively)'
+            )
+
     @pyaedt_function_handler()
-    @disable_auto_update
-    def disable_device_parts(self):
-        """Disable PCB parts.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful. ``False`` otherwise.
-        """
-        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = 0
-        return True
-
-    @pyaedt_function_handler()
-    @disable_auto_update
-    def set_device_parts(self, simplify_parts=False, surface_material="Steel-oxidised-surface"):
-        """Set how to include PCB device parts.
-
-        Parameters
-        ----------
-        simplify_parts : bool, optional
-            Whether to simplify parts as cuboid. Default is ``False``.
-        surface_material : str, optional
-            Surface material to apply to parts. Default is ``"Steel-oxidised-surface"``.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful. ``False`` otherwise.
-        """
-        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = 1
-        self.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = simplify_parts
-        self.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = surface_material
-        return True
-
-    @pyaedt_function_handler()
-    @disable_auto_update
-    def set_package_parts(
+    def include_package_parts(
         self,
         solderballs=None,
-        connector=None,
-        solderbumps_modeling="Boxes",
-        bondwire_material="Au-Typical",
-        bondwire_diameter="0.05mm",
     ):
-        """Set how to include PCB device parts.
 
-        Parameters
-        ----------
-        solderballs : str, optional
-            Specifies whether the solderballs located below the stackup are modeled,
-            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
-        connector : str, optional
-            Specifies whether the connectors located above the stackup are modeled,
-            and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
-            Default is ``None`` in which case they are not modeled.
-        solderbumps_modeling : str, optional
-            Specifies how to model solderbumps if ``connector`` is set to ``"Solderbump"``.
-            Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
-            Default is ``"Boxes"``.
-        bondwire_material : str, optional
-            Specifies bondwires material if ``connector`` is set to ``"Bondwire"``.
-            Default is ``"Au-Typical"``.
-
-        Returns
-        -------
-        bool
-            ``True`` if successful. ``False`` otherwise.
-        """
         # sanity check
-        valid_connectors = ["Solderbump", "Bondwire"]
-        if connector is not None and connector not in valid_connectors:
-            self._app.logger.error(
-                "{} option is not supported. Use one of the following: {}".format(
-                    connector, ", ".join(valid_connectors)
-                )
-            )
-            return False
-        solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
+
         for arg in [solderbumps_modeling, solderballs]:
             if arg is not None and arg not in solderbumps_map:
                 self._app.logger.error(
@@ -763,26 +869,16 @@ class NativeComponentPCB(NativeComponentObject, object):
                     "{}".format(arg, ", ".join(list(solderbumps_map.keys())))
                 )
                 return False
-        if bondwire_material not in self._app.materials.mat_names_aedt:
-            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
-            return False
-
-        update_properties = {
-            "PartsChoice": 2,
-            "CreateTopSolderballs": connector is not None,
-            "TopConnectorType": connector,
-            "TopSolderballsModelType": solderbumps_map[solderbumps_modeling],
-            "BondwireMaterial": bondwire_material,
-            "BondwireDiameter": bondwire_diameter,
-            "CreateBottomSolderballs": solderballs is not None,
-            "BottomSolderballsModelType": solderbumps_map[solderballs],
-        }
-
-        self.props["NativeComponentDefinitionProvider"].update(update_properties)
-        return True
 
     @pyaedt_function_handler()
     def identify_extent_poly(self):
+        """Get polygon that defines board extent.
+
+        Returns
+        -------
+        str
+            Name of the polygon to include.
+        """
         from pyaedt import Hfss3dLayout
 
         prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
@@ -803,12 +899,42 @@ class NativeComponentPCB(NativeComponentObject, object):
             return False
         return outlines[0].name
 
+    @property
+    def board_cutout_material(self):
+        """Material applied to cutouts regions."""
+        return self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"]
+
+    @property
+    def via_holes_material(self):
+        """Material applied to via holes regions."""
+        return self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"]
+
+    @board_cutout_material.setter
+    def board_cutout_material(self, value):
+        """Set material to apply to cutouts regions.
+
+        Parameters
+        ----------
+        value : str
+            Material to apply to cutouts regions.
+        """
+        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
+
+    @via_holes_material.setter
+    def via_holes_material(self, value):
+        """Set material to apply to via holes regions.
+
+        Parameters
+        ----------
+        value : str
+            Material to apply to via holes.
+        """
+        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
+
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_board_settings(
-        self, extent_type=None, extent_polygon=None, board_cutouts_material="air", via_holes_material="air"
-    ):
-        """Set board extent and material settings.
+    def set_board_extents(self, extent_type=None, extent_polygon=None):
+        """Set board extent.
 
         Parameters
         ----------
@@ -818,10 +944,6 @@ class NativeComponentPCB(NativeComponentObject, object):
         extent_polygon : str, optional
             Polygon name to use in the extent definition of the PCB. Default is ``None``. This
             argument is mandatory if ``extent_type`` is ``"Polygon"``.
-        board_cutouts_material : str, optional
-            Material to apply to cutouts regions. Default is ``"air"``.
-        via_holes_material : str, optional
-            Material to apply to via holes regions. Default is ``"air"``.
 
         Returns
         -------
@@ -846,8 +968,6 @@ class NativeComponentPCB(NativeComponentObject, object):
                     if not extent_polygon:
                         return False
                 self.props["NativeComponentDefinitionProvider"]["OutlinePolygon"] = extent_polygon
-        self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = board_cutouts_material
-        self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = via_holes_material
         return True
 
 
