@@ -487,6 +487,7 @@ class TestClass:
 
     def test_42_save_project_with_file_name(self):
         # Save into path with existing parent dir
+        self.aedtapp.create_new_project("Test")
         new_project = os.path.join(self.local_scratch.path, "new.aedt")
         assert os.path.exists(self.local_scratch.path)
         self.aedtapp.save_project(file_name=new_project)
