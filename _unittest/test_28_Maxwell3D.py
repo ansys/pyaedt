@@ -526,6 +526,11 @@ class TestClass:
 
         L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
         assert not L.reduced_matrices
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix3")
+        assert not out[0]
+        assert not out[1]
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
         assert L.reduced_matrices
         assert isinstance(out[0], str)
@@ -550,6 +555,9 @@ class TestClass:
         assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
         assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
         assert reduced_matrix_1.sources["new_series"] == "Cur2, Cur3"
+        assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.delete(source="invalid")
         assert reduced_matrix_1.delete(source="new_series")
         assert len(parent_matrix.reduced_matrices) == 1
 

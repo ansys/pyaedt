@@ -1681,12 +1681,12 @@ class MaxwellMatrix(object):
             ``True`` when successful, ``False`` when failed.
         """
         if old_source not in self.sources.keys():
-            self._app.logger("Source does not exist.")
+            self._app.logger.error("Source does not exist.")
             return False
         else:
             new_excitations = self.sources[old_source] if not new_excitations else new_excitations
         if source_type.lower() not in ["series", "parallel"]:
-            self._app.logger("Join type not valid.")
+            self._app.logger.error("Join type not valid.")
             return False
         if not new_source:
             new_source = old_source
@@ -1709,7 +1709,7 @@ class MaxwellMatrix(object):
             ``True`` when successful, ``False`` when failed.
         """
         if source not in self.sources.keys():
-            self._app.logger("Invalid source name.")
+            self._app.logger.error("Invalid source name.")
             return False
         self._app.o_maxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
         return True
