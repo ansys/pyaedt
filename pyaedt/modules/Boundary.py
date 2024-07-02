@@ -1667,12 +1667,12 @@ class MaxwellMatrix(object):
         old_source : str
             Original name of the source to update.
         source_type : str
-            It can either be ``Series`` or ``Parallel``.
+            Source type, which can be ``Series`` or ``Parallel``.
         new_source : str, optional
             New name of the source to update.
             The default value is the old source name.
         new_excitations : str, optional
-            List of excitations to be included in matrix reduction.
+            List of excitations to include in the matrix reduction.
             The default values are excitations included in the source to update.
 
         Returns
@@ -1716,7 +1716,7 @@ class MaxwellMatrix(object):
 
 
 class FieldSetup(BoundaryCommon, object):
-    """Manages Far Field and Near Field Component data and execution.
+    """Manages far field and near field component data and execution.
 
     Examples
     --------
