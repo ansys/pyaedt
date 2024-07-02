@@ -1,6 +1,5 @@
-2D Extractor
-2D modeler
-3D modeler
+2D
+3D
 _static
 AEDB
 AEDT
