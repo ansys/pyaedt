@@ -16,7 +16,7 @@ The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``d
 
 By enabling ``lightweight`` check box the user will import the STL as a lightweight object.
 The ``decimate`` parameter indicates the percentage of triangles that have to be removed during simplification.
-A value of ``0.2`` means that 20% of the triangles will be removed from the data read from the
+A value of ``0.2`` means that 20% of the triangles is removed from the data read from the
 file before importing in AEDT.
 The ``planar`` parameter indicates that touching triangles that lies on the same plane will be merged in the same shape.
 
