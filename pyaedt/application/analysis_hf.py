@@ -1334,8 +1334,8 @@ class FfdSolutionData(object):
 
         return plot_contour(
             plot_data=[data_to_plot, th, ph],
-            xlabel=r"$\phi (Degrees)",
-            ylabel=r"$\theta (Degrees)",
+            xlabel=r"$\phi$ (Degrees)",
+            ylabel=r"$\theta$ (Degrees)",
             title=title,
             levels=levels,
             polar=polar,

@@ -736,6 +736,9 @@ def plot_contour(
         cbar = plt.colorbar()
         cbar.set_label(color_bar, rotation=270, labelpad=20)
 
+    ax = plt.gca()
+    ax.yaxis.set_label_coords(-0.1, 0.5)
+
     if snapshot_path:
         fig.savefig(snapshot_path)
     if show:  # pragma: no cover
