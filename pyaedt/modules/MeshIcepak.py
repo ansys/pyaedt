@@ -279,11 +279,12 @@ class CommonRegion(object):
         ::class::modeler.cad.object3d.Object3d
         """
         if isinstance(self, Region):
-            return {
-                "CreateRegion": oo
-                for o, oo in self._app.modeler.objects_by_name.items()
-                if oo.history() and oo.history().command == "CreateRegion"
-            }.get("CreateRegion", None)
+            # use native apis instead of history() for performance reasons
+            for o, oo in self._app.modeler.objects_by_name.items():
+                child_names = self._app.oeditor.GetChildObject(o).GetChildNames()
+                if child_names and child_names[0].startswith("CreateRegion"):
+                    return o
+            return None
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
 
@@ -1089,30 +1090,31 @@ class IcepakMesh(object):
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations."""
         meshops = []
+        dp = self._app.design_properties
         try:
             if settings.aedt_version > "2023.2":
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]:
-                    if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
-                        if self._app.design_properties["MeshRegion"]["MeshSetup"][ds]["DType"] == "OpT":
+                for ds in dp["MeshRegion"]["MeshSetup"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                        if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "OpT":
                             meshops.append(
                                 MeshOperation(
                                     self,
                                     ds,
-                                    self._app.design_properties["MeshRegion"]["MeshSetup"][ds],
+                                    dp["MeshRegion"]["MeshSetup"][ds],
                                     "Icepak",
                                 )
                             )
             else:
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
+                for ds in dp["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                     if isinstance(
-                        self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                        dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                         (OrderedDict, dict),
                     ):
                         meshops.append(
                             MeshOperation(
                                 self,
                                 ds,
-                                self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                                dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                                 "Icepak",
                             )
                         )
@@ -1130,12 +1132,13 @@ class IcepakMesh(object):
     def _get_design_mesh_regions(self):
         """Retrieve design mesh regions."""
         meshops = []
+        dp = self._app.design_properties
         try:
             if settings.aedt_version > "2023.2":
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]:
-                    if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
-                        if self._app.design_properties["MeshRegion"]["MeshSetup"][ds]["DType"] == "RegionT":
-                            dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"][ds]
+                for ds in dp["MeshRegion"]["MeshSetup"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                        if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "RegionT":
+                            dict_prop = dp["MeshRegion"]["MeshSetup"][ds]
                             if ds == "Global":
                                 meshop = GlobalMeshRegion(self._app)
                             else:
@@ -1145,11 +1148,9 @@ class IcepakMesh(object):
                                     meshop.__dict__[el] = dict_prop[el]
                             meshops.append(meshop)
             else:
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
-                    if isinstance(
-                        self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
-                    ):
-                        dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
+                for ds in dp["MeshRegion"]["MeshSetup"]["MeshRegions"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)):
+                        dict_prop = dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                         if ds == "Global":
                             meshop = GlobalMeshRegion(self._app)
                         else:
