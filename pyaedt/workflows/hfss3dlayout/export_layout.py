@@ -139,7 +139,7 @@ def main(extension_args):
         edb.export_to_ipc2581(ipc_file)
     if bom:
         bom_file = aedb_path[:-5] + "_bom.csv"
-        edb.components.export_bom(bom_file)
+        edb.workflow.export_bill_of_materials(bom_file)
     if config:
         config_file = aedb_path[:-5] + "_config.json"
         edb.configuration.export(config_file)
