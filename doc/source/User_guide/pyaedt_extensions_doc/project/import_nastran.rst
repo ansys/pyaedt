@@ -13,8 +13,7 @@ The following image shows the extension user interface:
 
 
 The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``decimate``.
-You can also launch the extension user interface from the terminal an example can be found here.
-
+You can also launch the extension user interface from the terminal. An example can be found here:
 
 
 .. toctree::

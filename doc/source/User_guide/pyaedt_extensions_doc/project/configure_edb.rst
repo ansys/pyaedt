@@ -12,8 +12,8 @@ The following image shows the extension user interface:
 
 
 User can pass as an argument a configuration file (a json formatted file or a toml file) or a folder containing more
-than N configuration files. In such case the script will create N new aedb project, each one with corresponding
-settings applied.
+than N configuration files. In such case the script will create N new aedb projects, each one with corresponding
+setting file applied.
 
 
 .. image:: ../../../_static/extensions/configure_edb_way_of_work.png
@@ -23,7 +23,7 @@ settings applied.
 
 
 The available arguments are: ``aedb_path``, ``configuration_path``.
-You can also launch the extension user interface from the terminal an example can be found here.
+You can also launch the extension user interface from the terminal. An example can be found here:
 
 .. toctree::
    :maxdepth: 2
