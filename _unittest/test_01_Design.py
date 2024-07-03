@@ -484,3 +484,18 @@ class TestClass:
             hfss.set_active_design(hfss.design_name)
             assert desktop._connected_app_instances == num_references + 1
         assert desktop._connected_app_instances == num_references
+
+    def test_42_save_project_with_file_name(self):
+        # Save into path with existing parent dir
+        self.aedtapp.create_new_project("Test")
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        assert os.path.exists(self.local_scratch.path)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+        # Save into path with non-existing parent dir
+        new_parent_dir = os.path.join(self.local_scratch.path, "new_dir")
+        new_project = os.path.join(new_parent_dir, "new_2.aedt")
+        assert not os.path.exists(new_parent_dir)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
