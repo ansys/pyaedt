@@ -14,11 +14,11 @@ The following image shows the extension user interface:
 
 The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``decimate``.
 
-By enabling ``lightweight`` check box the user will import the STL as a lightweight object.
+By enabling ``lightweight`` check box the user imports the STL as a lightweight object.
 The ``decimate`` parameter indicates the percentage of triangles that have to be removed during simplification.
-A value of ``0.2`` means that 20% of the triangles will be removed from the data read from the
+A value of ``0.2`` means that 20% of the triangles is removed from the data read from the
 file before importing in AEDT.
-The ``planar`` parameter indicates that touching triangles that lies on the same plane will be merged in the same shape.
+The ``planar`` parameter indicates that touching triangles that lie on the same plane are merged.
 
 You can also launch the extension user interface from the terminal. An example can be found here:
 

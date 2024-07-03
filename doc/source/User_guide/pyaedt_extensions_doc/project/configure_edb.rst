@@ -13,7 +13,7 @@ The following image shows the extension user interface:
 
 The available arguments are: ``aedb_path``, ``configuration_path``.
 User can pass as an argument a configuration file (a json formatted file or a toml file) or a folder containing more
-than N configuration files. In such case the script will create N new aedb projects, each one with corresponding
+than N configuration files. In such case the script creates N new aedb projects, each one with corresponding
 setting file applied.
 
 
