@@ -45,7 +45,7 @@ dependencies = [
 [project.optional-dependencies]
 tests = [
     "imageio>=2.30.0,<2.35",
-    "ipython>=7.30.0,<8.26",
+    "ipython>=8.26.0,<8.27",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.9",
     "mock>=5.1.0,<5.2",
@@ -154,7 +154,7 @@ installer = [
     "utm",
     "vtk==9.2.6; python_version < '3.12'",
     "jupyterlab>=3.6.0,<4.3",
-    "ipython>=7.30.0,<8.26",
+    "ipython>=8.26.0,<8.27",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
