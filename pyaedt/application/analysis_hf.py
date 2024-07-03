@@ -42,6 +42,7 @@ from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
+from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.generic.settings import settings
 from pyaedt.generic.touchstone_parser import read_touchstone
@@ -1259,9 +1260,9 @@ class FfdSolutionData(object):
             quantity_format="dB10",
             image_path=None,
             levels=64,
-            show=True,
             polar=True,
             max_theta=180,
+            show=True,
     ):
         # fmt: on
         """Create a contour plot of a specified quantity.
@@ -1331,32 +1332,18 @@ class FfdSolutionData(object):
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
 
-        projection = 'polar' if polar else 'rectilinear'
-        fig, ax = plt.subplots(subplot_kw={'projection': projection}, figsize=figsize)
-
-        fig.suptitle(title)
-        ax.set_xlabel("$\phi$ (Degrees)")
-        if polar:
-            ax.set_rticks(np.linspace(0, max_theta, 3))
-        else:
-            ax.set_ylabel("$\\theta (Degrees")
-
-        plt.contourf(
-            ph,
-            th,
-            data_to_plot,
+        return plot_contour(
+            plot_data=[data_to_plot, th, ph],
+            xlabel=r"$\phi (Degrees)",
+            ylabel=r"$\theta (Degrees)",
+            title=title,
             levels=levels,
-            cmap="jet",
+            polar=polar,
+            snapshot_path=image_path,
+            max_theta=max_theta,
+            color_bar=quantity_format,
+            show=show
         )
-        cbar = plt.colorbar()
-        cbar.set_label(quantity_format, rotation=270, labelpad=20)
-
-        if image_path:
-            plt.savefig(image_path)
-        if show:  # pragma: no cover
-            plt.show()
-
-        return fig
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity",
@@ -1376,7 +1363,6 @@ class FfdSolutionData(object):
             show=True,
             is_polar=False,
             show_legend=True,
-            **kwargs
     ):
         # fmt: on
         """Create a 2D plot of a specified quantity in Matplotlib.
@@ -1429,17 +1415,6 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.plot_2d_cut(theta=20)
         """
-        for k in kwargs:
-            if k == "convert_to_db":  # pragma: no cover
-                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
-                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-            elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
-                quantity = kwargs["qty_str"]
-            else:  # pragma: no cover
-                msg = "{} not valid.".format(k)
-                self.logger.error(msg)
-                raise TypeError(msg)
 
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
@@ -1449,7 +1424,7 @@ class FfdSolutionData(object):
         data_to_plot = data[quantity]
 
         curves = []
-        if primary_sweep == "phi":
+        if primary_sweep.lower() == "phi":
             x_key, y_key = "Phi", "Theta"
             temp = data_to_plot
         else:
@@ -1590,7 +1565,12 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
+        return plot_3d_chart([x, y, z],
+                             xlabel="Theta",
+                             ylabel="Phi",
+                             title=title,
+                             snapshot_path=image_path,
+                             show=show)
 
     # fmt: off
     @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
