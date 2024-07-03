@@ -132,12 +132,15 @@ class TestClass:
             modelling="Bondwire", bondwire_material="Error4"
         )  # material does not exist
         cmp2.included_parts = "Device"
-        assert not bool(cmp2.included_parts.overridden_components)
-        assert cmp2.included_parts.override_component("FCHIP", True)
+        assert cmp2.included_parts.override_instance("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
-        assert cmp2.included_parts.override_component("FCHIP", False)
+        assert cmp2.included_parts.override_instance("FCHIP", False)
         assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
-        assert cmp2.included_parts.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
+        else:
+            assert not cmp2.included_parts.override_definition("a", "b")
         assert cmp2.set_board_extents("Bounding Box")
         assert cmp2.set_board_extents("Polygon")
         assert cmp2.set_board_extents("Bounding Box")
@@ -154,6 +157,33 @@ class TestClass:
         assert p.height_filter is None
         p.objects_2d_filter = True
         assert p.objects_2d_filter is None
+        assert cmp2.power == "0W"
+        cmp2.power = "10W"
+        assert cmp2.power == "10W"
+        cmp2.set_resolution = 1
+        cmp2.set_custom_resolution(row=100, col=200)
+        cmp2.set_high_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.5,
+            ref_temperature="20cel",
+        )
+        cmp2.set_low_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.8,
+            ref_temperature="25cel",
+        )
+        assert cmp2.force_source_solve
+        cmp2.force_source_solve = True
+        cmp2.preserve_partner_solution = True
+        assert cmp2.preserve_partner_solution
+        cmp2.via_holes_material = "air"
+        cmp2.board_cutout_material = "copper"
+        assert cmp2.via_holes_material == "air"
+        assert cmp2.board_cutout_material == "copper"
 
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
@@ -161,6 +191,8 @@ class TestClass:
         )
         assert cmp.included_parts is None
         cmp.included_parts = "Device"
+        cmp.included_parts = "Packafe"
+        assert cmp.included_parts == "Device"
         f = cmp.included_parts.filters
         assert len(f.keys()) == 1
         assert all(not v for v in f["Type"].values())
