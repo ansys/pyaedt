@@ -3751,9 +3751,12 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        if file_name and not os.path.exists(os.path.dirname(file_name)):
-            os.makedirs(os.path.dirname(file_name))
-        elif file_name:
+        if file_name:
+            file_parent_dir = os.path.dirname(os.path.normpath(file_name))
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(file_parent_dir):
+                settings.remote_rpc_session.filemanager.makedirs(file_parent_dir)
+            elif not settings.remote_rpc_session and not os.path.isdir(file_parent_dir):
+                os.makedirs(file_parent_dir)
             self.oproject.SaveAs(file_name, overwrite)
             self._add_handler()
         else:
