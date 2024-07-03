@@ -565,7 +565,7 @@ class PCBSettingsDeviceParts(object):
                 "Device Parts modeling is not active, hence no filtering or override option is available."
             )
             return
-        if self._app.settings.aedt_version < "2024.2":  # pragma : no cover
+        if self._app.settings.aedt_version < "2024.2":
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "FootPrint" in new_filters:
@@ -852,7 +852,7 @@ class PCBSettingsDeviceParts(object):
                 "This method is available only with AEDT 24R2 or newer. Use override_instance instead."
             )
             return False
-        return self._override_common(
+        return self._override_common(  # pragma : no cover
             "definitionOverridesMap",
             package=package,
             part=part,
@@ -926,11 +926,76 @@ class NativeComponentPCB(NativeComponentObject, object):
     def __init__(self, app, component_type, component_name, props):
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
 
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_resolution(self, resolution):
+        self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
+        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_custom_resolution(self, row, col):
+        self.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
+        self.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
+        self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
+
+    @property
+    def power(self):
+        return self.props["NativeComponentDefinitionProvider"].get("Power", "0W")
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_high_side_radiation(
+        self,
+        enabled,
+        surface_material="Steel-oxidised-surface",
+        radiate_to_ref_temperature=False,
+        view_factor=1,
+        ref_temperature="AmbientTemp",
+    ):
+        high_rad = {
+            "Radiate": enabled,
+            "RadiateTo - High": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects - High",
+            "Surface Material - High": surface_material,
+        }
+        if radiate_to_ref_temperature:
+            high_rad["Ref. Temperature - High"] = (ref_temperature,)
+            high_rad["View Factor - High"] = view_factor
+        self.props["NativeComponentDefinitionProvider"]["HighSide"] = high_rad
+        return True
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_low_side_radiation(
+        self,
+        enabled,
+        surface_material="Steel-oxidised-surface",
+        radiate_to_ref_temperature=False,
+        view_factor=1,
+        ref_temperature="AmbientTemp",
+    ):
+        low_side = {
+            "Radiate": enabled,
+            "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
+            "Surface Material": surface_material,
+        }
+        if radiate_to_ref_temperature:
+            low_side["Ref. Temperature"] = (ref_temperature,)
+            low_side["View Factor"] = view_factor
+        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
+        return True
+
+    @power.setter
+    @disable_auto_update
+    def power(self, value):
+        self.props["NativeComponentDefinitionProvider"]["Power"] = value
+
     @property
     def force_source_solve(self):
         return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
 
     @force_source_solve.setter
+    @disable_auto_update
     def force_source_solve(self, val):
         if not isinstance(val, bool):
             self._app.logger.error("Only boolean can be accepted.")
@@ -942,6 +1007,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
 
     @preserve_partner_solution.setter
+    @disable_auto_update
     def preserve_partner_solution(self, val):
         if not isinstance(val, bool):
             self._app.logger.error("Only boolean can be accepted.")
@@ -959,6 +1025,7 @@ class NativeComponentPCB(NativeComponentObject, object):
             return PCBSettingsPackageParts(self, self._app)
 
     @included_parts.setter
+    @disable_auto_update
     def included_parts(self, value):
         if value is None:
             value = "None"
@@ -968,7 +1035,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         if value is not None:
             self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
         else:
-            self._app.logger(
+            self._app.logger.error(
                 'Invalid part choice. Accepted options are "None", "Device", "Package" (or 0,1,2 respectively)'
             )
 
@@ -1012,6 +1079,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
 
     @board_cutout_material.setter
+    @disable_auto_update
     def board_cutout_material(self, value):
         """Set material to apply to cutouts regions.
 
@@ -1023,6 +1091,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
 
     @via_holes_material.setter
+    @disable_auto_update
     def via_holes_material(self, value):
         """Set material to apply to via holes regions.
 
