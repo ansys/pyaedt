@@ -161,8 +161,9 @@ class TestClass:
         assert cmp2.power == "0W"
         cmp2.power = "10W"
         assert cmp2.power == "10W"
-        cmp2.set_resolution = 1
-        cmp2.set_custom_resolution(row=100, col=200)
+        assert not cmp2.set_resolution(0)
+        assert cmp2.set_resolution(1)
+        assert cmp2.set_custom_resolution(row=100, col=200)
         cmp2.set_high_side_radiation(
             True,
             surface_material="Stainless-steel-typical",
