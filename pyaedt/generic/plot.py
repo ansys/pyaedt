@@ -586,13 +586,14 @@ def plot_matplotlib(
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
     """
-    dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
     # Turn off interactive mode
     plt.ioff()
 
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(1, 1, 1)
+    dpi = 100.0
+
+    fig, ax = plt.subplots()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
+
     if isinstance(plot_data, str):
         plot_data = ast.literal_eval(plot_data)
     for points in plot_data:
