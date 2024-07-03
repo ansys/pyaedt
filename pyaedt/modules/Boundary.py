@@ -934,18 +934,50 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     @disable_auto_update
     def set_resolution(self, resolution):
+        """Set metal fraction mapping resolution.
+
+        Parameters
+        -------
+        resolution : int
+            Resolution level. Accepted variables between 1 and 5.
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+        """
+        if resolution < 1 or resolution > 5:
+            self._app.logger.error("Valid resolution values are between 1 and 5.")
+            return False
         self.props["NativeComponentDefinitionProvider"]["Resolution"] = resolution
         self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = False
+        return True
 
     @pyaedt_function_handler()
     @disable_auto_update
     def set_custom_resolution(self, row, col):
+        """Set custom metal fraction mapping resolution.
+
+        Parameters
+        -------
+        row : int
+            Resolution level in rows direction.
+        col : int
+            Resolution level in columns direction.
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+        """
         self.props["NativeComponentDefinitionProvider"]["CustomResolutionRow"] = row
         self.props["NativeComponentDefinitionProvider"]["CustomResolutionCol"] = col
         self.props["NativeComponentDefinitionProvider"]["CustomResolution"] = True
+        return True
 
     @property
     def power(self):
+        """Power dissipation assigned to the PCB."""
         return self.props["NativeComponentDefinitionProvider"].get("Power", "0W")
 
     @pyaedt_function_handler()
@@ -958,6 +990,30 @@ class NativeComponentPCB(NativeComponentObject, object):
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
+        """
+        Set high side radiation properties.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether high side radiation is enabled.
+        surface_material : str, optional
+            Surface material to apply. Default is "Steel-oxidised-surface".
+        radiate_to_ref_temperature : bool, optional
+            Whether to radiate to a reference temperature instead of objects in the model.
+            Default is False.
+        view_factor : float, optional
+            View factor to use for radiation computation if radiate_to_ref_temperature
+            is set to True. Default is 1.
+        ref_temperature : str, optional
+            Reference temperature to use for radiation computation if
+            radiate_to_ref_temperatureis set to True. Default is "AmbientTemp".
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+        """
         high_rad = {
             "Radiate": enabled,
             "RadiateTo - High": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects - High",
@@ -979,6 +1035,30 @@ class NativeComponentPCB(NativeComponentObject, object):
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
+        """
+        Set low side radiation properties.
+
+        Parameters
+        ----------
+        enabled : bool
+            Whether high side radiation is enabled.
+        surface_material : str, optional
+            Surface material to apply. Default is "Steel-oxidised-surface".
+        radiate_to_ref_temperature : bool, optional
+            Whether to radiate to a reference temperature instead of objects in the model.
+            Default is False.
+        view_factor : float, optional
+            View factor to use for radiation computation if radiate_to_ref_temperature
+            is set to True. Default is 1.
+        ref_temperature : str, optional
+            Reference temperature to use for radiation computation if
+            radiate_to_ref_temperatureis set to True. Default is "AmbientTemp".
+
+        Returns
+        -------
+        bool
+            True if successful, else False.
+        """
         low_side = {
             "Radiate": enabled,
             "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
@@ -993,15 +1073,30 @@ class NativeComponentPCB(NativeComponentObject, object):
     @power.setter
     @disable_auto_update
     def power(self, value):
+        """Assign power dissipation to the PCB.
+
+        Parameters
+        ----------
+        value : str
+            Power to apply to the PCB.
+        """
         self.props["NativeComponentDefinitionProvider"]["Power"] = value
 
     @property
     def force_source_solve(self):
+        """Force source solution option."""
         return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
 
     @force_source_solve.setter
     @disable_auto_update
     def force_source_solve(self, val):
+        """Set Whether to force source solution.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to force source solution.
+        """
         if not isinstance(val, bool):
             self._app.logger.error("Only boolean can be accepted.")
             return
@@ -1009,11 +1104,19 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @property
     def preserve_partner_solution(self):
+        """Preserve parner solution option."""
         return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
 
     @preserve_partner_solution.setter
     @disable_auto_update
     def preserve_partner_solution(self, val):
+        """Set Whether to preserve parner solution.
+
+        Parameters
+        ----------
+        val : bool
+            Whether to preserve parner solution.
+        """
         if not isinstance(val, bool):
             self._app.logger.error("Only boolean can be accepted.")
             return
@@ -1021,6 +1124,7 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @property
     def included_parts(self):
+        """Parts options."""
         p = self.props["NativeComponentDefinitionProvider"].get("PartsChoice", 0)
         if p == 0:
             return None
@@ -1032,6 +1136,13 @@ class NativeComponentPCB(NativeComponentObject, object):
     @included_parts.setter
     @disable_auto_update
     def included_parts(self, value):
+        """Set PCB parts incusion option.
+
+        Parameters
+        ----------
+        value : str or int
+            Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectivaly)
+        """
         if value is None:
             value = "None"
         part_map = {"None": 0, "Device": 1, "Package": 2}
