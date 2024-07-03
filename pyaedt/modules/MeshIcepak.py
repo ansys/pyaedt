@@ -1360,13 +1360,13 @@ class IcepakMesh(object):
         if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
+        self._app.logger.info("Parsing input objects information for priority assignment. This operation can take time")
+        udc = self.modeler.user_defined_components
+        udc._parse_objs()
         for level, objects in enumerate(assignment):
             level += 1
             if isinstance(objects[0], str):
-                objects = [
-                    self.modeler.objects_by_name.get(o, self.modeler.user_defined_components.get(o, None))
-                    for o in objects
-                ]
+                objects = [self.modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
             obj_3d = [
                 o
                 for o in objects
@@ -1406,6 +1406,7 @@ class IcepakMesh(object):
                     raise AttributeError("Cannot assign components and parts on the same level.")
                 props["PriorityListParameters"].append(level_2d)
         props = {"UpdatePriorityListData": props}
+        self._app.logger.info("Input objects information for priority assignment completed.")
         args = []
         _dict2arg(props, args)
         self.modeler.oeditor.UpdatePriorityList(args[0])
