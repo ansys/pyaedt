@@ -26,6 +26,7 @@ import os
 
 import pyaedt
 from pyaedt import get_pyaedt_app
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -77,6 +78,11 @@ def main(extension_args):
     report.add_toc()
     out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
     aedtapp.logger.info(f"Report Generated. {out}")
+    if is_windows:
+        try:
+            os.startfile(out)
+        except:
+            aedtapp.logger.warning(f"Failed to open {out}")
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

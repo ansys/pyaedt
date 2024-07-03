@@ -89,8 +89,13 @@ Image(out)
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Property dictionary can be customized in any aspect and new report can be created easily.
 # In this example the curve name is customized.
+# Expressions key can be a list of expressions or a dictionary containing expression to plot and line properties.
+# For example:
+# props["expressions"] = { "V(Battery)" :
+#                           {"color": [0, 255, 0], "trace_style": "Solid", "width": 1, "trace_type": "Continuous"}}
 
-props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
+
+props["expressions"] = ["V(Battery)", "V(U1_VDD)"]
 props["plot_name"] = "Battery Voltage"
 report3 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)
