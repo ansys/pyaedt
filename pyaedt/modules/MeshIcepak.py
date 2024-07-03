@@ -283,7 +283,7 @@ class CommonRegion(object):
             for o, oo in self._app.modeler.objects_by_name.items():
                 child_names = self._app.oeditor.GetChildObject(o).GetChildNames()
                 if child_names and child_names[0].startswith("CreateRegion"):
-                    return o
+                    return oo
             return None
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
