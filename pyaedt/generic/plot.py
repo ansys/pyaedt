@@ -546,7 +546,7 @@ def plot_matplotlib(
     axis_equal=False,
     annotations=None,
     show=True,
-):
+):  # pragma: no cover
     """Create a matplotlib plot based on a list of data.
 
     Parameters

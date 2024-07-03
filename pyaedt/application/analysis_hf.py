@@ -32,6 +32,7 @@ import time
 
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
@@ -645,6 +646,11 @@ class FfdSolutionData(object):
             self.__a_max = max(self.__a_max, row - 1)
             self.__b_min = min(self.__b_min, col - 1)
             self.__b_max = max(self.__b_max, col - 1)
+
+    @property
+    def mesh(self):
+        """Mesh"""
+        return self.__mesh
 
     @property
     def phi_scan(self):
@@ -1587,7 +1593,6 @@ class FfdSolutionData(object):
             scale_farfield=None,
             show_beam_slider=True,
             show_geometry=True,
-            **kwargs
     ):
         # fmt: on
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
@@ -1640,18 +1645,6 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
         """
-        for k in kwargs:
-            if k == "convert_to_db":  # pragma: no cover
-                self.logger.warning("`convert_to_db` is deprecated since v0.7.8. Use `quantity_format` instead.")
-                quantity_format = "dB10" if kwargs["convert_to_db"] else "abs"
-            elif k == "qty_str":  # pragma: no cover
-                self.logger.warning("`qty_str` is deprecated since v0.7.8. Use `quantity` instead.")
-                quantity = kwargs["qty_str"]
-            else:  # pragma: no cover
-                msg = "{} not valid.".format(k)
-                self.logger.error(msg)
-                raise TypeError(msg)
-
         if not rotation:
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):  # pragma: no cover
@@ -1739,7 +1732,7 @@ class FfdSolutionData(object):
             outline=False,
         )
 
-        cad_mesh = self._get_geometry()
+        cad_mesh = self.__get_geometry()
         data = conversion_function(farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
@@ -1913,12 +1906,11 @@ class FfdSolutionData(object):
         return mesh
 
     @pyaedt_function_handler()
-    def _get_geometry(self):
+    def __get_geometry(self):
         """Get 3D meshes."""
         from pyaedt.generic.plot import ModelPlotter
 
-        eep_file_path = os.path.abspath(self.eep_file[self.__freq_index])
-        model_info = self.model_info[self.__freq_index]
+        model_info = self.metadata["model_info"]
         obj_meshes = []
         if self.__is_array:
             non_array_geometry = model_info.copy()
@@ -1941,7 +1933,7 @@ class FfdSolutionData(object):
                             if component_obj in non_array_geometry:
                                 del non_array_geometry[component_obj]
 
-                            cad_path = os.path.join(os.path.dirname(eep_file_path), model_info[component_obj][0])
+                            cad_path = os.path.join(self.output_dir, model_info[component_obj][0])
                             if os.path.exists(cad_path):
                                 model_pv.add_object(
                                     cad_path,
@@ -1990,10 +1982,10 @@ class FfdSolutionData(object):
             model_pv = ModelPlotter()
             first_value = next(iter(non_array_geometry.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
-
+            self.__model_units = first_value[3]
             model_pv.off_screen = True
             for object_in in non_array_geometry.values():
-                cad_path = os.path.join(os.path.dirname(eep_file_path), object_in[0])
+                cad_path = os.path.join(self.output_dir, object_in[0])
                 if os.path.exists(cad_path):
                     model_pv.add_object(
                         cad_path,
@@ -2002,7 +1994,7 @@ class FfdSolutionData(object):
                         object_in[3],
                     )
                 else:
-                    self.logger.warning("Geometry objects are not defined.")
+                    self.logger.warning(f"{cad_path} does not exist.")
                     return False
             self.__model_units = first_value[3]
             model_pv.generate_geometry_mesh()
@@ -2628,7 +2620,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    ff : :class:`pyaedt.modules.solutions.FfdSolutionData`
+    farfield_data : :class:`pyaedt.modules.solutions.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
@@ -2641,36 +2633,33 @@ class UpdateBeamForm:
     """
 
     @pyaedt_function_handler(farfield_quantity="quantity")
-    def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
-        self.output = ff.__mesh
-        self._phi = 0
-        self._theta = 0
-        # default parameters
-        self.ff = ff
+    def __init__(self, farfield_data, farfield_quantity="RealizedGain", quantity_format="abs"):
+        self.output = farfield_data.mesh
+        self.__phi = 0
+        self.__theta = 0
+        self.farfield_data = farfield_data
         self.quantity = farfield_quantity
         self.quantity_format = quantity_format
 
     @pyaedt_function_handler()
-    def _update_both(self):
+    def __update_both(self):
         """Update far field."""
-        self.ff.__farfield_data = self.ff.combine_farfield(phi_scan=self._phi, theta_scan=self._theta)
-
+        self.ff.__farfield_data = self.ff.combine_farfield(phi_scan=self.__phi, theta_scan=self.__theta)
         self.ff.__mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
-
-        self.output.copy_from(self.ff.__mesh)
-        return
+        self.output.copy_from(self.ff.mesh)
+        return True
 
     @pyaedt_function_handler()
     def update_phi(self, phi):
         """Update the Phi value."""
-        self._phi = phi
-        self._update_both()
+        self.__phi = phi
+        return self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
         """Update the Theta value."""
-        self._theta = theta
-        self._update_both()
+        self.__theta = theta
+        return self.__update_both()
 
 
 def phase_expression(m, n, theta_name="theta_scan", phi_name="phi_scan"):
