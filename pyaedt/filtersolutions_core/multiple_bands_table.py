@@ -34,10 +34,10 @@ import pyaedt
 class MultipleBandsTable:
     """Manipulates access to the entries of multiple bands table.
 
-    This class allows you to enter, edit or remove the entries of multiple bands table.
+    This class allows you to enter, edit, or remove entries in the multiple bands table.
     The table includes the lower and upper frequencies of the bands.
     To access the multiple bands table, use the ``multiple_bands_table`` attribute of the ``FilterSolutions`` class.
-    A valid multiple bands table must include at both lower and upper frequencies for each band.
+    A valid multiple bands table must include both lower and upper frequencies for each band.
     """
 
     def __init__(self):
@@ -67,13 +67,13 @@ class MultipleBandsTable:
 
     @property
     def row_count(self) -> int:
-        """Retrieve the total number of rows present in the multiple bands table.
+        """Total number of rows present in the multiple bands table.
         The default is ``2``.
 
         Returns
         -------
         int
-            The current number of rows in the multiple bands table.
+            Current number of rows in the multiple bands table.
         """
         table_row_count = c_int()
         status = self._dll.getMultipleBandsTableRowCount(byref(table_row_count))
@@ -81,18 +81,19 @@ class MultipleBandsTable:
         return int(table_row_count.value)
 
     def row(self, row_index):
-        """Retrieve the lower and upper frequency values for a specified row in the multiple bands table.
+        """Get the lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
         ----------
         row_index: int
-            The index of the row from which to retrieve the frequency values.
+            Index of the row from to get the frequency values from.
             Valid values range from ``0`` to ``6``, inclusive.
 
         Returns
         -------
-            tuple of (str, str)
-                A tuple containing the lower and upper frequency values as strings.
+            tuple
+                The tuple contains three strings.The first is the lower frequency value,
+                and the second is the upper frequency value.
 
         """
         lower_value_buffer = create_string_buffer(100)
@@ -104,17 +105,17 @@ class MultipleBandsTable:
         return lower_value_string, upper_value_string
 
     def update_row(self, row_index, lower_frequency="", upper_frequency=""):
-        """Update lower and upper frequency values for a specified row in the multiple bands table.
+        """Update lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
         ----------
         row_index: int
-            The index of the row to update, with a valid range from ``0`` to ``6`` inclusive.
+            Index of the row to update. Valid values range from ``0`` to ``6``, inclusive.
         lower_frequency: str, optional
-            The new lower frequency value to set for the specified row.
+            New lower frequency value to set for the row.
             If this value is not provided, the row's lower frequency remains unchanged.
         upper_frequency: str, optional
-            The new upper frequency value to set for the specified row.
+            New upper frequency value to set for the row.
             If this value is not provided, the row's upper frequency remains unchanged.
         """
         lower_bytes_value = bytes(lower_frequency, "ascii")
@@ -123,14 +124,14 @@ class MultipleBandsTable:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, lower_frequency, upper_frequency):
-        """Appends a new row with specified lower and upper frequency values to the end of the multiple bands table.
+        """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
 
         Parameters
         ----------
         lower_frequency: str
-            The lower frequency value to append.
+            Lower frequency value for the new row.
         upper_frequency: str
-            The upper frequency value to append.
+            Upper frequency value for the new row.
         """
         lower_bytes_value = bytes(lower_frequency, "ascii")
         upper_bytes_value = bytes(upper_frequency, "ascii")
@@ -138,16 +139,16 @@ class MultipleBandsTable:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, lower_frequency, upper_frequency):
-        """Insert lower and upper frequencies at given index.
+        """Insert lower and upper frequencies in a given row.
 
         Parameters
         ----------
         row_index: int
-            The index of the row to update, with a valid range from ``0`` to ``6`` inclusive.
+            Index of the row. Valid values range from ``0`` to ``6``, inclusive.
         lower_frequency: str
-            The lower frequency value to insert.
+            Lower frequency value to insert.
         upper_frequency: str
-            The upper frequency value to insert.
+            Upper frequency value to insert.
         """
         lower_bytes_value = bytes(lower_frequency, "ascii")
         upper_bytes_value = bytes(upper_frequency, "ascii")

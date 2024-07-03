@@ -38,17 +38,18 @@ from pyaedt.filtersolutions_core.graph_setup import GraphSetup
 class FrequencyResponseColumn(Enum):
     """Provides an enum of frequency response parameters.
 
-    Attributes:
-    MAGNITUDE_DB: Represents the frequency response magnitude in dB.
-    PHASE_DEG: Represents the frequency response phase in degree.
-    GROUP_DELAY: Represents the frequency response group delay.
-    PHASE_RAD: Represents the frequency response phase in radian.
-    MAGNITUDE_ARITH: Represents the frequency response magnitude.
-    MAGNITUDE_REAL: Represents the real part of frequency response  magnitude .
-    MAGNITUDE_IMAG: Represents the imaginary part of frequency response  magnitude.
-    PHASE_DEV_DEG: Represents the frequency response phase deviation in degree.
-    PHASE_DEV_RAD: Represents the frequency response phase deviation in radian.
-    FREQUENCY: Represents the frequency response frequency parameter.
+    **Attributes:**
+
+    - MAGNITUDE_DB: Represents the frequency response magnitude in dB.
+    - PHASE_DEG: Represents the frequency response phase in degree.
+    - GROUP_DELAY: Represents the frequency response group delay.
+    - PHASE_RAD: Represents the frequency response phase in radian.
+    - MAGNITUDE_ARITH: Represents the frequency response magnitude.
+    - MAGNITUDE_REAL: Represents the real part of frequency response magnitude.
+    - MAGNITUDE_IMAG: Represents the imaginary part of frequency response magnitude.
+    - PHASE_DEV_DEG: Represents the frequency response phase deviation in degrees.
+    - PHASE_DEV_RAD: Represents the frequency response phase deviation in radian.
+    - FREQUENCY: Represents frequency parameter of the frequency response .
     """
 
     MAGNITUDE_DB = 0
@@ -66,14 +67,15 @@ class FrequencyResponseColumn(Enum):
 class TimeResponseColumn(Enum):
     """Provides an enum of time response parameters.
 
-    Attributes:
-    STEP_RESPONSE: Represents the step time response.
-    RAMP_RESPONSE: Represents the ramp time response.
-    IMPULSE_RESPONSE: Represents the impulse time response.
-    STEP_RESPONSE_DB: Represents the step time response in dB.
-    RAMP_RESPONSE_DB: Represents the ramp time response in dB.
-    IMPULSE_RESPONSE_DB: Represents the impulse time response in dB.
-    TIME: Represents time response the time parameter.
+    **Attributes:**
+
+    - STEP_RESPONSE: Represents the step time response.
+    - RAMP_RESPONSE: Represents the ramp time response.
+    - IMPULSE_RESPONSE: Represents the impulse time response.
+    - STEP_RESPONSE_DB: Represents the step time response in dB.
+    - RAMP_RESPONSE_DB: Represents the ramp time response in dB.
+    - IMPULSE_RESPONSE_DB: Represents the impulse time response in dB.
+    - TIME: Represents time parameter of the time response .
     """
 
     STEP_RESPONSE = 0
@@ -88,12 +90,13 @@ class TimeResponseColumn(Enum):
 class SParametersResponseColumn(Enum):
     """Provides an enum of S parameters.
 
-    Attributes:
-    S21_DB: Represents the S21 parameter in dB.
-    S11_DB: Represents the S11 parameter in dB.
-    S21_ARITH: Represents the S21 parameter.
-    S11_ARITH: Represents the S11 parameter.
-    FREQUENCY: Represents the S parameters frequency parameter.
+    **Attributes:**
+
+    - S21_DB: Represents the S21 parameter in dB.
+    - S11_DB: Represents the S11 parameter in dB.
+    - S21_ARITH: Represents the S21 parameter.
+    - S11_ARITH: Represents the S11 parameter.
+    - FREQUENCY: Represents the S parameters' frequency parameter.
     """
 
     S21_DB = 0
@@ -106,23 +109,24 @@ class SParametersResponseColumn(Enum):
 class PoleZerosResponseColumn(Enum):
     """Provides an enum of pole zero x and y coordinates of transmission (TX) or reflection (RX) zeros.
 
-    Attributes:
-    TX_ZERO_DEN_X: Represents the x coordinate of filter transmission zero denominator.
-    TX_ZERO_DEN_Y: Represents the y coordinate of filter transmission zero denominator.
-    PROTO_TX_ZERO_DEN_X: Represents the x coordinate of prototype filter transmission zero denominator.
-    PROTO_TX_ZERO_DEN_Y: Represents the y coordinate of prototype filter transmission zero denominator.
-    TX_ZERO_NUM_X: Represents the x coordinate of filter transmission zero numerator.
-    TX_ZERO_NUM_Y: Represents the y coordinate of filter transmission zero numerator.
-    PROTO_TX_ZERO_NUM_X: Represents the x coordinate of prototype filter transmission zero numerator.
-    PROTO_TX_ZERO_NUM_Y: Represents the y coordinate of prototype filter transmission zero numerator.
-    RX_ZERO_DEN_X: Represents the x coordinate of filter reflection zero denominator.
-    RX_ZERO_DEN_Y: Represents the y coordinate of filter reflection zero denominator.
-    PROTO_RX_ZERO_DEN_X: Represents the x coordinate of prototype filter reflection zero denominator.
-    PROTO_RX_ZERO_DEN_Y: Represents the y coordinate of prototype filter reflection zero denominator.
-    RX_ZERO_NUM_X: Represents the x coordinate of filter reflection zero numerator.
-    RX_ZERO_NUM_Y: Represents the y coordinate of filter reflection zero numerator.
-    PROTO_RX_ZERO_NUM_X: Represents the x coordinate of prototype filter reflection zero numerator.
-    PROTO_RX_ZERO_NUM_Y: Represents the y coordinate of prototype filter reflection zero numerator.
+    **Attributes:**
+
+    - TX_ZERO_DEN_X: Represents the x coordinate of the filter transmission zero denominator.
+    - TX_ZERO_DEN_Y: Represents the y coordinate of the filter transmission zero denominator.
+    - PROTO_TX_ZERO_DEN_X: Represents the x coordinate of the prototype filter transmission zero denominator.
+    - PROTO_TX_ZERO_DEN_Y: Represents the y coordinate of the prototype filter transmission zero denominator.
+    - TX_ZERO_NUM_X: Represents the x coordinate of the filter transmission zero numerator.
+    - TX_ZERO_NUM_Y: Represents the y coordinate of the filter transmission zero numerator.
+    - PROTO_TX_ZERO_NUM_X: Represents the x coordinate of the prototype filter transmission zero numerator.
+    - PROTO_TX_ZERO_NUM_Y: Represents the y coordinate of the prototype filter transmission zero numerator.
+    - RX_ZERO_DEN_X: Represents the x coordinate of the filter reflection zero denominator.
+    - RX_ZERO_DEN_Y: Represents the y coordinate of the filter reflection zero denominator.
+    - PROTO_RX_ZERO_DEN_X: Represents the x coordinate of the prototype filter reflection zero denominator.
+    - PROTO_RX_ZERO_DEN_Y: Represents the y coordinate of the prototype filter reflection zero denominator.
+    - RX_ZERO_NUM_X: Represents the x coordinate of the filter reflection zero numerator.
+    - RX_ZERO_NUM_Y: Represents the y coordinate of the filter reflection zero numerator.
+    - PROTO_RX_ZERO_NUM_X: Represents the x coordinate of the prototype filter reflection zero numerator.
+    - PROTO_RX_ZERO_NUM_Y: Represents the y coordinate of the prototype filter reflection zero numerator.
     """
 
     TX_ZERO_DEN_X = 0
@@ -145,7 +149,9 @@ class PoleZerosResponseColumn(Enum):
 
 class IdealResponse:
     """Returns the data for available ideal filter responses.
-    Includes ``frequency``, ``time``, ``S parameters``, ``transfer function``, or ``pole zero location`` responses.
+
+    Types of responses Include ``frequency``, ``time``, ``S parameters``, ``transfer function``,
+    and ``pole zero location``.
 
     This class allows you to construct all the necessary ideal response attributes for the ``FilterDesign`` class.
     """
@@ -193,17 +199,17 @@ class IdealResponse:
         self._dll.getVSGAnalsyis.restype = c_int
 
     def _frequency_response_getter(self, column: FrequencyResponseColumn):
-        """Return the ideal filter frequency response.
+        """Get the ideal filter frequency response.
 
         Parameters
         ----------
         column: `FrequencyResponseColumn`
-            Parameter to return.
+            Frequency response column to get.
 
         Returns
         -------
         list
-            The values for the requested frequency response column (e.g., magnitude, phase, etc.).
+            List of values for the requested frequency response column (such as magnitude or phase).
         """
         size = c_int()
         status = self._dll.getIdealFrequencyResponseSize(byref(size))
@@ -215,17 +221,17 @@ class IdealResponse:
         return values
 
     def _time_response_getter(self, column: TimeResponseColumn):
-        """Return the ideal filter time response.
+        """Get the ideal filter time response.
 
         Parameters
         ----------
         column: `TimeResponseColumn`
-            Parameter to return.
+            Time response column to get.
 
         Returns
         -------
         list
-            The values for the requested time response column (e.g., step, pulse, etc.).
+            List of values for the requested time response column (such as step or pulse).
         """
         size = c_int()
         status = self._dll.getIdealTimeResponseSize(byref(size))
@@ -237,17 +243,17 @@ class IdealResponse:
         return values
 
     def _sparamaters_response_getter(self, column: SParametersResponseColumn):
-        """Return the ideal filter S parameters response.
+        """Get the ideal filter S parameter's response.
 
         Parameters
         ----------
         column: `SParametersResponseColumn`
-            Parameter to return.
+            S parameter's response column to get.
 
         Returns
         -------
         list
-            The values for the requested S parameters response column (e.g., S11, S21, etc.).
+            List of values for the requested S parameter's response column (such as S11 or S21).
         """
         size = c_int()
         status = self._dll.getIdealSParamatersResponseSize(byref(size))
@@ -259,18 +265,18 @@ class IdealResponse:
         return values
 
     def _pole_zeros_response_getter(self, column: PoleZerosResponseColumn):
-        """Return ideal pole zero location parameters (e.g., x coordinate of
-        the denominator of transmission zeros, etc.).
+        """Get the ideal pole zero's location parameters (such as the x coordinate of
+        the denominator of transmission zeros).
 
         Parameters
         ----------
         column: `PoleZerosResponseColumn`
-            Parameter to return.
+            Pole zero's response column to get.
 
         Returns
         -------
         list
-            The values for the requested pole zero column.
+            List of values for the requested pole zero's response column.
         """
         size = c_int()
         status = self._dll.getIdealPoleZerosResponseSize(byref(size), column.value)
@@ -282,18 +288,17 @@ class IdealResponse:
         return values
 
     def transfer_function_response(self):
-        """Return ideal filter transfer function parameters.
+        """Get the ideal filter transfer function's parameters.
 
         Returns
         -------
         str
-            The requested parameter array.
-
+            Requested parameter array.
 
             str
                 Multi-line string where each line contains a coefficient from
                 the numerator and/or the denominator of the transfer function.
-                The coefficient for the highest-order term is first and the terms are in decreasing order.
+                The coefficient for the highest-order term is first, and the terms are in decreasing order.
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
@@ -329,12 +334,12 @@ class IdealResponse:
         maximum_frequency="5 GHz",
         vsg_analysis_enabled=False,
     ):
-        """Return the ideal filter frequency response for the given parameters.
+        """Get the ideal filter frequency response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `FrequencyResponseColumn`, optional
-            Parameter to return. The default is frequency response magnitude in dB.
+             Frequency response column to return. The default is the frequency response magnitude in dB.
         minimum_frequency: str, optional
             The default is ``200 MHz``.
         maximum_frequency: str, optional
@@ -344,11 +349,10 @@ class IdealResponse:
 
         Returns
         -------
-        tuple: The tuple contains
-                list of str:
-                    The defined frequency range.
-                list of str:
-                    The requested parameter.
+        tuple
+            The tuple contains two lists of strings. The first is a list
+            of the defined frequency ranges, and the second is a
+            list of the requested parameters.
         """
         self.graph_setup.minimum_frequency = minimum_frequency
         self.graph_setup.maximum_frequency = maximum_frequency
@@ -367,12 +371,12 @@ class IdealResponse:
         maximum_time="10 ns",
         vsg_analysis_enabled=False,
     ):
-        """Return the ideal filter time response for the given parameters.
+        """Get the ideal filter time response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `TimeResponseColumn`, optional
-            Parameter to return. The default is step time response.
+            Time response column to get. The default is the step time response.
         minimum_time: str, optional
             The default is ``0 s``.
         maximum_time: str, optional
@@ -382,11 +386,10 @@ class IdealResponse:
 
         Returns
         -------
-        tuple: The tuple contains
-                list of str:
-                    The defined range range.
-                list of str:
-                    The requested parameter.
+        tuple
+            The tuple contains two lists of strings. The first is a list
+            of the defined time ranges, and the second is a
+            list of the requested parameters.
         """
         self.graph_setup.minimum_time = minimum_time
         self.graph_setup.maximum_time = maximum_time
@@ -401,12 +404,12 @@ class IdealResponse:
         minimum_frequency="200 MHz",
         maximum_frequency="5 GHz",
     ):
-        """Return the ideal filter S parameters response for the given parameters.
+        """Get the ideal filter S parameters response for the given parameters.
 
         Parameters
         ----------
         y_axis_parameter: `SParametersResponseColumn`, optional
-            Parameter to return. The default is S21 parameter response in dB.
+            S parameter's response column to get. The default is the S21 parameter response in dB.
         minimum_frequency: str, optional
             The default is ``200 MHz``.
         maximum_frequency: str, optional
@@ -416,11 +419,10 @@ class IdealResponse:
 
         Returns
         -------
-        tuple: The tuple contains
-                list of str:
-                    The defined frequency range.
-                list of str:
-                    The requested parameter.
+        tuple
+            The tuple contains two lists of strings. The first is a list
+            of the defined frequency ranges, and the second is a
+            list of the requested parameters.
         """
         self.graph_setup.minimum_frequency = minimum_frequency
         self.graph_setup.maximum_frequency = maximum_frequency
@@ -436,22 +438,23 @@ class IdealResponse:
         x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
         y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
     ):
-        """Return the ideal pole zero location for the given parameters.
+        """Get the ideal pole zero location for the given parameters.
 
         Parameters
         ----------
         x_axis_parameter: `PoleZerosResponseColumn`, optional
-            Parameter to return. The default is x coordinate of filter transmission zero denominator.
+            X axis parameter of the pole zeros response column to get. The default is the x coordinate
+            of the filter transmission zero denominator.
         y_axis_parameter: `PoleZerosResponseColumn`, optional
-            Parameter to return. The default is y coordinate of filter transmission zero denominator.
+            Y axis parameter of the pole zeros response column to get. The default is the y coordinate
+            of the filter transmission zero denominator.
 
         Returns
         -------
-        tuple: The tuple contains
-                list of str:
-                    The x coordinates of the requested parameter.
-                list of str:
-                    The y coordinates of the requested parameter.
+        tuple
+            The tuple contains two lists of strings. The first is a list
+            of the x coordinates of the requested parameter, and the second is a
+            list of the y coordinates of the requested parameter.
         """
         x_parameter = self._pole_zeros_response_getter(x_axis_parameter)
         y_parameter = self._pole_zeros_response_getter(y_axis_parameter)

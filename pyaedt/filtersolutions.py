@@ -45,15 +45,15 @@ class FilterSolutions:
     Parameters
     ----------
     version: str, optional
-        The version of AEDT in ``xxxx.x`` format. The default is ``None``.
+        Version of AEDT in ``xxxx.x`` format. The default is ``None``.
     implementation_type: FilterImplementation, optional
-        The technology used to implement the filter. The default is ``LUMPED``.
+        Technology used to implement the filter. The default is ``LUMPED``.
         The ``FilterImplementation`` enum provides the list of implementations.
 
 
     Examples
     --------
-    Create a ``FilterSolutions`` instance with a band pass elliptic ideal filter.
+    Create a ``FilterSolutions`` instance with a band-pass elliptic ideal filter.
 
     >>> import pyaedt
     >>> from pyaedt.filtersolutions_core.attributes import FilterImplementation

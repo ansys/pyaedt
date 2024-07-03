@@ -49,17 +49,19 @@ class DllInterface:
         """Set DLL path and print the status of the DLL access to the screen."""
         latest_version = current_version()
         if latest_version == "":
-            raise Exception("AEDT is not installed on your system. Install AEDT version 2025 R1 or higher.")
+            raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
         if version is None:
             version = latest_version
         if float(version[0:6]) < 2025:
-            raise ValueError("PyAEDT supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later.")
+            raise ValueError(
+                "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
+            )
         if not (version in installed_versions()) and not (version + "CL" in installed_versions()):
             raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))
         self.dll_path = os.path.join(installed_versions()[version], "nuhertz/FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
-            raise RuntimeError(f"The 'FilterSolution' API DLL was not found at {self.dll_path}.")  # pragma: no cover
+            raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover
         self.version = version
 
     def _init_dll(self, show_gui):
@@ -71,8 +73,8 @@ class DllInterface:
         if show_gui:  # pragma: no cover
             self._app_thread = threading.Thread(target=self._app_thread_task)
             self._app_thread.start()
-            # TODO: Need some way to confirm that the GUI has completed initialization,
-            # otherwise some subsequent API calls will fail. For now, sleep a few seconds.
+            # TODO: Need some way to confirm that the GUI has completed initialization.
+            # Otherwise some subsequent API calls will fail. For now, sleep a few seconds.
             time.sleep(5)
         else:
             status = self._dll.startApplication(False)
@@ -111,7 +113,7 @@ class DllInterface:
         Returns
         --------
         str
-        The return value of the called DLL function.
+        Return value of the called DLL function.
         """
         text_buffer = ctypes.create_string_buffer(max_size)
         status = dll_function(text_buffer, max_size)
@@ -136,12 +138,12 @@ class DllInterface:
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
         """
-        Convert string to a string defined by an enum.
+        Convert a string to a string defined by an enum.
 
         Parameters
         ----------
         enum_type: Enum
-            Type of Enum to convert.
+            Type of enum to convert.
         string: str
             String to convert.
 
@@ -172,7 +174,7 @@ class DllInterface:
 
     def api_version(self) -> str:
         """
-        Return the version of API.
+        Get the version of the API.
 
         Returns
         -------

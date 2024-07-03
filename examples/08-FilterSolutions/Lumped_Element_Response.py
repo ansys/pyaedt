@@ -1,7 +1,7 @@
 """
 Design a lumped element filter
 ------------------------------
-This example shows how to use PyAEDT to use the ``FilterSolutions`` library to design and 
+This example shows how to use PyAEDT to use the ``FilterSolutions`` module to design and 
 visualize the frequency response of a band-pass Butterworth filter. 
 """
 
@@ -28,8 +28,8 @@ design.attributes.pass_band_width_frequency = "500M"
 design.attributes.filter_order = 5
 
 ##############################################################################
-# Plot the frequency response of the filter.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot the frequency response of the filter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Plot the frequency response of the filter without any transmission zeros.
 
 freq, mag_db = design.ideal_response.frequency_response(FrequencyResponseColumn.MAGNITUDE_DB)
@@ -45,8 +45,8 @@ format_plot()
 plt.show()
 
 ##############################################################################
-# Add a transmission zero to the filter design.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Add a transmission zero to the filter design
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Add a transmission zeros that yields nulls separated by 2 times the pass band width (1 GHz).
 # Plot the frequency response of the filter with the transmission zero.
 
@@ -58,9 +58,8 @@ format_plot()
 plt.show()
 
 ##############################################################################
-# Generate the netlist for the designed filter.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate and print the netlist for the designed filter with the transmission zero.
-
+# Generate the netlist for the designed filter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate and print the netlist for the designed filter with the added transmission zero to filter.
 netlist = design.topology.circuit_response()
 print("Netlist: \n", netlist)

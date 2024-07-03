@@ -31,8 +31,12 @@ from pyaedt.generic.general_methods import is_linux
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
-@pytest.mark.skipif(config["desktopVersion"] <= "2025.1", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
+    no_transmission_zero_msg = "This filter has no transmission zero at row 0"
+    no_transmission_zero_update_msg = "This filter has no transmission zero at row 0 to update"
+    input_value_blank_msg = "The input value is blank"
+
     def test_row_count(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert design.transmission_zeros_bandwidth.row_count == 0
@@ -42,28 +46,28 @@ class TestClass:
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.row(0)
-        assert info.value.args[0] == "This filter has no transmission zero at row 0"
+        assert info.value.args[0] == self.no_transmission_zero_msg
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.row(0)
-        assert info.value.args[0] == "This filter has no transmission zero at row 0"
+        assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_update_row(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.update_row(0, zero="1.3G", position="2")
-        assert info.value.args[0] == "This filter has no transmission zero at row 0 to update"
+        assert info.value.args[0] == self.no_transmission_zero_update_msg
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.update_row(0, "1.3", "2")
-        assert info.value.args[0] == "This filter has no transmission zero at row 0 to update"
+        assert info.value.args[0] == self.no_transmission_zero_update_msg
 
     def test_append_row(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.append_row(zero="", position="")
-        assert info.value.args[0] == "The input value is blank"
+        assert info.value.args[0] == self.input_value_blank_msg
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.append_row("", "")
-        assert info.value.args[0] == "The input value is blank"
+        assert info.value.args[0] == self.input_value_blank_msg
         design.transmission_zeros_bandwidth.append_row("1600M")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "")
         design.transmission_zeros_bandwidth.clear_row()
@@ -86,10 +90,10 @@ class TestClass:
         assert info.value.args[0] == "The given index 6 is larger than zeros order"
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.insert_row(0, zero="", position="2")
-        assert info.value.args[0] == "The input value is blank"
+        assert info.value.args[0] == self.input_value_blank_msg
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.insert_row(0, "", "")
-        assert info.value.args[0] == "The input value is blank"
+        assert info.value.args[0] == self.input_value_blank_msg
         design.transmission_zeros_bandwidth.insert_row(0, "1600M")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "")
         design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
@@ -109,7 +113,7 @@ class TestClass:
         design.transmission_zeros_bandwidth.remove_row(0)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.row(0)
-        assert info.value.args[0] == "This filter has no transmission zero at row 0"
+        assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_clear_row(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
@@ -118,13 +122,13 @@ class TestClass:
         design.transmission_zeros_bandwidth.clear_row()
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.row(0)
-        assert info.value.args[0] == "This filter has no transmission zero at row 0"
+        assert info.value.args[0] == self.no_transmission_zero_msg
         design.transmission_zeros_ratio.insert_row(0, zero="1.6", position="2")
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
         design.transmission_zeros_ratio.clear_row()
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.row(0)
-        assert info.value.args[0] == "This filter has no transmission zero at row 0"
+        assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_restore_default_positions(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)

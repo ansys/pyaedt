@@ -34,7 +34,7 @@ import pyaedt
 class LumpedTopology:
     """Defines attributes and parameters of lumped filters.
 
-    This class allows you to construct all the necessary attributes for the LumpedDesign class.
+    This class lets you construct all the necessary attributes for the ``LumpedDesign`` class.
     """
 
     def __init__(self):
@@ -186,7 +186,7 @@ class LumpedTopology:
 
     @property
     def current_source(self) -> bool:
-        """Flag indicating if the current source in synthesized circuit is enabled.
+        """Flag indicating if the current source in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -204,8 +204,8 @@ class LumpedTopology:
 
     @property
     def first_shunt(self) -> bool:
-        """Flag indicating if shunt element(s) are first in the synthesized circuit.
-        If ``False``, series element(s) are first.
+        """Flag indicating if shunt elements are first in the synthesized circuit.
+        If ``False``, series elements are first.
 
         Returns
         -------
@@ -223,7 +223,7 @@ class LumpedTopology:
 
     @property
     def bridge_t(self) -> bool:
-        """Flag indicating if the bridgeT topology in synthesized circuit is enabled.
+        """Flag indicating if the bridgeT topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -241,7 +241,7 @@ class LumpedTopology:
 
     @property
     def bridge_t_low(self) -> bool:
-        """Flag indicating if the bridgeT topology for lower frequency band in synthesized circuit is enabled.
+        """Flag indicating if the bridgeT topology for the lower frequency band in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -259,7 +259,7 @@ class LumpedTopology:
 
     @property
     def bridge_t_high(self) -> bool:
-        """Flag indicating if the bridgeT topology for higher frequency band in synthesized circuit is enabled.
+        """Flag indicating if the bridgeT topology for the higher frequency band in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -277,7 +277,7 @@ class LumpedTopology:
 
     @property
     def equal_inductors(self) -> bool:
-        """Flag indicating if the equal inductors topology in synthesized circuit is enabled.
+        """Flag indicating if the equal inductors topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -295,7 +295,7 @@ class LumpedTopology:
 
     @property
     def equal_capacitors(self) -> bool:
-        """Flag indicating if the equal capacitors topology in synthesized circuit is enabled.
+        """Flag indicating if the equal capacitors topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -313,7 +313,7 @@ class LumpedTopology:
 
     @property
     def equal_legs(self) -> bool:
-        """Flag indicating if the equal pairs shunt or series legs topology in synthesized circuit is enabled.
+        """Flag indicating if the equal pairs shunt or series legs topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -331,7 +331,7 @@ class LumpedTopology:
 
     @property
     def high_low_pass(self) -> bool:
-        """Flag indicating if the high and low pass topology in synthesized circuit is enabled.
+        """Flag indicating if the high and low pass topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -349,7 +349,8 @@ class LumpedTopology:
 
     @property
     def high_low_pass_min_ind(self) -> bool:
-        """Flag indicating if the high and low pass topology with minimum inductors in synthesized circuit is enabled.
+        """Flag indicating if the high and low pass topology with minimum inductors
+        in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -367,7 +368,7 @@ class LumpedTopology:
 
     @property
     def zig_zag(self) -> bool:
-        """Flag indicating if the zig zag topology with minimum inductors in synthesized circuit is enabled.
+        """Flag indicating if the zig-zag topology with minimum inductors in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -385,7 +386,7 @@ class LumpedTopology:
 
     @property
     def min_ind(self) -> bool:
-        """Flag indicating if the minimum inductors topology in synthesized circuit is enabled.
+        """Flag indicating if the minimum inductors topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -403,7 +404,7 @@ class LumpedTopology:
 
     @property
     def min_cap(self) -> bool:
-        """Flag indicating if the minimum capacitors topology in synthesized circuit is enabled.
+        """Flag indicating if the minimum capacitors topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -421,7 +422,7 @@ class LumpedTopology:
 
     @property
     def set_source_res(self) -> bool:
-        """Flag indicating if the matched source resistor for zig-zag topology in synthesized circuit is enabled.
+        """Flag indicating if the matched source resistor for zig-zag topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -439,7 +440,7 @@ class LumpedTopology:
 
     @property
     def trap_topology(self) -> bool:
-        """Flag indicating if the trap topology in synthesized circuit is enabled.
+        """Flag indicating if the trap topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -457,7 +458,7 @@ class LumpedTopology:
 
     @property
     def node_cap_ground(self) -> bool:
-        """Flag indicating if the parasitic capacitors to ground topology in synthesized circuit is enabled.
+        """Flag indicating if the parasitic capacitors to ground topology in the synthesized circuit is enabled.
 
         Returns
         -------
@@ -475,7 +476,7 @@ class LumpedTopology:
 
     @property
     def match_impedance(self) -> bool:
-        """Flag indicating if the automatic matched impedance topology in synthesized circuit is enabled.
+        """Flag indicating if the automatic matched impedance topology in the synthesized circuit is enabled.
 
         Returns
         -------

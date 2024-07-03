@@ -35,11 +35,13 @@ import pyaedt
 
 class ComplexTerminationDefinition(Enum):
     """Selects type of complex presentation.
-    Attributes:
-    POLAR: Represents polar definition.
-    CARTESIAN: Represents Cartesian definition.
-    PARALLEL: Represents parallel definition with real entry parallel to imaginary entry.
-    REAL: Represents only real impedance definition.
+
+    **Attributes:**
+
+    - POLAR: Represents polar definition.
+    - CARTESIAN: Represents Cartesian definition.
+    - PARALLEL: Represents parallel definition with real entry parallel to imaginary entry.
+    - REAL: Represents only real impedance definition.
     """
 
     POLAR = 0
@@ -51,10 +53,11 @@ class ComplexTerminationDefinition(Enum):
 class ComplexReactanceType(Enum):
     """Selects type of complex impedance as reactance, equivalent inductance, or equivalent capacitance.
 
-    Attributes:
-    REAC: Represents pure reactance of complex impedance.
-    IND: Represents equivalent inductance in henries.
-    CAP: Represents equivalent capacitance in farads.
+    **Attributes:**
+
+    - REAC: Represents pure reactance of complex impedance.
+    - IND: Represents equivalent inductance in henries.
+    - CAP: Represents equivalent capacitance in farads.
     """
 
     REAC = 0
@@ -65,9 +68,10 @@ class ComplexReactanceType(Enum):
 class TerminationType(Enum):
     """Selects either source or load complex impedance table.
 
-    Attributes:
-    SOURCE: Represents source impedenace table.
-    LOAD: Represents load impedenace table.
+    **Attributes:**
+
+    - SOURCE: Represents source impedenace table.
+    - LOAD: Represents load impedenace table.
     """
 
     SOURCE = 0
@@ -75,9 +79,9 @@ class TerminationType(Enum):
 
 
 class LumpedTerminationImpedance:
-    """Manipulates access to the entries of source and load complex impedance tables.
+    """Manipulates access to the entries of source and load complex impedance table.
 
-    This class allows you to enter, edit or remove the entries of source and load complex impedance tables.
+    This class allows you to enter, edit, or remove the entries of source and load complex impedance table.
     """
 
     def __init__(self, table_type):
@@ -154,7 +158,7 @@ class LumpedTerminationImpedance:
         self._dll.getLumpedComplexCompOrder.restype = c_int
 
     def table_type_to_bool(self):
-        """Set a flag to recognize source and load complex tables.
+        """Set a flag to recognize source and load complex table.
 
         Returns
         -------
@@ -167,7 +171,7 @@ class LumpedTerminationImpedance:
 
     @property
     def row_count(self) -> int:
-        """The count of accumulated complex impedances in the complex impedances tables.
+        """Count of the accumulated complex impedances in the complex impedances's table.
         The default is ``3``.
 
         Returns
@@ -180,22 +184,19 @@ class LumpedTerminationImpedance:
         return int(table_row_count.value)
 
     def row(self, row_index):
-        """Return frequencies and complex impedances at given index of the complex impedances tables.
+        """Get frequency and complex impedance values from a row in the complex impedance table.
 
         Parameters
         ----------
         row_index: int
-            The row index on complex impedances tables. Starting value is 0 and maximum value is 99.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
 
         Returns
         -------
-        tuple: The tuple contains
-                str:
-                    Frequency value.
-                str:
-                    First term of the complex impedances.
-                str:
-                    Second term of the complex impedances.
+        tuple
+            The tuple contains three strings. The first is the frequency value,
+            the second is the real part of the complex impedance,
+            and the third is the imaginary part of the complex impedance.
         """
         frequency_value_buffer = create_string_buffer(100)
         real_value_buffer = create_string_buffer(100)
@@ -215,20 +216,18 @@ class LumpedTerminationImpedance:
         return frequency_value_string, real_value_string, imag_value_string
 
     def update_row(self, row_index, frequency="", real="", imag=""):
-        """Update frequencies and complex impedances at given index of the complex impedances tables.
+        """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
         ----------
         row_index: int
-            The row index on complex impedances tables. Starting value is 0 and maximum value is 99.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
         frequency: str, optional
-            The default is blank.
+            The frequency value to update. If not specified, it remains unchanged.
         real: str, optional
-            First term of the complex impedances.
-            The default is blank.
+            The real part of the complex impedance to update. If not specified, it remains unchanged.
         imag: str, optional
-            Second term of the complex impedances.
-            The default is blank.
+            The imaginary part of the complex impedance to update. If not specified, it remains unchanged.
         """
         frequency_bytes_value = bytes(frequency, "ascii")
         real_bytes_value = bytes(real, "ascii")
@@ -243,15 +242,18 @@ class LumpedTerminationImpedance:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_row(self, frequency, real, imag):
-        """Append frequencies and complex impedances at the end row of the source and load complex tables.
+        """Append frequency and complex impedance values to the last row of
+        both the source and load complex impedance table.
+
 
         Parameters
         ----------
         frequency: str
+            The frequency value to append.
         real: str
-            First term of the complex impedances.
+            The real part of the complex impedance to append.
         imag: str
-            Second term of the complex impedances.
+            The imaginary part of the complex impedance to append.
         """
         frequency_bytes_value = bytes(frequency, "ascii")
         real_bytes_value = bytes(real, "ascii")
@@ -265,17 +267,18 @@ class LumpedTerminationImpedance:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def insert_row(self, row_index, frequency, real, imag):
-        """Insert frequencies and complex impedances at given index of the complex impedances tables.
+        """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
         ----------
-        row_index: int
-            The row index on complex impedances tables. Starting value is 0 and maximum value is 99.
-        frequency: str
-        real: str
-            First term of the complex impedances.
-        imag: str
-            Second term of the complex impedances.
+        row_index : int
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+        frequency : str
+            The frequency value to insert.
+        real : str
+            The real part of the complex impedance to insert.
+        imag : str
+            The imaginary part of the complex impedance to insert.
         """
         frequency_bytes_value = bytes(frequency, "ascii")
         real_bytes_value = bytes(real, "ascii")
@@ -290,19 +293,19 @@ class LumpedTerminationImpedance:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def remove_row(self, row_index):
-        """Remove frequencies and complex impedances at given indexof the complex impedances tables.
+        """Remove frequency and complex impedance at a specified index from the complex impedance table.
 
         Parameters
         ----------
-        row_index: int
-            The row index on complex impedances tables. Starting value is 0 and maximum value is 99.
+        row_index : int
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
-        """The definition type of complex impedances in the complex impedance tables.
+        """Definition type of complex impedance in the complex impedance table.
         The default is ``Cartesian``.
 
         Returns
@@ -328,7 +331,7 @@ class LumpedTerminationImpedance:
 
     @property
     def reactance_type(self) -> ComplexReactanceType:
-        """The reactance type of complex impedances in the complex impedance tables.
+        """Reactance type of complex impedance in the complex impedance table.
         The default is ``reactance``.
 
         Returns
@@ -355,7 +358,7 @@ class LumpedTerminationImpedance:
 
     @property
     def compensation_enabled(self) -> bool:
-        """Flag indicating if the impedance compnesation is enabled.
+        """Flag indicating if the impedance compensation is enabled.
 
         Returns
         -------
@@ -373,7 +376,7 @@ class LumpedTerminationImpedance:
 
     @property
     def compensation_order(self) -> int:
-        """The order of impedance compnesation.
+        """Order of impedance compensation.
         The default is` ``2``.
 
         Returns

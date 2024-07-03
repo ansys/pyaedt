@@ -74,8 +74,8 @@ class FilterClass(Enum):
     - LOW_PASS: Represents a low-pass filter.
     - HIGH_PASS: Represents a high-pass filter.
     - DIPLEXER_1: Represents a first group of diplexer filter.
-    - BAND_PASS: Represents a band pass filter.
-    - BAND_STOP: Represents a band stop filter.
+    - BAND_PASS: Represents a band-pass filter.
+    - BAND_STOP: Represents a band-stop filter.
     - DIPLEXER_2: Represents a second group of diplexer filter.
     - LOW_BAND: Represents a combined low-pass and multi-band filter.
     - BAND_HIGH: Represents a combined high-pass and multi-band filter.
@@ -208,7 +208,7 @@ class RippleConstrictionBandSelect(Enum):
 
 
 class SinglePointRippleInfZeros(Enum):
-    """Provides an enum for either one or three non-Infinite zeros at the single frequency point to confine the ripple.
+    """Provides an enum for either one or three non-infinite zeros at the single frequency point to confine the ripple.
 
     **Attributes:**
 
@@ -236,11 +236,11 @@ class PassbandDefinition(Enum):
 class StopbandDefinition(Enum):
     """Provides an enum for comparing the stop band parameter to the pass band parameter.
 
-    **ATTRIBUTES:**
+    **Attributes:**
 
-    - RATIO: The ratio between the stop band and pass band frequencies.
-    - FREQUENCY: The explicit frequency.
-    - ATTENUATION_DB: The attenuation in decibels.
+    - RATIO: Ratio between the stop band and pass band frequencies.
+    - FREQUENCY: Explicit frequency.
+    - ATTENUATION_DB: Attenuation in decibels.
     """
 
     RATIO = 0
@@ -581,7 +581,7 @@ class Attributes:
 
     @property
     def filter_implementation(self) -> FilterImplementation:
-        """Technology used to implement the filter. The default is ``LUMPED``.
+        """Technology for implementing the filter. The default is ``LUMPED``.
         The ``FilterImplementation`` enum provides a list of all implementations.
 
         Returns
@@ -600,8 +600,11 @@ class Attributes:
     @property
     def diplexer_type(self) -> DiplexerType:
         """Type of diplexer topology. This property is only applicable to lumped filters.
-        The default is ``HI_LO`` for the ``DIPLEXER_1`` filter class.
-        The default is ``BP_BS`` for the ``DIPLEXER_2`` filter class.
+
+        - The default is ``HI_LO`` for the ``DIPLEXER_1`` filter class.
+
+        - The default is ``BP_BS`` for the ``DIPLEXER_2`` filter class.
+
         The ``DiplexerType`` enum provides a full list of diplexer types.
 
         Returns
@@ -1327,7 +1330,7 @@ class Attributes:
 
     @property
     def even_order(self) -> bool:
-        """Flag indicating if the even order mode for filter with even orders is enabled.
+        """Flag indicating if the even order mode for a filter with even orders is enabled.
 
         Returns
         -------
@@ -1345,7 +1348,7 @@ class Attributes:
 
     @property
     def even_order_refl_zero(self) -> bool:
-        """Flag indicating if the even order reflection zeros to 0 is enabled.
+        """Flag indicating if the even order reflection zeros translation to 0 is enabled.
 
         Returns
         -------
@@ -1363,7 +1366,7 @@ class Attributes:
 
     @property
     def even_order_trn_zero(self) -> bool:
-        """Flag indicating if the even order reflection zeros to infinite is enabled.
+        """Flag indicating if the even order reflection zeros translation to infinite is enabled.
 
         Returns
         -------
@@ -1435,7 +1438,7 @@ class Attributes:
     @property
     def constrict_ripple_percent(self) -> str:
         """Filter ripple constriction percentage.
-        The default is ''False''.
+        The default is ''50%''.
 
         Returns
         -------
@@ -1485,7 +1488,7 @@ class Attributes:
 
     @property
     def delay_equalizer(self) -> bool:
-        """Flag indicating if the delay equalizer enabled.
+        """Flag indicating if the delay equalizer is enabled.
 
         Returns
         -------
@@ -1521,7 +1524,7 @@ class Attributes:
 
     @property
     def standard_delay_equ_pass_band_attenuation(self) -> bool:
-        """Flag indicating if the standard delay equalizer attenuation enabled.
+        """Flag indicating if the standard delay equalizer attenuation is enabled.
 
         Returns
         -------

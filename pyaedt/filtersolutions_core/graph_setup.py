@@ -29,7 +29,7 @@ import pyaedt
 
 
 class GraphSetup:
-    """Defines the frequency and time limits of the exported responses"""
+    """Defines the frequency and time limits of the exported responses."""
 
     def __init__(self):
         self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
@@ -60,7 +60,7 @@ class GraphSetup:
 
     @property
     def minimum_frequency(self) -> str:
-        """Minimum frequency value for exporting frequency and S parameters responses. The default is ``200 MHz``.
+        """Minimum frequency value for exporting frequency and S parameter responses. The default is ``200 MHz``.
 
         Returns
         -------

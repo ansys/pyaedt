@@ -53,15 +53,15 @@ def FilterSolutions(
     version=None,
     implementation_type=None,
 ):
-    """Initializes the FilterSolutions application.
+    """Initialize a ``FilterSolutions` instance.
 
     Parameters
     ----------
     version : str optional
-        Version of AEDT in ``xxxx.x`` format to use. The default is ``None``, in which case the
+        Version of AEDT to use in ``xxxx.x`` format to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
     implementation_type : enum, optional
-        Type of filter implementation available from FilterImplementation enum.
+        Type of filter implementation available from the ``FilterImplementation`` enum.
         The default is ``None``, in which case the lumped implementation is used.
 
     Returns
