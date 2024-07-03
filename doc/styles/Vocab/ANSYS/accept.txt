@@ -1,6 +1,5 @@
-2D Extractor
-2D modeler
-3D modeler
+2D
+3D
 _static
 AEDB
 AEDT
@@ -96,3 +95,5 @@ global_region
 assign_mesh_region
 assign_mesh_level
 assign_mesh_reuse
+json
+toml

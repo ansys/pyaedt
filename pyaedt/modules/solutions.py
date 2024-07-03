@@ -1664,7 +1664,9 @@ class FieldPlot:
                         else:
                             nonmodel_faces.append(str(index))
                     except Exception:
-                        pass
+                        self._postprocessor.logger.debug(
+                            "Something went wrong while processing surface {}.".format(index)
+                        )
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
