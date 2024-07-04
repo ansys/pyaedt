@@ -81,7 +81,7 @@ def main(extension_args):
     if is_windows:
         try:
             os.startfile(out)
-        except:
+        except Exception:  # pragma: no cover
             aedtapp.logger.warning(f"Failed to open {out}")
 
     if not extension_args["is_test"]:  # pragma: no cover
