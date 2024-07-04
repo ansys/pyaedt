@@ -33,13 +33,7 @@ and `pyvista <https://docs.pyvista.org/>`_.
 
 .. currentmodule:: pyaedt.generic.touchstone_parser
 
-.. autosummary::
-   :toctree: _autosummary
-   :no-inherited-members:
-   :nosignatures:
-
-   TouchstoneData
-
+.. autoclass:: TouchstoneData
 
 
 .. code:: python
@@ -54,6 +48,4 @@ and `pyvista <https://docs.pyvista.org/>`_.
     assert ts1.plot_insertion_losses(plot=False)
     assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
     ...
-
-
 
