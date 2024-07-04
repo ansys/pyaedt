@@ -4934,6 +4934,7 @@ class NetworkObject(BoundaryObject):
     @pyaedt_function_handler()
     def add_internal_node(self, name, power, mass=None, specific_heat=None):
         """
+        Add an internal node to the network.
 
         Parameters
         ----------
@@ -4995,6 +4996,7 @@ class NetworkObject(BoundaryObject):
     @pyaedt_function_handler()
     def add_boundary_node(self, name, assignment_type, value):
         """
+        Add a boundary node to the network.
 
         Parameters
         ----------
@@ -5005,7 +5007,7 @@ class NetworkObject(BoundaryObject):
         value : str or float or dict
             String, float, or dictionary containing the value of the assignment.
             If a float is passed the ``"W"`` or ``"cel"`` unit is used, depending on
-            the selection for the ``assignment_type`` parameter. If ``"Power"`
+            the selection for the ``assignment_type`` parameter. If ``"Power"``
             is selected for the type, a dictionary can be passed to use
             temperature-dependent or transient assignment.
 
@@ -5181,6 +5183,7 @@ class NetworkObject(BoundaryObject):
               - ``"SpecificHeat"``: a string with the specific heat value and unit
 
             - Boundary nodes must contain the following keys and values pairs:
+
               - ``"Name"``: a string with the node name
               - ``"ValueType"``: a string specifying the type of value (``"Power"`` or
               ``"Temperature"``)
@@ -5193,6 +5196,7 @@ class NetworkObject(BoundaryObject):
               According to the ``"ValueType"`` choice, ``"Power"`` or ``"Temperature"`` key must be
               used. Their associated value a string with the value and unit of the quantity prescribed or
               a dictionary for transient or temperature dependent assignment.
+
 
             All the temperature dependent or thermal dictionaries should contain three keys:
             ``"Type"``, ``"Function"``, and ``"Values"``. Accepted ``"Type"`` values are:
@@ -5609,6 +5613,7 @@ class BoundaryDictionary:
 
     @property
     def props(self):
+        """Dictionary that defines all the boundary condition properties."""
         return {
             "Type": self.assignment_type,
             "Function": self.function_type,
@@ -5806,4 +5811,5 @@ class PieceWiseLinearDictionary(BoundaryDictionary):
 
     @property
     def dataset_name(self):
+        """Dataset name that defines the piecewise assignment."""
         return self.dataset.name
