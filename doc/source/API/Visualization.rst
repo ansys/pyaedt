@@ -21,14 +21,24 @@ and `pyvista <https://docs.pyvista.org/>`_.
    solutions.FfdSolutionData
 
 
-.. currentmodule:: pyaedt.generic
+
+.. currentmodule:: pyaedt.generic.plot
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   plot.ModelPlotter
-   touchstone_parser.TouchstoneData
+   ModelPlotter
+
+
+.. currentmodule:: pyaedt.generic.touchstone_parser
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   TouchstoneData
+
 
 
 .. code:: python
