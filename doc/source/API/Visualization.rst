@@ -35,6 +35,7 @@ and `pyvista <https://docs.pyvista.org/>`_.
 
 .. autosummary::
    :toctree: _autosummary
+   :no-inherited-members:
    :nosignatures:
 
    TouchstoneData
