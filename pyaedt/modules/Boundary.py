@@ -389,12 +389,12 @@ class PCBSettingsPackageParts(object):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_solderballs_modeling(self, modelling=None):
+    def set_solderballs_modeling(self, modeling=None):
         """Set how to model solderballs.
 
         Parameters
         ----------
-        modelling : str, optional
+        modeling : str, optional
             Method for modeling solderballs located below the stackup. The default is
             ``None``, in which case they are not modeled. Options for modeling are
             ``"Boxes"``, ``"Cylinders"``, and ``"Lumped"``.
@@ -405,8 +405,8 @@ class PCBSettingsPackageParts(object):
             ``True`` if successful, ``False`` otherwise.
         """
         update_properties = {
-            "CreateBottomSolderballs": modelling is not None,
-            "BottomSolderballsModelType": self._solderbumps_map[modelling],
+            "CreateBottomSolderballs": modeling is not None,
+            "BottomSolderballsModelType": self._solderbumps_map[modeling],
         }
 
         self.pcb.props["NativeComponentDefinitionProvider"].update(update_properties)
@@ -416,7 +416,7 @@ class PCBSettingsPackageParts(object):
     @disable_auto_update
     def set_connectors_modeling(
         self,
-        modelling=None,
+        modeling=None,
         solderbumps_modeling="Boxes",
         bondwire_material="Au-Typical",
         bondwire_diameter="0.05mm",
@@ -426,19 +426,19 @@ class PCBSettingsPackageParts(object):
 
         Parameters
         ----------
-            modelling : str, optional
+            modeling : str, optional
                 Method for modeling connectors located above the stackup. The default is
                 ``None``, in which case they are not modeled. Options for modeling are
                 ``"Bondwire"`` and ``"Solderbump"``.
             solderbumps_modeling : str, optional
-                Method for modeling solderbumps if ``modelling="Solderbump"``.
+                Method for modeling solderbumps if ``modeling="Solderbump"``.
                 The default is ```"Boxes"``. Options are ``"Boxes"``, ``"Cylinders"``,
                 and ``"Lumped"``.
             bondwire_material : str, optional
-                Bondwire material if ``modelling="Bondwire"``. The default is
+                Bondwire material if ``modeling="Bondwire"``. The default is
                 ``"Au-Typical"``.
             bondwire_diameter : str, optional
-                Bondwires diameter if ``modelling="Bondwire".
+                Bondwires diameter if ``modeling="Bondwire".
                 The default is ``"0.05mm"``.
 
         Returns
@@ -447,11 +447,9 @@ class PCBSettingsPackageParts(object):
             ``True`` if successful, ``False`` otherwise.
         """
         valid_connectors = ["Solderbump", "Bondwire"]
-        if modelling is not None and modelling not in valid_connectors:
+        if modeling is not None and modeling not in valid_connectors:
             self._app.logger.error(
-                "{} option is not supported. Use one of the following: {}".format(
-                    modelling, ", ".join(valid_connectors)
-                )
+                "{} option is not supported. Use one of the following: {}".format(modeling, ", ".join(valid_connectors))
             )
             return False
         if bondwire_material not in self._app.materials.mat_names_aedt:
@@ -466,8 +464,8 @@ class PCBSettingsPackageParts(object):
             return False
 
         update_properties = {
-            "CreateTopSolderballs": modelling is not None,
-            "TopConnectorType": modelling,
+            "CreateTopSolderballs": modeling is not None,
+            "TopConnectorType": modeling,
             "TopSolderballsModelType": self._solderbumps_map[solderbumps_modeling],
             "BondwireMaterial": bondwire_material,
             "BondwireDiameter": bondwire_diameter,
@@ -993,21 +991,21 @@ class NativeComponentPCB(NativeComponentObject, object):
         enabled : bool
             Whether high side radiation is enabled.
         surface_material : str, optional
-            Surface material to apply. Default is "Steel-oxidised-surface".
+            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
         radiate_to_ref_temperature : bool, optional
             Whether to radiate to a reference temperature instead of objects in the model.
-            Default is False.
+            Default is ``False``.
         view_factor : float, optional
-            View factor to use for radiation computation if radiate_to_ref_temperature
-            is set to True. Default is 1.
+            View factor to use for radiation computation if ``radiate_to_ref_temperature``
+            is set to ``True``. Default is 1.
         ref_temperature : str, optional
             Reference temperature to use for radiation computation if
-            radiate_to_ref_temperatureis set to True. Default is "AmbientTemp".
+            ``radiate_to_ref_temperature`` is set to True. Default is ``"AmbientTemp"``.
 
         Returns
         -------
         bool
-            True if successful, else False.
+            ``True`` if successful, else ``False``.
         """
         high_rad = {
             "Radiate": enabled,
@@ -1038,21 +1036,21 @@ class NativeComponentPCB(NativeComponentObject, object):
         enabled : bool
             Whether high side radiation is enabled.
         surface_material : str, optional
-            Surface material to apply. Default is "Steel-oxidised-surface".
+            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
         radiate_to_ref_temperature : bool, optional
             Whether to radiate to a reference temperature instead of objects in the model.
-            Default is False.
+            Default is ``False``.
         view_factor : float, optional
-            View factor to use for radiation computation if radiate_to_ref_temperature
+            View factor to use for radiation computation if ``radiate_to_ref_temperature``
             is set to True. Default is 1.
         ref_temperature : str, optional
             Reference temperature to use for radiation computation if
-            radiate_to_ref_temperatureis set to True. Default is "AmbientTemp".
+            ``radiate_to_ref_temperature`` is set to ``True``. Default is ``"AmbientTemp"``.
 
         Returns
         -------
         bool
-            True if successful, else False.
+            ``True`` if successful, else ``False``.
         """
         low_side = {
             "Radiate": enabled,
@@ -1105,12 +1103,12 @@ class NativeComponentPCB(NativeComponentObject, object):
     @preserve_partner_solution.setter
     @disable_auto_update
     def preserve_partner_solution(self, val):
-        """Set Whether to preserve parner solution.
+        """Set Whether to preserve partner solution.
 
         Parameters
         ----------
         val : bool
-            Whether to preserve parner solution.
+            Whether to preserve partner solution.
         """
         if not isinstance(val, bool):
             self._app.logger.error("Only boolean can be accepted.")
@@ -1136,7 +1134,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         Parameters
         ----------
         value : str or int
-            Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectivaly)
+            Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
         """
         if value is None:
             value = "None"
@@ -1181,35 +1179,35 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @property
     def board_cutout_material(self):
-        """Material applied to cutouts regions."""
+        """Material applied to cutout regions."""
         return self.props["NativeComponentDefinitionProvider"].get("BoardCutoutMaterial", "air ")
 
     @property
     def via_holes_material(self):
-        """Material applied to via holes regions."""
+        """Material applied to via hole regions."""
         return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
 
     @board_cutout_material.setter
     @disable_auto_update
     def board_cutout_material(self, value):
-        """Set material to apply to cutouts regions.
+        """Set material to apply to cutout regions.
 
         Parameters
         ----------
         value : str
-            Material to apply to cutouts regions.
+            Material to apply to cutout regions.
         """
         self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"] = value
 
     @via_holes_material.setter
     @disable_auto_update
     def via_holes_material(self, value):
-        """Set material to apply to via holes regions.
+        """Set material to apply to via hole regions.
 
         Parameters
         ----------
         value : str
-            Material to apply to via holes.
+            Material to apply to via hole regions.
         """
         self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"] = value
 
