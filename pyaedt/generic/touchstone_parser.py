@@ -70,7 +70,7 @@ def _parse_ports_name(file):
 
 
 class TouchstoneData(rf.Network):
-    """Contains data information from Touchstone Read call"""
+    """Contains data information from Touchstone Read call."""
 
     def __init__(self, solution_data=None, touchstone_file=None):
         if solution_data is not None:
@@ -239,7 +239,7 @@ class TouchstoneData(rf.Network):
 
         Returns
         -------
-        TouchstoneData
+        class:`pyaedt.generic.touchstone_parser.TouchstoneData`
 
         """
         ts_diff = copy(self)
@@ -309,8 +309,6 @@ class TouchstoneData(rf.Network):
 
         Parameters
         ----------
-        expressions :
-            list of Drivers to include or all nets
         tx_prefix : str
             Prefix for TX (eg. "DIE").
         rx_prefix : str
@@ -336,7 +334,7 @@ class TouchstoneData(rf.Network):
     def get_next_xtalk_index(self, tx_prefix=""):
         """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
         be used to retrieve driver names.
-        Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
+        Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"].
 
         Parameters
         ----------
@@ -448,6 +446,8 @@ class TouchstoneData(rf.Network):
             boolean. if True, the worst curve is the one with higher mean value. Default value is ``None``.
         curve_list : list
             List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
+        plot : bool, optional
+            Whether to plot or not the chart.
 
         Returns
         -------
