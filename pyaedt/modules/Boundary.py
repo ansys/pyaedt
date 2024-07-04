@@ -902,7 +902,7 @@ class PCBSettingsDeviceParts(object):
 
 
 class NativeComponentPCB(NativeComponentObject, object):
-    """Manages Native Component PCB data and execution.
+    """Manages native component PCB data and execution.
 
     Parameters
     ----------
