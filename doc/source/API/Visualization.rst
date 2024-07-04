@@ -21,6 +21,9 @@ and `pyvista <https://docs.pyvista.org/>`_.
    solutions.FfdSolutionData
 
 
+ModelPlotter is a class that benefits of `pyvista <https://docs.pyvista.org/>`_ package and allows to generate
+models and 3D plots.
+
 
 .. currentmodule:: pyaedt.generic.plot
 
@@ -31,10 +34,15 @@ and `pyvista <https://docs.pyvista.org/>`_.
    ModelPlotter
 
 
+The class TouchstoneData instead, is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_,
+
+
 .. currentmodule:: pyaedt.generic.touchstone_parser
 
 .. autoclass:: TouchstoneData
 
+
+Here an example on how to use TouchstoneData class.
 
 .. code:: python
 
