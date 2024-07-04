@@ -11,15 +11,15 @@ automatized and available in PyAEDT.
 The core component is a .toml file that functions as an expressions catalog.
 It is located in ``pyaedt>misc>expression_catalog.toml`` and the content for each expression is the following:
 
-.. image:: ../../../_static/extensions/expressions_catalog.png
-  :width: 800
-  :alt: Expressions catalog
+  .. image:: ../../../_static/extensions/expressions_catalog.png
+    :width: 800
+    :alt: Expressions catalog
 
 - ``Description``: The name that will be displayed in the UI:
 
-.. image:: ../../../_static/extensions/advanced_fields_calc_1.png
-  :width: 800
-  :alt: Advanced Fields Calculator
+  .. image:: ../../../_static/extensions/advanced_fields_calc_1.png
+    :width: 800
+    :alt: Advanced Fields Calculator
 
 - ``Operations``: List of operations to perform to compute the expression.
 
