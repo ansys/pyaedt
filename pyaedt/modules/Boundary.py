@@ -400,14 +400,14 @@ class PCBSettingsPackageParts(object):
         Parameters
         ----------
         modelling : str, optional
-            Specifies whether the solderballs located below the stackup are modeled,
-            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
-            Default is ``None`` in which case they are not modeled.
+            Method for modeling solderballs located below the stackup. The default is
+            ``None``, in which case they are not modeled. Options for modeling are 
+            ``"Boxes"``, ``"Cylinders"``, and ``"Lumped"``.
 
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         update_properties = {
             "CreateBottomSolderballs": modelling is not None,
@@ -432,24 +432,24 @@ class PCBSettingsPackageParts(object):
         Parameters
         ----------
             modelling : str, optional
-                Specifies whether the connectors located above the stackup are modeled,
-                and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
-                Default is ``None`` in which case they are not modeled.
+                Method for modeling connectors located above the stackup. The default is
+                ``None``, in which case they are not modeled. Options for modeling are
+                ``"Bondwire"`` and ``"Solderbump"``.
             solderbumps_modeling : str, optional
-                Specifies how to model solderbumps if ``modelling`` is set to ``"Solderbump"``.
-                Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
-                Default is ``"Boxes"``.
+                Method for modeling solderbumps if ``modelling="Solderbump"``.
+                The default is ```"Boxes"``. Options are ``"Boxes"``, ``"Cylinders"``,
+                and ``"Lumped"``.
             bondwire_material : str, optional
-                Specifies bondwires material if ``modelling`` is set to ``"Bondwire"``.
-                Default is ``"Au-Typical"``.
+                Bondwire material if ``modelling="Bondwire"``. The default is
+                ``"Au-Typical"``.
             bondwire_diameter : str, optional
-                Specifies bondwires diameter if ``modelling`` is set to ``"Bondwire"``.
-                Default is ``"0.05mm"``.
+                Bondwires diameter if ``modelling="Bondwire".
+                The default is ``"0.05mm"``.
 
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         valid_connectors = ["Solderbump", "Bondwire"]
         if modelling is not None and modelling not in valid_connectors:
@@ -508,7 +508,7 @@ class PCBSettingsDeviceParts(object):
     @property
     @pyaedt_function_handler()
     def simplify_parts(self):
-        """Get whether parts are simplified  as cuboid."""
+        """Get whether parts are simplified as cuboid."""
         return self.pcb.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"]
 
     @simplify_parts.setter
@@ -635,7 +635,7 @@ class PCBSettingsDeviceParts(object):
         Parameters
         ----------
         object_type : str or list
-            Types of object to filter. Accepted types are ``"Capacitors"``, ``"Inductors"``, ``"Resistors"``.
+            Types of object to filter. Options are ``"Capacitors"``, ``"Inductors"``, and ``"Resistors"``.
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
@@ -837,7 +837,7 @@ class PCBSettingsDeviceParts(object):
         part : str
             Part name of the definition to override.
         filter_component : bool, optional
-            Whether to filter out the component. Default is ``False``.
+            Whether to filter out the component. The default is ``False``.
         power : str, optional
             Override component power. Default is ``None``, in which case the power is not overridden.
         r_jb : str, optional
@@ -850,11 +850,11 @@ class PCBSettingsDeviceParts(object):
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         if self._app.settings.aedt_version < "2024.2":
             self._app.logger.error(
-                "This method is available only with AEDT 24R2 or newer. Use override_instance instead."
+                "This method is available only with AEDT 2024 R2 or later. Use 'override_instance()' method instead."
             )
             return False
         return self._override_common(  # pragma : no cover
@@ -880,15 +880,15 @@ class PCBSettingsDeviceParts(object):
         reference_designator : str
             Reference designator of the instance to override.
         filter_component : bool, optional
-            Whether to filter out the component. Default is ``False``.
+            Whether to filter out the component. The default is ``False``.
         power : str, optional
-            Override component power. Default is ``None``, in which case the power is not overridden.
+            Override component power. The default is ``None``, in which case the power is not overridden.
         r_jb : str, optional
-            Override component r_jb value. Default is ``None``, in which case the resistance is not overridden.
+            Override component r_jb value. The default is ``None``, in which case the resistance is not overridden.
         r_jc : str, optional
-            Override component r_jc value. Default is ``None``, in which case the resistance is not overridden.
+            Override component r_jc value. The default is ``None``, in which case the resistance is not overridden.
         height : str, optional
-            Override component height value. Default is ``None``, in which case the height is not overridden.
+            Override component height value. The default is ``None``, in which case the height is not overridden.
 
         Returns
         -------
@@ -922,7 +922,7 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     Examples
     --------
-    In this example, the returned object, ``par_beam`` is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
+    In this example, the returned object, ``par_beam``, is a ``pyaedt.modules.Boundary.NativeComponentObject`` instance.
     >>> from pyaedt import Icepak
     >>> ipk = Icepak(solution_type="SBR+")
     >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
@@ -1098,7 +1098,7 @@ class NativeComponentPCB(NativeComponentObject, object):
             Whether to force source solution.
         """
         if not isinstance(val, bool):
-            self._app.logger.error("Only boolean can be accepted.")
+            self._app.logger.error("Only Boolean value can be accepted.")
             return
         return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
 
@@ -1152,7 +1152,7 @@ class NativeComponentPCB(NativeComponentObject, object):
             self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
         else:
             self._app.logger.error(
-                'Invalid part choice. Accepted options are "None", "Device", "Package" (or 0,1,2 respectively)'
+                'Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectively).'
             )
 
     @pyaedt_function_handler()
