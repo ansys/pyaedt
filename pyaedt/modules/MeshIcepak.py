@@ -1104,7 +1104,7 @@ class IcepakMesh(object):
                                     "Icepak",
                                 )
                             )
-            else:
+            else:  # pragma : no cover
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                     if isinstance(
                         dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
@@ -1147,7 +1147,7 @@ class IcepakMesh(object):
                                 if el in meshop.__dict__:
                                     meshop.__dict__[el] = dict_prop[el]
                             meshops.append(meshop)
-            else:
+            else:  # pragma : no cover
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshRegions"]:
                     if isinstance(dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)):
                         dict_prop = dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
