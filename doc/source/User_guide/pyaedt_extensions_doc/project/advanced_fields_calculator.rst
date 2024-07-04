@@ -1,15 +1,15 @@
-Advanced Fields Calculator
+Advanced fields calculator
 ==========================
 
 The Advanced Fields Calculator provides an additional pool of custom expressions appropriate for each solver.
-These expressions can be used with the already existing ones available in the AEDT Fields Calculator.
+These expressions can be used with the ones already available in the AEDT Fields Calculator.
 These two libraries combined together provide a way to conveniently calculate frequently used quantities.
 
 Operations such as adding, loading, and deleting named expressions and creating CLC expressions files are now
 automated and available in PyAEDT.
 
 The core component is a TOML file (``expression_catalog.toml``) that functions as an expressions catalog.
-It is located in the ``pyaedt>misc`` directory and looks like this:
+It is located in the ``misc`` directory of the codebase and looks like this:
 
   .. image:: ../../../_static/extensions/expressions_catalog.png
     :width: 800
