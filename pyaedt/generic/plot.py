@@ -456,7 +456,9 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
 
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    ax.set_xlabel(xlabel, labelpad=20)
+    ax.set_ylabel(ylabel, labelpad=20)
+    ax.set_title(title)
     ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.8)
 
     if snapshot_path:

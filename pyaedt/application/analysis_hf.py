@@ -487,6 +487,9 @@ class FfdSolutionData(object):
         # Public
         self.output_dir = os.path.dirname(input_file)
 
+        # Protected
+        self._mesh = None
+
         if input_file_format in ["txt", "xml"]:
             if not variation:
                 variation = ""
@@ -525,15 +528,14 @@ class FfdSolutionData(object):
         self.__taper = None
         self.__model_info = {}
         self.__is_array = False
-        self.__component_objects = []
-        self.__array_dimension = []
-        self.__cell_position = []
-        self.__lattice_vector = []
+        self.__component_objects = None
+        self.__array_dimension = None
+        self.__cell_position = None
+        self.__lattice_vector = None
         self.__a_min = sys.maxsize
         self.__a_max = 0
         self.__b_min = sys.maxsize
         self.__b_max = 0
-        self.__mesh = None
         self.__touchstone_data = None
         self.__weight = {}
         self.__phi_scan = 0.0
@@ -556,33 +558,37 @@ class FfdSolutionData(object):
             radiated_power = element_props["radiated_power"]
 
             new_incident_power = {}
-            for power_freq in incident_power:
-                value = incident_power[power_freq]
-                frequency = power_freq
-                if isinstance(power_freq, str):
-                    frequency, units = decompose_variable_value(power_freq)
-                    if units:
-                        frequency = unit_converter(frequency, "Freq", units, "Hz")
 
-                new_incident_power[frequency] = value
+            if incident_power:
+                for power_freq in incident_power:
+                    value = incident_power[power_freq]
+                    frequency = power_freq
+                    if isinstance(power_freq, str):
+                        frequency, units = decompose_variable_value(power_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+
+                    new_incident_power[frequency] = value
 
             new_radiated_power = {}
-            for power_freq in radiated_power:
-                frequency = power_freq
-                if isinstance(power_freq, str):
-                    frequency, units = decompose_variable_value(power_freq)
-                    if units:
-                        frequency = unit_converter(frequency, "Freq", units, "Hz")
-                new_radiated_power[frequency] = radiated_power[power_freq]
+            if radiated_power:
+                for power_freq in radiated_power:
+                    frequency = power_freq
+                    if isinstance(power_freq, str):
+                        frequency, units = decompose_variable_value(power_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    new_radiated_power[frequency] = radiated_power[power_freq]
 
             new_accepted_power = {}
-            for power_freq in accepted_power:
-                frequency = power_freq
-                if isinstance(power_freq, str):
-                    frequency, units = decompose_variable_value(power_freq)
-                    if units:
-                        frequency = unit_converter(frequency, "Freq", units, "Hz")
-                new_accepted_power[frequency] = accepted_power[power_freq]
+            if accepted_power:
+                for power_freq in accepted_power:
+                    frequency = power_freq
+                    if isinstance(power_freq, str):
+                        frequency, units = decompose_variable_value(power_freq)
+                        if units:
+                            frequency = unit_converter(frequency, "Freq", units, "Hz")
+                    new_accepted_power[frequency] = accepted_power[power_freq]
 
             self.__element_info[element_name] = {
                 "pattern_file": pattern_file,
@@ -615,16 +621,16 @@ class FfdSolutionData(object):
         if not touchstone_file:
             touchstone_file = metadata_touchstone
 
-        if touchstone_file and os.path.exists(touchstone_file):
+        if touchstone_file and os.path.isfile(touchstone_file):
             self.__touchstone_data = read_touchstone(touchstone_file)
 
         required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
         if all(key in self.metadata for key in required_array_keys):
             self.__is_array = True
-            self.__component_objects.append(self.metadata["component_objects"])
-            self.__array_dimension.append(self.metadata["array_dimension"])
-            self.__cell_position.append(self.metadata["cell_position"])
-            self.__lattice_vector.append(self.metadata["lattice_vector"])
+            self.__component_objects = self.metadata["component_objects"]
+            self.__array_dimension = self.metadata["array_dimension"]
+            self.__cell_position = self.metadata["cell_position"]
+            self.__lattice_vector = self.metadata["lattice_vector"]
         else:
             self.__is_array = False
 
@@ -646,11 +652,6 @@ class FfdSolutionData(object):
             self.__a_max = max(self.__a_max, row - 1)
             self.__b_min = min(self.__b_min, col - 1)
             self.__b_max = max(self.__b_max, col - 1)
-
-    @property
-    def mesh(self):
-        """Mesh"""
-        return self.__mesh
 
     @property
     def phi_scan(self):
@@ -1222,7 +1223,7 @@ class FfdSolutionData(object):
         theta = np.deg2rad(theta)
         phi = np.deg2rad(phi)
 
-        lattice_vector = self.__lattice_vector[self.__freq_index]
+        lattice_vector = self.__lattice_vector
 
         a_x, a_y, b_x, b_y = [lattice_vector[0], lattice_vector[1], lattice_vector[3], lattice_vector[4]]
 
@@ -1241,12 +1242,14 @@ class FfdSolutionData(object):
             amplitude = self.magnitude[element_name]
             phase = self.phase[element_name]
             if self.__is_array:
-                index_port = self.get_port_index(element_name)
+                index_port = self.get_port_index()
                 index_str = index_port[element_name]
                 a = index_str[0] - 1
                 b = index_str[1] - 1
-                phase = self.__phase_shift_steering(a, b, self.theta_scan, self.phi_scan)
-                amplitude = self.__assign_weight_taper(a=a, b=b)
+                phase_steering = self.__phase_shift_steering(a, b, self.theta_scan, self.phi_scan)
+                phase += phase_steering
+                amplitude_taper = self.__assign_weight_taper(a=a, b=b)
+                amplitude *= amplitude_taper
 
             self.__weight[element_name] = np.sqrt(amplitude) * np.exp(1j * np.deg2rad(phase))
             self.__magnitude[element_name] = amplitude
@@ -1659,7 +1662,7 @@ class FfdSolutionData(object):
             self.logger.error("Far field quantity is not available.")
             return False
 
-        self.__mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
+        self._mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
         rotation_euler = self.__rotation_to_euler_angles(rotation) * 180 / np.pi
 
@@ -1733,6 +1736,7 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self.__get_geometry()
+
         data = conversion_function(farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
             self.logger.error("Wrong format quantity")
@@ -1761,7 +1765,7 @@ class FfdSolutionData(object):
             if not scale_farfield:
                 if self.__is_array:
                     slider_max = int(
-                        np.ceil(np.abs(np.max(self.__array_dimension[self.__freq_index]) / np.min(np.abs(p.bounds))))
+                        np.ceil(np.abs(np.max(self.__array_dimension) / np.min(np.abs(p.bounds))))
                     )
                 else:  # pragma: no cover
                     slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
@@ -1914,12 +1918,12 @@ class FfdSolutionData(object):
         obj_meshes = []
         if self.__is_array:
             non_array_geometry = model_info.copy()
-            components_info = self.__component_objects[self.__freq_index]
-            array_dimension = self.__array_dimension[self.__freq_index]
+            components_info = self.__component_objects
+            array_dimension = self.__array_dimension
             first_value = next(iter(model_info.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
-            cell_info = self.__cell_position[self.__freq_index]
+            cell_info = self.__cell_position
 
             for cell_row in cell_info:
                 for cell_col in cell_row:
@@ -1947,7 +1951,7 @@ class FfdSolutionData(object):
                     row, col = cell_col[3]
 
                     # Perpendicular lattice vector
-                    if self.__lattice_vector[self.__freq_index][0] != 0:
+                    if self.__lattice_vector[0] != 0:
                         pos_x = (row - 1) * array_dimension[2] - array_dimension[0] / 2 + array_dimension[2] / 2
                         pos_y = (col - 1) * array_dimension[3] - array_dimension[1] / 2 + array_dimension[3] / 2
                     else:
@@ -2013,13 +2017,8 @@ class FfdSolutionData(object):
         return obj_meshes
 
     @pyaedt_function_handler()
-    def get_port_index(self, port_name=None):
-        """Get index of a given port.
-
-        Parameters
-        ----------
-        port_name : str or list
-            Port name or a list of port names.
+    def get_port_index(self):
+        """Get port indices.
 
         Returns
         -------
@@ -2028,10 +2027,7 @@ class FfdSolutionData(object):
         """
         port_index = {}
 
-        if not port_name:
-            port_name = self.all_element_names
-        elif isinstance(port_name, str):
-            port_name = [port_name]
+        port_name = self.all_element_names
 
         index_offset = 0
         if self.__is_array:
@@ -2143,7 +2139,7 @@ class FfdSolutionDataExporter:
         self.setup_name = setup_name
 
         if not variations:
-            variations = self.available_variations.nominal_w_values_dict_w_dependent
+            variations = self.__app.available_variations.nominal_w_values_dict_w_dependent
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
@@ -2442,7 +2438,7 @@ class FfdSolutionDataExporter:
                         frequency, units = decompose_variable_value(i_freq)
                         if units:
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
-                    incident_power[frequency] = i_power_value
+                    incident_power[frequency] = float(i_power_value)
 
                 radiated_power = {}
                 for i_freq, i_power_value in metadata["radiated_power"].items():
@@ -2451,7 +2447,7 @@ class FfdSolutionDataExporter:
                         frequency, units = decompose_variable_value(i_freq)
                         if units:
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
-                    radiated_power[frequency] = i_power_value
+                    radiated_power[frequency] = float(i_power_value)
 
                 accepted_power = {}
                 for i_freq, i_power_value in metadata["accepted_power"].items():
@@ -2460,7 +2456,7 @@ class FfdSolutionDataExporter:
                         frequency, units = decompose_variable_value(i_freq)
                         if units:
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
-                    accepted_power[frequency] = i_power_value
+                    accepted_power[frequency] = float(i_power_value)
 
                 pattern = {
                     "file_name": metadata["file_name"],
@@ -2500,6 +2496,14 @@ class FfdSolutionDataExporter:
                         file_name = antenna_metadata[1]
                         if ".ffd" not in file_name:
                             file_name = file_name + ".ffd"
+                        incident_power = None
+                        radiated_power = None
+                        accepted_power = None
+                        if power:
+                            incident_power = power[element_name]["IncidentPower"]
+                            radiated_power = power[element_name]["RadiatedPower"]
+                            accepted_power = power[element_name]["AcceptedPower"]
+
                         pattern = {
                             "file_name": file_name,
                             "location": [
@@ -2507,12 +2511,13 @@ class FfdSolutionDataExporter:
                                 float(antenna_metadata[3]),
                                 float(antenna_metadata[4]),
                             ],
-                            "incident_power": power[element_name]["IncidentPower"],
-                            "radiated_power": power[element_name]["RadiatedPower"],
-                            "accepted_power": power[element_name]["AcceptedPower"],
+                            "incident_power": incident_power,
+                            "radiated_power": radiated_power,
+                            "accepted_power": accepted_power,
                         }
                         items["element_pattern"][antenna_metadata[0]] = pattern
 
+        items["model_info"] = []
         if model_info:
             if "object_list" in model_info:
                 items["model_info"] = model_info["object_list"]
@@ -2520,7 +2525,7 @@ class FfdSolutionDataExporter:
             required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
 
             if all(key in model_info for key in required_array_keys):
-                items["component_objects"] = model_info["object_list"]
+                items["component_objects"] = model_info["component_objects"]
                 items["cell_position"] = model_info["cell_position"]
                 items["array_dimension"] = model_info["array_dimension"]
                 items["lattice_vector"] = model_info["lattice_vector"]
@@ -2633,11 +2638,11 @@ class UpdateBeamForm:
     """
 
     @pyaedt_function_handler(farfield_quantity="quantity")
-    def __init__(self, farfield_data, farfield_quantity="RealizedGain", quantity_format="abs"):
-        self.output = farfield_data.mesh
+    def __init__(self, ff, farfield_quantity="RealizedGain", quantity_format="abs"):
+        self.output = ff._mesh
         self.__phi = 0
         self.__theta = 0
-        self.farfield_data = farfield_data
+        self.ff = ff
         self.quantity = farfield_quantity
         self.quantity_format = quantity_format
 
@@ -2645,79 +2650,17 @@ class UpdateBeamForm:
     def __update_both(self):
         """Update far field."""
         self.ff.__farfield_data = self.ff.combine_farfield(phi_scan=self.__phi, theta_scan=self.__theta)
-        self.ff.__mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
-        self.output.copy_from(self.ff.mesh)
-        return True
+        self.ff._mesh = self.ff.get_far_field_mesh(self.quantity, self.quantity_format)
+        self.output.copy_from(self.ff._mesh)
 
     @pyaedt_function_handler()
     def update_phi(self, phi):
         """Update the Phi value."""
         self.__phi = phi
-        return self.__update_both()
+        self.__update_both()
 
     @pyaedt_function_handler()
     def update_theta(self, theta):
         """Update the Theta value."""
         self.__theta = theta
-        return self.__update_both()
-
-
-def phase_expression(m, n, theta_name="theta_scan", phi_name="phi_scan"):
-    """Return an expression for the source phase angle in a rectangular antenna array.
-
-    Parameters
-    ----------
-    m : int, required
-        Index of the rectangular antenna array element in the x direction.
-    n : int, required
-        Index of the rectangular antenna array element in the y direction.
-    theta_name : str, optional
-        Postprocessing variable name in HFSS to use for the
-        theta component of the phase angle expression. The default is ``"theta_scan"``.
-    phi_name : str, optional
-        Postprocessing variable name in HFSS to use to generate
-        the phi component of the phase angle expression. The default is ``"phi_scan"``
-
-    Returns
-    -------
-    str
-        Phase angle expression for the (m,n) source of
-        the (m,n) antenna array element.
-
-    """
-    # px is the term for the phase variation in the x direction.
-    # py is the term for the phase variation in the y direction.
-
-    if n > 0:
-        add_char = " + "
-    else:
-        add_char = " - "
-    if m == 0:
-        px = ""
-    elif m == -1:
-        px = "-pi*sin(theta_scan)*cos(phi_scan)"
-    elif m == 1:
-        px = "pi*sin(theta_scan)*cos(phi_scan)"
-    else:
-        px = str(m) + "*pi*sin(theta_scan)*cos(phi_scan)"
-    if n == 0:
-        py = ""
-    elif n == -1 or n == 1:
-        py = "pi*sin(theta_scan)*sin(phi_scan)"
-
-    else:
-        py = str(abs(n)) + "*pi*sin(theta_scan)*sin(phi_scan)"
-    if m == 0:
-        if n == 0:
-            return "0"
-        elif n < 0:
-            return "-" + py
-        else:
-            return py
-    elif n == 0:
-        if m == 0:
-            return "0"
-        else:
-            return px
-    else:
-        return px + add_char + py
+        self.__update_both()

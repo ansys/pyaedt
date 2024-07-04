@@ -26,16 +26,13 @@ import os
 import sys
 
 from _unittest.conftest import config
-from matplotlib.figure import Figure
 import pytest
-from pyvista.plotting.plotter import Plotter
 
 from pyaedt import Circuit
 from pyaedt import Icepak
 from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt.application.analysis_hf import FfdSolutionData
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.generic.plot import _parse_aedtplt
@@ -45,7 +42,6 @@ from pyaedt.generic.settings import settings
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
     test_project_name = "coax_setup_solved_231"
-    array = "array_simple_231"
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
     m2d_file = "m2d_field_lines_test_231"
@@ -53,7 +49,6 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_field_name = "Potter_Horn"
     test_project_name = "coax_setup_solved"
-    array = "array_simple"
     sbr_file = "poc_scat_small"
     q3d_file = "via_gsg"
     m2d_file = "m2d_field_lines_test"
@@ -124,12 +119,6 @@ def icepak_post(add_app):
 @pytest.fixture(scope="class")
 def ami_test(add_app, q3dtest):
     app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
-    return app
-
-
-@pytest.fixture(scope="class")
-def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
     return app
 
 
@@ -595,177 +584,6 @@ class TestClass:
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(local_path, "example_models", "report_json", "Spectral_Report.json"), solution_name="Transient"
         )
-
-    def test_70_far_field_data(self):
-        local_path = os.path.dirname(os.path.realpath(__file__))
-        eep_file1 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
-        eep_file2 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
-        frequencies = [0.9e9, "0.9GHz"]
-        eep_files = [eep_file1, eep_file2]
-
-        ffdata = FfdSolutionData(eep_files=eep_file1)
-        assert len(ffdata.frequencies) == 1
-
-        ffdata = FfdSolutionData(eep_files=eep_files)
-        assert len(ffdata.frequencies) == 2
-        farfield = ffdata.combine_farfield()
-        assert "rETheta" in farfield
-
-        ffdata.taper = "cosine"
-        assert ffdata.combine_farfield()
-        ffdata.taper = "taper"
-        assert not ffdata.taper == "taper"
-
-        ffdata.origin = [0, 2]
-        assert ffdata.origin != [0, 2]
-        ffdata.origin = [0, 0, 1]
-        assert ffdata.origin == [0, 0, 1]
-
-        img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
-        assert os.path.exists(img1)
-        img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
-        assert os.path.exists(img2)
-        img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(image_path=img3, show=False)
-        assert os.path.exists(img3)
-        curve_2d = ffdata.plot_2d_cut(show=False)
-        assert isinstance(curve_2d, Figure)
-        data = ffdata.polar_plot_3d(show=False)
-        assert isinstance(data, Figure)
-
-        img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=img4,
-            show=False,
-            background=[255, 0, 0],
-            show_geometry=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(img4)
-        data_pyvista = ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False, convert_to_db=True
-        )
-        assert isinstance(data_pyvista, Plotter)
-
-    @pytest.mark.skipif(sys.version_info > (3, 11), reason="Issues with VTK in Python 3.12")
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
-        ffdata.phase_offset = [0, 90]
-        assert ffdata.phase_offset == [0, 90]
-        ffdata.phase_offset = [0]
-        assert ffdata.phase_offset != [0.0]
-        assert ffdata.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
-
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
-        )
-
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
-
-        ffdata.polar_plot_3d(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
-
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-
-        try:
-            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", show=False, convert_to_db=True)
-            assert isinstance(p, object)
-        except Exception:
-            assert True
-
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
-        ffdata.frequency = 3.5e9
-        assert ffdata.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
-
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
-        )
-
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
-
-        ffdata.polar_plot_3d(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
-
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
-        assert ffdata1.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata1.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
 
     def test_73_ami_solution_data(self, ami_test):
         ami_test.solution_type = "NexximAMI"

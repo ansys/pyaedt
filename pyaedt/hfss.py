@@ -5606,7 +5606,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if setup in self.existing_analysis_sweeps and not frequencies:
             trace_name = "mag(rETheta)"
             farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
-            if farfield_data and getattr(farfield_data, "primary_sweep_values", None):
+            if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
                 frequencies = farfield_data.primary_sweep_values
                 frequency_units = self.odesktop.GetDefaultUnit("Frequency")
                 frequencies = [str(freq) + frequency_units for freq in frequencies]
