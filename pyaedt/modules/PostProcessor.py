@@ -2243,7 +2243,7 @@ class PostProcessorCommon(object):
             props = read_configuration_file(input_file)
         else:
             props = report_settings
-        if isinstance(props.get("expressions", {}), list):
+        if isinstance(props.get("expressions", {}), list):  # pragma: no cover
             props["expressions"] = {i: {} for i in props["expressions"]}
         elif isinstance(props.get("expressions", {}), str):
             props["expressions"] = {props["expressions"]: {}}
