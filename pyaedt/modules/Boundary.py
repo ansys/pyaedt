@@ -547,7 +547,7 @@ class PCBSettingsDeviceParts(object):
         """Minimum component footprint for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         if self._app.settings.aedt_version < "2024.2":
@@ -567,7 +567,7 @@ class PCBSettingsDeviceParts(object):
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return
         if self._app.settings.aedt_version < "2024.2":
@@ -586,7 +586,7 @@ class PCBSettingsDeviceParts(object):
         """Minimum component power for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         return self.filters.get("Power", {}).get("Value")
@@ -604,7 +604,7 @@ class PCBSettingsDeviceParts(object):
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -621,7 +621,7 @@ class PCBSettingsDeviceParts(object):
         """Types of component that are filtered."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         return self.filters.get("Types")
@@ -639,7 +639,7 @@ class PCBSettingsDeviceParts(object):
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return
         if not isinstance(object_type, list):
@@ -663,7 +663,7 @@ class PCBSettingsDeviceParts(object):
         """Minimum component height for filtering."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         return self.filters.get("Height", {}).get("Value", None)
@@ -681,7 +681,7 @@ class PCBSettingsDeviceParts(object):
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -698,7 +698,7 @@ class PCBSettingsDeviceParts(object):
         """Whether 2d objects are filtered."""
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         return self.filters.get("Exclude2DObjects", False)
@@ -716,7 +716,7 @@ class PCBSettingsDeviceParts(object):
         """
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return
         new_filters = self.pcb.props["NativeComponentDefinitionProvider"].get("Filters", [])
@@ -732,7 +732,7 @@ class PCBSettingsDeviceParts(object):
         """All active filters."""
         if self.pcb.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return None
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
@@ -782,7 +782,7 @@ class PCBSettingsDeviceParts(object):
     ):
         if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "Device parts modeling is not active.  No filtering or override option is available."
             )
             return False
         override_component = (
