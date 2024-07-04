@@ -396,7 +396,7 @@ class PCBSettingsPackageParts(object):
         ----------
         modelling : str, optional
             Method for modeling solderballs located below the stackup. The default is
-            ``None``, in which case they are not modeled. Options for modeling are 
+            ``None``, in which case they are not modeled. Options for modeling are
             ``"Boxes"``, ``"Cylinders"``, and ``"Lumped"``.
 
         Returns
