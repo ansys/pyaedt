@@ -2245,7 +2245,7 @@ class PostProcessorCommon(object):
             props = report_settings
         if isinstance(props.get("expressions", {}), list):  # pragma: no cover
             props["expressions"] = {i: {} for i in props["expressions"]}
-        elif isinstance(props.get("expressions", {}), str):
+        elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
             props["expressions"] = {props["expressions"]: {}}
         _dict_items_to_list_items(props, "expressions")
         if not solution_name:
