@@ -28,7 +28,7 @@ Project extension apply to all extensions that are applicable for all AEDT appli
 
             Import a Nastran or STL file in any 3D modeler application.
 
-   .. grid-item-card:: Configure Layout
+   .. grid-item-card:: Configure layout
             :link: pyaedt_extensions_doc/project/advanced_fields_calculator
             :link-type: doc
 

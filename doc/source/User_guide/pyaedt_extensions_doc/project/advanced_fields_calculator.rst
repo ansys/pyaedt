@@ -2,20 +2,20 @@ Advanced Fields Calculator
 ==========================
 
 The Advanced Fields Calculator provides an additional pool of custom expressions appropriate for each solver.
-These expressions sum up on top of the already existing ones available in the AEDT Fields Calculator.
+These expressions can be used with the already existing ones available in the AEDT Fields Calculator.
 These two libraries combined together provide a way to conveniently calculate frequently used quantities.
 
-Operations such as adding, loading and deleting named expressions, as well as creating .clc expressions files, is now
-automatized and available in PyAEDT.
+Operations such as adding, loading, and deleting named expressions and creating CLC expressions files are now
+automated and available in PyAEDT.
 
-The core component is a .toml file that functions as an expressions catalog.
-It is located in ``pyaedt>misc>expression_catalog.toml`` and the content for each expression is the following:
+The core component is a TOML file (``expression_catalog.toml``) that functions as an expressions catalog.
+It is located in the ``pyaedt>misc`` directory and looks like this:
 
 .. image:: ../../../_static/extensions/expressions_catalog.png
   :width: 800
   :alt: Expressions catalog
 
-- ``Description``: The name that will be displayed in the UI:
+- ``Description``: Name to display in the UI.
 
 .. image:: ../../../_static/extensions/advanced_fields_calc_1.png
   :width: 800
@@ -23,10 +23,10 @@ It is located in ``pyaedt>misc>expression_catalog.toml`` and the content for eac
 
 - ``Operations``: List of operations to perform to compute the expression.
 
-We tend to divide expressions in ``general`` or ``non-general`` expressions.
+Expressions tend to be classified as either *general* or *non-general*.
 
-- For general expressions is intended expressions that are independent from a geometry definition.
-In the previous screenshot, to calculate the magnetic field tangential component, there is no need to specify a
+General expressions are generally independent of a geometry definition.
+For example, in the previous image, to calculate the magnetic field tangential component, there is no need to specify a
 geometry assignment.
 Whereas in the following example, to calculate the voltage drop along a line, the line assignment is needed for the computation:
 
@@ -34,8 +34,8 @@ Whereas in the following example, to calculate the voltage drop along a line, th
   :width: 800
   :alt: Voltage drop line
 
-To help the user understand this difference we implemented a method called ``is_general_expression(expression_name)``.
-This returns either True if the expression is general or False otherwise.
+To help you understand this difference, a method named ``is_general_expression(expression_name)`` is implemented.
+This method returns ``True`` if the expression is general or ``False`` otherwise.
 
 It is possible to add named expressions dependent to one another:
 
@@ -43,9 +43,9 @@ It is possible to add named expressions dependent to one another:
   :width: 800
   :alt: Tangential stress tensor
 
-There is also the opportunity for the user to add an external .toml file (that must be placed in PersonalLib folder)
-to load custom expressions. This could be especially useful if the user does not want to share expressions.
-To load a personalized .toml file use ``load_expression_file(toml_file_path)``.
+It is also possible for you to add an external TOML file in the ``PersonalLib`` folder
+to load custom expressions. This could be especially useful if you do not want to share expressions.
+To load a personalized TOML file, use the ``load_expression_file(toml_file_path)`` method.
 
 Finally, this code shows how you can use the Advanced Field Calculator:
 
