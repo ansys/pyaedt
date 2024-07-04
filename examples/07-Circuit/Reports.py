@@ -87,10 +87,9 @@ Image(out)
 ###############################################################################
 # Create transient report
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Property dictionary can be customized in any aspect and new report can be created easily.
-# In this example the curve name is customized.
-# Expressions key can be a list of expressions or a dictionary containing expression to plot and line properties.
-# For example:
+# You can customize any aspect of the property dictionary and easily create a new report.
+# The following code customizes the curve name.
+# The expressions key can be a list of expressions as follows or a dictionary containing the expressions to plot and line properties.
 # props["expressions"] = { "V(Battery)" :
 #                           {"color": [0, 255, 0], "trace_style": "Solid", "width": 1, "trace_type": "Continuous"}}
 
