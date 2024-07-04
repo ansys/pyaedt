@@ -122,6 +122,8 @@ doc-no-examples = [
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.7",
+    "matplotlib>=3.5.0,<3.9",
+    "scikit-rf>=0.30.0,<1.2",
 ]
 all = [
     "imageio>=2.30.0,<2.35",
