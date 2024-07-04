@@ -1,4 +1,4 @@
-Command Line Extension Launch
+Command line extension launch
 =============================
 Every extension can also launch the extension user interface from the terminal:
 
