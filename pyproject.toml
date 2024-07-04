@@ -154,7 +154,7 @@ installer = [
     "utm",
     "vtk==9.2.6; python_version < '3.12'",
     "jupyterlab>=3.6.0,<4.3",
-    "ipython>=8.26.0,<8.27",
+    "ipython>=7.30.0,<8.27",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
