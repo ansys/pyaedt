@@ -65,11 +65,13 @@ It is possible to initialize the class manually or through a method:
 
 .. code:: python
 
-    bc_transient = ipk.create_sinusoidal_transient_assignment(vertical_offset="1W", vertical_scaling="3", period="2", period_offset="0.5s")
+    bc_transient = ipk.create_sinusoidal_transient_assignment(vertical_offset="1W", vertical_scaling="3",
+                                                                  period="2", period_offset="0.5s")
     # bc_transient will be SinusoidalDictionary type
     ipk.assign_solid_block("Cylinder1", bc_transient)
 
     #or
 
-    bc_transient = SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)(vertical_offset="1W", vertical_scaling="3", period="2", period_offset="0.5s")
+    bc_transient = SinusoidalDictionary(vertical_offset="1W", vertical_scaling="3",
+                                            period="2", period_offset="0.5s")
     ipk.assign_solid_block("Cylinder1", bc_transient)
