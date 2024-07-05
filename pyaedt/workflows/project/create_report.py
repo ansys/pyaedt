@@ -78,7 +78,7 @@ def main(extension_args):
     report.add_toc()
     out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
     aedtapp.logger.info(f"Report Generated. {out}")
-    if is_windows:
+    if is_windows and not extension_args["is_test"]:  # pragma: no cover
         try:
             os.startfile(out)
         except Exception:  # pragma: no cover
