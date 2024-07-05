@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import shutil
 import sys
 
 # from _unittest.conftest import config
@@ -30,8 +31,7 @@ from matplotlib.figure import Figure
 import pytest
 from pyvista.plotting.plotter import Plotter
 
-from pyaedt.application.analysis_hf import FfdSolutionData
-from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.farfield_explorer import FfdSolutionData
 
 array = "array_simple_231"
 test_subfolder = "T45"
@@ -48,12 +48,54 @@ class TestClass:
     def init(self, local_scratch):
         self.local_scratch = local_scratch
 
-    def test_01_far_field_data(self, local_scratch):
+    def test_01_far_field_data_txt(self, local_scratch):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        eep_file1 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
-
+        eep_dir_original = os.path.join(local_path, "example_models", test_subfolder, "eep")
+        eep_dir = os.path.join(local_scratch.path, "eep")
+        shutil.copytree(eep_dir_original, eep_dir)
+        eep_file1 = os.path.join(eep_dir, "eep.txt")
         ffdata = FfdSolutionData(input_file=eep_file1)
+        assert os.path.isfile(ffdata.input_file)
         assert len(ffdata.frequencies) == 1
+        assert not ffdata.metadata["model_info"]
+
+        model_info = {
+            "object_list": {
+                "Cap": ["geometry\\Cap.obj", [0, 64, 0], 0.2, "mm"],
+                "WA_metal": ["geometry\\WA_metal.obj", [64, 64, 0], 0.5, "mm"],
+            }
+        }
+        ffdata = FfdSolutionData(input_file=eep_file1, model_info=model_info)
+        assert ffdata.metadata["model_info"]
+
+    def test_02_far_field_data_json(self, local_scratch):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        eep_dir_original = os.path.join(local_path, "example_models", test_subfolder, "pyaedt_metadata")
+        eep_dir = os.path.join(local_scratch.path, "pyaedt_metadata")
+        shutil.copytree(eep_dir_original, eep_dir)
+        metadata_file = os.path.join(eep_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+        assert os.path.isfile(ffdata.input_file)
+        assert len(ffdata.frequencies) == 3
+        assert ffdata.s_parameters
+        assert ffdata.incident_power == 40.0
+
+    def test_03_far_field_data_xml(self, local_scratch):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        eep_dir_original = os.path.join(local_path, "example_models", test_subfolder, "metadata")
+        eep_dir = os.path.join(local_scratch.path, "metadata")
+        shutil.copytree(eep_dir_original, eep_dir)
+        eep_file1 = os.path.join(eep_dir, "hfss_metadata.xml")
+        ffdata = FfdSolutionData(input_file=eep_file1)
+        pass
+
+    def test_04_far_field_data(self, local_scratch):
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        eep_dir_original = os.path.join(local_path, "example_models", test_subfolder, "pyaedt_metadata")
+        eep_dir = os.path.join(local_scratch.path, "pyaedt_metadata")
+        shutil.copytree(eep_dir_original, eep_dir)
+        metadata_file = os.path.join(eep_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
 
         farfield = ffdata.combine_farfield()
         assert "rETheta" in farfield
@@ -96,9 +138,7 @@ class TestClass:
         )
         assert isinstance(data_pyvista, Plotter)
 
-    @pytest.mark.skipif(sys.version_info > (3, 11), reason="Issues with VTK in Python 3.12")
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_02_antenna_plot(self, field_test):
+    def test_103_antenna_plot(self, field_test):
         ffdata = field_test.get_antenna_ffd_solution_data(sphere="3D")
         ffdata.phase_offset = [0, 90]
         assert ffdata.phase_offset == [0, 90]
@@ -155,8 +195,8 @@ class TestClass:
         except Exception:
             assert True
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_03_antenna_plot(self, array_test):
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
+    def test_103_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
         ffdata.frequency = 3.5e9
         assert ffdata.plot_farfield_contour(

@@ -5549,10 +5549,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`pyaedt.application.analysis_hf.FfdSolutionDataExporter` class,
+            :class:`pyaedt.generic.farfield_explorerf.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
-            :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
+            :class:`pyaedt.generic.farfield_explorer.FfdSolutionData` class, which is
             independent from the running HFSS instance.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``False``.
@@ -5561,7 +5561,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.application.analysis_hf.FfdSolutionDataExporter`
+        :class:`pyaedt.generic.farfield_explorer.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples
@@ -5575,8 +5575,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ffdata = hfss.get_antenna_ffd_solution_data()
         >>> ffdata.farfield_data.plot_2d_cut(primary_sweep="theta", is_polar=False, theta=0)
         """
-        from pyaedt.application.analysis_hf import FfdSolutionData
-        from pyaedt.application.analysis_hf import FfdSolutionDataExporter
+        from pyaedt.generic.farfield_explorer import FfdSolutionData
+        from pyaedt.generic.farfield_explorer import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent

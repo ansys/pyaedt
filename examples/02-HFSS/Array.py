@@ -12,7 +12,7 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 
 import os
 import pyaedt
-from pyaedt.application.analysis_hf import FfdSolutionData
+from pyaedt.generic.farfield_explorer import FfdSolutionData
 
 ##########################################################
 # Set AEDT version
@@ -118,7 +118,7 @@ hfss.release_desktop()
 # ~~~~~~~~~~~~~~~~~~~
 # Load far field data stored.
 
-ffdata = FfdSolutionData(eep_file=eep_file)
+ffdata = FfdSolutionData(input_file=eep_file)
 
 ##########################################################
 # Generate contour plot
