@@ -39,11 +39,44 @@ Plot touchstone data outside AEDT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 TouchstoneData class is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_ package and allows advanced
 touchstone post-processing.
+The following methods allows to read and check touchstone files.
 
 
 .. currentmodule:: pyaedt.generic.touchstone_parser
 
-.. autoclass:: TouchstoneData
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   read_touchstone
+   check_touchstone_files
+
+
+
+Using the above methods you are getting an object of a class TouchstoneData.
+The class TouchstoneData  is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_,
+Additional methods are added to provide easy access to touchstone curves.
+
+
+.. currentmodule:: pyaedt.generic.touchstone_parser
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   TouchstoneData.get_insertion_loss_index
+   TouchstoneData.plot_insertion_losses
+   TouchstoneData.plot
+   TouchstoneData.plot_return_losses
+   TouchstoneData.get_mixed_mode_touchstone_data
+   TouchstoneData.get_return_loss_index
+   TouchstoneData.get_insertion_loss_index_from_prefix
+   TouchstoneData.get_next_xtalk_index
+   TouchstoneData.get_fext_xtalk_index_from_prefix
+   TouchstoneData.plot_next_xtalk_losses
+   TouchstoneData.plot_fext_xtalk_losses
+   TouchstoneData.get_worst_curve
+
 
 
 Here an example on how to use TouchstoneData class.
