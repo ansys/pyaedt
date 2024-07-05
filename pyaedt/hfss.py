@@ -6492,17 +6492,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             quantities = self.post.available_report_quantities(quantities_category="Active VSWR")
             for quantity in quantities:
                 command.append("ElementPatterns:=")
-                command.append(quantity.strip("ActiveVSWR(").strip(")"))
+                command.append(quantity[len("ActiveVSWR(") : -1])
         elif "Terminal VSWR" in available_categories:  # pragma: no cover
             quantities = self.post.available_report_quantities(quantities_category="Terminal VSWR")
             for quantity in quantities:
                 command.append("ElementPatterns:=")
-                command.append(quantity.strip("VSWRt(").strip(")"))
+                command.append(quantity[len("VSWRt(") : -1])
         elif "Gamma" in available_categories:  # pragma: no cover
             quantities = self.post.available_report_quantities(quantities_category="Gamma")
             for quantity in quantities:
                 command.append("ElementPatterns:=")
-                command.append(quantity.strip("Gamma(").strip(")"))
+                command.append(quantity[len("Gamma(") : -1])
         else:  # pragma: no cover
             for excitation in self.get_all_sources():
                 command.append("ElementPatterns:=")

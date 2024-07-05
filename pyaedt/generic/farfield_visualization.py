@@ -1909,7 +1909,12 @@ class FfdSolutionDataExporter:
             available_categories = self.__app.post.available_quantities_categories()
             excitations = []
             is_power = True
-            if "Terminal VSWR" in available_categories:
+            if "Active VSWR" in available_categories:  # pragma: no cover
+                quantities = self.post.available_report_quantities(quantities_category="Active VSWR")
+                for quantity in quantities:
+                    command.append("ElementPatterns:=")
+                    command.append(quantity.strip("ActiveVSWR(").strip(")"))
+            elif "Terminal VSWR" in available_categories:
                 quantities = self.__app.post.available_report_quantities(quantities_category="Terminal VSWR")
                 for quantity in quantities:
                     excitations.append(quantity.strip("VSWRt(").strip(")"))

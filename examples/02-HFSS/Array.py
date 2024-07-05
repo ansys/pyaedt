@@ -13,6 +13,7 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 import os
 import pyaedt
 from pyaedt.generic.farfield_visualization import FfdSolutionData
+import matplotlib.pyplot as plt
 
 ##########################################################
 # Set AEDT version
@@ -85,6 +86,7 @@ setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
 
 hfss.analyze(cores=4)
+hfss.save_project()
 
 ##########################################################
 # Get far field data
@@ -121,6 +123,8 @@ hfss.release_desktop()
 
 ffdata = FfdSolutionData(input_file=eep_file)
 
+ffdata.active_s_parameters
+
 ##########################################################
 # Generate contour plot
 # ~~~~~~~~~~~~~~~~~~~~~
@@ -148,3 +152,9 @@ ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="phi", secondary_sweep
 # the Theta scan and Phi scan.
 
 ffdata.polar_plot_3d(quantity='RealizedGain')
+
+##########################################################
+# Close all matplotlib figures
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+plt.close('all')
