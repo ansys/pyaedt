@@ -18,9 +18,10 @@ and `pyvista <https://docs.pyvista.org/>`_.
 
    solutions.SolutionData
    solutions.FieldPlot
-   solutions.FfdSolutionData
 
 
+Plot 3D objects and fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 ModelPlotter is a class that benefits of `pyvista <https://docs.pyvista.org/>`_ package and allows to generate
 models and 3D plots.
 
@@ -34,7 +35,10 @@ models and 3D plots.
    ModelPlotter
 
 
-The class TouchstoneData instead, is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_,
+Plot touchstone data outside AEDT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TouchstoneData class is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_ package and allows advanced
+touchstone post-processing.
 
 
 .. currentmodule:: pyaedt.generic.touchstone_parser
@@ -57,3 +61,53 @@ Here an example on how to use TouchstoneData class.
     assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
     ...
 
+
+Farfield
+~~~~~~~~
+PyAEDT provides advanced farfield post-processing. There are two complementary classes:
+``FfdSolutionDataExporter`` and ``FfdSolutionData``.
+
+
+.. currentmodule:: pyaedt.generic.farfield_visualization
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FfdSolutionDataExporter
+   FfdSolutionData
+
+This code shows how you can get the farfield data and perform some post-processing:
+
+.. code:: python
+
+    import pyaedt
+    import os
+    from pyaedt.workflows.project.import_nastran import main
+    file_path = "my_file.stl"
+    hfss = pyaedt.Hfss()
+    # Specify the AEDT session to connect
+    os.environ["PYAEDT_SCRIPT_PORT"] = str(hfss.desktop_class.port)
+    os.environ["PYAEDT_SCRIPT_VERSION"] = hfss.desktop_class.aedt_version_id
+    # Launch extension
+    main({"file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True, "is_test": False})
+
+The following diagram shows how you can use both classes.
+
+  .. image:: ../_static/extensions/expressions_catalog.png
+    :width: 800
+    :alt: Expressions catalog
+
+Heterogeneous Data Message
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Heterogeneous Data Message (HDM) file is the file exported from SBR+ solver containing rays information.
+
+
+.. currentmodule:: pyaedt.sbrplus
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   hdm_parser.Parser
+   plot.HDMPlotter
