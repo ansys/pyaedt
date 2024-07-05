@@ -87,33 +87,33 @@ jobs:
       - name: Update pip
         run: |
           pip install --upgrade pip
-      
+
       - name: Install pyaedt and documentation dependencies
         run: |
           pip install .[doc-no-examples]
-      
+
       - name: Retrieve PyAEDT version
         id: version
         run: |
           echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
-      
+
       - name: Install doc build requirements
         run: |
           sudo apt update
           sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
-      
+
       # TODO: Update this step once pyaedt-examples is ready
       - name: Build HTML documentation without examples
         run: |
           make -C doc clean
           make -C doc html-no-examples
-      
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
           python doc/print_errors.py
-      
+
       - name: Upload HTML documentation without examples artifact
         uses: actions/upload-artifact@v3
         with:
@@ -158,26 +158,26 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-      
+
       - name: Install pyaedt and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[doc]
-      
+
       - name: Retrieve PyAEDT version
         id: version
         run: |
           .venv\Scripts\Activate.ps1
           echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
-      
+
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-      
+
       # TODO: Update this step once pyaedt-examples is ready
       # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
       - name: Build HTML documentation with examples
@@ -187,7 +187,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           .\doc\make.bat clean
           .\doc\make.bat html
-      
+
       # TODO: Keeping this commented as reminder of https://github.com/ansys/pyaedt/issues/4296
       # # Verify that sphinx generates no warnings
       # - name: Check for warnings
@@ -202,7 +202,7 @@ jobs:
         run: |
           .venv\Scripts\Activate.ps1
           .\doc\make.bat pdf
-      
+
       # - name: Add assets to HTML docs
       #   run: |
       #     zip -r documentation-html.zip ./doc/_build/html
@@ -247,27 +247,27 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-      
+
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
           pip install pytest-azurepipelines
-      
+
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-      
+
       - name: Run tests on _unittest_solvers
         env:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
           pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-      
+
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -311,20 +311,20 @@ jobs:
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-      
+
       - name: Install pyaedt and tests dependencies
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
-      
+
       - name: Run tests on _unittest_solvers
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
-      
+
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -363,20 +363,20 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-      
+
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
           pip install .[tests]
           pip install pytest-azurepipelines
-      
+
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-      
+
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
         env:
@@ -388,7 +388,7 @@ jobs:
           command: |
             .venv\Scripts\Activate.ps1
             pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
-      
+
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -432,21 +432,21 @@ jobs:
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-      
+
       - name: Install pyaedt and tests dependencies
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
-      
+
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
-      
+
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
         with:
@@ -457,7 +457,7 @@ jobs:
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
             pytest -n 2 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
-      
+
       - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -488,11 +488,11 @@ jobs:
         run: |
           $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
           $processA.WaitForExit()
-      
+
       - name: Get log content
         run: |
           get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
-      
+
       - name: Check for errors
         run: |
           $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
@@ -564,7 +564,7 @@ jobs:
           echo "Calculated VERSION_MEILI: $VERSION_MEILI"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION_MEILI=$VERSION_MEILI" >> $GITHUB_ENV
-      
+
       - name: Deploy the latest documentation index
         uses: ansys/actions/doc-deploy-index@v4
         with:
