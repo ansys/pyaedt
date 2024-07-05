@@ -149,8 +149,8 @@ class TouchstoneData(rf.Network):
         ----------
         threshold : float, int, optional
             Threshold to determine shorted ports in dB.
-        plot: bool
-            Whether to plot.
+        plot : bool, optional
+            Whether to plot. The default is ``True``.
 
         Returns
         -------
@@ -344,7 +344,7 @@ class TouchstoneData(rf.Network):
         Returns
         -------
         list
-            list of index couples representing Near End XTalks
+            List of index couples representing Near End XTalks.
 
         """
         if tx_prefix:
