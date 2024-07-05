@@ -70,8 +70,6 @@ Additional methods are added to provide easy access to touchstone curves.
    TouchstoneData.plot_next_xtalk_losses
    TouchstoneData.plot_fext_xtalk_losses
    TouchstoneData.get_worst_curve
-   read_touchstone
-   check_touchstone_files
 
 
 
