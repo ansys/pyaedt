@@ -31,7 +31,7 @@ from matplotlib.figure import Figure
 import pytest
 from pyvista.plotting.plotter import Plotter
 
-from pyaedt.generic.farfield_explorer import FfdSolutionData
+from pyaedt.generic.farfield_visualization import FfdSolutionData
 
 array = "array_simple_231"
 test_subfolder = "T45"

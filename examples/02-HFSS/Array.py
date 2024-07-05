@@ -12,7 +12,7 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 
 import os
 import pyaedt
-from pyaedt.generic.farfield_explorer import FfdSolutionData
+from pyaedt.generic.farfield_visualization import FfdSolutionData
 
 ##########################################################
 # Set AEDT version

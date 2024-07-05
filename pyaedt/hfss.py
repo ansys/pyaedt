@@ -5561,7 +5561,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`pyaedt.generic.farfield_explorer.FfdSolutionDataExporter`
+        :class:`pyaedt.generic.farfield_visualization.FfdSolutionDataExporter`
             SolutionData object.
 
         Examples
@@ -5575,8 +5575,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ffdata = hfss.get_antenna_ffd_solution_data()
         >>> ffdata.farfield_data.plot_2d_cut(primary_sweep="theta", is_polar=False, theta=0)
         """
-        from pyaedt.generic.farfield_explorer import FfdSolutionData
-        from pyaedt.generic.farfield_explorer import FfdSolutionDataExporter
+        from pyaedt.generic.farfield_visualization import FfdSolutionData
+        from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
