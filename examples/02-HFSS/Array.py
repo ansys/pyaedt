@@ -68,9 +68,8 @@ array = hfss.add_3d_component_array_from_json(dict_in)
 ##########################################################
 # Modify cells
 # ~~~~~~~~~~~~
-# Make center element passive and rotate corner elements.
+# Rotate corner elements.
 
-array.cells[1][1].is_active = False
 array.cells[0][0].rotation = 90
 array.cells[0][2].rotation = 90
 array.cells[2][0].rotation = 90
@@ -122,8 +121,6 @@ hfss.release_desktop()
 # Load far field data stored.
 
 ffdata = FfdSolutionData(input_file=eep_file)
-
-ffdata.active_s_parameters
 
 ##########################################################
 # Generate contour plot
