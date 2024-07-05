@@ -79,7 +79,7 @@ def main(extension_args):
     out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
     aedtapp.logger.info(f"Report Generated. {out}")
     if is_windows and not extension_args["is_test"]:  # pragma: no cover
-        try:
+        try:  # nosec
             os.startfile(out)
         except Exception:  # pragma: no cover
             aedtapp.logger.warning(f"Failed to open {out}")
