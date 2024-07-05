@@ -92,7 +92,7 @@ hfss.analyze(cores=4)
 # Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_ffd_solution_data(frequencies=[5e9], setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
+ffdata = hfss.get_antenna_ffd_solution_data(setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
 
 ##########################################################
 # Generate contour plot
@@ -100,7 +100,8 @@ ffdata = hfss.get_antenna_ffd_solution_data(frequencies=[5e9], setup=hfss.nomina
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.format(ffdata.frequency))
+ffdata.farfield_data.plot_farfield_contour(quantity='RealizedGain',
+                                           title='Contour at {}Hz'.format(ffdata.farfield_data.frequency))
 
 ##########################################################
 # Release AEDT
@@ -108,7 +109,7 @@ ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.fo
 # Release AEDT.
 # Far field post-processing can be performed without AEDT because the data is stored.
 
-eep_file = ffdata.eep_file
+eep_file = ffdata.metadata_file
 working_directory = hfss.working_directory
 
 hfss.release_desktop()

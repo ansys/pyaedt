@@ -6488,12 +6488,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         available_categories = self.post.available_quantities_categories()
 
-        if "Terminal VSWR" in available_categories:
+        if "Active VSWR" in available_categories:  # pragma: no cover
+            quantities = self.post.available_report_quantities(quantities_category="Active VSWR")
+            for quantity in quantities:
+                command.append("ElementPatterns:=")
+                command.append(quantity.strip("ActiveVSWR(").strip(")"))
+        elif "Terminal VSWR" in available_categories:  # pragma: no cover
             quantities = self.post.available_report_quantities(quantities_category="Terminal VSWR")
             for quantity in quantities:
                 command.append("ElementPatterns:=")
                 command.append(quantity.strip("VSWRt(").strip(")"))
-        elif "Gamma" in available_categories:
+        elif "Gamma" in available_categories:  # pragma: no cover
             quantities = self.post.available_report_quantities(quantities_category="Gamma")
             for quantity in quantities:
                 command.append("ElementPatterns:=")
