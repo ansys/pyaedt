@@ -1784,8 +1784,13 @@ class ModelPlotter(CommonPlotter):
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)
-        if export_image_path:
-            self.pv.show(screenshot=export_image_path, full_screen=True)
+        if export_image_path:  # pragma: no cover
+            supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
+            extension = os.path.splitext(export_image_path)[1]
+            if extension in supported_export:
+                self.pv.save_graphic(export_image_path, raster=raster, painter=painter)
+            else:
+                self.pv.show(screenshot=export_image_path, full_screen=True)
         elif show and self.is_notebook:  # pragma: no cover
             self.pv.show()  # pragma: no cover
         elif show:

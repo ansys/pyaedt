@@ -21,7 +21,6 @@ plots in AEDT. They are accessible through the ``post`` property.
    :nosignatures:
 
    AdvancedPostProcessing.PostProcessor
-   solutions.SolutionData
 
 
 .. code:: python
@@ -73,25 +72,6 @@ PyAEDT has classes for manipulating any report property.
    report_templates.EyeDiagram
    report_templates.Emission
    report_templates.Spectral
-
-
-Plot fields and data outside AEDT
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT supports external report capabilities available with installed third-party
-packages like `numpy <https://numpy.org/doc/stable/>`_,
-`pandas <https://pandas.pydata.org/>`_, `matplotlib <https://matplotlib.org/>`_,
-and `pyvista <https://docs.pyvista.org/>`_.
-
-.. currentmodule:: pyaedt.modules
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-
-   solutions.SolutionData
-   solutions.FieldPlot
-   AdvancedPostProcessing.ModelPlotter
 
 
 Icepak monitors
