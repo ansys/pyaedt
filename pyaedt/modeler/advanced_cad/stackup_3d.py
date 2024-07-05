@@ -1825,7 +1825,8 @@ class Stackup3D(object):
 
         Parameters
         ----------
-        element : :class:`pyaedt.modeler.advanced_cad.stackup_3d.Patch, :class:`pyaedt.modeler.advanced_cad.stackup_3d.Trace
+        element : :class:`pyaedt.modeler.advanced_cad.stackup_3d.Patch,
+            :class:`pyaedt.modeler.advanced_cad.stackup_3d.Trace
             Element around which the resizing is done.
         percentage_offset : float, optional
             Offset of resize. Value accepted are greater than 0. O.25 by default.
