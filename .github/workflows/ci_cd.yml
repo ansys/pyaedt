@@ -41,11 +41,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@v4
+        uses: ansys/actions/doc-style@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          vale-config: "doc/.vale.ini"
-          vale-version: "2.29.6"
+         token: ${{ secrets.GITHUB_TOKEN }}
 
   smoke-tests:
     name: Build wheelhouse and smoke tests
