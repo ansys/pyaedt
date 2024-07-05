@@ -1,6 +1,5 @@
-2D Extractor
-2D modeler
-3D modeler
+2D
+3D
 _static
 AEDB
 AEDT
@@ -14,7 +13,7 @@ busbars
 Bz
 [Cc]ircuit
 codecov
-[Cc]om
+(?i)Com
 COM interface
 [Cc]omponents
 Conda
@@ -33,7 +32,7 @@ FE-BI
 file_path
 getters
 globals
-[Gg]gRPC
+[Gg]RPC
 HFSS
 Huray
 Icepak
@@ -96,3 +95,5 @@ global_region
 assign_mesh_region
 assign_mesh_level
 assign_mesh_reuse
+json
+toml
