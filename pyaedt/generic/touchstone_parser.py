@@ -437,11 +437,11 @@ class TouchstoneData(rf.Network):
         Parameters
         ----------
         freq_min : float, optional
-            minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
         freq_max : float, optional
-            maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+            Maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
         worst_is_higher : bool
-            boolean. if True, the worst curve is the one with higher mean value. Default value is ``None``.
+            Worst curve is the one with higher mean value. Default value is ``True``.
         curve_list : list
             List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
         plot : bool, optional
