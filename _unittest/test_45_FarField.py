@@ -143,49 +143,51 @@ class TestClass:
 
     def test_05_antenna_plot(self, array_test):
         ffdata = array_test.get_antenna_ffd_solution_data(sphere="3D")
-        ffdata.phase_offset = [0, 90]
-        assert ffdata.phase_offset == [0, 90]
-        ffdata.phase_offset = [0]
-        assert ffdata.phase_offset != [0.0]
-        assert ffdata.plot_farfield_contour(
+        assert ffdata.setup_name == "Setup1 : LastAdaptive"
+        assert ffdata.model_info
+        img1 = os.path.join(self.local_scratch.path, "contour.jpg")
+        assert ffdata.farfield_data.plot_farfield_contour(
             quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
-            convert_to_db=True,
+            title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
+            image_path=img1,
             show=False,
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
+        assert os.path.exists(img1)
 
-        ffdata.plot_2d_cut(
+        img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
+        ffdata.farfield_data.plot_2d_cut(
             quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
+            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            image_path=img2,
             show=False,
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
-        ffdata.plot_2d_cut(
+        assert os.path.exists(img2)
+
+        img3 = os.path.join(self.local_scratch.path, "2d2.jpg")
+        ffdata.farfield_data.plot_2d_cut(
             quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
+            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            image_path=img3,
             show=False,
         )
+        assert os.path.exists(img3)
 
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
-
-        ffdata.polar_plot_3d(
+        img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
+        ffdata.farfield_data.polar_plot_3d(
             quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
+            image_path=img4,
             show=False,
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
+        assert os.path.exists(img4)
 
-        ffdata.polar_plot_3d_pyvista(
+        img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
+        ffdata.farfield_data.polar_plot_3d_pyvista(
             quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
+            image_path=img5,
             show=False,
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
+        assert os.path.exists(img5)
