@@ -171,7 +171,7 @@ class TouchstoneData(rf.Network):
         ----------
         index_couples : list, optional
             List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
-        show: bool
+        show : bool
             Whether to plot. Default is ``True``.
 
         Returns
@@ -191,8 +191,6 @@ class TouchstoneData(rf.Network):
     def plot_return_losses(self):  # pragma: no cover
         """Plot all return losses.
 
-        Parameters
-        ----------
         Returns
         -------
         bool
@@ -451,8 +449,8 @@ class TouchstoneData(rf.Network):
 
         Returns
         -------
-        type
-            worst element str, dictionary of ordered expression and their mean
+        tuple
+            Worst element, dictionary of ordered expression.
 
         """
 
