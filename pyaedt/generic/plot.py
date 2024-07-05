@@ -84,6 +84,8 @@ def update_plot_settings(func, *args, **kwargs):
     if callable(func):
 
         def wrapper(*args, **kwargs):
+            # Turn off interactive mode
+            plt.ioff()
             default_rc_params = plt.rcParams.copy()
             plt.rcParams.update(rc_params)  # Apply new settings.
             out = func(*args, **kwargs)
@@ -376,8 +378,6 @@ def plot_polar_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    # Turn off interactive mode
-    plt.ioff()
     fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
 
     label_id = 1
@@ -438,8 +438,6 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Matplotlib figure object.
     """
     dpi = 100.0
-    # Turn off interactive mode
-    plt.ioff()
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if isinstance(plot_data[0], np.ndarray):
@@ -501,11 +499,7 @@ def plot_2d_chart(
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
     """
-    # Turn off interactive mode
-    plt.ioff()
-
     dpi = 100.0
-
     fig, ax = plt.subplots()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
@@ -588,11 +582,7 @@ def plot_matplotlib(
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
     """
-    # Turn off interactive mode
-    plt.ioff()
-
     dpi = 100.0
-
     fig, ax = plt.subplots()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
 
@@ -705,8 +695,6 @@ def plot_contour(
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
     """
-    # Turn off interactive mode
-    plt.ioff()
 
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
