@@ -1,4 +1,4 @@
-Configure Layout Edb
+Configure layout EDB
 ====================
 
 Single configuration file to set up layout for any kind of PCB & package analysis.

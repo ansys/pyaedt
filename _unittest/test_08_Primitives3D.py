@@ -621,7 +621,7 @@ class TestClass:
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_36_get_face_center(self):
         plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
@@ -1760,7 +1760,7 @@ class TestClass:
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
     @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_81_operations_3dcomponent(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
