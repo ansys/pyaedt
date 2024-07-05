@@ -461,7 +461,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    if show:
+    if show:  # pragma: no cover
         fig.show()
     return fig
 
@@ -637,7 +637,7 @@ def plot_matplotlib(
 
     if snapshot_path:
         plt.savefig(snapshot_path)
-    if show:
+    if show:  # pragma: no cover
         plt.show()
     return fig
 

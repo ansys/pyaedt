@@ -1266,7 +1266,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_ffd_solution_data(setup=setup_name,sphere=sphere)
         >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
         """
         if not rotation:
@@ -1760,7 +1760,7 @@ class FfdSolutionDataExporter:
         self.setup_name = setup_name
 
         if not variations:
-            variations = self.__app.available_variations.nominal_w_values_dict_w_dependent
+            variations = app.available_variations.nominal_w_values_dict_w_dependent
         else:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
