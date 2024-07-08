@@ -124,7 +124,7 @@ class TestClass:
         assert os.path.exists(img3)
         curve_2d = ffdata.plot_cut(show=False)
         assert isinstance(curve_2d, Figure)
-        data = ffdata.polar_plot_3d(show=False)
+        data = ffdata.plot_3d_chart(show=False)
         assert isinstance(data, Figure)
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
@@ -171,7 +171,7 @@ class TestClass:
         assert os.path.exists(img3)
 
         img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
-        ffdata.farfield_data.polar_plot_3d(
+        ffdata.farfield_data.plot_3d_chart(
             quantity="RealizedGain",
             image_path=img4,
             show=False,
