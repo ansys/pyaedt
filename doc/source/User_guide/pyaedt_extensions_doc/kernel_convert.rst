@@ -22,11 +22,11 @@ an .aedt file, or a folder containing a variety of files of both types
 **Attention:** For encrypted 3D components the enable editing should be always on (with the corresponding
 password that will be given as an input). When pointing to a library, in order for
 all the 3DComponents to be converted, they must have the same Application and Solution type,
-given as an input in the last two entries of the UI, as well as, same password, in order for the
+given as an input in the last two entries of the UI, as well as same password, in order for the
 conversion to be successful for all files.
 
-Last but least, for every file in the folder, a new file will be generated in the path provided, with the
-design converted to the latest version, and the corresponding name indicating the initial file version.
+Last but least, for every file in the folder, a new file will be generated in the path provided, that contains the
+design converted to the latest version, and its name indicating the initial file version (i.e.test_aedt_2025.1)
 Furthermore, for every conversion, a .csv file is created, with a name pointing to the converted design name,
 containing any violations that occured during the conversion, and that need **manual** fixing by the user.
 
