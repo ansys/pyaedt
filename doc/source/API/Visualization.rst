@@ -52,7 +52,6 @@ The following methods allows to read and check touchstone files.
    check_touchstone_files
 
 
-
 Using the above methods you are getting an object of a class TouchstoneData.
 The class TouchstoneData  is based on `scikit-rf <https://scikit-rf.readthedocs.io/en/latest/>`_,
 Additional methods are added to provide easy access to touchstone curves.
@@ -97,8 +96,15 @@ Here an example on how to use TouchstoneData class.
 
 Farfield
 ~~~~~~~~
-PyAEDT provides advanced farfield post-processing. There are two complementary classes:
-``FfdSolutionDataExporter`` and ``FfdSolutionData``.
+PyAEDT offers sophisticated tools for advanced farfield post-processing.
+There are two complementary classes: ``FfdSolutionDataExporter`` and ``FfdSolutionData``.
+
+- FfdSolutionDataExporter: This class enables efficient export and manipulation of farfield data.
+It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
+
+- FfdSolutionData: This class focuses on the direct access and processing of farfield solution data.
+The FfdSolutionData class supports a comprehensive set of postprocessing operations,
+from visualizing radiation patterns to computing key performance metrics.
 
 
 .. currentmodule:: pyaedt.generic.farfield_visualization
@@ -115,26 +121,52 @@ This code shows how you can get the farfield data and perform some post-processi
 .. code:: python
 
     import pyaedt
-    import os
-    from pyaedt.workflows.project.import_nastran import main
-    file_path = "my_file.stl"
-    hfss = pyaedt.Hfss()
-    # Specify the AEDT session to connect
-    os.environ["PYAEDT_SCRIPT_PORT"] = str(hfss.desktop_class.port)
-    os.environ["PYAEDT_SCRIPT_VERSION"] = hfss.desktop_class.aedt_version_id
-    # Launch extension
-    main({"file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True, "is_test": False})
+    from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter
+    app = pyaedt.Hfss()
+    ffdata = app.get_antenna_data(frequencies=None,
+                                               setup="Setup1 : Sweep",
+                                               sphere="3D",
+                                               variations=None,
+                                               overwrite=False,
+                                               link_to_hfss=True,
+                                               export_touchstone=True)
+    incident_power = ffdata.incident_power
+    ffdata.plot_2d_cut(primary_sweep="Theta", theta=0)
+    ffdata.plot_farfield_contour(polar=True)
+    ffdata.polar_plot_3d_pyvista(show_geometry=False)
+    app.release_desktop(False, False)
 
-The following diagram shows how you can use both classes.
+If you exported the farfield data previously,you can directly get the farfield data:
 
-  .. image:: ../_static/extensions/expressions_catalog.png
+.. code:: python
+
+    from pyaedt.generic.farfield_visualization import FfdSolutionData
+    input_file = r"path_to_ffd\pyaedt_antenna_metadata.json"
+    ffdata = FfdSolutionData(input_file)
+    incident_power = ffdata.incident_power
+    ffdata.plot_2d_cut(primary_sweep="Theta", theta=0)
+    ffdata.plot_farfield_contour(polar=True)
+    ffdata.polar_plot_3d_pyvista(show_geometry=False)
+    app.release_desktop(False, False)
+
+The following diagram shows both classes work. You can use them independently or from the ``get_antenna_data method``.
+
+  .. image:: ../_static/farfield_visualization_pyaedt.png
     :width: 800
-    :alt: Expressions catalog
+    :alt: Farfield data with PyAEDT
+
+
+If you have existing farfield data, or you want to export it manually, you can still use FfdSolutionData class.
+
+  .. image:: ../_static/farfield_visualization_aedt.png
+    :width: 800
+    :alt: Farfield data with AEDT
+
 
 Heterogeneous Data Message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Heterogeneous Data Message (HDM) file is the file exported from SBR+ solver containing rays information.
-
+Heterogeneous Data Message (HDM) is the file exported from SBR+ solver containing rays information.
+The following methods allows to read and plot rays information.
 
 .. currentmodule:: pyaedt.sbrplus
 
