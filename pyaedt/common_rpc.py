@@ -318,7 +318,7 @@ def create_session(server_name, client_port=None, launch_aedt_on_server=False, a
                 aedt_port = client.root.check_port()
             cl.aedt(port=aedt_port, non_graphical=non_graphical)
             logger.info("Aedt started on port %s", aedt_port)
-            if cl.aedt_port is None:
+            if not cl.aedt_port:
                 cl.aedt_port = aedt_port
         return cl
     except Exception:
