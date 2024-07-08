@@ -89,7 +89,7 @@ if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
 config = {
     "desktopVersion": default_version,
-    "NonGraphical": True,
+    "NonGraphical": False,
     "NewThread": True,
     "skip_desktop_test": False,
     "build_machine": True,
