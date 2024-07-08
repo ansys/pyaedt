@@ -120,17 +120,17 @@ class TestClass:
         assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
         cmp2.included_parts = "Package"
         assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
-        assert cmp2.included_parts.set_connectors_modeling(modelling="Solderbump", solderbumps_modeling="Boxes")
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Boxes")
         assert cmp2.included_parts.set_connectors_modeling(
-            modelling="Bondwire", bondwire_material="Au-Typical", bondwire_diameter="0.01mm"
+            modeling="Bondwire", bondwire_material="Au-Typical", bondwire_diameter="0.01mm"
         )
-        assert cmp2.included_parts.set_connectors_modeling(modelling="Solderbump", solderbumps_modeling="Lumped")
-        assert not cmp2.included_parts.set_connectors_modeling(modelling="Error")
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Lumped")
+        assert not cmp2.included_parts.set_connectors_modeling(modeling="Error")
         assert not cmp2.included_parts.set_connectors_modeling(
-            modelling="Solderbump", solderbumps_modeling="Error1"
+            modeling="Solderbump", solderbumps_modeling="Error1"
         )  # invalid input
         assert not cmp2.included_parts.set_connectors_modeling(
-            modelling="Bondwire", bondwire_material="Error4"
+            modeling="Bondwire", bondwire_material="Error4"
         )  # material does not exist
         cmp2.included_parts = "Device"
         assert cmp2.included_parts.override_instance("FCHIP", True)
