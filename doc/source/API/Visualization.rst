@@ -160,9 +160,9 @@ If you have existing farfield data, or you want to export it manually, you can s
     :alt: Farfield data with AEDT
 
 
-Heterogeneous Data Message
+Heterogeneous data message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Heterogeneous Data Message (HDM) is the file exported from SBR+ solver containing rays information.
+Heterogeneous data message (HDM) is the file exported from SBR+ solver containing rays information.
 The following methods allows to read and plot rays information.
 
 .. currentmodule:: pyaedt.sbrplus
