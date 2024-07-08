@@ -28,7 +28,7 @@ conversion to be successful for all files.
 Last but least, for every file in the folder, a new file is generated in the path provided, that contains the
 design converted to the latest version, and its name indicating the initial file version (i.e.test_aedt_2025.1)
 Furthermore, for every conversion, a .csv file is created, with a name pointing to the converted design name,
-containing any violations that occured during the conversion, and that need **manual** fixing by the user.
+containing any violations that occurred during the conversion, and that need **manual** fixing by the user.
 
 The following image show, the initial test_aedt and test_a3dcomp files, the corresponding .csv files and
 the generated 2025R1 version (with the Parasolid Kernel) files.
