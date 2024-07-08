@@ -5516,8 +5516,69 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.component_array_names = [name]
         return self.component_array[name]
 
-    @pyaedt_function_handler(setup_name="setup", sphere_name="sphere")
+    @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
+        self,
+        frequencies=None,
+        setup=None,
+        sphere=None,
+        variations=None,
+        overwrite=True,
+        link_to_hfss=True,
+        export_touchstone=True,
+        set_phase_center_per_port=True,
+    ):  # pragma: no cover
+        """Export the antenna parameters to Far Field Data (FFD) files and return an
+        instance of the ``FfdSolutionDataExporter`` object.
+
+        .. deprecated:: 0.9.8
+        Use :func:`get_antenna_data` method instead.
+
+        Parameters
+        ----------
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute far field data. The default is ``None,`` in which case
+            all available frequencies are computed.
+        setup : str, optional
+            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+        sphere : str, optional
+            Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
+            one is created.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        overwrite : bool, optional
+            Whether to overwrite FFD files. The default is ``True``.
+        link_to_hfss : bool, optional
+            Whether to return an instance of the
+            :class:`pyaedt.generic.farfield_explorerf.FfdSolutionDataExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`pyaedt.generic.farfield_explorer.FfdSolutionData` class, which is
+            independent of the running HFSS instance.
+        export_touchstone : bool, optional
+            Whether to export touchstone file. The default is ``False``.
+        set_phase_center_per_port : bool, optional
+            Set phase center per port location. The default is ``True``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.farfield_visualization.FfdSolutionDataExporter`
+            SolutionData object.
+        """
+        warnings.warn("Use :func:`get_antenna_data` method instead.", DeprecationWarning)
+        return self.get_antenna_data(
+            frequencies=frequencies,
+            setup=setup,
+            sphere=sphere,
+            variations=variations,
+            overwrite=overwrite,
+            link_to_hfss=link_to_hfss,
+            export_touchstone=export_touchstone,
+            set_phase_center_per_port=set_phase_center_per_port,
+        )
+
+    @pyaedt_function_handler()
+    def get_antenna_data(
         self,
         frequencies=None,
         setup=None,
@@ -5553,7 +5614,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
             :class:`pyaedt.generic.farfield_explorer.FfdSolutionData` class, which is
-            independent from the running HFSS instance.
+            independent of the running HFSS instance.
         export_touchstone : bool, optional
             Whether to export touchstone file. The default is ``False``.
         set_phase_center_per_port : bool, optional
@@ -5566,14 +5627,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Examples
         --------
-        The method :func:`get_antenna_ffd_solution_data` is used to export the farfield of each element of the design.
+        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
 
         Open a design and create the objects.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> ffdata = hfss.get_antenna_ffd_solution_data()
-        >>> ffdata.farfield_data.plot_2d_cut(primary_sweep="theta", is_polar=False, theta=0)
+        >>> ffdata = hfss.get_antenna_data()
+        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", is_polar=False, theta=0)
         """
         from pyaedt.generic.farfield_visualization import FfdSolutionData
         from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter

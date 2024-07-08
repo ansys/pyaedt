@@ -131,9 +131,9 @@ This code shows how you can get the farfield data and perform some post-processi
                                                link_to_hfss=True,
                                                export_touchstone=True)
     incident_power = ffdata.incident_power
-    ffdata.plot_2d_cut(primary_sweep="Theta", theta=0)
-    ffdata.plot_farfield_contour(polar=True)
-    ffdata.polar_plot_3d_pyvista(show_geometry=False)
+    ffdata.plot_cut(primary_sweep="Theta", theta=0)
+    ffdata.plot_contour(polar=True)
+    ffdata.plot_3d(show_geometry=False)
     app.release_desktop(False, False)
 
 If you exported the farfield data previously,you can directly get the farfield data:
@@ -144,12 +144,12 @@ If you exported the farfield data previously,you can directly get the farfield d
     input_file = r"path_to_ffd\pyaedt_antenna_metadata.json"
     ffdata = FfdSolutionData(input_file)
     incident_power = ffdata.incident_power
-    ffdata.plot_2d_cut(primary_sweep="Theta", theta=0)
-    ffdata.plot_farfield_contour(polar=True)
-    ffdata.polar_plot_3d_pyvista(show_geometry=False)
+    ffdata.plot_cut(primary_sweep="Theta", theta=0)
+    ffdata.plot_contour(polar=True)
+    ffdata.plot_3d(show_geometry=False)
     app.release_desktop(False, False)
 
-The following diagram shows both classes work. You can use them independently or from the ``get_antenna_data method``.
+The following diagram shows both classes work. You can use them independently or from the ``get_antenna_data`` method.
 
   .. image:: ../_static/farfield_visualization_pyaedt.png
     :width: 800

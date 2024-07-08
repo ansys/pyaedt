@@ -92,11 +92,11 @@ class FfdSolutionData(object):
     >>> import pyaedt
     >>> from pyaedt.application.analysis_hf import FfdSolutionData
     >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
-    >>> data = app.get_antenna_ffd_solution_data()
+    >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
-    >>> farfield_data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
+    >>> farfield_data.plot_3d(quantity_format="dB10")
     """
 
     def __init__(
@@ -876,26 +876,21 @@ class FfdSolutionData(object):
             self.__magnitude[element_name] = amplitude
             self.__phase[element_name] = phase
 
-    # fmt: off
-    @pyaedt_function_handler(farfield_quantity="quantity",
-                             phi_scan="phi",
-                             theta_scan="theta",
-                             export_image_path="image_path")
-    def plot_farfield_contour(
-            self,
-            quantity="RealizedGain",
-            phi=0,
-            theta=0,
-            title=None,
-            quantity_format="dB10",
-            image_path=None,
-            levels=64,
-            polar=True,
-            max_theta=180,
-            show=True,
+    @pyaedt_function_handler()
+    def plot_contour(
+        self,
+        quantity="RealizedGain",
+        phi=0,
+        theta=0,
+        title=None,
+        quantity_format="dB10",
+        image_path=None,
+        levels=64,
+        polar=True,
+        max_theta=180,
+        show=True,
     ):
-        # fmt: on
-        """Create a contour plot of a specified quantity.
+        """Create a contour plot of a specified quantity in Matplotlib.
 
         Parameters
         ----------
@@ -940,8 +935,8 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
-        >>> data.plot_farfield_contour()
+        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data.plot_contour()
 
         """
         if not title:
@@ -972,29 +967,24 @@ class FfdSolutionData(object):
             snapshot_path=image_path,
             max_theta=max_theta,
             color_bar=quantity_format,
-            show=show
+            show=show,
         )
 
-    # fmt: off
-    @pyaedt_function_handler(farfield_quantity="quantity",
-                             phi_scan="phi",
-                             theta_scan="theta",
-                             export_image_path="image_path")
-    def plot_2d_cut(
-            self,
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=0,
-            phi=0,
-            theta=0,
-            title="Far Field Cut",
-            quantity_format="dB10",
-            image_path=None,
-            show=True,
-            is_polar=False,
-            show_legend=True,
+    @pyaedt_function_handler()
+    def plot_cut(
+        self,
+        quantity="RealizedGain",
+        primary_sweep="phi",
+        secondary_sweep_value=0,
+        phi=0,
+        theta=0,
+        title="Far Field Cut",
+        quantity_format="dB10",
+        image_path=None,
+        show=True,
+        is_polar=False,
+        show_legend=True,
     ):
-        # fmt: on
         """Create a 2D plot of a specified quantity in Matplotlib.
 
         Parameters
@@ -1042,8 +1032,8 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
-        >>> data.plot_2d_cut(theta=20)
+        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data.plot_cut(theta=20)
         """
 
         data = self.combine_farfield(phi, theta)
@@ -1114,23 +1104,18 @@ class FfdSolutionData(object):
                 show=show,
             )
 
-    # fmt: off
-    @pyaedt_function_handler(farfield_quantity="quantity",
-                             phi_scan="phi",
-                             theta_scan="theta",
-                             export_image_path="image_path")
-    def polar_plot_3d(
-            self,
-            quantity="RealizedGain",
-            phi=0,
-            theta=0,
-            title="3D Plot",
-            quantity_format="dB10",
-            image_path=None,
-            show=True,
+    @pyaedt_function_handler()
+    def plot_3d_chart(
+        self,
+        quantity="RealizedGain",
+        phi=0,
+        theta=0,
+        title="3D Plot",
+        quantity_format="dB10",
+        image_path=None,
+        show=True,
     ):
-        # fmt: on
-        """Create a 3D plot of a specified quantity.
+        """Create a 3D chart of a specified quantity in Matplotlib.
 
         Parameters
         ----------
@@ -1168,7 +1153,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
         >>> data.polar_plot_3d(theta=10)
         """
         data = self.combine_farfield(phi, theta)
@@ -1195,30 +1180,23 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        return plot_3d_chart([x, y, z],
-                             xlabel="Theta",
-                             ylabel="Phi",
-                             title=title,
-                             snapshot_path=image_path,
-                             show=show)
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
 
-    # fmt: off
-    @pyaedt_function_handler(farfield_quantity="quantity", export_image_path="image_path")
-    def polar_plot_3d_pyvista(
-            self,
-            quantity="RealizedGain",
-            quantity_format="dB10",
-            rotation=None,
-            image_path=None,
-            show=True,
-            show_as_standalone=False,
-            pyvista_object=None,
-            background=None,
-            scale_farfield=None,
-            show_beam_slider=True,
-            show_geometry=True,
+    @pyaedt_function_handler()
+    def plot_3d(
+        self,
+        quantity="RealizedGain",
+        quantity_format="dB10",
+        rotation=None,
+        image_path=None,
+        show=True,
+        show_as_standalone=False,
+        pyvista_object=None,
+        background=None,
+        scale_farfield=None,
+        show_beam_slider=True,
+        show_geometry=True,
     ):
-        # fmt: on
         """Create a 3D polar plot of the geometry with a radiation pattern in PyVista.
 
         Parameters
@@ -1266,8 +1244,8 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_ffd_solution_data(setup=setup_name,sphere=sphere)
-        >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="RealizedGain")
+        >>> data = app.get_antenna_data(setup=setup_name,sphere=sphere)
+        >>> data.plot_3d(quantity_format="dB10")
         """
         if not rotation:
             rotation = np.eye(3)
@@ -1385,9 +1363,7 @@ class FfdSolutionData(object):
             p.add_text("Show Far Fields", position=(70, 25), color=text_color, font_size=10)
             if not scale_farfield:
                 if self.__is_array:
-                    slider_max = int(
-                        np.ceil(np.abs(np.max(self.__array_dimension) / np.min(np.abs(p.bounds))))
-                    )
+                    slider_max = int(np.ceil(np.abs(np.max(self.__array_dimension) / np.min(np.abs(p.bounds)))))
                 else:  # pragma: no cover
                     slider_max = int(np.ceil((np.max(p.bounds) / 2 / np.min(np.abs(p.bounds)))))
                 slider_min = 0
@@ -1463,7 +1439,7 @@ class FfdSolutionData(object):
                 for i, segment in enumerate(segments[1:]):
                     segment = segment.strip()
                     if segment:
-                        lines = segment.split('\n')
+                        lines = segment.split("\n")
                         frequency_text_list.append(lines[0])
                         eep_text_list[lines[0]] = lines[1:]
 
@@ -1702,7 +1678,7 @@ class FfdSolutionDataExporter:
     """Class to enable export of embedded element pattern data from HFSS.
 
     An instance of this class is returned from the
-    :meth:`pyaedt.Hfss.get_antenna_ffd_solution_data` method. This method allows creation of
+    :meth:`pyaedt.Hfss.get_antenna_data` method. This method allows creation of
     the embedded
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
@@ -1740,8 +1716,8 @@ class FfdSolutionDataExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_ffd_solution_data(frequencies,setup_name,sphere)
-    >>> data.polar_plot_3d_pyvista(quantity_format="dB10",qty_str="rETotal")
+    >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+    >>> data.plot_3d(quantity_format="dB10")
     """
 
     def __init__(

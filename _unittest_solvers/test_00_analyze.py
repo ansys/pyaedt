@@ -115,19 +115,16 @@ class TestClass:
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
 
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
-        ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
-                           title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10", show=False,
-                           image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+        ffdata.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
+                        title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10", show=False,
+                        image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.polar_plot_3d_pyvista(quantity="RealizedGain",
-                                      rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
-                                      show=False,
-                                      convert_to_db=True)
+        ffdata2.plot_3d(quantity="RealizedGain", rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
+                        image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):

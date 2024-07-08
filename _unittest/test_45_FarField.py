@@ -114,39 +114,33 @@ class TestClass:
         assert ffdata.origin == [0, 0, 1]
 
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
+        ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
         assert os.path.exists(img1)
         img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
+        ffdata.plot_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
         assert os.path.exists(img2)
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(image_path=img3, show=False)
+        ffdata.plot_cut(image_path=img3, show=False)
         assert os.path.exists(img3)
-        curve_2d = ffdata.plot_2d_cut(show=False)
+        curve_2d = ffdata.plot_cut(show=False)
         assert isinstance(curve_2d, Figure)
         data = ffdata.polar_plot_3d(show=False)
         assert isinstance(data, Figure)
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=img4,
-            show=False,
-            background=[255, 0, 0],
-            show_geometry=False,
+        ffdata.plot_3d(
+            quantity="RealizedGain", image_path=img4, show=False, background=[255, 0, 0], show_geometry=False
         )
         assert os.path.exists(img4)
-        data_pyvista = ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False
-        )
+        data_pyvista = ffdata.plot_3d(quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False)
         assert isinstance(data_pyvista, Plotter)
 
     def test_05_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(sphere="3D")
+        ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"
         assert ffdata.model_info
         img1 = os.path.join(self.local_scratch.path, "contour.jpg")
-        assert ffdata.farfield_data.plot_farfield_contour(
+        assert ffdata.farfield_data.plot_contour(
             quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
             image_path=img1,
@@ -155,7 +149,7 @@ class TestClass:
         assert os.path.exists(img1)
 
         img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
-        ffdata.farfield_data.plot_2d_cut(
+        ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
@@ -166,7 +160,7 @@ class TestClass:
         assert os.path.exists(img2)
 
         img3 = os.path.join(self.local_scratch.path, "2d2.jpg")
-        ffdata.farfield_data.plot_2d_cut(
+        ffdata.farfield_data.plot_cut(
             quantity="RealizedGain",
             primary_sweep="phi",
             secondary_sweep_value=30,
@@ -185,9 +179,5 @@ class TestClass:
         assert os.path.exists(img4)
 
         img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
-        ffdata.farfield_data.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=img5,
-            show=False,
-        )
+        ffdata.farfield_data.plot_3d(quantity="RealizedGain", image_path=img5, show=False)
         assert os.path.exists(img5)
