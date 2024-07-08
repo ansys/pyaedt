@@ -32,6 +32,7 @@ import time
 
 from pyaedt.aedt_logger import pyaedt_logger as logger
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
@@ -645,7 +646,7 @@ class FfdSolutionData(object):
 
         if self.active_s_parameters is not None:
             accepted_power = {}
-            for element_cont, element in enumerate(self.all_element_names):
+            for _, element in enumerate(self.all_element_names):
                 if self.active_s_parameters[element] is not None:
                     operation = 1 - np.power(np.abs(self.active_s_parameters[element]), 2)
                     accepted_power[element] = self.incident_power_element[element] * operation
@@ -655,88 +656,6 @@ class FfdSolutionData(object):
             return total_accepted_power
         else:
             return None
-
-    @pyaedt_function_handler()
-    def get_radiated_power(self):
-        """Compute the radiated power from the farfield data.
-
-        Returns
-        -------
-        float
-            Total accepted power.
-        """
-        data = self.farfield_data
-
-        if data:
-            theta = data["Theta"]
-            phi = data["Phi"]
-
-            rE_t_re = np.real(data["rETheta"])
-            rE_t_im = np.imag(data["rETheta"])
-            rE_p_re = np.real(data["rEPhi"])
-            rE_p_im = np.imag(data["rEPhi"])
-
-            T_M = np.tile(theta, (len(phi), 1)).T
-
-            # P_M is a matrix with phi over columns
-            P_M = np.tile(phi, (len(theta), 1))
-
-            # Calculate U_total
-            U_total = (rE_t_re**2 + rE_t_im**2 + rE_p_re**2 + rE_p_im**2) / (240 * np.pi)
-
-            # Reshape U_total to match the dimensions of phi and theta
-            U_tot_M = np.reshape(U_total, (len(phi), len(theta))).T
-
-            # Calculate the differentials for theta and phi
-            d_t = np.abs((theta[1] - theta[0])) * np.pi / 180
-            d_p = np.abs((phi[1] - phi[0])) * np.pi / 180
-
-            # Calculate Weights
-            Weights = d_t * d_p * np.sin(np.radians(T_M))
-
-            # Modify the edge values of Weights
-            Weights[:, -1] = np.zeros(len(theta))
-            Weights[0, :] = np.zeros(len(phi))
-            Weights[0, 0] = 0.25 * d_t * d_p * (len(phi) - 1) * np.sin(d_t / 4)
-            Weights[-1, :] = np.zeros(len(phi))
-            Weights[-1, :] = 0.25 * d_t * d_p * (len(phi) - 1) * np.sin(d_t / 4)
-
-            # Calculate PowerRad
-            power_rad = np.sum(U_tot_M * Weights)
-
-            return power_rad
-        else:
-            return None
-
-    # def radiated_power_element(self):
-    #     """Radiated power"""
-    #     freq_name_key = self.frequencies[self.__freq_index]
-    #     power = {}
-    #     for _, port in enumerate(self.all_element_names):
-    #         power[port] = 0.0
-    #         data = self.__raw_data[port][freq_name_key]
-    #         theta_range = data["Theta"]
-    #         phi_range = data["Phi"]
-    #         rEtheta = data["rETheta"]
-    #         rEphi = data["rEPhi"]
-    #
-    #         ntheta = len(theta_range)
-    #         nphi = len(phi_range)
-    #         rEtheta_reshape = np.reshape(rEtheta, (ntheta, nphi))
-    #         rEphi_reshape = np.reshape(rEphi, (ntheta, nphi))
-    #
-    #         dtheta = theta_range[1] - theta_range[0]
-    #         dphi = phi_range[1] - phi_range[0]
-    #
-    #         for theta_cont, theta in enumerate(theta_range):
-    #             for phi_cont, phi in enumerate(phi_range):
-    #                 rEtheta_abs = np.abs(rEtheta_reshape[theta_cont][phi_cont]) ** 2
-    #                 rEphi_abs = np.abs(rEphi_reshape[theta_cont][phi_cont]) ** 2
-    #                 operation = 1**2 * (rEtheta_abs + rEphi_abs)
-    #                 power[port] += operation * np.sin(np.deg2rad(theta)) * np.deg2rad(dtheta) * np.deg2rad(dphi)
-    #         power[port] = power[port] / (2 * 377)
-    #
-    #     return power
 
     @pyaedt_function_handler()
     def __assign_weight_taper(self, a, b):
@@ -1888,19 +1807,22 @@ class FfdSolutionDataExporter:
             if "Active VSWR" in available_categories:  # pragma: no cover
                 quantities = self.post.available_report_quantities(quantities_category="Active VSWR")
                 for quantity in quantities:
-                    command.append("ElementPatterns:=")
-                    command.append(quantity.strip("ActiveVSWR(").strip(")"))
+                    excitations.append("ElementPatterns:=")
+                    excitations.append(quantity.strip("ActiveVSWR(").strip(")"))
             elif "Terminal VSWR" in available_categories:
                 quantities = self.__app.post.available_report_quantities(quantities_category="Terminal VSWR")
                 for quantity in quantities:
+                    excitations.append("ElementPatterns:=")
                     excitations.append(quantity.strip("VSWRt(").strip(")"))
                 is_power = False
             elif "Gamma" in available_categories:
                 quantities = self.__app.post.available_report_quantities(quantities_category="Gamma")
                 for quantity in quantities:
+                    excitations.append("ElementPatterns:=")
                     excitations.append(quantity.strip("Gamma(").strip(")"))
             else:  # pragma: no cover
                 for excitation in self.__app.get_all_sources():
+                    excitations.append("ElementPatterns:=")
                     excitations.append(excitation)
             for excitation_cont1 in range(len(excitations)):
                 sources = {}
@@ -2155,7 +2077,7 @@ class FfdSolutionDataExporter:
         import xml.etree.ElementTree as ET  # nosec
 
         # Load the XML file
-        tree = ET.parse(input_file)
+        tree = ET.parse(input_file)  # nosec
         root = tree.getroot()
 
         element_patterns = root.find("ElementPatterns")
