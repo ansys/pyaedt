@@ -365,7 +365,7 @@ class TestClass:
         assert test
         assert test.delete()
 
-    @pytest.mark.skipif(config["use_grpc"], reason="GRPC usage leads to SystemExit.")
+    @pytest.mark.skipif(config["use_grpc"], reason="gRPC usage leads to SystemExit.")
     def test_12b_failing_AssignMeshOperation(self):
         assert self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
@@ -1128,7 +1128,7 @@ class TestClass:
             shell_conduction=False,
         )
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])

@@ -2243,6 +2243,14 @@ class PostProcessorCommon(object):
             props = read_configuration_file(input_file)
         else:
             props = report_settings
+        if (
+            isinstance(props.get("expressions", {}), list)
+            and props["expressions"]
+            and isinstance(props["expressions"][0], str)
+        ):  # pragma: no cover
+            props["expressions"] = {i: {} for i in props["expressions"]}
+        elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
+            props["expressions"] = {props["expressions"]: {}}
         _dict_items_to_list_items(props, "expressions")
         if not solution_name:
             solution_name = self._app.nominal_sweep
