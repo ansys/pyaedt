@@ -1969,7 +1969,7 @@ class FfdSolutionDataExporter:
     def export_pyaedt_antenna_metadata(
         input_file, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
     ):
-        """Obtain metadata information from metadata XML file.
+        """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
 
         Parameters
         ----------

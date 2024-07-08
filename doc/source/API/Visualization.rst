@@ -99,12 +99,9 @@ Farfield
 PyAEDT offers sophisticated tools for advanced farfield post-processing.
 There are two complementary classes: ``FfdSolutionDataExporter`` and ``FfdSolutionData``.
 
-- FfdSolutionDataExporter: This class enables efficient export and manipulation of farfield data.
-It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
+- FfdSolutionDataExporter: Enables efficient export and manipulation of farfield data. It allows users to convert simulation results into a standard metadata format for further analysis, or reporting.
 
-- FfdSolutionData: This class focuses on the direct access and processing of farfield solution data.
-The FfdSolutionData class supports a comprehensive set of postprocessing operations,
-from visualizing radiation patterns to computing key performance metrics.
+- FfdSolutionData: Focuses on the direct access and processing of farfield solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
 
 
 .. currentmodule:: pyaedt.generic.farfield_visualization
