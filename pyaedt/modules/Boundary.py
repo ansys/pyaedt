@@ -371,6 +371,17 @@ def disable_auto_update(func):
 
 
 class PCBSettingsPackageParts(object):
+    """
+    Handle package part settings of the PCB component.
+
+    Parameters
+    ----------
+    pcb_obj : :class:`pyaedt.modules.Boundary.NativeComponentPCB`
+            Inherited pcb object.
+    app : :class:`pyaedt.Icepak`
+            Inherited application object.
+    """
+
     def __init__(self, pcb_obj, app):
         self._app = app
         self.pcb = pcb_obj
@@ -479,6 +490,17 @@ class PCBSettingsPackageParts(object):
 
 
 class PCBSettingsDeviceParts(object):
+    """
+    Handle device part settings of the PCB component.
+
+    Parameters
+    ----------
+    pcb_obj : :class:`pyaedt.modules.Boundary.NativeComponentPCB`
+            Inherited pcb object.
+    app : :class:`pyaedt.Icepak`
+            Inherited application object.
+    """
+
     def __init__(self, pcb_obj, app):
         self._app = app
         self.pcb = pcb_obj
