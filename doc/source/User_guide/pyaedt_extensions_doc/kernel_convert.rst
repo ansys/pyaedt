@@ -20,7 +20,7 @@ an .aedt file, or a folder containing a variety of files of both types
 (this way the user is capable to convert the kernel of a component library with one launch of the script)
 
 **Attention:** For encrypted 3D components the enable editing should be always on (with the corresponding
-password that will be given as an input), and when pointing to a library, in order for
+password that will be given as an input). When pointing to a library, in order for
 all the 3DComponents to be converted, they must have the same Application and Solution type,
 given as an input in the last two entries of the UI, as well as, same password, in order for the
 conversion to be successful for all files.
