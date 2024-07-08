@@ -4441,7 +4441,7 @@ class Excitations(object):
     @reference_node.setter
     def reference_node(self, ref_node=None):
         if ref_node:
-            self._logger.warning("Set reference node only working with GRPC")
+            self._logger.warning("Set reference node only working with gRPC")
             if ref_node == "Ground":
                 ref_node = "Z"
             self._props["RefNode"] = ref_node

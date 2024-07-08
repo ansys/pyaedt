@@ -1,4 +1,6 @@
 *
-!Vocab
-!Vocab/**
+!config
+!config/vocabularies
+!config/vocabularies/ANSYS
+!config/vocabularies/ANSYS/**
 !.gitignore
