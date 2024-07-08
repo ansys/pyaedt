@@ -1104,7 +1104,7 @@ class IcepakMesh(object):
                                     "Icepak",
                                 )
                             )
-            else:  # pragma : no cover
+            else:  # pragma: no cover
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                     if isinstance(
                         dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
