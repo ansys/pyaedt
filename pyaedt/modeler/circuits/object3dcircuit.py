@@ -945,6 +945,173 @@ class CircuitComponent(object):
         self.model_data.props = props
         return self.model_data.update()
 
+    @pyaedt_function_handler()
+    def change_symbol_pin_locations(self, pin_locations):
+        """ Change symbol pin locations in Designer.
+
+        Parameters
+        ----------
+        pin_locations : dict
+            A dictionary consisting of a list of pin names on the left and a list of pin names on the right.
+
+        Returns
+        -------
+        bool
+
+        References
+        ---------
+        >>> oSymbolManager.EditSymbolAndUpdateComps
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> cir = Circuit(my_project)
+        >>> cir.modeler.schematic_units = "mil"
+        >>> ts_path = os.path.join(current_path, "ch3_dq.s4p")
+        >>> ts_component = cir.modeler.schematic.create_touchstone_component(ts_path, show_bitmap=False)
+        >>> pin_locations = {
+        >>>    "left": [
+        >>>        'DDR_CH3_DM_DBI0_BGA_BE47',
+        >>>        'DDR_CH3_DM_DBI1_BGA_BJ50',
+        >>>        'DDR_CH3_DM_DBI0_DIE_7976'
+        >>>    ],
+        >>>    "right": [
+        >>>        'DDR_CH3_DM_DBI1_DIE_12471'
+        >>>    ]
+        >>> }
+        >>> ts_component.change_symbol_pin_locations(pin_locations)
+
+        """
+
+        y_spacing = 0.00254
+
+        left_pins = pin_locations["left"]
+        right_pins = pin_locations["right"]
+
+        left_pins_length = len(left_pins)
+        right_pins_length = len(right_pins)
+
+        max_pins_length = max(left_pins_length, right_pins_length)
+        h = int(max_pins_length / 2)
+
+        x1 = 0
+        x2 = 0.00254 * 4
+        y1 = 0
+        y2 = y_spacing * (max_pins_length + 1)
+
+        pin_left_x = -0.00254 * 2
+        pin_left_angle = 0
+
+        pin_right_x = 0.00254 * 6
+        pin_right_angle = math.pi
+
+        text_spacing = 0.024765
+
+        arg = [
+            "NAME:{}".format(self.model_name),
+            "ModTime:="	, int(time.time()),
+            "Library:="		, "",
+            "ModSinceLib:="		, False,
+            "LibLocation:="		, "Project",
+            "HighestLevel:="	, 1,
+            "Normalize:="		, False,
+            "InitialLevels:="	, [0 ,1],
+        ]
+        terminals_arg = [
+            "NAME:Terminals",
+        ]
+        yp = y_spacing * max_pins_length
+
+        for left_pin in left_pins:
+            pin_def = [left_pin, pin_left_x, yp, pin_left_angle, "N", 0, 0.00254 * 2, False, 0, True, "", True, False, left_pin, True]
+            pin_name_rect = [1, 0, 0, 0, pin_left_x, yp + 0.00176388888889594 / 2,
+                             0.00111403508 * len(left_pin),
+                             0.00176388888889594,
+                             0, 0, 0]
+            pin_text = [
+                pin_left_x, yp + 0.00176388888889594 / 2, 0, 4, 5, False, "Arial", 0, left_pin, False, False,
+                "ExtentRect:=",
+                pin_name_rect
+            ]
+            pin_name = [
+                2, 5, 1,
+                "Text:="	,
+                pin_text
+            ]
+            props_display_map = [
+                "NAME:PropDisplayMap",
+                "PinName:=",
+                pin_name
+            ]
+            pin_local_arg = [
+                "NAME:PinDef",
+                "Pin:=",
+                pin_def,
+                props_display_map
+            ]
+            arg.append(pin_local_arg)
+            terminals_arg.append("TermAttributes:=")
+            terminals_arg.append([left_pin, left_pin, 0, 0, -1, ""])
+            yp = yp - y_spacing
+
+        yp = y_spacing * max_pins_length
+        for right_pin in right_pins:
+            pin_def = [right_pin, pin_right_x, yp, pin_right_angle, "N", 0, 0.00254 * 2, False, 0, True, "", True, False,
+                       right_pin, True]
+            pin_name_rect = [1, 0, 0, 0, pin_right_x,
+                             yp + 0.00176388888889594 / 2,
+                             0.00111403508 * len(right_pin),
+                             0.00176388888889594,
+                             0, 0, 0]
+            pin_text = [
+                pin_right_x, yp + 0.00176388888889594 / 2, 0, 4, 5, False, "Arial", 0, right_pin, False, False,
+                "ExtentRect:=",
+                pin_name_rect
+            ]
+            pin_name = [
+                2, 5, 1,
+                "Text:="	,
+                pin_text
+            ]
+            props_display_map = [
+                "NAME:PropDisplayMap",
+                "PinName:=",
+                pin_name
+            ]
+            pin_local_arg = [
+                "NAME:PinDef",
+                "Pin:=",
+                pin_def,
+                props_display_map
+            ]
+            arg.append(pin_local_arg)
+            terminals_arg.append("TermAttributes:=")
+            terminals_arg.append([right_pin, right_pin, 1, 0, -1, ""])
+            yp = yp - y_spacing
+
+        arg.append(
+            [
+                "NAME:Graphics",
+                "Rect:="	, [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
+                "Rect:="	, [0 ,1 ,0 ,0 ,(x1 + x2) / 2 , (y1 + y2) / 2 ,0.000423333333333333 ,0.000423333333333331 ,0 ,0 ,0]
+            ]
+        )
+
+        edit_context_arg = [
+            "NAME:EditContext",
+            "RefPinOption:=", 2,
+            "CompName:="	, self.model_name,
+            terminals_arg
+        ]
+
+        self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, arg, [], edit_context_arg)
+        self._circuit_components.oeditor.MovePins(self.composed_name,-0,-0,0,0,
+            [
+                "NAME:PinMoveData"
+            ]
+        )
+        return True
 
 class Wire(object):
     """Creates and manipulates a wire."""
