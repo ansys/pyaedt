@@ -32,8 +32,6 @@ import shutil
 import sys
 import time
 
-from pyaedt import is_ironpython
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
@@ -43,7 +41,9 @@ from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import conversion_function
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
@@ -1232,6 +1232,8 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -1319,6 +1321,8 @@ class SolutionData(object):
         snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
             The default is ``None``.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -1554,7 +1558,7 @@ class FfdSolutionData(object):
 
     >>> import pyaedt
     >>> from pyaedt.modules.solutions import FfdSolutionData
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -2029,7 +2033,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2024.1", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2024.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2168,7 +2172,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2309,7 +2313,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2414,7 +2418,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> import pyaedt
-        >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+        >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -2932,7 +2936,7 @@ class FfdSolutionDataExporter(FfdSolutionData):
     Examples
     --------
     >>> import pyaedt
-    >>> app = pyaedt.Hfss(specified_version="2023.2", designname="Antenna")
+    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -3159,29 +3163,29 @@ class FieldPlot:
     def __init__(
         self,
         postprocessor,
-        objects=[],
-        surfaces=[],
-        lines=[],
-        cutplanes=[],
+        objects=None,
+        surfaces=None,
+        lines=None,
+        cutplanes=None,
         solution="",
         quantity="",
-        intrinsics={},
-        seeding_faces=[],
-        layer_nets=[],
+        intrinsics=None,
+        seeding_faces=None,
+        layer_nets=None,
         layer_plot_type="LayerNetsExtFace",
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
-        self.volumes = objects
-        self.surfaces = surfaces
-        self.lines = lines
-        self.cutplanes = cutplanes
-        self.layer_nets = layer_nets
+        self.volumes = [] if objects is None else objects
+        self.surfaces = [] if surfaces is None else surfaces
+        self.lines = [] if lines is None else lines
+        self.cutplanes = [] if cutplanes is None else cutplanes
+        self.layer_nets = [] if layer_nets is None else layer_nets
         self.layer_plot_type = layer_plot_type
-        self.seeding_faces = seeding_faces
+        self.seeding_faces = [] if seeding_faces is None else seeding_faces
         self.solution = solution
         self.quantity = quantity
-        self.intrinsics = intrinsics
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.Filled = False
@@ -3264,7 +3268,9 @@ class FieldPlot:
                         else:
                             nonmodel_faces.append(str(index))
                     except Exception:
-                        pass
+                        self._postprocessor.logger.debug(
+                            "Something went wrong while processing surface {}.".format(index)
+                        )
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
@@ -3308,21 +3314,11 @@ class FieldPlot:
         Returns
         -------
         list or dict
-            List or dictionary of the variables for the field plot.
+            Variables for the field plot.
         """
         var = ""
-        if isinstance(self.intrinsics, list):
-            l = 0
-            while l < len(self.intrinsics):
-                val = self.intrinsics[l + 1]
-                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
-                    val = self.intrinsics[l + 1][0]
-                ll = self.intrinsics[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsics:
-                var += a + "='" + str(self.intrinsics[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @property
@@ -3911,13 +3907,13 @@ class VRTFieldPlot:
         max_frequency="1GHz",
         ray_density=2,
         bounces=5,
-        intrinsics={},
+        intrinsics=None,
     ):
         self.is_creeping_wave = is_creeping_wave
         self._postprocessor = postprocessor
         self._ofield = postprocessor.ofieldsreporter
         self.quantity = quantity
-        self.intrinsics = intrinsics
+        self.intrinsics = {} if intrinsics is None else intrinsics
         self.name = "Field_Plot"
         self.plot_folder = "Field_Plot"
         self.max_frequency = max_frequency
@@ -3949,22 +3945,12 @@ class VRTFieldPlot:
 
         Returns
         -------
-        list or dict
-            List or dictionary of the variables for the field plot.
+        str
+            Variables for the field plot.
         """
         var = ""
-        if isinstance(self.intrinsics, list):
-            l = 0
-            while l < len(self.intrinsics):
-                val = self.intrinsics[l + 1]
-                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
-                    val = self.intrinsics[l + 1][0]
-                ll = self.intrinsics[l].split(":=")
-                var += ll[0] + "='" + str(val) + "' "
-                l += 2
-        else:
-            for a in self.intrinsics:
-                var += a + "='" + str(self.intrinsics[a]) + "' "
+        for a in self.intrinsics:
+            var += a + "='" + str(self.intrinsics[a]) + "' "
         return var
 
     @pyaedt_function_handler()

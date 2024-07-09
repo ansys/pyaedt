@@ -32,11 +32,11 @@ import tempfile
 import time
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if not is_ironpython:
     try:
@@ -493,8 +493,9 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    ax = plt.subplot(111)
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
     for plo_obj in plot_data:
         if isinstance(plo_obj[0], np.ndarray):
@@ -503,7 +504,10 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y)
+        label = "Plot {}".format(str(label_id))
+        if len(plo_obj) > 2:
+            label = plo_obj[2]
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -512,7 +516,7 @@ def plot_2d_chart(
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    elif show and not is_notebook():
         fig.show()
     return fig
 
@@ -1729,8 +1733,13 @@ class ModelPlotter(CommonPlotter):
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)
-        if export_image_path:
-            self.pv.show(screenshot=export_image_path, full_screen=True)
+        if export_image_path:  # pragma: no cover
+            supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
+            extension = os.path.splitext(export_image_path)[1]
+            if extension in supported_export:
+                self.pv.save_graphic(export_image_path, raster=raster, painter=painter)
+            else:
+                self.pv.show(screenshot=export_image_path, full_screen=True)
         elif show and self.is_notebook:  # pragma: no cover
             self.pv.show()  # pragma: no cover
         elif show:

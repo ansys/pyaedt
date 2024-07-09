@@ -32,9 +32,9 @@ from __future__ import absolute_import  # noreorder
 import math
 import re
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
@@ -831,6 +831,18 @@ class Nets3DLayout(object):
         for c in self._oeditor.FilterObjectList("Type", "component", self._oeditor.FindObjects("Net", self.name)):
             comps[c] = self._primitives.components[c]
         return comps
+
+    @property
+    def geometry_names(self):
+        """List of geometry names.
+
+        Returns
+        -------
+        list
+            Geometries that belong to the selected net."""
+        comps = self._primitives._get_names(["component", "pin", "via"])
+        geo = [i for i in self._oeditor.FindObjects("Net", self.name) if i not in comps]
+        return geo
 
 
 class Pins3DLayout(Object3DLayout, object):

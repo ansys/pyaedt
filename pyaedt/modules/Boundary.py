@@ -31,7 +31,6 @@ from collections import OrderedDict
 import copy
 import re
 
-from pyaedt import Hfss3dLayout
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
@@ -397,6 +396,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def footprint_filter(self):
         """Minimum component footprint for filtering."""
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         if self._app.settings.aedt_version < "2024.2":
             return None
         return self.filters.get("FootPrint", {}).get("Value", None)
@@ -412,8 +416,13 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_footprint : str
             Value with unit of the minimum component footprint for filtering.
         """
-        if self._app.settings.aedt_version < "2024.2":
-            return False
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return
+        if self._app.settings.aedt_version < "2024.2":  # pragma : no cover
+            return
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "FootPrint" in new_filters:
             new_filters.remove("FootPrint")
@@ -426,6 +435,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def power_filter(self):
         """Minimum component power for filtering."""
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         return self.filters.get("Power", {}).get("Value")
 
     @power_filter.setter
@@ -439,6 +453,11 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_power : str
             Value with unit of the minimum component power for filtering.
         """
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Power" in new_filters:
             new_filters.remove("Power")
@@ -451,6 +470,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def type_filters(self):
         """Types of component that are filtered."""
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         return self.filters.get("Types")
 
     @type_filters.setter
@@ -464,6 +488,11 @@ class NativeComponentPCB(NativeComponentObject, object):
         object_type : str or list
             Types of object to filter. Accepted types are ``"Capacitors"``, ``"Inductors"``, ``"Resistors"``.
         """
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return
         if not isinstance(object_type, list):
             object_type = [object_type]
         if not all(o in self._filter_map2name.values() for o in object_type):
@@ -483,6 +512,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def height_filter(self):
         """Minimum component height for filtering."""
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         return self.filters.get("Height", {}).get("Value", None)
 
     @height_filter.setter
@@ -496,6 +530,11 @@ class NativeComponentPCB(NativeComponentObject, object):
         minimum_height : str
             Value with unit of the minimum component power for filtering.
         """
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "Height" in new_filters:
             new_filters.remove("Height")
@@ -508,6 +547,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def objects_2d_filter(self):
         """Whether 2d objects are filtered."""
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         return self.filters.get("Exclude2DObjects", False)
 
     @objects_2d_filter.setter
@@ -521,6 +565,11 @@ class NativeComponentPCB(NativeComponentObject, object):
         filter : bool
             Whether 2d objects are filtered
         """
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return
         new_filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         if "HeightExclude2D" in new_filters:
             new_filters.remove("HeightExclude2D")
@@ -532,6 +581,11 @@ class NativeComponentPCB(NativeComponentObject, object):
     @pyaedt_function_handler()
     def filters(self):
         """All active filters."""
+        if self.props["NativeComponentDefinitionProvider"].get("PartsChoice", None) != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return None
         out_filters = {"Type": {"Capacitors": False, "Inductors": False, "Resistors": False}}
         filters = self.props["NativeComponentDefinitionProvider"].get("Filters", [])
         filter_map2type = {
@@ -589,6 +643,11 @@ class NativeComponentPCB(NativeComponentObject, object):
         bool
             ``True`` if successful. ``False`` otherwise.
         """
+        if self.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return False
         override_component = (
             self.props["NativeComponentDefinitionProvider"].get("instanceOverridesMap", {}).get("oneOverrideBlk", [])
         )
@@ -620,13 +679,24 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_parts(self, parts_choice, simplify_parts=False, surface_material="Steel-oxidised-surface"):
-        """Set how to include PCB parts.
+    def disable_device_parts(self):
+        """Disable PCB parts.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = 0
+        return True
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def set_device_parts(self, simplify_parts=False, surface_material="Steel-oxidised-surface"):
+        """Set how to include PCB device parts.
 
         Parameters
         ----------
-        parts_choice : str
-            Parts to include: ``"None"``, ``"Device Parts"`` or ``"Package Parts"``.
         simplify_parts : bool, optional
             Whether to simplify parts as cuboid. Default is ``False``.
         surface_material : str, optional
@@ -637,27 +707,88 @@ class NativeComponentPCB(NativeComponentObject, object):
         bool
             ``True`` if successful. ``False`` otherwise.
         """
-        allowed_inputs = ["None", "Device Parts", "Package Parts"]
-        try:
-            parts_choice = allowed_inputs.index(parts_choice)
-        except ValueError:
-            self._app.logger.error(
-                "{} is not a valid argument, only allowed input are {}.".format(parts_choice, ", ".join(allowed_inputs))
-            )
-            return False
-        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = parts_choice
+        self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = 1
         self.props["NativeComponentDefinitionProvider"]["ModelDeviceAsRect"] = simplify_parts
         self.props["NativeComponentDefinitionProvider"]["DeviceSurfaceMaterial"] = surface_material
         return True
 
     @pyaedt_function_handler()
+    @disable_auto_update
+    def set_package_parts(
+        self,
+        solderballs=None,
+        connector=None,
+        solderbumps_modeling="Boxes",
+        bondwire_material="Au-Typical",
+        bondwire_diameter="0.05mm",
+    ):
+        """Set how to include PCB device parts.
+
+        Parameters
+        ----------
+        solderballs : str, optional
+            Specifies whether the solderballs located below the stackup are modeled,
+            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
+        connector : str, optional
+            Specifies whether the connectors located above the stackup are modeled,
+            and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
+            Default is ``None`` in which case they are not modeled.
+        solderbumps_modeling : str, optional
+            Specifies how to model solderbumps if ``connector`` is set to ``"Solderbump"``.
+            Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
+            Default is ``"Boxes"``.
+        bondwire_material : str, optional
+            Specifies bondwires material if ``connector`` is set to ``"Bondwire"``.
+            Default is ``"Au-Typical"``.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        # sanity check
+        valid_connectors = ["Solderbump", "Bondwire"]
+        if connector is not None and connector not in valid_connectors:
+            self._app.logger.error(
+                "{} option is not supported. Use one of the following: {}".format(
+                    connector, ", ".join(valid_connectors)
+                )
+            )
+            return False
+        solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
+        for arg in [solderbumps_modeling, solderballs]:
+            if arg is not None and arg not in solderbumps_map:
+                self._app.logger.error(
+                    "{} option is not supported. Use one of the following: "
+                    "{}".format(arg, ", ".join(list(solderbumps_map.keys())))
+                )
+                return False
+        if bondwire_material not in self._app.materials.mat_names_aedt:
+            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
+            return False
+
+        update_properties = {
+            "PartsChoice": 2,
+            "CreateTopSolderballs": connector is not None,
+            "TopConnectorType": connector,
+            "TopSolderballsModelType": solderbumps_map[solderbumps_modeling],
+            "BondwireMaterial": bondwire_material,
+            "BondwireDiameter": bondwire_diameter,
+            "CreateBottomSolderballs": solderballs is not None,
+            "BottomSolderballsModelType": solderbumps_map[solderballs],
+        }
+
+        self.props["NativeComponentDefinitionProvider"].update(update_properties)
+        return True
+
+    @pyaedt_function_handler()
     def identify_extent_poly(self):
+        from pyaedt import Hfss3dLayout
+
         prj = self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
         if prj == "This Project*":
             prj = self._app.project_name
-        layout = Hfss3dLayout(
-            projectname=prj, designname=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
-        )
+        layout = Hfss3dLayout(project=prj, design=self.props["NativeComponentDefinitionProvider"]["DefnLink"]["Design"])
         layer = [o for o in layout.modeler.stackup.drawing_layers if o.type == "outline"][0]
         outlines = [p for p in layout.modeler.polygons.values() if p.placement_layer == layer.name]
         if len(outlines) > 1:
@@ -1283,6 +1414,33 @@ class MaxwellParameters(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+        self.__reduced_matrices = None
+        self.matrix_assignment = None
+
+    @property
+    def reduced_matrices(self):
+        """List of reduced matrix groups for the parent matrix.
+
+        Returns
+        -------
+        dict
+            Dictionary of reduced matrices where the key is the name of the parent matrix
+            and the values are in a list of reduced matrix groups.
+        """
+        if self._app.solution_type == "EddyCurrent":
+            self.__reduced_matrices = {}
+            cc = self._app.odesign.GetChildObject("Parameters")
+            parents = cc.GetChildNames()
+            if self.name in parents:
+                parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+                parent_type = parent_object.GetPropValue("Type")
+                if parent_type == "Matrix":
+                    self.matrix_assignment = parent_object.GetPropValue("Selection").split(",")
+                    child_names = parent_object.GetChildNames()
+                    self.__reduced_matrices = []
+                    for r in child_names:
+                        self.__reduced_matrices.append(MaxwellMatrix(self._app, self.name, r))
+        return self.__reduced_matrices
 
     @property
     def object_properties(self):
@@ -1399,6 +1557,9 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not self._app.solution_type == "EddyCurrent":
+            self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
+            return False, False
         if not matrix_name:
             matrix_name = generate_unique_name("ReducedMatrix", n=3)
         if not join_name:
@@ -1461,8 +1622,94 @@ class MaxwellParameters(BoundaryCommon, object):
         )
 
 
+class MaxwellMatrix(object):
+    def __init__(self, app, parent_name, reduced_name):
+        self._app = app
+        self.parent_matrix = parent_name
+        self.name = reduced_name
+        self.__sources = None
+
+    @property
+    def sources(self):
+        """List of matrix sources."""
+        if self._app.solution_type == "EddyCurrent":
+            sources = (
+                self._app.odesign.GetChildObject("Parameters")
+                .GetChildObject(self.parent_matrix)
+                .GetChildObject(self.name)
+                .GetChildNames()
+            )
+            self.__sources = {}
+            for s in sources:
+                excitations = (
+                    self._app.odesign.GetChildObject("Parameters")
+                    .GetChildObject(self.parent_matrix)
+                    .GetChildObject(self.name)
+                    .GetChildObject(s)
+                    .GetPropValue("Source")
+                )
+                self.__sources[s] = excitations
+        return self.__sources
+
+    @pyaedt_function_handler()
+    def update(self, old_source, source_type, new_source=None, new_excitations=None):
+        """Update the reduced matrix.
+
+        Parameters
+        ----------
+        old_source : str
+            Original name of the source to update.
+        source_type : str
+            Source type, which can be ``Series`` or ``Parallel``.
+        new_source : str, optional
+            New name of the source to update.
+            The default value is the old source name.
+        new_excitations : str, optional
+            List of excitations to include in the matrix reduction.
+            The default values are excitations included in the source to update.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if old_source not in self.sources.keys():
+            self._app.logger.error("Source does not exist.")
+            return False
+        else:
+            new_excitations = self.sources[old_source] if not new_excitations else new_excitations
+        if source_type.lower() not in ["series", "parallel"]:
+            self._app.logger.error("Join type not valid.")
+            return False
+        if not new_source:
+            new_source = old_source
+        args = ["NAME:" + new_source, "Type:=", "Join in " + source_type, "Sources:=", new_excitations]
+        self._app.o_maxwell_parameters.EditReduceOp(self.parent_matrix, self.name, old_source, args)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self, source):
+        """Delete a specified source in a reduced matrix.
+
+        Parameters
+        ----------
+        source : string
+            Name of the source to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if source not in self.sources.keys():
+            self._app.logger.error("Invalid source name.")
+            return False
+        self._app.o_maxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
+        return True
+
+
 class FieldSetup(BoundaryCommon, object):
-    """Manages Far Field and Near Field Component data and execution.
+    """Manages far field and near field component data and execution.
 
     Examples
     --------
@@ -3772,7 +4019,7 @@ class Excitations(object):
     @reference_node.setter
     def reference_node(self, ref_node=None):
         if ref_node:
-            self._logger.warning("Set reference node only working with GRPC")
+            self._logger.warning("Set reference node only working with gRPC")
             if ref_node == "Ground":
                 ref_node = "Z"
             self._props["RefNode"] = ref_node

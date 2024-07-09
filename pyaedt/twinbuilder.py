@@ -45,23 +45,23 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
@@ -70,7 +70,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``.
@@ -89,7 +89,11 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         The remote server must be up and running with command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -117,37 +121,46 @@ class TwinBuilder(AnalysisTwinBuilder, object):
     >>> app = TwinBuilder("myfile.aedt")
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """Constructor."""
         AnalysisTwinBuilder.__init__(
             self,
             "Twin Builder",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
     def _init_from_design(self, *args, **kwargs):

@@ -97,7 +97,7 @@ class Settings(object):  # pragma: no cover
         self._retry_n_times_time_interval = 0.1
         self._wait_for_license = False
         self.__lazy_load = True
-        self.__objects_lazy_load = False
+        self.__objects_lazy_load = True
 
     @property
     def release_on_exception(self):

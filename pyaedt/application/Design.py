@@ -75,6 +75,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
+from pyaedt.generic.general_methods import remove_project_lock
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
 from pyaedt.modules.Boundary import BoundaryObject
@@ -113,13 +114,13 @@ class Design(AedtObjects):
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT launches in graphical mode.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -129,12 +130,15 @@ class Design(AedtObjects):
         Whether to enable the student version of AEDT. The default
         is ``False``.
     aedt_process_id : int, optional
-        Only used when ``new_desktop_session = False``, specifies by process ID which instance
+        Only used when ``new_desktop = False``, specifies by process ID which instance
         of Electronics Desktop to point PyAEDT at.
     ic_mode : bool, optional
         Whether to set the design to IC mode or not. The default is ``None``, which means to retain
         the existing setting. Applicable only to ``Hfss3dLayout``.
-
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
     """
 
     @property
@@ -202,12 +206,12 @@ class Design(AedtObjects):
     def _init_design(self, project_name, design_name, solution_type=None):
         # calls the method from the application class
         self._init_from_design(
-            projectname=project_name,
-            designname=design_name,
+            project=project_name,
+            design=design_name,
             solution_type=solution_type,
-            specified_version=settings.aedt_version,
+            version=settings.aedt_version,
             non_graphical=self._desktop_class.non_graphical,
-            new_desktop_session=False,
+            new_desktop=False,
             close_on_exit=self.close_on_exit,
             student_version=self.student_version,
             machine=self._desktop_class.machine,
@@ -220,17 +224,19 @@ class Design(AedtObjects):
         project_name=None,
         design_name=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
-
+        self._design_name = None
+        self._project_name = None
         self.__t = None
         if (
             not is_ironpython
@@ -254,9 +260,9 @@ class Design(AedtObjects):
         self.close_on_exit = close_on_exit
         self._desktop_class = None
         self._desktop_class = _init_desktop_from_design(
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
@@ -287,14 +293,13 @@ class Design(AedtObjects):
             self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
         self.design_solutions._solution_type = solution_type
         self._temp_solution_type = solution_type
+        self._remove_lock = remove_lock
         self.oproject = project_name
         self.odesign = design_name
         self._logger.oproject = self.oproject
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        # if t:
-        #     t.join()
         if not self.__t and not settings.lazy_load and not is_ironpython and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
@@ -635,11 +640,11 @@ class Design(AedtObjects):
 
         if not self.odesign:
             return None
-        name = _retry_ntimes(5, self.odesign.GetName)
-        if ";" in name:
-            return name.split(";")[1]
+        self._design_name = _retry_ntimes(5, self.odesign.GetName)
+        if ";" in self._design_name:
+            return self._design_name.split(";")[1]
         else:
-            return name
+            return self._design_name
 
     @design_name.setter
     def design_name(self, new_name):
@@ -662,6 +667,7 @@ class Design(AedtObjects):
                 timeout -= timestep
                 if timeout < 0:
                     raise RuntimeError("Timeout reached while checking design renaming.")
+        self._design_name = new_name
 
     @property
     def design_list(self):
@@ -718,7 +724,8 @@ class Design(AedtObjects):
         """
         if self.oproject:
             try:
-                return self.oproject.GetName()
+                self._project_name = self.oproject.GetName()
+                return self._project_name
             except Exception:
                 return None
         else:
@@ -1089,6 +1096,8 @@ class Design(AedtObjects):
         """
         if settings.use_multi_desktop:  # pragma: no cover
             self._desktop_class.grpc_plugin.recreate_application(True)
+            if self._design_name:
+                self._odesign = self.oproject.SetActiveDesign(self._design_name)
         return self._odesign
 
     @odesign.setter
@@ -1176,7 +1185,11 @@ class Design(AedtObjects):
                         self.logger.info("Project %s set to active.", pname)
                     elif os.path.exists(project):
                         if is_project_locked(project):
-                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+                            if self._remove_lock:  # pragma: no cover
+                                self.logger.warning("Project is locked. Removing it and opening.")
+                                remove_project_lock(project)
+                            else:  # pragma: no cover
+                                raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                         self.logger.info("aedt project found. Loading it.")
                         self._oproject = self.odesktop.OpenProject(project)
                         self._add_handler()
@@ -1201,7 +1214,11 @@ class Design(AedtObjects):
                     self.logger.info("Project %s set to active.", pname)
                 else:
                     if is_project_locked(proj_name):
-                        raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
+                        if self._remove_lock:  # pragma: no cover
+                            self.logger.warning("Project is locked. Removing it and opening.")
+                            remove_project_lock(proj_name)
+                        else:  # pragma: no cover
+                            raise RuntimeError("Project is locked. Close or remove the lock before proceeding.")
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
@@ -3734,9 +3751,12 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        if file_name and not os.path.exists(os.path.dirname(file_name)):
-            os.makedirs(os.path.dirname(file_name))
-        elif file_name:
+        if file_name:
+            file_parent_dir = os.path.dirname(os.path.normpath(file_name))
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(file_parent_dir):
+                settings.remote_rpc_session.filemanager.makedirs(file_parent_dir)
+            elif not settings.remote_rpc_session and not os.path.isdir(file_parent_dir):
+                os.makedirs(file_parent_dir)
             self.oproject.SaveAs(file_name, overwrite)
             self._add_handler()
         else:
@@ -3755,7 +3775,7 @@ class Design(AedtObjects):
         project_path=None,
         include_external_files=True,
         include_results_file=True,
-        additional_files=[],
+        additional_files=None,
         notes="",
     ):
         """Archive the AEDT project and add a message.
@@ -3769,7 +3789,8 @@ class Design(AedtObjects):
         include_results_file : bool, optional
             Whether to include simulation results files in the archive. The default is ``True``.
         additional_files : list, optional
-            List of additional files to add to the archive. The default is ``[]``.
+            List of additional files to add to the archive.
+            The default is ``None`` in which case an empty list is set.
         notes : str, optional
             Simulation notes to add to the archive. The default is ``""``.
 
@@ -3784,6 +3805,7 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveProjectArchive
         """
+        additional_files = [] if additional_files is None else additional_files
         msg_text = "Saving {0} Project".format(self.project_name)
         self.logger.info(msg_text)
         if not project_path:

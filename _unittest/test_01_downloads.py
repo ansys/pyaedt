@@ -28,8 +28,8 @@ import tempfile
 import pytest
 
 from pyaedt import downloads
-from pyaedt import is_linux
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.settings import is_linux
 
 
 @pytest.fixture(scope="module", autouse=True)

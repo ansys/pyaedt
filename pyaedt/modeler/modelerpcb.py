@@ -426,7 +426,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.2")
+        >>> h3d=Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> l1=h3d.modeler.create_line("TOP",[[0,0],[100,0]],0.5)
         >>> l2=h3d.modeler.create_line("TOP",[[100,0],[120,-35]],0.5)
@@ -481,7 +481,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from pyaedt import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(specified_version="2021.2")
+        >>> h3d=Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
         >>> h3d.modeler.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
         >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]])

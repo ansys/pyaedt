@@ -41,19 +41,19 @@ class Emit(Design, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which case
         an attempt is made to get an active project. If no projects are
         present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in which case
         an attempt is made to get an active design. If no designs are
         present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is ``None``, in which
         case the default type is applied.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
@@ -62,7 +62,7 @@ class Emit(Design, object):
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``.
@@ -82,7 +82,11 @@ class Emit(Design, object):
         If the machine is `"localhost"`, the server starts if it is not present.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -93,7 +97,7 @@ class Emit(Design, object):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, specified_version=232)
+    >>> aedtapp = Emit(projectname, designame, version=232)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -123,19 +127,27 @@ class Emit(Design, object):
     >>> print("Worst-case sensitivity for Rx '{}' is {}dB.".format(domain.rx_radio_name, val))
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=True,
+        new_desktop=True,
         close_on_exit=True,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         self.__emit_api_enabled = False
         self.results = None
@@ -147,17 +159,18 @@ class Emit(Design, object):
         Design.__init__(
             self,
             "EMIT",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine=machine,
             port=port,
             aedt_process_id=aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)

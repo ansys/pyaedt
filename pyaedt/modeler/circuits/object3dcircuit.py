@@ -28,11 +28,12 @@ from collections import OrderedDict
 import math
 import time
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
 from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.elements3d import _dict2arg
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
@@ -681,12 +682,17 @@ class CircuitComponent(object):
                 if "Angle=" in info:
                     self._angle = float(info[6:])
                     break
-        else:
+        elif settings.aedt_version > "2023.2":
             self._angle = float(
                 self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Angle").replace(
                     "deg", ""
                 )
             )
+        else:  # pragma: no cover
+            self._circuit_components._app.logger.warning(
+                "Angles are not supported by gRPC in AEDT versions lower than 2024 R1."
+            )
+
         return self._angle
 
     @angle.setter

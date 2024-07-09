@@ -35,7 +35,7 @@ non_graphical = False
 
 project_file = downloads.download_sbr_time()
 
-hfss = Hfss(projectname=project_file, specified_version=aedt_version, non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(project=project_file, version=aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 hfss.analyze()
 

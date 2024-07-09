@@ -41,10 +41,10 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
+cir = pyaedt.Circuit(project=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example23R1.aedtz'),
                      non_graphical=non_graphical,
-                     specified_version=aedt_version,
-                     new_desktop_session=True
+                     version=aedt_version,
+                     new_desktop=True
                      )
 cir.analyze()
 
@@ -87,10 +87,14 @@ Image(out)
 ###############################################################################
 # Create transient report
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Property dictionary can be customized in any aspect and new report can be created easily.
-# In this example the curve name is customized.
+# You can customize any aspect of the property dictionary and easily create a new report.
+# The following code customizes the curve name.
+# The expressions key can be a list of expressions as follows or a dictionary containing the expressions to plot and line properties.
+# props["expressions"] = { "V(Battery)" :
+#                           {"color": [0, 255, 0], "trace_style": "Solid", "width": 1, "trace_type": "Continuous"}}
 
-props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}
+
+props["expressions"] = ["V(Battery)", "V(U1_VDD)"]
 props["plot_name"] = "Battery Voltage"
 report3 = cir.post.create_report_from_configuration(report_settings=props, solution_name="NexximTransient")
 out = cir.post.export_report_to_jpg(cir.working_directory, report3.plot_name)

@@ -24,15 +24,21 @@
 
 import random
 import re
+import sys
 import time
+import warnings
 
-from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.Modeler import Modeler
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+
+if (3, 8) < sys.version_info < (3, 12):
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+else:  # pragma: no cover
+    warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.circuits.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.circuits.PrimitivesTwinBuilder import TwinBuilderComponents
@@ -459,7 +465,7 @@ class ModelerCircuit(Modeler):
         for sel in selections:
             if isinstance(sel, int):
                 sels.append(self.schematic.components[sel].composed_name)
-            elif isinstance(sel, (CircuitComponent, EmitComponent)):
+            elif isinstance(sel, CircuitComponent):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
@@ -738,6 +744,24 @@ class ModelerEmit(ModelerCircuit):
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
         self.logger.info("ModelerEmit class has been initialized!")
+
+    @pyaedt_function_handler()
+    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
+        sels = []
+        if not isinstance(selections, list):
+            selections = [selections]
+        for sel in selections:
+            if isinstance(sel, int):
+                sels.append(self.schematic.components[sel].composed_name)
+            elif isinstance(sel, (CircuitComponent, EmitComponent)):
+                sels.append(sel.composed_name)
+            else:
+                for el in list(self.schematic.components.values()):
+                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                        sels.append(el.composed_name)
+        if not return_as_list:
+            return ", ".join(sels)
+        return sels
 
 
 class ModelerMaxwellCircuit(ModelerCircuit):

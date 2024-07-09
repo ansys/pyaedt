@@ -30,10 +30,10 @@ import os
 import sys
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import unit_converter
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
@@ -99,8 +99,8 @@ class SweepHFSS(object):
 
     Examples
     --------
-    >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
-                    name=name, new_desktop_session=False, close_on_exit=False)
+    >>> hfss = Hfss(version=version, project=proj, design=gtemDesign, solution_type=solutiontype,
+                    name=name, new_desktop=False, close_on_exit=False)
     >>> hfss_setup = hfss.setups[0]
     >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweep_type ='Interpolating', props=None)
 

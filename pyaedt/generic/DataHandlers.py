@@ -619,7 +619,7 @@ design_name = os.getenv('design')
 setup = os.getenv('setup')
 
 with Desktop() as d:
-    maxwell_2d = Maxwell2d(designname=design_name, name=setup)
+    maxwell_2d = Maxwell2d(design=design_name, name=setup)
     maxwell_2d.setup_ctrlprog(keep_modifications=True )
     d.logger.info("Successfully updated project definitions")
     maxwell_2d.save_project()

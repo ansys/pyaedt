@@ -2928,6 +2928,7 @@ class GeometryModeler(Modeler):
             str(clones),
         ]
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+        self.add_new_objects()
         added_objs = self.oeditor.DuplicateAroundAxis(vArg1, vArg2, vArg3)
         self._duplicate_added_objects_tuple()
         if is_3d_comp:
@@ -2996,6 +2997,7 @@ class GeometryModeler(Modeler):
         vArg2.append("ZComponent:="), vArg2.append(Zpos)
         vArg2.append("Numclones:="), vArg2.append(str(clones))
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+        self.add_new_objects()
         self.oeditor.DuplicateAlongLine(vArg1, vArg2, vArg3)
         if is_3d_comp:
             return self._duplicate_added_components_tuple()
@@ -3702,6 +3704,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.Paste
         """
+        self.add_new_objects()
         self.oeditor.Paste()
         new_objects = self.add_new_objects()
         return new_objects
@@ -6694,7 +6697,7 @@ class GeometryModeler(Modeler):
         >>> from pyaedt.modeler.cad.polylines import PolylineSegment
         >>> from pyaedt import Desktop
         >>> from pyaedt import Maxwell3d
-        >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
+        >>> desktop=Desktop(version="2021.2", new_desktop=False)
         >>> aedtapp = Maxwell3d()
         >>> aedtapp.modeler.model_units = "mm"
         >>> modeler = aedtapp.modeler

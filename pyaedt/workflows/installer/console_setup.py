@@ -88,24 +88,24 @@ if not session_found:
 error = False
 if port:
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         port=port,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
     )
 elif is_windows:
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         aedt_process_id=aedt_process_id,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
     )
 else:
-    print("Error. AEDT should be started in GRPC mode in Linux to connect to Pyaedt")
+    print("Error. AEDT should be started in gRPC mode in Linux to connect to Pyaedt")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
 if not error:

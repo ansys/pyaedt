@@ -32,10 +32,10 @@ import io
 import os
 import re
 
-from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -53,32 +53,32 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open or the path to the ``aedb`` folder or
         ``edb.def`` file. The default is ``None``, in which case an
         attempt is made to get an active project. If no projects are present,
         an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
-        is ``False```, in which case AEDT is launched in graphical mode.
+        is ``True```, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -96,10 +96,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
     ic_mode : bool, optional
         Whether to set the design to IC mode or not. The default is ``None``, which  means to retain
         the existing setting.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -127,7 +131,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2023 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(specified_version="2023.1", projectname="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2023.1", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
@@ -137,42 +141,51 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = pyaedt.Hfss3dLayout(specified_version=231, projectname=edb_path)
+    >>> aedtapp = pyaedt.Hfss3dLayout(version=231, project=edb_path)
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
         ic_mode=None,
+        remove_lock=False,
     ):
         FieldAnalysis3DLayout.__init__(
             self,
             "HFSS 3D Layout Design",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
             ic_mode,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
 
@@ -734,7 +747,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
-        self.__init__(projectname=project_name, designname=design_name)
+        self.__init__(project=project_name, design=design_name)
         return True
 
     @pyaedt_function_handler(outputdir="output_dir")
@@ -1060,7 +1073,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return False
 
     @pyaedt_function_handler(
-        setupname="setup", freqstart="start_frequency", freqstop="stop_frequency", sweepname="name"
+        setup_name="setup",
+        setupname="setup",
+        freqstart="start_frequency",
+        freqstop="stop_frequency",
+        sweepname="name",
+        sweep_name="name",
     )
     def create_linear_step_sweep(
         self,
@@ -2059,9 +2077,59 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         -------
         bool
         """
+
+        def find_scale(data, header_line):
+            for td in data.keys():
+                if td in header_line:
+                    return data[td]
+            return None
+
+        with open(input_file, "r") as f:
+            header = f.readlines()[0]
+            time_data = {"[ps]": 1e-12, "[ns]": 1e-9, "[us]": 1e-6, "[ms]": 1e-3, "[s]": 1}
+            curva_data_V = {
+                "[nV]": 1e-9,
+                "[pV]": 1e-12,
+                "[uV]": 1e-6,
+                "[mV]": 1e-3,
+                "[V]": 1,
+                "[kV]": 1e3,
+            }
+            curva_data_W = {
+                "[nW]": 1e-9,
+                "[pW]": 1e-12,
+                "[uW]": 1e-6,
+                "[mW]": 1e-3,
+                "[W]": 1,
+                "[kW]": 1e3,
+            }
+            curva_data_A = {
+                "[nA]": 1e-9,
+                "[pA]": 1e-12,
+                "[uA]": 1e-6,
+                "[mA]": 1e-3,
+                "[A]": 1,
+                "[kA]": 1e3,
+            }
+            scale = find_scale(time_data, header)
+            x_scale = scale if scale else x_scale
+            scale = find_scale(curva_data_V, header)
+            if scale:
+                y_scale = scale
+                data_format = "Voltage"
+            else:
+                scale = find_scale(curva_data_W, header)
+                if scale:
+                    y_scale = scale
+                    data_format = "Power"
+                else:
+                    scale = find_scale(curva_data_A, header)
+                    if scale:
+                        y_scale = scale
+                        data_format = "Current"
         out = "Voltage"
         freq, mag, phase = parse_excitation_file(
-            file_name=input_file,
+            input_file=input_file,
             is_time_domain=is_time_domain,
             x_scale=x_scale,
             y_scale=y_scale,

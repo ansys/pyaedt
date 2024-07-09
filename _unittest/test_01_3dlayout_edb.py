@@ -29,7 +29,7 @@ from _unittest.conftest import local_path
 import pytest
 
 from pyaedt import Hfss3dLayout
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T40"
 original_project_name = "ANSYS-HSD_V1"

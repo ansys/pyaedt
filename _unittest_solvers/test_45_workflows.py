@@ -3,7 +3,7 @@ import os
 import shutil
 
 import pyaedt
-from pyaedt import is_linux
+from pyaedt.generic.settings import is_linux
 from _unittest.conftest import local_path
 from _unittest_solvers.conftest import local_path as solver_local_path
 
@@ -12,6 +12,7 @@ export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
+m2d_electrostatic = "maxwell_fields_calculator"
 
 test_subfolder = "T45"
 
@@ -152,16 +153,15 @@ class TestClass:
         assert main({"is_test": True})
 
     def test_08_configure_a3d(self, local_scratch):
-
         from pyaedt.workflows.project.configure_edb import main
 
         configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
-                                os.path.join(local_scratch.path, "ports.json"))
+                                         os.path.join(local_scratch.path, "ports.json"))
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
-        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45",  "ANSYS-HSD_V1.aedb"),file_path)
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
+                                 file_path)
 
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
-
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=pyaedt.Hfss,
@@ -228,3 +228,74 @@ class TestClass:
         assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
 
         aedtapp.close_project(aedtapp.project_name)
+
+        aedtapp = add_app(application=pyaedt.Maxwell2d,
+                          project_name=m2d_electrostatic,
+                          design_name="e_tangential",
+                          subfolder=test_subfolder)
+        name = aedtapp.post.fields_calculator.add_expression("e_line", None)
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
+
+        assert main({"is_test": True,
+                     "setup": "MySetupAuto : LastAdaptive",
+                     "calculation": "e_line",
+                     "assignment": ["Polyl1"]})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+        aedtapp = add_app(application=pyaedt.Maxwell2d,
+                          project_name=m2d_electrostatic,
+                          design_name="stress_tensor",
+                          subfolder=test_subfolder)
+        name = aedtapp.post.fields_calculator.add_expression("radial_stress_tensor", None)
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("radial_stress_tensor", "Polyline1", [name])
+        name = aedtapp.post.fields_calculator.add_expression("tangential_stress_tensor", None)
+        assert name
+        assert aedtapp.post.fields_calculator.expression_plot("tangential_stress_tensor", "Polyline1", [name])
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_10_push_excitation_3dl(self, local_scratch, desktop):
+        from pyaedt.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
+
+        project_path = shutil.copy(os.path.join(local_path, "example_models",
+                                                "T41",
+                                                "test_post_3d_layout_solved_23R2.aedtz"),
+                                   os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
+
+        h3d = pyaedt.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
+
+        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
+        assert main({"is_test": True, "file_path": file_path, "choice": ""})
+        h3d.save_project()
+        assert not h3d.design_datasets
+
+        # Correct choice
+        assert main({"is_test": True, "file_path": file_path, "choice": "Port1"})
+        h3d.save_project()
+        # In 3D Layout datasets are not retrieved
+        # assert h3d.design_datasets
+        h3d.close_project(h3d.project_name)
+
+    def test_11_cutout(self, add_app, local_scratch):
+        from pyaedt.workflows.hfss3dlayout.cutout import main
+
+
+        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+
+        assert main({"is_test": True, "choice": "ConvexHull",
+                     "signals": ["DDR4_A0"],
+                     "reference": ["GND"],
+                     "expansion_factor": 3,
+                     "fix_disjoints": True, })
+        app.close_project()
+    def test_12_export_layout(self, add_app, local_scratch):
+        from pyaedt.workflows.hfss3dlayout.export_layout import main
+
+
+        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+
+        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
+        app.close_project()

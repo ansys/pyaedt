@@ -25,10 +25,10 @@
 import sys
 import time
 
-from pyaedt import is_linux
-from pyaedt import pyaedt_function_handler
-from pyaedt import settings
 from pyaedt.generic.desktop_sessions import _desktop_sessions
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 
 
 class AedtObjects(object):
