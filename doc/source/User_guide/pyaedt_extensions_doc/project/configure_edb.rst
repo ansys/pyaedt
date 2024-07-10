@@ -40,7 +40,7 @@ As depicted above, these options are importing a stackup, defining components an
 doing a cutout (much faster and easier than the UI one),
 creating coaxial ports with an appropriate PEC backing, as well as, automatically creating distributed circuit ports (or current / voltage sources) on a component,
 with the negative terminal of each being its nearest pin of the reference net. Moreover, a variety of simulation setups are supported, namely HFSS, SIwave SYZ, SIwave DC,
-as well as, mesh operations i.e. length based. Last but not least, exporting a configuration file from the active design is also supported, hence the user can get the
+as well as, mesh operations that is length based. Last but not least, exporting a configuration file from the active design is also supported, hence the user can get the
 configuration setup and re-use it with or without modifications as many times as possible.
 
 The value of this format and toolkit, lies in the fact that it is totally reusable, it is really user-friendly, even with users that are not familiar with scripting.
