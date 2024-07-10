@@ -1085,8 +1085,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        type
-            Design object.
+        Design object
 
         References
         ----------
