@@ -22,14 +22,6 @@ setting file applied.
   :alt: Principle of working of Layout UI
 
 
-
-You can also launch the extension user interface from the terminal. An example can be found here:
-
-.. toctree::
-   :maxdepth: 2
-
-   ../commandline
-
 A brief description of which options are defined in the configuration file:
 
 .. image:: ../../../_static/extensions/edb_config_setup.png
