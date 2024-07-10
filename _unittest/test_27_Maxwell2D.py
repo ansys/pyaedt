@@ -596,6 +596,6 @@ class TestClass:
     def test_38_export_fields_calc(self):
         output_file = os.path.join(self.local_scratch.path, "e_tang_field.fld")
         assert self.m2d_field_export.post.export_field_file(
-            quantity="E_Line", output_dir=output_file, assignment="Poly1", objects_type="Line"
+            quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
         )
         assert os.path.exists(output_file)
