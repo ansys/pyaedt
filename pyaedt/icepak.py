@@ -6464,6 +6464,28 @@ class Icepak(FieldAnalysis3D):
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
 
+    @pyaedt_function_handler
+    def clear_linked_data(self):
+        """
+        Clear the linked data of all the solution setups.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ClearLinkedData
+        """
+        try:
+            self.odesign.ClearLinkedData()
+        except:
+            return False
+        else:
+            return True
+
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
     def __init__(self, app):
