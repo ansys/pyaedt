@@ -234,7 +234,7 @@ def convert_3d_component(
     output_path = file_path[:-8] + f"_{version}.a3dcomp"
 
     if os.path.exists(output_path):
-        output_path = file_path[:-8] + generate_unique_name(f"_version", n=2) + ".a3dcomp"
+        output_path = file_path[:-8] + generate_unique_name(f"_{version}", n=2) + ".a3dcomp"
     app = Hfss
     if application == 1:
         app = Icepak
@@ -263,7 +263,7 @@ def convert_3d_component(
     )
     try:
         output_desktop.DeleteProject(project_name2)
-    except Exception:
+    except:
         pass
     print(f"3D Component {output_path} has been created.")
 
@@ -280,7 +280,7 @@ def convert_aedt(
     a3d_component_path = str(file_path)
     output_path = a3d_component_path[:-5] + f"_{version}.aedt"
     if os.path.exists(output_path):
-        output_path = a3d_component_path[:-5] + generate_unique_name(f"_version", n=2) + ".aedt"
+        output_path = a3d_component_path[:-5] + generate_unique_name(f"_{version}", n=2) + ".aedt"
 
     project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
     oproject2 = output_desktop.odesktop.NewProject(output_path)
