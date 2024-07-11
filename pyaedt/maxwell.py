@@ -1945,14 +1945,19 @@ class Maxwell(object):
         return output_directory
 
     @pyaedt_function_handler()
-    def create_external_circuit(self):
+    def create_external_circuit(self, circuit_design_name=None):
         """
         Create the external circuit including all the windings of type ``External`` in the Maxwell design.
 
+        Parameters
+        ----------
+        circuit_design_name : str, optional
+            Name of the created circuit design. If ``None``, project_name_ckt is used.
+
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.maxwellcircuit.MaxwellCircuit`
+            MaxwellCircuit object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1961,18 +1966,23 @@ class Maxwell(object):
         >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         >>> m2d.assign_coil(assignment=["Coil1"])
         >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
-        >>> m2d.create_external_circuit()
+        >>> ckt = m2d.create_external_circuit()
         >>> m2d.release_desktop(True, True)
         """
 
         project_name = self.project_name
-        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(designname=project_name+"_ckt")
+        if circuit_design_name is None:
+            circuit_name = project_name + "_ckt"
+        else:
+            circuit_name = circuit_design_name
+
+        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(designname=circuit_name)
         winding_names = self.windings
 
         for winding_name in winding_names:
             circuit.modeler.schematic.create_winding(name=winding_name)
 
-        return True
+        return circuit
 
 
     @pyaedt_function_handler()
