@@ -149,8 +149,8 @@ class TouchstoneData(rf.Network):
         ----------
         threshold : float, int, optional
             Threshold to determine shorted ports in dB.
-        plot: bool
-            Whether to plot.
+        plot : bool, optional
+            Whether to plot. The default is ``True``.
 
         Returns
         -------
@@ -171,7 +171,7 @@ class TouchstoneData(rf.Network):
         ----------
         index_couples : list, optional
             List of indexes couple to plot. Default is ``None`` to plot all ``port_tuples``.
-        show: bool
+        show : bool
             Whether to plot. Default is ``True``.
 
         Returns
@@ -191,8 +191,6 @@ class TouchstoneData(rf.Network):
     def plot_return_losses(self):  # pragma: no cover
         """Plot all return losses.
 
-        Parameters
-        ----------
         Returns
         -------
         bool
@@ -344,7 +342,7 @@ class TouchstoneData(rf.Network):
         Returns
         -------
         list
-            list of index couples representing Near End XTalks
+            List of index couples representing Near End XTalks.
 
         """
         if tx_prefix:
@@ -432,18 +430,17 @@ class TouchstoneData(rf.Network):
 
     @pyaedt_function_handler()
     def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
-        """This method analyze a solution data object with multiple curves and
-        find the worst curve returning its name and an ordered dictionary with each curve mean.
-        Actual algorithm simply takes the mean of the magnitude over the frequency range.
+        """Analyze a solution data object with multiple curves and find the worst curve.
+        Take the mean of the magnitude over the frequency range.
 
         Parameters
         ----------
         freq_min : float, optional
-            minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+            Minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
         freq_max : float, optional
-            maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+            Maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
         worst_is_higher : bool
-            boolean. if True, the worst curve is the one with higher mean value. Default value is ``None``.
+            Worst curve is the one with higher mean value. Default value is ``True``.
         curve_list : list
             List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
         plot : bool, optional
@@ -451,8 +448,8 @@ class TouchstoneData(rf.Network):
 
         Returns
         -------
-        type
-            worst element str, dictionary of ordered expression and their mean
+        tuple
+            Worst element, dictionary of ordered expression.
 
         """
 
