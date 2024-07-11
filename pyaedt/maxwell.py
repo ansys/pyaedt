@@ -32,7 +32,6 @@ import os
 import re
 import time
 
-import pyaedt.modeler.schematic
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
@@ -44,9 +43,11 @@ from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators
+import pyaedt.modeler.schematic
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.SetupTemplates import SetupKeys
+
 
 class Maxwell(object):
     def __init__(self):
@@ -1983,7 +1984,6 @@ class Maxwell(object):
             circuit.modeler.schematic.create_winding(name=winding_name)
 
         return circuit
-
 
     @pyaedt_function_handler()
     def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
