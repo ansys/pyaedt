@@ -32,6 +32,7 @@ import os
 import re
 import time
 
+import pyaedt.modeler.schematic
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import SOLUTIONS
@@ -46,7 +47,6 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.SetupTemplates import SetupKeys
-
 
 class Maxwell(object):
     def __init__(self):
@@ -1943,6 +1943,37 @@ class Maxwell(object):
             f1 = number_of_frequency
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
+
+    @pyaedt_function_handler()
+    def create_external_circuit(self):
+        """
+        Create the external circuit including all the windings of type ``External`` in the Maxwell design.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_coil(assignment=["Coil1"])
+        >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
+        >>> m2d.create_external_circuit()
+        >>> m2d.release_desktop(True, True)
+        """
+
+        project_name = self.project_name
+        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(designname=project_name+"_ckt")
+        winding_names = self.windings
+
+        for winding_name in winding_names:
+            circuit.modeler.schematic.create_winding(name=winding_name)
+
+        return True
+
 
     @pyaedt_function_handler()
     def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
