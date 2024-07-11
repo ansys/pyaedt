@@ -56,13 +56,12 @@ tests = [
     "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.2",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -87,7 +86,7 @@ doc = [
     "osmnx>=1.1.0,<1.10",
     "pypandoc>=1.10.0,<1.14",
     #"pytest-sphinx",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista>=0.38.0,<0.45",
     "recommonmark",
     "scikit-rf>=0.30.0,<1.2",
     "Sphinx==5.3.0; python_version == '3.7'",
@@ -103,7 +102,6 @@ doc = [
     #"sphinxcontrib-websupport",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 doc-no-examples = [
     "ansys-sphinx-theme>=0.10.0,<0.17",
@@ -132,14 +130,13 @@ all = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.2",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 installer = [
     "imageio>=2.30.0,<2.35",
@@ -148,13 +145,12 @@ installer = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.2",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
     "jupyterlab>=3.6.0,<4.3",
     "ipython>=7.30.0,<8.27",
     "ipyvtklink>=0.2.0,<0.2.4",
