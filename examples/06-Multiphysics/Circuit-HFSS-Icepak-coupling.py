@@ -61,7 +61,10 @@ project_path = downloads.download_file("circuit_hfss_icepak", "Circuit-HFSS-Icep
 
 # Open the project and get the Circuit design.
 circuit = Circuit(
-    projectname=project_path, new_desktop_session=True, specified_version=241, non_graphical=False
+    projectname=project_path,
+    new_desktop_session=True,
+    specified_version=241,
+    non_graphical=False
 )
 
 # set the name of the resistor in Circuit.
@@ -74,19 +77,19 @@ device3D_body_name = "Device_3D"
 ###############################################################################
 # Get the Hfss design and prepare the material for the thermal link
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Get the Hfss design
+# Get the Hfss design.
 hfss = Hfss(projectname=circuit.project_name)
 
 # Create a new material that will be used to set the temperature map on it.
 # The material is created by duplicating the material assigned to the cylinder.
 material_name = hfss.modeler.objects_by_name[device3D_body_name].material_name
 new_material_name = material_name + "_dataset"
-new_material = hfss.materials.duplicate_material(material_name, name=new_material_name)
+new_material = hfss.materials.duplicate_material(material=material_name, name=new_material_name)
 
-# Save the conductivity value. It will be used later in the iterations
+# Save the conductivity value. It will be used later in the iterations.
 old_conductivity = new_material.conductivity.value
 
-# Assign the new material to the cylinder object in HFSS
+# Assign the new material to the cylinder object in HFSS.
 hfss.modeler.objects_by_name[device3D_body_name].material_name = new_material_name
 
 # Since this material has a high conductivity, HFSS automatically deactivate "Solve Inside".
@@ -97,7 +100,7 @@ hfss.modeler.objects_by_name[device3D_body_name].solve_inside = True
 ###############################################################################
 # Get the Icepak design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Get the Icepak design
+# Get the Icepak design.
 icepak = Icepak(projectname=circuit.project_name)
 
 
@@ -107,10 +110,10 @@ icepak = Icepak(projectname=circuit.project_name)
 # Set the initial temperature to a value closer to the final one, to speed up the convergence.
 circuit["TempE"] = "300cel"
 
-# Set the maximum number of iterations
+# Set the maximum number of iterations.
 max_iter = 10
 
-# Set the residual convergence criteria to stop the iterations
+# Set the residual convergence criteria to stop the iterations.
 temp_residual = 0.02
 loss_residual = 0.02
 
@@ -121,7 +124,7 @@ stats = {}
 ###############################################################################
 # Start the iterations
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Each for loop is a complete two-way iteration
+# Each for loop is a complete two-way iteration.
 for cp_iter in range(1, max_iter + 1):
     stats[cp_iter] = {}
 
@@ -129,14 +132,15 @@ for cp_iter in range(1, max_iter + 1):
     ###############################################################################
     # Step 1: Solve the Hfss design
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # Solve the Hfss design
+    # Solve the Hfss design.
     hfss.analyze()
 
 
     ###############################################################################
     # Step 2: Refresh the dynamic link and solve the Circuit design
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # find the HFSS subcomponent in Circuit
+    # Find the HFSS subcomponent in Circuit.
+    # This information is required by refresh_dynamic_link and push_excitations methods.
     hfss_component_name = ""
     hfss_instance_name = ""
     for component in circuit.modeler.components.components.values():
@@ -144,43 +148,40 @@ for cp_iter in range(1, max_iter + 1):
             component.model_name is not None
             and hfss.design_name in component.model_name
         ):
-            # Component found
             hfss_component_name = component.model_name
             hfss_instance_name = component.refdes
             break
     if not hfss_component_name or not hfss_instance_name:
         raise "Hfss component not found in Circuit design"
 
-    # Refresh the dynamic link
+    # Refresh the dynamic link.
     circuit.modeler.schematic.refresh_dynamic_link(name=hfss_component_name)
 
-    # Solve the Circuit design
+    # Solve the Circuit design.
     circuit.analyze()
 
 
     ###############################################################################
     # Step 3: Push excitations (HFSS design results are scaled automatically)
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # Push excitations
+    # Push excitations.
     circuit.push_excitations(instance=hfss_instance_name)
 
 
     ###############################################################################
     # Step 4: Extract the resistor's power loss value from the Circuit design
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # evaluate power loss on resistor
-    r_losses = (
-        circuit.post.get_solution_data(expressions="0.5*mag(I(I1)*V(V1))")
-    ).data_magnitude()[0]
+    # Evaluate power loss on resistor.
+    r_losses = circuit.post.get_solution_data(expressions="0.5*mag(I(I1)*V(V1))").data_magnitude()[0]
 
-    # save the losses in the stats
+    # Save the losses in the stats.
     stats[cp_iter]["losses"] = r_losses
 
 
     ###############################################################################
     # Step 5: Set the resistor's power loss value in the Icepak design (block thermal condition)
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # Find the Solid Block boundary in Icepak
+    # Find the Solid Block boundary in Icepak.
     boundaries = icepak.boundaries
     boundary = None
     for bb in boundaries:
@@ -190,17 +191,17 @@ for cp_iter in range(1, max_iter + 1):
     if not boundary:
         raise "Block boundary not defined in Icepak design."
 
-    # Set the resistor's power loss in the Block Boundary
+    # Set the resistor's power loss in the Block Boundary.
     boundary.props["Total Power"] = str(r_losses) + "W"
 
 
     ###############################################################################
     # Step 6: Solve the Icepak design
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    # Clear linked data, otherwise Icepak continues to run simulation with the initial losses
+    # Clear linked data, otherwise Icepak continues to run simulation with the initial losses.
     icepak.clear_linked_data()
 
-    # Solve the Icepak design
+    # Solve the Icepak design.
     icepak.analyze()
 
 
