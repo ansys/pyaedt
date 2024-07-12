@@ -260,7 +260,7 @@ def convert_aedt(
     if os.path.exists(output_path):
         output_path = a3d_component_path[:-5] + generate_unique_name(f"_{version}", n=2) + ".aedt"
 
-    oproject = input_desktop.load_project(file_path)
+    input_desktop.load_project(file_path)
     project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
     oproject2 = output_desktop.odesktop.NewProject(output_path)
     project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]
