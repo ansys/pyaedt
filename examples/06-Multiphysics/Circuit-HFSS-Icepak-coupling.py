@@ -114,8 +114,8 @@ circuit["TempE"] = "300cel"
 max_iter = 10
 
 # Set the residual convergence criteria to stop the iterations.
-temp_residual = 0.02
-loss_residual = 0.02
+temp_residual_limit = 0.02
+loss_residual_limit = 0.02
 
 # This variable will contain the iteration statistics.
 stats = {}
@@ -206,9 +206,9 @@ for cp_iter in range(1, max_iter + 1):
 
 
     ###############################################################################
-    # Step 7:
+    # Step 7: Export the temperature map from the Icepak and create a new 3D dataset with it
     # ~~~~~~~~~~~~~~~~~~~~~~~~
-    #
+    # Export the temperature map into a file.
     fld_filename = os.path.join(
         icepak.working_directory, f"temperature_map_{cp_iter}.fld"
     )
@@ -216,7 +216,9 @@ for cp_iter in range(1, max_iter + 1):
         quantity="Temp", filename=fld_filename, obj_list="AllObjects", obj_type="Vol"
     )
 
-    # convert as dataset tab file
+    # Convert the fld file format into a dataset tab file compatible with dataset import.
+    # The existing header lines must be removed and replaced with a single header line
+    # containing the value unit.
     with open(fld_filename, "r") as f:
         lines = f.readlines()
 
@@ -230,54 +232,84 @@ for cp_iter in range(1, max_iter + 1):
     with open(tab_filename, "w") as f:
         f.writelines(lines)
 
+    # Import the 3D dataset.
     dataset_name = f"temp_map_step_{cp_iter}"
     hfss.import_dataset3d(
         filename=tab_filename, dsname=dataset_name, is_project_dataset=True
     )
 
-    # Set the new conductivity value
+
+    ###############################################################################
+    # Step 8: Update material properties in the HFSS design based on the new dataset
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # Set the new conductivity value.
     new_material.conductivity.value = (
         f"{old_conductivity}*Pwl($TempDepCond,clp(${dataset_name},X,Y,Z))"
     )
-    # switch off the thermal modifier if any
+
+    # Switch off the thermal modifier of the material, if any.
     new_material.conductivity.thermalmodifier = None
 
-    # Get the mean temp value on the high resistivity object
+
+    ###############################################################################
+    # Step 9: Extract the average temperature of the resistor from the Icepak design
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # Get the mean temp value on the high resistivity object.
     mean_temp = icepak.post.get_scalar_field_value(
         quantity="Temp", scalar_function="Mean", object_name=resistor_body_name
     )
+
+    # Save the temperature in the iteration stats.
     stats[cp_iter]["temp"] = mean_temp
 
-    # set this temperature in circuit in variable TempE
+
+    ###############################################################################
+    # Step 10: Update the resistance value in the Circuit design
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # Set this temperature in circuit in variable TempE.
     circuit["TempE"] = f"{mean_temp}cel"
 
+    # Save the project
     circuit.save_project()
 
-    # check convergence on temperature and losses
+
+    ###############################################################################
+    # Check the convergence of the iteration
+    # ~~~~~~~~~~~~~~~~~~~~~~~~
+    # Evaluate the relative residuals on temperature and losses.
+    # If the residuals are smaller than the threshold, set the convergence flag to `True`.
+    # Residuals are calculated starting from the second iteration.
     converged = False
     stats[cp_iter]["converged"] = converged
     if cp_iter > 1:
         delta_temp = abs(stats[cp_iter]["temp"] - stats[cp_iter-1]["temp"]) / abs(stats[cp_iter-1]["temp"])
         delta_losses = abs(stats[cp_iter]["losses"] - stats[cp_iter-1]["losses"]) / abs(stats[cp_iter-1]["losses"])
-        if delta_temp <= temp_residual and delta_losses <= loss_residual:
+        if delta_temp <= temp_residual_limit and delta_losses <= loss_residual_limit:
             converged = True
             stats[cp_iter]["converged"] = converged
     else:
         delta_temp = None
         delta_losses = None
+
+    # Save the relative residuals in the iteration stats.
     stats[cp_iter]["delta_temp"] = delta_temp
     stats[cp_iter]["delta_losses"] = delta_losses
-    
+
+    # Show the stats for the current iteration.
     print(
         f"Step {cp_iter}: temp={stats[cp_iter]['temp']}, losses={stats[cp_iter]['losses']}, "
         f"delta_temp={delta_temp}, delta_losses={delta_losses}, "
         f"converged={converged}"
     )
 
+    # Exit from the loop if the convergence is reached.
     if converged:
         break
 
-# Print overall stats
+###############################################################################
+# Print the overall statistics
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Print the overall statistics for the multiphysic loop.
 for i in stats:
     txt = "yes" if stats[i]["converged"] else "no"
     delta_temp = f"{stats[i]['delta_temp']:.4f}" if stats[i]['delta_temp'] is not None else "None"
@@ -288,4 +320,5 @@ for i in stats:
         f"converged={txt}"
     )
 
+# Close Electronics Desktop
 circuit.release_desktop()
