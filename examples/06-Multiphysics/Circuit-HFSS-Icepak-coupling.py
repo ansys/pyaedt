@@ -14,7 +14,7 @@ The losses from both designs are accounted for: EM losses are evaluated by the H
 and fed into Icepak via a direct link, while losses from the lumped components in the Circuit
 design are evaluated analytically and must be manually set into the Icepak boundary.
 
-On the way back of the coupling, temperature information handled differently for HFSS and Circuit.
+On the way back of the coupling, temperature information is handled differently for HFSS and Circuit.
 For HFSS, a temperature map is exported from the Icepak design and used to create a 3D dataset;
 then the material properties in the HFSS design are updated based on this dataset.
 For Circuit, the average temperature of the lumped components is extracted from the Icepak design
