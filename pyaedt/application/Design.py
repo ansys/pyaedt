@@ -3328,7 +3328,7 @@ class Design(AedtObjects):
                 self._odesign = None
                 self.logger.odesign = None
                 self.design_solutions._odesign = None
-                AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+                AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
                 return False
         else:
             if is_windows:
@@ -3336,7 +3336,7 @@ class Design(AedtObjects):
             self._odesign = None
             self.logger.odesign = None
             self.design_solutions._odesign = None
-            AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
+            AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
         return True
 
     @pyaedt_function_handler(separator_name="name")
