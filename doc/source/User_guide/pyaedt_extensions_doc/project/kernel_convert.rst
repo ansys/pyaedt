@@ -11,7 +11,7 @@ You can access the extension from the icon created on the **Automation** tab usi
 
 The following image shows the extension user interface:
 
-.. image:: ../../_static/extensions/kernel_convert_ui.png
+.. image:: ../../../_static/extensions/kernel_convert_ui.png
   :width: 800
   :alt: Kernel Convert UI
 
