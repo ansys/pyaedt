@@ -24,7 +24,6 @@
 
 import builtins
 import os
-import sys
 from unittest.mock import mock_open
 
 from mock import patch
