@@ -1460,6 +1460,7 @@ class TestClass:
         self.aedtapp.delete_design(self.aedtapp.design_name)
 
     def test_72_check_choke_values(self):
+        self.aedtapp.insert_design("ChokeValues")
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
         choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
         choke_file3 = os.path.join(

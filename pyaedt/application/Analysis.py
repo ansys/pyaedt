@@ -217,7 +217,7 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
-        if self._materials is None:
+        if self._materials is None and self._odesign:
             self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
@@ -281,7 +281,9 @@ class Analysis(Design, object):
             Position object.
 
         """
-        return self.modeler.Position
+        if self.modeler:
+            return self.modeler.Position
+        return
 
     @property
     def available_variations(self):
