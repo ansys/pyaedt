@@ -1739,11 +1739,11 @@ class ModelPlotter(CommonPlotter):
             if extension in supported_export:
                 self.pv.save_graphic(export_image_path)
             else:
-                self.pv.show(screenshot=export_image_path, full_screen=True)
+                self.pv.show(auto_close=False, screenshot=export_image_path, full_screen=True)
         elif show and self.is_notebook:  # pragma: no cover
-            self.pv.show()  # pragma: no cover
+            self.pv.show(auto_close=False)  # pragma: no cover
         elif show:
-            self.pv.show(full_screen=True)  # pragma: no cover
+            self.pv.show(auto_close=False, full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
         return True
@@ -1910,7 +1910,7 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+        self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
         start = time.time()
         try:
