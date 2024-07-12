@@ -37,7 +37,8 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "psutil",
-    "pyedb>=0.20.0",
+    "pyedb>=0.4.0; python_version == '3.7'",
+    "pyedb>=0.20.0; python_version > '3.7'",
     "pytomlpp",
     "rpyc>=6.0.0,<6.1",
 ]
