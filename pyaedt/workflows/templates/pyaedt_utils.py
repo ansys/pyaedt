@@ -38,6 +38,12 @@ from System.Windows.Forms import MessageBoxIcon
 is_linux = os.name == "posix"
 
 
+def set_ansys_em_environment(oDesktop):
+    variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
+    if variable not in os.environ:
+        os.environ[variable] = oDesktop.GetExeDir()
+
+
 def sanitize_interpreter_path(interpreter_path, version):
     python_version = "3_10" if version > "231" else "3_7"
     if version > "231" and python_version not in interpreter_path:
