@@ -1022,6 +1022,7 @@ class TestClass:
         self.aedtapp.delete_design()
 
     def test_53_create_conduting_plate(self):
+        self.aedtapp.insert_design("conducting")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
