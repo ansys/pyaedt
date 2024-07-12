@@ -3268,9 +3268,9 @@ class Design(AedtObjects):
             self.logger.odesign = None
             self.logger.oproject = None
             self.design_solutions._odesign = None
+            AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
         else:
             self.desktop_class.active_project(legacy_name)
-        AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
         timeout = 10
