@@ -67,6 +67,7 @@ def main():
         # Run workflow
         my_env = dict(os.environ.copy())
         command = [python_exe, pyaedt_script]
+        pyaedt_utils.set_ansys_em_environment(oDesktop)
         subprocess.Popen(command, env=my_env)
     except Exception as e:
         pyaedt_utils.show_error(str(e), oDesktop)

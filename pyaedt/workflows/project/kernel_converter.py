@@ -22,29 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-MIT License
-
-Copyright (c) 2023 ANSYS, Inc. All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
 
 import logging
 import os.path
@@ -234,7 +211,7 @@ def convert_3d_component(
     output_path = file_path[:-8] + f"_{version}.a3dcomp"
 
     if os.path.exists(output_path):
-        output_path = file_path[:-8] + generate_unique_name(f"_{version}", n=2) + ".a3dcomp"
+        output_path = file_path[:-8] + generate_unique_name(f"_version", n=2) + ".a3dcomp"
     app = Hfss
     if application == 1:
         app = Icepak
@@ -263,8 +240,9 @@ def convert_3d_component(
     )
     try:
         output_desktop.DeleteProject(project_name2)
-    except:
-        pass
+        print(f"Project successfully deleted")
+    except Exception:
+        print(f"Error project was not closed")
     print(f"3D Component {output_path} has been created.")
 
 
@@ -282,6 +260,7 @@ def convert_aedt(
     if os.path.exists(output_path):
         output_path = a3d_component_path[:-5] + generate_unique_name(f"_{version}", n=2) + ".aedt"
 
+    input_desktop.load_project(file_path)
     project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
     oproject2 = output_desktop.odesktop.NewProject(output_path)
     project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]

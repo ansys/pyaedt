@@ -1,5 +1,5 @@
 Kernel conversion
-==============
+=================
 
 Conversion of the kernel from ACIS (2022R2 and previous versions),
 to Parasolid (2023R1 and following versions) is becoming accessible to the customer,
@@ -11,7 +11,7 @@ You can access the extension from the icon created on the **Automation** tab usi
 
 The following image shows the extension user interface:
 
-.. image:: ../../_static/extensions/kernel_convert_ui.png
+.. image:: ../../../_static/extensions/kernel_convert_ui.png
   :width: 800
   :alt: Kernel Convert UI
 
@@ -33,7 +33,7 @@ containing any violations that occurred during the conversion, and that need **m
 The following image show, the initial test_aedt and test_a3dcomp files, the corresponding .csv files and
 the generated 2025R1 version (with the Parasolid Kernel) files.
 
-.. image:: ../../_static/extensions/converted_files.png
+.. image:: ../../../_static/extensions/converted_files.png
   :width: 800
   :alt: Generated Files During Kernel Conversion
 
