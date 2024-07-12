@@ -519,6 +519,7 @@ class Design(AedtObjects):
         self._optimizations = None
         self._native_components = None
         self._mesh = None
+        self.design_solutions = None
 
     @property
     def settings(self):
@@ -3265,6 +3266,8 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
+            self.logger.odesign = None
+            self.logger.oproject = None
         else:
             self.desktop_class.active_project(legacy_name)
         AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
@@ -4167,11 +4170,15 @@ class DesignSettings:
     def __init__(self, app):
         self._app = app
         self.manipulate_inputs = None
+
+    @property
+    def design_settings(self):
+        """Design settings."""
         try:
-            self.design_settings = self._app.odesign.GetChildObject("Design Settings")
+            return self._app.odesign.GetChildObject("Design Settings")
         except GrpcApiError:  # pragma: no cover
             self._app.logger.error("Failed to retrieve design settings.")
-            self.design_settings = None
+            return None
 
     @property
     def available_properties(self):
