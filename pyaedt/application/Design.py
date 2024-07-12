@@ -519,7 +519,6 @@ class Design(AedtObjects):
         self._optimizations = None
         self._native_components = None
         self._mesh = None
-        self.design_solutions = None
 
     @property
     def settings(self):
@@ -3268,6 +3267,7 @@ class Design(AedtObjects):
             self._odesign = None
             self.logger.odesign = None
             self.logger.oproject = None
+            self.design_solutions._odesign = None
         else:
             self.desktop_class.active_project(legacy_name)
         AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
