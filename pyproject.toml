@@ -55,7 +55,7 @@ tests = [
     "pytest>=7.4.0,<8.3",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.44",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.2",
@@ -83,7 +83,7 @@ doc = [
     "osmnx>=1.1.0,<1.10",
     "pypandoc>=1.10.0,<1.14",
     #"pytest-sphinx",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.44",
     "recommonmark",
     "scikit-rf>=0.30.0,<1.2",
     "Sphinx==5.3.0; python_version == '3.7'",
@@ -125,7 +125,7 @@ all = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.44",
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
@@ -140,7 +140,7 @@ installer = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.44",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.2",
