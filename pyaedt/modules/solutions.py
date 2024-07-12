@@ -2592,7 +2592,7 @@ class FfdSolutionData(object):
         if image_path:
             p.show(screenshot=image_path)
         if show:  # pragma: no cover
-            p.show()
+            p.show(auto_close=False)
         return p
 
     @pyaedt_function_handler()
