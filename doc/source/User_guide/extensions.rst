@@ -35,7 +35,7 @@ Project extension apply to all extensions that are applicable for all AEDT appli
             Lear how to use the Advanced Fields Calculator.
 
    .. grid-item-card:: Kernel converter
-            :link: pyaedt_extensions_doc/project/kernel_converter
+            :link: pyaedt_extensions_doc/project/kernel_convert
             :link-type: doc
 
             Lear how to convert projects from 2022R2 to newer versions.
