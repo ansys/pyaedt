@@ -1,5 +1,5 @@
 Kernel conversion
-==============
+=================
 
 Conversion of the kernel from ACIS (2022R2 and previous versions),
 to Parasolid (2023R1 and following versions) is becoming accessible to the customer,
