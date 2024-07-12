@@ -241,7 +241,7 @@ def convert_3d_component(
     try:
         output_desktop.DeleteProject(project_name2)
         print(f"Project successfully deleted")
-    except:
+    except Exception:
         print(f"Error project was not closed")
     print(f"3D Component {output_path} has been created.")
 
