@@ -952,7 +952,7 @@ class CircuitComponent(object):
         Parameters
         ----------
         pin_locations : dict
-            A dictionary with two keys: "left" and "right", 
+            A dictionary with two keys: "left" and "right",
             each containing a list of pin names to be placed on the left and
             right sides of the symbol, respectively.
 
