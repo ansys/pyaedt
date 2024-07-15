@@ -1970,14 +1970,23 @@ class Maxwell(object):
         >>> ckt = m2d.create_external_circuit()
         >>> m2d.release_desktop(True, True)
         """
+        if self.solution_type not in ["EddyCurrent", "Transient"]:
+            self.logger.error(
+                "External circuit excitation for windings is available only for Eddy current or Transient solutions."
+            )
+            return False
 
-        project_name = self.project_name
-        if circuit_design_name is None:
-            circuit_name = project_name + "_ckt"
-        else:
-            circuit_name = circuit_design_name
+        dkp = self.desktop_class
 
-        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(designname=circuit_name)
+        if not circuit_design_name:
+            circuit_design_name = self.design_name + "_ckt"
+
+        # circuit = MaxwellCircuit(version=self.desktop_class.aedt_version_id, design=circuit_design_name)
+
+        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(design=circuit_design_name)
+        # check winding type to be "External"
+
+        wdgs = self.excitations_by_type["Winding Group"]
         winding_names = self.windings
 
         for winding_name in winding_names:
