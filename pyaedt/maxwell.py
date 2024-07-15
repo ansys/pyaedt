@@ -1851,7 +1851,6 @@ class Maxwell(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         if self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
@@ -1957,8 +1956,8 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`pyaedt.maxwellcircuit.MaxwellCircuit`
-            MaxwellCircuit object if successful, ``False`` otherwise.
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -1967,7 +1966,7 @@ class Maxwell(object):
         >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         >>> m2d.assign_coil(assignment=["Coil1"])
         >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
-        >>> ckt = m2d.create_external_circuit()
+        >>> m2d.create_external_circuit()
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in ["EddyCurrent", "Transient"]:
@@ -1976,23 +1975,18 @@ class Maxwell(object):
             )
             return False
 
-        dkp = self.desktop_class
-
         if not circuit_design_name:
             circuit_design_name = self.design_name + "_ckt"
 
-        # circuit = MaxwellCircuit(version=self.desktop_class.aedt_version_id, design=circuit_design_name)
-
         circuit = pyaedt.maxwellcircuit.MaxwellCircuit(design=circuit_design_name)
-        # check winding type to be "External"
 
         wdgs = self.excitations_by_type["Winding Group"]
-        winding_names = self.windings
+        external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
 
-        for winding_name in winding_names:
-            circuit.modeler.schematic.create_winding(name=winding_name)
+        for w in external_wdgs:
+            circuit.modeler.schematic.create_winding(name=w.name)
 
-        return circuit
+        return True
 
     @pyaedt_function_handler()
     def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
