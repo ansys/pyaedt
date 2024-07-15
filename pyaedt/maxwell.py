@@ -43,7 +43,6 @@ from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.generic.settings import settings
 from pyaedt.modeler.geometry_operators import GeometryOperators
-import pyaedt.modeler.schematic
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.SetupTemplates import SetupKeys
@@ -1957,8 +1956,8 @@ class Maxwell(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.maxwellcircuit.MaxwellCircuit`
+            MaxwellCircuit object if successful, ``False`` otherwise.
 
         Examples
         --------
@@ -1967,7 +1966,7 @@ class Maxwell(object):
         >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         >>> m2d.assign_coil(assignment=["Coil1"])
         >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
-        >>> m2d.create_external_circuit()
+        >>> cir = m2d.create_external_circuit()
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in ["EddyCurrent", "Transient"]:
@@ -1979,7 +1978,9 @@ class Maxwell(object):
         if not circuit_design_name:
             circuit_design_name = self.design_name + "_ckt"
 
-        circuit = pyaedt.maxwellcircuit.MaxwellCircuit(design=circuit_design_name)
+        from pyaedt.maxwellcircuit import MaxwellCircuit
+
+        circuit = MaxwellCircuit(design=circuit_design_name)
 
         wdgs = self.excitations_by_type["Winding Group"]
         external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
@@ -1987,7 +1988,7 @@ class Maxwell(object):
         for w in external_wdgs:
             circuit.modeler.schematic.create_winding(name=w.name)
 
-        return True
+        return circuit
 
     @pyaedt_function_handler()
     def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
