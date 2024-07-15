@@ -75,6 +75,7 @@ def main():
             pyaedt_utils.environment_variables(oDesktop)
             # Run script
             if is_linux:
+                pyaedt_utils.set_ansys_em_environment(oDesktop)
                 command = [
                     python_exe,
                     pyaedt_script,

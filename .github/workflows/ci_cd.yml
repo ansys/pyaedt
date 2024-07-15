@@ -176,7 +176,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       # TODO: Update this step once pyaedt-examples is ready
       # NOTE: Use environment variable to keep the doctree and avoid redundant build for PDF pages
@@ -259,7 +259,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest_solvers
         env:
@@ -375,7 +375,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3
@@ -445,7 +445,7 @@ jobs:
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
-          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
       - name: Run tests on _unittest
         uses: nick-fields/retry@v3

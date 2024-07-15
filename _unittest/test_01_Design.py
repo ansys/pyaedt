@@ -379,10 +379,10 @@ class TestClass:
 
     def test_33_aedt_object(self):
         aedt_obj = AedtObjects()
-        assert aedt_obj.odesign
-        assert aedt_obj.oproject
+        assert aedt_obj._odesign
+        assert aedt_obj._oproject
         aedt_obj = AedtObjects(self.aedtapp._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
-        assert aedt_obj.odesign == self.aedtapp.odesign
+        assert aedt_obj._odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):
         settings.force_error_on_missing_project = True
