@@ -1944,13 +1944,13 @@ class Maxwell(object):
         return output_directory
 
     @pyaedt_function_handler()
-    def create_external_circuit(self, circuit_design_name=None):
+    def create_external_circuit(self, circuit_design=None):
         """
         Create the external circuit including all the windings of type ``External`` in the Maxwell design.
 
         Parameters
         ----------
-        circuit_design_name : str, optional
+        circuit_design : str, optional
             Name of the created circuit design.
             If not provided the design name + ``ckt`` is used.
 
@@ -1975,12 +1975,12 @@ class Maxwell(object):
             )
             return False
 
-        if not circuit_design_name:
-            circuit_design_name = self.design_name + "_ckt"
+        if not circuit_design:
+            circuit_design = self.design_name + "_ckt"
 
         from pyaedt.maxwellcircuit import MaxwellCircuit
 
-        circuit = MaxwellCircuit(design=circuit_design_name)
+        circuit = MaxwellCircuit(design=circuit_design)
 
         wdgs = self.excitations_by_type["Winding Group"]
         external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
