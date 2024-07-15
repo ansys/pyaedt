@@ -1952,7 +1952,8 @@ class Maxwell(object):
         Parameters
         ----------
         circuit_design_name : str, optional
-            Name of the created circuit design. If ``None``, project_name_ckt is used.
+            Name of the created circuit design.
+            If not provided the design name + ``ckt`` is used.
 
         Returns
         -------
