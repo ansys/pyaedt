@@ -2805,6 +2805,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
         if grid_start is None:
@@ -2863,18 +2865,9 @@ class PostProcessor(PostProcessorCommon, object):
             variation.append(value)
 
         if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+            for k, v in intrinsics.items():
+                variation.append("{}:=".format(k))
+                variation.append(v)
 
         export_options = [
             "NAME:ExportOption",
@@ -2933,7 +2926,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity :
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution: sweep"``.
@@ -2950,11 +2943,15 @@ class PostProcessor(PostProcessorCommon, object):
             Type of objects to export. The default is ``"Vol"``.
             Options are ``"Surf"`` for surface and ``"Vol"`` for
             volume.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field calculation.
+        intrinsics : dict, str, optional
+            This parameter represents the value of the intrinsics variable of the simulation (typically Freq or Time)
+            and can contain also Phase.
+            ...
+            It is mandatory for a frequency or transient field calculation solution
+            and must be a string with units (eg. ``10GHz``).
             The default is ``None``.
         phase : str, optional
-            Field phase. The default is ``None``.
+            Field phase. The default is ``None``. Deprecated, use intrinsics as a dictionary instead.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points : list, optional
@@ -2988,6 +2985,7 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.CalculatorWrite
         >>> oModule.ExportToFile
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
@@ -3015,18 +3013,9 @@ class PostProcessor(PostProcessorCommon, object):
             variation.append(value)
 
         if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+            for k, v in intrinsics.items():
+                variation.append("{}:=".format(k))
+                variation.append(v)
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)

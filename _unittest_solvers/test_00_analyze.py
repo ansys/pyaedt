@@ -197,7 +197,16 @@ class TestClass:
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics="1GHz")
+                                               intrinsics={"frequency":"1GHz"})
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
+
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               )
         assert os.path.exists(fld_file2)
 
     def test_03a_icepak_analyze_and_export_summary(self):

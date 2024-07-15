@@ -534,6 +534,42 @@ class Analysis(Design, object):
         return self._excitation_objects
 
     @pyaedt_function_handler()
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None):
+        intrinsics = {}
+        if input_data is None:
+            if setup is None:
+                setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
+            else:
+                setup = setup.split(":")[0].strip()
+            for set in self.setups:
+                if set.name == setup:
+                    intrinsics = set.default_intrinsics
+                    break
+
+        elif isinstance(input_data, str):
+            if "Freq" in self.design_solutions.intrinsics:
+                intrinsics["Freq"] = input_data
+                if "Phase" in self.design_solutions.intrinsics:
+                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+            elif "Time" in self.design_solutions.intrinsics:
+                intrinsics["Time"] = input_data
+        elif isinstance(input_data, dict):
+            for k, v in input_data.items():
+                if k in ["Freq", "freq", "frequency", "Frequency"]:
+                    intrinsics["Freq"] = v
+                elif k in ["Phase", "phase"]:
+                    intrinsics["Phase"] = v
+                elif k in ["Time", "time"]:
+                    intrinsics["Time"] = v
+                if input_phase:
+                    intrinsics["Phase"] = input_phase
+                if "Phase" in self.design_solutions.intrinsics and "Phase" not in intrinsics:
+                    intrinsics["Phase"] = "0deg"
+        else:
+            raise AttributeError("Intrinsics has to be a string or list.")
+        return intrinsics
+
+    @pyaedt_function_handler()
     def get_traces_for_plot(
         self,
         get_self_terms=True,
