@@ -538,7 +538,10 @@ class Analysis(Design, object):
         intrinsics = {}
         if input_data is None:
             if setup is None:
-                setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
+                try:
+                    setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
+                except:
+                    setup = None
             else:
                 setup = setup.split(":")[0].strip()
             for set in self.setups:
