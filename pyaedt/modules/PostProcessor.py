@@ -2609,16 +2609,16 @@ class PostProcessor(PostProcessorCommon, object):
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
@@ -2651,18 +2651,18 @@ class PostProcessor(PostProcessorCommon, object):
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> # Intrinsics are explicitly provided.
+        >>> # Intrinsics is explicitly provided as a dictionary.
         >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is provided as a string. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
-        >>> # Intrinsics is provided as a dict. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
         >>> intrinsics = {"Freq": "5GHz"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is not provided and they will be computed from the setup.
+        >>> # Intrinsics is not provided and is automatically computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
@@ -2780,16 +2780,16 @@ class PostProcessor(PostProcessorCommon, object):
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
@@ -2964,19 +2964,19 @@ class PostProcessor(PostProcessorCommon, object):
             Options are ``"Surf"`` for surface and ``"Vol"`` for
             volume.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
-            This argument is deprecated. Please use ``intrinsics`` and pass the phase as a dictionary key instead.
+            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points : list, optional
@@ -3015,18 +3015,18 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> from pyaedt import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> # Intrinsics are passed as a string
+        >>> # Intrinsics is provided as a string.
         >>> fld_file1 = "test_fld_hfss1.fld"
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
         >>>                                 intrinsics="1GHz", phase="5deg")
-        >>> # Intrinsics are provided as dictionary. Phase is automatically assigned by the method
+        >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
         >>> fld_file2 =  "test_fld_hfss2.fld"
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                intrinsics={"frequency":"1GHz"})
-        >>> # Intrinsics are provided as dictionary. Phase is provided.
+        >>> # Intrinsics is provided as dictionary. Phase is provided.
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                 intrinsics={"frequency":"1GHz", "phase":"30deg"})
-        >>> # Intrinsics are not provided. They will be computed from the setup arguments.
+        >>> # Intrinsics is not provided. It is computed from the setup arguments.
         >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                     )
         """
@@ -3349,16 +3349,16 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3371,29 +3371,26 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
-
 
         Examples
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> # Intrinsics are explicitly provided.
+        >>> # Intrinsics is provided as a dictionary.
         >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is provided as a string. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics="5GHz")
-        >>> # Intrinsics is provided as a dict. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
         >>> intrinsics = {"Freq": "5GHz"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is not provided and they will be computed from the setup.
+        >>> # Intrinsics is not provided and is computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
-
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
@@ -3427,16 +3424,16 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
         field_type : str, optional
@@ -3449,21 +3446,20 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
 
         Examples
         --------
         >>> from pyaedt import Maxwell2d
         >>> aedtapp = Maxwell2d()
-        >>> # Intrinsics are explicitly provided.
+        >>> # Intrinsics is provided as a dictionary.
         >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
         >>>                                                   in_volume_tracing_objs="Region",
         >>>                                                   plot_name="LineTracesTest",
         >>>                                                   intrinsics=intrinsics)
-        >>> # Intrinsics is provided as a string. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
         >>>                                                   in_volume_tracing_objs="Region",
@@ -3610,16 +3606,16 @@ class PostProcessor(PostProcessorCommon, object):
         nets : list, optional
             List of nets to filter the field plot. Optional.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         name : str, optional
             Name of the field plot to create.
 
@@ -3630,7 +3626,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
@@ -3703,16 +3698,16 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
             Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
@@ -3725,7 +3720,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
@@ -3791,16 +3785,16 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3813,7 +3807,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         if intrinsics is None:
@@ -3859,16 +3852,16 @@ class PostProcessor(PostProcessorCommon, object):
             is used. Be sure to build a setup string in the form of ``"SetupName : SetupSweep"``,
             where ``SetupSweep`` is the sweep name to use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         filter_objects : list, optional
@@ -3884,25 +3877,24 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
 
         Examples
         --------
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> # Intrinsics are explicitly provided.
+        >>> # Intrinsics is provided as a dictionary.
         >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is provided as a string. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
-        >>> # Intrinsics is provided as a dict. Phase will be automatically be assigned to 0deg.
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
         >>> intrinsics = {"Freq": "5GHz"}
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
-        >>> # Intrinsics is not provided and they will be computed from the setup.
+        >>> # Intrinsics is not provided and is computed from the setup.
         >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
         >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
@@ -3944,16 +3936,16 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
 
@@ -4349,16 +4341,16 @@ class PostProcessor(PostProcessorCommon, object):
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
         intrinsics : dict, str, optional
-            This parameter represents the value of the intrinsics variable of the simulation
-            (typically Freq, Time, Phase) that are needed to compute the field before the export.
-            It can be a dictionary with keys depending of the design solution type.
-            The dictionary keys can be (both lower and camel case):
-             - ``"Freq"``, ``"Frequency"``
-             - ``"Time"``
-             - ``"Phase"``
-            If thhe argument is a string, then this is considered to be the value of either
-            ``"Freq"`` or ``"Time"`` depending on the solution type.
-            The default is ``None`` which  try to compute automatically the intrinscs based on the setup.
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``False``.

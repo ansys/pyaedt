@@ -190,7 +190,6 @@ class TestClass:
             matrix_type="Y",
         )
         assert len(exported_files) > 0
-
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
                                                intrinsics="1GHz", phase="5deg")
@@ -204,10 +203,15 @@ class TestClass:
                                                intrinsics={"frequency":"1GHz", "phase":"30deg"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
-
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
                                                )
         assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
+        with pytest.raises(AttributeError):
+            hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                            intrinsics=[])
+        assert not os.path.exists(fld_file2)
+
 
     def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
