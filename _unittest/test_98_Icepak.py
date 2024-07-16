@@ -116,6 +116,10 @@ class TestClass:
         cmp2.included_parts = None
         assert cmp2.included_parts is None
         cmp2.included_parts = "Device"
+        assert cmp2.included_parts == "Device"
+        assert cmp2.included_parts == cmp2.included_parts
+        assert not cmp2.included_parts == "Package"
+        assert not cmp2.included_parts != "Device"
         assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
         cmp2.included_parts = "Package"
         assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
@@ -132,6 +136,10 @@ class TestClass:
             modeling="Bondwire", bondwire_material="Error4"
         )  # material does not exist
         cmp2.included_parts = "Device"
+        cmp2.included_parts.simplify_parts = True
+        assert cmp2.included_parts.simplify_parts
+        cmp2.included_parts.surface_material = "pt-polished"
+        assert cmp2.included_parts.surface_material == "pt-polished"
         assert cmp2.included_parts.override_instance("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
         assert cmp2.included_parts.override_instance("FCHIP", False)
@@ -192,6 +200,7 @@ class TestClass:
         )
         assert cmp.included_parts is None
         cmp.included_parts = "Device"
+        print(cmp.included_parts)
         cmp.included_parts = "Packafe"
         assert cmp.included_parts == "Device"
         f = cmp.included_parts.filters
@@ -209,6 +218,8 @@ class TestClass:
         cmp.included_parts.type_filters = "Inductors"
         if self.aedtapp.settings.aedt_version >= "2024.2":
             cmp.included_parts.footprint_filter = "0.5mm2"
+        else:
+            assert cmp.included_parts.footprint_filter is None
         f = cmp.included_parts.filters
         assert len(f.keys()) >= 4  # 5 if version 2024.2
         assert f["Type"]["Inductors"]
@@ -223,6 +234,13 @@ class TestClass:
             cmp.included_parts.footprint_filter = None
         f = cmp.included_parts.filters
         assert len(f.keys()) == 1
+        cmp.included_parts = "Package"
+        print(cmp.included_parts)
+        assert cmp.included_parts == "Package"
+        assert cmp.included_parts == cmp.included_parts
+        assert not cmp.included_parts == "Device"
+        assert not cmp.included_parts != "Package"
+        cmp.included_parts.set_solderballs_modeling("Boxes")
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)

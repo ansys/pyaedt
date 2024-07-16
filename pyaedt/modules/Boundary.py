@@ -391,7 +391,7 @@ class PCBSettingsPackageParts(object):
         if isinstance(other, str):
             return other == "Package"
         elif isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict_
+            return self.__dict__ == other.__dict__
         else:
             return False
 
@@ -510,7 +510,7 @@ class PCBSettingsDeviceParts(object):
         if isinstance(other, str):
             return other == "Device"
         elif isinstance(other, self.__class__):
-            return self.__dict__ == other.__dict_
+            return self.__dict__ == other.__dict__
         else:
             return False
 
