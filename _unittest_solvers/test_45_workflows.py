@@ -299,3 +299,20 @@ class TestClass:
 
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
         app.close_project()
+    def test_13_parametrize_layout(self, add_app, local_scratch):
+        from pyaedt.workflows.hfss3dlayout.parametrize_edb import main
+
+
+        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+
+        assert main({"is_test": True, "aedb_path": "",
+                     "parametrize_layers": True,
+                     "parametrize_materials": True,
+                     "parametrize_padstacks": True,
+                     "parametrize_traces": True,
+                     "nets_filter": ["GND"],
+                     "expansion_polygon_mm": 0.1,
+                     "expansion_void_mm": 0.1,
+                     "relative_parametric": True,
+                     "project_name": "", })
+        app.close_project()
