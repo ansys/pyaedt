@@ -534,7 +534,7 @@ class Analysis(Design, object):
         return self._excitation_objects
 
     @pyaedt_function_handler()
-    def _check_intrinsics(self, input_data, input_phase=None, setup=None):
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
         intrinsics = {}
         if input_data is None:
             if setup is None:
@@ -570,6 +570,12 @@ class Analysis(Design, object):
                     intrinsics["Phase"] = "0deg"
         else:
             raise AttributeError("Intrinsics has to be a string or list.")
+        if return_list:
+            intrinsics_list = []
+            for k, v in intrinsics.items():
+                intrinsics_list.append("{}:=".format(k))
+                intrinsics_list.append(v)
+            return intrinsics_list
         return intrinsics
 
     @pyaedt_function_handler()
