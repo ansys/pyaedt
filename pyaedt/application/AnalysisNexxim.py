@@ -180,7 +180,7 @@ class FieldAnalysisCircuit(Analysis):
         :class:`pyaedt.modules.AdvancedPostProcessing.CircuitPostProcessor`
             PostProcessor object.
         """
-        if self._post is None:
+        if self._post is None and self._odesign:
             self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
@@ -221,7 +221,7 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def modeler(self):
         """Modeler object."""
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             self.logger.reset_timer()
             from pyaedt.modeler.schematic import ModelerNexxim
 

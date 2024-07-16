@@ -2032,11 +2032,11 @@ class Setup3DLayout(CommonSetup):
                     continue
                 z = layers_elevation[prim.layer_name]
                 if "EdbPath" in str(prim):
-                    points = list(prim.center_line.Points)
-                    pt = [points[0].X.ToDouble(), points[0].Y.ToDouble()]
+                    points = list(prim.center_line)
+                    pt = [points[0][0], points[0][1]]
                     pt.append(z)
                     next_p = int(len(points) / 4)
-                    pt = [points[next_p].X.ToDouble(), points[next_p].Y.ToDouble()]
+                    pt = [points[next_p][0], points[next_p][1]]
                     pt.append(z)
                     primitive_dict[net].append(pt)
 

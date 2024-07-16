@@ -1700,22 +1700,27 @@ class ConfigurationsIcepak(Configurations):
         dict_out["mesh"]["Settings"] = mop["Settings"]
         if self._app.mesh.meshregions:
             for mesh in self._app.mesh.meshregions:
-                if mesh.name == "Settings":
+                if mesh.name in ["Settings", "Global"]:
                     args = ["NAME:Settings"]
                 else:
                     args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
                 args += mesh.settings.parse_settings_as_args()
-                args += getattr(mesh, "_parse_assignment_value")()
+                if mesh.name not in ["Settings", "Global"]:
+                    args += getattr(mesh, "_parse_assignment_value")()
                 args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = OrderedDict({})
                 _arg2dict(args, mop)
-                if self._app.modeler[args[-3][0]].history().command == "CreateSubRegion":
+                if (
+                    mesh.name not in ["Settings", "Global"]
+                    and self._app.modeler[args[-3][0]].history().command == "CreateSubRegion"
+                ):
                     mop[mesh.name]["_subregion_information"] = {
                         "pad_vals": mesh.assignment.padding_values,
                         "pad_types": mesh.assignment.padding_types,
                         "parts": list(mesh.assignment.parts.keys()),
                     }
-                dict_out["mesh"][mesh.name] = mop[mesh.name]
+                if mesh.name in mop:
+                    dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
 
     @pyaedt_function_handler()
