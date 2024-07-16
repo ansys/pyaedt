@@ -13,7 +13,7 @@ busbars
 Bz
 [Cc]ircuit
 codecov
-[Cc]om
+(?i)Com
 COM interface
 [Cc]omponents
 Conda
@@ -32,7 +32,7 @@ FE-BI
 file_path
 getters
 globals
-[Gg]gRPC
+[Gg]RPC
 HFSS
 Huray
 Icepak
@@ -97,3 +97,6 @@ assign_mesh_level
 assign_mesh_reuse
 json
 toml
+Parasolid
+i.e.
+solderballs
