@@ -44,7 +44,7 @@ Project extension apply to all extensions that are applicable for all AEDT appli
             :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
             :link-type: doc
 
-            Lear how to parametrize a full aedb.
+            Learn how to parametrize a full aedb.
 
 .. toctree::
    :hidden:
