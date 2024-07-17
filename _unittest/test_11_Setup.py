@@ -193,9 +193,7 @@ class TestClass:
     def test_25b_create_parametrics_sync(self):
         self.aedtapp["a1"] = "10mm"
         self.aedtapp["a2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add(
-            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
-        )
+        setup1 = self.aedtapp.parametrics.add("a1")
         assert setup1
         assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
         assert setup1.sync_variables(["a1", "a2"], sync_n=1)
@@ -252,7 +250,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="DXDOE",
+            optimization_type="DXDOE",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10)
@@ -279,7 +277,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables=None,
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 1, 10, 51)
@@ -287,7 +285,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -305,7 +303,7 @@ class TestClass:
             None,
             ranges=None,
             variables=None,
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 5, 10, 51)
@@ -313,7 +311,7 @@ class TestClass:
             None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -330,7 +328,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Sensitivity",
+            optimization_type="Sensitivity",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 3.2)
@@ -347,7 +345,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Statistical",
+            optimization_type="Statistical",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 0.3)

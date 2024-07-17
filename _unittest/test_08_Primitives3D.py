@@ -166,10 +166,14 @@ class TestClass:
         test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
 
         if self.aedtapp.modeler[name + "segmented"]:
-            self.aedtapp.modeler.delete(name + "segmented")
+            self.aedtapp.modeler.delete(
+                name + "segmented",
+            )
 
         if self.aedtapp.modeler[name + "compound"]:
-            self.aedtapp.modeler.delete(name + "compound")
+            self.aedtapp.modeler.delete(
+                name + "compound",
+            )
 
         p1 = self.aedtapp.modeler.create_polyline(points=test_points, name=name + "segmented")
         p2 = self.aedtapp.modeler.create_polyline(
@@ -590,7 +594,9 @@ class TestClass:
     def test_31_delete_object(self):
         self.create_rectangle(name="MyRectangle")
         assert "MyRectangle" in self.aedtapp.modeler.object_names
-        deleted = self.aedtapp.modeler.delete("MyRectangle")
+        deleted = self.aedtapp.modeler.delete(
+            "MyRectangle",
+        )
         assert deleted
         assert "MyRectangle" not in self.aedtapp.modeler.object_names
 
@@ -1215,38 +1221,35 @@ class TestClass:
         mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            object_list=["Solid", new_obj[1][0], box1.name, box2.name],
-            boundaries_list=[rad.name],
-            excitation_list=[exc.name],
-            included_cs="Global",
             variables_to_include=["test_variable"],
+            assignment=["Solid", new_obj[1][0], box1.name, box2.name],
+            boundaries=[rad.name],
+            excitations=[exc.name],
+            coordinate_systems="Global",
         )
         assert os.path.exists(self.component3d_file)
 
     def test_64_create_3d_component_encrypted(self):
         assert self.aedtapp.modeler.create_3dcomponent(
-            self.component3d_file,
-            included_cs="Global",
-            is_encrypted=True,
-            password="password_test",
+            self.component3d_file, coordinate_systems="Global", is_encrypted=True, password="password_test"
         )
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             hide_contents=["Solid"],
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             password_type="Invalid",
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             component_outline="Invalid",
@@ -1798,16 +1801,10 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
         mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
-        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box1.name],
-            variables_to_include=["test_variable"],
-        )
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(variables=["test_variable"], assignment=[box1.name])
         assert isinstance(obj_3dcomp, UserDefinedComponent)
 
-        self.aedtapp.modeler.replace_3dcomponent(
-            component_name="new_comp",
-            object_list=[box2.name],
-        )
+        self.aedtapp.modeler.replace_3dcomponent(name="new_comp", assignment=[box2.name])
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
@@ -1853,13 +1850,9 @@ class TestClass:
     def test_87_set_mesh_fusion_settings(self):
         self.aedtapp.insert_design("MeshFusionSettings")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
-        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box1.name],
-        )
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(assignment=[box1.name])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [100, 20, 30])
-        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box2.name],
-        )
+        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(assignment=[box2.name])
         assert self.aedtapp.set_mesh_fusion_settings(assignment=obj2_3dcomp.name, volume_padding=None, priority=None)
 
         assert self.aedtapp.set_mesh_fusion_settings(

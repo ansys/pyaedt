@@ -689,11 +689,7 @@ class SolutionData(object):
             _solutions_mag[expr] = {}
             self.units_data[expr] = self.nominal_variation.GetDataUnits(expr)
             if self.enable_pandas_output:
-                _solutions_mag[expr] = np.sqrt(
-                    self._solutions_real[expr]
-                    .mul(self._solutions_real[expr])
-                    .add(self._solutions_imag[expr].mul(self._solutions_imag[expr]))
-                )
+                _solutions_mag[expr] = np.sqrt(self._solutions_real[expr])
             else:
                 for i in self._solutions_real[expr]:
                     _solutions_mag[expr][i] = abs(complex(self._solutions_real[expr][i], self._solutions_imag[expr][i]))

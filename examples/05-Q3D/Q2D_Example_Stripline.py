@@ -212,9 +212,9 @@ a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg"))  # Save plot as jpg
 
 # Add a parametric sweep and analyze.
-parametric = q.parametrics.add(sweep_var="sig_bot_w", start_point=75, end_point=100, step=5,
+parametric = q.parametrics.add(sweep_variable="sig_bot_w", start_point=75, end_point=100, step=5,
                                variation_type="LinearStep")
-parametric.add_variation(sweep_var="sig_gap", start_point="100um", end_point="200um", step=5,
+parametric.add_variation(sweep_variable="sig_gap", start_point="100um", end_point="200um", step=5,
                          variation_type="LinearCount")
 q.analyze_setup(name=parametric.name)
 
