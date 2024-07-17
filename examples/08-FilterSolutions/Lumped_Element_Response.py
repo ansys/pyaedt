@@ -14,19 +14,38 @@ import pyaedt
 import pyaedt.filtersolutions_core.attributes
 from pyaedt.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
 from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+from pyaedt.filtersolutions_core.export_to_aedt import ExportFormat
+from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
+
 
 ###############################################################################
 # Create the lumped design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
 design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
+#design.export_to_aedt.open_aedt_export()
+#design.optimization_goals_table.set_design_goals()
+design.export_to_aedt.schematic_name = "my_schematic"
+print(design.export_to_aedt.schematic_name)
+design.export_to_aedt.simulate_after_export_enabled = True
+#design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
+#exit()
+design.optimization_goals_table.adjust_goal_frequency("150 MHz")
+print(design.optimization_goals_table.row(0)[OptimizationGoalParameter.LOWER_FREQUENCY.value])
+print(design.optimization_goals_table.row_count)
+for row_index in range(design.optimization_goals_table.row_count):
+    print(design.optimization_goals_table.row(row_index))
+design.export_to_aedt.include_output_return_loss_s22_enabled = True
+print(design.export_to_aedt.include_output_return_loss_s22_enabled)
+design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
+
+exit()
 design.attributes.filter_class = FilterClass.BAND_PASS
 design.attributes.filter_type = FilterType.BUTTERWORTH
 design.attributes.pass_band_center_frequency = "1G"
 design.attributes.pass_band_width_frequency = "500M"
 design.attributes.filter_order = 5
-
 ##############################################################################
 # Plot the frequency response of the filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

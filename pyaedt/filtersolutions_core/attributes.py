@@ -251,7 +251,7 @@ class StopbandDefinition(Enum):
 class Attributes:
     """Defines attributes and parameters of filters.
 
-    This class allows you to construct all the necessary attributes for the ``FilterDesign`` class.
+    This class lets you construct all the necessary attributes for the ``FilterDesign`` class.
     """
 
     def __init__(self):
