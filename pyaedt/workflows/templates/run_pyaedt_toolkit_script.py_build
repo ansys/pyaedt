@@ -64,6 +64,7 @@ def main():
         pyaedt_utils.environment_variables(oDesktop)
         # Run workflow
         if pyaedt_utils.is_linux:
+            pyaedt_utils.set_ansys_em_environment(oDesktop)
             my_env = dict(os.environ.copy())
             command = [python_exe, pyaedt_script]
             subprocess.Popen(command, env=my_env)

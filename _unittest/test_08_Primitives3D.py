@@ -621,7 +621,7 @@ class TestClass:
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_36_get_face_center(self):
         plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
@@ -1460,6 +1460,7 @@ class TestClass:
         self.aedtapp.delete_design(self.aedtapp.design_name)
 
     def test_72_check_choke_values(self):
+        self.aedtapp.insert_design("ChokeValues")
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
         choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
         choke_file3 = os.path.join(
@@ -1760,7 +1761,7 @@ class TestClass:
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
     @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_81_operations_3dcomponent(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]

@@ -89,6 +89,7 @@ Example with ``Desktop`` class implicit initialization:
    Mesh
    Setup
    Post
+   Visualization
    DesktopMessenger
    Optimetrics
    Variables

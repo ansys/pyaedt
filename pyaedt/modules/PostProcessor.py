@@ -2243,6 +2243,14 @@ class PostProcessorCommon(object):
             props = read_configuration_file(input_file)
         else:
             props = report_settings
+        if (
+            isinstance(props.get("expressions", {}), list)
+            and props["expressions"]
+            and isinstance(props["expressions"][0], str)
+        ):  # pragma: no cover
+            props["expressions"] = {i: {} for i in props["expressions"]}
+        elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
+            props["expressions"] = {props["expressions"]: {}}
         _dict_items_to_list_items(props, "expressions")
         if not solution_name:
             solution_name = self._app.nominal_sweep
@@ -2899,7 +2907,7 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler(
         quantity_name="quantity",
         variation_dict="variations",
-        filename="output_dir",
+        filename="output_file",
         obj_list="assignment",
         obj_type="objects_type",
         sample_points_lists="sample_points",
@@ -2909,7 +2917,7 @@ class PostProcessor(PostProcessorCommon, object):
         quantity,
         solution=None,
         variations=None,
-        output_dir=None,
+        output_file=None,
         assignment="AllObjects",
         objects_type="Vol",
         intrinsics=None,
@@ -2933,9 +2941,9 @@ class PostProcessor(PostProcessorCommon, object):
         variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        output_dir : str, optional
+        output_file : str, optional
             Full path and name to save the file to.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None`` which export a file named ``"<setup_name>.fld"`` in working_directory.
         assignment : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         objects_type : str, optional
@@ -2986,12 +2994,12 @@ class PostProcessor(PostProcessorCommon, object):
                 self.logger.error("There are no existing sweeps.")
                 return False
             solution = self._app.existing_analysis_sweeps[0]
-        if not output_dir:
+        if not output_file:
             appendix = ""
             ext = ".fld"
-            output_dir = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            output_file = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
-            output_dir = output_dir.replace("//", "/").replace("\\", "/")
+            output_file = output_file.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -3024,11 +3032,17 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.EnterVol(assignment)
             elif objects_type == "Surf":
                 self.ofieldsreporter.EnterSurf(assignment)
+            elif objects_type == "Line":
+                self.ofieldsreporter.EnterLine(assignment)
             else:
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(output_dir, ["Solution:=", solution], variation)
+            if objects_type == "Line":
+                args = ["Solution:=", solution, "Geometry:=", assignment, "GeometryType:=", objects_type]
+            else:
+                args = ["Solution:=", solution]
+            self.ofieldsreporter.CalculatorWrite(output_file, args, variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -3042,7 +3056,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_dir,
+                output_file,
                 sample_points_file,
                 solution,
                 variation,
@@ -3066,15 +3080,15 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_dir,
+                output_file,
                 sample_points_file,
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(output_dir):
-            return output_dir
+        if os.path.exists(output_file):
+            return output_file
         return False  # pragma: no cover
 
     @pyaedt_function_handler(plotname="plot_name", filepath="output_dir", filename="file_name")
@@ -3115,7 +3129,9 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
-    def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
+    def change_field_plot_scale(
+        self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None
+    ):
         """Change Field Plot Scale.
 
         Parameters
@@ -3130,6 +3146,9 @@ class PostProcessor(PostProcessorCommon, object):
             Set to ``True`` if Log Scale is setup.
         is_db : bool, optional
             Set to ``True`` if dB Scale is setup.
+        scale_levels : int, optional
+            Set number of color levels. The default is ``None``, in which case the
+            setting is not changed.
 
         Returns
         -------
@@ -3155,21 +3174,22 @@ class PostProcessor(PostProcessorCommon, object):
                 [255, 127, 127],
             ]
         ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
+        scale_args = [
+            "NAME:Scale3DSettings",
+            "minvalue:=",
+            minimum_value,
+            "maxvalue:=",
+            maximum_value,
+            "log:=",
+            is_log,
+            "dB:=",
+            is_db,
+            "ScaleType:=",
+            1,
         ]
+        if scale_levels is not None:
+            scale_args += ["m_nLevels:=", scale_levels]
+        args += [scale_args]
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 

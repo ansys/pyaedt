@@ -151,7 +151,7 @@ class FieldAnalysis3DLayout(Analysis):
         :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
-        if self._post is None:
+        if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
@@ -170,7 +170,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
-        if self._mesh is None:
+        if self._mesh is None and self._odesign:
             from pyaedt.modules.Mesh3DLayout import Mesh3d
 
             self._mesh = Mesh3d(self)
@@ -249,7 +249,7 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             self.logger.reset_timer()
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 

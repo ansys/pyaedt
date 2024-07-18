@@ -39,7 +39,7 @@ def get_process_id():
 
 
 def get_port():
-    """Get GRPC port from environment variable."""
+    """Get gRPC port from environment variable."""
     port = 0
     if "PYAEDT_SCRIPT_PORT" in os.environ:
         port = int(os.environ["PYAEDT_SCRIPT_PORT"])

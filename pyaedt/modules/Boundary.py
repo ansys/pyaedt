@@ -1414,6 +1414,33 @@ class MaxwellParameters(BoundaryCommon, object):
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
+        self.__reduced_matrices = None
+        self.matrix_assignment = None
+
+    @property
+    def reduced_matrices(self):
+        """List of reduced matrix groups for the parent matrix.
+
+        Returns
+        -------
+        dict
+            Dictionary of reduced matrices where the key is the name of the parent matrix
+            and the values are in a list of reduced matrix groups.
+        """
+        if self._app.solution_type == "EddyCurrent":
+            self.__reduced_matrices = {}
+            cc = self._app.odesign.GetChildObject("Parameters")
+            parents = cc.GetChildNames()
+            if self.name in parents:
+                parent_object = self._app.odesign.GetChildObject("Parameters").GetChildObject(self.name)
+                parent_type = parent_object.GetPropValue("Type")
+                if parent_type == "Matrix":
+                    self.matrix_assignment = parent_object.GetPropValue("Selection").split(",")
+                    child_names = parent_object.GetChildNames()
+                    self.__reduced_matrices = []
+                    for r in child_names:
+                        self.__reduced_matrices.append(MaxwellMatrix(self._app, self.name, r))
+        return self.__reduced_matrices
 
     @property
     def object_properties(self):
@@ -1530,6 +1557,9 @@ class MaxwellParameters(BoundaryCommon, object):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not self._app.solution_type == "EddyCurrent":
+            self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
+            return False, False
         if not matrix_name:
             matrix_name = generate_unique_name("ReducedMatrix", n=3)
         if not join_name:
@@ -1592,8 +1622,94 @@ class MaxwellParameters(BoundaryCommon, object):
         )
 
 
+class MaxwellMatrix(object):
+    def __init__(self, app, parent_name, reduced_name):
+        self._app = app
+        self.parent_matrix = parent_name
+        self.name = reduced_name
+        self.__sources = None
+
+    @property
+    def sources(self):
+        """List of matrix sources."""
+        if self._app.solution_type == "EddyCurrent":
+            sources = (
+                self._app.odesign.GetChildObject("Parameters")
+                .GetChildObject(self.parent_matrix)
+                .GetChildObject(self.name)
+                .GetChildNames()
+            )
+            self.__sources = {}
+            for s in sources:
+                excitations = (
+                    self._app.odesign.GetChildObject("Parameters")
+                    .GetChildObject(self.parent_matrix)
+                    .GetChildObject(self.name)
+                    .GetChildObject(s)
+                    .GetPropValue("Source")
+                )
+                self.__sources[s] = excitations
+        return self.__sources
+
+    @pyaedt_function_handler()
+    def update(self, old_source, source_type, new_source=None, new_excitations=None):
+        """Update the reduced matrix.
+
+        Parameters
+        ----------
+        old_source : str
+            Original name of the source to update.
+        source_type : str
+            Source type, which can be ``Series`` or ``Parallel``.
+        new_source : str, optional
+            New name of the source to update.
+            The default value is the old source name.
+        new_excitations : str, optional
+            List of excitations to include in the matrix reduction.
+            The default values are excitations included in the source to update.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if old_source not in self.sources.keys():
+            self._app.logger.error("Source does not exist.")
+            return False
+        else:
+            new_excitations = self.sources[old_source] if not new_excitations else new_excitations
+        if source_type.lower() not in ["series", "parallel"]:
+            self._app.logger.error("Join type not valid.")
+            return False
+        if not new_source:
+            new_source = old_source
+        args = ["NAME:" + new_source, "Type:=", "Join in " + source_type, "Sources:=", new_excitations]
+        self._app.o_maxwell_parameters.EditReduceOp(self.parent_matrix, self.name, old_source, args)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self, source):
+        """Delete a specified source in a reduced matrix.
+
+        Parameters
+        ----------
+        source : string
+            Name of the source to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if source not in self.sources.keys():
+            self._app.logger.error("Invalid source name.")
+            return False
+        self._app.o_maxwell_parameters.DeleteReduceOp(self.parent_matrix, self.name, source)
+        return True
+
+
 class FieldSetup(BoundaryCommon, object):
-    """Manages Far Field and Near Field Component data and execution.
+    """Manages far field and near field component data and execution.
 
     Examples
     --------
@@ -3903,7 +4019,7 @@ class Excitations(object):
     @reference_node.setter
     def reference_node(self, ref_node=None):
         if ref_node:
-            self._logger.warning("Set reference node only working with GRPC")
+            self._logger.warning("Set reference node only working with gRPC")
             if ref_node == "Ground":
                 ref_node = "Z"
             self._props["RefNode"] = ref_node
