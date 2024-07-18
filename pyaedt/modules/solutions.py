@@ -3683,7 +3683,7 @@ class FieldPlot:
         self._postprocessor.field_plots.pop(self.name, None)
 
     @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
+    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
         """Change Field Plot Scale.
 
         Parameters
@@ -3696,6 +3696,9 @@ class FieldPlot:
             Set to ``True`` if Log Scale is setup.
         is_db : bool, optional
             Set to ``True`` if dB Scale is setup.
+        scale_levels : int, optional
+            Set number of color levels. The default is ``None``, in which case the
+            setting is not changed.
 
         Returns
         -------
@@ -3706,37 +3709,9 @@ class FieldPlot:
         ----------
         >>> oModule.SetPlotFolderSettings
         """
-        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [
-            [
-                "NAME:ColorMaPSettings",
-                "ColorMapType:=",
-                "Spectrum",
-                "SpectrumType:=",
-                "Rainbow",
-                "UniformColor:=",
-                [127, 255, 255],
-                "RampColor:=",
-                [255, 127, 127],
-            ]
-        ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                not is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
-        ]
-        self.oField.SetPlotFolderSettings(self.plot_folder, args)
-        return True
+        return self._postprocessor.change_field_plot_scale(
+            self.plot_folder, minimum_value, maximum_value, is_log, is_db, scale_levels
+        )
 
     @pyaedt_function_handler()
     def export_image(
