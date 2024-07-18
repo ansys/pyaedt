@@ -921,7 +921,9 @@ class TestClass:
     def test_50_objects_segmentation(self, cyl_gap):
         segments_number = 5
         object_name = "PM_I1"
-        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments=segments_number, apply_mesh_sheets=True)
+        sheets = cyl_gap.modeler.objects_segmentation(
+            assignment=object_name, segments=segments_number, apply_mesh_sheets=True
+        )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0], dict)
         assert isinstance(sheets[1], dict)

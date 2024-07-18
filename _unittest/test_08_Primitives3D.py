@@ -1801,7 +1801,9 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
         mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
-        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(variables=["test_variable"], assignment=[box1.name])
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            variables_to_include=["test_variable"], assignment=[box1.name]
+        )
         assert isinstance(obj_3dcomp, UserDefinedComponent)
 
         self.aedtapp.modeler.replace_3dcomponent(name="new_comp", assignment=[box2.name])

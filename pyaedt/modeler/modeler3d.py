@@ -274,28 +274,28 @@ class Modeler3D(Primitives3D):
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
-        variables_to_include = []
+        variables = []
         dependent_variables = []
         if variables_to_include is not None and not variables_to_include == []:
             ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
             dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
             for param in variables_to_include:
                 if self._app[param] in ind_variables:
-                    variables_to_include.append(self._app[param])
+                    variables.append(self._app[param])
                     dependent_variables.append(param)
                 elif self._app[param] not in dep_variables:
-                    variables_to_include.append(param)
+                    variables.append(param)
         elif variables_to_include is None:
-            variables_to_include = self._app._variable_manager.independent_variable_names
+            variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
 
-        for el in variables_to_include:
+        for el in variables:
             par_description.append(el + ":=")
             par_description.append("")
-        arg.append("IncludedParameters:="), arg.append(variables_to_include)
+        arg.append("IncludedParameters:="), arg.append(variables)
 
         arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
-        for el in variables_to_include:
+        for el in variables:
             par_description.append(el + ":=")
             par_description.append("")
         arg.append("ParameterDescription:="), arg.append(par_description)
@@ -433,7 +433,7 @@ class Modeler3D(Primitives3D):
     def replace_3dcomponent(
         self,
         name=None,
-        variables=None,
+        variables_to_include=None,
         assignment=None,
         boundaries=None,
         excitations=None,
@@ -446,7 +446,7 @@ class Modeler3D(Primitives3D):
         ----------
         name : str, optional
             Name of the component. The default is ``None``.
-        variables : list, optional
+        variables_to_include : list, optional
             List of variables to include. The default is ``None``.
         assignment : list, optional
             List of object names to export. The default is all object names.
@@ -469,8 +469,8 @@ class Modeler3D(Primitives3D):
 
         >>> oEditor.ReplaceWith3DComponent
         """
-        if not variables:
-            variables = []
+        if not variables_to_include:
+            variables_to_include = []
         if not name:
             name = generate_unique_name(self._app.design_name)
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
@@ -524,11 +524,11 @@ class Modeler3D(Primitives3D):
         arg.append("ReferenceCS:="), arg.append(coordinate_systems)
         par_description = []
         variables = []
-        if variables:
+        if variables_to_include:
             dependent_variables = []
             ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
             dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
-            for param in variables:
+            for param in variables_to_include:
                 if self._app[param] in ind_variables:
                     variables.append(self._app[param])
                     dependent_variables.append(param)
@@ -1423,7 +1423,7 @@ class Modeler3D(Primitives3D):
             for value in segment_sheets[obj.name]:
                 segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
             if apply_mesh_sheets:
-                mesh_sheets = {}
+                sheets = {}
                 mesh_objects = {}
                 # mesh sheets
                 mesh_sheet_position = segmentation_thickness / (mesh_sheets + 1)
@@ -1434,11 +1434,9 @@ class Modeler3D(Primitives3D):
                         face = segment_objects[obj.name][i - 1].faces[0]
                     mesh_face_object = self.create_object_from_face(face)
                     self.move(mesh_face_object, [0, 0, mesh_sheet_position])
-                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
-                        [0, 0, mesh_sheet_position], mesh_sheets
-                    )
+                    sheets[obj.name] = mesh_face_object.duplicate_along_line([0, 0, mesh_sheet_position], mesh_sheets)
                 mesh_objects[obj.name] = [mesh_face_object]
-                for value in mesh_sheets[obj.name]:
+                for value in sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()
         if apply_mesh_sheets:
