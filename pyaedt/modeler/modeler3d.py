@@ -424,7 +424,6 @@ class Modeler3D(Primitives3D):
 
     @pyaedt_function_handler(
         component_name="name",
-        variables_to_include="variables",
         object_list="assignment",
         boundaries_list="boundaries",
         excitation_list="excitations",
