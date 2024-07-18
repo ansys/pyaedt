@@ -193,7 +193,9 @@ class TestClass:
     def test_25b_create_parametrics_sync(self):
         self.aedtapp["a1"] = "10mm"
         self.aedtapp["a2"] = "2mm"
-        setup1 = self.aedtapp.parametrics.add("a1")
+        setup1 = self.aedtapp.parametrics.add(
+            "a1", start_point=0.1, end_point=20, step=10, variation_type="LinearCount"
+        )
         assert setup1
         assert setup1.add_variation("a2", start_point="0.3mm", end_point=5, step=10, variation_type="LinearCount")
         assert setup1.sync_variables(["a1", "a2"], sync_n=1)

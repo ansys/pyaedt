@@ -557,8 +557,8 @@ class TestClass:
         assert reduced_matrix_1.sources["new_series"] == "Cur2, Cur3"
         assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
         assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
-        assert not reduced_matrix_1.delete()
-        assert reduced_matrix_1.delete()
+        assert not reduced_matrix_1.delete(source="invalid")
+        assert reduced_matrix_1.delete(source="new_series")
         assert len(parent_matrix.reduced_matrices) == 1
 
     def test_32c_export_rl_matrix(self):

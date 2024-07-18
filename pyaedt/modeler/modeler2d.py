@@ -141,11 +141,13 @@ class Modeler2D(Primitives2D):
         return radius
 
     @pyaedt_function_handler()
-    def radial_split_2D(self, name):
+    def radial_split_2D(self, radius, name):
         """Split the stator and rotor for mesh refinement.
 
         Parameters
         ----------
+        radius : float
+            Radius of the circle.
         name : str
             Name of the circle.
 
