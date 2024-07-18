@@ -921,9 +921,7 @@ class TestClass:
     def test_50_objects_segmentation(self, cyl_gap):
         segments_number = 5
         object_name = "PM_I1"
-        sheets = cyl_gap.modeler.objects_segmentation(
-            object_name, segments_number=segments_number, apply_mesh_sheets=True
-        )
+        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments=segments_number, apply_mesh_sheets=True)
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0], dict)
         assert isinstance(sheets[1], dict)
@@ -934,7 +932,7 @@ class TestClass:
         object_name = "PM_I1_1"
         magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
         sheets = cyl_gap.modeler.objects_segmentation(
-            magnet_id, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=mesh_sheets_number
+            magnet_id, segments=segments_number, apply_mesh_sheets=True, mesh_sheets=mesh_sheets_number
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
@@ -953,11 +951,11 @@ class TestClass:
         assert len(sheets[0][object_name]) == segments_number - 1
         assert not cyl_gap.modeler.objects_segmentation(object_name)
         assert not cyl_gap.modeler.objects_segmentation(
-            object_name, segmentation_thickness=segmentation_thickness, segments_number=segments_number
+            object_name, segmentation_thickness=segmentation_thickness, segments=segments_number
         )
         object_name = "PM_O1_1"
         segments_number = 10
-        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments=segments_number)
         assert isinstance(sheets, dict)
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1

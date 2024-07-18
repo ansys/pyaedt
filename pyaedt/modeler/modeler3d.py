@@ -1354,14 +1354,14 @@ class Modeler3D(Primitives3D):
                     self[obj].color = color
         return scene
 
-    @pyaedt_function_handler(objects_list="assignment")
+    @pyaedt_function_handler(objects_list="assignment", segments_number="segments", mesh_sheets_number="mesh_sheets")
     def objects_segmentation(
         self,
         assignment,
         segmentation_thickness=None,
-        segments_number=None,
+        segments=None,
         apply_mesh_sheets=False,
-        mesh_sheets_number=2,
+        mesh_sheets=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
@@ -1374,13 +1374,13 @@ class Modeler3D(Primitives3D):
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
-        segments_number : int, optional
+        segments : int, optional
             Number of segments to segment the object to. The default is ``None``.
         apply_mesh_sheets : bool, optional
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
-        mesh_sheets_number : int, optional
+        mesh_sheets : int, optional
             Number of mesh sheets within one magnet segment.
             If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
@@ -1398,10 +1398,10 @@ class Modeler3D(Primitives3D):
             segments that the object has been divided into.
             ``False`` is returned if the method fails.
         """
-        if not segmentation_thickness and not segments_number:
+        if not segmentation_thickness and not segments:
             self.logger.error("Provide at least one option to segment the objects in the list.")
             return False
-        elif segmentation_thickness and segments_number:
+        elif segmentation_thickness and segments:
             self.logger.error("Only one segmentation option can be selected.")
             return False
 
@@ -1412,15 +1412,13 @@ class Modeler3D(Primitives3D):
         for obj_name in assignment:
             obj = self[obj_name]
             obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
-            if segments_number:
-                segmentation_thickness = obj_axial_length / segments_number
+            if segments:
+                segmentation_thickness = obj_axial_length / segments
             elif segmentation_thickness:
-                segments_number = round(obj_axial_length / segmentation_thickness)
+                segments = round(obj_axial_length / segmentation_thickness)
             face_object = self.create_object_from_face(obj.bottom_face_z)
             # segment sheets
-            segment_sheets[obj.name] = face_object.duplicate_along_line(
-                ["0", "0", segmentation_thickness], segments_number
-            )
+            segment_sheets[obj.name] = face_object.duplicate_along_line(["0", "0", segmentation_thickness], segments)
             segment_objects[obj.name] = []
             for value in segment_sheets[obj.name]:
                 segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
@@ -1428,7 +1426,7 @@ class Modeler3D(Primitives3D):
                 mesh_sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets + 1)
                 for i in range(len(segment_objects[obj.name]) + 1):
                     if i == 0:
                         face = obj.bottom_face_z
@@ -1437,7 +1435,7 @@ class Modeler3D(Primitives3D):
                     mesh_face_object = self.create_object_from_face(face)
                     self.move(mesh_face_object, [0, 0, mesh_sheet_position])
                     mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
-                        [0, 0, mesh_sheet_position], mesh_sheets_number
+                        [0, 0, mesh_sheet_position], mesh_sheets
                     )
                 mesh_objects[obj.name] = [mesh_face_object]
                 for value in mesh_sheets[obj.name]:
