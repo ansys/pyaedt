@@ -2,7 +2,7 @@ Parametrize Layout
 ==================
 
 You can parametrize stackup, materials, padstacks and traces of an existing 3D Layout design and also
-change size of voids and polygons to conduct corner analysis.
+and change the size of voids and polygons to conduct corner analysis.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
