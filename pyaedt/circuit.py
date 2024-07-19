@@ -2152,7 +2152,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Reference pins to assign to the transmitter IBIS. This parameter is only used in
             a differential configuration.
         rx_refs : list
-            Reference pins to assign the receiver IBIS. This parameter is only used
+            Reference pins to assign to the receiver IBIS. This parameter is only used
             in a differential configuration.
         tx_component_name : str, optional
             Component name to which tx_pins belongs.
