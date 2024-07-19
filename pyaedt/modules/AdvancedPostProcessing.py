@@ -1303,7 +1303,7 @@ class IcepakPostProcessor(PostProcessor, object):
             variations = {}
         fs = self.create_field_summary()
         fs.add_calculation(
-            "Boundary",
+            "Object",
             ["Surface", "Volume"][int(volume)],
             object_name,
             quantity_name,
