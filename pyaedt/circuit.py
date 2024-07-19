@@ -2068,7 +2068,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ibis_rx_file : str, optional
             Ibis receiver file.
         create_setup : bool, optional
-            Whether if create transient or ami setup or not. The default is ``True``.
+            Whether to create transient or ami setup. The default is ``True``.
 
         Returns
         -------
