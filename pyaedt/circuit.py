@@ -2064,7 +2064,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         design_name : str, optional
             New schematic name. The default is ``"IBIS"``.
         is_ami : bool, optional
-            Whether if the ibis is AMI or not. The default is ``False``.
+            Whether the ibis is AMI. The default is ``False``.
         ibis_rx_file : str, optional
             Ibis receiver file.
         create_setup : bool, optional
