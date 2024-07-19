@@ -540,13 +540,13 @@ class Analysis(Design, object):
             if setup is None:
                 try:
                     setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
-                except:
+                except Exception:
                     setup = None
             else:
                 setup = setup.split(":")[0].strip()
-            for set in self.setups:
-                if set.name == setup:
-                    intrinsics = set.default_intrinsics
+            for set_obj in self.setups:
+                if set_obj.name == setup:
+                    intrinsics = set_obj.default_intrinsics
                     break
 
         elif isinstance(input_data, str):
