@@ -2176,7 +2176,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         analyze : bool
              Whether to automatically assign differential pairs. The default is ``False``.
         is_ami : bool, optional
-            Whether if the ibis is AMI or not. The default is ``False``.
+            Whether the ibis is AMI. The default is ``False``.
         create_setup : bool, optional
             Whether to create transient or ami setup. The default is ``True``.
 
