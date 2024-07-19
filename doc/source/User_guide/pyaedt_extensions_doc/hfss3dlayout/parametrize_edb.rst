@@ -22,7 +22,7 @@ The available arguments are: ``aedb_path``, ``design_name``, ``parametrize_layer
 define which part of the aedb has to be parametrized while the ``nets_filter`` defines which net has to be included.
 ``expansion_polygon_mm`` and ``expansion_void_mm`` define if and which value of expansion has to be applied on
 polygons and voids.
-``relative_parametric`` define if the parameters have to be considered as a delta of the original value or not.
+``relative_parametric`` defines if the parameters have to be considered as a delta of the original value.
 ``project_name`` is the new project name.
 
 The extension user interface can also be launched from the terminal. An example can be found here:
