@@ -25,7 +25,7 @@ polygons and voids.
 ``relative_parametric`` define if the parameters have to be considered as a delta of the original value or not.
 ``project_name`` is the new project name.
 
-You can also launch the extension user interface from the terminal. An example can be found here:
+The extension user interface can also be launched from the terminal. An example can be found here:
 
 
 .. toctree::
