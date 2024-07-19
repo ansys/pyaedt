@@ -2035,7 +2035,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         rx_buffer_name : str
             Receiver buffer name.
         tx_pins : list
-            Pins to assign the transmitter IBIS.
+            Pins to assign to the transmitter IBIS.
         rx_pins : list, optional
             Pins to assign the receiver IBIS.
         tx_refs : list, optional
