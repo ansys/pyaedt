@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import random
-import re
 import sys
 import time
 import warnings
@@ -128,7 +127,9 @@ class ModelerCircuit(Modeler):
         pinnum_first="pin_starting",
         pinnum_second="pin_ending",
     )
-    def connect_schematic_components(self, starting_component, ending_component, pin_starting=2, pin_ending=1):
+    def connect_schematic_components(
+        self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire=True
+    ):
         """Connect schematic components.
 
         Parameters
@@ -137,12 +138,16 @@ class ModelerCircuit(Modeler):
            Starting (right) component.
         ending_component : str
            Ending (left) component for the connection line.
-        pin_starting : str, optional
-             Number of the pin at which to terminate the connection from the right end of the
+        pin_starting : int, str, list optional
+             Number or name of the pins at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
-        pin_ending : str, optional
-             Number of the pin at which to terminate the connection from the left end of the
+        pin_ending : int, str, list optional
+             Number or name of the pins at which to terminate the connection from the left end of the
              ending component. The default is ``1``.
+        use_wire : bool, optional
+            Whether to use wires or a page port to connect the pins.
+            The default is ``True``, in which case wires are used. Note
+            that if wires are not well placed, shorts can result.
 
         Returns
         -------
@@ -156,39 +161,21 @@ class ModelerCircuit(Modeler):
         """
         if self._app.design_type == "Maxwell Circuit":
             components = self.schematic.components
-            obj1 = components[starting_component]
         else:
             components = self.components
-            obj1 = components[starting_component]
-        if "Port" in obj1.composed_name:
-            pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
-            pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
-            if "GPort" in obj1.composed_name:
-                pos1[1] += 0.00254
-        else:
-            if self._app.design_type == "Maxwell Circuit":
-                pos1 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj1.location]
-            else:
-                pins1 = components.get_pins(starting_component)
-                pos1 = components.get_pin_location(starting_component, pins1[pin_starting - 1])
-        obj2 = components[ending_component]
-        if "Port" in obj2.composed_name:
-            pos2 = self.oeditor.GetPropertyValue("BaseElementTab", obj2.composed_name, "Component Location").split(", ")
-            pos2 = [float(i.strip()[:-3]) * 0.0000254 for i in pos2]
-            if "GPort" in obj2.composed_name:
-                pos2[1] += 0.00254
-
-        else:
-            if self._app.design_type == "Maxwell Circuit":
-                pos2 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj2.location]
-            else:
-                pins2 = components.get_pins(ending_component)
-                pos2 = components.get_pin_location(ending_component, pins2[pin_ending - 1])
-        try:
-            self.schematic.create_wire([pos1, pos2])
-            return True
-        except Exception:
-            return False
+        start = components[starting_component]
+        end = components[ending_component]
+        if isinstance(pin_starting, (int, str)):
+            pin_starting = [pin_starting]
+        if isinstance(pin_ending, (int, str)):
+            pin_ending = [pin_ending]
+        for pstart, pend in zip(pin_starting, pin_ending):
+            try:
+                start[pstart].connect_to_component(end[pend], use_wire=use_wire)
+            except:
+                self.logger.error("Failed to connect pin {} with {}".format(pstart, pend))
+                return False
+        return True
 
     @pyaedt_function_handler()
     def create_text(
