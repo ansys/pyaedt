@@ -19,7 +19,7 @@ The available arguments are: ``aedb_path``, ``design_name``, ``parametrize_layer
 
 ``aedb_path`` and ``design_name`` define the source aedb project.
 ``parametrize_layers``, ``parametrize_materials``, ``parametrize_padstacks``, ``parametrize_traces``
-define which parts of the aedb has to be parametrized while the ``nets_filter`` defines which nets has to be included.
+define which part of the aedb has to be parametrized while the ``nets_filter`` defines which net has to be included.
 ``expansion_polygon_mm`` and ``expansion_void_mm`` define if and which value of expansion has to be applied on
 polygons and voids.
 ``relative_parametric`` define if the parameters have to be considered as a delta of the original value or not.
