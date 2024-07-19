@@ -2221,7 +2221,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     or "ModelName" in v.parameters
                     and v.parameters["ModelName"] == "FieldSolver"
                 ][0]
-            except:
+            except Exception:
                 self.logger.error("A component has to be passed or an Sparameter present.")
                 return False
         if rx_component_name is None:
@@ -2267,13 +2267,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 n_pin2 = subx[rx_schematic_differential_pins[j]]
 
             if use_ibis_buffer:
-                buf = [k for k in ibis.buffers.keys() if k.startswith(tx_buffer_name + "_")]
+                buf = [k for k, _ in ibis.buffers.items() if k.startswith(tx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
                 tx = ibis.buffers[buf[0]].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [k for k in ibis_rx.buffers.keys() if k.startswith(rx_buffer_name + "_")]
+                buf = [k for k, _ in ibis_rx.buffers.items() if k.startswith(rx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
                 rx = ibis_rx.buffers[buf[0]].insert(pos_x_rx, pos_y_rx, 180)

@@ -172,7 +172,7 @@ class ModelerCircuit(Modeler):
         for pstart, pend in zip(pin_starting, pin_ending):
             try:
                 start[pstart].connect_to_component(end[pend], use_wire=use_wire)
-            except:
+            except Exception:
                 self.logger.error("Failed to connect pin {} with {}".format(pstart, pend))
                 return False
         return True
