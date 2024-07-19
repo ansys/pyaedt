@@ -234,7 +234,7 @@ def main(extension_arguments):
     relative_ui = extension_arguments.get("relative_parametric", True)
     design_name_ui = extension_arguments.get("design_name", "")
     aedb_path_ui = extension_arguments.get("aedb_path", "")
-    if not aedb_path_ui or not design_name_ui:
+    if not aedb_path_ui:
         app = pyaedt.Desktop(
             new_desktop=False,
             version=version,
@@ -276,8 +276,8 @@ def main(extension_arguments):
         expand_voids_size=voids_ui,
     )
     edb.close_edb()
-    h3d = Hfss3dLayout(new_project_aedb)
     if not extension_arguments["is_test"]:  # pragma: no cover
+        h3d = Hfss3dLayout(new_project_aedb)
         h3d.logger.info("Project generated correctly.")
         h3d.release_desktop(False, False)
     return True

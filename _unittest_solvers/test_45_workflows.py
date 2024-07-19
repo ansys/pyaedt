@@ -282,7 +282,6 @@ class TestClass:
     def test_11_cutout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.cutout import main
 
-
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "choice": "ConvexHull",
@@ -299,13 +298,16 @@ class TestClass:
 
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
         app.close_project()
-    def test_13_parametrize_layout(self, add_app, local_scratch):
+    def test_13_parametrize_layout(self, local_scratch):
         from pyaedt.workflows.hfss3dlayout.parametrize_edb import main
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
 
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+                                                "T45",
+                                                "ANSYS-HSD_V1.aedb"), file_path)
 
-        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
-
-        assert main({"is_test": True, "aedb_path": "",
+        assert main({"is_test": True,
+                     "aedb_path": file_path,
                      "parametrize_layers": True,
                      "parametrize_materials": True,
                      "parametrize_padstacks": True,
@@ -314,5 +316,4 @@ class TestClass:
                      "expansion_polygon_mm": 0.1,
                      "expansion_void_mm": 0.1,
                      "relative_parametric": True,
-                     "project_name": "", })
-        app.close_project()
+                     "project_name": "new_parametrized", })
