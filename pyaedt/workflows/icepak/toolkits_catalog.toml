@@ -1,0 +1,6 @@
+[ECADImporter]
+name = "ECAD Importer"
+script = "ecad_importer.py"
+icon = "images/large/ecad.png"
+template = "run_pyedb_toolkit_script"
+pip = ""
