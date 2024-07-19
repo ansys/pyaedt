@@ -148,7 +148,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
             Modeler object.
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             self.logger.reset_timer()
 
             from pyaedt.modeler.modeler2d import Modeler2D
@@ -167,7 +167,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
             Mesh object.
         """
-        if self._mesh is None:
+        if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
             from pyaedt.modules.Mesh import Mesh
@@ -187,7 +187,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
-        if self._post is None:
+        if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
@@ -1096,7 +1096,7 @@ class FieldAnalysis3D(Analysis, object):
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
-                app[var] = val
+                self[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
             monitor_cache = {}

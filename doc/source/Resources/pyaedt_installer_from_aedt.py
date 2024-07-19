@@ -193,15 +193,18 @@ def install_pyaedt():
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
-            import zipfile
-            unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
-                                         os.path.splitext(os.path.basename(wheel_pyaedt))[0])
-            if os.path.exists(unzipped_path):
-                shutil.rmtree(unzipped_path, ignore_errors=True)
-            with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
-                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-                zip_ref.extractall(unzipped_path)
-
+            if wheel_pyaedt.endswith(".zip"):
+                import zipfile
+                unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
+                                             os.path.splitext(os.path.basename(wheel_pyaedt))[0])
+                if os.path.exists(unzipped_path):
+                    shutil.rmtree(unzipped_path, ignore_errors=True)
+                with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
+                    # Extract all contents to a directory. (You can specify a different extraction path if needed.)
+                    zip_ref.extractall(unzipped_path)
+            else:
+                # Extracted folder.
+                unzipped_path = wheel_pyaedt
             if args.version <= "231":
                 run_command(
                     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,

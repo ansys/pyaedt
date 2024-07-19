@@ -1232,6 +1232,8 @@ class SolutionData(object):
             Full path to image file if a snapshot is needed.
         is_polar : bool, optional
             Set to `True` if this is a polar plot.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -1319,6 +1321,8 @@ class SolutionData(object):
         snapshot_path : str, optional
             Full path to image file if a snapshot is needed.
             The default is ``None``.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -2588,7 +2592,7 @@ class FfdSolutionData(object):
         if image_path:
             p.show(screenshot=image_path)
         if show:  # pragma: no cover
-            p.show()
+            p.show(auto_close=False)
         return p
 
     @pyaedt_function_handler()
@@ -3264,7 +3268,9 @@ class FieldPlot:
                         else:
                             nonmodel_faces.append(str(index))
                     except Exception:
-                        pass
+                        self._postprocessor.logger.debug(
+                            "Something went wrong while processing surface {}.".format(index)
+                        )
             info.append("Surface")
             if model_faces:
                 info.append("FacesList")
@@ -3681,7 +3687,7 @@ class FieldPlot:
         self._postprocessor.field_plots.pop(self.name, None)
 
     @pyaedt_function_handler()
-    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False):
+    def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
         """Change Field Plot Scale.
 
         Parameters
@@ -3694,6 +3700,9 @@ class FieldPlot:
             Set to ``True`` if Log Scale is setup.
         is_db : bool, optional
             Set to ``True`` if dB Scale is setup.
+        scale_levels : int, optional
+            Set number of color levels. The default is ``None``, in which case the
+            setting is not changed.
 
         Returns
         -------
@@ -3704,37 +3713,9 @@ class FieldPlot:
         ----------
         >>> oModule.SetPlotFolderSettings
         """
-        args = ["NAME:FieldsPlotSettings", "Real Time mode:=", True]
-        args += [
-            [
-                "NAME:ColorMaPSettings",
-                "ColorMapType:=",
-                "Spectrum",
-                "SpectrumType:=",
-                "Rainbow",
-                "UniformColor:=",
-                [127, 255, 255],
-                "RampColor:=",
-                [255, 127, 127],
-            ]
-        ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                not is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
-        ]
-        self.oField.SetPlotFolderSettings(self.plot_folder, args)
-        return True
+        return self._postprocessor.change_field_plot_scale(
+            self.plot_folder, minimum_value, maximum_value, is_log, is_db, scale_levels
+        )
 
     @pyaedt_function_handler()
     def export_image(

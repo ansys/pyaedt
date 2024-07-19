@@ -170,6 +170,7 @@ class Icepak(FieldAnalysis3D):
         projectname="project",
         specified_version="version",
         setup_name="setup",
+        new_desktop_session="new_desktop",
     )
     def __init__(
         self,
@@ -4032,7 +4033,7 @@ class Icepak(FieldAnalysis3D):
         )
 
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
-    def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
+    def create_setup(self, name=None, setup_type=None, **kwargs):
         """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setup_type`` and ``name``.  Keyword
         names correspond to the ``setup_type``
@@ -4045,7 +4046,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         name : str, optional
-            Name of the setup. The default is ``"Setup1"``.
+            Name of the setup.
         setup_type : int, str, optional
             Type of the setup. Options are ``"IcepakSteadyState"``
             and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
@@ -6462,6 +6463,28 @@ class Icepak(FieldAnalysis3D):
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
+
+    @pyaedt_function_handler()
+    def clear_linked_data(self):
+        """
+        Clear the linked data of all the solution setups.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ClearLinkedData
+        """
+        try:
+            self.odesign.ClearLinkedData()
+        except:
+            return False
+        else:
+            return True
 
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation):

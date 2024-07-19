@@ -1085,8 +1085,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        type
-            Design object.
+        Design object
 
         References
         ----------
@@ -3266,9 +3265,12 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
+            self.logger.odesign = None
+            self.logger.oproject = None
+            self.design_solutions._odesign = None
+            AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
         else:
             self.desktop_class.active_project(legacy_name)
-        AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
         timeout = 10
@@ -3324,11 +3326,17 @@ class Design(AedtObjects):
                 if is_windows:
                     self._init_variables()
                 self._odesign = None
+                self.logger.odesign = None
+                self.design_solutions._odesign = None
+                AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
                 return False
         else:
             if is_windows:
                 self._init_variables()
             self._odesign = None
+            self.logger.odesign = None
+            self.design_solutions._odesign = None
+            AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
         return True
 
     @pyaedt_function_handler(separator_name="name")
@@ -3751,9 +3759,12 @@ class Design(AedtObjects):
         >>> oProject.Save
         >>> oProject.SaveAs
         """
-        if file_name and not os.path.exists(os.path.dirname(file_name)):
-            os.makedirs(os.path.dirname(file_name))
-        elif file_name:
+        if file_name:
+            file_parent_dir = os.path.dirname(os.path.normpath(file_name))
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(file_parent_dir):
+                settings.remote_rpc_session.filemanager.makedirs(file_parent_dir)
+            elif not settings.remote_rpc_session and not os.path.isdir(file_parent_dir):
+                os.makedirs(file_parent_dir)
             self.oproject.SaveAs(file_name, overwrite)
             self._add_handler()
         else:
@@ -4165,11 +4176,15 @@ class DesignSettings:
     def __init__(self, app):
         self._app = app
         self.manipulate_inputs = None
+
+    @property
+    def design_settings(self):
+        """Design settings."""
         try:
-            self.design_settings = self._app.odesign.GetChildObject("Design Settings")
+            return self._app.odesign.GetChildObject("Design Settings")
         except GrpcApiError:  # pragma: no cover
             self._app.logger.error("Failed to retrieve design settings.")
-            self.design_settings = None
+            return None
 
     @property
     def available_properties(self):

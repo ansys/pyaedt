@@ -10,6 +10,7 @@ env:
   MAIN_PYTHON_VERSION: '3.10'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   MEILISEARCH_API_KEY: ${{ secrets.MEILISEARCH_API_KEY }}
+  MEILISEARCH_HOST_URL: ${{ vars.MEILISEARCH_HOST_URL }}
   MEILISEARCH_PUBLIC_API_KEY: ${{ secrets.MEILISEARCH_PUBLIC_API_KEY }}
 
 concurrency:
@@ -83,11 +84,11 @@ jobs:
           .venv\Scripts\Activate.ps1
           .\doc\make.bat pdf
 
-      - name: Add assets to HTML docs
-        run: |
-          zip -r documentation-html.zip ./doc/_build/html
-          mv documentation-html.zip ./doc/_build/html/_static/assets/download/
-          cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
+      # - name: Add assets to HTML docs
+      #   run: |
+      #     zip -r documentation-html.zip ./doc/_build/html
+      #     mv documentation-html.zip ./doc/_build/html/_static/assets/download/
+      #     cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
 
       - name: Upload HTML documentation with examples artifact
         uses: actions/upload-artifact@v3
@@ -102,72 +103,6 @@ jobs:
           name: documentation-pdf
           path: doc/_build/latex/PyAEDT-Documentation-*.pdf
           retention-days: 7
-
-  # doc-build-without-examples:
-  #   name: Documentation build without examples
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Install Git and checkout project
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-  #     - name: Update pip
-  #       run: |
-  #         pip install --upgrade pip
-
-  #     - name: Install pyaedt and documentation dependencies
-  #       run: |
-  #         pip install .[doc-no-examples]
-
-  #     - name: Retrieve PyAEDT version
-  #       id: version
-  #       run: |
-  #         echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-  #         echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
-
-  #     - name: Install doc build requirements
-  #       run: |
-  #         sudo apt update
-  #         sudo apt install graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra -y
-
-  #     # TODO: Update this step once pyaedt-examples is ready
-  #     - name: Build HTML documentation without examples
-  #       run: |
-  #         make -C doc clean
-  #         make -C doc html-no-examples
-
-  #     # Verify that sphinx generates no warnings
-  #     - name: Check for warnings
-  #       run: |
-  #         python doc/print_errors.py
-
-  #     - name: Build PDF documentation without examples
-  #       run: |
-  #         make -C doc pdf-no-examples
-
-  #     - name: Add assets to HTML docs
-  #       run: |
-  #         zip -r documentation-html.zip ./doc/_build/html
-  #         mv documentation-html.zip ./doc/_build/html/_static/assets/download/
-  #         cp doc/_build/latex/PyAEDT-Documentation-*.pdf ./doc/_build/html/_static/assets/download/pyaedt.pdf
-
-  #     - name: Upload HTML documentation without examples artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: documentation-no-examples-html
-  #         path: doc/_build/html
-  #         retention-days: 7
-
-  #     - name: Upload PDF documentation without examples artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: documentation-pdf
-  #         path: doc/_build/latex/PyAEDT-Documentation-*.pdf
-  #         retention-days: 7
 
   upload-dev-doc:
     name: Upload dev documentation

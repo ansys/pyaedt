@@ -89,7 +89,7 @@ class FieldAnalysisRMxprt(Analysis):
         -------
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:  # pragma: no cover
+        if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
@@ -107,7 +107,7 @@ class FieldAnalysisRMxprt(Analysis):
         :class:`pyaedt.modules.modeler2d.ModelerRMxprt`
 
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from pyaedt.modeler.modeler2d import ModelerRMxprt
 
             self._modeler = ModelerRMxprt(self)
