@@ -100,7 +100,7 @@ class TestClass:
         plot1.update_field_plot_settings()
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
-        assert plot1.change_plot_scale(min_value, "30000")
+        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic

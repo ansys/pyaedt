@@ -3129,7 +3129,9 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
-    def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
+    def change_field_plot_scale(
+        self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None
+    ):
         """Change Field Plot Scale.
 
         Parameters
@@ -3144,6 +3146,9 @@ class PostProcessor(PostProcessorCommon, object):
             Set to ``True`` if Log Scale is setup.
         is_db : bool, optional
             Set to ``True`` if dB Scale is setup.
+        scale_levels : int, optional
+            Set number of color levels. The default is ``None``, in which case the
+            setting is not changed.
 
         Returns
         -------
@@ -3169,21 +3174,22 @@ class PostProcessor(PostProcessorCommon, object):
                 [255, 127, 127],
             ]
         ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
+        scale_args = [
+            "NAME:Scale3DSettings",
+            "minvalue:=",
+            minimum_value,
+            "maxvalue:=",
+            maximum_value,
+            "log:=",
+            is_log,
+            "dB:=",
+            is_db,
+            "ScaleType:=",
+            1,
         ]
+        if scale_levels is not None:
+            scale_args += ["m_nLevels:=", scale_levels]
+        args += [scale_args]
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 
