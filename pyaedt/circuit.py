@@ -2178,7 +2178,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         is_ami : bool, optional
             Whether if the ibis is AMI or not. The default is ``False``.
         create_setup : bool, optional
-            Whether if create transient or ami setup or not. The default is ``True``.
+            Whether to create transient or ami setup. The default is ``True``.
 
 
         Returns
