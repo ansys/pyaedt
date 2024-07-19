@@ -28,7 +28,7 @@ Project extension apply to all extensions that are applicable for all AEDT appli
 
             Configure layout for PCB & package analysis.
 
-   .. grid-item-card:: Configure layout
+   .. grid-item-card:: Advanced Fields Calculator
             :link: pyaedt_extensions_doc/project/advanced_fields_calculator
             :link-type: doc
 
@@ -40,6 +40,11 @@ Project extension apply to all extensions that are applicable for all AEDT appli
 
             Lear how to convert projects from 2022R2 to newer versions.
 
+   .. grid-item-card:: Parametrize Layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
+            :link-type: doc
+
+            Learn how to parametrize a full aedb.
 
 .. toctree::
    :hidden:
