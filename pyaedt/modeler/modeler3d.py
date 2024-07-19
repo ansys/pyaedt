@@ -88,6 +88,7 @@ class Modeler3D(Primitives3D):
         boundaries_list="boundaries",
         excitation_list="excitations",
         included_cs="coordinate_systems",
+        reference_cs="reference_coordinate_systems",
         auxiliary_dict="export_auxiliary",
     )
     def create_3dcomponent(
@@ -99,7 +100,7 @@ class Modeler3D(Primitives3D):
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_cs="Global",
+        reference_coordinate_systems="Global",
         is_encrypted=False,
         allow_edit=False,
         security_message="",
@@ -133,7 +134,7 @@ class Modeler3D(Primitives3D):
             List of Excitation names to export. The default is all excitations.
         coordinate_systems : list, optional
             List of Coordinate Systems to export. The default is the ``reference_cs``.
-        reference_cs : str, optional
+        reference_coordinate_systems : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
@@ -272,7 +273,7 @@ class Modeler3D(Primitives3D):
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_systems)
         par_description = []
         variables = []
         dependent_variables = []

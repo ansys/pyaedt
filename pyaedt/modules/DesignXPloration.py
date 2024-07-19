@@ -1133,10 +1133,10 @@ class ParametricSetups(object):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler(sweep_var="sweep_variable", parametricname="name")
+    @pyaedt_function_handler(sweep_var="variable", parametricname="name")
     def add(
         self,
-        sweep_variable,
+        variable,
         start_point,
         end_point=None,
         step=100,
@@ -1149,7 +1149,7 @@ class ParametricSetups(object):
 
         Parameters
         ----------
-        sweep_variable : str
+        variable : str
             Name of the variable.
         start_point : float or int
             Variation Start Point if a variation is defined or Single Value.
@@ -1176,8 +1176,8 @@ class ParametricSetups(object):
 
         >>> oModule.InsertSetup
         """
-        if sweep_variable not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} not found.".format(sweep_variable))
+        if variable not in self._app.variable_manager.variables:
+            self._app.logger.error("Variable {} not found.".format(variable))
             return False
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")
@@ -1193,8 +1193,8 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = [setupname]
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         setup.create()
-        unit = self._app.variable_manager[sweep_variable].units
-        setup.add_variation(sweep_variable, start_point, end_point, step, unit, variation_type)
+        unit = self._app.variable_manager[variable].units
+        setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
         setup.auto_update = True
         self.setups.append(setup)
         return setup
