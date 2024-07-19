@@ -1659,12 +1659,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         hfss.close_project(save=False)
         return hfss_3d_layout_model
 
-    @pyaedt_function_handler(touchstone="input_file")
+    @pyaedt_function_handler(
+        touchstone="input_file", probe_pins="tx_schematic_pins", probe_ref_pins="tx_schematic_differential_pins"
+    )
     def create_tdr_schematic_from_snp(
         self,
         input_file,
-        probe_pins,
-        probe_ref_pins=None,
+        tx_schematic_pins,
+        tx_schematic_differential_pins=None,
         termination_pins=None,
         differential=True,
         rise_time=30,
@@ -1678,9 +1680,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         input_file : str
             Full path to the sNp file.
-        probe_pins : list
+        tx_schematic_pins : list
             List of pins to attach to the probe components.
-        probe_ref_pins : list, optional
+        tx_schematic_differential_pins : list, optional
             Reference pins to attach to probe components. The default is ``None``.
             This parameter is valid only in differential TDR probes.
         termination_pins : list, optional
@@ -1715,13 +1717,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         center_x = sub.location[0]
         center_y = sub.location[1]
         left = 0
-        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_pins)
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
         tdr_probe_names = []
-        for i, probe_pin in enumerate(probe_pins):
+        for i, probe_pin in enumerate(tx_schematic_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
@@ -1729,11 +1731,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 if isinstance(probe_pin, int):
                     p_pin = probe_pin
                     if differential:
-                        n_pin = probe_ref_pins[i]
+                        n_pin = tx_schematic_differential_pins[i]
                 else:
                     p_pin = [k for k in sub.pins if k.name == probe_pin][0]
                     if differential:
-                        n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
+                        n_pin = [k for k in sub.pins if k.name == tx_schematic_differential_pins[i]][0]
             except IndexError:
                 self.logger.error("Failed to retrieve the pins.")
                 return False
@@ -1902,18 +1904,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.analyze()
         return True, diff_pairs, comm_pairs
 
-    @pyaedt_function_handler(touchstone="input_file")
+    @pyaedt_function_handler(
+        touchstone="input_file",
+        ibis_ami="ibis_tx_file",
+        tx_pins="tx_schematic_pins",
+        rx_pins="rx_schematic_pins",
+        tx_refs="tx_schematic_differential_pins",
+        rx_refs="rx_schematic_differentialial_pins",
+    )
     def create_ami_schematic_from_snp(
         self,
         input_file,
-        ibis_ami,
-        component_name,
+        ibis_tx_file,
         tx_buffer_name,
         rx_buffer_name,
-        tx_pins,
-        rx_pins,
-        tx_refs,
-        rx_refs,
+        tx_schematic_pins,
+        rx_schematic_pins,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differentialial_pins=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
         use_ibis_buffer=True,
         differential=True,
         bit_pattern=None,
@@ -1930,22 +1940,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         input_file : str
             Full path to the sNp file.
-        ibis_ami : str
+        ibis_tx_file : str
             Full path to the IBIS file.
-        component_name : str
-            Component name in the IBIS file to assign to components.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
         tx_buffer_name : str
             Transmission buffer name.
         rx_buffer_name : str
             Receiver buffer name
-        tx_pins : list
+        tx_schematic_pins : list
             Pins to assign the transmitter IBIS.
-        tx_refs : list
+        tx_schematic_differential_pins : list
             Reference pins to assign the transmitter IBIS. This parameter is only used in
             a differential configuration.
-        rx_pins : list
+        rx_schematic_pins : list
             Pins to assign the receiver IBIS.
-        rx_refs : list
+        rx_schematic_differentialial_pins : list
             Reference pins to assign the receiver IBIS. This parameter is only used
             in a differential configuration.
         use_ibis_buffer : bool, optional
@@ -1978,14 +1992,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
-            ibis_tx_file=ibis_ami,
-            component_name=component_name,
+            ibis_tx_file=ibis_tx_file,
             tx_buffer_name=tx_buffer_name,
             rx_buffer_name=rx_buffer_name,
-            tx_pins=tx_pins,
-            tx_refs=tx_refs,
-            rx_pins=rx_pins,
-            rx_refs=rx_refs,
+            tx_schematic_pins=tx_schematic_pins,
+            rx_schematic_pins=rx_schematic_pins,
+            ibis_rx_file=ibis_rx_file,
+            tx_schematic_differential_pins=tx_schematic_differential_pins,
+            rx_schematic_differential_pins=rx_schematic_differentialial_pins,
+            ibis_tx_component_name=ibis_tx_component_name,
+            ibis_rx_component_name=ibis_rx_component_name,
             use_ibis_buffer=use_ibis_buffer,
             differential=differential,
             bit_pattern=bit_pattern,
@@ -1994,7 +2010,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             analyze=analyze,
             design_name=design_name,
             is_ami=True,
-            ibis_rx_file=ibis_rx_file,
             create_setup=create_setup,
         )
 
@@ -2005,12 +2020,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ibis_tx_file,
         tx_buffer_name,
         rx_buffer_name,
-        tx_pins,
-        rx_pins,
+        tx_schematic_pins,
+        rx_schematic_pins,
         ibis_rx_file=None,
-        tx_refs=None,
-        rx_refs=None,
-        component_name=None,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differential_pins=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
         use_ibis_buffer=True,
         differential=True,
         bit_pattern=None,
@@ -2034,19 +2050,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             In the latter case the user has to provide also the component_name.
         rx_buffer_name : str
             Receiver buffer name.
-        tx_pins : list
+        tx_schematic_pins : list
             Pins to assign to the transmitter IBIS.
-        rx_pins : list, optional
+        rx_schematic_pins : list, optional
             Pins to assign to the receiver IBIS.
-        tx_refs : list, optional
+        tx_schematic_differential_pins : list, optional
             Reference pins to assign to the transmitter IBIS. This parameter is only used in
             a differential configuration.
-        rx_refs : list
+        rx_schematic_differential_pins : list
             Reference pins to assign to the receiver IBIS. This parameter is only used
             in a differential configuration.
-        component_name : str, optional
-            Component name in the IBIS file to assign to components.
-            Needed only when ibis component pins are used.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
         use_ibis_buffer : bool, optional
             Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
         differential : bool, optional
@@ -2088,14 +2107,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
         return self.create_ibis_schematic_from_pins(
             ibis_tx_file=ibis_tx_file,
+            ibis_rx_file=ibis_rx_file,
             tx_buffer_name=tx_buffer_name,
             rx_buffer_name=rx_buffer_name,
-            tx_pins=tx_pins,
-            rx_pins=rx_pins,
-            tx_refs=tx_refs,
-            rx_refs=rx_refs,
+            tx_schematic_pins=tx_schematic_pins,
+            rx_schematic_pins=rx_schematic_pins,
+            tx_schematic_differential_pins=tx_schematic_differential_pins,
+            rx_schematic_differential_pins=rx_schematic_differential_pins,
             tx_component_name=sub.name,
-            ibis_component_name=component_name,
+            ibis_tx_component_name=ibis_tx_component_name,
+            ibis_rx_component_name=ibis_rx_component_name,
             use_ibis_buffer=use_ibis_buffer,
             differential=differential,
             bit_pattern=bit_pattern,
@@ -2103,7 +2124,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             use_convolution=use_convolution,
             analyze=analyze,
             is_ami=is_ami,
-            ibis_rx_file=ibis_rx_file,
             create_setup=create_setup,
         )
 
@@ -2114,13 +2134,14 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ibis_rx_file=None,
         tx_buffer_name="",
         rx_buffer_name="",
-        tx_pins=None,
-        rx_pins=None,
-        tx_refs=None,
-        rx_refs=None,
+        tx_schematic_pins=None,
+        rx_schematic_pins=None,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differential_pins=None,
         tx_component_name=None,
         rx_component_name=None,
-        ibis_component_name=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
         use_ibis_buffer=True,
         differential=True,
         bit_pattern=None,
@@ -2144,23 +2165,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             In this last case the user has to provide also the component_name.
         rx_buffer_name : str
             Receiver buffer name.
-        tx_pins : list
+        tx_schematic_pins : list
             Pins to assign to the transmitter IBIS.
-        rx_pins : list, optional
+        rx_schematic_pins : list, optional
             Pins to assign to the receiver IBIS.
-        tx_refs : list, optional
+        tx_schematic_differential_pins : list, optional
             Reference pins to assign to the transmitter IBIS. This parameter is only used in
             a differential configuration.
-        rx_refs : list
+        rx_schematic_differential_pins : list
             Reference pins to assign to the receiver IBIS. This parameter is only used
             in a differential configuration.
         tx_component_name : str, optional
-            Component name to which tx_pins belongs.
+            Component name in AEDT circuit schematic to which tx_pins belongs.
         rx_component_name : str, optional
-            Component name to which rx_pins belongs.
-        ibis_component_name : str, optional
-            Component name in the IBIS file to assign to components.
-            Needed only when ibis component pins are used.
+            Component name in AEDT circuit schematic to which rx_pins belongs.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
         use_ibis_buffer : bool, optional
             Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
         differential : bool, optional
@@ -2209,8 +2233,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         center_x_rx = subx.location[0]
         center_y_rx = subx.location[1]
         left = 0
-        delta_y = center_y - 0.0508 - 0.00127 * len(tx_pins)
-        delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_pins)
+        delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
+        delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
         for el in self.modeler.components.components.values():
             if delta_y >= el.bounding_box[1]:
                 delta_y = el.bounding_box[1] - 0.02032
@@ -2225,22 +2249,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         tx_eye_names = []
         rx_eye_names = []
 
-        for j in range(len(tx_pins)):
-            pos_x = center_x - unit_converter(1200, input_units="mil", output_units=self.modeler.schematic_units)
+        for j in range(len(tx_schematic_pins)):
+            pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
             pos_y = delta_y + unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
-            pos_x_rx = center_x_rx + unit_converter(1200, input_units="mil", output_units=self.modeler.schematic_units)
+            pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
             pos_y_rx = delta_y_rx + unit_converter(
                 left * 0.02032, input_units="mil", output_units=self.modeler.schematic_units
             )
 
             left += 1
-            p_pin1 = sub[tx_pins[j]]
-            p_pin2 = subx[rx_pins[j]]
+            p_pin1 = sub[tx_schematic_pins[j]]
+            p_pin2 = subx[rx_schematic_pins[j]]
             if differential:
-                n_pin1 = sub.pin[tx_refs[j]]
-                n_pin2 = subx.pins[rx_refs[j]]
+                n_pin1 = sub[tx_schematic_differential_pins[j]]
+                n_pin2 = subx[rx_schematic_differential_pins[j]]
 
             if use_ibis_buffer:
                 buf = [k for k in ibis.buffers.keys() if k.startswith(tx_buffer_name + "_")]
@@ -2256,20 +2280,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             else:
-                buf = [
-                    k for k in ibis.components[ibis_component_name].pins.keys() if k.startswith(tx_buffer_name + "_")
-                ]
+                if ibis_tx_component_name:
+                    cmp_tx = ibis.components[ibis_tx_component_name]
+                else:
+                    cmp_tx = list(ibis.components.values())[0]
+                if ibis_rx_component_name:
+                    cmp_rx = ibis.components[ibis_tx_component_name]
+                elif not ibis_rx_file:
+                    cmp_rx = cmp_tx
+                else:
+                    cmp_rx = list(ibis_rx.components.values())[0]
+                buf = [k for k in cmp_tx.pins.keys() if k.startswith(tx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                tx = ibis.components[ibis_component_name].pins[buf[0]].insert(pos_x, pos_y)
+                tx = cmp_tx.pins[buf[0]].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [
-                    k for k in ibis_rx.components[ibis_component_name].pins.keys() if k.startswith(rx_buffer_name + "_")
-                ]
+                buf = [k for k in cmp_rx.pins.keys() if k.startswith(rx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                rx = ibis_rx.components[ibis_component_name].pins[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                rx = cmp_rx.pins[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             _, first_tx, second_tx = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)

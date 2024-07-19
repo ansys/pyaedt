@@ -893,8 +893,8 @@ class TestClass:
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
             input_file=touchstone_file,
-            probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
-            probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
             termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
             differential=True,
             rise_time=35,
@@ -910,14 +910,13 @@ class TestClass:
         ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
             input_file=touchstone_file,
-            ibis_ami=ami_file,
-            component_name="Spec_Model",
+            ibis_tx_file=ami_file,
             tx_buffer_name="1p",
             rx_buffer_name="2p",
-            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
-            tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
-            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
-            rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_schematic_differentialial_pins=["A-MII-RXD2_66.SQFP20X20_144.N"],
             use_ibis_buffer=False,
             differential=True,
             bit_pattern="random_bit_count=2.5e3 random_seed=1",
@@ -934,12 +933,12 @@ class TestClass:
         ibis_file = os.path.join(local_path, "example_models", "T15", "u26a_800_modified.ibs")
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ibis_schematic_from_snp(
             input_file=touchstone_file,
-            ibis_file=ibis_file,
-            component_name=None,
+            ibis_tx_file=ibis_file,
             tx_buffer_name="DQ_FULL_800",
             rx_buffer_name="DQ_FULL_800",
-            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
-            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            ibis_rx_file=ibis_file,
             use_ibis_buffer=True,
             differential=False,
             bit_pattern="random_bit_count=2.5e3 random_seed=1",
