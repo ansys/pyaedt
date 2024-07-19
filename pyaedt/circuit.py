@@ -2157,7 +2157,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         tx_component_name : str, optional
             Component name to which tx_pins belongs.
         rx_component_name : str, optional
-            Name of component to which rx_pins belongs.
+            Component name to which rx_pins belongs.
         ibis_component_name : str, optional
             Component name in the IBIS file to assign to components.
             Needed only when ibis component pins are used.
