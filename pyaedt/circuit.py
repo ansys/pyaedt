@@ -2030,7 +2030,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ibis_tx_file : str
             Full path to the IBIS file.
         tx_buffer_name : str
-            Transmission buffer name. It can be a buffer or a ibis pin name.
+            Transmission buffer name. It can be a buffer or an ibis pin name.
             In this last case the user has to provide also the component_name.
         rx_buffer_name : str
             Receiver buffer name.
