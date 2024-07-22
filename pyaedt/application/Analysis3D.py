@@ -1096,7 +1096,7 @@ class FieldAnalysis3D(Analysis, object):
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
-                app[var] = val
+                self[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
             monitor_cache = {}
