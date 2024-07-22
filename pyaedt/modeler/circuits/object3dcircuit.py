@@ -41,9 +41,10 @@ from pyaedt.modeler.geometry_operators import GeometryOperators as go
 class CircuitPins(object):
     """Manages circuit component pins."""
 
-    def __init__(self, circuit_comp, pinname):
+    def __init__(self, circuit_comp, pinname, pin_number):
         self._circuit_comp = circuit_comp
         self.name = pinname
+        self.pin_number = pin_number
         self._oeditor = circuit_comp._oeditor
 
     @property
@@ -414,6 +415,14 @@ class ModelParameters(object):
 class CircuitComponent(object):
     """Manages circuit components."""
 
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.pins[item - 1]
+        for i in self.pins:
+            if i.name == item:
+                return i
+        raise KeyError("Pin {} not found.".format(item))
+
     @property
     def composed_name(self):
         """Composed names."""
@@ -607,21 +616,22 @@ class CircuitComponent(object):
         if self._pins:
             return self._pins
         self._pins = []
-
+        idx = 1
         try:
             pins = list(self._oeditor.GetComponentPins(self.composed_name))
             if "Port@" in self.composed_name and pins == []:
-                self._pins.append(CircuitPins(self, self.composed_name))
+                self._pins.append(CircuitPins(self, self.composed_name, idx))
                 return self._pins
             elif not pins:
                 return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
-                    self._pins.append(CircuitPins(self, pin))
+                    self._pins.append(CircuitPins(self, pin, idx))
                 elif pin not in list(self.parameters.keys()):
-                    self._pins.append(CircuitPins(self, pin))
+                    self._pins.append(CircuitPins(self, pin, idx))
+                idx += 1
         except AttributeError:
-            self._pins.append(CircuitPins(self, self.composed_name))
+            self._pins.append(CircuitPins(self, self.composed_name, idx))
         return self._pins
 
     @property
