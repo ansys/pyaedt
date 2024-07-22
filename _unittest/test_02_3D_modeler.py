@@ -1036,7 +1036,7 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system(
             origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
         )
-        assert self.aedtapp.modeler.change_region_coordinate_system(coordinate_system=cs_name)
+        assert self.aedtapp.modeler.change_region_coordinate_system(assignment=cs_name)
         assert self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         assert self.aedtapp.modeler.change_region_padding(
             ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
@@ -1052,7 +1052,7 @@ class TestClass:
 
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
-        assert not self.aedtapp.modeler.change_region_coordinate_system(coordinate_system="NoCS")
+        assert not self.aedtapp.modeler.change_region_coordinate_system(assignment="NoCS")
         assert not self.aedtapp.modeler.change_region_padding(
             "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
         )

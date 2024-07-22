@@ -1536,14 +1536,14 @@ class Modeler3D(Primitives3D):
         except (GrpcApiError, SystemExit):
             return False
 
-    @pyaedt_function_handler(region_cs="coordinate_system", region_name="name")
-    def change_region_coordinate_system(self, coordinate_system="Global", name="Region"):
+    @pyaedt_function_handler(region_cs="assignment", region_name="name")
+    def change_region_coordinate_system(self, assignment="Global", name="Region"):
         """
         Change region coordinate system.
 
         Parameters
         ----------
-        coordinate_system : str, optional
+        assignment : str, optional
             Region coordinate system. Default is ``Global``.
         name : str optional
             Region name. Default is ``Region``.
@@ -1558,11 +1558,11 @@ class Modeler3D(Primitives3D):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
-        >>> app.modeler.change_region_coordinate_system(coordinate_system="NewCS")
+        >>> app.modeler.change_region_coordinate_system(assignment="NewCS")
         """
         try:
             create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]
             create_region = self._app.get_oo_object(self._app.oeditor, name + "/" + create_region_name)
-            return create_region.SetPropValue("Coordinate System", coordinate_system)
+            return create_region.SetPropValue("Coordinate System", assignment)
         except (GrpcApiError, SystemExit):
             return False
