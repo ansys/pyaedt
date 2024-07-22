@@ -64,7 +64,6 @@ class MessageList:
 
     unknown_level : list of str
         List of strings representing the messages with no level of the message manager.
-
     """
 
     def __init__(self, msg_list):
