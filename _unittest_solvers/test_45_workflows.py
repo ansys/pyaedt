@@ -294,8 +294,15 @@ class TestClass:
     def test_12_export_layout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.export_layout import main
 
-
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
+        app.close_project()
+
+    def test_13_import_ecad(self, add_app, local_scratch):
+        from pyaedt.workflows.icepak.ecad_importer import main
+        # ASK ERIC
+        app = add_app(os.path.join(local_scratch.path, "test_import_ecad.aedt"), application=pyaedt.Icepak, subfolder=test_subfolder)
+        local_scratch.copyfile(new_component, new_component_dest)
+        assert main({"is_test": True, "ipc_path":new_component_dest, "cad_format":, "csv_file":, "cs_name":, "color_networks",})
         app.close_project()
