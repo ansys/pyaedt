@@ -497,9 +497,17 @@ class PostProcessor(Post):
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None`` which try to retrieve intrinsics from setup.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         mesh_on_fields : bool, optional
             Whether to create and plot the mesh over the fields. The
             default is ``False``.
@@ -542,16 +550,13 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
             filter_objects = []
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
-        if not intrinsics:
-            for i in self._app.setups:
-                if i.name == setup.split(" : ")[0]:
-                    intrinsics = i.default_intrinsics
 
         # file_to_add = []
         if plot_type == "Surface":
@@ -630,9 +635,17 @@ class PostProcessor(Post):
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None`` which try to retrieve intrinsics from setup.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variations : list, optional
@@ -675,12 +688,11 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if variations is None:
             variations = ["0deg"]
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
-        if intrinsics is None:
-            intrinsics = {}
         if not export_path:
             export_path = self._app.working_directory
         if not filter_objects:
