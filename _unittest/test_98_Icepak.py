@@ -851,9 +851,9 @@ class TestClass:
         )
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=["Global"],
-            auxiliary_dict=True,
+            name="board_assembly",
+            coordinate_systems=["Global"],
+            export_auxiliary=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",
@@ -873,10 +873,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_systems="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
@@ -950,10 +950,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_systems="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
