@@ -1894,7 +1894,7 @@ class Analysis(Design, object):
                     self.odesign.AnalyzeAll(blocking)
                 else:
                     self.odesign.AnalyzeAll()
-            except Exception:
+            except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
@@ -1911,7 +1911,7 @@ class Analysis(Design, object):
                     self.odesign.Analyze(name, blocking)
                 else:
                     self.odesign.Analyze(name)
-            except Exception:
+            except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
@@ -1920,7 +1920,7 @@ class Analysis(Design, object):
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
-            except Exception:
+            except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)

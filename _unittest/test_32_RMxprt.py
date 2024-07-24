@@ -108,3 +108,5 @@ class TestClass:
         app.analyze(cores=1)
         m2d = app.create_maxwell_design("Setup1")
         assert m2d.design_type == "Maxwell 2D"
+        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
+        assert m3d.design_type == "Maxwell 3D"

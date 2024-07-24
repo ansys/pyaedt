@@ -132,3 +132,12 @@ m2d.plot(show=False, output_file=os.path.join(temp_dir, "Image.jpg"), plot_air_o
 m2d.save_project(os.path.join(temp_dir, "Maxwell_project.aedt"))
 
 m2d.release_desktop()
+
+##########################
+# Cleanup
+# ~~~~~~~
+#
+# All project files are saved in the folder ``temp_dir.name``. If you've run this example as a Jupyter notebook you
+# can retrieve those project files. The following cell removes all temporary files, including the project folder.
+
+temp_dir.cleanup()
