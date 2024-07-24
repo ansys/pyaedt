@@ -168,8 +168,7 @@ class FieldAnalysisRMxprt(Analysis):
         Returns
         -------
         :class:`pyaedt.maxwell.Maxwell2d` or :class:`pyaedt.maxwell.Maxwell3d`
-            Maxwell object
-
+            Maxwell object.
         """
         des_list = self.design_list[::]
         out = self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
