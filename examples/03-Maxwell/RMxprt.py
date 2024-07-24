@@ -30,7 +30,7 @@ app = pyaedt.Rmxprt(
     new_desktop=True,
     close_on_exit=True,
     solution_type="ASSM",
-    project="ASSM",
+    project=os.path.join(temp_dir.name, "ASSM.aedt"),
 )
 
 ##################################################################################
