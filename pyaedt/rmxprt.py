@@ -36,34 +36,6 @@ class RMXprtModule(object):
     """Provides RMxprt module properties."""
 
     component = None
-    prop_servers = None
-
-    @pyaedt_function_handler()
-    def get_prop_server(self, parameter_name):
-        """Get the properties of the server.
-
-        Parameters
-        ----------
-        parameter_name : str
-            Name of the server.
-
-
-        Returns
-        -------
-        list
-            List of server properties.
-
-        """
-        prop_server = None
-        for key, parameter_list in self.prop_servers.items():
-            if parameter_name in parameter_list:
-                prop_server = key
-                break
-        if prop_server is None:
-            raise AssertionError(
-                "Unknown parameter name {0} exists in component {1}.".format(prop_server, self.component)
-            )
-        return prop_server
 
     def __init__(self, app):
         self._app = app
@@ -108,11 +80,7 @@ class RMXprtModule(object):
                     if ret:
                         return True
 
-        if self.properties:
-            _apply_val(self.properties, parameter_name, value)
-        else:
-            self.set_rmxprt_parameter(parameter_name, value)
-        return True
+        _apply_val(self.properties, parameter_name, value)
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
@@ -123,99 +91,37 @@ class RMXprtModule(object):
                 for _, child in dict_in.children.items():
                     return _get_val(child, name)
 
-        if self.properties:
-            return _get_val(self.properties, parameter_name)
-        prop_server = self.get_prop_server(parameter_name)
-        separator = ":" if prop_server else ""
-        val = self.oeditor.GetPropertyValue(
-            self.component, "{0}{1}{2}".format(self.component, separator, prop_server), parameter_name
-        )
-        return val
-
-    @pyaedt_function_handler()
-    def set_rmxprt_parameter(self, parameter_name, value):
-        """Modify a parameter value.
-
-        Parameters
-        ----------
-        parameter_name : str
-            Name of the parameter.
-        value :
-            Value to assign to the parameter.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        prop_server = self.get_prop_server(parameter_name)
-        separator = ":" if prop_server else ""
-        self.oeditor.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:" + "Machine" if self.component == "Stator" else self.component,
-                    ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
-                    ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
-                ],
-            ]
-        )
-        return True
+        return _get_val(self.properties, parameter_name)
 
 
 class Stator(RMXprtModule):
     """Provides stator properties."""
 
     component = "Stator"
-    prop_servers = {
-        "": ["Number of Poles", "Number of Slots", "Circuit Type", "Slot Type", "Position Control"],
-        "Core": [
-            "Outer Diameter",
-            "Inner Diameter",
-            "Length",
-            "Stacking Factor" "Steel Type",
-            "Number of Slots",
-            "Slot Type",
-            "Lamination Sectors",
-            "Press Board Thickness",
-            "Skew Width",
-        ],
-        "Slot": ["Hs0", "Hs1", "Hs2", "Bs0", "Bs1", "Bs2"],
-        "Winding": ["Winding Type", "Parallel Branches"],
-    }
 
 
 class Rotor(RMXprtModule):
     """Provides rotor properties."""
 
     component = "Rotor"
-    prop_servers = {"": ["Outer Diameter"], "Slot": [], "Winding": []}
 
 
 class Shaft(RMXprtModule):
     """Provides rotor properties."""
 
     component = "Shaft"
-    prop_servers = {}
 
 
 class Machine(RMXprtModule):
     """Provides rotor properties."""
 
     component = ""
-    prop_servers = {}
 
 
 class Circuit(RMXprtModule):
     """Provides rotor properties."""
 
     component = "Circuit"
-    prop_servers = {}
 
 
 class Rmxprt(FieldAnalysisRMxprt):

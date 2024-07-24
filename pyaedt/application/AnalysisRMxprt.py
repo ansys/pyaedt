@@ -171,7 +171,7 @@ class FieldAnalysisRMxprt(Analysis):
             Maxwell object.
         """
         des_list = self.design_list[::]
-        out = self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
+        self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
         new_des_list = [i for i in self.design_list[::] if i not in des_list and "Maxwell" in i]
         if new_des_list:
             if maxwell_2d:
