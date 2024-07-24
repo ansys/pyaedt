@@ -233,10 +233,10 @@ def convert_3d_component(
     output_app.modeler.create_3dcomponent(
         output_path,
         is_encrypted=True if password else False,
-        edit_password=password,
-        hide_contents=False,
         allow_edit=True if password else False,
+        edit_password=password,
         password_type="InternalPassword" if password else "UserSuppliedPassword",
+        hide_contents=False,
     )
     try:
         output_desktop.DeleteProject(project_name2)
