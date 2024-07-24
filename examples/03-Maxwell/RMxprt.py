@@ -16,7 +16,7 @@ import pyaedt
 # Set AEDT version.
 
 aedt_version = "2024.1"
-temp_dir = tempfile.gettempdir()
+temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
 ##################################################################################
 # Launch AEDT and Rmxprt
