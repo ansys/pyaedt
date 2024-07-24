@@ -28,6 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 from pyaedt.application.AnalysisRMxprt import FieldAnalysisRMxprt
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modules.SetupTemplates import SetupKeys
 
 
@@ -64,16 +65,66 @@ class RMXprtModule(object):
             )
         return prop_server
 
-    def __init__(self, oeditor):
-        self.oeditor = oeditor
+    def __init__(self, app):
+        self._app = app
+        self.oeditor = app.oeditor
+
+    @property
+    def properties(self):
+        """Object history.
+
+        Returns
+        -------
+            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            child_object = self._app.odesign.GetChildObject("Machine")
+            if self.component:
+                child_object = child_object.GetChildObject(self.component)
+            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False)
+            return parent
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
-        self.set_rmxprt_parameter(parameter_name, value)
+        def _apply_val(dict_in, name, value):
+            if name in dict_in.props:
+                if (
+                    isinstance(dict_in.props[name], list)
+                    and ":=" in dict_in.props[name][0]
+                    and not isinstance(value, list)
+                ):
+                    prps = dict_in.props[name][::]
+                    prps[1] = value
+                    value = prps
+                dict_in.props[name] = value
+                return True
+            else:
+                for _, child in dict_in.children.items():
+                    ret = _apply_val(child, name, value)
+                    if ret:
+                        return True
+
+        if self.properties:
+            _apply_val(self.properties, parameter_name, value)
+        else:
+            self.set_rmxprt_parameter(parameter_name, value)
         return True
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
+        def _get_val(dict_in, name):
+            if name in dict_in.props:
+                return dict_in.props[name]
+            else:
+                for _, child in dict_in.children.items():
+                    return _get_val(child, name)
+
+        if self.properties:
+            return _get_val(self.properties, parameter_name)
         prop_server = self.get_prop_server(parameter_name)
         separator = ":" if prop_server else ""
         val = self.oeditor.GetPropertyValue(
@@ -108,7 +159,7 @@ class RMXprtModule(object):
             [
                 "NAME:AllTabs",
                 [
-                    "NAME:" + self.component,
+                    "NAME:" + "Machine" if self.component == "Stator" else self.component,
                     ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
                     ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
                 ],
@@ -122,7 +173,8 @@ class Stator(RMXprtModule):
 
     component = "Stator"
     prop_servers = {
-        "": [
+        "": ["Number of Poles", "Number of Slots", "Circuit Type", "Slot Type", "Position Control"],
+        "Core": [
             "Outer Diameter",
             "Inner Diameter",
             "Length",
@@ -143,6 +195,27 @@ class Rotor(RMXprtModule):
 
     component = "Rotor"
     prop_servers = {"": ["Outer Diameter"], "Slot": [], "Winding": []}
+
+
+class Shaft(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = "Shaft"
+    prop_servers = {}
+
+
+class Machine(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = ""
+    prop_servers = {}
+
+
+class Circuit(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = "Circuit"
+    prop_servers = {}
 
 
 class Rmxprt(FieldAnalysisRMxprt):
@@ -273,8 +346,13 @@ class Rmxprt(FieldAnalysisRMxprt):
         elif model_units != "in":
             raise AssertionError("Invalid model units string {}.".format(model_units))
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
-        self.stator = Stator(self.modeler.oeditor)
-        self.rotor = Rotor(self.modeler.oeditor)
+        self.machine = Machine(self)
+        self.stator = Stator(self)
+        self.rotor = Rotor(self)
+        if "Shaft" in self.odesign.GetChildObject("Machine").GetChildNames():
+            self.shaft = Shaft(self)
+        if "Circuit" in self.odesign.GetChildObject("Machine").GetChildNames():
+            self.circuit = Circuit(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
