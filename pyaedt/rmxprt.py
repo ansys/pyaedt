@@ -80,7 +80,10 @@ class RMXprtModule(object):
                     if ret:
                         return True
 
-        _apply_val(self.properties, parameter_name, value)
+        if self.properties:
+            _apply_val(self.properties, parameter_name, value)
+        else:  # pragma: no cover
+            self._app.logger.error("Properties not available for {}".format(self.component))
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
@@ -91,7 +94,10 @@ class RMXprtModule(object):
                 for _, child in dict_in.children.items():
                     return _get_val(child, name)
 
-        return _get_val(self.properties, parameter_name)
+        if self.properties:
+            return _get_val(self.properties, parameter_name)
+        else:  # pragma: no cover
+            self._app.logger.error("Properties not available for {}".format(self.component))
 
 
 class Stator(RMXprtModule):
@@ -325,3 +331,69 @@ class Rmxprt(FieldAnalysisRMxprt):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler()
+    def export_configuration(self, output_file):
+        """Export Rmxprt project to config file.
+
+        Parameters
+        ----------
+        output_file : str
+            Full path to json file to be created.
+
+        Returns
+        -------
+        str
+           Full path to json file created.
+        """
+
+        def jsonalize(dict_in, dict_out):
+            dict_out[dict_in.node] = {}
+            for k, v in dict_in.props.items():
+                if not k.endswith("/Choices"):
+                    dict_out[dict_in.node][k] = v
+            for _, c in dict_in.children.items():
+                jsonalize(c, dict_out)
+
+        new_dict = {}
+        jsonalize(self.general.properties, new_dict)
+        jsonalize(self.stator.properties, new_dict)
+        jsonalize(self.rotor.properties, new_dict)
+        jsonalize(self.circuit.properties, new_dict)
+        jsonalize(self.shaft.properties, new_dict)
+        from pyaedt.generic.general_methods import write_configuration_file
+
+        write_configuration_file(new_dict, output_file)
+        return output_file
+
+    @pyaedt_function_handler()
+    def import_configuration(self, input_file):
+        """Parse a json file and assign all the properties to the Rmxprt design.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to json file to be used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+
+        from pyaedt.generic.general_methods import read_configuration_file
+
+        new_dict = read_configuration_file(input_file)
+        for k, v in new_dict.items():
+            dictin = self.stator
+            if k == "General":
+                dictin = self.general
+            elif k == "Circuit":
+                dictin = self.circuit
+            elif k in ["Rotor", "Pole"]:
+                dictin = self.rotor
+            elif k == "Shaft":
+                dictin = self.shaft
+            for i, j in v.items():
+                dictin[i] = j
+        return True
