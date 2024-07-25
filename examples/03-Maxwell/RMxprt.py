@@ -132,7 +132,7 @@ m2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # project with import function.
 
 config = app.export_configuration(os.path.join(temp_dir.name, "assm.json"))
-app2 = pyaedt.Rmxprt(project="assm_test2", design="from_configuration")
+app2 = pyaedt.Rmxprt(project="assm_test2",solution_type=app.solution_type, design="from_configuration")
 app2.import_configuration(config)
 
 

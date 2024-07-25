@@ -261,10 +261,8 @@ class Rmxprt(FieldAnalysisRMxprt):
         self.general = Machine(self)
         self.stator = Stator(self)
         self.rotor = Rotor(self)
-        if "Shaft" in self.odesign.GetChildObject("Machine").GetChildNames():
-            self.shaft = Shaft(self)
-        if "Circuit" in self.odesign.GetChildObject("Machine").GetChildNames():
-            self.circuit = Circuit(self)
+        self.shaft = Shaft(self)
+        self.circuit = Circuit(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
