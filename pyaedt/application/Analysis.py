@@ -1810,7 +1810,7 @@ class Analysis(Design, object):
                 success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
                 if success:
                     set_custom_dso = True
-        elif gpus or tasks or cores:
+        elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
             if settings.remote_rpc_session:
@@ -1887,12 +1887,15 @@ class Analysis(Design, object):
         if not name:
             try:
                 self.logger.info("Solving all design setups.")
-                if self.desktop_class.aedt_version_id > "2023.1":
+                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                    "RMxprtSolution",
+                    "ModelCreation",
+                ]:
                     self.odesign.AnalyzeAll(blocking)
                 else:
                     self.odesign.AnalyzeAll()
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
@@ -1901,12 +1904,15 @@ class Analysis(Design, object):
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
-                if self.desktop_class.aedt_version_id > "2023.1":
+                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                    "RMxprtSolution",
+                    "ModelCreation",
+                ]:
                     self.odesign.Analyze(name, blocking)
                 else:
                     self.odesign.Analyze(name)
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
                 return False
@@ -1914,12 +1920,12 @@ class Analysis(Design, object):
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
-        if set_custom_dso:
+        if set_custom_dso and active_config:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)
