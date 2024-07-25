@@ -841,7 +841,12 @@ class IbisReader(object):
             buffers[buffer.name] = buffer
 
         ibis.buffers = buffers
+        self._ibis_model = ibis
 
+        available_names = self._circuit.modeler.schematic.o_component_manager.GetNames()
+        already_present = [i for i in buffers.keys() if i in available_names]
+        if len(already_present) == len(buffers):
+            return ibis_info
         if self._circuit:
             args = [
                 "NAME:Options",
@@ -875,7 +880,6 @@ class IbisReader(object):
 
             self._circuit.modeler.schematic.o_component_manager.ImportModelsFromFile(self._filename, args)
 
-        self._ibis_model = ibis
         return ibis_info
 
     # Model

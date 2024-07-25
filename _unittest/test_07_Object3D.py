@@ -310,7 +310,9 @@ class TestClass:
         assert test
         test = initial_object.edges[4].chamfer(chamfer_type=4)
         assert not test
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest2", "Copper")
         assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=3)
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest3", "Copper")
@@ -325,7 +327,9 @@ class TestClass:
         test = initial_object.edges[0].fillet(radius=0.2)
         assert test
         test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
 
     def test_object_length(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -338,7 +342,9 @@ class TestClass:
         for i in range(0, 3):
             sum_sq += (end_point.position[i] - start_point.position[i]) ** 2
         assert isclose(math.sqrt(sum_sq), test_edge.length)
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
 
     def test_12_set_color(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
@@ -365,7 +371,9 @@ class TestClass:
         initial_object.color = (255, "Invalid", 0)
         assert initial_object.color == (255, 0, 0)
 
-        self.aedtapp.modeler.delete("ColorTest")
+        self.aedtapp.modeler.delete(
+            "ColorTest",
+        )
 
     def test_print_object(self):
         o = self.create_copper_box()
@@ -576,7 +584,9 @@ class TestClass:
 
     def test_26a_delete_unclassified_object(self):
         unclassified = self.aedtapp.modeler.unclassified_objects
-        assert self.aedtapp.modeler.delete(unclassified)
+        assert self.aedtapp.modeler.delete(
+            unclassified,
+        )
         assert len(self.aedtapp.modeler.unclassified_objects) != unclassified
         assert len(self.aedtapp.modeler.unclassified_objects) == 0
 

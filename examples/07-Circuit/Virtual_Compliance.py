@@ -92,8 +92,8 @@ return_comm = cir.get_all_return_loss_list(excitations=comm_pairs, excitation_na
 # The original circuit schematic is duplicated and modified to achieve this target.
 
 result, tdr_probe_name = cir.create_tdr_schematic_from_snp(input_file=touchstone_path,
-                                                           probe_pins=["X1.A2.PCIe_Gen4_RX0_P"],
-                                                           probe_ref_pins=["X1.A3.PCIe_Gen4_RX0_N"],
+                                                           tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
+                                                           tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
                                                            termination_pins=["U1.AP26.PCIe_Gen4_RX0_P",
                                                                              "U1.AN26.PCIe_Gen4_RX0_N"],
                                                            differential=True, rise_time=35, use_convolution=True,
@@ -105,14 +105,18 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(input_file=touchstone
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
 result, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(input_file=touchstone_path,
-                                                                       ibis_ami=os.path.join(projectdir, "models",
-                                                                                             "pcieg5_32gt.ibs"),
-                                                                       component_name="Spec_Model", tx_buffer_name="1p",
-                                                                       rx_buffer_name="2p",
-                                                                       tx_pins=["U1.AM25.PCIe_Gen4_TX0_CAP_P"],
-                                                                       tx_refs=["U1.AL25.PCIe_Gen4_TX0_CAP_N"],
-                                                                       rx_pins=["X1.B2.PCIe_Gen4_TX0_P"],
-                                                                       rx_refs=["X1.B3.PCIe_Gen4_TX0_N"],
+                                                                       ibis_tx_file=os.path.join(projectdir, "models",
+                                                                                                 "pcieg5_32gt.ibs"),
+                                                                       tx_buffer_name="1p", rx_buffer_name="2p",
+                                                                       tx_schematic_pins=[
+                                                                           "U1.AM25.PCIe_Gen4_TX0_CAP_P"],
+                                                                       rx_schematic_pins=[
+                                                                           "X1.B2.PCIe_Gen4_TX0_P"],
+                                                                       tx_schematic_differential_pins=[
+                                                                           "U1.AL25.PCIe_Gen4_TX0_CAP_N"],
+                                                                       rx_schematic_differentialial_pins=[
+                                                                           "X1.B3.PCIe_Gen4_TX0_N"],
+                                                                       ibis_tx_component_name="Spec_Model",
                                                                        use_ibis_buffer=False, differential=True,
                                                                        bit_pattern="random_bit_count=2.5e3 random_seed=1",
                                                                        unit_interval="31.25ps", use_convolution=True,

@@ -11,7 +11,7 @@ from _unittest_solvers.conftest import local_path
 from pathlib import Path
 
 from pyaedt.generic.settings import is_linux
-from pyaedt import Icepak
+from pyaedt import Icepak, Rmxprt
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
 from _unittest.conftest import config
@@ -190,15 +190,32 @@ class TestClass:
             matrix_type="Y",
         )
         assert len(exported_files) > 0
-
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
                                                intrinsics="1GHz", phase="5deg")
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics="1GHz")
+                                               intrinsics={"frequency":"1GHz"})
         assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency": "1GHz"}, phase="30deg")
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               )
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss6.fld")
+        with pytest.raises(AttributeError):
+            hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                            intrinsics=[])
+        assert not os.path.exists(fld_file2)
+
 
     def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
@@ -530,3 +547,14 @@ class TestClass:
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
+    def test_10_export_to_maxwell(self, add_app):
+        app = add_app("assm_test", application=Rmxprt, subfolder="T00")
+        app.analyze(cores=1)
+        m2d = app.create_maxwell_design("Setup1")
+        assert m2d.design_type == "Maxwell 2D"
+        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
+        assert m3d.design_type == "Maxwell 3D"
+        config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
+        app2 = add_app("assm_test2", application=Rmxprt)
+        app2.import_configuration(config)
+        assert app2.circuit
