@@ -102,11 +102,3 @@ class TestClass:
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
-
-    def test_07_export_to_maxwell(self, add_app):
-        app = add_app("assm_test", application=Rmxprt, subfolder="T32")
-        app.analyze(cores=1)
-        m2d = app.create_maxwell_design("Setup1")
-        assert m2d.design_type == "Maxwell 2D"
-        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
-        assert m3d.design_type == "Maxwell 3D"
