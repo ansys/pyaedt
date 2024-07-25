@@ -11,7 +11,7 @@ from _unittest_solvers.conftest import local_path
 from pathlib import Path
 
 from pyaedt.generic.settings import is_linux
-from pyaedt import Icepak
+from pyaedt import Icepak, Rmxprt
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
 from _unittest.conftest import config
@@ -547,3 +547,14 @@ class TestClass:
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
+    def test_10_export_to_maxwell(self, add_app):
+        app = add_app("assm_test", application=Rmxprt, subfolder="T00")
+        app.analyze(cores=1)
+        m2d = app.create_maxwell_design("Setup1")
+        assert m2d.design_type == "Maxwell 2D"
+        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
+        assert m3d.design_type == "Maxwell 3D"
+        config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
+        app2 = add_app("assm_test2", application=Rmxprt)
+        app2.import_configuration(config)
+        assert app2.circuit
