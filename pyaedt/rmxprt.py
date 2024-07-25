@@ -350,7 +350,7 @@ class Rmxprt(FieldAnalysisRMxprt):
             for k, v in dict_in.props.items():
                 if not k.endswith("/Choices"):
                     dict_out[dict_in.node][k] = v
-            for _, c in dict_in.children.items():
+            for c in dict_in.children.values():
                 jsonalize(c, dict_out)
 
         new_dict = {}
