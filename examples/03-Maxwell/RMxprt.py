@@ -38,13 +38,13 @@ app = pyaedt.Rmxprt(
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Define global machine settings.
 
-app.machine["Number of Poles"] = 4
-app.machine["Rotor Position"] = "Inner Rotor"
-app.machine["Frictional Loss"] = "12W"
-app.machine["Windage Loss"] = "0W"
-app.machine["Reference Speed"] = "1500rpm"
-app.machine["Control Type"] = "DC"
-app.machine["Circuit Type"] = "Y3"
+app.general["Number of Poles"] = 4
+app.general["Rotor Position"] = "Inner Rotor"
+app.general["Frictional Loss"] = "12W"
+app.general["Windage Loss"] = "0W"
+app.general["Reference Speed"] = "1500rpm"
+app.general["Control Type"] = "DC"
+app.general["Circuit Type"] = "Y3"
 
 
 ##################################################################################
@@ -116,20 +116,33 @@ setup.props["OperatingTemperature"] = "75cel"
 setup.analyze()
 
 ##################################################################################
-# Export
-# ~~~~~~
-# After the project is solved we can export in Maxwell 2D.
+# Export to Maxwell
+# ~~~~~~~~~~~~~~~~~
+# After the project is solved we can export in Maxwell 2D or Maxwell 3D.
 
 m2d = app.create_maxwell_design(setup_name=setup.name, maxwell_2d=True)
 
-m2d.plot(show=False, output_file=os.path.join(temp_dir, "Image.jpg"), plot_air_objects=True)
+m2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=True)
+
+
+##################################################################################
+# Rmxprt settings export
+# ~~~~~~~~~~~~~~~~~~~~~~
+# All Rmxprt settings can be exported in a json file and reused for another
+# project with import function.
+
+config = app.export_configuration(os.path.join(temp_dir.name, "assm.json"))
+app2 = pyaedt.Rmxprt(project="assm_test2", design="from_configuration")
+app2.import_configuration(config)
+
+
 
 ##################################################################################
 # Save and Close Desktop
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Save and Close Desktop.
 
-m2d.save_project(os.path.join(temp_dir, "Maxwell_project.aedt"))
+m2d.save_project(os.path.join(temp_dir.name, "Maxwell_project.aedt"))
 
 m2d.release_desktop()
 

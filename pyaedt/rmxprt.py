@@ -258,7 +258,7 @@ class Rmxprt(FieldAnalysisRMxprt):
         elif model_units != "in":
             raise AssertionError("Invalid model units string {}.".format(model_units))
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
-        self.machine = Machine(self)
+        self.general = Machine(self)
         self.stator = Stator(self)
         self.rotor = Rotor(self)
         if "Shaft" in self.odesign.GetChildObject("Machine").GetChildNames():
