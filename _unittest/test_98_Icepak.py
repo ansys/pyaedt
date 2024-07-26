@@ -307,6 +307,9 @@ class TestClass:
             "uUSB", "Setup1", "LastAdaptive", "2.5GHz", surface_list, HFSSpath, param_list, object_list
         )
 
+    def test_06_clear_linked_data(self):
+        assert self.aedtapp.clear_linked_data()
+
     def test_07_ExportStepForWB(self):
         file_path = self.local_scratch.path
         file_name = "WBStepModel"
@@ -321,8 +324,8 @@ class TestClass:
         assert self.aedtapp.assign_2way_coupling(setup_name, 2, True, 20)
         templates = SetupKeys().get_default_icepak_template(default_type="Natural Convection")
         assert templates
-        self.aedtapp.setups[0].props = templates["IcepakSteadyState"]
-        assert self.aedtapp.setups[0].update()
+        my_setup.props = templates["IcepakSteadyState"]
+        assert my_setup.update()
         assert SetupKeys().get_default_icepak_template(default_type="Default")
         assert SetupKeys().get_default_icepak_template(default_type="Forced Convection")
         with pytest.raises(AttributeError):
@@ -848,9 +851,9 @@ class TestClass:
         )
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=["Global"],
-            auxiliary_dict=True,
+            name="board_assembly",
+            coordinate_systems=["Global"],
+            export_auxiliary=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",
@@ -870,10 +873,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_systems="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
@@ -947,10 +950,10 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=cs_list,
-            auxiliary_dict=True,
-            reference_cs="CS1",
+            name="board_assembly",
+            coordinate_systems=cs_list,
+            reference_coordinate_systems="CS1",
+            export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
@@ -1019,6 +1022,7 @@ class TestClass:
         self.aedtapp.delete_design()
 
     def test_53_create_conduting_plate(self):
+        self.aedtapp.insert_design("conducting")
         box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")

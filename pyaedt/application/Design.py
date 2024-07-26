@@ -1040,13 +1040,25 @@ class Design(AedtObjects):
             valids = []
             for name in names:
                 des = self.get_oo_object(self.oproject, name)
-                if hasattr(des, "GetDesignType") and des.GetDesignType() == self.design_type:
+                des_type = None
+                if hasattr(des, "GetDesignType"):
+                    des_type = des.GetDesignType()
+                if des_type == self.design_type or (
+                    des_type == "RMxprt"
+                    and self.design_type
+                    in [
+                        "RMxprtSolution",
+                        "ModelCreation",
+                    ]
+                ):
                     if self.design_type in [
                         "Circuit Design",
                         "Twin Builder",
                         "HFSS 3D Layout Design",
                         "EMIT",
                         "Q3D Extractor",
+                        "RMxprtSolution",
+                        "ModelCreation",
                     ]:
                         valids.append(name)
                     elif not self._temp_solution_type:
@@ -1085,8 +1097,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        type
-            Design object.
+        Design object
 
         References
         ----------
@@ -3266,9 +3277,12 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
+            self.logger.odesign = None
+            self.logger.oproject = None
+            self.design_solutions._odesign = None
+            AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
         else:
             self.desktop_class.active_project(legacy_name)
-        AedtObjects.__init__(self, self._desktop_class, is_inherithed=True)
 
         i = 0
         timeout = 10
@@ -3324,11 +3338,17 @@ class Design(AedtObjects):
                 if is_windows:
                     self._init_variables()
                 self._odesign = None
+                self.logger.odesign = None
+                self.design_solutions._odesign = None
+                AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
                 return False
         else:
             if is_windows:
                 self._init_variables()
             self._odesign = None
+            self.logger.odesign = None
+            self.design_solutions._odesign = None
+            AedtObjects.__init__(self, self._desktop_class, project=self.oproject, is_inherithed=True)
         return True
 
     @pyaedt_function_handler(separator_name="name")
@@ -4168,11 +4188,15 @@ class DesignSettings:
     def __init__(self, app):
         self._app = app
         self.manipulate_inputs = None
+
+    @property
+    def design_settings(self):
+        """Design settings."""
         try:
-            self.design_settings = self._app.odesign.GetChildObject("Design Settings")
+            return self._app.odesign.GetChildObject("Design Settings")
         except GrpcApiError:  # pragma: no cover
             self._app.logger.error("Failed to retrieve design settings.")
-            self.design_settings = None
+            return None
 
     @property
     def available_properties(self):

@@ -111,7 +111,7 @@ class AnalysisMaxwellCircuit(Analysis):
         -------
         :class:`pyaedt.modeler.schematic.ModelerMaxwellCircuit`
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from pyaedt.modeler.schematic import ModelerMaxwellCircuit
 
             self._modeler = ModelerMaxwellCircuit(self)

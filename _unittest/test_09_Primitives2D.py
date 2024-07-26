@@ -104,7 +104,9 @@ class TestClass:
 
     def test_06_create_region(self):
         if self.aedtapp.modeler["Region"]:
-            self.aedtapp.modeler.delete("Region")
+            self.aedtapp.modeler.delete(
+                "Region",
+            )
         assert "Region" not in self.aedtapp.modeler.object_names
         assert self.aedtapp.modeler.create_region([20, "50", "100mm", 20], "Absolute Offset")
         self.aedtapp.modeler["Region"].delete()
@@ -126,7 +128,9 @@ class TestClass:
 
     def test_06_a_create_region_Z(self):
         if self.axisymmetrical.modeler["Region"]:
-            self.axisymmetrical.modeler.delete("Region")
+            self.axisymmetrical.modeler.delete(
+                "Region",
+            )
         assert "Region" not in self.axisymmetrical.modeler.object_names
         assert not self.axisymmetrical.modeler.create_region(["100%", "50%", "20%"])
         assert self.axisymmetrical.modeler.create_region([100, 50, 20])
@@ -154,7 +158,9 @@ class TestClass:
 
     def test_08_region(self, q2d_app):
         if q2d_app.modeler["Region"]:
-            q2d_app.modeler.delete("Region")
+            q2d_app.modeler.delete(
+                "Region",
+            )
         assert "Region" not in q2d_app.modeler.object_names
         assert not q2d_app.modeler.create_region(["100%", "50%", "20%", "10%"])
         assert q2d_app.modeler.create_region([100, 50, 20, 20])

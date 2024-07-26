@@ -166,7 +166,7 @@ class HDMPlotter(CommonPlotter):
         if snapshot_path:
             self.pv.show(screenshot=snapshot_path, full_screen=True)
         else:
-            self.pv.show()
+            self.pv.show(auto_close=False)
         return self.pv
 
     @pyaedt_function_handler()
@@ -222,7 +222,7 @@ class HDMPlotter(CommonPlotter):
         if snapshot_path:
             self.pv.show(screenshot=snapshot_path, full_screen=True)
         else:
-            self.pv.show()
+            self.pv.show(auto_close=False)
 
     @pyaedt_function_handler()
     def _add_objects(self):

@@ -4439,9 +4439,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         time_sweep = self.modeler._arg_with_dim(tsweep, "s")
         time_stop = self.modeler._arg_with_dim(tstop, "s")
         sweep_range = "LIN {} {} {}".format(time_start, time_stop, time_sweep)
-        return self.parametrics.add(
-            time_var, tstart, time_stop, tsweep, "LinearStep", setup, parametricname=parametric_name
-        )
+        return self.parametrics.add(time_var, tstart, time_stop, tsweep, "LinearStep", setup, name=parametric_name)
 
     @pyaedt_function_handler(time_var="time_variable", setup_name="setup")
     def create_sbr_chirp_i_doppler_setup(
