@@ -954,10 +954,10 @@ class CircuitComponent(object):
         props["ModTime"] = int(time.time())
         self.model_data.props = props
         return self.model_data.update()
-    
+
     @pyaedt_function_handler()
     def change_symbol_pin_locations(self, pin_locations):
-        """Change the locations of symbol pins in Designer.
+        """Change the locations of symbol pins.
 
         Parameters
         ----------
@@ -969,7 +969,7 @@ class CircuitComponent(object):
         Returns
         -------
         bool
-            True if the pin locations were successfully changed, False otherwise.
+            ``True`` if pin locations were successfully changed, ``False`` otherwise.
 
         References
         ----------
@@ -1006,7 +1006,9 @@ class CircuitComponent(object):
 
         # Ensure the total number of pins matches the symbol pin names
         if (right_pins_length + left_pins_length) != len(symbol_pin_name_list):
-            self._circuit_components._app.logger.error("The number of pins in the input pin_locations does not match the number of pins in the Symbol.")
+            self._circuit_components._app.logger.error(
+                "The number of pins in the input pin_locations does not match the number of pins in the Symbol."
+            )
             return False
 
         x_factor = int(pin_name_str_max_length / 3)
@@ -1022,23 +1024,55 @@ class CircuitComponent(object):
         pin_right_angle = math.pi
 
         def create_pin_def(pin_name, x, y, angle):
-            pin_def = [
-                pin_name, x, y, angle, "N", 0, base_spacing * 2, False, 0, True, "", True, False, pin_name, True
-            ]
+            pin_def = [pin_name, x, y, angle, "N", 0, base_spacing * 2, False, 0, True, "", True, False, pin_name, True]
             pin_name_rect = [
-                1, 0, 0, 0, x, y + 0.00176388888889594 / 2, 0.00111403508 * len(pin_name), 0.00176388888889594, 0, 0, 0
+                1,
+                0,
+                0,
+                0,
+                x,
+                y + 0.00176388888889594 / 2,
+                0.00111403508 * len(pin_name),
+                0.00176388888889594,
+                0,
+                0,
+                0,
             ]
             pin_text = [
-                x, y + 0.00176388888889594 / 2, 0, 4, 5, False, "Arial", 0, pin_name, False, False, "ExtentRect:=",
-                pin_name_rect
+                x,
+                y + 0.00176388888889594 / 2,
+                0,
+                4,
+                5,
+                False,
+                "Arial",
+                0,
+                pin_name,
+                False,
+                False,
+                "ExtentRect:=",
+                pin_name_rect,
             ]
             pin_name_def = [2, 5, 1, "Text:=", pin_text]
             props_display_map = ["NAME:PropDisplayMap", "PinName:=", pin_name_def]
             return ["NAME:PinDef", "Pin:=", pin_def, props_display_map]
 
         args = [
-            "NAME:{}".format(self.model_name), "ModTime:=", int(time.time()), "Library:=", "", "ModSinceLib:=", False,
-            "LibLocation:=", "Project", "HighestLevel:=", 1, "Normalize:=", False, "InitialLevels:=", [0, 1],
+            "NAME:{}".format(self.model_name),
+            "ModTime:=",
+            int(time.time()),
+            "Library:=",
+            "",
+            "ModSinceLib:=",
+            False,
+            "LibLocation:=",
+            "Project",
+            "HighestLevel:=",
+            1,
+            "Normalize:=",
+            False,
+            "InitialLevels:=",
+            [0, 1],
         ]
         terminals_arg = ["NAME:Terminals"]
 
@@ -1052,13 +1086,15 @@ class CircuitComponent(object):
             args.append(create_pin_def(pin_name, pin_right_x, yp, pin_right_angle))
             yp -= base_spacing
 
-        args.append([
-            "NAME:Graphics",
-            "Rect:=",
-            [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
-            "Rect:=",
-            [0, 1, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, 0.000423333333333333, 0.000423333333333333, 0, 0, 0],
-        ])
+        args.append(
+            [
+                "NAME:Graphics",
+                "Rect:=",
+                [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
+                "Rect:=",
+                [0, 1, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, 0.000423333333333333, 0.000423333333333333, 0, 0, 0],
+            ]
+        )
 
         for pin_name in self.model_data.props.get("PortNames", []):
             terminals_arg.append("TermAttributes:=")
@@ -1069,6 +1105,7 @@ class CircuitComponent(object):
         self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
+
 
 class Wire(object):
     """Creates and manipulates a wire."""
