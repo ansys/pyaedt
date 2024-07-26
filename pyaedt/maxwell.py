@@ -2169,7 +2169,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Whether to remove lock to project before opening it or not.
         The default is ``False``, which means to not unlock
         the existing project if needed and raise an exception.
-
     Examples
     --------
     Create an instance of Maxwell 3D and open the specified
