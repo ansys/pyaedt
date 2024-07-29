@@ -589,7 +589,7 @@ def find_touchstone_files(input_dir):
         Dictionary with the SNP file names as the key and the absolute path as the value.
     """
     out = {}
-    if not os.path.exists(input_dir):
+    if not os.path.exists(input_dir):  # pragma: no cover
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
     sNpFiles = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}

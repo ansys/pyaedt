@@ -33,7 +33,7 @@ from pyvista.plotting.plotter import Plotter
 from pyaedt.generic.farfield_visualization import FfdSolutionData
 
 array = "array_simple_231"
-test_subfolder = "T45"
+test_subfolder = "T46"
 
 
 @pytest.fixture(scope="class")
@@ -113,6 +113,33 @@ class TestClass:
         ffdata.origin = [0, 0, 1]
         assert ffdata.origin == [0, 0, 1]
 
+        ffdata.theta_scan = 20.0
+        assert ffdata.farfield_data
+        ffdata.phi_scan = 5.0
+        assert ffdata.farfield_data
+
+        assert ffdata.s_parameters is not None
+        assert ffdata.active_s_parameters is not None
+
+        ffdata.frequency = "32GHz"
+        assert ffdata.frequency == 32000000000.0
+
+        phases = ffdata.phase
+        ffdata.phase = {"test": 1.0}
+        assert ffdata.farfield_data
+        phases[list(phases.keys())[0]] = 50.0
+        ffdata.phase = phases
+        assert ffdata.farfield_data
+
+        magnitudes = ffdata.magnitude
+        ffdata.magnitude = {"test": 1.0}
+        assert ffdata.farfield_data
+        magnitudes[list(magnitudes.keys())[0]] = 2.0
+        ffdata.magnitude = magnitudes
+        assert ffdata.farfield_data
+
+        assert ffdata.get_accepted_power()
+
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
         ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
         assert os.path.exists(img1)
@@ -139,6 +166,8 @@ class TestClass:
         ffdata = array_test.get_antenna_data(sphere="3D")
         assert ffdata.setup_name == "Setup1 : LastAdaptive"
         assert ffdata.model_info
+        assert os.path.isfile(ffdata.metadata_file)
+
         img1 = os.path.join(self.local_scratch.path, "contour.jpg")
         assert ffdata.farfield_data.plot_contour(
             quantity="RealizedGain",
@@ -147,6 +176,14 @@ class TestClass:
             show=False,
         )
         assert os.path.exists(img1)
+
+        img1_1 = os.path.join(self.local_scratch.path, "contour1.jpg")
+        assert ffdata.farfield_data.plot_contour(
+            quantity="RealizedGain",
+            image_path=img1_1,
+            show=False,
+        )
+        assert os.path.exists(img1_1)
 
         img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
         ffdata.farfield_data.plot_cut(
@@ -169,6 +206,18 @@ class TestClass:
             show=False,
         )
         assert os.path.exists(img3)
+
+        img3_polar = os.path.join(self.local_scratch.path, "2d_polar.jpg")
+        ffdata.farfield_data.plot_cut(
+            quantity="RealizedGain",
+            primary_sweep="phi",
+            secondary_sweep_value=30,
+            title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+            image_path=img3_polar,
+            is_polar=True,
+            show=False,
+        )
+        assert os.path.exists(img3_polar)
 
         img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
         ffdata.farfield_data.plot_3d_chart(

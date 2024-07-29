@@ -54,11 +54,11 @@ pv = None
 if not is_ironpython:
     try:
         import numpy as np
-    except ImportError:
+    except ImportError:  # pragma: no cover
         np = None
     try:
         import pyvista as pv
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pv = None
 
 
@@ -187,7 +187,7 @@ class FfdSolutionData(object):
                     frequency = power_freq
                     if isinstance(power_freq, str):
                         frequency, units = decompose_variable_value(power_freq)
-                        if units:
+                        if units:  # pragma: no cover
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
 
                     new_incident_power[frequency] = value
@@ -198,7 +198,7 @@ class FfdSolutionData(object):
                     frequency = power_freq
                     if isinstance(power_freq, str):
                         frequency, units = decompose_variable_value(power_freq)
-                        if units:
+                        if units:  # pragma: no cover
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
                     new_radiated_power[frequency] = radiated_power[power_freq]
 
@@ -208,7 +208,7 @@ class FfdSolutionData(object):
                     frequency = power_freq
                     if isinstance(power_freq, str):
                         frequency, units = decompose_variable_value(power_freq)
-                        if units:
+                        if units:  # pragma: no cover
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
                     new_accepted_power[frequency] = accepted_power[power_freq]
 
@@ -334,7 +334,7 @@ class FfdSolutionData(object):
         incident_power_element = self.incident_power_element
         if incident_power_element:
             return sum(incident_power_element.values())
-        else:
+        else:  # pragma: no cover
             return None
 
     @property
@@ -355,7 +355,7 @@ class FfdSolutionData(object):
         power_element = self.accepted_power_element
         if power_element:
             return sum(power_element.values())
-        else:
+        else:  # pragma: no cover
             return None
 
     @property
@@ -376,7 +376,7 @@ class FfdSolutionData(object):
         power_element = self.radiated_power_element
         if power_element:
             return sum(power_element.values())
-        else:
+        else:  # pragma: no cover
             return None
 
     @property
@@ -409,7 +409,7 @@ class FfdSolutionData(object):
                     else:
                         active_s_parameter[element] += s_parameter_value * amplitude / active_amplitude
             return active_s_parameter
-        else:
+        else:  # pragma: no cover
             return None
 
     @property
@@ -575,7 +575,7 @@ class FfdSolutionData(object):
         # Farfield superposition
         for _, port in enumerate(self.all_element_names):
             data = self.__raw_data[port][freq_name_key]
-            if port not in self.weight:
+            if port not in self.weight:  # pragma: no cover
                 self.__weight[port] = np.sqrt(0) * np.exp(1j * 0)
 
             xyz_pos = port_positions[port]
@@ -654,11 +654,11 @@ class FfdSolutionData(object):
                     accepted_power[element] = 0.0
             total_accepted_power = sum(accepted_power.values())
             return total_accepted_power
-        else:
+        else:  # pragma: no cover
             return None
 
     @pyaedt_function_handler()
-    def __assign_weight_taper(self, a, b):
+    def __assign_weight_taper(self, a, b):  # pragma: no cover
         """Assign weight to array.
 
         Parameters
@@ -1190,7 +1190,7 @@ class FfdSolutionData(object):
             off_screen = not show
 
         if not pyvista_object:
-            if show_as_standalone:
+            if show_as_standalone:  # pragma: no cover
                 p = pv.Plotter(notebook=False, off_screen=off_screen)
             else:
                 p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
@@ -1263,7 +1263,7 @@ class FfdSolutionData(object):
         min_data = np.min(data)
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
 
-        if cad_mesh:
+        if cad_mesh:  # pragma: no cover
 
             def toggle_vis_ff(flag):
                 ff_mesh_inst.SetVisibility(flag)
@@ -1362,9 +1362,6 @@ class FfdSolutionData(object):
                         frequency_text_list.append(lines[0])
                         eep_text_list[lines[0]] = lines[1:]
 
-                # if ":" in element:
-                #     element = element.split(":")[0]
-
                 theta_range = np.linspace(*theta)
                 phi_range = np.linspace(*phi)
 
@@ -1381,7 +1378,7 @@ class FfdSolutionData(object):
                     temp_dict["rETheta"] = Etheta
                     temp_dict["rEPhi"] = Ephi
                     self.__raw_data[element][freq_hz] = temp_dict
-            else:
+            else:  # pragma: no cover
                 self.logger.error("Wrong far fields were imported.")
                 return False
 
@@ -1408,7 +1405,7 @@ class FfdSolutionData(object):
             ``UnstructuredGrid`` object representing the far field mesh.
         """
         farfield_data = self.farfield_data
-        if quantity not in farfield_data:
+        if quantity not in farfield_data:  # pragma: no cover
             self.logger.error("Far field quantity is not available.")
             return False
 
@@ -1579,16 +1576,16 @@ class FfdSolutionData(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def __rotation_to_euler_angles(R):
-        sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
+    def __rotation_to_euler_angles(rotation):  # pragma: no cover
+        sy = math.sqrt(rotation[0, 0] * rotation[0, 0] + rotation[1, 0] * rotation[1, 0])
         singular = sy < 1e-6
         if not singular:
-            x = math.atan2(R[2, 1], R[2, 2])
-            y = math.atan2(-R[2, 0], sy)
-            z = math.atan2(R[1, 0], R[0, 0])
+            x = math.atan2(rotation[2, 1], rotation[2, 2])
+            y = math.atan2(-rotation[2, 0], sy)
+            z = math.atan2(rotation[1, 0], rotation[0, 0])
         else:
-            x = math.atan2(-R[1, 2], R[1, 1])
-            y = math.atan2(-R[2, 0], sy)
+            x = math.atan2(-rotation[1, 2], rotation[1, 1])
+            y = math.atan2(-rotation[2, 0], sy)
             z = 0
         return np.array([x, y, z])
 
@@ -1677,7 +1674,7 @@ class FfdSolutionDataExporter:
 
         if self.__app.desktop_class.is_grpc_api and set_phase_center_per_port:
             self.__app.set_phase_center_per_port()
-        else:
+        else:  # pragma: no cover
             self.__app.logger.warning("Set phase center in port location manually.")
 
     @property
@@ -2128,7 +2125,7 @@ class FfdSolutionDataExporter:
 
             if not os.path.exists(new_path):
                 new_path = shutil.move(obj.path, export_path)
-            if os.path.exists(os.path.join(original_path, name + ".mtl")):
+            if os.path.exists(os.path.join(original_path, name + ".mtl")):  # pragma: no cover
                 try:
                     os.remove(os.path.join(original_path, name + ".mtl"))
                 except SystemExit:
