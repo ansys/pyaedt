@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +26,7 @@ import os
 
 import pyaedt
 from pyaedt import get_pyaedt_app
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.pdf import AnsysReport
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -44,8 +46,8 @@ extension_description = "Create report"
 
 def main(extension_args):
     app = pyaedt.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
+        new_desktop=False,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,
@@ -76,6 +78,11 @@ def main(extension_args):
     report.add_toc()
     out = report.save_pdf(aedtapp.working_directory, "AEDT_Results.pdf")
     aedtapp.logger.info(f"Report Generated. {out}")
+    if is_windows and not extension_args["is_test"]:  # pragma: no cover
+        try:  # nosec
+            os.startfile(out)
+        except Exception:  # pragma: no cover
+            aedtapp.logger.warning(f"Failed to open {out}")
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

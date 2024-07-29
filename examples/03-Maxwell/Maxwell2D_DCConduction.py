@@ -26,12 +26,12 @@ aedt_version = "2024.1"
 # ``Maxwell2d`` class named ``m2d``.
 
 m2d = pyaedt.Maxwell2d(
-    specified_version=aedt_version,
-    new_desktop_session=True,
+    version=aedt_version,
+    new_desktop=True,
     close_on_exit=True,
     solution_type="DCConduction",
-    projectname="M2D_DC_Conduction",
-    designname="Ansys_resistor"
+    project="M2D_DC_Conduction",
+    design="Ansys_resistor"
 )
 
 ##########################################################
@@ -122,9 +122,7 @@ setup1.analyze()
 # Create parametric sweep to sweep all the entries in the material array.
 # Save fields and mesh and use the mesh for all the materials.
 
-param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials-1, 1, "LinearStep",
-    parametricname="MaterialSweep")
+param_sweep = m2d.parametrics.add("MaterialIndex", 0, no_materials - 1, 1, "LinearStep", name="MaterialSweep")
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = True
 param_sweep["SolveWithCopiedMeshOnly"] = True

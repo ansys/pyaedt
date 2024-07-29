@@ -1,4 +1,29 @@
 #!/ekm/software/anaconda3/bin/python
+
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from collections import OrderedDict
 import os
 import shutil
@@ -20,6 +45,10 @@ else:
 ctrl_prg = "TimeStepCtrl"
 ctrl_prg_file = "timestep_only.py"
 
+m2d_fields = "maxwell_e_line_export_field"
+
+m2d_external_circuit = "External_Circuit"
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
@@ -38,11 +67,25 @@ def m2d_ctrl_prg(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def m2d_field_export(add_app):
+    app = add_app(application=Maxwell2d, project_name=m2d_fields, subfolder=test_subfolder)
+    return app
+
+
+@pytest.fixture(scope="class")
+def m2d_circuit(add_app):
+    app = add_app(application=Maxwell2d, project_name=m2d_external_circuit, subfolder=test_subfolder)
+    return app
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m2d_ctrl_prg, local_scratch):
+    def init(self, aedtapp, m2d_ctrl_prg, m2d_field_export, m2d_circuit, local_scratch):
         self.aedtapp = aedtapp
         self.m2d_ctrl_prg = m2d_ctrl_prg
+        self.m2d_field_export = m2d_field_export
+        self.m2d_circuit = m2d_circuit
         self.local_scratch = local_scratch
 
     def test_03_assign_initial_mesh_from_slider(self):
@@ -558,3 +601,17 @@ class TestClass:
         wdg_group = self.aedtapp.boundaries_by_type["Winding Group"]
         assert wdg_group
         assert len(wdg_group) == len([bound for bound in self.aedtapp.boundaries if bound.type == "Winding Group"])
+
+    def test_38_export_fields_calc(self):
+        output_file = os.path.join(self.local_scratch.path, "e_tang_field.fld")
+        assert self.m2d_field_export.post.export_field_file(
+            quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
+        )
+        assert os.path.exists(output_file)
+
+    def test_39_create_external_circuit(self):
+        assert self.m2d_circuit.create_external_circuit()
+        assert self.m2d_circuit.create_external_circuit(circuit_design="test_cir")
+        self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        assert not self.m2d_circuit.create_external_circuit()
+        self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY

@@ -10,8 +10,8 @@ from _unittest_solvers.conftest import local_path
 
 from pathlib import Path
 
-from pyaedt import is_linux
-from pyaedt import Icepak
+from pyaedt.generic.settings import is_linux
+from pyaedt import Icepak, Rmxprt
 from pyaedt import Hfss3dLayout
 from pyaedt import Circuit, Maxwell3d
 from _unittest.conftest import config
@@ -20,7 +20,7 @@ from pyaedt.generic.spisim import SpiSim
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
 test_solve = "test_solve"
-original_project_name = "Galileo_t21_231"
+original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
 if config["desktopVersion"] > "2022.2":
@@ -37,28 +37,28 @@ com_project_name = "com_unit_test_23r2"
 def sbr_platform(add_app):
     app = add_app(project_name=sbr_platform_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def array(add_app):
     app = add_app(project_name=array_name, subfolder=test_subfolder)
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def sbr_app(add_app):
     app = add_app(project_name="SBR_test", solution_type="SBR+")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture()
 def hfss_app(add_app):
     app = add_app(project_name="Hfss_test")
     yield app
-    app.close_project(save_project=False)
+    app.close_project(save=False)
 
 
 @pytest.fixture(scope="class")
@@ -108,18 +108,25 @@ class TestClass:
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
         assert sbr_platform.create_sbr_linked_antenna(array, target_cs="antenna_CS", field_type="farfield")
-        sbr_platform.analyze(cores=6)
+        profile = sbr_platform.setups[0].get_profile()
+        assert profile is None
+        sbr_platform.analyze(cores=4)
+        profile = sbr_platform.setups[0].get_profile()
+        assert isinstance(profile, dict)
+        assert not sbr_platform.get_profile("Invented_setup")
+
         ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
 
         ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
-                           title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10",
+                           title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10", show=False,
                            image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
         ffdata2.polar_plot_3d_pyvista(quantity="RealizedGain",
                                       rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False,
+                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
+                                      show=False,
                                       convert_to_db=True)
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
@@ -176,22 +183,39 @@ class TestClass:
         setup.props["Frequency"] = "1GHz"
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
-        hfss_app.analyze_setup(name="test", cores=6)
+        hfss_app.analyze_setup(name="test", cores=4)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 39
         exported_files = hfss_app.export_results(
             matrix_type="Y",
         )
         assert len(exported_files) > 0
-
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
-        assert hfss_app.post.export_field_file(quantity="Mag_E", output_dir=fld_file1, assignment="Box1",
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
                                                intrinsics="1GHz", phase="5deg")
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
-        assert hfss_app.post.export_field_file(quantity="Mag_E", output_dir=fld_file2, assignment="Box1",
-                                               intrinsics="1GHz")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency":"1GHz"})
         assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency": "1GHz"}, phase="30deg")
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               )
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss6.fld")
+        with pytest.raises(AttributeError):
+            hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                            intrinsics=[])
+        assert not os.path.exists(fld_file2)
+
 
     def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
@@ -214,7 +238,7 @@ class TestClass:
             monitor_quantity=["Temperature", "HeatFlowRate"],
             monitor_name="test_monitor2",
         )
-        self.icepak_app.analyze("SetupIPK", cores=6)
+        self.icepak_app.analyze("SetupIPK", cores=4)
         self.icepak_app.save_project()
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
@@ -291,26 +315,26 @@ class TestClass:
     def test_03e_icepak_ExportFLDFil(self):
         fld_file = os.path.join(self.local_scratch.path, "test_fld.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep, variations={},
-                                               output_dir=fld_file, assignment="box")
+                                               output_file=fld_file, assignment="box")
         assert os.path.exists(fld_file)
         fld_file_1 = os.path.join(self.local_scratch.path, "test_fld_1.fld")
         sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               output_dir=fld_file_1, assignment="box",
+                                               output_file=fld_file_1, assignment="box",
                                                sample_points_file=sample_points_file)
         assert os.path.exists(fld_file_1)
         fld_file_2 = os.path.join(self.local_scratch.path, "test_fld_2.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               output_dir=fld_file_2, assignment="box",
+                                               output_file=fld_file_2, assignment="box",
                                                sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]])
         assert os.path.exists(fld_file_2)
         cs = self.icepak_app.modeler.create_coordinate_system()
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         self.icepak_app.post.export_field_file(quantity="Temp", solution=self.icepak_app.nominal_sweep,
                                                variations=self.icepak_app.available_variations.nominal_w_values_dict,
-                                               output_dir=fld_file_3, assignment="box",
+                                               output_file=fld_file_3, assignment="box",
                                                sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
                                                reference_coordinate_system=cs.name, export_in_si_system=False,
                                                export_field_in_reference=False)
@@ -321,14 +345,14 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     def test_04b_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6, blocking=False)
+        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
         while self.hfss3dl_solve.are_there_simulations_running:
             time.sleep(1)
 
     def test_04c_3dl_analyze_setup(self):
-        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=6)
+        assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4)
         self.hfss3dl_solve.save_project()
         assert os.path.exists(self.hfss3dl_solve.export_profile("Setup1"))
         assert os.path.exists(self.hfss3dl_solve.export_mesh_stats("Setup1"))
@@ -359,7 +383,8 @@ class TestClass:
         assert self.hfss3dl_solve.get_all_return_loss_list() == ["S(Port1,Port1)", "S(Port2,Port2)"]
 
     def test_04i_3dl_get_all_insertion_loss_list(self):
-        assert self.hfss3dl_solve.get_all_insertion_loss_list(tx_prefix="Port1", rx_prefix="Port2") == ['S(Port1,Port2)']
+        assert self.hfss3dl_solve.get_all_insertion_loss_list(drivers_prefix_name="Port1",
+                                                              receivers_prefix_name="Port2") == ['S(Port1,Port2)']
 
     def test_04j_3dl_get_next_xtalk_list(self):
         assert self.hfss3dl_solve.get_next_xtalk_list() == ["S(Port1,Port2)"]
@@ -370,7 +395,7 @@ class TestClass:
     def test_05a_circuit_add_3dlayout_component(self, circuit_app):
         setup = circuit_app.create_setup("test_06b_LNA")
         setup.add_sweep_step(start=0, stop=5, step_size=0.01)
-        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
+        myedb = circuit_app.modeler.schematic.add_subcircuit_3dlayout("main")
         assert type(myedb.id) is int
         ports = myedb.pins
         tx = ports
@@ -405,26 +430,26 @@ class TestClass:
                                                   use_number_of_last_cycles=True, last_cycles_number=3,
                                                   calculate_force="Harmonic")
         m3dtransient.save_project()
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         assert m3dtransient.export_element_based_harmonic_force(start_frequency=1, stop_frequency=100,
                                                                 number_of_frequency=None)
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        m3dtransient.analyze(m3dtransient.active_setup, cores=2, use_auto_settings=False)
+        m3dtransient.analyze(m3dtransient.active_setup, cores=4, use_auto_settings=False)
         fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
         assert m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep, variations={},
-                                                   output_dir=fld_file_3, assignment="Coil_A2", objects_type="Surf",
+                                                   output_file=fld_file_3, assignment="Coil_A2", objects_type="Surf",
                                                    intrinsics="10ms")
         assert os.path.exists(fld_file_3)
         fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
         assert not m3dtransient.post.export_field_file(quantity="Mag_B", solution=m3dtransient.nominal_sweep,
                                                        variations=m3dtransient.available_variations.nominal_w_values_dict,
-                                                       output_dir=fld_file_4, assignment="Coil_A2",
+                                                       output_file=fld_file_4, assignment="Coil_A2",
                                                        objects_type="invalid")
         setup = m3dtransient.setups[0]
         m3dtransient.setups[0].delete()
-        assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, output_dir=fld_file_4,
+        assert not m3dtransient.post.export_field_file(quantity="Mag_B", variations={}, output_file=fld_file_4,
                                                        assignment="Coil_A2")
 
         new_setup = m3dtransient.create_setup(name=setup.name, setup_type=setup.setuptype)
@@ -522,3 +547,14 @@ class TestClass:
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
+    def test_10_export_to_maxwell(self, add_app):
+        app = add_app("assm_test", application=Rmxprt, subfolder="T00")
+        app.analyze(cores=1)
+        m2d = app.create_maxwell_design("Setup1")
+        assert m2d.design_type == "Maxwell 2D"
+        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
+        assert m3d.design_type == "Maxwell 3D"
+        config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
+        app2 = add_app("assm_test2", application=Rmxprt)
+        app2.import_configuration(config)
+        assert app2.circuit

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
 
@@ -225,12 +249,12 @@ class MaxwellCircuitComponents(CircuitComponents):
 
     @pyaedt_function_handler(compname="name")
     def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
-        """Create an NPN transistor.
+        """Create a winding linked to a Maxwell design.
 
         Parameters
         ----------
         name : str, optional
-            Name of the NPN transistor. The default is ``None``.
+            Name of the winding. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional

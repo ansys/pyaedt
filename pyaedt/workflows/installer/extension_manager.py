@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -240,9 +241,9 @@ def button_is_clicked(
     name = toolkit_name.get()
 
     desktop = Desktop(
-        specified_version=version,
+        version=version,
         port=port,
-        new_desktop_session=False,
+        new_desktop=False,
         non_graphical=False,
         close_on_exit=False,
         student_version=student_version,
@@ -293,6 +294,9 @@ def button_is_clicked(
             if not file:
                 file = os.path.join(os.path.dirname(pyaedt.workflows.templates.__file__), "extension_template.py")
             if os.path.isfile(executable_interpreter):
+                template_file = "run_pyaedt_toolkit_script"
+                if selected_toolkit_info:
+                    template_file = selected_toolkit_info.get("template")
                 add_script_to_menu(
                     name=name,
                     script_file=file,
@@ -301,6 +305,7 @@ def button_is_clicked(
                     executable_interpreter=executable_interpreter,
                     personal_lib=desktop.personallib,
                     aedt_version=desktop.aedt_version_id,
+                    template_file=template_file,
                 )
                 desktop.logger.info("{} installed".format(name))
             else:

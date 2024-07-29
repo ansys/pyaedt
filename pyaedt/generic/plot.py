@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import ast
 from collections import defaultdict
 import csv
@@ -8,11 +32,11 @@ import tempfile
 import time
 import warnings
 
-from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if not is_ironpython:
     try:
@@ -469,8 +493,9 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
+    ax = plt.subplot(111)
+    fig = plt.gcf()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
     for plo_obj in plot_data:
         if isinstance(plo_obj[0], np.ndarray):
@@ -479,7 +504,10 @@ def plot_2d_chart(
         else:
             x = np.array([i for i, j in zip(plo_obj[0], plo_obj[1]) if j])
             y = np.array([i for i in plo_obj[1] if i])
-        ax.plot(x, y)
+        label = "Plot {}".format(str(label_id))
+        if len(plo_obj) > 2:
+            label = plo_obj[2]
+        ax.plot(x, y, label=label)
         label_id += 1
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -488,7 +516,7 @@ def plot_2d_chart(
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif not is_notebook():
+    elif show and not is_notebook():
         fig.show()
     return fig
 
@@ -1705,12 +1733,17 @@ class ModelPlotter(CommonPlotter):
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)
-        if export_image_path:
-            self.pv.show(screenshot=export_image_path, full_screen=True)
+        if export_image_path:  # pragma: no cover
+            supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
+            extension = os.path.splitext(export_image_path)[1]
+            if extension in supported_export:
+                self.pv.save_graphic(export_image_path)
+            else:
+                self.pv.show(auto_close=False, screenshot=export_image_path, full_screen=True)
         elif show and self.is_notebook:  # pragma: no cover
-            self.pv.show()  # pragma: no cover
+            self.pv.show(auto_close=False)  # pragma: no cover
         elif show:
-            self.pv.show(full_screen=True)  # pragma: no cover
+            self.pv.show(auto_close=False, full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
         return True
@@ -1877,7 +1910,7 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+        self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
         start = time.time()
         try:

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains the `PostProcessor` class.
 
@@ -12,14 +36,15 @@ import re
 import warnings
 
 from pyaedt import generate_unique_name
-from pyaedt import settings
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.plot import ModelPlotter
+from pyaedt.generic.settings import settings
 from pyaedt.modules.PostProcessor import FieldSummary
 from pyaedt.modules.PostProcessor import PostProcessor as Post
 from pyaedt.modules.PostProcessor import TOTAL_QUANTITIES
+from pyaedt.modules.fields_calculator import FieldsCalculator
 
 if not is_ironpython:
     try:
@@ -57,6 +82,7 @@ class PostProcessor(Post):
 
     def __init__(self, app):
         Post.__init__(self, app)
+        self.fields_calculator = FieldsCalculator(app)
 
     @pyaedt_function_handler()
     def nb_display(self, show_axis=True, show_grid=True, show_ruler=True):
@@ -471,9 +497,17 @@ class PostProcessor(Post):
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None`` which try to retrieve intrinsics from setup.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         mesh_on_fields : bool, optional
             Whether to create and plot the mesh over the fields. The
             default is ``False``.
@@ -516,16 +550,13 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if filter_objects is None:
             filter_objects = []
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
-        if not intrinsics:
-            for i in self._app.setups:
-                if i.name == setup.split(" : ")[0]:
-                    intrinsics = i.default_intrinsics
 
         # file_to_add = []
         if plot_type == "Surface":
@@ -604,9 +635,17 @@ class PostProcessor(Post):
             ``"CutPlane"``, ``"Surface"``, and ``"Volume"``.
         setup : str, optional
             Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None`` which try to retrieve intrinsics from setup.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         variation_variable : str, optional
             Variable to vary. The default is ``"Phi"``.
         variations : list, optional
@@ -649,12 +688,11 @@ class PostProcessor(Post):
         :class:`pyaedt.generic.plot.ModelPlotter`
             Model Object.
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if variations is None:
             variations = ["0deg"]
         if os.getenv("PYAEDT_DOC_GENERATION", "False").lower() in ("true", "1", "t"):  # pragma: no cover
             show = False
-        if intrinsics is None:
-            intrinsics = {}
         if not export_path:
             export_path = self._app.working_directory
         if not filter_objects:
@@ -807,7 +845,14 @@ class PostProcessor(Post):
 
     @pyaedt_function_handler()
     def create_3d_plot(
-        self, solution_data, nominal_sweep=None, nominal_value=None, primary_sweep="Theta", secondary_sweep="Phi"
+        self,
+        solution_data,
+        nominal_sweep=None,
+        nominal_value=None,
+        primary_sweep="Theta",
+        secondary_sweep="Phi",
+        snapshot_path=None,
+        show=True,
     ):
         """Create a 3D plot using Matplotlib.
 
@@ -823,6 +868,11 @@ class PostProcessor(Post):
             Primary sweep. The default is ``"Theta"``.
         secondary_sweep : str, optional
             Secondary sweep. The default is ``"Phi"``.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default is ``None``.
+        show : bool, optional
+            Whether if show the plot or not. Default is set to `True`.
 
         Returns
         -------
@@ -833,7 +883,9 @@ class PostProcessor(Post):
             solution_data.intrinsics[nominal_sweep] = nominal_value
         if nominal_value:
             solution_data.primary_sweep = primary_sweep
-        return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
+        return solution_data.plot_3d(
+            x_axis=primary_sweep, y_axis=secondary_sweep, snapshot_path=snapshot_path, show=show
+        )
 
     @pyaedt_function_handler(frames_list="frames", output_gif_path="gif_path")
     def plot_scene(
@@ -1251,7 +1303,7 @@ class IcepakPostProcessor(PostProcessor, object):
             variations = {}
         fs = self.create_field_summary()
         fs.add_calculation(
-            "Boundary",
+            "Object",
             ["Surface", "Volume"][int(volume)],
             object_name,
             quantity_name,

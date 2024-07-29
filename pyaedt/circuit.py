@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains the ``Circuit`` class."""
 
 from __future__ import absolute_import  # noreorder
@@ -10,8 +33,6 @@ import re
 import shutil
 import time
 
-from pyaedt import Hfss3dLayout
-from pyaedt import settings
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.application.analysis_hf import ScatteringMethods
 from pyaedt.generic import ibis_reader
@@ -22,6 +43,8 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
+from pyaedt.hfss3dlayout import Hfss3dLayout
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
@@ -37,23 +60,23 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open.  The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
     solution_type : str, optional
         Solution type to apply to the design. The default is
         ``None``, in which case the default type is applied.
-    setup_name : str, optional
+    setup : str, optional
         Name of the setup to use as the nominal. The default is
         ``None``, in which case the active setup is used or
         nothing is used.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
@@ -62,7 +85,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine.  The default is ``False``. This parameter is ignored when
@@ -84,7 +107,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -113,45 +140,54 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2023 R2 version and
     open the specified project, which is ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(specified_version=2023.2, projectname="myfile.aedt")
+    >>> aedtapp = Circuit(version=2023.2, project="myfile.aedt")
 
     Create an instance of Circuit using the 2023 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Circuit(specified_version="2023.2", projectname="myfile.aedt", student_version=True)
+    >>> hfss = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
 
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        setup_name=None,
-        specified_version=None,
+        setup=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         FieldAnalysisCircuit.__init__(
             self,
             "Circuit Design",
-            projectname,
-            designname,
+            project,
+            design,
             solution_type,
-            setup_name,
-            specified_version,
+            setup,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self._desktop.GetTool("NdExplorer")
@@ -1620,15 +1656,17 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         active_project = hfss.desktop_class.active_project(self.project_name)
         active_project.Paste()
         hfss_3d_layout_model = self.modeler.schematic.add_subcircuit_3dlayout(hfss.design_name)
-        hfss.close_project(save_project=False)
+        hfss.close_project(save=False)
         return hfss_3d_layout_model
 
-    @pyaedt_function_handler(touchstone="input_file")
+    @pyaedt_function_handler(
+        touchstone="input_file", probe_pins="tx_schematic_pins", probe_ref_pins="tx_schematic_differential_pins"
+    )
     def create_tdr_schematic_from_snp(
         self,
         input_file,
-        probe_pins,
-        probe_ref_pins=None,
+        tx_schematic_pins,
+        tx_schematic_differential_pins=None,
         termination_pins=None,
         differential=True,
         rise_time=30,
@@ -1642,9 +1680,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         input_file : str
             Full path to the sNp file.
-        probe_pins : list
+        tx_schematic_pins : list
             List of pins to attach to the probe components.
-        probe_ref_pins : list, optional
+        tx_schematic_differential_pins : list, optional
             Reference pins to attach to probe components. The default is ``None``.
             This parameter is valid only in differential TDR probes.
         termination_pins : list, optional
@@ -1679,13 +1717,13 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         center_x = sub.location[0]
         center_y = sub.location[1]
         left = 0
-        delta_y = -1 * sub.location[1] - 2000 - 50 * len(probe_pins)
+        delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_schematic_pins)
         if differential:
             tdr_probe = self.modeler.components.components_catalog["TDR_Differential_Ended"]
         else:
             tdr_probe = self.modeler.components.components_catalog["TDR_Single_Ended"]
         tdr_probe_names = []
-        for i, probe_pin in enumerate(probe_pins):
+        for i, probe_pin in enumerate(tx_schematic_pins):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
@@ -1693,11 +1731,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 if isinstance(probe_pin, int):
                     p_pin = probe_pin
                     if differential:
-                        n_pin = probe_ref_pins[i]
+                        n_pin = tx_schematic_differential_pins[i]
                 else:
                     p_pin = [k for k in sub.pins if k.name == probe_pin][0]
                     if differential:
-                        n_pin = [k for k in sub.pins if k.name == probe_ref_pins[i]][0]
+                        n_pin = [k for k in sub.pins if k.name == tx_schematic_differential_pins[i]][0]
             except IndexError:
                 self.logger.error("Failed to retrieve the pins.")
                 return False
@@ -1866,18 +1904,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self.analyze()
         return True, diff_pairs, comm_pairs
 
-    @pyaedt_function_handler(touchstone="input_file")
+    @pyaedt_function_handler(
+        touchstone="input_file",
+        ibis_ami="ibis_tx_file",
+        tx_pins="tx_schematic_pins",
+        rx_pins="rx_schematic_pins",
+        tx_refs="tx_schematic_differential_pins",
+        rx_refs="rx_schematic_differentialial_pins",
+    )
     def create_ami_schematic_from_snp(
         self,
         input_file,
-        ibis_ami,
-        component_name,
+        ibis_tx_file,
         tx_buffer_name,
         rx_buffer_name,
-        tx_pins,
-        tx_refs,
-        rx_pins,
-        rx_refs,
+        tx_schematic_pins,
+        rx_schematic_pins,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differentialial_pins=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
         use_ibis_buffer=True,
         differential=True,
         bit_pattern=None,
@@ -1885,6 +1931,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution=True,
         analyze=False,
         design_name="AMI",
+        ibis_rx_file=None,
+        create_setup=True,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -1892,22 +1940,26 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         input_file : str
             Full path to the sNp file.
-        ibis_ami : str
+        ibis_tx_file : str
             Full path to the IBIS file.
-        component_name : str
-            Component name in the IBIS file to assign to components.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
         tx_buffer_name : str
             Transmission buffer name.
         rx_buffer_name : str
             Receiver buffer name
-        tx_pins : list
+        tx_schematic_pins : list
             Pins to assign the transmitter IBIS.
-        tx_refs : list
+        tx_schematic_differential_pins : list
             Reference pins to assign the transmitter IBIS. This parameter is only used in
             a differential configuration.
-        rx_pins : list
+        rx_schematic_pins : list
             Pins to assign the receiver IBIS.
-        rx_refs : list
+        rx_schematic_differentialial_pins : list
             Reference pins to assign the receiver IBIS. This parameter is only used
             in a differential configuration.
         use_ibis_buffer : bool, optional
@@ -1926,7 +1978,116 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
              Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
+        ibis_rx_file : str, optional
+            Ibis receiver file.
+        create_setup : bool, optional
+            Whether to create a transient or an ami setup. The default is ``True``.
 
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if successful.
+            Second and third arguments are respectively the names of the tx and rx mode probes.
+        """
+
+        return self.create_ibis_schematic_from_snp(
+            input_file=input_file,
+            ibis_tx_file=ibis_tx_file,
+            tx_buffer_name=tx_buffer_name,
+            rx_buffer_name=rx_buffer_name,
+            tx_schematic_pins=tx_schematic_pins,
+            rx_schematic_pins=rx_schematic_pins,
+            ibis_rx_file=ibis_rx_file,
+            tx_schematic_differential_pins=tx_schematic_differential_pins,
+            rx_schematic_differential_pins=rx_schematic_differentialial_pins,
+            ibis_tx_component_name=ibis_tx_component_name,
+            ibis_rx_component_name=ibis_rx_component_name,
+            use_ibis_buffer=use_ibis_buffer,
+            differential=differential,
+            bit_pattern=bit_pattern,
+            unit_interval=unit_interval,
+            use_convolution=use_convolution,
+            analyze=analyze,
+            design_name=design_name,
+            is_ami=True,
+            create_setup=create_setup,
+        )
+
+    @pyaedt_function_handler()
+    def create_ibis_schematic_from_snp(
+        self,
+        input_file,
+        ibis_tx_file,
+        tx_buffer_name,
+        rx_buffer_name,
+        tx_schematic_pins,
+        rx_schematic_pins,
+        ibis_rx_file=None,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differential_pins=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
+        use_ibis_buffer=True,
+        differential=True,
+        bit_pattern=None,
+        unit_interval=None,
+        use_convolution=True,
+        analyze=False,
+        design_name="IBIS",
+        is_ami=False,
+        create_setup=True,
+    ):
+        """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to the sNp file.
+        ibis_tx_file : str
+            Full path to the IBIS file.
+        tx_buffer_name : str
+            Transmission buffer name. It can be a buffer or an ibis pin name.
+            In the latter case the user has to provide also the component_name.
+        rx_buffer_name : str
+            Receiver buffer name.
+        tx_schematic_pins : list
+            Pins to assign to the transmitter IBIS.
+        rx_schematic_pins : list, optional
+            Pins to assign to the receiver IBIS.
+        tx_schematic_differential_pins : list, optional
+            Reference pins to assign to the transmitter IBIS. This parameter is only used in
+            a differential configuration.
+        rx_schematic_differential_pins : list
+            Reference pins to assign to the receiver IBIS. This parameter is only used
+            in a differential configuration.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
+        use_ibis_buffer : bool, optional
+            Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``,
+            the buffers are single-ended.
+        bit_pattern : str, optional
+            IBIS bit pattern.
+        unit_interval : str, optional
+            Unit interval of the bit pattern.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is
+            ``True``. If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        design_name : str, optional
+            New schematic name. The default is ``"IBIS"``.
+        is_ami : bool, optional
+            Whether the ibis is AMI. The default is ``False``.
+        ibis_rx_file : str, optional
+            Ibis receiver file.
+        create_setup : bool, optional
+            Whether to create transient or ami setup. The default is ``True``.
 
         Returns
         -------
@@ -1944,67 +2105,225 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             touchstone_path = input_file
 
         sub = self.modeler.components.create_touchstone_component(touchstone_path)
+        return self.create_ibis_schematic_from_pins(
+            ibis_tx_file=ibis_tx_file,
+            ibis_rx_file=ibis_rx_file,
+            tx_buffer_name=tx_buffer_name,
+            rx_buffer_name=rx_buffer_name,
+            tx_schematic_pins=tx_schematic_pins,
+            rx_schematic_pins=rx_schematic_pins,
+            tx_schematic_differential_pins=tx_schematic_differential_pins,
+            rx_schematic_differential_pins=rx_schematic_differential_pins,
+            tx_component_name=sub.name,
+            ibis_tx_component_name=ibis_tx_component_name,
+            ibis_rx_component_name=ibis_rx_component_name,
+            use_ibis_buffer=use_ibis_buffer,
+            differential=differential,
+            bit_pattern=bit_pattern,
+            unit_interval=unit_interval,
+            use_convolution=use_convolution,
+            analyze=analyze,
+            is_ami=is_ami,
+            create_setup=create_setup,
+        )
+
+    @pyaedt_function_handler()
+    def create_ibis_schematic_from_pins(
+        self,
+        ibis_tx_file,
+        ibis_rx_file=None,
+        tx_buffer_name="",
+        rx_buffer_name="",
+        tx_schematic_pins=None,
+        rx_schematic_pins=None,
+        tx_schematic_differential_pins=None,
+        rx_schematic_differential_pins=None,
+        tx_component_name=None,
+        rx_component_name=None,
+        ibis_tx_component_name=None,
+        ibis_rx_component_name=None,
+        use_ibis_buffer=True,
+        differential=True,
+        bit_pattern=None,
+        unit_interval=None,
+        use_convolution=True,
+        analyze=False,
+        is_ami=False,
+        create_setup=True,
+    ):
+        """Create a schematic from a list of pins and automatically set up an IBIS-AMI analysis.
+
+        Parameters
+        ----------
+
+        ibis_tx_file : str
+            Full path to the IBIS file for transmitters.
+        ibis_rx_file : str
+            Full path to the IBIS file for receiver.
+        tx_buffer_name : str
+            Transmission buffer name. It can be a buffer or a ibis pin name.
+            In this last case the user has to provide also the component_name.
+        rx_buffer_name : str
+            Receiver buffer name.
+        tx_schematic_pins : list
+            Pins to assign to the transmitter IBIS.
+        rx_schematic_pins : list, optional
+            Pins to assign to the receiver IBIS.
+        tx_schematic_differential_pins : list, optional
+            Reference pins to assign to the transmitter IBIS. This parameter is only used in
+            a differential configuration.
+        rx_schematic_differential_pins : list
+            Reference pins to assign to the receiver IBIS. This parameter is only used
+            in a differential configuration.
+        tx_component_name : str, optional
+            Component name in AEDT circuit schematic to which tx_pins belongs.
+        rx_component_name : str, optional
+            Component name in AEDT circuit schematic to which rx_pins belongs.
+        ibis_tx_component_name : str, optional
+            IBIS component name to use for the simulation of the transmitter.
+            This parameter is needed only if IBIS component pins are used.
+        ibis_rx_component_name : str, optional
+            IBIS component name to use for the simulation of the receiver.
+            This parameter is needed only if IBIS component pins are used.
+        use_ibis_buffer : bool, optional
+            Whether to use the IBIS buffer. The default is ``True``. If ``False``, pins are used.
+        differential : bool, optional
+            Whether the buffers are differential. The default is ``True``. If ``False``,
+            the buffers are single-ended.
+        bit_pattern : str, optional
+            IBIS bit pattern.
+        unit_interval : str, optional
+            Unit interval of the bit pattern.
+        use_convolution : bool, optional
+            Whether to use convolution for the Touchstone file. The default is
+            ``True``. If ``False``, state-space is used.
+        analyze : bool
+             Whether to automatically assign differential pairs. The default is ``False``.
+        is_ami : bool, optional
+            Whether the ibis is AMI. The default is ``False``.
+        create_setup : bool, optional
+            Whether to create transient or ami setup. The default is ``True``.
+
+
+        Returns
+        -------
+        (bool, list, list)
+            First argument is ``True`` if successful.
+            Second and third arguments are respectively the names of the tx and rx mode probes.
+        """
+
+        if tx_component_name is None:
+            try:
+                tx_component_name = [
+                    i
+                    for i, v in self.modeler.components.components.items()
+                    if "FileName" in v.parameters
+                    or "ModelName" in v.parameters
+                    and v.parameters["ModelName"] == "FieldSolver"
+                ][0]
+            except Exception:
+                self.logger.error("A component has to be passed or an Sparameter present.")
+                return False
+        if rx_component_name is None:
+            rx_component_name = tx_component_name
+        sub = self.modeler.components[tx_component_name]
         center_x = sub.location[0]
         center_y = sub.location[1]
+        subx = self.modeler.components[rx_component_name]
+        center_x_rx = subx.location[0]
+        center_y_rx = subx.location[1]
         left = 0
-        delta_y = -1 * sub.location[1] - 2000 - 50 * len(tx_pins)
-        ibis = self.get_ibis_model_from_file(ibis_ami, is_ami=True)
+        delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
+        delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
+        for el in self.modeler.components.components.values():
+            if delta_y >= el.bounding_box[1]:
+                delta_y = el.bounding_box[1] - 0.02032
+            if delta_y_rx <= el.bounding_box[3]:
+                delta_y_rx = el.bounding_box[3] + 0.02032
+
+        ibis = self.get_ibis_model_from_file(ibis_tx_file, is_ami=is_ami)
+        if ibis_rx_file:
+            ibis_rx = self.get_ibis_model_from_file(ibis_rx_file, is_ami=is_ami)
+        else:
+            ibis_rx = ibis
         tx_eye_names = []
         rx_eye_names = []
-        for j in range(len(tx_pins)):
-            pos_x = unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y = unit_converter(delta_y - left * 800, input_units="mil", output_units=self.modeler.schematic_units)
-            left += 1
 
-            p_pin1 = [i for i in sub.pins if i.name == tx_pins[j]][0]
-            p_pin2 = [i for i in sub.pins if i.name == rx_pins[j]][0]
+        for j in range(len(tx_schematic_pins)):
+            pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
+            pos_y = delta_y + unit_converter(
+                left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
+            )
+            pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
+            pos_y_rx = delta_y_rx + unit_converter(
+                left * 0.02032, input_units="mil", output_units=self.modeler.schematic_units
+            )
+
+            left += 1
+            p_pin1 = sub[tx_schematic_pins[j]]
+            p_pin2 = subx[rx_schematic_pins[j]]
             if differential:
-                n_pin1 = [i for i in sub.pins if i.name == tx_refs[j]][0]
-                n_pin2 = [i for i in sub.pins if i.name == rx_refs[j]][0]
+                n_pin1 = sub[tx_schematic_differential_pins[j]]
+                n_pin2 = subx[rx_schematic_differential_pins[j]]
 
             if use_ibis_buffer:
-                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(tx_buffer_name + "_")]
+                buf = [k for k, _ in ibis.buffers.items() if k.startswith(tx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                tx = ibis.components[component_name].buffer[buf[0]].insert(center_x - pos_x, center_y + pos_y)
-                buf = [k for k in ibis.components[component_name].buffer.keys() if k.startswith(rx_buffer_name + "_")]
+                tx = ibis.buffers[buf[0]].insert(pos_x, pos_y)
+                if tx.location[0] > tx.pins[0].location[0]:
+                    tx.angle = 180
+                buf = [k for k, _ in ibis_rx.buffers.items() if k.startswith(rx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                rx = ibis.components[component_name].buffer[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
+                rx = ibis_rx.buffers[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                if rx.location[0] < rx.pins[0].location[0]:
+                    rx.angle = 0
             else:
-                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(tx_buffer_name + "_")]
+                if ibis_tx_component_name:
+                    cmp_tx = ibis.components[ibis_tx_component_name]
+                else:
+                    cmp_tx = list(ibis.components.values())[0]
+                if ibis_rx_component_name:
+                    cmp_rx = ibis.components[ibis_tx_component_name]
+                elif not ibis_rx_file:
+                    cmp_rx = cmp_tx
+                else:
+                    cmp_rx = list(ibis_rx.components.values())[0]
+                buf = [k for k in cmp_tx.pins.keys() if k.startswith(tx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                tx = ibis.components[component_name].pins[buf[0]].insert(center_x - pos_x, center_y + pos_y)
-                buf = [k for k in ibis.components[component_name].pins.keys() if k.startswith(rx_buffer_name + "_")]
+                tx = cmp_tx.pins[buf[0]].insert(pos_x, pos_y)
+                if tx.location[0] > tx.pins[0].location[0]:
+                    tx.angle = 180
+                buf = [k for k in cmp_rx.pins.keys() if k.startswith(rx_buffer_name + "_")]
                 if differential:
                     buf = [k for k in buf if k.endswith("diff")]
-                rx = ibis.components[component_name].pins[buf[0]].insert(center_x + pos_x, center_y + pos_y, 180)
-
-            tx_eye_names.append(tx.parameters["probe_name"])
-            rx_eye_names.append(rx.parameters["source_name"])
-            _, first, second = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
-            self.modeler.move(first, [0, 100], "mil")
-            if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0], "mil")
+                rx = cmp_rx.pins[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                if rx.location[0] < rx.pins[0].location[0]:
+                    rx.angle = 0
+            _, first_tx, second_tx = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)
+            self.modeler.move(first_tx, [0, 100], "mil")
+            if second_tx.pins[0].location[0] > center_x:
+                self.modeler.move(second_tx, [1000, 0], "mil")
             else:
-                self.modeler.move(second, [-1000, 0], "mil")
-            _, first, second = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
-            self.modeler.move(first, [0, -100], "mil")
-            if second.pins[0].location[0] > center_x:
-                self.modeler.move(second, [1000, 0], "mil")
+                self.modeler.move(second_tx, [-1000, 0], "mil")
+            _, first_rx, second_rx = rx.pins[0].connect_to_component(p_pin2, page_port_angle=0)
+            self.modeler.move(first_rx, [0, -100], "mil")
+            if second_rx.pins[0].location[0] > center_x_rx:
+                self.modeler.move(second_rx, [1000, 0], "mil")
             else:
-                self.modeler.move(second, [-1000, 0], "mil")
+                self.modeler.move(second_rx, [-1000, 0], "mil")
             if differential:
                 _, first, second = tx.pins[1].connect_to_component(n_pin1, page_port_angle=180)
                 self.modeler.move(first, [0, -100], "mil")
-                if second.pins[0].location[0] > center_x:
+                if second.pins[0].location[0] > center_x_rx:
                     self.modeler.move(second, [1000, 0], "mil")
                 else:
                     self.modeler.move(second, [-1000, 0], "mil")
                 _, first, second = rx.pins[1].connect_to_component(n_pin2, page_port_angle=0)
                 self.modeler.move(first, [0, 100], "mil")
-                if second.pins[0].location[0] > center_x:
+                if second.pins[0].location[0] > center_x_rx:
                     self.modeler.move(second, [1000, 0], "mil")
                 else:
                     self.modeler.move(second, [-1000, 0], "mil")
@@ -2012,24 +2331,33 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 tx.parameters["UIorBPSValue"] = unit_interval
             if bit_pattern:
                 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
-
-        setup_ami = self.create_setup("AMI", "NexximAMI")
-        if use_convolution:
-            self.oanalysis.AddAnalysisOptions(
-                [
-                    "NAME:DataBlock",
-                    "DataBlockID:=",
-                    8,
-                    "Name:=",
-                    "Nexxim Options",
+            if is_ami:
+                tx_eye_names.append(tx.parameters["probe_name"])
+                rx_eye_names.append(rx.parameters["source_name"])
+            else:
+                tx_eye_names.append(first_tx.name.split("@")[1])
+                rx_eye_names.append(first_rx.name.split("@")[1])
+        if create_setup:
+            setup_type = "NexximTransient"
+            if is_ami:
+                setup_type = "NexximAMI"
+            setup_ibis = self.create_setup("Transient", setup_type)
+            if use_convolution:
+                self.oanalysis.AddAnalysisOptions(
                     [
-                        "NAME:ModifiedOptions",
-                        "ts_convolution:=",
-                        True,
-                    ],
-                ]
-            )
-            setup_ami.props["OptionName"] = "Nexxim Options"
-        if analyze:
-            setup_ami.analyze()
+                        "NAME:DataBlock",
+                        "DataBlockID:=",
+                        8,
+                        "Name:=",
+                        "Nexxim Options",
+                        [
+                            "NAME:ModifiedOptions",
+                            "ts_convolution:=",
+                            True,
+                        ],
+                    ]
+                )
+                setup_ibis.props["OptionName"] = "Nexxim Options"
+            if analyze:
+                setup_ibis.analyze()
         return True, tx_eye_names, rx_eye_names

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from __future__ import absolute_import  # noreorder
 
 import copy
@@ -13,6 +37,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Primitives3D import Primitives3D
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modules.solutions import nastran_to_stl
 
 
 class Modeler3D(Primitives3D):
@@ -56,27 +81,36 @@ class Modeler3D(Primitives3D):
         warnings.warn(mess, DeprecationWarning)
         return self
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        component_file="input_file",
+        component_name="name",
+        object_list="assignment",
+        boundaries_list="boundaries",
+        excitation_list="excitations",
+        included_cs="coordinate_systems",
+        reference_cs="reference_coordinate_systems",
+        auxiliary_dict="export_auxiliary",
+    )
     def create_3dcomponent(
         self,
-        component_file,
-        component_name=None,
+        input_file,
+        name=None,
         variables_to_include=None,
-        object_list=None,
-        boundaries_list=None,
-        excitation_list=None,
-        included_cs=None,
-        reference_cs="Global",
+        assignment=None,
+        boundaries=None,
+        excitations=None,
+        coordinate_systems=None,
+        reference_coordinate_systems="Global",
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password="",
-        edit_password="",
+        password=None,
+        edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
         replace_names=False,
         component_outline="BoundingBox",
-        auxiliary_dict=False,
+        export_auxiliary=False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
@@ -86,21 +120,21 @@ class Modeler3D(Primitives3D):
 
         Parameters
         ----------
-        component_file : str
+        input_file : str
             Full path to the A3DCOMP file.
-        component_name : str, optional
+        name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
             List of variables to include. The default is all variables.
-        object_list : list, optional
+        assignment : list, optional
             List of object names to export. The default is all object names.
-        boundaries_list : list, optional
+        boundaries : list, optional
             List of Boundaries names to export. The default is all boundaries.
-        excitation_list : list, optional
+        excitations : list, optional
             List of Excitation names to export. The default is all excitations.
-        included_cs : list, optional
+        coordinate_systems : list, optional
             List of Coordinate Systems to export. The default is the ``reference_cs``.
-        reference_cs : str, optional
+        reference_coordinate_systems : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
@@ -112,10 +146,10 @@ class Modeler3D(Primitives3D):
             The default value is an empty string.
         password : str, optional
             Security password needed when adding the component.
-            The default value is an empty string.
+            The default value is ``None``.
         edit_password : str, optional
             Edit password.
-            The default value is an empty string.
+            The default value is ``None``.
         password_type : str, optional
             Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default is ``UserSuppliedPassword``.
@@ -128,7 +162,7 @@ class Modeler3D(Primitives3D):
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
-        auxiliary_dict : bool or str, optional
+        export_auxiliary : bool or str, optional
             Whether to export the auxiliary file containing information about defined
             datasets and Icepak monitor objects. A destination file can be specified
             using a string.
@@ -157,18 +191,23 @@ class Modeler3D(Primitives3D):
         ----------
         >>> oEditor.Create3DComponent
         """
-        if not component_name:
-            component_name = self._app.design_name
+        if not name:
+            name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
             return False
         if component_outline not in ["BoundingBox", "None"]:
             return False
+        if password is None:
+            password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+        if not edit_password:
+            edit_password = os.getenv("PYAEDT_ENCRYPTED_EDIT_PASSWORD", "")
+
         hide_contents_flag = is_encrypted and isinstance(hide_contents, list)
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
-            component_name,
+            name,
             "Company:=",
             "",
             "Company URL:=",
@@ -210,12 +249,12 @@ class Modeler3D(Primitives3D):
             "ComponentOutline:=",
             component_outline,
         ]
-        if object_list:
-            objs = object_list
+        if assignment:
+            objs = assignment
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
-            if not native_components and native_objs and not auxiliary_dict:
+            if not native_components and native_objs and not export_auxiliary:
                 self.logger.warning(
                     "Native component objects cannot be exported. Use native_components argument to"
                     " export an auxiliary dictionary file containing 3D components information"
@@ -229,12 +268,12 @@ class Modeler3D(Primitives3D):
             arg.append([])
         else:
             arg.append(hide_contents)
-        if included_cs:
-            allcs = included_cs
+        if coordinate_systems:
+            allcs = coordinate_systems
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_systems)
         par_description = []
         variables = []
         dependent_variables = []
@@ -266,8 +305,8 @@ class Modeler3D(Primitives3D):
         arg.append("VendorComponentIdentifier:="), arg.append("")
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries_list is not None:
-            boundaries = boundaries_list
+        if boundaries is not None:
+            boundaries = boundaries
         else:
             boundaries = self.get_boundaries_name()
         arg2.append("Boundaries:="), arg2.append(boundaries)
@@ -280,8 +319,8 @@ class Modeler3D(Primitives3D):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list is not None:
-                excitations = excitation_list
+            if excitations is not None:
+                excitations = excitations
             else:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
@@ -307,9 +346,9 @@ class Modeler3D(Primitives3D):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        if auxiliary_dict:
-            if isinstance(auxiliary_dict, bool):
-                auxiliary_dict = component_file + ".json"
+        if export_auxiliary:
+            if isinstance(export_auxiliary, bool):
+                export_auxiliary = input_file + ".json"
             cachesettings = {
                 prop: getattr(self._app.configurations.options, prop)
                 for prop in vars(self._app.configurations.options)
@@ -371,47 +410,53 @@ class Modeler3D(Primitives3D):
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
                         del out_dict["coordinatesystems"][cs]
-            with open_file(auxiliary_dict, "w") as outfile:
+            with open_file(export_auxiliary, "w") as outfile:
                 json.dump(out_dict, outfile)
-        if not os.path.isdir(os.path.dirname(component_file)):
-            self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
+        if not os.path.isdir(os.path.dirname(input_file)):
+            self.logger.warning("Folder '" + os.path.dirname(input_file) + "' doesn't exist.")
             if create_folder:  # Folder doesn't exist.
-                os.mkdir(os.path.dirname(component_file))
-                self.logger.warning("Created folder '" + os.path.dirname(component_file) + "'")
+                os.mkdir(os.path.dirname(input_file))
+                self.logger.warning("Created folder '" + os.path.dirname(input_file) + "'")
             else:
-                self.logger.warning("Unable to create 3D Component: '" + component_file + "'")
+                self.logger.warning("Unable to create 3D Component: '" + input_file + "'")
                 return False
-        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
+        self.oeditor.Create3DComponent(arg, arg2, input_file, arg3)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        component_name="name",
+        object_list="assignment",
+        boundaries_list="boundaries",
+        excitation_list="excitations",
+        included_cs="coordinate_systems",
+    )
     def replace_3dcomponent(
         self,
-        component_name=None,
+        name=None,
         variables_to_include=None,
-        object_list=None,
-        boundaries_list=None,
-        excitation_list=None,
+        assignment=None,
+        boundaries=None,
+        excitations=None,
         included_cs=None,
-        reference_cs="Global",
+        coordinate_systems="Global",
     ):
         """Replace with 3D component.
 
         Parameters
         ----------
-        component_name : str, optional
+        name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
             List of variables to include. The default is ``None``.
-        object_list : list, optional
+        assignment : list, optional
             List of object names to export. The default is all object names.
-        boundaries_list : list, optional
+        boundaries : list, optional
             List of Boundaries names to export. The default is all boundaries.
-        excitation_list : list, optional
+        excitations : list, optional
             List of Excitation names to export. The default is all excitations.
         included_cs : list, optional
             List of Coordinate Systems to export. The default is all coordinate systems.
-        reference_cs : str, optional
+        coordinate_systems : str, optional
             The Coordinate System reference. The default is ``"Global"``.
 
         Returns
@@ -426,13 +471,13 @@ class Modeler3D(Primitives3D):
         """
         if not variables_to_include:
             variables_to_include = []
-        if not component_name:
-            component_name = generate_unique_name(self._app.design_name)
+        if not name:
+            name = generate_unique_name(self._app.design_name)
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
-            component_name,
+            name,
             "Company:=",
             "",
             "Company URL:=",
@@ -456,8 +501,8 @@ class Modeler3D(Primitives3D):
             "HasLabel:=",
             False,
         ]
-        if object_list:
-            objs = object_list
+        if assignment:
+            objs = assignment
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
@@ -476,7 +521,7 @@ class Modeler3D(Primitives3D):
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        arg.append("ReferenceCS:="), arg.append(coordinate_systems)
         par_description = []
         variables = []
         if variables_to_include:
@@ -506,8 +551,8 @@ class Modeler3D(Primitives3D):
         arg.append("ParameterDescription:="), arg.append(par_description)
 
         arg2 = ["NAME:DesignData"]
-        if boundaries_list:
-            boundaries = boundaries_list
+        if boundaries:
+            boundaries = boundaries
         else:
             boundaries = self.get_boundaries_name()
         if boundaries:
@@ -521,8 +566,8 @@ class Modeler3D(Primitives3D):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list:
-                excitations = excitation_list
+            if excitations:
+                excitations = excitations
             else:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
@@ -987,309 +1032,6 @@ class Modeler3D(Primitives3D):
         return objects
 
     @pyaedt_function_handler()
-    def _parse_nastran(self, file_path):
-
-        nas_to_dict = {"Points": [], "PointsId": {}, "Triangles": {}, "Lines": {}, "Solids": {}}
-
-        self.logger.reset_timer()
-        self.logger.info("Loading file")
-        pid = 0
-        with open_file(file_path, "r") as f:
-            lines = f.read().splitlines()
-            for lk in range(len(lines)):
-                line = lines[lk]
-                line_type = line[:8].strip()
-                if line.startswith("$") or line.startswith("*"):
-                    continue
-                elif line_type in ["GRID", "CTRIA3", "CQUAD4"]:
-                    grid_id = int(line[8:16])
-                    if line_type in ["CTRIA3", "CQUAD4"]:
-                        tria_id = int(line[16:24])
-                        if tria_id not in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id] = []
-                    n1 = line[24:32].strip()
-                    if "-" in n1[1:] and "e" not in n1[1:].lower():
-                        n1 = n1[0] + n1[1:].replace("-", "e-")
-                    n2 = line[32:40].strip()
-                    if "-" in n2[1:] and "e" not in n2[1:].lower():
-                        n2 = n2[0] + n2[1:].replace("-", "e-")
-                    n3 = line[40:48].strip()
-                    if "-" in n3[1:] and "e" not in n3[1:].lower():
-                        n3 = n3[0] + n3[1:].replace("-", "e-")
-                    if line_type == "GRID":
-                        nas_to_dict["PointsId"][grid_id] = pid
-                        nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
-                        pid += 1
-                    elif line_type == "CTRIA3":
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                    elif line_type == "CQUAD4":
-                        n4 = line[48:56].strip()
-                        if "-" in n4[1:] and "e" not in n4[1:].lower():
-                            n4 = n4[0] + n4[1:].replace("-", "e-")
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n3)],
-                            nas_to_dict["PointsId"][int(n4)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                elif line_type in ["GRID*", "CTRIA3*", "CQUAD4*"]:
-                    grid_id = int(line[8:24])
-                    if line_type in ["CTRIA3*", "CQUAD4*"]:
-                        tria_id = int(line[24:40])
-                        if tria_id not in nas_to_dict["Triangles"]:
-                            nas_to_dict["Triangles"][tria_id] = []
-                    n1 = line[40:56].strip()
-                    if "-" in n1[1:] and "e" not in n1[1:].lower():
-                        n1 = n1[0] + n1[1:].replace("-", "e-")
-                    n2 = line[56:72].strip()
-                    if "-" in n2[1:] and "e" not in n2[1:].lower():
-                        n2 = n2[0] + n2[1:].replace("-", "e-")
-
-                    n3 = line[72:88].strip()
-                    idx = 88
-                    if not n3 or n3.startswith("*"):
-                        lk += 1
-                        n3 = lines[lk][8:24].strip()
-                        idx = 24
-                    if "-" in n3[1:] and "e" not in n3[1:].lower():
-                        n3 = n3[0] + n3[1:].replace("-", "e-")
-                    if line_type == "GRID*":
-                        try:
-                            nas_to_dict["Points"].append([float(n1), float(n2), float(n3)])
-                        except Exception:  # nosec
-                            continue
-                        nas_to_dict["PointsId"][grid_id] = pid
-                        pid += 1
-                    elif line_type == "CTRIA3*":
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                    elif line_type == "CQUAD4*":
-                        n4 = lines[lk][idx : idx + 16].strip()
-                        if not n4 or n4.startswith("*"):
-                            lk += 1
-                            n4 = lines[lk][8:24].strip()
-                        if "-" in n4[1:] and "e" not in n4[1:].lower():
-                            n4 = n4[0] + n4[1:].replace("-", "e-")
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n2)],
-                            nas_to_dict["PointsId"][int(n3)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                        tri = [
-                            nas_to_dict["PointsId"][int(n1)],
-                            nas_to_dict["PointsId"][int(n3)],
-                            nas_to_dict["PointsId"][int(n4)],
-                        ]
-                        nas_to_dict["Triangles"][tria_id].append(tri)
-                elif line_type in [
-                    "CTETRA",
-                    "CPYRAM",
-                    "CPYRA",
-                ]:
-                    # obj_id = line[8:16].strip()
-                    n = []
-                    el_id = line[16:24].strip()
-                    if el_id not in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][el_id] = []
-
-                    n.append(int(line[24:32]))
-                    n.append(int(line[32:40]))
-                    n.append(int(line[40:48]))
-                    n.append(int(line[48:56]))
-                    if line_type in ["CPYRA", "CPYRAM"]:
-                        n.append(int(line[56:64]))
-
-                    from itertools import combinations
-
-                    for k in list(combinations(n, 3)):
-                        # tri = [int(k[0]), int(k[1]), int(k[2])]
-                        tri = [
-                            nas_to_dict["PointsId"][int(k[0])],
-                            nas_to_dict["PointsId"][int(k[1])],
-                            nas_to_dict["PointsId"][int(k[2])],
-                        ]
-                        tri.sort()
-                        tri = tuple(tri)
-                        nas_to_dict["Solids"][el_id].append(tri)
-
-                elif line_type in [
-                    "CTETRA*",
-                    "CPYRAM*",
-                    "CPYRA*",
-                ]:
-                    # obj_id = line[8:24].strip()
-                    n = []
-                    el_id = line[24:40].strip()
-                    if el_id not in nas_to_dict["Solids"]:
-                        nas_to_dict["Solids"][el_id] = []
-                    # n.append(line[24:40].strip())
-                    n.append(line[40:56].strip())
-
-                    n.append(line[56:72].strip())
-                    lk += 1
-                    n.extend([lines[lk][i : i + 16] for i in range(16, len(lines[lk]), 16)])
-
-                    from itertools import combinations
-
-                    if line_type == "CTETRA*":
-                        for k in list(combinations(n, 3)):
-                            # tri = [int(k[0]), int(k[1]), int(k[2])]
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Solids"][el_id].append(tri)
-                    else:
-                        spli1 = [n[0], n[1], n[2], n[4]]
-                        for k in list(combinations(spli1, 3)):
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Solids"][el_id].append(tri)
-                        spli1 = [n[0], n[2], n[3], n[4]]
-                        for k in list(combinations(spli1, 3)):
-                            tri = [
-                                nas_to_dict["PointsId"][int(k[0])],
-                                nas_to_dict["PointsId"][int(k[1])],
-                                nas_to_dict["PointsId"][int(k[2])],
-                            ]
-                            tri.sort()
-                            tri = tuple(tri)
-                            nas_to_dict["Solids"][el_id].append(tri)
-
-                elif line_type in ["CROD", "CBEAM"]:
-                    obj_id = int(line[16:24])
-                    n1 = int(line[24:32])
-                    n2 = int(line[32:40])
-                    if obj_id in nas_to_dict["Lines"]:
-                        nas_to_dict["Lines"][obj_id].append(
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        )
-                    else:
-                        nas_to_dict["Lines"][obj_id] = [
-                            [nas_to_dict["PointsId"][int(n1)], nas_to_dict["PointsId"][int(n2)]]
-                        ]
-
-        self.logger.info("File loaded")
-        return nas_to_dict
-
-    @pyaedt_function_handler()
-    def _write_stl(self, nas_to_dict, decimation, enable_planar_merge):
-        def _write_solid_stl(triangle, pp):
-            try:
-                # points = [nas_to_dict["Points"][id] for id in triangle]
-                points = [pp[i] for i in triangle]
-            except KeyError:  # pragma: no cover
-                return
-            fc = GeometryOperators.get_polygon_centroid(points)
-            v1 = points[0]
-            v2 = points[1]
-            cv1 = GeometryOperators.v_points(fc, v1)
-            cv2 = GeometryOperators.v_points(fc, v2)
-            if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
-                n = [0, 0, 1]  # pragma: no cover
-            elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [0, 1, 0]  # pragma: no cover
-            elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
-                n = [1, 0, 0]  # pragma: no cover
-            else:
-                n = GeometryOperators.v_cross(cv1, cv2)
-
-            normal = GeometryOperators.normalize_vector(n)
-            if normal:
-                f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
-                f.write("  outer loop\n")
-                f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
-                f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
-                f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
-                f.write("  endloop\n")
-                f.write(" endfacet\n")
-
-        self.logger.info("Creating STL file with detected faces")
-        enable_stl_merge = False if enable_planar_merge == "False" or enable_planar_merge is False else True
-        output_stl = os.path.join(self._app.working_directory, self._app.design_name + "_tria.stl")
-        f = open(output_stl, "w")
-
-        def decimate(points_in, faces_in, stl_id):
-            fin = [[3] + list(i) for i in faces_in]
-            mesh = pv.PolyData(points_in, faces=fin)
-            new_mesh = mesh.decimate_pro(decimation, preserve_topology=True, boundary_vertex_deletion=False)
-            points_out = list(new_mesh.points)
-            faces_out = [i[1:] for i in new_mesh.faces.reshape(-1, 4) if i[0] == 3]
-            self.logger.info(
-                "Final decimation on object {}: {}%".format(
-                    stl_id, 100 * (len(faces_in) - len(faces_out)) / len(faces_in)
-                )
-            )
-            return points_out, faces_out
-
-        for tri_id, triangles in nas_to_dict["Triangles"].items():
-            tri_out = triangles
-            p_out = nas_to_dict["Points"][::]
-            if decimation > 0 and len(triangles) > 20:
-                try:
-                    import pyvista as pv
-
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, tri_id)
-                except Exception:
-                    self.logger.error("Package pyvista is needed to perform model simplification.")
-                    self.logger.error("Please install it using pip.")
-            f.write("solid Sheet_{}\n".format(tri_id))
-            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                enable_stl_merge = False
-            for triangle in tri_out:
-                _write_solid_stl(triangle, p_out)
-            f.write("endsolid\n")
-
-        for solidid, solid_triangles in nas_to_dict["Solids"].items():
-            f.write("solid Solid_{}\n".format(solidid))
-            import pandas as pd
-
-            df = pd.Series(solid_triangles)
-            tri_out = df.drop_duplicates(keep=False).to_list()
-            p_out = nas_to_dict["Points"][::]
-            if decimation > 0 and len(solid_triangles) > 20:
-                try:
-
-                    import pyvista as pv
-
-                    p_out, tri_out = decimate(nas_to_dict["Points"], tri_out, solidid)
-                except Exception:
-                    self.logger.error("Package pyvista is needed to perform model simplification.")
-                    self.logger.error("Please install it using pip.")
-            if enable_planar_merge == "Auto" and len(tri_out) > 50000:
-                enable_stl_merge = False
-            for triangle in tri_out:
-                _write_solid_stl(triangle, p_out)
-            f.write("endsolid\n")
-        f.close()
-        self.logger.info("STL file created")
-        return output_stl, enable_stl_merge
-
-    @pyaedt_function_handler()
     def import_nastran(
         self,
         file_path,
@@ -1338,95 +1080,124 @@ class Modeler3D(Primitives3D):
             True if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/DoAutoSave") == 1 else False
         )
         self._app.odesktop.EnableAutoSave(False)
-
-        nas_to_dict = self._parse_nastran(file_path)
-
         objs_before = [i for i in self.object_names]
-        if not (nas_to_dict["Triangles"] or nas_to_dict["Solids"] or nas_to_dict["Lines"]):
-            self.logger.error("Failed to import file. Check the model and retry")
-            return False
-        output_stl, enable_stl_merge = self._write_stl(nas_to_dict, decimation, enable_planar_merge)
-        if preview:
-            import pyvista as pv
 
-            pl = pv.Plotter(shape=(1, 2))
-            dargs = dict(show_edges=True, color=True)
-            p_out = nas_to_dict["Points"][::]
-            for triangles in nas_to_dict["Triangles"].values():
-                tri_out = triangles
-                fin = [[3] + list(i) for i in tri_out]
-                pl.add_mesh(pv.PolyData(p_out, faces=fin), **dargs)
-            for triangles in nas_to_dict["Solids"].values():
-                import pandas as pd
-
-                df = pd.Series(triangles)
-                tri_out = df.drop_duplicates(keep=False).to_list()
-                p_out = nas_to_dict["Points"][::]
-                fin = [[3] + list(i) for i in tri_out]
-                pl.add_mesh(pv.PolyData(p_out, faces=fin), **dargs)
-            pl.add_text("Input mesh", font_size=24)
-            pl.reset_camera()
-            pl.subplot(0, 1)
-            if output_stl:
-                pl.add_mesh(pv.read(output_stl), **dargs)
-            pl.add_text("Decimated mesh", font_size=24)
-            pl.reset_camera()
-            pl.link_views()
-            if "PYTEST_CURRENT_TEST" not in os.environ:
-                pl.show()
-        self.logger.info("STL files created in {}".format(output_stl))
+        output_stls, nas_to_dict, enable_stl_merge = nastran_to_stl(
+            input_file=file_path,
+            decimation=decimation,
+            output_folder=self._app.working_directory,
+            enable_planar_merge=enable_planar_merge,
+            preview=preview,
+        )
         if save_only_stl:
-            return output_stl
+            return output_stls
 
         self._app.odesktop.CloseAllWindows()
         self.logger.info("Importing STL in 3D Modeler")
-        if output_stl:
-            self.import_3d_cad(
-                output_stl,
-                create_lightweigth_part=import_as_light_weight,
-                healing=False,
-                merge_planar_faces=enable_stl_merge,
-            )
-        self.logger.info("Model imported")
-        if group_parts:
-            for el in nas_to_dict["Solids"].keys():
-                obj_names = [i for i in self.object_names if i.startswith("Solid_{}".format(el))]
-                self.create_group(obj_names, group_name=str(el))
-            objs = self.object_names[::]
-            for el in nas_to_dict["Triangles"].keys():
-                obj_names = [i for i in objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))]
-                self.create_group(obj_names, group_name=str(el))
-            self.logger.info("Parts grouped")
-
-        if import_lines and nas_to_dict["Lines"]:
-            for line_name, lines in nas_to_dict["Lines"].items():
-                if lines_thickness:
-                    self._app["x_section_{}".format(line_name)] = lines_thickness
-                polys = []
-                id = 0
-                for line in lines:
-                    try:
-                        points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
-                    except KeyError:
-                        continue
-                    if lines_thickness:
-                        polys.append(
-                            self.create_polyline(
-                                points,
-                                name="Poly_{}_{}".format(line_name, id),
-                                xsection_type="Circle",
-                                xsection_width="x_section_{}".format(line_name),
-                                xsection_num_seg=6,
-                            )
+        if output_stls:
+            for output_stl in output_stls:
+                self.import_3d_cad(
+                    output_stl,
+                    create_lightweigth_part=import_as_light_weight,
+                    healing=False,
+                    merge_planar_faces=enable_stl_merge,
+                )
+                self.logger.info("Model {} imported".format(os.path.split(output_stl)[-1]))
+            self._app.save_project()
+            if group_parts:
+                self.logger.info("Grouping parts...")
+                aedt_objs = self.object_names[::]
+                for assembly, _ in nas_to_dict["Assemblies"].items():
+                    assembly_group_name = assembly
+                    if assembly in self.oeditor.GetChildNames("Groups"):
+                        assembly_group_name = generate_unique_name(assembly, n=2)
+                    new_group = []
+                    for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
+                        obj_names = [i for i in aedt_objs if i.startswith("Solid_{}".format(el))]
+                        if obj_names:
+                            new_group.append(self.create_group(obj_names, group_name=str(el)))
+                    for el in nas_to_dict["Assemblies"][assembly]["Triangles"].keys():
+                        obj_names = [
+                            i for i in aedt_objs if i == "Sheet_{}".format(el) or i.startswith("Sheet_{}_".format(el))
+                        ]
+                        if obj_names:
+                            new_group.append(self.create_group(obj_names, group_name=str(el)))
+                    if assembly_group_name in self.oeditor.GetChildNames("Groups"):
+                        self.oeditor.MoveEntityToGroup(
+                            [
+                                "Groups:=",
+                                new_group,
+                            ],
+                            ["ParentGroup:=", assembly_group_name],
                         )
                     else:
-                        polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
-                    id += 1
+                        new_name = self.create_group(new_group, group_name=assembly_group_name)
+                        self.oeditor.MoveEntityToGroup(
+                            [
+                                "Groups:=",
+                                new_group,
+                            ],
+                            ["ParentGroup:=", new_name],
+                        )
+                self.logger.info("Parts grouped")
+                self._app.save_project()
 
-                if len(polys) > 1:
-                    out_poly = self.unite(polys, purge=not lines_thickness)
-                    if not lines_thickness and out_poly:
-                        self.generate_object_history(out_poly)
+        if import_lines:
+            if lines_thickness:
+                self._app["x_section_thickness"] = self._arg_with_dim(lines_thickness)
+            self.logger.info("Importing lines. This operation can take time....")
+            for assembly_name, assembly in nas_to_dict["Assemblies"].items():
+                if assembly["Lines"]:
+                    for line_name, lines in assembly["Lines"].items():
+                        polys = []
+                        id = 0
+                        for line in lines:
+                            try:
+                                # points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                                points = [nas_to_dict["Points"][i] for i in line]
+                            except KeyError:
+                                continue
+                            p_line = self.create_polyline(
+                                points,
+                                name="Poly_{}_{}".format(line_name, id),
+                                xsection_type="Circle" if lines_thickness else None,
+                                xsection_width="x_section_thickness" if lines_thickness else 1,
+                            )
+
+                            if p_line:
+                                polys.append(p_line)
+                            else:
+                                self.logger.warning("Failed to create Polyline as a union of segments.")
+                                self.logger.warning("Trying to create single segments.")
+                                for i in range(len(points) - 1):
+                                    p_line = self.create_polyline(
+                                        points[i : i + 2],
+                                        name=generate_unique_name("Poly_{}_{}".format(line_name, id)),
+                                        xsection_type="Circle" if lines_thickness else None,
+                                        xsection_width="x_section_thickness" if lines_thickness else 1,
+                                    )
+                                    if p_line:
+                                        polys.append(p_line)
+                            id += 1
+                        if group_parts:
+                            pids = [i.name for i in polys]
+                            if assembly_name in self.oeditor.GetChildNames("Groups"):
+                                self.oeditor.MoveEntityToGroup(
+                                    [
+                                        "Objects:=",
+                                        pids,
+                                    ],
+                                    ["ParentGroup:=", assembly_name],
+                                )
+                            else:
+                                group_name = self.create_group(pids, group_name=assembly_name)
+                                self.oeditor.MoveEntityToGroup(
+                                    [
+                                        "Objects:=",
+                                        pids,
+                                    ],
+                                    ["ParentGroup:=", group_name],
+                                )
             self.logger.info("Lines imported")
 
         objs_after = [i for i in self.object_names]
@@ -1583,33 +1354,33 @@ class Modeler3D(Primitives3D):
                     self[obj].color = color
         return scene
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(objects_list="assignment", segments_number="segments", mesh_sheets_number="mesh_sheets")
     def objects_segmentation(
         self,
-        objects_list,
+        assignment,
         segmentation_thickness=None,
-        segments_number=None,
+        segments=None,
         apply_mesh_sheets=False,
-        mesh_sheets_number=2,
+        mesh_sheets=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
         ----------
-        objects_list : list, str
+        assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
             a list of :class:`pyaedt.modeler.cad.object3d.Object3d` classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
-        segments_number : int, optional
+        segments : int, optional
             Number of segments to segment the object to. The default is ``None``.
         apply_mesh_sheets : bool, optional
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
-        mesh_sheets_number : int, optional
+        mesh_sheets : int, optional
             Number of mesh sheets within one magnet segment.
             If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
@@ -1627,37 +1398,35 @@ class Modeler3D(Primitives3D):
             segments that the object has been divided into.
             ``False`` is returned if the method fails.
         """
-        if not segmentation_thickness and not segments_number:
+        if not segmentation_thickness and not segments:
             self.logger.error("Provide at least one option to segment the objects in the list.")
             return False
-        elif segmentation_thickness and segments_number:
+        elif segmentation_thickness and segments:
             self.logger.error("Only one segmentation option can be selected.")
             return False
 
-        objects_list = self.convert_to_selections(objects_list, True)
+        assignment = self.convert_to_selections(assignment, True)
 
         segment_sheets = {}
         segment_objects = {}
-        for obj_name in objects_list:
+        for obj_name in assignment:
             obj = self[obj_name]
             obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
-            if segments_number:
-                segmentation_thickness = obj_axial_length / segments_number
+            if segments:
+                segmentation_thickness = obj_axial_length / segments
             elif segmentation_thickness:
-                segments_number = round(obj_axial_length / segmentation_thickness)
+                segments = round(obj_axial_length / segmentation_thickness)
             face_object = self.create_object_from_face(obj.bottom_face_z)
             # segment sheets
-            segment_sheets[obj.name] = face_object.duplicate_along_line(
-                ["0", "0", segmentation_thickness], segments_number
-            )
+            segment_sheets[obj.name] = face_object.duplicate_along_line(["0", "0", segmentation_thickness], segments)
             segment_objects[obj.name] = []
             for value in segment_sheets[obj.name]:
                 segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
             if apply_mesh_sheets:
-                mesh_sheets = {}
+                sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets + 1)
                 for i in range(len(segment_objects[obj.name]) + 1):
                     if i == 0:
                         face = obj.bottom_face_z
@@ -1665,11 +1434,9 @@ class Modeler3D(Primitives3D):
                         face = segment_objects[obj.name][i - 1].faces[0]
                     mesh_face_object = self.create_object_from_face(face)
                     self.move(mesh_face_object, [0, 0, mesh_sheet_position])
-                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
-                        [0, 0, mesh_sheet_position], mesh_sheets_number
-                    )
+                    sheets[obj.name] = mesh_face_object.duplicate_along_line([0, 0, mesh_sheet_position], mesh_sheets)
                 mesh_objects[obj.name] = [mesh_face_object]
-                for value in mesh_sheets[obj.name]:
+                for value in sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()
         if apply_mesh_sheets:
@@ -1769,16 +1536,16 @@ class Modeler3D(Primitives3D):
         except (GrpcApiError, SystemExit):
             return False
 
-    @pyaedt_function_handler
-    def change_region_coordinate_system(self, region_cs="Global", region_name="Region"):
+    @pyaedt_function_handler(region_cs="assignment", region_name="name")
+    def change_region_coordinate_system(self, assignment="Global", name="Region"):
         """
         Change region coordinate system.
 
         Parameters
         ----------
-        region_cs : str, optional
+        assignment : str, optional
             Region coordinate system. Default is ``Global``.
-        region_name : str optional
+        name : str optional
             Region name. Default is ``Region``.
 
         Returns
@@ -1791,11 +1558,11 @@ class Modeler3D(Primitives3D):
         >>> import pyaedt
         >>> app = pyaedt.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
-        >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
+        >>> app.modeler.change_region_coordinate_system(assignment="NewCS")
         """
         try:
-            create_region_name = self._app.get_oo_object(self._app.oeditor, region_name).GetChildNames()[0]
-            create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
-            return create_region.SetPropValue("Coordinate System", region_cs)
+            create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]
+            create_region = self._app.get_oo_object(self._app.oeditor, name + "/" + create_region_name)
+            return create_region.SetPropValue("Coordinate System", assignment)
         except (GrpcApiError, SystemExit):
             return False

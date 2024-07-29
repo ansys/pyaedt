@@ -1,4 +1,27 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import sys
 import warnings
@@ -44,10 +67,30 @@ __version__ = "0.10.dev0"
 version = __version__
 
 #
-
-import pyaedt.downloads as downloads
+if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
+    import pyaedt.downloads as downloads
+from pyaedt.edb import Edb  # nosec
+from pyaedt.edb import Siwave  # nosec
 from pyaedt.generic import constants
 import pyaedt.generic.DataHandlers as data_handler
+from pyaedt.generic.design_types import Circuit
+from pyaedt.generic.design_types import Desktop
+from pyaedt.generic.design_types import Emit
+from pyaedt.generic.design_types import FilterSolutions
+from pyaedt.generic.design_types import Hfss
+from pyaedt.generic.design_types import Hfss3dLayout
+from pyaedt.generic.design_types import Icepak
+from pyaedt.generic.design_types import Maxwell2d
+from pyaedt.generic.design_types import Maxwell3d
+from pyaedt.generic.design_types import MaxwellCircuit
+from pyaedt.generic.design_types import Mechanical
+from pyaedt.generic.design_types import Q2d
+from pyaedt.generic.design_types import Q3d
+from pyaedt.generic.design_types import Rmxprt
+from pyaedt.generic.design_types import Simplorer
+from pyaedt.generic.design_types import TwinBuilder
+from pyaedt.generic.design_types import get_pyaedt_app
+from pyaedt.generic.design_types import launch_desktop
 import pyaedt.generic.general_methods as general_methods
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_folder_name
@@ -60,30 +103,6 @@ from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import online_help
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
-
-try:
-    from pyaedt.generic.design_types import Hfss3dLayout
-except Exception:
-    from pyaedt.generic.design_types import Hfss3dLayout
-
-from pyaedt.generic.design_types import Circuit
-from pyaedt.generic.design_types import Desktop
-from pyaedt.generic.design_types import Edb
-from pyaedt.generic.design_types import Emit
-from pyaedt.generic.design_types import Hfss
-from pyaedt.generic.design_types import Icepak
-from pyaedt.generic.design_types import Maxwell2d
-from pyaedt.generic.design_types import Maxwell3d
-from pyaedt.generic.design_types import MaxwellCircuit
-from pyaedt.generic.design_types import Mechanical
-from pyaedt.generic.design_types import Q2d
-from pyaedt.generic.design_types import Q3d
-from pyaedt.generic.design_types import Rmxprt
-from pyaedt.generic.design_types import Simplorer
-from pyaedt.generic.design_types import Siwave
-from pyaedt.generic.design_types import TwinBuilder
-from pyaedt.generic.design_types import get_pyaedt_app
-from pyaedt.generic.design_types import launch_desktop
 from pyaedt.misc import current_student_version
 from pyaedt.misc import current_version
 from pyaedt.misc import installed_versions

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 
 from _unittest.conftest import desktop_version
@@ -77,7 +101,7 @@ class TestClass:
         assert setup1.props["SolveType"] == "MultiFrequency"
 
     def test_02_create_circuit_setup(self):
-        circuit = Circuit(specified_version=desktop_version)
+        circuit = Circuit(version=desktop_version)
         setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
@@ -228,7 +252,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="DXDOE",
+            optimization_type="DXDOE",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10)
@@ -255,7 +279,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables=None,
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 1, 10, 51)
@@ -263,7 +287,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -281,7 +305,7 @@ class TestClass:
             None,
             ranges=None,
             variables=None,
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 5, 10, 51)
@@ -289,7 +313,7 @@ class TestClass:
             None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -306,7 +330,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Sensitivity",
+            optimization_type="Sensitivity",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 3.2)
@@ -323,7 +347,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Statistical",
+            optimization_type="Statistical",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 0.3)

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 
 import pytest
@@ -286,8 +310,15 @@ class TestClass:
         assert test
         test = initial_object.edges[4].chamfer(chamfer_type=4)
         assert not test
-
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest2", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=3)
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest3", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[0].edges[0], chamfer_type=1)
+        initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ChamferTest4", "Copper")
+        assert initial_object.chamfer(edges=initial_object.faces[2].edges[0], chamfer_type=2)
 
     def test_11_fillet(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -296,7 +327,9 @@ class TestClass:
         test = initial_object.edges[0].fillet(radius=0.2)
         assert test
         test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
 
     def test_object_length(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "FilletTest", "Copper")
@@ -309,7 +342,9 @@ class TestClass:
         for i in range(0, 3):
             sum_sq += (end_point.position[i] - start_point.position[i]) ** 2
         assert isclose(math.sqrt(sum_sq), test_edge.length)
-        self.aedtapp.modeler.delete(initial_object)
+        self.aedtapp.modeler.delete(
+            initial_object,
+        )
 
     def test_12_set_color(self):
         initial_object = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "ColorTest")
@@ -336,7 +371,9 @@ class TestClass:
         initial_object.color = (255, "Invalid", 0)
         assert initial_object.color == (255, 0, 0)
 
-        self.aedtapp.modeler.delete("ColorTest")
+        self.aedtapp.modeler.delete(
+            "ColorTest",
+        )
 
     def test_print_object(self):
         o = self.create_copper_box()
@@ -547,7 +584,9 @@ class TestClass:
 
     def test_26a_delete_unclassified_object(self):
         unclassified = self.aedtapp.modeler.unclassified_objects
-        assert self.aedtapp.modeler.delete(unclassified)
+        assert self.aedtapp.modeler.delete(
+            unclassified,
+        )
         assert len(self.aedtapp.modeler.unclassified_objects) != unclassified
         assert len(self.aedtapp.modeler.unclassified_objects) == 0
 
@@ -590,7 +629,7 @@ class TestClass:
         assert box_clone_history.children["Rotate:1"].command == "Rotate"
         assert box_clone_history.children["SplitEdit:1"].command == "SplitEdit"
         project_path = self.aedtapp.project_file
-        self.aedtapp.close_project(save_project=True)
+        self.aedtapp.close_project(save=True)
         self.aedtapp.load_project(project_path)
         subtract = self.aedtapp.modeler["box_history1"].history().children["Subtract:1"].children
         assert len(subtract) == 1

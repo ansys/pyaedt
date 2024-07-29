@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """This module contains the ``MaxwellCircuit`` class."""
 
 from __future__ import absolute_import  # noreorder
@@ -15,25 +39,25 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
     Parameters
     ----------
-    projectname : str, optional
+    project : str, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
         projects are present, an empty project is created.
-    designname : str, optional
+    design : str, optional
         Name of the design to select. The default is ``None``, in
         which case an attempt is made to get an active design. If no
         designs are present, an empty design is created.
-    specified_version : str, int, float, optional
+    version : str, int, float, optional
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
         Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
-    non-graphical : bool, optional
+    non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
         This parameter is ignored when a script is launched within AEDT.
-    new_desktop_session : bool, optional
+    new_desktop : bool, optional
         Whether to launch an instance of AEDT in a new thread, even if
         another instance of the ``specified_version`` is active on the
         machine. The default is ``False``.
@@ -52,7 +76,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         later. The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     aedt_process_id : int, optional
         Process ID for the instance of AEDT to point PyAEDT at. The default is
-        ``None``. This parameter is only used when ``new_desktop_session = False``.
+        ``None``. This parameter is only used when ``new_desktop = False``.
+    remove_lock : bool, optional
+        Whether to remove lock to project before opening it or not.
+        The default is ``False``, which means to not unlock
+        the existing project if needed and raise an exception.
 
     Examples
     --------
@@ -80,41 +108,50 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     >>> app = MaxwellCircuit("myfile.aedt")
     """
 
+    @pyaedt_function_handler(
+        designname="design",
+        projectname="project",
+        specified_version="version",
+        setup_name="setup",
+        new_desktop_session="new_desktop",
+    )
     def __init__(
         self,
-        projectname=None,
-        designname=None,
+        project=None,
+        design=None,
         solution_type=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         """Constructor."""
         AnalysisMaxwellCircuit.__init__(
             self,
             "Maxwell Circuit",
-            projectname,
-            designname,
-            specified_version,
+            project,
+            design,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
-    @pyaedt_function_handler()
-    def create_schematic_from_netlist(self, file_to_import):
+    @pyaedt_function_handler(file_to_import="input_file")
+    def create_schematic_from_netlist(self, input_file):
         """Create a circuit schematic from an HSpice net list.
 
         Supported currently are:
@@ -126,7 +163,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
         Parameters
         ----------
-        file_to_import : str
+        input_file : str
             Full path to the HSpice file.
 
         Returns
@@ -139,7 +176,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open_file(file_to_import, "r") as f:
+        with open_file(input_file, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")
@@ -182,13 +219,13 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                         ypos = 0
         return True
 
-    @pyaedt_function_handler
-    def export_netlist_from_schematic(self, file_to_export):
+    @pyaedt_function_handler(file_to_export="output_file")
+    def export_netlist_from_schematic(self, output_file):
         """Create netlist from schematic circuit.
 
         Parameters
         ----------
-        file_to_export : str
+        output_file : str
             File path to export the netlist to.
 
         Returns
@@ -197,11 +234,11 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             Netlist file path when successful, ``False`` when failed.
 
         """
-        if os.path.splitext(file_to_export)[1] != ".sph":
+        if os.path.splitext(output_file)[1] != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:
-            self.odesign.ExportNetlist("", file_to_export)
-            return file_to_export
+            self.odesign.ExportNetlist("", output_file)
+            return output_file
         except Exception:
             return False

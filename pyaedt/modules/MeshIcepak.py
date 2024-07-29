@@ -1,5 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 from abc import abstractmethod
 from collections import OrderedDict
+import os.path
 import warnings
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -255,11 +279,12 @@ class CommonRegion(object):
         ::class::modeler.cad.object3d.Object3d
         """
         if isinstance(self, Region):
-            return {
-                "CreateRegion": oo
-                for o, oo in self._app.modeler.objects_by_name.items()
-                if oo.history().command == "CreateRegion"
-            }.get("CreateRegion", None)
+            # use native apis instead of history() for performance reasons
+            for o, oo in self._app.modeler.objects_by_name.items():
+                child_names = self._app.oeditor.GetChildObject(o).GetChildNames()
+                if child_names and child_names[0].startswith("CreateRegion"):
+                    return oo
+            return None
         else:
             return self._app.modeler.objects_by_name.get(self._name, None)
 
@@ -310,6 +335,8 @@ class CommonRegion(object):
 
 
 class Region(CommonRegion):
+    """Provides Icepak global mesh region properties and methods."""
+
     def __init__(self, app):
         super(Region, self).__init__(app, None)
         try:
@@ -319,6 +346,8 @@ class Region(CommonRegion):
 
 
 class SubRegion(CommonRegion):
+    """Provides Icepak mesh subregions properties and methods."""
+
     def __init__(self, app, parts, name=None):
         if name is None:
             name = generate_unique_name("SubRegion")
@@ -633,15 +662,28 @@ class MeshRegionCommon(object):
             return self.__dict__[name]
 
     def __setattr__(self, name, value):
-        if "settings" in self.__dict__ and name in self.settings:
+        if ("settings" in self.__dict__) and (name in self.settings):
             self.settings[name] = value
         elif name == "UserSpecifiedSettings":
             self.__dict__["manual_settings"] = value
+        elif (
+            ("settings" in self.__dict__)
+            and not (name in self.settings)
+            and name
+            not in ["manual_settings", "settings", "_name", "_model_units", "_app", "_assignment", "enable", "name"]
+        ):
+            self._app.logger.error(
+                "Setting name {} is not available. Available parameters are: {}.".format(
+                    name, ", ".join(self.settings.keys())
+                )
+            )
         else:
             super(MeshRegionCommon, self).__setattr__(name, value)
 
 
 class GlobalMeshRegion(MeshRegionCommon):
+    """Provides Icepak global mesh properties and methods."""
+
     def __init__(self, app):
         self.global_region = Region(app)
         super(GlobalMeshRegion, self).__init__(
@@ -674,6 +716,8 @@ class GlobalMeshRegion(MeshRegionCommon):
         args = ["NAME:Settings"]
         args += self.settings.parse_settings_as_args()
         args += ["UserSpecifiedSettings:=", self.manual_settings]
+        if self.global_region.object:
+            args += ["Objects:=", [self.global_region.object.name]]
         try:
             self._app.omeshmodule.EditGlobalMeshRegion(args)
             return True
@@ -704,6 +748,8 @@ class GlobalMeshRegion(MeshRegionCommon):
 
 
 class MeshRegion(MeshRegionCommon):
+    """Provides Icepak subregions mesh properties and methods."""
+
     def __init__(self, app, objects=None, name=None, **kwargs):
         if name is None:
             name = generate_unique_name("MeshRegion")
@@ -712,6 +758,7 @@ class MeshRegion(MeshRegionCommon):
             app,
             name,
         )
+        self._assignment = None
         self.enable = True
         if settings.aedt_version > "2023.2" and objects is not None:
             if not isinstance(objects, list):
@@ -1043,30 +1090,31 @@ class IcepakMesh(object):
     def _get_design_mesh_operations(self):
         """Retrieve design mesh operations."""
         meshops = []
+        dp = self._app.design_properties
         try:
             if settings.aedt_version > "2023.2":
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]:
-                    if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
-                        if self._app.design_properties["MeshRegion"]["MeshSetup"][ds]["DType"] == "OpT":
+                for ds in dp["MeshRegion"]["MeshSetup"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                        if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "OpT":
                             meshops.append(
                                 MeshOperation(
                                     self,
                                     ds,
-                                    self._app.design_properties["MeshRegion"]["MeshSetup"][ds],
+                                    dp["MeshRegion"]["MeshSetup"][ds],
                                     "Icepak",
                                 )
                             )
-            else:
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"]:
+            else:  # pragma: no cover
+                for ds in dp["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                     if isinstance(
-                        self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                        dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                         (OrderedDict, dict),
                     ):
                         meshops.append(
                             MeshOperation(
                                 self,
                                 ds,
-                                self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
+                                dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
                                 "Icepak",
                             )
                         )
@@ -1084,26 +1132,26 @@ class IcepakMesh(object):
     def _get_design_mesh_regions(self):
         """Retrieve design mesh regions."""
         meshops = []
+        dp = self._app.design_properties
         try:
             if settings.aedt_version > "2023.2":
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]:
-                    if isinstance(self._app.design_properties["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
-                        if self._app.design_properties["MeshRegion"]["MeshSetup"][ds]["DType"] == "RegionT":
-                            dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"][ds]
+                for ds in dp["MeshRegion"]["MeshSetup"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                        if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "RegionT":
+                            dict_prop = dp["MeshRegion"]["MeshSetup"][ds]
                             if ds == "Global":
                                 meshop = GlobalMeshRegion(self._app)
                             else:
                                 meshop = MeshRegion(self._app, None, ds)
+                            meshop.manual_settings = dict_prop["UserSpecifiedSettings"]
                             for el in dict_prop:
-                                if el in meshop.__dict__:
-                                    meshop.__dict__[el] = dict_prop[el]
+                                if el in meshop.settings.keys():
+                                    meshop.settings[el] = dict_prop[el]
                             meshops.append(meshop)
-            else:
-                for ds in self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"]:
-                    if isinstance(
-                        self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
-                    ):
-                        dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
+            else:  # pragma: no cover
+                for ds in dp["MeshRegion"]["MeshSetup"]["MeshRegions"]:
+                    if isinstance(dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)):
+                        dict_prop = dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                         if ds == "Global":
                             meshop = GlobalMeshRegion(self._app)
                         else:
@@ -1313,13 +1361,13 @@ class IcepakMesh(object):
         if not assignment or not isinstance(assignment, list) or not isinstance(assignment[0], list):
             raise AttributeError("``assignment`` input must be a list of lists.")
         props = {"PriorityListParameters": []}
+        self._app.logger.info("Parsing input objects information for priority assignment. This operation can take time")
+        udc = self.modeler.user_defined_components
+        udc._parse_objs()
         for level, objects in enumerate(assignment):
             level += 1
             if isinstance(objects[0], str):
-                objects = [
-                    self.modeler.objects_by_name.get(o, self.modeler.user_defined_components.get(o, None))
-                    for o in objects
-                ]
+                objects = [self.modeler.objects_by_name.get(o, udc.get(o, None)) for o in objects]
             obj_3d = [
                 o
                 for o in objects
@@ -1359,6 +1407,7 @@ class IcepakMesh(object):
                     raise AttributeError("Cannot assign components and parts on the same level.")
                 props["PriorityListParameters"].append(level_2d)
         props = {"UpdatePriorityListData": props}
+        self._app.logger.info("Input objects information for priority assignment completed.")
         args = []
         _dict2arg(props, args)
         self.modeler.oeditor.UpdatePriorityList(args[0])
@@ -1519,7 +1568,7 @@ class IcepakMesh(object):
             assignment = [i for i in self.modeler.object_names]
         meshregion = MeshRegion(self._app, assignment, name)
         meshregion.manual_settings = False
-        meshregion.Level = level
+        meshregion.settings["MeshRegionResolution"] = level
         all_objs = [i for i in self.modeler.object_names]
         created = bool(meshregion)
         if created:
@@ -1600,6 +1649,7 @@ class IcepakMesh(object):
             for el in self.meshoperations:
                 if el.name == name:
                     name = generate_unique_name(name)
+                    break
         else:
             name = generate_unique_name("MeshLevel")
         props = OrderedDict(
@@ -1610,6 +1660,48 @@ class IcepakMesh(object):
                 "Groups": [str(group_name)],
                 "Local Mesh Parameters Type": local_mesh_parameters,
             }
+        )
+        mop = MeshOperation(self, name, props, "Icepak")
+        mop.create()
+        self.meshoperations.append(mop)
+        return mop
+
+    def assign_mesh_reuse(self, assignment, mesh_file, name=None):
+        """Assign a mesh file to objects.
+
+        Parameters
+        ----------
+        assignment : str or list
+            Names of objects to which the mesh file is assignment.
+        mesh_file : str
+            Path to the mesh file.
+        name : str, optional
+            Name of the mesh operation. The default is ``None``, in which case it will be
+            generated automatically.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Mesh.MeshOperation`
+
+        References
+        ----------
+
+        >>> oModule.AssignMeshOperation
+        """
+        if not os.path.exists(mesh_file):
+            self._app.logger.error("Mesh file does not exist.")
+            return False
+        if name:
+            for el in self.meshoperations:
+                if el.name == name:
+                    name = generate_unique_name(name)
+                    break
+        else:
+            name = generate_unique_name("MeshReuse")
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+        props = OrderedDict(
+            {"Enable": True, "Mesh Reuse Enabled": True, "Mesh Reuse File": mesh_file, "Objects": assignment}
         )
         mop = MeshOperation(self, name, props, "Icepak")
         mop.create()

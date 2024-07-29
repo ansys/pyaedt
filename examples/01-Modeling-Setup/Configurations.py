@@ -55,8 +55,8 @@ non_graphical = False
 
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(projectname=project_full_name, specified_version=aedt_version,
-                    new_desktop_session=True, non_graphical=non_graphical)
+ipk = pyaedt.Icepak(project=project_full_name, version=aedt_version,
+                    new_desktop=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
 ###############################################################################
@@ -97,8 +97,8 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 filename = ipk.design_name
 file_path = os.path.join(ipk.working_directory, filename + ".step")
-ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", object_list=[],
-                    removed_objects=[])
+ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", assignment_to_export=[],
+                    assignment_to_remove=[])
 
 ###############################################################################
 # Export configuration files
@@ -115,7 +115,7 @@ ipk.close_project()
 # ~~~~~~~~~~~~~~
 # Create an Icepak project and import the step.
 
-app = pyaedt.Icepak(projectname="new_proj_Ipk")
+app = pyaedt.Icepak(project="new_proj_Ipk")
 app.modeler.import_3d_cad(file_path)
 
 ###############################################################################

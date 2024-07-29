@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +39,7 @@ def get_process_id():
 
 
 def get_port():
-    """Get GRPC port from environment variable."""
+    """Get gRPC port from environment variable."""
     port = 0
     if "PYAEDT_SCRIPT_PORT" in os.environ:
         port = int(os.environ["PYAEDT_SCRIPT_PORT"])

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these data classes for creating a material library:
 
@@ -436,11 +460,20 @@ class MatProperty(object):
 
         >>> oDefinitionManager.EditMaterial
         """
-        if isinstance(thermal_value, str):
+        if thermal_value is None:
+            self._property_value[0].thermalmodifier = None
+            self._reset_thermal_modifier()
+        elif isinstance(thermal_value, str):
+            self._property_value[0].thermalmodifier = thermal_value
             self._add_thermal_modifier(thermal_value, 0)
         else:
-            for i in thermal_value:
-                self._add_thermal_modifier(i, thermal_value.index(i))
+            for i, value in enumerate(thermal_value):
+                self._add_thermal_modifier(value, i)
+                try:
+                    self._property_value[i].thermalmodifier = value
+                except IndexError:
+                    self._property_value.append(BasicValue())
+                    self._property_value[i].thermalmodifier = value
 
     def _add_thermal_modifier(self, formula, index):
         """Add a thermal modifier.
@@ -460,6 +493,10 @@ class MatProperty(object):
         if (
             "ModifierData" not in self._material._props
             or "ThermalModifierData" not in self._material._props["ModifierData"]
+            or (
+                "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
+                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+            )
         ):
             tm = OrderedDict(
                 {
@@ -578,6 +615,35 @@ class MatProperty(object):
                     ].append(tm)
         return self._material.update()
 
+    def _reset_thermal_modifier(self):
+        """Set the thermal modifier to None.
+
+        Returns
+        -------
+        type
+
+        """
+        if "ModifierData" in self._material._props and "ThermalModifierData" in self._material._props["ModifierData"]:
+            if (
+                "ModifierData" in self._material._props
+                and "SpatialModifierData" in self._material._props["ModifierData"]
+            ):
+                self._material._props["ModifierData"] = {
+                    "SpatialModifierData": self._material._props["ModifierData"]["SpatialModifierData"],
+                    "ThermalModifierData": {
+                        "modifier_data": "thermal_modifier_data",
+                        "all_thermal_modifiers": None,
+                    },
+                }
+            else:
+                self._material._props["ModifierData"] = {
+                    "ThermalModifierData": {
+                        "modifier_data": "thermal_modifier_data",
+                        "all_thermal_modifiers": None,
+                    }
+                }
+        return self._material.update()
+
     @pyaedt_function_handler()
     def add_thermal_modifier_free_form(self, formula, index=0):
         """Add a thermal modifier to a material property using a free-form formula.
@@ -603,7 +669,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_free_form("if(Temp > 1000cel, 1, if(Temp < -273.15cel, 1, 1))")
         """
@@ -636,7 +702,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
@@ -693,7 +759,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
         """
@@ -749,6 +815,10 @@ class MatProperty(object):
         if (
             "ModifierData" not in self._material._props
             or "ThermalModifierData" not in self._material._props["ModifierData"]
+            or (
+                "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
+                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+            )
         ):
             if (
                 "ModifierData" in self._material._props
@@ -852,7 +922,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2023.2")
+        >>> hfss = Hfss(version="2023.2")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")
@@ -910,11 +980,20 @@ class MatProperty(object):
 
         >>> oDefinitionManager.EditMaterial
         """
-        if isinstance(spatial_value, str):
+        if spatial_value is None:
+            self._property_value[0].spatialmodifier = None
+            self._reset_spatial_modifier()
+        elif isinstance(spatial_value, str):
+            self._property_value[0].spatialmodifier = spatial_value
             self._add_spatial_modifier(spatial_value, 0)
         else:
-            for i in spatial_value:
-                self._add_spatial_modifier(i, spatial_value.index(i))
+            for i, value in enumerate(spatial_value):
+                self._add_spatial_modifier(value, i)
+                try:
+                    self._property_value[i].spatialmodifier = value
+                except IndexError:
+                    self._property_value.append(BasicValue())
+                    self._property_value[i].spatialmodifier = value
 
     def _add_spatial_modifier(self, formula, index):
         """Add a spatial modifier.
@@ -934,6 +1013,10 @@ class MatProperty(object):
         if (
             "ModifierData" not in self._material._props
             or "SpatialModifierData" not in self._material._props["ModifierData"]
+            or (
+                "all_spatial_modifiers" in self._material._props["ModifierData"]["SpatialModifierData"]
+                and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
+            )
         ):
             sm = OrderedDict(
                 {
@@ -1025,6 +1108,35 @@ class MatProperty(object):
                     ].append(sm)
         return self._material.update()
 
+    def _reset_spatial_modifier(self):
+        """Set the spatial modifier to None.
+
+        Returns
+        -------
+        type
+
+        """
+        if "ModifierData" in self._material._props and "SpatialModifierData" in self._material._props["ModifierData"]:
+            if (
+                "ModifierData" in self._material._props
+                and "ThermalModifierData" in self._material._props["ModifierData"]
+            ):
+                self._material._props["ModifierData"] = {
+                    "ThermalModifierData": self._material._props["ModifierData"]["ThermalModifierData"],
+                    "SpatialModifierData": {
+                        "modifier_data": "spatial_modifier_data",
+                        "all_spatial_modifiers": None,
+                    },
+                }
+            else:
+                self._material._props["ModifierData"] = {
+                    "SpatialModifierData": {
+                        "modifier_data": "spatial_modifier_data",
+                        "all_spatial_modifiers": None,
+                    }
+                }
+        return self._material.update()
+
     @pyaedt_function_handler()
     def add_spatial_modifier_free_form(self, formula, index=0):
         """Add a spatial modifier to a material property using a free-form formula.
@@ -1050,7 +1162,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_free_form("if(X > 1mm, 1, if(X < 1mm, 2, 1))")
         """
@@ -1083,7 +1195,7 @@ class MatProperty(object):
         --------
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_spatial_modifier_dataset("$ds1")
         """
@@ -1384,7 +1496,7 @@ class Material(CommonMaterial, object):
         Create a material with color ``[0, 153, 153]`` (darker cyan) and transparency ``0.5``.
 
         >>> from pyaedt import Hfss
-        >>> hfss = Hfss(specified_version="2021.2")
+        >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_material")
         >>> appearance_props = mat1.material_appearance
         >>> mat1.material_appearance = [0, 153, 153, 0.5]

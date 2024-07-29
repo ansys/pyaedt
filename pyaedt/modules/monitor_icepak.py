@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import re
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -74,13 +98,16 @@ class Monitor:
             self.quantities_dict = quantities_dict_2
         else:
             self.quantities_dict = quantities_dict_1
-        self._omonitor = self._app.odesign.GetModule("Monitor")
         if self._app.design_properties:  # if is not a 3d comp/blank file
             aedtfile_monitor_dict = self._app.design_properties["Monitor"]["IcepakMonitors"].copy()
             del aedtfile_monitor_dict["NextUniqueID"]
             del aedtfile_monitor_dict["MoveBackwards"]
             if aedtfile_monitor_dict:
                 self._load_monitor_objects(aedtfile_monitor_dict)
+
+    @property
+    def _omonitor(self):
+        return self._app.omonitor
 
     @pyaedt_function_handler
     def _find_point(self, position):

@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """
 This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
@@ -17,12 +41,12 @@ import re
 import string
 import tempfile
 
-from pyaedt import is_ironpython
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _dict_items_to_list_items
 from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
@@ -921,23 +945,27 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def available_quantities_categories(
-        self, report_category=None, display_type=None, solution=None, context="", is_siwave_dc=False
+        self, report_category=None, display_type=None, solution=None, context=None, is_siwave_dc=False
     ):
         """Compute the list of all available report categories.
 
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is `None` which will take first default category.
+            Report category. The default is ``None``, in which case the first default category is used.
         display_type : str, optional
-            Report Display Type.
-            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+            Report display type. The default is ``None``, in which case the first default type
+             is used. In most cases, this default type is ``"Rectangular Plot"``.
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
-        context : str, optional
-            Report Category. Default is `""` which will take first default context.
+            Report setup. The default is ``None``, in which case the first
+            nominal adaptive solution is used.
+        context : str, dict, optional
+            Report category. The default is ``None``, in which case the first default context
+            is used. For Maxwell 2D/3D eddy current solution types, the report category
+            can be provided as a dictionary, where the key is the matrix name and the value
+            the reduced matrix.
         is_siwave_dc : bool, optional
-            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+            Whether the setup is Siwave DCIR. The default is ``False``.
 
         Returns
         -------
@@ -970,7 +998,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:  # pragma: no cover
             context = ""
 
@@ -985,7 +1020,7 @@ class PostProcessorCommon(object):
         display_type=None,
         solution=None,
         quantities_category=None,
-        context="",
+        context=None,
         is_siwave_dc=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
@@ -993,17 +1028,23 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. The default is ``None``, in which case the default category is used.
         display_type : str, optional
             Report Display Type.
-            Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
+            The default is ``None``, in which case the default type is used.
+            In most of the cases the default type is "Rectangular Plot".
         solution : str, optional
-            Report Setup. Default is `None` which will take first nominal_adaptive solution.
+            Report Setup.
+            The default is ``None``, in which case the first nominal adaptive solution is used.
         quantities_category : str, optional
-            The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
-            Default is ``None`` which will take first default quantity.".
-        context : str, optional
-            Report Context. Default is ``""`` which will take first default context.
+            The category that the quantities belong to.
+            It must be one of the ``available_quantities_categories`` method.
+            The default is ``None``, in which case the first default quantity is used.
+        context : str, dict, optional
+            Report Context.
+            The default is ``None``, in which case the default context is used.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
@@ -1014,6 +1055,26 @@ class PostProcessorCommon(object):
         References
         ----------
         >>> oModule.GetAllQuantities
+
+        Examples
+        --------
+        The example shows how to get report expressions for a Maxwell design with Eddy current solution.
+        The context has to be provided as a dictionary where the key is the name of the original matrix
+        and the value is the name of the reduced matrix.
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         if not report_category:
             report_category = self.available_report_types[0]
@@ -1038,7 +1099,14 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
-
+        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    context = ["Context:=", k, "Matrix:=", v]
+            elif context and isinstance(context, str):
+                context = ["Context:=", context]
+            elif not context:
+                context = ""
         elif not context:
             context = ""
         if not quantities_category:
@@ -1063,7 +1131,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is ``None`` which will take first default category.
+            Report Category. Default is ``None`` which takes default category.
 
         Returns
         -------
@@ -1195,7 +1263,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         plot_name : str, optional
-            Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
+            Name of the plot to delete. The default  value is ``None`` and in this case, all reports are deleted.
 
         Returns
         -------
@@ -1434,7 +1502,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         project_dir : str
-            Path to the project directory. The csv file will be plot_name.csv.
+            Path to the project directory. The CSV file is plot_name.csv.
         plot_name : str
             Name of the plot to export.
         uniform : bool, optional
@@ -1703,20 +1771,22 @@ class PostProcessorCommon(object):
         secondary_sweep_variable : str, optional
             Name of the secondary sweep variable in 3D Plots.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If `None` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
-        context : str, optional
+        context : str, dict, optional
             The default is ``None``.
             - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
               ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
             - For Q2D or Q3D, specify the name of a reduced matrix.
             - For a far fields plot, specify the name of an infinite sphere.
+            - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1724,7 +1794,6 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        context : str, optional
 
         Returns
         -------
@@ -1754,8 +1823,8 @@ class PostProcessorCommon(object):
         ...                            report_category="Far Fields",
         ...                            plot_type="3D Polar Plot",
         ...                            context="3D")
-
         >>> hfss.post.create_report("S(1,1)",hfss.nominal_sweep,variations=variations,plot_type="Smith Chart")
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1763,6 +1832,27 @@ class PostProcessorCommon(object):
         ...                               domain="Time",
         ...                               primary_sweep_variable="Time",
         ...                               plot_name="Winding Plot 1")
+        >>> m2d.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> report = m3d.post.create_report(
+        ...    expressions=expressions,
+        ...    context={"Matrix1": "ReducedMatrix1"},
+        ...    plot_type="Data Table",
+        ...    plot_name="reduced_matrix")
+        >>> m3d.release_desktop(False, False)
         """
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
@@ -1836,6 +1926,19 @@ class PostProcessorCommon(object):
             ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            elif context in self.modeler.line_names or context in self.modeler.point_names:
+                report.polyline = context
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
@@ -1883,7 +1986,7 @@ class PostProcessorCommon(object):
         ----------
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value ``"dB(S(1,1))"`` or a list of values.
-            Default is `None` which will return all traces.
+            Default is ``None`` which returns all traces.
         setup_sweep_name : str, optional
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
             setup is used. Be sure to build a setup string in the form of
@@ -1893,21 +1996,21 @@ class PostProcessorCommon(object):
             Plot Domain. Options are "Sweep" for frequency domain related results and "Time" for transient related data.
         variations : dict, optional
             Dictionary of all families including the primary sweep.
-            The default is ``None`` which will use the nominal variations of the setup.
+            The default is ``None`` which uses the nominal variations of the setup.
         primary_sweep_variable : str, optional
             Name of the primary sweep. The default is ``"None"`` which, depending on the context,
-            will internally assign the primary sweep to:
+            internally assigns the primary sweep to:
             1. ``Freq`` for frequency domain results,
             2. ``Time`` for transient results,
             3. ``Theta`` for radiation patterns,
             4. ``distance`` for field plot over a polyline.
         report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
+            Category of the Report to be created. If ``None`` default data Report is used.
             The Report Category can be one of the types available for creating a report depend on the simulation setup.
             For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
+            The report category is "Far Fields" in this case.
             Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
+            If ``None`` default category is used (the first item in the Results drop down menu in AEDT).
             To get the list of available categories user can use method ``available_report_types``.
         context : str, dict, optional
             This is the context of the report.
@@ -1917,6 +2020,8 @@ class PostProcessorCommon(object):
             3. Reduce Matrix Name for Q2d/Q3d solution
             4. Infinite Sphere name for Far Fields Plot.
             5. Dictionary. If dictionary is passed, key is the report property name and value is property value.
+            6. For Maxwell 2D/3D eddy current solution types, this can be provided as a dictionary,
+            where the key is the matrix name and value the reduced matrix.
         subdesign_id : int, optional
             Subdesign ID for exporting a Touchstone file of this subdesign.
             This parameter is valid for ``Circuit`` only.
@@ -1963,6 +2068,7 @@ class PostProcessorCommon(object):
         ...    variations=variations,
         ...)
         >>> data2.plot()
+        >>> hfss.release_desktop(False, False)
 
         >>> from pyaedt import Maxwell2d
         >>> m2d = Maxwell2d()
@@ -1970,12 +2076,30 @@ class PostProcessorCommon(object):
         ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
+        >>> m2d.release_desktop(False, False)
 
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
         >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
         ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> circuit.release_desktop(False, False)
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
+        >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
+        >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
+        >>> m3d.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
+        >>> m3d.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
+        >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
+        >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
+        ...                                                    display_type="Data Table",
+        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
+        >>> m3d.release_desktop(False, False)
         """
         expressions = [expressions] if isinstance(expressions, str) else expressions
         if not setup_sweep_name:
@@ -2027,6 +2151,23 @@ class PostProcessorCommon(object):
             report.differential_pairs = True
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
+        elif (
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type == "EddyCurrent"
+            and context
+        ):
+            if isinstance(context, dict):
+                for k, v in context.items():
+                    report.matrix = k
+                    report.reduced_matrix = v
+            elif (
+                hasattr(self.modeler, "line_names")
+                and hasattr(self.modeler, "point_names")
+                and context in self.modeler.point_names + self.modeler.line_names
+            ):
+                report.polyline = context
+            else:
+                report.matrix = context
         elif report_category == "Far Fields":
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
@@ -2102,6 +2243,14 @@ class PostProcessorCommon(object):
             props = read_configuration_file(input_file)
         else:
             props = report_settings
+        if (
+            isinstance(props.get("expressions", {}), list)
+            and props["expressions"]
+            and isinstance(props["expressions"][0], str)
+        ):  # pragma: no cover
+            props["expressions"] = {i: {} for i in props["expressions"]}
+        elif isinstance(props.get("expressions", {}), str):  # pragma: no cover
+            props["expressions"] = {props["expressions"]: {}}
         _dict_items_to_list_items(props, "expressions")
         if not solution_name:
             solution_name = self._app.nominal_sweep
@@ -2459,9 +2608,17 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
@@ -2489,7 +2646,27 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterVol
         >>> oModule.ClcEval
         >>> GetTopEntryValue
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is explicitly provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is automatically computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting {} field. Be patient".format(quantity))
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -2530,19 +2707,7 @@ class PostProcessor(PostProcessorCommon, object):
             variation.append(el + ":=")
             variation.append(value)
 
-        if intrinsics:
-            if "Transient" in solution:  # pragma: no cover
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:  # pragma: no cover
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+        variation.extend(intrinsics)
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
@@ -2614,9 +2779,17 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``[0, 0, 0]``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
@@ -2656,6 +2829,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
         if grid_start is None:
@@ -2712,20 +2887,7 @@ class PostProcessor(PostProcessorCommon, object):
         for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
-
-        if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+        variation.extend(intrinsics)
 
         export_options = [
             "NAME:ExportOption",
@@ -2758,7 +2920,7 @@ class PostProcessor(PostProcessorCommon, object):
     @pyaedt_function_handler(
         quantity_name="quantity",
         variation_dict="variations",
-        filename="output_dir",
+        filename="output_file",
         obj_list="assignment",
         obj_type="objects_type",
         sample_points_lists="sample_points",
@@ -2768,7 +2930,7 @@ class PostProcessor(PostProcessorCommon, object):
         quantity,
         solution=None,
         variations=None,
-        output_dir=None,
+        output_file=None,
         assignment="AllObjects",
         objects_type="Vol",
         intrinsics=None,
@@ -2784,7 +2946,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity :
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution: sweep"``.
@@ -2792,20 +2954,29 @@ class PostProcessor(PostProcessorCommon, object):
         variations : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        output_dir : str, optional
+        output_file : str, optional
             Full path and name to save the file to.
-            The default is ``None`` which export file in working_directory.
+            The default is ``None`` which export a file named ``"<setup_name>.fld"`` in working_directory.
         assignment : str, optional
             List of objects to export. The default is ``"AllObjects"``.
         objects_type : str, optional
             Type of objects to export. The default is ``"Vol"``.
             Options are ``"Surf"`` for surface and ``"Vol"`` for
             volume.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
+            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points : list, optional
@@ -2838,19 +3009,40 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterVol
         >>> oModule.CalculatorWrite
         >>> oModule.ExportToFile
+
+        Examples
+        --------
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> # Intrinsics is provided as a string.
+        >>> fld_file1 = "test_fld_hfss1.fld"
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
+        >>>                                 intrinsics="1GHz", phase="5deg")
+        >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
+        >>> fld_file2 =  "test_fld_hfss2.fld"
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                intrinsics={"frequency":"1GHz"})
+        >>> # Intrinsics is provided as dictionary. Phase is provided.
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                 intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        >>> # Intrinsics is not provided. It is computed from the setup arguments.
+        >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                     )
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
                 self.logger.error("There are no existing sweeps.")
                 return False
             solution = self._app.existing_analysis_sweeps[0]
-        if not output_dir:
+        if not output_file:
             appendix = ""
             ext = ".fld"
-            output_dir = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            output_file = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
         else:
-            output_dir = output_dir.replace("//", "/").replace("\\", "/")
+            output_file = output_file.replace("//", "/").replace("\\", "/")
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -2864,30 +3056,24 @@ class PostProcessor(PostProcessorCommon, object):
         for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
+        variation.extend(intrinsics)
 
-        if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)
             elif objects_type == "Surf":
                 self.ofieldsreporter.EnterSurf(assignment)
+            elif objects_type == "Line":
+                self.ofieldsreporter.EnterLine(assignment)
             else:
                 self.logger.error("No correct choice.")
                 return False
             self.ofieldsreporter.CalcOp("Value")
-            self.ofieldsreporter.CalculatorWrite(output_dir, ["Solution:=", solution], variation)
+            if objects_type == "Line":
+                args = ["Solution:=", solution, "Geometry:=", assignment, "GeometryType:=", objects_type]
+            else:
+                args = ["Solution:=", solution]
+            self.ofieldsreporter.CalculatorWrite(output_file, args, variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -2901,7 +3087,7 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_dir,
+                output_file,
                 sample_points_file,
                 solution,
                 variation,
@@ -2925,15 +3111,15 @@ class PostProcessor(PostProcessorCommon, object):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_dir,
+                output_file,
                 sample_points_file,
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(output_dir):
-            return output_dir
+        if os.path.exists(output_file):
+            return output_file
         return False  # pragma: no cover
 
     @pyaedt_function_handler(plotname="plot_name", filepath="output_dir", filename="file_name")
@@ -2974,7 +3160,9 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
-    def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
+    def change_field_plot_scale(
+        self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None
+    ):
         """Change Field Plot Scale.
 
         Parameters
@@ -2989,6 +3177,9 @@ class PostProcessor(PostProcessorCommon, object):
             Set to ``True`` if Log Scale is setup.
         is_db : bool, optional
             Set to ``True`` if dB Scale is setup.
+        scale_levels : int, optional
+            Set number of color levels. The default is ``None``, in which case the
+            setting is not changed.
 
         Returns
         -------
@@ -3014,21 +3205,22 @@ class PostProcessor(PostProcessorCommon, object):
                 [255, 127, 127],
             ]
         ]
-        args += [
-            [
-                "NAME:Scale3DSettings",
-                "minvalue:=",
-                minimum_value,
-                "maxvalue:=",
-                maximum_value,
-                "log:=",
-                is_log,
-                "dB:=",
-                is_db,
-                "ScaleType:=",
-                1,
-            ]
+        scale_args = [
+            "NAME:Scale3DSettings",
+            "minvalue:=",
+            minimum_value,
+            "maxvalue:=",
+            maximum_value,
+            "log:=",
+            is_log,
+            "dB:=",
+            is_db,
+            "ScaleType:=",
+            1,
         ]
+        if scale_levels is not None:
+            scale_args += ["m_nLevels:=", scale_levels]
+        args += [scale_args]
         self.ofieldsreporter.SetPlotFolderSettings(plot_name, args)
         return True
 
@@ -3045,14 +3237,12 @@ class PostProcessor(PostProcessorCommon, object):
         field_type=None,
         create_plot=True,
     ):
+        intrinsics = self._app._check_intrinsics(intrinsics, None, setup)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             assignment = self._app.modeler.convert_to_selections(assignment, True)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
-        if not intrinsics:
-            for i in self._app.setups:
-                if i.name == setup.split(" : ")[0]:
-                    intrinsics = i.default_intrinsics
+
         self._desktop.CloseAllWindows()
         try:
             self._app.modeler.fit_all()
@@ -3164,9 +3354,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3179,11 +3377,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
         """
-        if intrinsics is None:
-            intrinsics = {}
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3214,9 +3429,17 @@ class PostProcessor(PostProcessorCommon, object):
         setup : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
         field_type : str, optional
@@ -3229,14 +3452,30 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Maxwell2d
+        >>> aedtapp = Maxwell2d()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
+        >>>                                                   in_volume_tracing_objs="Region",
+        >>>                                                   plot_name="LineTracesTest",
+        >>>                                                   intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
+        >>>                                                   in_volume_tracing_objs="Region",
+        >>>                                                   plot_name="LineTracesTest",
+        >>>                                                   intrinsics="200Hz")
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if intrinsics is None:
-            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3354,7 +3593,7 @@ class PostProcessor(PostProcessorCommon, object):
         # type: (list, str, str, list, bool, dict, str) -> FieldPlot
         """Create a field plot of stacked layer plot.
         This plot is valid from AEDT 2023 R2 and later in HFSS 3D Layout.
-        It will also work when a layout components in 3d modeler is used.
+        It works when a layout components in 3d modeler is used.
         In order to plot on signal layers use the method ``create_fieldplot_layers_nets``.
 
         Parameters
@@ -3362,7 +3601,7 @@ class PostProcessor(PostProcessorCommon, object):
         layers : list
             List of layers to plot. For example:
             ``["Layer1","Layer2"]``. If empty list is provided
-            all layers will be considered.
+            all layers are considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3372,9 +3611,17 @@ class PostProcessor(PostProcessorCommon, object):
             use in the export or ``LastAdaptive``.
         nets : list, optional
             List of nets to filter the field plot. Optional.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         name : str, optional
             Name of the field plot to create.
 
@@ -3385,9 +3632,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -3397,8 +3644,6 @@ class PostProcessor(PostProcessorCommon, object):
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
-        if intrinsics is None:
-            intrinsics = {}
         if name and name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(name))
             return self.field_plots[name]
@@ -3449,8 +3694,8 @@ class PostProcessor(PostProcessorCommon, object):
         layers_nets : list
             List of layers and nets to plot. For example:
             ``[["Layer1", "GND", "PWR"], ["Layer2", "VCC"], ...]``. If ``"no-layer"`` is provided as first argument,
-            all layers will be considered. If ``"no-net"`` is provided or the list contains only layer name, all the
-            nets will be automatically considered.
+            all layers are considered. If ``"no-net"`` is provided or the list contains only layer name, all the
+            nets are automatically considered.
         quantity : str
             Name of the quantity to plot.
         setup : str, optional
@@ -3458,9 +3703,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Make sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
             Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
@@ -3473,10 +3726,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
-
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
@@ -3538,9 +3790,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3553,7 +3813,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         if intrinsics is None:
@@ -3598,9 +3857,17 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive`` setup
             is used. Be sure to build a setup string in the form of ``"SetupName : SetupSweep"``,
             where ``SetupSweep`` is the sweep name to use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         filter_objects : list, optional
@@ -3616,8 +3883,26 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
         if intrinsics is None:
             intrinsics = {}
@@ -3656,9 +3941,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
 
@@ -3672,8 +3965,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsics is None:
-            intrinsics = {}
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3828,7 +4121,7 @@ class PostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         full_name : str, optional
-            Full Path for exporting the image file. The default is ``None``, in which case working_dir will be used.
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir is used.
         show_axis : bool, optional
             Whether to show the axes. The default is ``True``.
         show_grid : bool, optional
@@ -4053,10 +4346,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None``, which assumes that no variables are present in
-            the dictionary or nominal values are used.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``False``.
@@ -4078,12 +4378,12 @@ class PostProcessor(PostProcessorCommon, object):
         >>> # Export report using arguments.
         >>> hfss.post.export_mesh_obj(setup="MySetup : LastAdaptive",intrinsics={"w1":"5mm", "l1":"3mm"})
         """
-        if intrinsics is None:
-            intrinsics = {}
         project_path = self._app.working_directory
 
         if not setup:
             setup = self._app.nominal_adaptive
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+
         mesh_list = []
         obj_list = self._app.modeler.object_names
         for el in obj_list:
@@ -4118,8 +4418,8 @@ class PostProcessor(PostProcessorCommon, object):
         output_type : str, optional
             Output data presentation. The default is ``"component"``.
             The options are ``"component"``, or ``"boundary"``.
-            ``"component"`` will return the power based on each component.
-            ``"boundary"`` will return the power based on each boundary.
+            ``"component"`` returns the power based on each component.
+            ``"boundary"`` returns the power based on each boundary.
 
         Returns
         -------
@@ -4454,23 +4754,27 @@ class PostProcessor(PostProcessorCommon, object):
                         power_dict_obj[group] += power_dict_obj[power_comp]
 
         if output_type == "boundary":
-            for comp in power_dict.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            for comp, value in power_dict.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
             return power_dict, sum(power_dict.values())
 
         elif output_type == "component":  # pragma: no cover
-            for comp in power_dict_obj.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            for comp, value in power_dict_obj.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values())
 
         else:  # pragma: no cover
-            for comp in power_dict.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict[comp], 3)), units))
+            for comp, value in power_dict.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict.values()), 3)), units))
-            for comp in power_dict_obj.keys():
-                self.logger.info("The power of {} is {} {}".format(comp, str(round(power_dict_obj[comp], 3)), units))
+            for comp, value in power_dict_obj.items():
+                if round(value, 3) != 0.0:
+                    self.logger.info("The power of {} is {} {}".format(comp, str(round(value, 3)), units))
             self.logger.info("The total power is {} {}".format(str(round(sum(power_dict_obj.values()), 3)), units))
             return power_dict_obj, sum(power_dict_obj.values()), power_dict, sum(power_dict.values())
 
@@ -5102,7 +5406,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         --------
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setup_name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
 
         """
 

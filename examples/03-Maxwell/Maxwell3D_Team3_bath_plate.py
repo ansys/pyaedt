@@ -43,17 +43,17 @@ non_graphical = False
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell3d`` class named ``M3D``. 
 
-project_name = "COMPUMAG"
+project_name = os.path.join(temp_dir.name, "COMPUMAG.aedt")
 design_name = "TEAM 3 Bath Plate"
 solver = "EddyCurrent"
 
 m3d = pyaedt.Maxwell3d(
-    projectname=project_name,
-    designname=design_name,
+    project=project_name,
+    design=design_name,
     solution_type=solver,
-    specified_version=aedt_version,
+    version=aedt_version,
     non_graphical=non_graphical,
-    new_desktop_session=True,
+    new_desktop=True,
 )
 m3d.modeler.model_units = "mm"
 
@@ -131,7 +131,7 @@ poly.set_crosssection_properties(type="Circle", width="0.5mm")
 # ~~~~~~~~~~
 # Plot the model.
 
-m3d.plot(show=False, export_path=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
+m3d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_air_objects=False)
 
 ###############################################################################
 # Add Maxwell 3D setup
@@ -158,7 +158,7 @@ m3d.eddy_effects_on(assignment=["SearchCoil"], enable_eddy_effects=False, enable
 # Add a linear parametric sweep for the two coil positions.
 
 sweep_name = "CoilSweep"
-param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweep_name)
+param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", name=sweep_name)
 param["SaveFields"] = True
 param["CopyMesh"] = False
 param["SolveWithCopiedMeshOnly"] = True
@@ -235,5 +235,6 @@ m3d.post.create_fieldplot_surface(ladder_plate.faces, "Mag_J", intrinsics=intrin
 # ~~~~~~~~~~~~
 # Release AEDT from the script engine, leaving both AEDT and the project open.
 
-m3d.release_desktop(False, False)
+m3d.release_desktop()
+
 temp_dir.cleanup()

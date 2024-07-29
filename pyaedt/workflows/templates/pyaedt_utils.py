@@ -1,6 +1,7 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
+# -*- coding: utf-8 -*-
 #
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +36,12 @@ from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import MessageBoxIcon
 
 is_linux = os.name == "posix"
+
+
+def set_ansys_em_environment(oDesktop):
+    variable = "ANSYSEM_ROOT{}".format(oDesktop.GetVersion()[2:6].replace(".", ""))
+    if variable not in os.environ:
+        os.environ[variable] = oDesktop.GetExeDir()
 
 
 def sanitize_interpreter_path(interpreter_path, version):

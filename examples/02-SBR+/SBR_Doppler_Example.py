@@ -45,10 +45,10 @@ project_name = pyaedt.generate_unique_project_name(project_name="doppler")
 
 # Instantiate the application.
 app = pyaedt.Hfss(
-    specified_version=aedt_version,
+    version=aedt_version,
     solution_type="SBR+",
-    new_desktop_session=True,
-    projectname=project_name,
+    new_desktop=True,
+    project=project_name,
     close_on_exit=True,
     non_graphical=non_graphical
 )
@@ -126,7 +126,7 @@ app.validate_simple()
 # ~~~~~~~~~~
 # Plot the model.
 
-app.plot(show=False, export_path=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
+app.plot(show=False, output_file=os.path.join(app.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Solve and release AEDT

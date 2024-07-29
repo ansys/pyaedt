@@ -35,10 +35,10 @@ non_graphical = False
 # Each design is connected to a different object.
 
 app = Hfss(
-    designname="Ansys",
+    design="Ansys",
     solution_type="SBR+",
-    specified_version=aedt_version,
-    new_desktop_session=True,
+    version=aedt_version,
+    new_desktop=True,
     non_graphical=non_graphical
 )
 

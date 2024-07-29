@@ -1,15 +1,43 @@
 # -*- coding: utf-8 -*-
-import random
-import re
-import time
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-from pyaedt import settings
+import random
+import sys
+import time
+import warnings
+
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.settings import settings
 from pyaedt.modeler.cad.Modeler import Modeler
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
-from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+
+if (3, 8) < sys.version_info < (3, 12):
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
+    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+else:  # pragma: no cover
+    warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
 from pyaedt.modeler.circuits.PrimitivesNexxim import NexximComponents
 from pyaedt.modeler.circuits.PrimitivesTwinBuilder import TwinBuilderComponents
@@ -99,7 +127,9 @@ class ModelerCircuit(Modeler):
         pinnum_first="pin_starting",
         pinnum_second="pin_ending",
     )
-    def connect_schematic_components(self, starting_component, ending_component, pin_starting=2, pin_ending=1):
+    def connect_schematic_components(
+        self, starting_component, ending_component, pin_starting=2, pin_ending=1, use_wire=True
+    ):
         """Connect schematic components.
 
         Parameters
@@ -108,12 +138,16 @@ class ModelerCircuit(Modeler):
            Starting (right) component.
         ending_component : str
            Ending (left) component for the connection line.
-        pin_starting : str, optional
-             Number of the pin at which to terminate the connection from the right end of the
+        pin_starting : int, str, list optional
+             Number or name of the pins at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
-        pin_ending : str, optional
-             Number of the pin at which to terminate the connection from the left end of the
+        pin_ending : int, str, list optional
+             Number or name of the pins at which to terminate the connection from the left end of the
              ending component. The default is ``1``.
+        use_wire : bool, optional
+            Whether to use wires or a page port to connect the pins.
+            The default is ``True``, in which case wires are used. Note
+            that if wires are not well placed, shorts can result.
 
         Returns
         -------
@@ -127,39 +161,21 @@ class ModelerCircuit(Modeler):
         """
         if self._app.design_type == "Maxwell Circuit":
             components = self.schematic.components
-            obj1 = components[starting_component]
         else:
             components = self.components
-            obj1 = components[starting_component]
-        if "Port" in obj1.composed_name:
-            pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
-            pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
-            if "GPort" in obj1.composed_name:
-                pos1[1] += 0.00254
-        else:
-            if self._app.design_type == "Maxwell Circuit":
-                pos1 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj1.location]
-            else:
-                pins1 = components.get_pins(starting_component)
-                pos1 = components.get_pin_location(starting_component, pins1[pin_starting - 1])
-        obj2 = components[ending_component]
-        if "Port" in obj2.composed_name:
-            pos2 = self.oeditor.GetPropertyValue("BaseElementTab", obj2.composed_name, "Component Location").split(", ")
-            pos2 = [float(i.strip()[:-3]) * 0.0000254 for i in pos2]
-            if "GPort" in obj2.composed_name:
-                pos2[1] += 0.00254
-
-        else:
-            if self._app.design_type == "Maxwell Circuit":
-                pos2 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj2.location]
-            else:
-                pins2 = components.get_pins(ending_component)
-                pos2 = components.get_pin_location(ending_component, pins2[pin_ending - 1])
-        try:
-            self.schematic.create_wire([pos1, pos2])
-            return True
-        except Exception:
-            return False
+        start = components[starting_component]
+        end = components[ending_component]
+        if isinstance(pin_starting, (int, str)):
+            pin_starting = [pin_starting]
+        if isinstance(pin_ending, (int, str)):
+            pin_ending = [pin_ending]
+        for pstart, pend in zip(pin_starting, pin_ending):
+            try:
+                start[pstart].connect_to_component(end[pend], use_wire=use_wire)
+            except Exception:
+                self.logger.error("Failed to connect pin {} with {}".format(pstart, pend))
+                return False
+        return True
 
     @pyaedt_function_handler()
     def create_text(
@@ -436,7 +452,7 @@ class ModelerCircuit(Modeler):
         for sel in selections:
             if isinstance(sel, int):
                 sels.append(self.schematic.components[sel].composed_name)
-            elif isinstance(sel, (CircuitComponent, EmitComponent)):
+            elif isinstance(sel, CircuitComponent):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
@@ -715,6 +731,24 @@ class ModelerEmit(ModelerCircuit):
         ModelerCircuit.__init__(self, app)
         self.components = EmitComponents(app, self)
         self.logger.info("ModelerEmit class has been initialized!")
+
+    @pyaedt_function_handler()
+    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
+        sels = []
+        if not isinstance(selections, list):
+            selections = [selections]
+        for sel in selections:
+            if isinstance(sel, int):
+                sels.append(self.schematic.components[sel].composed_name)
+            elif isinstance(sel, (CircuitComponent, EmitComponent)):
+                sels.append(sel.composed_name)
+            else:
+                for el in list(self.schematic.components.values()):
+                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                        sels.append(el.composed_name)
+        if not return_as_list:
+            return ", ".join(sels)
+        return sels
 
 
 class ModelerMaxwellCircuit(ModelerCircuit):

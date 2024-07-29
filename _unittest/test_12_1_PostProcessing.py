@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import os
 import sys
 import uuid
@@ -76,7 +100,7 @@ class TestClass:
         plot1.update_field_plot_settings()
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
-        assert plot1.change_plot_scale(min_value, "30000")
+        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
@@ -457,7 +481,7 @@ class TestClass:
         symbols = new_report.traces[0].SYMBOLSTYLE
 
         assert new_report.traces[0].set_trace_properties(
-            trace_style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+            style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
         )
         assert new_report.traces[0].set_symbol_properties(
             show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)
@@ -529,7 +553,7 @@ class TestClass:
         assert not plot_obj.background_image
         plot_obj.convert_fields_in_db = True
         plot_obj.log_multiplier = 20
-        plot_obj.plot(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file, show=False)
         assert os.path.exists(plot_obj.image_file)
 
         plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
@@ -543,7 +567,7 @@ class TestClass:
             file_format="aedtplt",
         )
         assert os.path.exists(plot_obj.image_file)
-        plot_obj.plot(plot_obj.image_file)
+        plot_obj.plot(plot_obj.image_file, show=False)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
     def test_14B_Field_Ploton_Vector(self):

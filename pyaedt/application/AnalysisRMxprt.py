@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.settings import settings
@@ -24,14 +48,15 @@ class FieldAnalysisRMxprt(Analysis):
         designname,
         solution_type,
         setup_name=None,
-        specified_version=None,
+        version=None,
         non_graphical=False,
-        new_desktop_session=False,
+        new_desktop=False,
         close_on_exit=False,
         student_version=False,
         machine="",
         port=0,
         aedt_process_id=None,
+        remove_lock=False,
     ):
         Analysis.__init__(
             self,
@@ -40,14 +65,15 @@ class FieldAnalysisRMxprt(Analysis):
             designname,
             solution_type,
             setup_name,
-            specified_version,
+            version,
             non_graphical,
-            new_desktop_session,
+            new_desktop,
             close_on_exit,
             student_version,
             machine,
             port,
             aedt_process_id,
+            remove_lock=remove_lock,
         )
         self._modeler = None
         self._post = None
@@ -63,7 +89,7 @@ class FieldAnalysisRMxprt(Analysis):
         -------
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:  # pragma: no cover
+        if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
@@ -81,7 +107,7 @@ class FieldAnalysisRMxprt(Analysis):
         :class:`pyaedt.modules.modeler2d.ModelerRMxprt`
 
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from pyaedt.modeler.modeler2d import ModelerRMxprt
 
             self._modeler = ModelerRMxprt(self)
@@ -103,7 +129,7 @@ class FieldAnalysisRMxprt(Analysis):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._design_type = "RMxprtSolution"
+        self.design_type = "RMxprtSolution"
         self.solution_type = solution_type
         return True
 
@@ -122,9 +148,44 @@ class FieldAnalysisRMxprt(Analysis):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._design_type = "ModelCreation"
+        self.design_type = "ModelCreation"
         self.solution_type = solution_type
         return True
+
+    @pyaedt_function_handler()
+    def create_maxwell_design(self, setup_name, variation="", maxwell_2d=True):
+        """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of setup.
+        variation : str, optional
+            Variation string to be applied.
+        maxwell_2d : bool, optional
+            Whether if the model has to be exported in Maxwell 2D or Maxwell 3D. Default is ``True``.
+
+        Returns
+        -------
+        :class:`pyaedt.maxwell.Maxwell2d` or :class:`pyaedt.maxwell.Maxwell3d`
+            Maxwell object.
+        """
+        des_list = self.design_list[::]
+        self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
+        new_des_list = [i for i in self.design_list[::] if i not in des_list and "Maxwell" in i]
+        if new_des_list:
+            if maxwell_2d:
+                from pyaedt.maxwell import Maxwell2d
+
+                app = Maxwell2d(design=new_des_list[0])
+                return app
+            else:
+                from pyaedt import Maxwell3d
+
+                app = Maxwell3d(design=new_des_list[0])
+                return app
+        self.logger.error("Failed to generate the Maxwell project.")
+        return False
 
     @pyaedt_function_handler()
     def set_material_threshold(self, conductivity=100000, permeability=100):

@@ -90,7 +90,7 @@ q2d_design_name = '2D_Extractor_Cable'
 setup_name = "MySetupAuto"
 sweep_name = "sweep1"
 tb_design_name = 'CableSystem'
-q2d = pyaedt.Q2d(projectname=project_name, designname=q2d_design_name, specified_version=aedt_version)
+q2d = pyaedt.Q2d(project=project_name, design=q2d_design_name, version=aedt_version)
 
 ##########################################################
 # Define variables from dictionaries
@@ -232,13 +232,13 @@ q2d_sweep = q2d_setup.add_sweep(name=sweep_name)
 # Analyze setup
 # ~~~~~~~~~~~~~
 
-# q2d.analyze(setup_name=setup_name)
+# q2d.analyze(name=name)
 
 ###################################################################
 # Add a Simplorer/Twin Builder design and the Q3D dynamic component
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-tb = pyaedt.TwinBuilder(designname=tb_design_name)
+tb = pyaedt.TwinBuilder(design=tb_design_name)
 
 ##########################################################
 # Add a Q3D dynamic component
