@@ -1403,7 +1403,7 @@ class BinaryTreeNode:
                 child_names = [
                     i for i in list(child_object.GetChildNames(get_child_obj_arg)) if not i.startswith("CachedBody")
                 ]
-        except Exception:
+        except Exception:  # pragma: no cover
             child_names = []
         for i in child_names:
             if not name:
