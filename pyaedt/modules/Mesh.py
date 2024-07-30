@@ -283,7 +283,7 @@ class MeshOperation(object):
                 try:
                     pr.append(self._app.modeler[el].name)
                 except (KeyError, AttributeError):
-                    pass
+                    self.logger.debug("An error occurred while updating the boundary assignment.")  # pragma: no cover
             out += ["Objects:=", pr]
 
         if len(out) == 1:
@@ -503,7 +503,7 @@ class Mesh(object):
                     "MeshSettings"
                 ]
             except Exception:
-                pass
+                self.logger.debug("An error occurred while accessing design global mesh.")  # pragma: no cover
             if os.path.exists(temp_proj):
                 os.remove(temp_proj)
             if os.path.exists(temp_proj + "results"):
@@ -557,7 +557,7 @@ class Mesh(object):
 
                 meshops.append(MeshOperation(self, ds, props, props["Type"]))
         except Exception:
-            pass
+            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
         return meshops
 
     @pyaedt_function_handler(names="assignment", meshop_name="name")
@@ -816,7 +816,8 @@ class Mesh(object):
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
-        assert method in mesh_methods
+        if method not in mesh_methods:
+            raise RuntimeError("Invalid mesh method {}".format(method))  # pragma: no cover
 
         modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", automodelresolution]
         if not automodelresolution:
