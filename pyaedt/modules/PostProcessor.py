@@ -1443,7 +1443,7 @@ class PostProcessorCommon(object):
             Step range with units for the sweep if the ``uniform`` parameter is
             set to ``True``.
         use_trace_number_format : bool, optional
-            Whether to use trace number formats. The default is ``False``.
+            Whether to use trace number formats and use separate columns for curve. The default is ``False``.
 
         Returns
         -------
@@ -1484,10 +1484,8 @@ class PostProcessorCommon(object):
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
         elif uniform:
             self.oreportsetup.ExportUniformPointsToFile(plot_name, file_path, start, end, step, use_trace_number_format)
-
         else:
-            self.oreportsetup.ExportToFile(plot_name, file_path)
-
+            self.oreportsetup.ExportToFile(plot_name, file_path, use_trace_number_format)
         return file_path
 
     @pyaedt_function_handler()
@@ -2608,9 +2606,17 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``None``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         object_name : str, optional
@@ -2638,7 +2644,27 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterVol
         >>> oModule.ClcEval
         >>> GetTopEntryValue
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is explicitly provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is automatically computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting {} field. Be patient".format(quantity))
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
@@ -2679,19 +2705,7 @@ class PostProcessor(PostProcessorCommon, object):
             variation.append(el + ":=")
             variation.append(value)
 
-        if intrinsics:
-            if "Transient" in solution:  # pragma: no cover
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:  # pragma: no cover
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+        variation.extend(intrinsics)
 
         file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
         self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
@@ -2763,9 +2777,17 @@ class PostProcessor(PostProcessorCommon, object):
             The default is ``[0, 0, 0]``.
         is_vector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
         export_with_sample_points : bool, optional
@@ -2805,6 +2827,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> path = "Field.fld"
         >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
+        self.logger.info("Exporting %s field. Be patient", quantity)
         if grid_step is None:
             grid_step = [0, 0, 0]
         if grid_start is None:
@@ -2861,20 +2885,7 @@ class PostProcessor(PostProcessorCommon, object):
         for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
-
-        if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
+        variation.extend(intrinsics)
 
         export_options = [
             "NAME:ExportOption",
@@ -2933,7 +2944,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        quantity :
+        quantity : str
             Name of the quantity to export. For example, ``"Temp"``.
         solution : str, optional
             Name of the solution in the format ``"solution: sweep"``.
@@ -2950,11 +2961,20 @@ class PostProcessor(PostProcessorCommon, object):
             Type of objects to export. The default is ``"Vol"``.
             Options are ``"Surf"`` for surface and ``"Vol"`` for
             volume.
-        intrinsics : str, optional
-            This parameter is mandatory for a frequency or transient field calculation.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         phase : str, optional
             Field phase. The default is ``None``.
+            This argument is deprecated. Please use ``intrinsics`` and provide the phase as a dictionary key instead.
         sample_points_file : str, optional
             Name of the file with sample points. The default is ``None``.
         sample_points : list, optional
@@ -2987,7 +3007,28 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterVol
         >>> oModule.CalculatorWrite
         >>> oModule.ExportToFile
+
+        Examples
+        --------
+
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> # Intrinsics is provided as a string.
+        >>> fld_file1 = "test_fld_hfss1.fld"
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
+        >>>                                 intrinsics="1GHz", phase="5deg")
+        >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
+        >>> fld_file2 =  "test_fld_hfss2.fld"
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                intrinsics={"frequency":"1GHz"})
+        >>> # Intrinsics is provided as dictionary. Phase is provided.
+        >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                 intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        >>> # Intrinsics is not provided. It is computed from the setup arguments.
+        >>>  hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+        >>>                                     )
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
         if not solution:
             if not self._app.existing_analysis_sweeps:
@@ -3013,20 +3054,8 @@ class PostProcessor(PostProcessorCommon, object):
         for el, value in variations.items():
             variation.append(el + ":=")
             variation.append(value)
+        variation.extend(intrinsics)
 
-        if intrinsics:
-            if "Transient" in solution:
-                variation.append("Time:=")
-                variation.append(intrinsics)
-            else:
-                variation.append("Freq:=")
-                variation.append(intrinsics)
-                if self._app.design_type not in ["Icepak", "Mechanical", "Q3D Extractor"]:
-                    variation.append("Phase:=")
-                    if phase:
-                        variation.append(phase)
-                    else:
-                        variation.append("0deg")
         if not sample_points_file and not sample_points:
             if objects_type == "Vol":
                 self.ofieldsreporter.EnterVol(assignment)
@@ -3206,14 +3235,12 @@ class PostProcessor(PostProcessorCommon, object):
         field_type=None,
         create_plot=True,
     ):
+        intrinsics = self._app._check_intrinsics(intrinsics, None, setup)
         if not list_type.startswith("Layer") and self._app.design_type != "HFSS 3D Layout Design":
             assignment = self._app.modeler.convert_to_selections(assignment, True)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
-        if not intrinsics:
-            for i in self._app.setups:
-                if i.name == setup.split(" : ")[0]:
-                    intrinsics = i.default_intrinsics
+
         self._desktop.CloseAllWindows()
         try:
             self._app.modeler.fit_all()
@@ -3325,9 +3352,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3340,11 +3375,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_line("Polyline1", quantity_name, setup_name)
         """
-        if intrinsics is None:
-            intrinsics = {}
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3375,9 +3427,17 @@ class PostProcessor(PostProcessorCommon, object):
         setup : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create. The default is ``None``.
         field_type : str, optional
@@ -3390,14 +3450,30 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Maxwell2d
+        >>> aedtapp = Maxwell2d()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
+        >>>                                                   in_volume_tracing_objs="Region",
+        >>>                                                   plot_name="LineTracesTest",
+        >>>                                                   intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_line_traces(seeding_faces=["Ground", "Electrode", "Region"],
+        >>>                                                   in_volume_tracing_objs="Region",
+        >>>                                                   plot_name="LineTracesTest",
+        >>>                                                   intrinsics="200Hz")
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if intrinsics is None:
-            intrinsics = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -3533,9 +3609,17 @@ class PostProcessor(PostProcessorCommon, object):
             use in the export or ``LastAdaptive``.
         nets : list, optional
             List of nets to filter the field plot. Optional.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         name : str, optional
             Name of the field plot to create.
 
@@ -3546,9 +3630,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
         if nets is None:
@@ -3558,8 +3642,6 @@ class PostProcessor(PostProcessorCommon, object):
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
-        if intrinsics is None:
-            intrinsics = {}
         if name and name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(name))
             return self.field_plots[name]
@@ -3619,9 +3701,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Make sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
             Whether the plot is to be on the surface or volume of traces.
         plot_name : str, optional
@@ -3634,10 +3724,9 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
-
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
         ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
@@ -3699,9 +3788,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         field_type : str, optional
@@ -3714,7 +3811,6 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
         """
         if intrinsics is None:
@@ -3759,9 +3855,17 @@ class PostProcessor(PostProcessorCommon, object):
             Name of the setup. The default is ``None``, in which case the ``nominal_adaptive`` setup
             is used. Be sure to build a setup string in the form of ``"SetupName : SetupSweep"``,
             where ``SetupSweep`` is the sweep name to use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
         filter_objects : list, optional
@@ -3777,8 +3881,26 @@ class PostProcessor(PostProcessorCommon, object):
 
         References
         ----------
-
         >>> oModule.CreateFieldPlot
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> # Intrinsics is provided as a dictionary.
+        >>> intrinsics = {"Freq": "5GHz", "Phase": "180deg"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is provided as a string. Phase is automatically assigned to 0deg.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics="5GHz")
+        >>> # Intrinsics is provided as a dictionary. Phase is automatically assigned to 0deg.
+        >>> intrinsics = {"Freq": "5GHz"}
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics=intrinsics)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsics=intrinsics)
+        >>> # Intrinsics is not provided and is computed from the setup.
+        >>> min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name)
+        >>> plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name)
         """
         if intrinsics is None:
             intrinsics = {}
@@ -3817,9 +3939,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional
-            Dictionary containing all intrinsic variables.
-            The default is ``None``.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
             Name of the field plot to create.
 
@@ -3833,8 +3963,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsics is None:
-            intrinsics = {}
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -4214,10 +4344,17 @@ class PostProcessor(PostProcessorCommon, object):
             setup is used. Be sure to build a setup string in the form of
             ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
             use in the export or ``LastAdaptive``.
-        intrinsics : dict, optional.
-            Intrinsic dictionary that is needed for the export.
-            The default is ``None``, which assumes that no variables are present in
-            the dictionary or nominal values are used.
+        intrinsics : dict, str, optional
+            Intrinsic variables required to compute the field before the export.
+            These are typically: frequency, time and phase.
+            It can be provided either as a dictionary or as a string.
+                If it is a dictionary, keys depend on the solution type and can be expressed as:
+                    - ``"Freq"`` or ``"Frequency"``
+                    - ``"Time"``
+                    - ``"Phase"``
+                in lower or camel case.
+            If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional
             Whether to include vacuum objects for the copied objects.
             The default is ``False``.
@@ -4239,12 +4376,12 @@ class PostProcessor(PostProcessorCommon, object):
         >>> # Export report using arguments.
         >>> hfss.post.export_mesh_obj(setup="MySetup : LastAdaptive",intrinsics={"w1":"5mm", "l1":"3mm"})
         """
-        if intrinsics is None:
-            intrinsics = {}
         project_path = self._app.working_directory
 
         if not setup:
             setup = self._app.nominal_adaptive
+        intrinsics = self._app._check_intrinsics(intrinsics, setup=setup)
+
         mesh_list = []
         obj_list = self._app.modeler.object_names
         for el in obj_list:
