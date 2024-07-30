@@ -163,7 +163,7 @@ class TestClass:
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         pole_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.TX_ZERO_DEN_X)
         assert len(pole_zero_den_x) == 5
-        assert pole_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert pole_zero_den_x[0] == pytest.approx(-1.0e9)
         assert pole_zero_den_x[1] == pytest.approx(-809016994.3749474)
         assert pole_zero_den_x[2] == pytest.approx(-809016994.3749474)
         assert pole_zero_den_x[3] == pytest.approx(-309016994.3749475)
@@ -207,7 +207,7 @@ class TestClass:
         assert len(proto_pole_zero_num_y) == 0
         rx_zero_den_x = design.ideal_response._pole_zeros_response_getter(PoleZerosResponseColumn.RX_ZERO_DEN_X)
         assert len(rx_zero_den_x) == 5
-        assert rx_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert rx_zero_den_x[0] == pytest.approx(-1.0e9)
         assert rx_zero_den_x[1] == pytest.approx(-809016994.3749474)
         assert rx_zero_den_x[2] == pytest.approx(-809016994.3749474)
         assert rx_zero_den_x[3] == pytest.approx(-309016994.3749475)
@@ -333,7 +333,7 @@ class TestClass:
             y_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_Y,
         )
         assert len(tx_zero_den_x) == 5
-        assert tx_zero_den_x[0] == pytest.approx(-1000000000.0)
+        assert tx_zero_den_x[0] == pytest.approx(-1.0e9)
         assert tx_zero_den_x[1] == pytest.approx(-809016994.3749474)
         assert tx_zero_den_x[2] == pytest.approx(-809016994.3749474)
         assert tx_zero_den_x[3] == pytest.approx(-309016994.3749475)
