@@ -40,6 +40,7 @@ from pyaedt.generic.general_methods import conversion_function
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.plot import ModelPlotter
 from pyaedt.generic.plot import get_structured_mesh
 from pyaedt.generic.plot import is_notebook
 from pyaedt.generic.plot import plot_2d_chart
@@ -109,9 +110,6 @@ class FfdSolutionData(object):
         # Public
         self.output_dir = os.path.dirname(input_file)
 
-        # Protected
-        self._mesh = None
-
         if input_file_format in ["txt", "xml"]:
             if not variation:
                 variation = ""
@@ -130,6 +128,9 @@ class FfdSolutionData(object):
                 power=incident_power,
                 touchstone_file=touchstone_file,
             )
+
+        # Protected
+        self._mesh = None
 
         if not os.path.isfile(input_file):  # pragma: no cover
             raise Exception("JSON file does not exist.")
@@ -189,7 +190,6 @@ class FfdSolutionData(object):
                         frequency, units = decompose_variable_value(power_freq)
                         if units:  # pragma: no cover
                             frequency = unit_converter(frequency, "Freq", units, "Hz")
-
                     new_incident_power[frequency] = value
 
             new_radiated_power = {}
@@ -268,12 +268,15 @@ class FfdSolutionData(object):
         else:
             self.frequency = self.frequencies[0]
 
-        # Update
-        for row, col in port_indices.values():
-            self.__a_min = min(self.__a_min, row - 1)
-            self.__a_max = max(self.__a_max, row - 1)
-            self.__b_min = min(self.__b_min, col - 1)
-            self.__b_max = max(self.__b_max, col - 1)
+        port_indices_array = np.array(list(port_indices.values()))
+
+        rows = port_indices_array[:, 0] - 1
+        cols = port_indices_array[:, 1] - 1
+
+        self.__a_min = min(self.__a_min, np.min(rows))
+        self.__a_max = max(self.__a_max, np.max(rows))
+        self.__b_min = min(self.__b_min, np.min(cols))
+        self.__b_max = max(self.__b_max, np.max(cols))
 
     @property
     def phi_scan(self):
@@ -312,8 +315,6 @@ class FfdSolutionData(object):
             touchstone_frequencies = self.touchstone_data.f
             index = np.abs(touchstone_frequencies - self.frequency).argmin()
             return self.touchstone_data.s[index]
-        else:
-            return None
 
     @property
     def incident_power_element(self):
@@ -334,8 +335,6 @@ class FfdSolutionData(object):
         incident_power_element = self.incident_power_element
         if incident_power_element:
             return sum(incident_power_element.values())
-        else:  # pragma: no cover
-            return None
 
     @property
     def accepted_power_element(self):
@@ -355,8 +354,6 @@ class FfdSolutionData(object):
         power_element = self.accepted_power_element
         if power_element:
             return sum(power_element.values())
-        else:  # pragma: no cover
-            return None
 
     @property
     def radiated_power_element(self):
@@ -376,8 +373,6 @@ class FfdSolutionData(object):
         power_element = self.radiated_power_element
         if power_element:
             return sum(power_element.values())
-        else:  # pragma: no cover
-            return None
 
     @property
     def active_s_parameters(self):
@@ -409,8 +404,6 @@ class FfdSolutionData(object):
                     else:
                         active_s_parameter[element] += s_parameter_value * amplitude / active_amplitude
             return active_s_parameter
-        else:  # pragma: no cover
-            return None
 
     @property
     def input_file(self):
@@ -551,8 +544,8 @@ class FfdSolutionData(object):
         length_of_ff_data = len(data["rETheta"])
         theta_range = data["Theta"]
         phi_range = data["Phi"]
-        Ntheta = len(theta_range)
-        Nphi = len(phi_range)
+        n_theta = len(theta_range)
+        n_phi = len(phi_range)
 
         incident_power = self.incident_power
         radiated_power = self.radiated_power
@@ -590,8 +583,8 @@ class FfdSolutionData(object):
         rETheta_fields_sum = array_factor * rETheta_fields_sum
         rEphi_fields_sum = array_factor * rEphi_fields_sum
 
-        rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (Ntheta, Nphi))
-        rEphi_fields_sum = np.reshape(rEphi_fields_sum, (Ntheta, Nphi))
+        rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (n_theta, n_phi))
+        rEphi_fields_sum = np.reshape(rEphi_fields_sum, (n_theta, n_phi))
 
         farfield_data = OrderedDict()
         farfield_data["rEPhi"] = rEphi_fields_sum
@@ -601,8 +594,8 @@ class FfdSolutionData(object):
         )
         farfield_data["Theta"] = theta_range
         farfield_data["Phi"] = phi_range
-        farfield_data["nPhi"] = Nphi
-        farfield_data["nTheta"] = Ntheta
+        farfield_data["nPhi"] = n_phi
+        farfield_data["nTheta"] = n_theta
 
         real_gain = 2 * np.pi * np.abs(np.power(farfield_data["rETotal"], 2)) / incident_power / 377
         farfield_data["RealizedGain"] = real_gain
@@ -654,8 +647,6 @@ class FfdSolutionData(object):
                     accepted_power[element] = 0.0
             total_accepted_power = sum(accepted_power.values())
             return total_accepted_power
-        else:  # pragma: no cover
-            return None
 
     @pyaedt_function_handler()
     def __assign_weight_taper(self, a, b):  # pragma: no cover
@@ -688,7 +679,7 @@ class FfdSolutionData(object):
         # find the distance between current cell and array center in terms of index
         lattice_vector = self.__lattice_vector[self.__freq_index]
         if not lattice_vector or not len(lattice_vector) == 6:
-            return 1
+            return 1.0
 
         center_a = (self.__a_min + self.__a_max) / 2
         center_b = (self.__b_min + self.__b_max) / 2
@@ -863,15 +854,15 @@ class FfdSolutionData(object):
 
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
-            self.__logger.error("Far field quantity is not available.")
-            return False
+            raise Exception("Far field quantity is not available.")
+
         select = np.abs(data["Theta"]) <= max_theta  # Limit theta range for plotting.
 
         data_to_plot = data[quantity][select, :]
         data_to_plot = conversion_function(data_to_plot, quantity_format)
         if not isinstance(data_to_plot, np.ndarray):  # pragma: no cover
-            self.logger.error("Wrong format quantity")
-            return False
+            raise Exception("Wrong format quantity.")
+
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
@@ -913,7 +904,7 @@ class FfdSolutionData(object):
             Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
             ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         primary_sweep : str, optional.
-            X axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
+            X-axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
         secondary_sweep_value : float, list, string, optional
             List of cuts on the secondary sweep to plot. The default is ``0``. Options are
             `"all"`, a single value float, or a list of float values.
@@ -957,8 +948,7 @@ class FfdSolutionData(object):
 
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
-            self.logger.error("Far field quantity not available")
-            return False
+            raise Exception("Far field quantity not available.")
 
         data_to_plot = data[quantity]
 
@@ -978,8 +968,7 @@ class FfdSolutionData(object):
                 y = temp[idx]
                 y = conversion_function(y, quantity_format)
                 if not isinstance(y, np.ndarray):  # pragma: no cover
-                    self.logger.error("Format of quantity is wrong.")
-                    return False
+                    raise Exception("Format of quantity is wrong.")
                 curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
@@ -989,8 +978,7 @@ class FfdSolutionData(object):
                     y = temp[theta_idx]
                     y = conversion_function(y, quantity_format)
                     if not isinstance(y, np.ndarray):  # pragma: no cover
-                        self.logger.error("Format of quantity is wrong.")
-                        return False
+                        raise Exception("Format of quantity is wrong.")
                     curves.append([x, y, "{}={}".format(y_key, el)])
                     list_inserted.append(theta_idx)
         else:
@@ -998,8 +986,7 @@ class FfdSolutionData(object):
             y = temp[theta_idx]
             y = conversion_function(y, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
-                self.logger.error("Wrong format quantity")
-                return False
+                raise Exception("Wrong format quantity.")
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
 
         if is_polar:
@@ -1077,13 +1064,11 @@ class FfdSolutionData(object):
         """
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
-            self.logger.error("Far field quantity is not available.")
-            return False
+            raise Exception("Far field quantity is not available.")
 
         ff_data = conversion_function(data[quantity], quantity_format)
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
-            self.logger.error("Format of the quantity is wrong.")
-            return False
+            raise Exception("Format of the quantity is wrong.")
 
         # re-normalize to 0 and 1
         ff_max = np.max(ff_data)
@@ -1177,8 +1162,7 @@ class FfdSolutionData(object):
 
         farfield_data = self.combine_farfield(phi_scan=0, theta_scan=0)
         if quantity not in farfield_data:  # pragma: no cover
-            self.logger.error("Far field quantity is not available.")
-            return False
+            raise Exception("Far field quantity is not available.")
 
         self._mesh = self.get_far_field_mesh(quantity=quantity, quantity_format=quantity_format)
 
@@ -1193,7 +1177,8 @@ class FfdSolutionData(object):
             if show_as_standalone:  # pragma: no cover
                 p = pv.Plotter(notebook=False, off_screen=off_screen)
             else:
-                p = pv.Plotter(notebook=is_notebook(), off_screen=off_screen)
+                is_notebook_flag = is_notebook()
+                p = pv.Plotter(notebook=is_notebook_flag, off_screen=off_screen)
         else:  # pragma: no cover
             p = pyvista_object
 
@@ -1257,8 +1242,8 @@ class FfdSolutionData(object):
 
         data = conversion_function(farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
-            self.logger.error("Wrong format quantity")
-            return False
+            raise Exception("Wrong format quantity.")
+
         max_data = np.max(data)
         min_data = np.min(data)
         ff_mesh_inst = p.add_mesh(uf.output, cmap="jet", clim=[min_data, max_data], scalar_bar_args=sargs)
@@ -1316,9 +1301,9 @@ class FfdSolutionData(object):
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if image_path:
-            p.show(screenshot=image_path)
+            p.show(auto_close=False, screenshot=image_path)
         if show:  # pragma: no cover
-            p.show()
+            p.show(auto_close=False)
         return p
 
     @pyaedt_function_handler()
@@ -1379,8 +1364,7 @@ class FfdSolutionData(object):
                     temp_dict["rEPhi"] = Ephi
                     self.__raw_data[element][freq_hz] = temp_dict
             else:  # pragma: no cover
-                self.logger.error("Wrong far fields were imported.")
-                return False
+                raise Exception("Wrong far fields were imported.")
 
         return True
 
@@ -1406,16 +1390,14 @@ class FfdSolutionData(object):
         """
         farfield_data = self.farfield_data
         if quantity not in farfield_data:  # pragma: no cover
-            self.logger.error("Far field quantity is not available.")
-            return False
+            raise Exception("Far field quantity is not available.")
 
         data = farfield_data[quantity]
 
         ff_data = conversion_function(data, quantity_format)
 
         if not isinstance(ff_data, np.ndarray):  # pragma: no cover
-            self.logger.error("Format of the quantity is wrong.")
-            return False
+            raise Exception("Format of the quantity is wrong.")
 
         theta = np.deg2rad(np.array(farfield_data["Theta"]))
         phi = np.deg2rad(np.array(farfield_data["Phi"]))
@@ -1425,8 +1407,6 @@ class FfdSolutionData(object):
     @pyaedt_function_handler()
     def __get_geometry(self):
         """Get 3D meshes."""
-        from pyaedt.generic.plot import ModelPlotter
-
         model_info = self.metadata["model_info"]
         obj_meshes = []
         if self.__is_array:
@@ -2126,10 +2106,7 @@ class FfdSolutionDataExporter:
             if not os.path.exists(new_path):
                 new_path = shutil.move(obj.path, export_path)
             if os.path.exists(os.path.join(original_path, name + ".mtl")):  # pragma: no cover
-                try:
-                    os.remove(os.path.join(original_path, name + ".mtl"))
-                except SystemExit:
-                    self.logger.warning("File cannot be removed.")
+                shutil.rmtree(os.path.join(original_path, name + ".mtl"), ignore_errors=True)
             obj_list[obj.name] = [
                 os.path.join(os.path.basename(export_path), object_name),
                 obj.color,
