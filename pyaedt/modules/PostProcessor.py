@@ -2456,10 +2456,8 @@ class PostProcessor(PostProcessorCommon, object):
                             name2refid[cs_id + 2] = name + ":XZ"
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong when with key {} while retrieving coordinate systems plane ids.".format(
-                            ds
-                        )
-                    )
+                        "Something went wrong with key {} while retrieving coordinate systems plane ids.".format(ds)
+                    )  # pragma: no cover
         return name2refid
 
     @pyaedt_function_handler()
@@ -2514,8 +2512,8 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].GridColor = surf_setts["GridColor"]
                 except Exception:
                     self.logger.debug(
-                        "Something went wrong when with setup {} while retrieving fields plot.".format(setup)
-                    )
+                        "Something went wrong with setup {} while retrieving fields plot.".format(setup)
+                    )  # pragma: no cover
         return plots
 
     # TODO: define a fields calculator module and make robust !!
@@ -3253,7 +3251,7 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app.modeler.fit_all()
         except Exception:
-            self.logger.debug("Something went wrong with `fit_all` while creating field plot.")
+            self.logger.debug("Something went wrong with `fit_all` while creating field plot.")  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -3313,7 +3311,9 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app._modeler.fit_all()
         except Exception:
-            self.logger.debug("Something went wrong with `fit_all` while creating field plot with line traces.")
+            self.logger.debug(
+                "Something went wrong with `fit_all` while creating field plot with line traces."
+            )  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -4298,7 +4298,7 @@ class PostProcessor(PostProcessorCommon, object):
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
-            raise RuntimeError("Object is supported from AEDT 2021 R2.")
+            raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
         if not export_path:
             export_path = self._app.working_directory
         if not assignment:
