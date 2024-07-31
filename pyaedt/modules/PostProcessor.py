@@ -1157,13 +1157,13 @@ class PostProcessorCommon(object):
                 solutions = [solutions]
             elif solutions is None:
                 solutions = self.available_report_solutions(rep)
-            for sol in solutions:
-                rep_quantities[rep][sol] = {}
+            for solution in solutions:
+                rep_quantities[rep][solution] = {}
                 for quant in self.available_quantities_categories(
-                    rep, context=context, solution=sol, is_siwave_dc=is_siwave_dc
+                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
                 ):
-                    rep_quantities[rep][sol][quant] = self.available_report_quantities(
-                        rep, quantities_category=quant, context=context, solution=sol, is_siwave_dc=is_siwave_dc
+                    rep_quantities[rep][solution][quant] = self.available_report_quantities(
+                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
                     )
 
         return rep_quantities
