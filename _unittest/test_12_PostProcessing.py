@@ -24,9 +24,11 @@
 
 import os
 import sys
+import tempfile
 
 from _unittest.conftest import config
 from matplotlib.figure import Figure
+import pandas as pd
 import pytest
 from pyvista.plotting.plotter import Plotter
 
@@ -49,6 +51,7 @@ if config["desktopVersion"] > "2022.2":
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
     m2d_file = "m2d_field_lines_test_231"
+    ipk_markers_proj = "ipk_markers"
 
 else:
     test_field_name = "Potter_Horn"
@@ -938,7 +941,7 @@ class TestClass:
         assert field_test.cleanup_solution(vars, entire_solution=False)
         assert field_test.cleanup_solution(vars, entire_solution=True)
 
-    def test_76_ipk_get_scalar_field_value(self, icepak_post):
+    def test_100_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -1011,3 +1014,44 @@ class TestClass:
             object_type="point",
             adjacent_side=False,
         )
+
+    def test_101_markers(self, add_app):
+        ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
+
+        f1 = ipk.modeler["Region"].top_face_z
+        p1 = ipk.post.create_fieldplot_surface(f1.id, "Uz")
+        f1_c = f1.center
+        f1_p1 = [f1_c[0] + 0.01, f1_c[1] + 0.01, f1_c[2]]
+        f1_p2 = [f1_c[0] - 0.01, f1_c[1] - 0.01, f1_c[2]]
+        d1 = p1.get_points_value([f1_c, f1_p1, f1_p2])
+        assert isinstance(d1, pd.DataFrame)
+        assert d1.index.name == "Name"
+        assert all(d1.index.values == ["m1", "m2", "m3"])
+        assert len(d1["X [mm]"].values) == 3
+        assert len(d1.columns) == 4
+
+        f2 = ipk.modeler["Box1"].top_face_z
+        p2 = ipk.post.create_fieldplot_surface(f2.id, "Pressure")
+        d2 = p2.get_points_value({"Center Point": f2.center})
+        assert isinstance(d2, pd.DataFrame)
+        assert d2.index.name == "Name"
+        assert all(d2.index.values == ["Center Point"])
+        assert len(d2.columns) == 4
+        assert len(d2["X [mm]"].values) == 1
+
+        f3 = ipk.modeler["Box1"].bottom_face_y
+        p3 = ipk.post.create_fieldplot_surface(f3.id, "Temperature")
+        d3 = p3.get_points_value(f3.center)
+        assert isinstance(d3, pd.DataFrame)
+        assert d3.index.name == "Name"
+        assert all(d3.index.values == ["m1"])
+        assert len(d3.columns) == 4
+        assert len(d3["X [mm]"].values) == 1
+
+        f4 = ipk.modeler["Box1"].top_face_x
+        p4 = ipk.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
+        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv") as temp_file:
+            temp_file.close()
+            d4 = p4.get_points_value(f4.center, filename=temp_file.name)
+            assert isinstance(d4, pd.DataFrame)
+            os.path.exists(temp_file.name)
