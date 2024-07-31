@@ -5891,7 +5891,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
     @pyaedt_function_handler(filename="file_name")
     def get_hdm_plotter(self, file_name=None):
-        """Get the  HDM plotter``.
+        """Get the HDM plotter.
 
         Parameters
         ----------
