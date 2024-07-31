@@ -1121,7 +1121,7 @@ class FfdSolutionData(object):
         show : bool, optional
             Whether to show the plot. The default is ``True``.
         show_as_standalone : bool, optional
-            Whether to show a plot as standalone. The default is ``True``.
+            Whether to show a plot as standalone. The default is ``False``.
         pyvista_object : :class:`Pyvista.Plotter`, optional
             PyVista instance defined externally. The default is ``None``.
         background : list or str, optional
