@@ -544,7 +544,7 @@ class CommonReport(object):
                 for i in oo1:
                     _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self.plot_name, el, i)))
             except Exception:
-                pass
+                self._post._app.logger.debug("Something went wrong while processing element {}.".format(el))
         return _traces
 
     @pyaedt_function_handler()
@@ -634,15 +634,15 @@ class CommonReport(object):
                     )
             self.eye_mask(
                 points=eye_points,
-                xunits=eye_xunits,
-                yunits=eye_yunits,
+                x_units=eye_xunits,
+                y_units=eye_yunits,
                 enable_limits=eye_enable,
                 upper_limit=eye_upper,
                 lower_limit=eye_lower,
                 color=eye_color,
                 transparency=eye_transparency,
-                xoffset=eye_xoffset,
-                yoffset=eye_yoffset,
+                x_offset=eye_xoffset,
+                y_offset=eye_yoffset,
             )
         if "limitLines" in self.props and self.report_category not in ["Eye Diagram", "Statistical Eye"]:
             for line in self.props["limitLines"].values():

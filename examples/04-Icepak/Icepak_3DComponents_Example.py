@@ -83,11 +83,8 @@ ipk.monitor.assign_point_monitor_in_object("HS_Fin1_5", monitor_quantity="Temper
 # Export the heatsink 3D component and close project. auxiliary_dict is set to true in order to export the
 # monitor objects along with the .a3dcomp file.
 os.mkdir(os.path.join(temp_folder, "componentLibrary"))
-ipk.modeler.create_3dcomponent(
-    os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
-    component_name="Heatsink",
-    auxiliary_dict=True
-)
+ipk.modeler.create_3dcomponent(os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"), name="Heatsink",
+                               export_auxiliary=True)
 ipk.close_project(save=False)
 
 ###############################################################################
@@ -125,12 +122,8 @@ ipk.monitor.assign_surface_monitor("Die_Attach", monitor_quantity="Temperature",
 
 # Export the QFP 3D component and close project. Here the auxiliary dictionary allows exporting not only the monitor
 # objects but also the dataset used for the power source assignment.
-ipk.modeler.create_3dcomponent(
-    os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
-    component_name="QFP",
-    auxiliary_dict=True,
-    datasets=["PowerDissipationDataset"]
-)
+ipk.modeler.create_3dcomponent(os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"), name="QFP",
+                               export_auxiliary=True, datasets=["PowerDissipationDataset"])
 ipk.release_desktop(False, False)
 
 ###############################################################################
@@ -175,13 +168,9 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 # components are not natively supported. Then it is possible to export the whole package as 3d component. Here the
 # auxiliary dictionary is needed to export monitor objects, datasets and native components.
 ipk.flatten_3d_components()
-ipk.modeler.create_3dcomponent(
-    component_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
-    component_name="PCBAssembly",
-    auxiliary_dict=True,
-    included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
-    reference_cs="PCB_Assembly"
-)
+ipk.modeler.create_3dcomponent(input_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
+                               name="PCBAssembly", coordinate_systems=["Global", "HeatsinkCS", "PCB_Assembly"],
+                               reference_coordinate_systems="PCB_Assembly", export_auxiliary=True)
 
 ###############################################################################
 # Release AEDT

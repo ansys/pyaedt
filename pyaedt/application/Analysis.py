@@ -217,7 +217,7 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
-        if self._materials is None:
+        if self._materials is None and self._odesign:
             self.logger.reset_timer()
             from pyaedt.modules.MaterialLib import Materials
 
@@ -281,7 +281,9 @@ class Analysis(Design, object):
             Position object.
 
         """
-        return self.modeler.Position
+        if self.modeler:
+            return self.modeler.Position
+        return
 
     @property
     def available_variations(self):
@@ -530,6 +532,51 @@ class Analysis(Design, object):
                 self._excitation_objects[el.name] = el
 
         return self._excitation_objects
+
+    @pyaedt_function_handler()
+    def _check_intrinsics(self, input_data, input_phase=None, setup=None, return_list=False):
+        intrinsics = {}
+        if input_data is None:
+            if setup is None:
+                try:
+                    setup = self.existing_analysis_sweeps[0].split(":")[0].strip()
+                except Exception:
+                    setup = None
+            else:
+                setup = setup.split(":")[0].strip()
+            for set_obj in self.setups:
+                if set_obj.name == setup:
+                    intrinsics = set_obj.default_intrinsics
+                    break
+
+        elif isinstance(input_data, str):
+            if "Freq" in self.design_solutions.intrinsics:
+                intrinsics["Freq"] = input_data
+                if "Phase" in self.design_solutions.intrinsics:
+                    intrinsics["Phase"] = input_phase if input_phase else "0deg"
+            elif "Time" in self.design_solutions.intrinsics:
+                intrinsics["Time"] = input_data
+        elif isinstance(input_data, dict):
+            for k, v in input_data.items():
+                if k in ["Freq", "freq", "frequency", "Frequency"]:
+                    intrinsics["Freq"] = v
+                elif k in ["Phase", "phase"]:
+                    intrinsics["Phase"] = v
+                elif k in ["Time", "time"]:
+                    intrinsics["Time"] = v
+                if input_phase:
+                    intrinsics["Phase"] = input_phase
+                if "Phase" in self.design_solutions.intrinsics and "Phase" not in intrinsics:
+                    intrinsics["Phase"] = "0deg"
+        else:
+            raise AttributeError("Intrinsics has to be a string or list.")
+        if return_list:
+            intrinsics_list = []
+            for k, v in intrinsics.items():
+                intrinsics_list.append("{}:=".format(k))
+                intrinsics_list.append(v)
+            return intrinsics_list
+        return intrinsics
 
     @pyaedt_function_handler()
     def get_traces_for_plot(
@@ -1763,7 +1810,7 @@ class Analysis(Design, object):
                 success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, name)
                 if success:
                     set_custom_dso = True
-        elif gpus or tasks or cores:
+        elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
             config_name = "pyaedt_config"
             source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
             if settings.remote_rpc_session:
@@ -1840,12 +1887,15 @@ class Analysis(Design, object):
         if not name:
             try:
                 self.logger.info("Solving all design setups.")
-                if self.desktop_class.aedt_version_id > "2023.1":
+                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                    "RMxprtSolution",
+                    "ModelCreation",
+                ]:
                     self.odesign.AnalyzeAll(blocking)
                 else:
                     self.odesign.AnalyzeAll()
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
                 return False
@@ -1854,12 +1904,15 @@ class Analysis(Design, object):
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
-                if self.desktop_class.aedt_version_id > "2023.1":
+                if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
+                    "RMxprtSolution",
+                    "ModelCreation",
+                ]:
                     self.odesign.Analyze(name, blocking)
                 else:
                     self.odesign.Analyze(name)
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
                 return False
@@ -1867,12 +1920,12 @@ class Analysis(Design, object):
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name)
-            except Exception:
-                if set_custom_dso:
+            except Exception:  # pragma: no cover
+                if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
                 return False
-        if set_custom_dso:
+        if set_custom_dso and active_config:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)

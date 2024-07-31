@@ -653,7 +653,6 @@ class TestClass:
         )
         assert isinstance(data_pyvista, Plotter)
 
-    @pytest.mark.skipif(sys.version_info > (3, 11), reason="Issues with VTK in Python 3.12")
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
     def test_71_antenna_plot(self, field_test):
         ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
