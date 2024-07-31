@@ -66,6 +66,7 @@ inclusion_list = [
     "Rename",
     "RestoreProjectArchive",
     "ImportGerber",
+    "EditSources",
 ]
 
 

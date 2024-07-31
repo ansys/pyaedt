@@ -1104,7 +1104,7 @@ class Desktop(object):
                 self.logger.error("Use client = pyaedt.common_rpc.client(machinename) to start a remote session.")
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
             elif new_aedt_session:
-                self.port = _find_free_port()
+                self.port = _find_free_port() if version_key < "2024.1" else 0
                 self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
             else:
                 sessions = grpc_active_sessions(
@@ -1128,14 +1128,14 @@ class Desktop(object):
                             return self._init_dotnet(
                                 non_graphical, new_aedt_session, version, student_version, version_key
                             )
-                    self.port = _find_free_port()
+                    self.port = _find_free_port() if version_key < "2024.1" else 0
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
                     new_aedt_session = True
         elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
             self.logger.warning("New Session of AEDT cannot be started on specified port because occupied.")
-            self.port = _find_free_port()
+            self.port = _find_free_port() if version_key < "2024.1" else 0
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif _check_grpc_port(self.port, self.machine):
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
@@ -1162,8 +1162,9 @@ class Desktop(object):
                     installer = os.path.join(settings.aedt_install_dir, "ansysedtsv.exe")
                 else:
                     installer = os.path.join(settings.aedt_install_dir, "ansysedt.exe")
-
-            out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
+            out = False
+            if version_key < "2024.1":
+                out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
                 is_grpc=True,
