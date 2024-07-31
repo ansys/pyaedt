@@ -305,7 +305,7 @@ class FfdSolutionData(object):
 
     @property
     def touchstone_data(self):
-        """Touchstone data"""
+        """Touchstone data."""
         return self.__touchstone_data
 
     @property
