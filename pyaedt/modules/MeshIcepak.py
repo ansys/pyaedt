@@ -1039,7 +1039,8 @@ class IcepakMesh(object):
         self._odesign = self._app._odesign
         self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
-        assert design_type in meshers, "Invalid design type {}".format(design_type)
+        if design_type not in meshers:
+            raise RuntimeError("Invalid design type {}".format(design_type))  # pragma: no cover
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
@@ -1143,9 +1144,10 @@ class IcepakMesh(object):
                                 meshop = GlobalMeshRegion(self._app)
                             else:
                                 meshop = MeshRegion(self._app, None, ds)
+                            meshop.manual_settings = dict_prop["UserSpecifiedSettings"]
                             for el in dict_prop:
-                                if el in meshop.__dict__:
-                                    meshop.__dict__[el] = dict_prop[el]
+                                if el in meshop.settings.keys():
+                                    meshop.settings[el] = dict_prop[el]
                             meshops.append(meshop)
             else:  # pragma: no cover
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshRegions"]:

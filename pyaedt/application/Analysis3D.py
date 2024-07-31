@@ -692,6 +692,22 @@ class FieldAnalysis3D(Analysis, object):
         return list(self.osolution.GetAllSources())
 
     @pyaedt_function_handler()
+    def get_all_source_modes(self):
+        """Retrieve all source modes.
+
+        Returns
+        -------
+        list of str
+            List of all source modes.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSources
+        """
+        return list(self.osolution.GetAllSourceModes())
+
+    @pyaedt_function_handler()
     def set_source_context(self, sources, number_of_modes=1):
         """Set the source context.
 
@@ -1096,7 +1112,7 @@ class FieldAnalysis3D(Analysis, object):
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
-                app[var] = val
+                self[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
             monitor_cache = {}
