@@ -243,6 +243,64 @@ operations = ["Fundamental_Quantity('E')",
 dependent_expressions = []
 report = ["Data Table", "Rectangular Plot"]
 
+[h_field_minimum_x_position]
+name = "HField_minimum_x_position"
+description = "H field minimum X position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarX')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+[h_field_minimum_y_position]
+name = "HField_minimum_y_position"
+description = "H field minimum Y position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarY')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+[h_field_minimum_z_position]
+name = "HField_minimum_z_position"
+description = "H field minimum Z position"
+design_type = ["HFSS", "Maxwell 3D"]
+fields_type = ["Fields"]
+solution_type = ""
+primary_sweep = "Freq"
+assignment = ""
+assignment_type = ["Sheet", "Solid"]
+operations = ["NameOfExpression('<Hx,Hy,Hz>')",
+	"Operation('Mag')",
+	"EnterSurface('assignment')",
+	"Operation('SurfaceValue')",
+	"Operation('MinPos')",
+	"Operation('ScalarZ')",
+]
+dependent_expressions = []
+report = ["Rectangular Plot"]
+
+
 # Electrostatic
 
 [electric_charge]

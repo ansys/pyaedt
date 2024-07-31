@@ -1486,7 +1486,7 @@ class PostProcessorCommon(object):
             Step range with units for the sweep if the ``uniform`` parameter is
             set to ``True``.
         use_trace_number_format : bool, optional
-            Whether to use trace number formats. The default is ``False``.
+            Whether to use trace number formats and use separate columns for curve. The default is ``False``.
 
         Returns
         -------
@@ -1527,10 +1527,8 @@ class PostProcessorCommon(object):
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
         elif uniform:
             self.oreportsetup.ExportUniformPointsToFile(plot_name, file_path, start, end, step, use_trace_number_format)
-
         else:
-            self.oreportsetup.ExportToFile(plot_name, file_path)
-
+            self.oreportsetup.ExportToFile(plot_name, file_path, use_trace_number_format)
         return file_path
 
     @pyaedt_function_handler()
@@ -2498,7 +2496,9 @@ class PostProcessor(PostProcessorCommon, object):
                             name2refid[cs_id + 1] = name + ":YZ"
                             name2refid[cs_id + 2] = name + ":XZ"
                 except Exception:
-                    pass
+                    self.logger.debug(
+                        "Something went wrong with key {} while retrieving coordinate systems plane ids.".format(ds)
+                    )  # pragma: no cover
         return name2refid
 
     @pyaedt_function_handler()
@@ -2552,7 +2552,9 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].MaxArrowSpacing = arrow_setts["MaxArrowSpacing"]
                         plots[plot_name].GridColor = surf_setts["GridColor"]
                 except Exception:
-                    pass
+                    self.logger.debug(
+                        "Something went wrong with setup {} while retrieving fields plot.".format(setup)
+                    )  # pragma: no cover
         return plots
 
     # TODO: define a fields calculator module and make robust !!
@@ -3290,7 +3292,7 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app.modeler.fit_all()
         except Exception:
-            pass
+            self.logger.debug("Something went wrong with `fit_all` while creating field plot.")  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -3350,7 +3352,9 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app._modeler.fit_all()
         except Exception:
-            pass
+            self.logger.debug(
+                "Something went wrong with `fit_all` while creating field plot with line traces."
+            )  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -4334,7 +4338,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
+        if self._app._aedt_version < "2021.2":
+            raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
         if not export_path:
             export_path = self._app.working_directory
         if not assignment:
