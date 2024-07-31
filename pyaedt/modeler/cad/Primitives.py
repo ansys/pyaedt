@@ -4094,7 +4094,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region(pad_percent=[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage=is_percentage)
+        return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
 
     @pyaedt_function_handler(listvalues="values")
     def edit_region_dimensions(self, values):
