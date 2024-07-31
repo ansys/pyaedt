@@ -1125,7 +1125,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def get_all_report_quantities(
         self,
-        solution=None,
+        solutions=None,
         context=None,
         is_siwave_dc=False,
     ):
@@ -1133,8 +1133,8 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        solution : str, optional
-            Report Setup.
+        solutions : str, list optional
+            Solution (or solutions) to get the report quantities.
             The default is ``None``, in which case the all solutions are used.
         context : str, dict, optional
             Report Context.
@@ -1153,17 +1153,17 @@ class PostProcessorCommon(object):
         rep_quantities = {}
         for rep in self.available_report_types:
             rep_quantities[rep] = {}
-            if solution:
-                sols = [solution]
-            else:
-                sols = self.available_report_solutions(rep)
-            for sol in sols:
+            if isinstance(solutions, str):
+                solutions = [solutions]
+            elif solutions is None:
+                solutions = self.available_report_solutions(rep)
+            for sol in solutions:
                 rep_quantities[rep][sol] = {}
                 for quant in self.available_quantities_categories(
-                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    rep, context=context, solution=sol, is_siwave_dc=is_siwave_dc
                 ):
                     rep_quantities[rep][sol][quant] = self.available_report_quantities(
-                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                        rep, quantities_category=quant, context=context, solution=sol, is_siwave_dc=is_siwave_dc
                     )
 
         return rep_quantities
