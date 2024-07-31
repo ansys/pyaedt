@@ -3508,6 +3508,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             - 1 value to setup 0deg as default
             - 2 values tuple or list (magnitude and phase) or
             - 3 values (magnitude, phase, and termination flag) for Terminal solution in case of incident voltage usage.
+        include_port_post_processing : bool, optional
+            Include port post-processing effects. The default is ``True``.
+        max_available_power : str, optional
+            System power for gain calculations.
+            The default is ``None``, in which case maximum available power is applied.
+        use_incident_voltage : bool, optional
+            Use incident voltage definition. The default is ``False``.
+            This argument applies only to the Terminal solution type.
 
         Returns
         -------
@@ -3562,8 +3570,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         args = [argument]
         args.extend(setting)
-        for arg in args:
-            self.osolution.EditSources(arg)
+        self.osolution.EditSources(args)
         return True
 
     @pyaedt_function_handler(portandmode="assignment", powerin="power")
@@ -5507,55 +5514,134 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         self.component_array_names = [name]
         return self.component_array[name]
 
-    @pyaedt_function_handler(setup_name="setup", sphere_name="sphere")
+    @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
         self,
-        frequencies,
+        frequencies=None,
         setup=None,
         sphere=None,
         variations=None,
         overwrite=True,
         link_to_hfss=True,
-    ):
+        export_touchstone=True,
+        set_phase_center_per_port=True,
+    ):  # pragma: no cover
         """Export the antenna parameters to Far Field Data (FFD) files and return an
-        instance of the
-        ``FfdSolutionDataExporter`` object.
+        instance of the ``FfdSolutionDataExporter`` object.
 
-        For phased array cases, only one phased array is calculated.
+        .. deprecated:: 0.9.8
+        Use :func:`get_antenna_data` method instead.
 
         Parameters
         ----------
-        frequencies : float, list
-            Frequency value or list of frequencies to compute far field data.
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute far field data. The default is ``None,`` in which case
+            all available frequencies are computed.
         setup : str, optional
             Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
         sphere : str, optional
             Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
             one is created.
         variations : dict, optional
-            Variation dictionary.
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
         overwrite : bool, optional
             Whether to overwrite FFD files. The default is ``True``.
         link_to_hfss : bool, optional
             Whether to return an instance of the
-            :class:`pyaedt.modules.solutions.FfdSolutionDataExporter` class,
+            :class:`pyaedt.generic.farfield_explorerf.FfdSolutionDataExporter` class,
             which requires a connection to an instance of the :class:`Hfss` class.
             The default is `` True``. If ``False``, returns an instance of
-            :class:`pyaedt.modules.solutions.FfdSolutionData` class, which is
-            independent from the running HFSS instance.
+            :class:`pyaedt.generic.farfield_explorer.FfdSolutionData` class, which is
+            independent of the running HFSS instance.
+        export_touchstone : bool, optional
+            Whether to export touchstone file. The default is ``False``.
+        set_phase_center_per_port : bool, optional
+            Set phase center per port location. The default is ``True``.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.FfdSolutionDataExporter`
+        :class:`pyaedt.generic.farfield_visualization.FfdSolutionDataExporter`
             SolutionData object.
         """
-        from pyaedt.modules.solutions import FfdSolutionData
-        from pyaedt.modules.solutions import FfdSolutionDataExporter
+        warnings.warn("Use :func:`get_antenna_data` method instead.", DeprecationWarning)
+        return self.get_antenna_data(
+            frequencies=frequencies,
+            setup=setup,
+            sphere=sphere,
+            variations=variations,
+            overwrite=overwrite,
+            link_to_hfss=link_to_hfss,
+            export_touchstone=export_touchstone,
+            set_phase_center_per_port=set_phase_center_per_port,
+        )
+
+    @pyaedt_function_handler()
+    def get_antenna_data(
+        self,
+        frequencies=None,
+        setup=None,
+        sphere=None,
+        variations=None,
+        overwrite=True,
+        link_to_hfss=True,
+        export_touchstone=True,
+        set_phase_center_per_port=True,
+    ):
+        """Export the antenna parameters to Far Field Data (FFD) files and return an
+        instance of the ``FfdSolutionDataExporter`` object.
+
+        For phased array cases, only one phased array is calculated.
+
+        Parameters
+        ----------
+        frequencies : float, list, optional
+            Frequency value or list of frequencies to compute far field data. The default is ``None,`` in which case
+            all available frequencies are computed.
+        setup : str, optional
+            Name of the setup to use. The default is ``None,`` in which case ``nominal_adaptive`` is used.
+        sphere : str, optional
+            Infinite sphere to use. The default is ``None``, in which case an existing sphere is used or a new
+            one is created.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        overwrite : bool, optional
+            Whether to overwrite FFD files. The default is ``True``.
+        link_to_hfss : bool, optional
+            Whether to return an instance of the
+            :class:`pyaedt.generic.farfield_explorerf.FfdSolutionDataExporter` class,
+            which requires a connection to an instance of the :class:`Hfss` class.
+            The default is `` True``. If ``False``, returns an instance of
+            :class:`pyaedt.generic.farfield_explorer.FfdSolutionData` class, which is
+            independent of the running HFSS instance.
+        export_touchstone : bool, optional
+            Whether to export touchstone file. The default is ``False``.
+        set_phase_center_per_port : bool, optional
+            Set phase center per port location. The default is ``True``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.farfield_visualization.FfdSolutionDataExporter`
+            SolutionData object.
+
+        Examples
+        --------
+        The method :func:`get_antenna_data` is used to export the farfield of each element of the design.
+
+        Open a design and create the objects.
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> ffdata = hfss.get_antenna_data()
+        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", is_polar=False, theta=0)
+        """
+        from pyaedt.generic.farfield_visualization import FfdSolutionData
+        from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
         if not setup:
             setup = self.nominal_adaptive
+
         if sphere:
             names = [i.name for i in self.field_setups]
             if sphere in names:
@@ -5576,6 +5662,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             )
             self.logger.info("Far field sphere %s is created.", setup)
 
+        if setup in self.existing_analysis_sweeps and not frequencies:
+            trace_name = "mag(rETheta)"
+            farfield_data = self.post.get_far_field_data(expressions=trace_name, setup_sweep_name=setup, domain=sphere)
+            if farfield_data and getattr(farfield_data, "primary_sweep_values", None) is not None:
+                frequencies = farfield_data.primary_sweep_values
+                frequency_units = self.odesktop.GetDefaultUnit("Frequency")
+                frequencies = [str(freq) + frequency_units for freq in frequencies]
+
+        if not frequencies:  # pragma: no cover
+            self.logger.info("Frequencies could not be obtained.")
+            return False
+
         ffd = FfdSolutionDataExporter(
             self,
             sphere_name=sphere,
@@ -5583,13 +5681,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             frequencies=frequencies,
             variations=variations,
             overwrite=overwrite,
+            export_touchstone=export_touchstone,
+            set_phase_center_per_port=set_phase_center_per_port,
         )
+
+        metadata_file = ffd.export_farfield()
+
         if link_to_hfss:
             return ffd
-        else:
-            eep_file = ffd.eep_files
-            frequencies = ffd.frequencies
-            return FfdSolutionData(frequencies=frequencies, eep_files=eep_file)
+        elif metadata_file:
+            return FfdSolutionData(input_file=metadata_file)
+        else:  # pragma: no cover
+            self.logger.error("Farfield solution data could not be exported.")
+            return False
 
     @pyaedt_function_handler()
     def set_material_threshold(self, threshold=100000):
@@ -6300,3 +6404,191 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         arg.append(arg3)
         self.odesign.SetDoMeshAssembly(arg)
         return True
+
+    @pyaedt_function_handler()
+    def export_element_pattern(
+        self, frequencies, setup, sphere, variations=None, element_name="element", output_dir=None
+    ):
+        """Export the element pattern.
+
+        For phased array cases, only one phased array is calculated.
+
+        Parameters
+        ----------
+        frequencies : float, list
+            Frequency value or list of frequencies to compute far field data.
+        setup : str
+            Name of the setup to use.
+        sphere : str
+            Infinite sphere to use.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        element_name : str, optional
+            Element pattern file name. The default is ``"element"``.
+        output_dir : str, optional
+            Path to export the element patterns to. The default is ``None``, in which
+            case the files are exported to the working_directory path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportElementPatternToFile
+        """
+        self.logger.info("Exporting embedded element patterns...")
+        var = []
+        if variations:
+            for k, v in variations.items():
+                var.append("{}='{}'".format(k, v))
+        variation = " ".join(var)
+
+        command = [
+            "ExportFileName:=",
+            os.path.join(output_dir, element_name + ".ffd"),
+            "SetupName:=",
+            sphere,
+        ]
+
+        for frequency in frequencies:
+            command.append("IntrinsicVariationKey:=")
+            command.append("Freq='" + str(frequency) + "'")
+
+        command.append("DesignVariationKey:=")
+        command.append(variation)
+        command.append("SolutionName:=")
+        command.append(setup)
+
+        try:
+            self.oradfield.ExportElementPatternToFile(command)
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to export one element pattern.")
+            self.logger.error(output_dir + exported_name_base + ".ffd")
+            return False
+
+    @pyaedt_function_handler()
+    def export_antenna_metadata(
+        self,
+        frequencies,
+        setup,
+        sphere,
+        variations=None,
+        output_dir=None,
+        export_element_pattern=True,
+        export_objects=False,
+        export_touchstone=True,
+        export_power=False,
+    ):
+        """Export the element pattern.
+
+        For phased array cases, only one phased array is calculated.
+
+        Parameters
+        ----------
+        frequencies : float, list
+            Frequency value or list of frequencies to compute far field data.
+        setup : str
+            Name of the setup to use.
+        sphere : str
+            Infinite sphere to use.
+        variations : dict, optional
+            Variation dictionary. The default is ``None``, in which case the nominal variation is exported.
+        output_dir : str, optional
+            Path to export the element patterns to. The default is ``None``, in which
+            case the files are exported to the working_directory path.
+        export_element_pattern : bool, optional
+            Whether to export the element patterns. The default is ``True``.
+        export_objects : bool, optional
+            Whether to export the objects. The default is ``False``.
+        export_touchstone : bool, optional
+            Whether to export touchstone file. The default is ``True``.
+        export_power : bool, optional
+            Whether to export all available powers: ``IncidentPower``, ``RadiatedPower``, ``AcceptedPower``.
+            The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportMetadata
+        """
+        self.logger.info("Exporting antenna metadata...")
+        var = []
+        if variations:
+            for k, v in variations.items():
+                var.append("{}='{}'".format(k, v))
+        variation = " ".join(var)
+
+        command = [
+            "SolutionName:=",
+            setup,
+            "ExportElementPattern:=",
+            export_element_pattern,
+            "SetupName:=",
+            sphere,
+            "SourceGroupName:=",
+            "Use Edit Sources",
+        ]
+
+        for frequency in frequencies:
+            command.append("IntrinsicVariable:=")
+            command.append("Freq='" + str(frequency) + "'")
+
+        command.append("DesignVariable:=")
+        command.append(variation)
+
+        available_categories = self.post.available_quantities_categories()
+
+        if "Active VSWR" in available_categories:  # pragma: no cover
+            quantities = self.post.available_report_quantities(quantities_category="Active VSWR")
+            for quantity in quantities:
+                command.append("ElementPatterns:=")
+                command.append(quantity[len("ActiveVSWR(") : -1])
+        elif "Terminal VSWR" in available_categories:  # pragma: no cover
+            quantities = self.post.available_report_quantities(quantities_category="Terminal VSWR")
+            for quantity in quantities:
+                command.append("ElementPatterns:=")
+                command.append(quantity[len("VSWRt(") : -1])
+        elif "Gamma" in available_categories:  # pragma: no cover
+            quantities = self.post.available_report_quantities(quantities_category="Gamma")
+            for quantity in quantities:
+                command.append("ElementPatterns:=")
+                command.append(quantity[len("Gamma(") : -1])
+        else:  # pragma: no cover
+            for excitation in self.get_all_sources():
+                command.append("ElementPatterns:=")
+                command.append(excitation)
+
+        if export_power:
+            command.append("ElementPowers:=")
+            command.append("IncidentPower")
+            command.append("ElementPowers:=")
+            command.append("AcceptedPower")
+            command.append("ElementPowers:=")
+            command.append("RadiatedPower")
+        command.append("ExportObject:=")
+        command.append(export_objects)
+        command.append("ExportTouchstone:=")
+        if export_touchstone:
+            command.append(True)
+        else:
+            command.append(False)
+
+        command.append("ExportDirectory:=")
+        command.append(output_dir)
+
+        try:
+            self.omodelsetup.ExportMetadata(command)
+            self.logger.info("Antenna metadata exported.")
+            return True
+        except Exception:  # pragma: no cover
+            self.logger.error("Failed to export antenna metadata.")
+            return False
