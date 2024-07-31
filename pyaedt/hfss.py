@@ -1884,13 +1884,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-             The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.AxisDir.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to
             ``AxisDir``. The default is ``True``.
-
 
         Returns
         -------
@@ -1940,13 +1939,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-             The default is ``Application.AxisDir.XNeg``.
+            The default is ``Application.AxisDir.XNeg``.
         name : str, optional
             Name of the source. The default is ``None``.
         source_on_plane : bool, optional
             Whether to create the source on the plane orthogonal to
             the start direction. The default is ``True``.
-
 
         Returns
         -------

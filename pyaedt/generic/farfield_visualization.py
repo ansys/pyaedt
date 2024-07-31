@@ -310,7 +310,7 @@ class FfdSolutionData(object):
 
     @property
     def s_parameters(self):
-        """Passive s-parameters"""
+        """Passive s-parameters."""
         if self.touchstone_data:
             touchstone_frequencies = self.touchstone_data.f
             index = np.abs(touchstone_frequencies - self.frequency).argmin()
@@ -318,7 +318,7 @@ class FfdSolutionData(object):
 
     @property
     def incident_power_element(self):
-        """Incident power per element in watts"""
+        """Incident power per element in watts."""
         incident_power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("incident_power", None)
@@ -331,14 +331,14 @@ class FfdSolutionData(object):
 
     @property
     def incident_power(self):
-        """Total incident power in watts"""
+        """Total incident power in watts."""
         incident_power_element = self.incident_power_element
         if incident_power_element:
             return sum(incident_power_element.values())
 
     @property
     def accepted_power_element(self):
-        """Accepted power per element in watts"""
+        """Accepted power per element in watts."""
         power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("accepted_power", None)
@@ -350,14 +350,14 @@ class FfdSolutionData(object):
 
     @property
     def accepted_power(self):
-        """Total accepted power in watts"""
+        """Total accepted power in watts."""
         power_element = self.accepted_power_element
         if power_element:
             return sum(power_element.values())
 
     @property
     def radiated_power_element(self):
-        """Radiated power per element in watts"""
+        """Radiated power per element in watts."""
         power = {}
         for element_name, element_props in self.element_info.items():
             element_power = element_props.get("radiated_power", None)
@@ -369,14 +369,14 @@ class FfdSolutionData(object):
 
     @property
     def radiated_power(self):
-        """Total radiated power in watts"""
+        """Total radiated power in watts."""
         power_element = self.radiated_power_element
         if power_element:
             return sum(power_element.values())
 
     @property
     def active_s_parameters(self):
-        """Active s-parameters"""
+        """Active s-parameters."""
         if self.s_parameters is not None:
             active_s_parameter = {}
             incident_power_list = list(self.incident_power_element.values())
@@ -1659,14 +1659,17 @@ class FfdSolutionDataExporter:
 
     @property
     def model_info(self):
+        """List of models."""
         return self.__model_info
 
     @property
     def farfield_data(self):
+        """Farfield data."""
         return self.__farfield_data
 
     @property
     def metadata_file(self):
+        """Metadata file."""
         return self.__metadata_file
 
     @pyaedt_function_handler()
