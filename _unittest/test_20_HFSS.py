@@ -892,6 +892,7 @@ class TestClass:
         design_name = self.aedtapp.design_name
         nominal_adaptive = self.aedtapp.nominal_adaptive
         self.aedtapp.duplicate_design(self.aedtapp.design_name)
+        self.aedtapp._setups = None
         assert self.aedtapp.setups[0].add_mesh_link(design=design_name)
         meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
         assert meshlink_props["Project"] == "This Project*"
