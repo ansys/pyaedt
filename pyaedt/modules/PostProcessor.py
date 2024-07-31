@@ -1123,6 +1123,52 @@ class PostProcessorCommon(object):
         return []  # pragma: no cover
 
     @pyaedt_function_handler()
+    def get_all_report_quantities(
+        self,
+        solution=None,
+        context=None,
+        is_siwave_dc=False,
+    ):
+        """Return all the possible report categories organized by report types, solution and categories.
+
+        Parameters
+        ----------
+        solution : str, optional
+            Report Setup.
+            The default is ``None``, in which case the all solutions are used.
+        context : str, dict, optional
+            Report Context.
+            The default is ``None``, in which case the default context is used.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
+        is_siwave_dc : bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
+        Returns
+        -------
+        dict
+            A dictionary with primary key the report type, secondary key the solution type and
+            third key the report categories.
+        """
+        rep_quantities = {}
+        for rep in self.available_report_types:
+            rep_quantities[rep] = {}
+            if solution:
+                sols = [solution]
+            else:
+                sols = self.available_report_solutions(rep)
+            for sol in sols:
+                rep_quantities[rep][sol] = {}
+                for quant in self.available_quantities_categories(
+                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                ):
+                    rep_quantities[rep][sol][quant] = self.available_report_quantities(
+                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    )
+
+        return rep_quantities
+
+    @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
