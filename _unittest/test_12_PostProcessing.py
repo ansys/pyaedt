@@ -27,7 +27,6 @@ import sys
 import tempfile
 
 from _unittest.conftest import config
-from matplotlib.figure import Figure
 import pandas as pd
 import pytest
 
@@ -834,6 +833,7 @@ class TestClass:
             adjacent_side=False,
         )
 
+    @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
     def test_101_markers(self, add_app):
         ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
 

@@ -28,15 +28,14 @@ import itertools
 import logging
 import math
 import os
+import shutil
 import sys
 import tempfile
-import time
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
-from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import is_ironpython
@@ -1810,6 +1809,9 @@ class FieldPlot:
         .. note::
            This method is working only if the associated field plot is currently visible.
 
+        .. note::
+           This method does not work in non-graphical mode.
+
         Parameters
         ----------
         points : list, list of lists or dict
@@ -1855,8 +1857,9 @@ class FieldPlot:
                 self.oField.AddMarkerToPlot(pt, self.name)
                 if points_name is not None:
                     added_points_name.append(points_name[pt_name_idx])
-            except (GrpcApiError, SystemExit):  # pragma: no cover
+            except (GrpcApiError, SystemExit) as e:  # pragma: no cover
                 self._postprocessor.logger.error(f"Point {str(pt)} not added. Check if it lies inside the plot.")
+                raise e
 
         # Export data
         with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv") as temp_file:
