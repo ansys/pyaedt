@@ -148,6 +148,6 @@ ffdata.plot_cut(quantity='RealizedGain', primary_sweep="phi", secondary_sweep_va
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.
 
-# plot_3d = ffdata.plot_3d(quantity='RealizedGain',
-#                          output_file=os.path.join(working_directory, "Image.jpg"),
-#                          show=False)
+ffdata.plot_3d(quantity='RealizedGain',
+               output_file=os.path.join(working_directory, "Image.jpg"),
+               show=False)
