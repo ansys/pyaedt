@@ -366,8 +366,7 @@ class AEDT:
 
     @property
     def odesktop(self):
-        if settings.use_multi_desktop:
-            self.aedt = self.recreate_application()
+        self.aedt = self.recreate_application()
         return self.aedt.GetAppDesktop()
 
     def recreate_application(self, force=False):
