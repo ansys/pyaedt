@@ -26,7 +26,6 @@ import os.path
 
 import pyaedt
 from pyaedt import Icepak
-from pyaedt import get_pyaedt_app
 import pyaedt.workflows
 from pyaedt.workflows.misc import get_aedt_version
 from pyaedt.workflows.misc import get_arguments
@@ -53,7 +52,6 @@ def frontend():  # pragma: no cover
     import PIL.Image
     import PIL.ImageTk
 
-    # Get ports
     app = pyaedt.Desktop(
         new_desktop=False,
         version=version,
@@ -66,7 +64,13 @@ def frontend():  # pragma: no cover
     active_design = app.active_design()
 
     project_name = active_project.GetName()
-    design_name = active_design.GetName()
+
+    if active_design.GetDesignType() in ["Icepak"]:
+        design_name = active_design.GetName()
+    else:  # pragma: no cover
+        app.logger.debug("Icepak project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("Icepak 3D Layout project is needed.")
 
     ipk = Icepak(project_name, design_name)
 
@@ -137,10 +141,27 @@ def main(extension_args):
     source_unit_info = {}
     geometric_info = []
 
-    app = pyaedt.Desktop(new_desktop=False, version=version, port=port, aedt_process_id=aedt_process_id)
-    project_name = app.active_project().GetName()
-    design_name = app.active_design().GetName()
-    ipk = get_pyaedt_app(project_name, design_name)
+    app = pyaedt.Desktop(
+        new_desktop=False,
+        version=version,
+        port=port,
+        aedt_process_id=aedt_process_id,
+        student_version=is_student,
+    )
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+
+    if active_design.GetDesignType() in ["Icepak"]:
+        design_name = active_design.GetName()
+    else:  # pragma: no cover
+        app.logger.debug("Icepak project is needed.")
+        app.release_desktop(False, False)
+        raise Exception("Icepak 3D Layout project is needed.")
+
+    ipk = Icepak(project_name, design_name)
 
     # read csv file
 
@@ -190,8 +211,9 @@ def main(extension_args):
         ipk.assign_source(polygon.name, "Total Power", power)
         ipk.logger.info("Assigned power value " + power)
 
-    # release electronics desktop
-    ipk.release_desktop(False, False)
+    if not extension_args["is_test"]:  # pragma: no cover
+        ipk.release_desktop(False, False)
+    return True
 
 
 if __name__ == "__main__":  # pragma: no cover
