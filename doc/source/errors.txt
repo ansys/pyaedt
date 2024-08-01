@@ -1,0 +1,288 @@
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 317
+vtkRibbonFilter (00000206D99D7CB0): Coincident points!
+
+
+Warning: In vtkRibbonFilter.cxx, line 208
+vtkRibbonFilter (00000206D99D7CB0): Could not generate points!
+
+

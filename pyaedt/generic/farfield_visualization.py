@@ -794,7 +794,7 @@ class FfdSolutionData(object):
         theta=0,
         title=None,
         quantity_format="dB10",
-        image_path=None,
+        output_file=None,
         levels=64,
         polar=True,
         max_theta=180,
@@ -818,7 +818,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        image_path : str, optional
+        output_file : str, optional
             Full path for the image file. The default is ``None``, in which case the file is not exported.
         levels : int, optional
             Color map levels. The default is ``64``.
@@ -874,7 +874,7 @@ class FfdSolutionData(object):
             title=title,
             levels=levels,
             polar=polar,
-            snapshot_path=image_path,
+            snapshot_path=output_file,
             max_theta=max_theta,
             color_bar=quantity_format,
             show=show,
@@ -890,7 +890,7 @@ class FfdSolutionData(object):
         theta=0,
         title="Far Field Cut",
         quantity_format="dB10",
-        image_path=None,
+        output_file=None,
         show=True,
         is_polar=False,
         show_legend=True,
@@ -918,7 +918,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        image_path : str, optional
+        output_file : str, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
@@ -995,7 +995,7 @@ class FfdSolutionData(object):
                 xlabel=x_key,
                 ylabel=quantity,
                 title=title,
-                snapshot_path=image_path,
+                snapshot_path=output_file,
                 show_legend=show_legend,
                 show=show,
             )
@@ -1005,7 +1005,7 @@ class FfdSolutionData(object):
                 xlabel=x_key,
                 ylabel=quantity,
                 title=title,
-                snapshot_path=image_path,
+                snapshot_path=output_file,
                 show_legend=show_legend,
                 show=show,
             )
@@ -1018,7 +1018,7 @@ class FfdSolutionData(object):
         theta=0,
         title="3D Plot",
         quantity_format="dB10",
-        image_path=None,
+        output_file=None,
         show=True,
     ):
         """Create a 3D chart of a specified quantity in Matplotlib.
@@ -1039,7 +1039,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        image_path : str, optional
+        output_file : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
@@ -1084,7 +1084,7 @@ class FfdSolutionData(object):
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=image_path, show=show)
+        return plot_3d_chart([x, y, z], xlabel="Theta", ylabel="Phi", title=title, snapshot_path=output_file, show=show)
 
     @pyaedt_function_handler()
     def plot_3d(
@@ -1092,7 +1092,7 @@ class FfdSolutionData(object):
         quantity="RealizedGain",
         quantity_format="dB10",
         rotation=None,
-        image_path=None,
+        output_file=None,
         show=True,
         show_as_standalone=False,
         pyvista_object=None,
@@ -1113,7 +1113,7 @@ class FfdSolutionData(object):
             Conversion data function.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
-        image_path : str, optional
+        output_file : str, optional
             Full path for the image file. The default is ``None``, in which case a file is not exported.
         rotation : list, optional
             Far field rotation matrix. The matrix contains three vectors, around x, y, and z axes.
@@ -1139,7 +1139,7 @@ class FfdSolutionData(object):
         -------
         bool or :class:`Pyvista.Plotter`
             ``True`` when successful. The :class:`Pyvista.Plotter` is returned when ``show`` and
-            ``export_image_path`` are ``False``.
+            ``image_path`` are ``False``.
 
         Examples
         --------
@@ -1168,7 +1168,7 @@ class FfdSolutionData(object):
 
         rotation_euler = self.__rotation_to_euler_angles(rotation) * 180 / np.pi
 
-        if not image_path and not show:
+        if not output_file and not show:
             off_screen = False
         else:
             off_screen = not show
@@ -1179,6 +1179,8 @@ class FfdSolutionData(object):
             else:
                 is_notebook_flag = is_notebook()
                 p = pv.Plotter(notebook=is_notebook_flag, off_screen=off_screen)
+            p.enable_ssao()
+            p.enable_parallel_projection()
         else:  # pragma: no cover
             p = pyvista_object
 
@@ -1300,8 +1302,8 @@ class FfdSolutionData(object):
 
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
-        if image_path:
-            p.show(auto_close=False, screenshot=image_path)
+        if output_file:
+            p.show(auto_close=False, screenshot=output_file, full_screen=True)
         if show:  # pragma: no cover
             p.show(auto_close=False)
         return p
