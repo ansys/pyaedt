@@ -480,7 +480,7 @@ class Desktop(object):
             kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
         )
         new_desktop = (
-            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or False
+            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or True
             if (not args or len(args) < 3)
             else args[2]
         )
@@ -1033,6 +1033,8 @@ class Desktop(object):
             else:
                 return StandalonePyScriptWrapper.CreateObject(version)
         else:
+            settings.use_grpc_api = True
+            self.is_grpc_api = True
             base_path = settings.aedt_install_dir
             sys.path.insert(0, base_path)
             sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -1051,10 +1053,8 @@ class Desktop(object):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
-
             self.isoutsideDesktop = True
             self.aedt_process_id = self.odesktop.GetProcessID()
-            self.is_grpc_api = True
             self.logger.info(
                 "AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString()
             )
@@ -1076,7 +1076,8 @@ class Desktop(object):
             tries = 0
             while tries < 5:
                 try:
-                    return self.grpc_plugin.odesktop
+                    self._odesktop = self.grpc_plugin.odesktop
+                    return self._odesktop
                 except Exception:  # pragma: no cover
                     tries += 1
                     time.sleep(1)
@@ -1142,7 +1143,8 @@ class Desktop(object):
                     new_aedt_session = True
         elif new_aedt_session:
             self.logger.warning("New Session of AEDT cannot be started on specified port because occupied.")
-            self.port = _find_free_port() if version_key < "2024.1" else 0
+            if self.port == 0:
+                self.port = _find_free_port() if version_key < "2024.1" else 0
         elif _check_grpc_port(self.port, self.machine):
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
         else:
