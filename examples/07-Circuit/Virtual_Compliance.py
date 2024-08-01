@@ -19,7 +19,7 @@ from pyaedt.generic.compliance import VirtualCompliance
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

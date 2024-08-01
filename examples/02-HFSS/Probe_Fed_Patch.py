@@ -23,7 +23,7 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

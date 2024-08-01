@@ -14,7 +14,7 @@ import pyaedt
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Configure EDB for DCIR analysis
