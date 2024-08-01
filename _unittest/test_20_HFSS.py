@@ -997,6 +997,8 @@ class TestClass:
     def test_38_get_all_sources(self):
         sources = self.aedtapp.get_all_sources()
         assert isinstance(sources, list)
+        sources2 = self.aedtapp.get_all_source_modes()
+        assert isinstance(sources2, list)
 
     def test_40_assign_current_source_to_sheet(self):
         sheet = self.aedtapp.modeler.create_rectangle(

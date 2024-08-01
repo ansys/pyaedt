@@ -115,19 +115,19 @@ class TestClass:
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
 
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
-        ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
-                           title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10", show=False,
-                           image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+        ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
+                                      theta=20,
+                                      title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency), quantity_format="dB10",
+                                      show=False,
+                                      image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.polar_plot_3d_pyvista(quantity="RealizedGain",
+        ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
                                       rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
-                                      show=False,
-                                      convert_to_db=True)
+                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
@@ -543,7 +543,7 @@ class TestClass:
 
         from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
-        com_param.load(os.path.join(spisim.working_directory, "custom.json"),)
+        com_param.load(os.path.join(spisim.working_directory, "custom.json"), )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
