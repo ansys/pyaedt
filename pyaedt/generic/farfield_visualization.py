@@ -1240,6 +1240,7 @@ class FfdSolutionData(object):
             outline=False,
         )
 
+        cad_mesh = self.__get_geometry(off_screen=off_screen)
         cad_mesh = self.__get_geometry()
 
         data = conversion_function(farfield_data[quantity], function=quantity_format)
@@ -1407,7 +1408,7 @@ class FfdSolutionData(object):
         return mesh
 
     @pyaedt_function_handler()
-    def __get_geometry(self):
+    def __get_geometry(self, off_screen=False):
         """Get 3D meshes."""
         model_info = self.metadata["model_info"]
         obj_meshes = []
@@ -1423,7 +1424,7 @@ class FfdSolutionData(object):
             for cell_row in cell_info:
                 for cell_col in cell_row:
                     # Initialize an empty mesh for this component
-                    model_pv = ModelPlotter()
+                    model_pv = ModelPlotter(off_screen=off_screen)
                     component_name = cell_col[0]
                     component_info = components_info[component_name]
                     rotation = cell_col[2]
