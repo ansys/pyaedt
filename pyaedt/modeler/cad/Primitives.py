@@ -4503,7 +4503,9 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def get_bounding_dimension(self):
-        """Retrieve the dimension array of the bounding box.
+        """Retrieve the x, y and z size of the bounding box for the model.
+
+        This method is called without arguments.
 
         Returns
         -------
