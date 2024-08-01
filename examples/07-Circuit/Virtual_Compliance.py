@@ -54,7 +54,7 @@ d = pyaedt.Desktop(aedt_version, new_desktop=new_thread, non_graphical=non_graph
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), version=241)
+h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), version=242)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
@@ -62,7 +62,7 @@ h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = 'LIN 0MHz 70GHz 0.1GHz'
 h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze()
-h3d = pyaedt.Hfss3dLayout(version=241)
+h3d = pyaedt.Hfss3dLayout(version=242)
 touchstone_path = h3d.export_touchstone()
 
 ###############################################################################

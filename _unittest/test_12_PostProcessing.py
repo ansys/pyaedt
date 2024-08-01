@@ -54,7 +54,7 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-test_emi_name = "EMI_RCV_241"
+test_emi_name = "EMI_RCV_242"
 eye_diagram = "SimpleChannel"
 ami = "ami"
 ipk_post_proj = "for_icepak_post"
