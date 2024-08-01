@@ -1072,10 +1072,14 @@ class Desktop(object):
         >>> d = Desktop()
         >>> d.odesktop
         """
-        try:
-            return self.grpc_plugin.odesktop
-        except Exception:
-            return self._odesktop
+        tries = 0
+        while tries < 5:
+            try:
+                return self.grpc_plugin.odesktop
+            except Exception:
+                tries += 1
+                time.sleep(1)
+        return self._odesktop
 
     @odesktop.setter
     def odesktop(self, val):  # pragma: no cover
