@@ -292,7 +292,7 @@ jobs:
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -413,7 +413,7 @@ jobs:
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
