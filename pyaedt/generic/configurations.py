@@ -718,6 +718,12 @@ class Configurations(object):
 
     @property
     def schema(self):
+        """Schema dictionary.
+
+        Returns
+        -------
+        dict
+        """
         if self._schema:
             return self._schema
         pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
