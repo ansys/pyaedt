@@ -225,7 +225,8 @@ class PostProcessor(Post):
             Model Object.
         """
 
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
+        if self._app._aedt_version < "2021.2":
+            raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
 
         files = []
         if get_objects_from_aedt and self._app.solution_type not in ["HFSS3DLayout", "HFSS 3D Layout Design"]:
