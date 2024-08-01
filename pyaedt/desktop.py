@@ -111,11 +111,9 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
                 stderr=subprocess.DEVNULL,
             )
 
-    aedt_sessions = grpc_active_sessions()
     _aedt_process_thread = threading.Thread(target=launch_desktop_on_port)
     _aedt_process_thread.daemon = True
     _aedt_process_thread.start()
-
     timeout = settings.desktop_launch_timeout
     k = 0
     while not _check_grpc_port(port):
@@ -213,7 +211,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
 def _check_grpc_port(port, machine_name=""):
     if not port:
         return False
-    s = socket.socket()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         if not machine_name:
             machine_name = "127.0.0.1"
@@ -230,10 +228,16 @@ def _check_grpc_port(port, machine_name=""):
 def _find_free_port():
     from contextlib import closing
 
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("127.0.0.1", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+    def _find():
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("127.0.0.1", 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            return s.getsockname()[1]
+
+    while True:
+        new_port = _find()
+        if new_port not in list(active_sessions().values()):
+            return new_port
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -1053,11 +1057,9 @@ class Desktop(object):
             self.grpc_plugin = AEDT(os.environ["DesktopPluginPyAEDT"])
             oapp = self.grpc_plugin.CreateAedtApplication(machine, port, non_graphical, new_session)
         if oapp:
+
             self.isoutsideDesktop = True
             self.aedt_process_id = self.odesktop.GetProcessID()
-            self.logger.info(
-                "AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString()
-            )
         return True
 
     @property
@@ -1116,7 +1118,8 @@ class Desktop(object):
                 self.logger.error("Use client = pyaedt.common_rpc.client(machinename) to start a remote session.")
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
             elif new_aedt_session:
-                self.port = _find_free_port() if version_key < "2024.1" else 0
+                self.port = _find_free_port()
+                self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
             else:
                 sessions = grpc_active_sessions(
                     version=version, student_version=student_version, non_graphical=non_graphical
@@ -1139,12 +1142,15 @@ class Desktop(object):
                             return self._init_dotnet(
                                 non_graphical, new_aedt_session, version, student_version, version_key
                             )
-                    self.port = _find_free_port() if version_key < "2024.1" else 0
+                    self.port = _find_free_port()
+                    self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
                     new_aedt_session = True
+        elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
+            self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
             self.logger.warning("New Session of AEDT cannot be started on specified port because occupied.")
-            if self.port == 0:
-                self.port = _find_free_port() if version_key < "2024.1" else 0
+            self.port = _find_free_port()
+            self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif _check_grpc_port(self.port, self.machine):
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
         else:
@@ -1170,9 +1176,8 @@ class Desktop(object):
                     installer = os.path.join(settings.aedt_install_dir, "ansysedtsv.exe")
                 else:
                     installer = os.path.join(settings.aedt_install_dir, "ansysedt.exe")
-            out = False
-            if version_key < "2024.1":
-                out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
+
+            out, self.port = launch_aedt(installer, non_graphical, self.port, student_version)
             self.launched_by_pyaedt = True
             oApp = self._initialize(
                 is_grpc=True,
@@ -1182,9 +1187,6 @@ class Desktop(object):
                 new_session=not out,
                 version=version_key,
             )
-            if version_key >= "2024.1":
-                self.port = self.odesktop.GetGrpcServerPort()
-            self.logger.info("New AEDT session started on gRPC port %s", self.port)
         else:
             oApp = self._initialize(
                 is_grpc=True,
@@ -1196,8 +1198,8 @@ class Desktop(object):
             )
         if oApp:
             if new_aedt_session:
-                message = "New AEDT {}{} session process ID {}.".format(
-                    version_key, " Student" if student_version else "", self.aedt_process_id
+                message = "{}{} version started with process ID {}.".format(
+                    version, " Student" if student_version else "", self.aedt_process_id
                 )
                 self.logger.info(message)
 
