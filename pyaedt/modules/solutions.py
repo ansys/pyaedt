@@ -1853,12 +1853,14 @@ class FieldPlot:
         added_points_name = []
         for pt_name_idx, pt in enumerate(points_value):
             try:
-                pt = [c if isinstance(c, str) else f"{c}{u}" for c in pt]
+                pt = [c if isinstance(c, str) else "{}{}".format(c, u) for c in pt]
                 self.oField.AddMarkerToPlot(pt, self.name)
                 if points_name is not None:
                     added_points_name.append(points_name[pt_name_idx])
             except (GrpcApiError, SystemExit) as e:  # pragma: no cover
-                self._postprocessor.logger.error(f"Point {str(pt)} not added. Check if it lies inside the plot.")
+                self._postprocessor.logger.error(
+                    "Point {} not added. Check if it lies inside the plot.".format(str(pt))
+                )
                 raise e
 
         # Export data
