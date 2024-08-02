@@ -1846,7 +1846,7 @@ class FieldPlot:
             raise AttributeError("``points`` argument is invalid.")
         if filename is not None:
             if not os.path.isdir(os.path.dirname(filename)):
-                raise AttributeError(f"Specified path ({filename}) does not exist")
+                raise AttributeError("Specified path ({}) does not exist".format(filename))
 
         # Create markers
         u = self._postprocessor._app.modeler.model_units
