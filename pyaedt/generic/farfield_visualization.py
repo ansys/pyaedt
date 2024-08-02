@@ -92,7 +92,7 @@ class FfdSolutionData(object):
     --------
 
     >>> import pyaedt
-    >>> from pyaedt.application.analysis_hf import FfdSolutionData
+    >>> from pyaedt.generic.farfield_visualization import FfdSolutionData
     >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
@@ -1582,7 +1582,7 @@ class FfdSolutionDataExporter:
     the embedded
     element pattern files for an antenna that have been solved in HFSS. The
     ``metadata_file`` properties can then be passed as arguments to
-    instantiate an instance of the :class:`pyaedt.application.analysis_hf.FfdSolutionData` class for
+    instantiate an instance of the :class:`pyaedt.generic.farfield_visualization.FfdSolutionData` class for
     subsequent analysis and postprocessing of the array data.
 
     Note that this class is derived from the :class:`FfdSolutionData` class and can be used directly for
@@ -2130,7 +2130,7 @@ class UpdateBeamForm:
 
     Parameters
     ----------
-    farfield_data : :class:`pyaedt.modules.solutions.FfdSolutionData`
+    farfield_data : :class:`pyaedt.generic.farfield_visualization.FfdSolutionData`
         Far field solution data instance.
     farfield_quantity : str, optional
         Quantity to plot. The default is ``"RealizedGain"``.
