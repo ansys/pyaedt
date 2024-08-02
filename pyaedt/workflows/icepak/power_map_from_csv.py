@@ -136,11 +136,6 @@ def frontend():  # pragma: no cover
 def main(extension_args):
 
     csv_file = extension_args["file_path"]
-    # Initialize lists to store the extracted information
-    source_value_info = {}
-    source_unit_info = {}
-    geometric_info = []
-
     app = pyaedt.Desktop(
         new_desktop=False,
         version=version,
@@ -148,10 +143,8 @@ def main(extension_args):
         aedt_process_id=aedt_process_id,
         student_version=is_student,
     )
-
     active_project = app.active_project()
     active_design = app.active_design()
-
     project_name = active_project.GetName()
 
     if active_design.GetDesignType() in ["Icepak"]:
@@ -164,6 +157,50 @@ def main(extension_args):
     ipk = Icepak(project_name, design_name)
 
     # read csv file
+
+    create_powermaps_from_csv(ipk, csv_file)
+
+    if not extension_args["is_test"]:  # pragma: no cover
+        ipk.release_desktop(False, False)
+    return True
+
+
+def create_powermaps_from_csv(ipk, csv_file):
+    geometric_info, source_value_info, source_unit_info = extract_info(csv_file)
+    create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info)
+
+
+def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info):
+    # create power maps
+    for info in geometric_info:
+        no_vertices = info["nverts"]
+        name = info["name"]
+        points = []
+        for vertex in info["vertices"]:
+            if not vertex == "":
+                x = vertex.split()[0] + "m"
+                y = vertex.split()[1] + "m"
+                z = vertex.split()[2] + "m"
+                points.append([x, y, z])
+        # add first point at the end of list
+        points.append(points[0])
+        ipk.logger.info("creating 2d object " + name)
+        sanitized_name = name.replace(".", "_")
+        polygon = ipk.modeler.create_polyline(points, name=name)
+        ipk.logger.info("created polygon " + polygon.name)
+        ipk.modeler.cover_lines(polygon)
+        power = source_value_info[name] + source_unit_info[name]
+        ipk.logger.info("Assigning power value " + power)
+        ipk.assign_source(polygon.name, "Total Power", power)
+        ipk.logger.info("Assigned power value " + power)
+
+
+def extract_info(csv_file):
+
+    # Initialize lists to store the extracted information
+    source_value_info = {}
+    source_unit_info = {}
+    geometric_info = []
 
     with open(csv_file, "r") as file:
         reader = csv.reader(file)
@@ -188,32 +225,7 @@ def main(extension_args):
             if line and line[0]:
                 geometric_info.append({"name": line[0], "nverts": line[4], "plane": line[5], "vertices": line[10:]})
 
-    # create power maps
-    for info in geometric_info:
-        no_vertices = info["nverts"]
-        name = info["name"]
-        points = []
-        for vertex in info["vertices"]:
-            if not vertex == "":
-                x = vertex.split()[0] + "m"
-                y = vertex.split()[1] + "m"
-                z = vertex.split()[2] + "m"
-                points.append([x, y, z])
-        # add first point at the end of list
-        points.append(points[0])
-        ipk.logger.info("creating 2d object " + name)
-        sanitized_name = name.replace(".", "_")
-        polygon = ipk.modeler.create_polyline(points, name=name)
-        ipk.logger.info("created polygon " + polygon.name)
-        ipk.modeler.cover_lines(polygon)
-        power = source_value_info[name] + source_unit_info[name]
-        ipk.logger.info("Assigning power value " + power)
-        ipk.assign_source(polygon.name, "Total Power", power)
-        ipk.logger.info("Assigned power value " + power)
-
-    if not extension_args["is_test"]:  # pragma: no cover
-        ipk.release_desktop(False, False)
-    return True
+        return geometric_info, source_value_info, source_unit_info
 
 
 if __name__ == "__main__":  # pragma: no cover
