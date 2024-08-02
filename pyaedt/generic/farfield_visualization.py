@@ -1484,7 +1484,7 @@ class FfdSolutionData(object):
             first_value = next(iter(non_array_geometry.values()))
             sf = AEDT_UNITS["Length"][first_value[3]]
             self.__model_units = first_value[3]
-            model_pv.off_screen = True
+            model_pv.off_screen = off_screen
             for object_in in non_array_geometry.values():
                 cad_path = os.path.join(self.output_dir, object_in[0])
                 if os.path.exists(cad_path):
