@@ -517,12 +517,10 @@ class Modeler3D(Primitives3D):
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
-        if reference_coordinate_system:
-            allcs = reference_coordinate_system
-        else:
-            allcs = self.oeditor.GetCoordinateSystems()
-        arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(coordinate_systems)
+        if not coordinate_systems:
+            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
+        arg.append("IncludedCS:="), arg.append(coordinate_systems)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
         par_description = []
         variables = []
         if variables_to_include:
