@@ -13,7 +13,6 @@ twinbuilder_circuit = "TB_test"
 report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
-
 test_subfolder = "T45"
 
 
@@ -299,3 +298,10 @@ class TestClass:
 
         assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
         app.close_project()
+
+    def test_13_power_map_creation_ipk(self, local_scratch, add_app):
+        from pyaedt.workflows.icepak.power_map_from_csv import main
+        project_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap_import.aedt")
+        file_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
+        aedtapp = add_app("PowerMap", application=pyaedt.Icepak, subfolder=test_subfolder)
+        assert main({"is_test": True, "file_path": file_path})
