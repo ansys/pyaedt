@@ -1123,6 +1123,49 @@ class PostProcessorCommon(object):
         return []  # pragma: no cover
 
     @pyaedt_function_handler()
+    def get_all_report_quantities(
+        self,
+        solution=None,
+        context=None,
+        is_siwave_dc=False,
+    ):
+        """Return all the possible report categories organized by report types, solution and categories.
+
+        Parameters
+        ----------
+        solution : str optional
+            Solution to get the report quantities.
+            The default is ``None``, in which case the all solutions are used.
+        context : str, dict, optional
+            Report Context.
+            The default is ``None``, in which case the default context is used.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
+        is_siwave_dc : bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
+        Returns
+        -------
+        dict
+            A dictionary with primary key the report type, secondary key the solution type and
+            third key the report categories.
+        """
+        rep_quantities = {}
+        for rep in self.available_report_types:
+            rep_quantities[rep] = {}
+            solutions = [solution] if isinstance(solution, str) else self.available_report_solutions(rep)
+            for solution in solutions:
+                rep_quantities[rep][solution] = {}
+                for quant in self.available_quantities_categories(
+                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                ):
+                    rep_quantities[rep][solution][quant] = self.available_report_quantities(
+                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    )
+
+        return rep_quantities
+
+    @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
@@ -3362,11 +3405,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3437,11 +3479,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3619,11 +3660,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         name : str, optional
@@ -3711,11 +3751,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
@@ -3865,11 +3904,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3949,11 +3987,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -4355,11 +4392,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional
