@@ -714,7 +714,18 @@ class Configurations(object):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
+        self._schema = None
 
+    @property
+    def schema(self):
+        """Schema dictionary.
+
+        Returns
+        -------
+        dict
+        """
+        if self._schema:
+            return self._schema
         pyaedt_installed_path = os.path.dirname(pyaedt.__file__)
 
         schema_bytes = None
@@ -732,6 +743,7 @@ class Configurations(object):
         else:  # pragma: no cover
             self._app.logger.error("Failed to load configuration schema.")
             self._schema = None
+        return self._schema
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1069,7 +1081,7 @@ class Configurations(object):
             self._app.logger.warning("Iron Python: Unable to validate json Schema.")
         else:
             try:
-                validate(instance=config_data, schema=self._schema)
+                validate(instance=config_data, schema=self.schema)
                 return True
             except exceptions.ValidationError as e:
                 self._app.logger.warning("Configuration is invalid.")
