@@ -1424,7 +1424,8 @@ class FfdSolutionData(object):
             for cell_row in cell_info:
                 for cell_col in cell_row:
                     # Initialize an empty mesh for this component
-                    model_pv = ModelPlotter(off_screen=off_screen)
+                    model_pv = ModelPlotter()
+                    model_pv.off_screen = off_screen
                     component_name = cell_col[0]
                     component_info = components_info[component_name]
                     rotation = cell_col[2]
