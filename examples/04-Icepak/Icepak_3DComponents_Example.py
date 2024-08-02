@@ -170,7 +170,7 @@ cs_pcb_assembly = ipk.modeler.create_coordinate_system(
 ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(input_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
                                name="PCBAssembly", coordinate_systems=["Global", "HeatsinkCS", "PCB_Assembly"],
-                               reference_coordinate_systems="PCB_Assembly", export_auxiliary=True)
+                               reference_coordinate_system="PCB_Assembly", export_auxiliary=True)
 
 ###############################################################################
 # Release AEDT
