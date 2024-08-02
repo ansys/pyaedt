@@ -209,7 +209,9 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
 
 
 def _check_grpc_port(port, machine_name=""):
-    s = socket.socket()
+    if not port:
+        return False
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
         if not machine_name:
             machine_name = "127.0.0.1"
@@ -226,10 +228,16 @@ def _check_grpc_port(port, machine_name=""):
 def _find_free_port():
     from contextlib import closing
 
-    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(("127.0.0.1", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        return s.getsockname()[1]
+    def _find():
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(("127.0.0.1", 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            return s.getsockname()[1]
+
+    while True:
+        new_port = _find()
+        if new_port not in list(active_sessions().values()):
+            return new_port
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -476,7 +484,7 @@ class Desktop(object):
             kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
         )
         new_desktop = (
-            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or False
+            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or True
             if (not args or len(args) < 3)
             else args[2]
         )
@@ -485,6 +493,9 @@ class Desktop(object):
         specified_version = get_string_version(specified_version)
         port = kwargs.get("port") or 0 if (not args or len(args) < 7) else args[6]
         aedt_process_id = kwargs.get("aedt_process_id") or None if (not args or len(args) < 8) else args[7]
+        if not settings.remote_api:
+            pyaedt_logger.info("Python version %s", sys.version)
+        pyaedt_logger.info("PyAEDT version {}.".format(pyaedt_version))
         if settings.use_multi_desktop and not inside_desktop and new_desktop:
             pyaedt_logger.info("Initializing new Desktop session.")
             return object.__new__(cls)
@@ -659,10 +670,10 @@ class Desktop(object):
         else:
             settings.aedt_version = version_key
             if starting_mode == "ironpython":  # pragma no cover
-                self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
+                self._logger.info("Launching PyAEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop, version)
             elif starting_mode == "com":  # pragma no cover
-                self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
+                self._logger.info("Launching PyAEDT with CPython and PythonNET.")
                 self._init_dotnet(
                     non_graphical,
                     new_desktop,
@@ -672,15 +683,12 @@ class Desktop(object):
                     aedt_process_id,
                 )
             elif starting_mode == "grpc":
-                self._logger.info("Launching PyAEDT outside AEDT with gRPC plugin.")
+                self._logger.info("Launching PyAEDT with gRPC plugin.")
                 self._init_grpc(non_graphical, new_desktop, version, student_version_flag, version_key)
 
         self._set_logger_file()
         settings.enable_desktop_logs = not self.non_graphical
         self._init_desktop()
-        self._logger.info("pyaedt v%s", pyaedt_version)
-        if not settings.remote_api:
-            self._logger.info("Python version %s", sys.version)
 
         current_pid = int(self.odesktop.GetProcessID())
         if aedt_process_id and not new_desktop and aedt_process_id != current_pid:  # pragma no cover
@@ -699,8 +707,6 @@ class Desktop(object):
         self.student_version = current_is_student
 
         self.aedt_version_id = self.odesktop.GetVersion()[0:6]
-
-        self._logger.info("AEDT %s Build Date %s", self.odesktop.GetVersion(), self.odesktop.GetBuildDateTimeString())
 
         if is_ironpython:  # pragma no cover
             sys.path.append(os.path.join(settings.aedt_install_dir, "common", "commonfiles", "IronPython", "DLLs"))
@@ -982,12 +988,7 @@ class Desktop(object):
         if proc == processID2 and len(processID2) > 1:
             self._dispatch_win32(version)
         elif version_key >= "2021.2":
-            if student_version:
-                self.logger.info("AEDT {} Student version started with process ID {}.".format(version_key, proc[0]))
-            elif aedt_process_id:
-                self.logger.info("Connecting to AEDT session with process ID {}.".format(proc[0]))
-            else:
-                self.logger.info("AEDT {} Started with process ID {}.".format(version_key, proc[0]))
+
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -999,6 +1000,12 @@ class Desktop(object):
                     from pyaedt.generic.clr_module import win32_client
 
                     self.odesktop = win32_client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
+                    if student_version:
+                        self.logger.info("New AEDT {} Student version process ID {}.".format(version_key, proc[0]))
+                    elif aedt_process_id:
+                        self.logger.info("Existing AEDT session process ID {}.".format(proc[0]))
+                    else:
+                        self.logger.info("New AEDT {} Started process ID {}.".format(version_key, proc[0]))
                     break
         else:
             self.logger.warning(
@@ -1030,6 +1037,8 @@ class Desktop(object):
             else:
                 return StandalonePyScriptWrapper.CreateObject(version)
         else:
+            settings.use_grpc_api = True
+            self.is_grpc_api = True
             base_path = settings.aedt_install_dir
             sys.path.insert(0, base_path)
             sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -1051,7 +1060,6 @@ class Desktop(object):
 
             self.isoutsideDesktop = True
             self.aedt_process_id = self.odesktop.GetProcessID()
-            self.is_grpc_api = True
         return True
 
     @property
@@ -1066,10 +1074,16 @@ class Desktop(object):
         >>> d = Desktop()
         >>> d.odesktop
         """
-        try:
-            return self.grpc_plugin.odesktop
-        except Exception:
-            return self._odesktop
+        if settings.use_grpc_api:
+            tries = 0
+            while tries < 5:
+                try:
+                    self._odesktop = self.grpc_plugin.odesktop
+                    return self._odesktop
+                except Exception:  # pragma: no cover
+                    tries += 1
+                    time.sleep(1)
+        return self._odesktop  # pragma: no cover
 
     @odesktop.setter
     def odesktop(self, val):  # pragma: no cover
