@@ -305,3 +305,5 @@ class TestClass:
         file_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
         aedtapp = add_app("PowerMap", application=pyaedt.Icepak, subfolder=test_subfolder)
         assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.modeler.object_list) == 3
+        aedtapp.close_project()
