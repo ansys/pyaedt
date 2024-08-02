@@ -166,14 +166,41 @@ def main(extension_args):
 
 
 def create_powermaps_from_csv(ipk, csv_file):
+    """
+    Creates powermap from an Icepak classic CSV file.
+
+    Parameters
+    ----------
+
+    csv_file : str
+    The file path to the CSV file to be processed.
+
+    """
+
     geometric_info, source_value_info, source_unit_info = extract_info(csv_file)
     create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info)
 
 
 def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info):
-    # create power maps
+    """
+    Creates power maps from geometric and source information.
+
+     Parameters
+     ----------
+
+    ipk:
+     geometric_info : list
+         A list of dictionaries, each containing:
+             - "name": The name of the geometric object.
+             - "vertices": A list of vertex coordinates.
+    source_value_info: dict
+         A dictionary mapping geometric object to its power value.
+    source_unit_info: dict
+         A dictionary mapping geometric object to its power unit.
+
+    """
+
     for info in geometric_info:
-        no_vertices = info["nverts"]
         name = info["name"]
         points = []
         for vertex in info["vertices"]:
@@ -186,7 +213,7 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
         points.append(points[0])
         ipk.logger.info("creating 2d object " + name)
         sanitized_name = name.replace(".", "_")
-        polygon = ipk.modeler.create_polyline(points, name=name)
+        polygon = ipk.modeler.create_polyline(points, name=sanitized_name)
         ipk.logger.info("created polygon " + polygon.name)
         ipk.modeler.cover_lines(polygon)
         power = source_value_info[name] + source_unit_info[name]
@@ -196,7 +223,26 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
 
 
 def extract_info(csv_file):
+    """
+    Extracts source and geometric information from an Icepak classic CSV file.
 
+    Parameters
+    ----------
+
+    csv_file (str): The file path to the CSV file to be processed.
+
+    Returns
+    -------
+    geometric_info : list
+        A list of dictionaries, each containing:
+            - "name": The name of the geometric object.
+            - "vertices": A list of vertex coordinates.
+    source_value_info: dict
+        A dictionary mapping geometric object to its power value.
+    source_unit_info: dict
+        A dictionary mapping geometric object to its power unit.
+
+    """
     # Initialize lists to store the extracted information
     source_value_info = {}
     source_unit_info = {}
@@ -223,7 +269,7 @@ def extract_info(csv_file):
         # Read the geometric information
         for line in reader:
             if line and line[0]:
-                geometric_info.append({"name": line[0], "nverts": line[4], "plane": line[5], "vertices": line[10:]})
+                geometric_info.append({"name": line[0], "vertices": line[10:]})
 
         return geometric_info, source_value_info, source_unit_info
 
