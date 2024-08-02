@@ -30,7 +30,7 @@ from pyaedt.generic.settings import settings
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
-settings.number_of_grpc_api_retries = 10
+settings.number_of_grpc_api_retries = 6
 settings.retry_n_times_time_interval = 0.5
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
