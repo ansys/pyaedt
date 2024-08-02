@@ -502,7 +502,7 @@ class Design(AedtObjects):
         >>> hfss.odesktop
         <class 'win32com.client.CDispatch'>
         """
-        return self._desktop
+        return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
