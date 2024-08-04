@@ -1241,7 +1241,6 @@ class FfdSolutionData(object):
         )
 
         cad_mesh = self.__get_geometry(off_screen=off_screen)
-        cad_mesh = self.__get_geometry()
 
         data = conversion_function(farfield_data[quantity], function=quantity_format)
         if not isinstance(data, np.ndarray):  # pragma: no cover
