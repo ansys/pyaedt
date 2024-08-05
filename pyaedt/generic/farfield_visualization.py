@@ -1473,6 +1473,8 @@ class FfdSolutionData(object):
                         comp_meshes.append([translated_mesh, color_cad, obj.opacity])
 
                     obj_meshes.append(comp_meshes)
+                    model_pv.close()
+                    del model_pv
 
             obj_meshes = [item for sublist in obj_meshes for item in sublist]
         else:
@@ -1509,6 +1511,7 @@ class FfdSolutionData(object):
                 else:
                     obj_meshes.append([translated_mesh, color_cad, obj.opacity])
                 i += 1
+            model_pv.close()
 
         return obj_meshes
 
