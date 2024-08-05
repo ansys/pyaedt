@@ -54,8 +54,11 @@ class FieldsCalculator:
 
         Parameters
         ----------
-        calculation :
+        calculation : str, dict
             Calculation type.
+            If provided as a string, it has to be a name defined in the expression_catalog.toml.
+            If provided as a dict, it has to contain all the necessary arguments to define an expression.
+            For reference look at the expression_catalog.toml.
         assignment : int or :class:`pyaedt.modeler.cad.object3d.Object3d` or
          :class:`pyaedt.modeler.cad.FacePrimitive
             Name of the object to add the named expression from.
@@ -71,10 +74,18 @@ class FieldsCalculator:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
 
         if calculation not in self.expression_names:
-            self.__app.logger.error("Calculation is not available.")
-            return False
-
-        expression_info = copy.deepcopy(self.expression_catalog[calculation])
+            if isinstance(calculation, dict) and not set(list(calculation.keys())) == set(
+                list([self.expression_catalog[k] for k in list(self.expression_catalog.keys())][0].keys())
+            ):
+                self.__app.logger.error("Calculation is not available.")
+                return False
+            elif isinstance(calculation, str):
+                self.__app.logger.error("Calculation does not exist in expressions catalog.")
+                return False
+            else:
+                expression_info = copy.deepcopy(calculation)
+        else:
+            expression_info = copy.deepcopy(self.expression_catalog[calculation])
 
         if not name:
             name = expression_info["name"]
