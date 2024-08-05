@@ -88,6 +88,8 @@ class TestClass:
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(), dict)
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
         assert len(self.aedtapp.post.available_report_solutions()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]

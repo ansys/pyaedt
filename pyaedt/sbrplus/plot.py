@@ -77,6 +77,7 @@ class HDMPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def add_hdm_bundle_from_file(self, filename, units=None):
+        """Add hdm bundle from file."""
         from pyaedt.sbrplus.hdm_parser import Parser
 
         if os.path.exists(filename):
