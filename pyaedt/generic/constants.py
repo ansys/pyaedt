@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
 import math
 import warnings
 
@@ -1088,4 +1089,17 @@ class SymbolStyle(object):
         "VerticalDownTriangle",
         "HorizontalLeftTriangle",
         "HorizontalRightTriangle",
+    )
+
+
+class ExpressionsCatalog(Enum):
+    """Fields calculator expressions catalog."""
+
+    (Name, DesignType, FieldsType, Assignment, AssignmentType, Operations) = (
+        "name",
+        "design_type",
+        "fields_type",
+        "assignment",
+        "assignment_type",
+        "operations",
     )

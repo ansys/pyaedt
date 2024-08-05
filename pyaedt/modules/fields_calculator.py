@@ -25,6 +25,7 @@ import copy
 import os
 
 import pyaedt
+from pyaedt.generic.constants import ExpressionsCatalog
 from pyaedt.generic.general_methods import generate_unique_project_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -74,8 +75,8 @@ class FieldsCalculator:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
 
         if calculation not in self.expression_names:
-            if isinstance(calculation, dict) and not set(list(calculation.keys())) == set(
-                list([self.expression_catalog[k] for k in list(self.expression_catalog.keys())][0].keys())
+            if isinstance(calculation, dict) and not set(list(calculation.keys())) >= set(
+                [e.value for e in ExpressionsCatalog]
             ):
                 self.__app.logger.error("Calculation is not available.")
                 return False
