@@ -59,7 +59,7 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
 ]
@@ -85,7 +85,7 @@ doc = [
     #"pytest-sphinx",
     "pyvista[io]>=0.38.0,<0.45",
     "recommonmark",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "Sphinx==5.3.0; python_version == '3.7'",
     "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
     "sphinx-autobuild==2021.3.14; python_version == '3.7'",
@@ -116,7 +116,7 @@ doc-no-examples = [
     #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.7",
     "matplotlib>=3.5.0,<3.10",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "pyvista[io]>=0.38.0,<0.45",
 ]
 all = [
@@ -129,7 +129,7 @@ all = [
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
 ]
@@ -142,7 +142,7 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.3",
