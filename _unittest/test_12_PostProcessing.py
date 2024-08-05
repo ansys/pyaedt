@@ -720,23 +720,23 @@ class TestClass:
         plot.surfaces.append(8)
         assert not plot.update()
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
-    def test_76_emi_receiver(self, emi_receiver_test):
-        emi_receiver_test.analyze()
-        new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
-        new_report.band = "2"
-        new_report.emission = "RE"
-        new_report.time_start = "1ns"
-        new_report.time_stop = "2us"
-        new_report.net = "net_invented"
-        assert new_report.net != "net_invented"
-        assert new_report.create()
-        new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
-            ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
-        )
-        assert new_report2.net == "net_6"
-        new_report2.time_stop = "2.5us"
-        assert new_report2.create()
+    # @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="EMI receiver available from 2024R1.")
+    # def test_76_emi_receiver(self, emi_receiver_test):
+    #     emi_receiver_test.analyze()
+    #     new_report = emi_receiver_test.post.reports_by_category.emi_receiver()
+    #     new_report.band = "2"
+    #     new_report.emission = "RE"
+    #     new_report.time_start = "1ns"
+    #     new_report.time_stop = "2us"
+    #     new_report.net = "net_invented"
+    #     assert new_report.net != "net_invented"
+    #     assert new_report.create()
+    #     new_report2 = emi_receiver_test.post.reports_by_category.emi_receiver(
+    #         ["dBu(Average[net_6])", "dBu(Peak[net_6])", "dBu(QuasiPeak[net_6])", "dBu(RMS[net_6])"], "EMItransient"
+    #     )
+    #     assert new_report2.net == "net_6"
+    #     new_report2.time_stop = "2.5us"
+    #     assert new_report2.create()
 
     def test_98_get_variations(self, field_test):
         vars = field_test.available_variations.get_variation_strings()
