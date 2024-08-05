@@ -233,7 +233,7 @@ class Materials(object):
                     material_update=False,
                 )
         except Exception:
-            pass
+            self.logger.debug("An error occurred while accessing surface materials.")  # pragma: no cover
         return mats
 
     @pyaedt_function_handler(mat="material")
@@ -412,7 +412,8 @@ class Materials(object):
                 if a < tol:
                     del matprop[prop]
             except Exception:
-                pass
+                self.logger.debug("An error occurred while creating material property.")  # pragma: no cover
+
         return matprop
 
     @pyaedt_function_handler(materials_list="assignment", material_name="name")

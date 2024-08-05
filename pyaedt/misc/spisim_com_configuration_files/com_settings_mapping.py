@@ -137,11 +137,11 @@ spimsim_matlab_keywords_mapping = {
     "f_f": "F_F",  # For ICN: Fext transition rate cut off frequency for ICN calc in terms of fb
     "f_n": "F_N",  # For ICN: Next transition rate cut off frequency for ICN calc in terms of fb
     # FILTER_EQ
-    "b_max(1)": "B_MAX1",  # DFE magnitude limit, first coefficient(ignored if Nb=0)
-    "b_max(2..N_b)": "B_MAX2_N_B",
+    "__b_max(1)": "B_MAX1",  # DFE magnitude limit, first coefficient(ignored if Nb=0)
+    "__b_max(2..N_b)": "B_MAX2_N_B",
     # DFE magnitude limit, second coefficient and on (ignored if Nb<2). Can be a regular expression
     "b_min(1)": "B_MIN1",  # DFE negative magnitude limit. If not specified it defaults to -bmax.
-    "b_min(2..N_b)": "B_MIN2_N_B",  # DFE negative magnitude limit, if not specified it defaults to -b_max(2..N_b)
+    "b_min(2..N_b)": "B_MIN2_N_B",  # DFE negative magnitude limit, if not specified it defaults to -__b_max(2..N_b)
     "c(-1)": "C_1",  # TX equalizer pre cursor tap -1
     "c(-2)": "C_2",  # TX equalizer pre cursor tap -2
     "c(-3)": "C_3",  # TX equalizer pre cursor tap -3

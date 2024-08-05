@@ -198,8 +198,8 @@ solutions.plot()
 # field data is generated port by port and stored in a data class, , user can use this data
 # once AEDT is released.
 
-ffdata = hfss.get_antenna_ffd_solution_data(frequencies=["1000MHz"], setup=hfss.nominal_adaptive,
-                                            sphere="Sphere_Custom")
+ffdata = hfss.get_antenna_data(frequencies=["1000MHz"], setup=hfss.nominal_adaptive,
+                               sphere="Sphere_Custom")
 
 ##########################################################
 # Generate 2D cutout plot
@@ -207,8 +207,8 @@ ffdata = hfss.get_antenna_ffd_solution_data(frequencies=["1000MHz"], setup=hfss.
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
-                   quantity_format="dB20", is_polar=True)
+ffdata.farfield_data.plot_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
+                              quantity_format="dB20", is_polar=True)
 
 ###############################################################################
 # Close AEDT
