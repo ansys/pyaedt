@@ -2009,3 +2009,17 @@ class ModelPlotter(CommonPlotter):
                 translated_mesh.translate(offset_xyz, inplace=True)
                 self.meshes += translated_mesh
         return self.meshes
+
+    def close(self):
+        """Close the render window."""
+        from pyvista.plotting.plotter import _ALL_PLOTTERS
+
+        if not self.pv:
+            pyaedt_logger.error("No plotter.")
+
+        self.pv.close()
+
+        # NOTE: This extra lines of code are used to ensure that unwanted plotter
+        # are not used during the documentation build (see pvista.BUILDING_GALLERY)
+        if _ALL_PLOTTERS is not None:
+            _ALL_PLOTTERS.pop(self.pv._id_name, None)
