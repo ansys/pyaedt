@@ -77,9 +77,9 @@ def frontend():  # pragma: no cover
     # Create UI
     master = tkinter.Tk()
 
-    master.geometry("700x150")
+    master.geometry("600x150")
 
-    master.title("Import power maps from csv file")
+    master.title("Create power maps from csv file")
 
     # Load the logo for the main window
     # icon_path = os.path.join(pyaedt.workflows.__path__[0], "images", "large", "logo.png")
@@ -173,7 +173,7 @@ def create_powermaps_from_csv(ipk, csv_file):
     ----------
 
     csv_file : str
-    The file path to the CSV file to be processed.
+        The file path to the CSV file to be processed.
 
     """
 
