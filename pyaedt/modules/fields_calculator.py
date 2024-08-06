@@ -25,16 +25,25 @@ import copy
 import os
 
 import pyaedt
-from pyaedt.generic.constants import ExpressionsCatalog
 from pyaedt.generic.general_methods import generate_unique_project_name
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import read_toml
+from pyaedt.generic.general_methods import read_configuration_file
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 class FieldsCalculator:
     def __init__(self, app):
-        self.expression_catalog = read_toml(os.path.join(pyaedt.__path__[0], "misc", "expression_catalog.toml"))
+        self.expression_catalog = read_configuration_file(
+            os.path.join(pyaedt.__path__[0], "misc", "expression_catalog.toml")
+        )
+        self.expression_schema = read_configuration_file(
+            os.path.join(pyaedt.__path__[0], "misc", "fields_calculator.schema.json")
+        )
         self.__app = app
         self.design_type = app.design_type
         self.ofieldsreporter = app.ofieldsreporter
@@ -75,9 +84,8 @@ class FieldsCalculator:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
 
         if calculation not in self.expression_names:
-            if isinstance(calculation, dict) and not set(list(calculation.keys())) >= set(
-                [e.value for e in ExpressionsCatalog]
-            ):
+            if isinstance(calculation, dict):
+                self.validate(calculation)
                 self.__app.logger.error("Calculation is not available.")
                 return False
             elif isinstance(calculation, str):
@@ -354,12 +362,47 @@ class FieldsCalculator:
             self.__app.logger.error("File does not exist.")
             return False
 
-        new_expression_catalog = read_toml(input_file)
+        new_expression_catalog = read_configuration_file(input_file)
 
         if new_expression_catalog:
             self.expression_catalog.update(new_expression_catalog)
 
         return self.expression_catalog
+
+    @pyaedt_function_handler()
+    def validate(self, expression):
+        """Validate expression file against the schema. The default schema
+        can be found in ``pyaedt/misc/fields_calculator.schema.json``.
+
+        Parameters
+        ----------
+        expression : dict
+            Expression defined as a dictionary.
+
+        Returns
+        -------
+        dict or bool
+            Expression if the input expression is valid, ``False`` otherwise.
+        """
+
+        if not isinstance(expression, dict):
+            self._app.logger.warning("Incorrect data type.")
+            return False
+
+        if is_ironpython:  # pragma: no cover
+            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
+            try:
+                validate(instance=expression, schema=self.expression_schema)
+                for prop_name, subschema in self.expression_schema.items():
+                    if "default" in subschema and prop not in expression:
+                        expression[prop_name] = subschema["default"]
+                return expression
+            except exceptions.ValidationError as e:
+                self._app.logger.warning("Configuration is invalid.")
+                self._app.logger.warning("Validation error:" + e.message)
+                return False
+        return True
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
