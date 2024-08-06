@@ -144,7 +144,8 @@ class HDMPlotter(CommonPlotter):
         if snapshot_path:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+            self.pv.off_screen = self.off_screen
 
         self._add_objects()
         points, lines, depths = self._add_rays()
@@ -210,7 +211,8 @@ class HDMPlotter(CommonPlotter):
         if snapshot_path:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+            self.pv.off_screen = self.off_screen
 
         self._add_objects()
         try:
