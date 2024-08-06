@@ -372,8 +372,9 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def validate_expression(self, expression):
-        """Validate expression file against the schema. The default schema
-        can be found in ``pyaedt/misc/fields_calculator.schema.json``.
+        """Validate expression file against the schema.
+        
+        The default schema can be found in ``pyaedt/misc/fields_calculator.schema.json``.
 
         Parameters
         ----------
