@@ -23,7 +23,7 @@ package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_f
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
