@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-
-# from ..filtersolutions_resources import resource_path
 import pytest
 
 import pyaedt

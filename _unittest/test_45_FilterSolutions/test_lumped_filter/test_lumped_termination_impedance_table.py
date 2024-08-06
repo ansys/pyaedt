@@ -27,8 +27,8 @@ import pytest
 
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
-from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexReactanceType
-from pyaedt.filtersolutions_core.lumped_termination_impedance import ComplexTerminationDefinition
+from pyaedt.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
+from pyaedt.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
 from pyaedt.generic.general_methods import is_linux
 
 

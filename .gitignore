@@ -399,3 +399,4 @@ model.index\+
 
 # test coverage output
 /.cov/
+/pyaedt.code-workspace
