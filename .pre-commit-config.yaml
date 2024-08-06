@@ -57,7 +57,7 @@ repos:
   rev: 1.18.0
   hooks:
   -   id: blacken-docs
-      additional_dependencies: [black==24.4.8]
+      additional_dependencies: [black==24.8.0]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
