@@ -1175,10 +1175,11 @@ class FfdSolutionData(object):
 
         if not pyvista_object:
             if show_as_standalone:  # pragma: no cover
-                p = pv.Plotter(notebook=False, off_screen=off_screen)
+                p = pv.Plotter(notebook=False)
             else:
                 is_notebook_flag = is_notebook()
-                p = pv.Plotter(notebook=is_notebook_flag, off_screen=off_screen)
+                p = pv.Plotter(notebook=is_notebook_flag)
+            p.off_screen = off_screen
             p.enable_ssao()
             p.enable_parallel_projection()
         else:  # pragma: no cover

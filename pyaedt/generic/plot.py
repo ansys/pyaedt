@@ -1830,7 +1830,8 @@ class ModelPlotter(CommonPlotter):
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+            self.pv.off_screen = self.off_screen
         if self.background_image:
             self.pv.add_background_image(self.background_image)
         else:
@@ -2000,7 +2001,8 @@ class ModelPlotter(CommonPlotter):
         -------
         Mesh
         """
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+        self.pv.off_screen = self.off_screen
         self._read_mesh_files()
         if self.array_coordinates:
             duplicate_mesh = self.meshes.copy()
