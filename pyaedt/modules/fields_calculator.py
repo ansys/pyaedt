@@ -388,7 +388,7 @@ class FieldsCalculator:
         """
 
         if not isinstance(expression, dict):
-            self.__app.logger.warning("Incorrect data type.")
+            self.__app.logger.error("Incorrect data type.")
             return False
 
         if is_ironpython:  # pragma: no cover
