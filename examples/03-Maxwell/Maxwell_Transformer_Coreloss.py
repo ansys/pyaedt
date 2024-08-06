@@ -20,7 +20,7 @@ from pyaedt.generic.general_methods import read_csv_pandas
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 #################################################################################
 # Download .aedt file example

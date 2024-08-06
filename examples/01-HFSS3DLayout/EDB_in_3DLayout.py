@@ -39,7 +39,7 @@ NewThread = True
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Initialize AEDT and launch HFSS 3D Layout
