@@ -28,7 +28,7 @@ project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, fold
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

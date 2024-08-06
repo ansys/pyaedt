@@ -18,7 +18,7 @@ EMIT version check and set units example:
     from pyaedt import Emit
 
     emit = Emit(pyaedt.generate_unique_project_name(),
-                specified_version="2024.1", non_graphical=False,
+                specified_version="2024.2", non_graphical=False,
                 new_desktop_session=True, close_on_exit=True)
 
     # This call returns detailed version info for EMIT
@@ -53,7 +53,7 @@ EMIT-HFSS link creation example:
         os.mkdir(temp_folder)
 
     # Launch AEDT
-    aedtapp = pyaedt.launch_desktop(specified_version="2024.1", non_graphical=False,
+    aedtapp = pyaedt.launch_desktop(specified_version="2024.2", non_graphical=False,
                                     new_desktop_session=True, close_on_exit=True)
 
     # Verify the ``Cell Phone RFT Defense`` example exists
@@ -118,7 +118,7 @@ Create and Analyze an EMIT project:
     from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
 
     emit = Emit(pyaedt.generate_unique_project_name(),
-                specified_version="2024.1", non_graphical=False,
+                specified_version="2024.2", non_graphical=False,
                 new_desktop_session=True, close_on_exit=True)
 
     # Create a radio and connect an antenna to it
