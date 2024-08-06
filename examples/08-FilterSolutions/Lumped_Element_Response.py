@@ -23,22 +23,28 @@ from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoa
 # Create the lumped design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
-design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
+design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED) 
+design.attributes.pass_band_center_frequency = "2G"  
 #design.export_to_aedt.open_aedt_export()
 #design.optimization_goals_table.set_design_goals()
 design.export_to_aedt.schematic_name = "my_schematic"
 print(design.export_to_aedt.schematic_name)
 design.export_to_aedt.simulate_after_export_enabled = True
 #design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
-#exit()
 design.optimization_goals_table.adjust_goal_frequency("150 MHz")
 print(design.optimization_goals_table.row(0)[OptimizationGoalParameter.LOWER_FREQUENCY.value])
+
 print(design.optimization_goals_table.row_count)
+design.optimization_goals_table.append_row("100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "1", "Y")
+#design.optimization_goals_table.save_goals(design, "c:\\goals.csv")
+design.optimization_goals_table.clear_goal_entries()
+design.optimization_goals_table.load_goals("c:\\goals.csv")
+
 for row_index in range(design.optimization_goals_table.row_count):
     print(design.optimization_goals_table.row(row_index))
 design.export_to_aedt.include_output_return_loss_s22_enabled = True
 print(design.export_to_aedt.include_output_return_loss_s22_enabled)
-design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
+#design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
 
 exit()
 design.attributes.filter_class = FilterClass.BAND_PASS

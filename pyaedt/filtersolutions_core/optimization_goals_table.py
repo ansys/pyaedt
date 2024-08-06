@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import csv
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_char_p
@@ -365,16 +366,46 @@ class OptimizationGoalsTable:
         status = self._dll.designGoals()
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
-    def save_goals(self):
-        """Save design goals definition to file."""
-        status = self._dll.saveGoals()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+    def save_goals(self, design, file_path) -> str:
+        """Save the optimization goals from a design's optimization goals table to a CSV file.
 
-    def load_goals(self):
-        """Load design goals definition from file."""
-        status = self._dll.loadGoals()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        Parameters:
+        ----------
+        design: The design object containing the optimization goals table.
+        file_path: The path to the CSV file where the goals will be saved.
+        """
+        with open(file_path, mode="w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ["Start Frequency", "Stop Frequency", "Goal Value", "Condition", "Parameter", "Weight", "Enabled"]
+            )
+            for row_index in range(design.optimization_goals_table.row_count):
+                row_data = design.optimization_goals_table.row(row_index)
+                writer.writerow(row_data)
+
+    def load_goals(self, file_path) -> str:
+        """Load optimization goals from a CSV file into this optimization goals table.
+
+        Parameters:
+        ----------
+        file_path: The path to the CSV file from which the goals will be loaded.
+        """
+        try:
+            with open(file_path, mode="r", newline="") as file:
+                reader = csv.reader(file)
+                next(reader, None)
+                for row in reader:
+                    self.append_row(*row)
+        except FileNotFoundError:
+            print(f"File {file_path} not found.")
+        except Exception as e:
+            print(f"An error occurred while loading goals: {e}")
 
     def adjust_goal_frequency(self, adjust_goal_frequency_string):
         """Adjust the goal frequencies by an entered adjusting frequency value."""
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
+
+    def clear_goal_entries(self):
+        """Clear the goal entries from optimization goals table."""
+        status = self._dll.clearGoalEntries()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)

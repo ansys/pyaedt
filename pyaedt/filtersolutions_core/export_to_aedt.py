@@ -465,21 +465,6 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
-    def save_and_close(self):
-        """Save updated export page parameters and close the page."""
-        status = self._dll.saveAndClose()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-
-    def default_configuration(self):
-        """Set export page parameters to default values."""
-        status = self._dll.defaultConfiguration()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-
-    def cancel_export_and_close(self):
-        """Close export page with no export to ``AEDT``."""
-        status = self._dll.cancelExportAndClose()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-
     def append_design_to_aedt(self, export_format: ExportFormat.DIRECT):
         """Append the export to the existing exported projects."""
         status = self._dll.appendToAEDT(export_format.value)
