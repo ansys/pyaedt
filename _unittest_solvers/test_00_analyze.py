@@ -123,7 +123,7 @@ class TestClass:
                                       title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
                                       quantity_format="dB10",
                                       show=False,
-                                      image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+                                      output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
         ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
