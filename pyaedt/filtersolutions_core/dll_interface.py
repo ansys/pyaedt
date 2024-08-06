@@ -47,7 +47,7 @@ class DllInterface:
 
     def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
-        relative_path = "../../../build_output/64Release1/nuhertz/FilterSolutionsAPI.dll"
+        relative_path = "../../../build_output/64Release/nuhertz/FilterSolutionsAPI.dll"
         self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
         if not os.path.isfile(self.dll_path):
             latest_version = current_version()
