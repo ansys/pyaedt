@@ -22,7 +22,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ##########################################################
 # Launch HFSS
