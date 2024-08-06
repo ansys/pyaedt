@@ -66,7 +66,7 @@ tests = [
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
     "cffi==1.15.1; platform_system=='Linux' and python_version == '3.7'",
-    "cffi>=1.16.0,<1.17; platform_system=='Linux' and python_version > '3.7'",
+    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
