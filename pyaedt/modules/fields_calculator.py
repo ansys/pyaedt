@@ -85,14 +85,12 @@ class FieldsCalculator:
 
         if calculation not in self.expression_names:
             if isinstance(calculation, dict):
-                self.validate(calculation)
-                self.__app.logger.error("Calculation is not available.")
-                return False
-            elif isinstance(calculation, str):
+                expression_info = self.validate_expression(calculation)
+                if not expression_info:
+                    return False
+            else:
                 self.__app.logger.error("Calculation does not exist in expressions catalog.")
                 return False
-            else:
-                expression_info = copy.deepcopy(calculation)
         else:
             expression_info = copy.deepcopy(self.expression_catalog[calculation])
 
@@ -365,12 +363,15 @@ class FieldsCalculator:
         new_expression_catalog = read_configuration_file(input_file)
 
         if new_expression_catalog:
-            self.expression_catalog.update(new_expression_catalog)
+            for new_expression_name, new_expression_props in new_expression_catalog.items():
+                new_expression = self.validate_expression(new_expression_props)
+                if new_expression:
+                    self.expression_catalog.update(new_expression)
 
         return self.expression_catalog
 
     @pyaedt_function_handler()
-    def validate(self, expression):
+    def validate_expression(self, expression):
         """Validate expression file against the schema. The default schema
         can be found in ``pyaedt/misc/fields_calculator.schema.json``.
 
@@ -386,21 +387,21 @@ class FieldsCalculator:
         """
 
         if not isinstance(expression, dict):
-            self._app.logger.warning("Incorrect data type.")
+            self.__app.logger.warning("Incorrect data type.")
             return False
 
         if is_ironpython:  # pragma: no cover
-            self._app.logger.warning("Iron Python: Unable to validate json Schema.")
+            self.__app.logger.warning("Iron Python: Unable to validate json Schema.")
         else:
             try:
                 validate(instance=expression, schema=self.expression_schema)
-                for prop_name, subschema in self.expression_schema.items():
-                    if "default" in subschema and prop not in expression:
-                        expression[prop_name] = subschema["default"]
+                for prop_name, sub_schema in self.expression_schema["properties"].items():
+                    if "default" in sub_schema and prop_name not in expression:
+                        expression[prop_name] = sub_schema["default"]
                 return expression
             except exceptions.ValidationError as e:
-                self._app.logger.warning("Configuration is invalid.")
-                self._app.logger.warning("Validation error:" + e.message)
+                self.__app.logger.warning("Configuration is invalid.")
+                self.__app.logger.warning("Validation error:" + e.message)
                 return False
         return True
 

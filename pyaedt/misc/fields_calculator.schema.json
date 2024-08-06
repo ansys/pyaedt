@@ -53,5 +53,5 @@
             "default": ["Data Table"]
         }
     },
-    "required": ["name", "description", "design_type", "fields_type", "primary_sweep", "assignment", "assignment_type", "report"]
+    "required": ["design_type", "fields_type", "primary_sweep", "assignment_type", "operations"]
 }
