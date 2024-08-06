@@ -1305,8 +1305,8 @@ class FfdSolutionData(object):
 
         if output_file:
             p.show(auto_close=False, screenshot=output_file, full_screen=True)
-        if show:  # pragma: no cover
-            p.show(auto_close=False)
+        elif show:  # pragma: no cover
+            p.show(auto_close=False, interactive=True)
         return p
 
     @pyaedt_function_handler()
@@ -1475,7 +1475,6 @@ class FfdSolutionData(object):
 
                     obj_meshes.append(comp_meshes)
                     model_pv.close()
-                    del model_pv
 
             obj_meshes = [item for sublist in obj_meshes for item in sublist]
         else:
