@@ -15,7 +15,6 @@ fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 
 test_subfolder = "T45"
-
 TEST_REVIEW_FLAG = True
 
 
