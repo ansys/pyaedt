@@ -1830,7 +1830,8 @@ class ModelPlotter(CommonPlotter):
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+            self.pv.off_screen = self.off_screen
         if self.background_image:
             self.pv.add_background_image(self.background_image)
         else:
@@ -2000,7 +2001,8 @@ class ModelPlotter(CommonPlotter):
         -------
         Mesh
         """
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+        self.pv.off_screen = self.off_screen
         self._read_mesh_files()
         if self.array_coordinates:
             duplicate_mesh = self.meshes.copy()
@@ -2009,3 +2011,17 @@ class ModelPlotter(CommonPlotter):
                 translated_mesh.translate(offset_xyz, inplace=True)
                 self.meshes += translated_mesh
         return self.meshes
+
+    def close(self):
+        """Close the render window."""
+        from pyvista.plotting.plotter import _ALL_PLOTTERS
+
+        if not self.pv:
+            pyaedt_logger.error("No plotter.")
+
+        self.pv.close()
+
+        # NOTE: This extra lines of code are used to ensure that unwanted plotter
+        # are not used during the documentation build (see pvista.BUILDING_GALLERY)
+        if _ALL_PLOTTERS is not None:
+            _ALL_PLOTTERS.pop(self.pv._id_name, None)

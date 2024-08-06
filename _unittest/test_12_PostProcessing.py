@@ -208,7 +208,7 @@ class TestClass:
             context="3D",
         )
         assert data.plot(snapshot_path=os.path.join(self.local_scratch.path, "reportC.jpg"), show=False)
-        assert data.plot_3d(snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D.jpg"), show=False)
+        assert data.plot_3d(show=False)
         assert field_test.post.create_3d_plot(
             data,
             snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D_2.jpg"),
