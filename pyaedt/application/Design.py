@@ -1037,39 +1037,8 @@ class Design(AedtObjects):
         warning_msg = ""
         names = self.get_oo_name(self.oproject)
         if names:
-            valids = []
-            for name in names:
-                des = self.get_oo_object(self.oproject, name)
-                des_type = None
-                if hasattr(des, "GetDesignType"):
-                    des_type = des.GetDesignType()
-                if des_type == self.design_type or (
-                    des_type == "RMxprt"
-                    and self.design_type
-                    in [
-                        "RMxprtSolution",
-                        "ModelCreation",
-                    ]
-                ):
-                    if self.design_type in [
-                        "Circuit Design",
-                        "Twin Builder",
-                        "HFSS 3D Layout Design",
-                        "EMIT",
-                        "Q3D Extractor",
-                        "RMxprtSolution",
-                        "ModelCreation",
-                    ]:
-                        valids.append(name)
-                    elif not self._temp_solution_type:
-                        valids.append(name)
-                    elif self._temp_solution_type in des.GetSolutionType():
-                        valids.append(name)
-            if len(valids) != 1:
-                warning_msg = "No consistent unique design is present. Inserting a new design."
-            else:
-                activedes = valids[0]
-                warning_msg = "Active Design set to {}".format(valids[0])
+            activedes = self.desktop_class.active_design(self.oproject, None, self.design_type).GetName()
+            warning_msg = "Active Design set to {}".format(activedes)
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
