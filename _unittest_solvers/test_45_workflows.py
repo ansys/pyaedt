@@ -169,6 +169,43 @@ class TestClass:
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
+        my_expression = {
+            "name": "test",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS", "Q3D Extractor"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "operations": ["Fundamental_Quantity('E')",
+                            "Operation('Real')",
+                            "Operation('Tangent')",
+                            "Operation('Dot')",
+                            "EnterLine('assignment')",
+                            "Operation('LineValue')",
+                            "Operation('Integrate')",
+                            "Operation('CmplxR')"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        name = aedtapp.post.fields_calculator.add_expression(my_expression, "Polyline1")
+        assert name == "test"
+
+        my_invalid_expression = {
+            "name": "test2",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        assert not aedtapp.post.fields_calculator.add_expression(my_invalid_expression, "Polyline1")
+
         assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == "Voltage_Line"
