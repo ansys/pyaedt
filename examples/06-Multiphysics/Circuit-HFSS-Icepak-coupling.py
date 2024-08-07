@@ -64,7 +64,7 @@ project_path = downloads.download_file("circuit_hfss_icepak", "Circuit-HFSS-Icep
 circuit = Circuit(
     project=project_path,
     new_desktop_session=True,
-    specified_version=241,
+    specified_version=242,
     non_graphical=False
 )
 
