@@ -1007,12 +1007,13 @@ class Maxwell(object):
                 else:
                     props = OrderedDict({"Faces": assignment, "Value": amplitude})
             else:
-                props = OrderedDict({"Faces": [], "Objects": [], "Voltage": amplitude})
-                for element in assignment:
-                    if isinstance(element, str) and element in self.modeler.object_names:
-                        props["Objects"].append(element)
-                    else:
-                        props["Faces"].append(element)
+object_names_set = set(self.modeler.object_names)
+props = OrderedDict({"Faces": [, "Objects": [, "Voltage": amplitude})
+for element in assignment:
+    if isinstance(element, (str, unicode)) and element in object_names_set:
+        props["Objects".append(element)
+    else:
+        props["Faces".append(element)
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
             self._boundaries[bound.name] = bound
