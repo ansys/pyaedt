@@ -65,7 +65,7 @@ def frontend():  # pragma: no cover
 
     project_name = active_project.GetName()
 
-    if active_design.GetDesignType() in ["Icepak"]:
+    if active_design.GetDesignType() == "Icepak":
         design_name = active_design.GetName()
     else:  # pragma: no cover
         app.logger.debug("Icepak project is needed.")
