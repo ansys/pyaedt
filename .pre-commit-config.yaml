@@ -13,7 +13,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 24.4.2  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
+  rev: 24.8.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
@@ -27,7 +27,7 @@ repos:
       args: ['--force-single-line-imports', '--profile', 'black']
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.1.0
+  rev: 7.1.1
   hooks:
   - id: flake8
     args:
@@ -57,7 +57,7 @@ repos:
   rev: 1.18.0
   hooks:
   -   id: blacken-docs
-      additional_dependencies: [black==24.4.2]
+      additional_dependencies: [black==24.8.0]
 
 # This validates our pre-commit.ci configuration
 - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
@@ -66,7 +66,7 @@ repos:
   -   id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.3.1
+  rev: v0.4.2
   hooks:
     - id: add-license-headers
       files: '(pyaedt|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'
