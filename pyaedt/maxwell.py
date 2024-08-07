@@ -1952,7 +1952,7 @@ class Maxwell(object):
         ----------
         circuit_design : str, optional
             Name of the created circuit design.
-            If not provided the design name + ``ckt`` is used.
+            If not provided the design name + ``_ckt`` is used.
 
         Returns
         -------
@@ -1982,7 +1982,8 @@ class Maxwell(object):
 
         circuit = MaxwellCircuit(design=circuit_design)
 
-        wdgs = self.excitations_by_type["Winding Group"]
+        wdgs = self.excitations_by_type["Winding"]
+        # wdg_groups = self.excitations_by_type["Winding Group"]
         external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
 
         for w in external_wdgs:
