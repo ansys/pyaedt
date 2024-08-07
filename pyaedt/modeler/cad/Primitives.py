@@ -44,6 +44,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -5081,6 +5082,9 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateUserDefinedModel
         """
+        if is_linux:
+            self.logger.error("Discovery not supported on Linux.")
+            return False
         version = self._app.aedt_version_id[-3:]
 
         ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
@@ -5088,6 +5092,7 @@ class GeometryModeler(Modeler):
         if ansys_install_dir:
             if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
                 self.logger.error("Discovery installation not found.")
+                return False
         else:  # pragma: no cover
             self.logger.error("Discovery version is different from AEDT version.")
             return False
