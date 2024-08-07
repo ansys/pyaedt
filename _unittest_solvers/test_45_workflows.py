@@ -15,6 +15,7 @@ fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 
 test_subfolder = "T45"
+TEST_REVIEW_FLAG = True
 
 
 class TestClass:
@@ -168,6 +169,43 @@ class TestClass:
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
+        my_expression = {
+            "name": "test",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS", "Q3D Extractor"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "operations": ["Fundamental_Quantity('E')",
+                            "Operation('Real')",
+                            "Operation('Tangent')",
+                            "Operation('Dot')",
+                            "EnterLine('assignment')",
+                            "Operation('LineValue')",
+                            "Operation('Integrate')",
+                            "Operation('CmplxR')"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        name = aedtapp.post.fields_calculator.add_expression(my_expression, "Polyline1")
+        assert name == "test"
+
+        my_invalid_expression = {
+            "name": "test2",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        assert not aedtapp.post.fields_calculator.add_expression(my_invalid_expression, "Polyline1")
+
         assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == "Voltage_Line"
@@ -279,9 +317,12 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
     def test_11_cutout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.cutout import main
-
 
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
@@ -291,11 +332,39 @@ class TestClass:
                      "expansion_factor": 3,
                      "fix_disjoints": True, })
         app.close_project()
+
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
     def test_12_export_layout(self, add_app, local_scratch):
         from pyaedt.workflows.hfss3dlayout.export_layout import main
 
-
         app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
 
-        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
+        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True})
         app.close_project()
+
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
+    def test_13_parametrize_layout(self, local_scratch):
+        from pyaedt.workflows.hfss3dlayout.parametrize_edb import main
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
+
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+                                              "T45",
+                                              "ANSYS-HSD_V1.aedb"), file_path)
+
+        assert main({"is_test": True,
+                     "aedb_path": file_path,
+                     "parametrize_layers": True,
+                     "parametrize_materials": True,
+                     "parametrize_padstacks": True,
+                     "parametrize_traces": True,
+                     "nets_filter": ["GND"],
+                     "expansion_polygon_mm": 0.1,
+                     "expansion_void_mm": 0.1,
+                     "relative_parametric": True,
+                     "project_name": "new_parametrized", })

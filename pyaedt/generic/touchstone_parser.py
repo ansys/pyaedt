@@ -483,13 +483,13 @@ class TouchstoneData(rf.Network):
         return worst_el, dict_means
 
 
-@pyaedt_function_handler()
-def read_touchstone(file_path):
+@pyaedt_function_handler(file_path="input_file")
+def read_touchstone(input_file):
     """Load the contents of a Touchstone file into an NPort.
 
     Parameters
     ----------
-    file_path : str
+    input_file : str
         The path of the touchstone file.
 
     Returns
@@ -498,17 +498,17 @@ def read_touchstone(file_path):
         NPort holding data contained in the touchstone file.
 
     """
-    data = TouchstoneData(touchstone_file=file_path)
+    data = TouchstoneData(touchstone_file=input_file)
     return data
 
 
-@pyaedt_function_handler()
-def check_touchstone_files(folder="", passivity=True, causality=True):
+@pyaedt_function_handler(folder="input_dir")
+def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
     Parameters
     ----------
-    folder : str
+    input_dir : str
         Folder path. The default is ``""``.
     passivity : bool, optional
         Whether the passivity check is enabled, The default is ``True``.
@@ -525,17 +525,10 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
 
     """
     out = {}
-    if not os.path.exists(folder):
+    sNpFiles = find_touchstone_files(input_dir)
+    if not sNpFiles:
         return out
     aedt_install_folder = list(installed_versions().values())[0]
-    pat_snp = re.compile("\.s\d+p$")
-    sNpFiles = {f: os.path.join(folder, f) for f in os.listdir(folder) if re.search(pat_snp, f)}
-    pat_ts = re.compile("\.ts$")
-    for f in os.listdir(folder):
-        if re.search(pat_ts, f):
-            sNpFiles[f] = os.path.join(folder, f)
-    if sNpFiles == {}:
-        return out
     for snpf in sNpFiles:
         out[snpf] = []
         if os.name == "nt":
@@ -579,3 +572,29 @@ def check_touchstone_files(folder="", passivity=True, causality=True):
                 is_causal = False
                 out[snpf].append(["causality", is_causal, line[17:]])
     return out
+
+
+@pyaedt_function_handler()
+def find_touchstone_files(input_dir):
+    """Get all Touchstone files in a directory.
+
+    Parameters
+    ----------
+    input_dir : str
+        Folder path. The default is ``""``.
+
+    Returns
+    ----------
+    dict
+        Dictionary with the SNP file names as the key and the absolute path as the value.
+    """
+    out = {}
+    if not os.path.exists(input_dir):  # pragma: no cover
+        return out
+    pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
+    sNpFiles = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
+    pat_ts = re.compile("\.ts$")
+    for f in os.listdir(input_dir):
+        if re.search(pat_ts, f):
+            sNpFiles[f] = os.path.abspath(os.path.join(input_dir, f))
+    return sNpFiles

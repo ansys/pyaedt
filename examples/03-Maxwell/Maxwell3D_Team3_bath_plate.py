@@ -19,7 +19,7 @@ import tempfile
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory
@@ -158,7 +158,7 @@ m3d.eddy_effects_on(assignment=["SearchCoil"], enable_eddy_effects=False, enable
 # Add a linear parametric sweep for the two coil positions.
 
 sweep_name = "CoilSweep"
-param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweep_name)
+param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", name=sweep_name)
 param["SaveFields"] = True
 param["CopyMesh"] = False
 param["SolveWithCopiedMeshOnly"] = True

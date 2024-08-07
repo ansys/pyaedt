@@ -16,7 +16,7 @@ from pyaedt.generic.pdf import AnsysReport
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ##################################################################################
 # Launch AEDT and Maxwell 2D
@@ -122,9 +122,7 @@ setup1.analyze()
 # Create parametric sweep to sweep all the entries in the material array.
 # Save fields and mesh and use the mesh for all the materials.
 
-param_sweep = m2d.parametrics.add(
-    "MaterialIndex", 0, no_materials-1, 1, "LinearStep",
-    parametricname="MaterialSweep")
+param_sweep = m2d.parametrics.add("MaterialIndex", 0, no_materials - 1, 1, "LinearStep", name="MaterialSweep")
 param_sweep["SaveFields"] = True
 param_sweep["CopyMesh"] = True
 param_sweep["SolveWithCopiedMeshOnly"] = True

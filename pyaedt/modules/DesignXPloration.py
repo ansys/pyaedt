@@ -360,7 +360,9 @@ class CommonOptimetrics(PropsManager, object):
                         if context == f.name:
                             report_type = "Far Fields"
                 except Exception:
-                    pass
+                    self._app.logger.debug(
+                        "An error occurred when handling `report_type` while adding calculation."
+                    )  # pragma: no cover
         sweepdefinition = self._get_context(
             calculation,
             condition,
@@ -381,7 +383,7 @@ class CommonOptimetrics(PropsManager, object):
                 try:
                     dx_variables[el] = self._app[el]
                 except Exception:
-                    pass
+                    self._app.logger.debug("An error occurred while adding calculation.")  # pragma: no cover
         for v in list(dx_variables.keys()):
             self._activate_variable(v)
         if self.soltype in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
@@ -895,13 +897,15 @@ class SetupParam(CommonOptimetrics, object):
         self._app.parametrics.setups.remove(self)
         return True
 
-    @pyaedt_function_handler()
-    def add_variation(self, sweep_var, start_point, end_point=None, step=100, unit=None, variation_type="LinearCount"):
+    @pyaedt_function_handler(sweep_var="sweep_variable", unit="units")
+    def add_variation(
+        self, sweep_variable, start_point, end_point=None, step=100, units=None, variation_type="LinearCount"
+    ):
         """Add a variation to an existing parametric setup.
 
         Parameters
         ----------
-        sweep_var : str
+        sweep_variable : str
             Name of the variable.
         start_point : float or int
             Variation Start Point.
@@ -909,7 +913,7 @@ class SetupParam(CommonOptimetrics, object):
             Variation End Point. This parameter is optional if a Single Value is defined.
         step : float or int, optional
             Variation Step or Count depending on variation_type. Default is `100`.
-        unit : str, optional
+        units : str, optional
             Variation units. Default is `None`.
         variation_type : float or int
             Variation Type. Admitted values are `"SingleValue", `"LinearCount"`, `"LinearStep"`,
@@ -925,18 +929,18 @@ class SetupParam(CommonOptimetrics, object):
 
         >>> oModule.EditSetup
         """
-        if sweep_var not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} does not exists.".format(sweep_var))
+        if sweep_variable not in self._app.variable_manager.variables:
+            self._app.logger.error("Variable {} does not exists.".format(sweep_variable))
             return False
         sweep_range = ""
-        if not unit:
-            unit = self._app.variable_manager[sweep_var].units
-        start_point = self._app.value_with_units(start_point, unit)
-        end_point = self._app.value_with_units(end_point, unit)
+        if not units:
+            units = self._app.variable_manager[sweep_variable].units
+        start_point = self._app.value_with_units(start_point, units)
+        end_point = self._app.value_with_units(end_point, units)
         if variation_type == "LinearCount":
             sweep_range = "LINC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "LinearStep":
-            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, unit))
+            sweep_range = "LIN {} {} {}".format(start_point, end_point, self._app.value_with_units(step, units))
         elif variation_type == "DecadeCount":
             sweep_range = "DEC {} {} {}".format(start_point, end_point, step)
         elif variation_type == "OctaveCount":
@@ -947,9 +951,9 @@ class SetupParam(CommonOptimetrics, object):
             sweep_range = "{}".format(start_point)
         if not sweep_range:
             return False
-        self._activate_variable(sweep_var)
+        self._activate_variable(sweep_variable)
         sweepdefinition = OrderedDict()
-        sweepdefinition["Variable"] = sweep_var
+        sweepdefinition["Variable"] = sweep_variable
         sweepdefinition["Data"] = sweep_range
         sweepdefinition["OffsetF1"] = False
         sweepdefinition["Synchronize"] = 0
@@ -1072,13 +1076,13 @@ class SetupParam(CommonOptimetrics, object):
             calculation, ranges, None, solution, context, subdesign_id, polyline_points, report_type, is_goal=False
         )
 
-    @pyaedt_function_handler()
-    def export_to_csv(self, filename):
+    @pyaedt_function_handler(filename="output_file")
+    def export_to_csv(self, output_file):
         """Export the current Parametric Setup to csv.
 
         Parameters
         ----------
-        filename : str
+        output_file : str
             Full Path to the csv file.
 
         Returns
@@ -1086,7 +1090,7 @@ class SetupParam(CommonOptimetrics, object):
         bool
             `True` if the export is correctly executed.
         """
-        self.omodule.ExportParametricSetupTable(self.name, filename)
+        self.omodule.ExportParametricSetupTable(self.name, output_file)
         return True
 
 
@@ -1113,7 +1117,9 @@ class ParametricSetups(object):
                     ):
                         self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except Exception:
-                pass
+                self._app.logger.debug(
+                    "An error occurred while creating an instance of ParametricSetups."
+                )  # pragma: no cover
 
     @property
     def p_app(self):
@@ -1131,23 +1137,23 @@ class ParametricSetups(object):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(sweep_var="variable", parametricname="name")
     def add(
         self,
-        sweep_var,
+        variable,
         start_point,
         end_point=None,
         step=100,
         variation_type="LinearCount",
         solution=None,
-        parametricname=None,
+        name=None,
     ):
         """Add a basic sensitivity analysis.
         You can customize all options after the analysis is added.
 
         Parameters
         ----------
-        sweep_var : str
+        variable : str
             Name of the variable.
         start_point : float or int
             Variation Start Point if a variation is defined or Single Value.
@@ -1160,7 +1166,7 @@ class ParametricSetups(object):
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        parametricname : str, optional
+        name : str, optional
             Name of the sensitivity analysis. The default is ``None``, in which case
             a default name is assigned.
 
@@ -1174,8 +1180,8 @@ class ParametricSetups(object):
 
         >>> oModule.InsertSetup
         """
-        if sweep_var not in self._app.variable_manager.variables:
-            self._app.logger.error("Variable {} not found.".format(sweep_var))
+        if variable not in self._app.variable_manager.variables:
+            self._app.logger.error("Variable {} not found.".format(variable))
             return False
         if not solution and not self._app.nominal_sweep:
             self._app.logger.error("At least one setup is needed.")
@@ -1183,27 +1189,27 @@ class ParametricSetups(object):
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
-        if not parametricname:
-            parametricname = generate_unique_name("Parametric")
-        setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
+        if not name:
+            name = generate_unique_name("Parametric")
+        setup = SetupParam(self._app, name, optim_type="OptiParametric")
         setup.auto_update = False
 
         setup.props["Sim. Setups"] = [setupname]
         setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
         setup.create()
-        unit = self._app.variable_manager[sweep_var].units
-        setup.add_variation(sweep_var, start_point, end_point, step, unit, variation_type)
+        unit = self._app.variable_manager[variable].units
+        setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
         setup.auto_update = True
         self.setups.append(setup)
         return setup
 
-    @pyaedt_function_handler()
-    def delete(self, setup_name):
+    @pyaedt_function_handler(setup_name="name")
+    def delete(self, name):
         """Delete a defined Parametric Setup.
 
         Parameters
         ----------
-        setup_name : str
+        name : str
             Name of parametric setup to delete.
 
         Returns
@@ -1212,33 +1218,33 @@ class ParametricSetups(object):
             ``True`` if setup is deleted. ``False`` if it failed.
         """
         for el in self.setups:
-            if el.name == setup_name:
+            if el.name == name:
                 el.delete()
                 return True
         return False
 
-    @pyaedt_function_handler()
-    def add_from_file(self, filename, parametricname=None):
+    @pyaedt_function_handler(filename="input_file", parametricname="name")
+    def add_from_file(self, input_file, name=None):
         """Add a Parametric Setup from a csv file.
 
         Parameters
         ----------
-        filename : str
+        input_file : str
             Csv file path.
-        parametricname : str, option
-            Name of parameric setup.
+        name : str, option
+            Name of parametric setup.
 
         Returns
         -------
         bool
             `True` if the import is executed correctly.
         """
-        if not parametricname:
-            parametricname = generate_unique_name("Parametric")
-        setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
+        if not name:
+            name = generate_unique_name("Parametric")
+        setup = SetupParam(self._app, name, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
-        with open_file(filename, "r") as csvfile:
+        with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
             setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
@@ -1257,7 +1263,7 @@ class ParametricSetups(object):
                     )
             setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
 
-            args = ["NAME:" + parametricname]
+            args = ["NAME:" + name]
             _dict2arg(setup.props, args)
 
             setup.props["Sweep Operations"] = OrderedDict({"add": []})
@@ -1321,7 +1327,9 @@ class OptimizationSetups(object):
                     ]:
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except Exception:
-                pass
+                self._app.logger.debug(
+                    "An error occurred while creating an instance of OptimizationSetups."
+                )  # pragma: no cover
 
     @property
     def p_app(self):
@@ -1339,13 +1347,13 @@ class OptimizationSetups(object):
         """
         return self._app.ooptimetrics
 
-    @pyaedt_function_handler()
-    def delete(self, setup_name):
+    @pyaedt_function_handler(setup_name="name")
+    def delete(self, name):
         """Delete a defined Optimetrics Setup.
 
         Parameters
         ----------
-        setup_name : str
+        name : str
             Name of optimetrics setup to delete.
 
         Returns
@@ -1354,23 +1362,23 @@ class OptimizationSetups(object):
             ``True`` if setup is deleted. ``False`` if it failed.
         """
         for el in self.setups:
-            if el.name == setup_name:
+            if el.name == name:
                 el.delete()
                 return True
         return False
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(optim_type="optimization_type", parametricname="name")
     def add(
         self,
         calculation=None,
         ranges=None,
         variables=None,
-        optim_type="Optimization",
+        optimization_type="Optimization",
         condition="<=",
         goal_value=1,
         goal_weight=1,
         solution=None,
-        parametricname=None,
+        name=None,
         context=None,
         subdesign_id=None,
         polyline_points=1001,
@@ -1389,7 +1397,7 @@ class OptimizationSetups(object):
             It includes intrinsics like "Freq", "Time", "Theta", "Distance".
         variables : list, optional
             List of variables to include in the optimization. By default all variables are included.
-        optim_type : strm optional
+        optimization_type : strm optional
             Optimization Type.
             Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
             and `"optiSLang"`.
@@ -1402,7 +1410,7 @@ class OptimizationSetups(object):
         solution : str, optional
             Type of the solution. The default is ``None``, in which case the default
             solution is used.
-        parametricname : str, optional
+        name : str, optional
             Name of the analysis. The default is ``None``, in which case a
             default name is assigned.
         context : str, optional
@@ -1430,11 +1438,11 @@ class OptimizationSetups(object):
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
-        if not parametricname:
-            parametricname = generate_unique_name(optim_type)
-        if optim_type != "optiSLang":
-            optim_type = "Opti" + optim_type
-        setup = SetupOpti(self._app, parametricname, optim_type=optim_type)
+        if not name:
+            name = generate_unique_name(optimization_type)
+        if optimization_type != "optiSLang":
+            optimization_type = "Opti" + optimization_type
+        setup = SetupOpti(self._app, name, optim_type=optimization_type)
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setupname]
         if calculation:
@@ -1455,7 +1463,9 @@ class OptimizationSetups(object):
                             if context == f.name:
                                 report_type = "Far Fields"
                     except Exception:
-                        pass
+                        self._app.logger.debug(
+                            "An error occurred when handling `report_type` while adding a basic optimization analysis."
+                        )  # pragma: no cover
             sweepdefinition = setup._get_context(
                 calculation,
                 condition,
@@ -1478,21 +1488,23 @@ class OptimizationSetups(object):
                 try:
                     dx_variables[el] = self._app[el]
                 except Exception:
-                    pass
+                    self._app.logger.debug(
+                        "An error occurred while adding a basic optimization analysis."
+                    )  # pragma: no cover
         for v in list(dx_variables.keys()):
-            if optim_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:
+            if optimization_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:
                 self._app.activate_variable_optimization(v)
-            elif optim_type == "OptiSensitivity":
+            elif optimization_type == "OptiSensitivity":
                 self._app.activate_variable_sensitivity(v)
-            elif optim_type == "OptiStatistical":
+            elif optimization_type == "OptiStatistical":
                 self._app.activate_variable_statistical(v)
-        if optim_type == "OptiDXDOE" and calculation:
+        if optimization_type == "OptiDXDOE" and calculation:
             setup.props["CostFunctionGoals"]["Goal"] = sweepdefinition
 
-        if optim_type in ["optiSLang", "OptiDesignExplorer"]:
+        if optimization_type in ["optiSLang", "OptiDesignExplorer"]:
             setup.props["Sweeps"]["SweepDefinition"] = []
             if not dx_variables:
-                if optim_type == "optiSLang":
+                if optimization_type == "optiSLang":
                     dx_variables = self._app.variable_manager.design_variables
                 else:
                     dx_variables = self._app.variable_manager.variables

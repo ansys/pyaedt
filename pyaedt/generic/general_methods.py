@@ -66,6 +66,7 @@ inclusion_list = [
     "Rename",
     "RestoreProjectArchive",
     "ImportGerber",
+    "EditSources",
 ]
 
 
@@ -972,7 +973,7 @@ def is_project_locked(project_path):
 
 
 @pyaedt_function_handler()
-def is_license_feature_available(feature="electronics_desktop", count=1):  # pragma: no cover
+def is_license_feature_available(feature="electronics_desktop", count=1, input_dir=None):  # pragma: no cover
     """Check if license feature is available.
 
     Parameters
@@ -981,6 +982,10 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
         Feature increment name. The default is the electronics desktop one.
     count : int
         Number of increments of the same feature available.
+    input_dir : str, optional
+        AEDT installation path. The default is ``None``, in which
+        case the first identified AEDT installation from :func:`pyaedt.misc.misc.installed_versions` method
+        is taken.
 
     Returns
     -------
@@ -989,12 +994,13 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
     """
     import subprocess  # nosec B404
 
-    aedt_install_folder = list(installed_versions().values())[0]
+    if not input_dir:
+        input_dir = list(installed_versions().values())[0]
 
     if is_linux:
-        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "linx64", "ansysli_util")
+        ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "ansysli_util")
     else:
-        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
+        ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "ansysli_util")
     my_env = os.environ.copy()
 
     tempfile_status = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
