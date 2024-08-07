@@ -1,5 +1,5 @@
 Create power map
-=================
+================
 
 You can import a CSV file containing sources layout and power dissipation information in to Icepak.
 
