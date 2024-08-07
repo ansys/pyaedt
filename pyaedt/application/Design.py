@@ -1037,8 +1037,12 @@ class Design(AedtObjects):
         warning_msg = ""
         names = self.get_oo_name(self.oproject)
         if names:
-            activedes = self.desktop_class.active_design(self.oproject, None, self.design_type).GetName()
-            warning_msg = "Active Design set to {}".format(activedes)
+            odesign_active = self.desktop_class.active_design(self.oproject, None, self.design_type)
+            if odesign_active.GetDesignType() == self.design_type:
+                activedes = odesign_active.GetName()
+                warning_msg = "Active Design set to {}".format(activedes)
+            else:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
