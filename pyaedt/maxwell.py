@@ -1982,8 +1982,18 @@ class Maxwell(object):
 
         circuit = MaxwellCircuit(design=circuit_design)
 
-        wdgs = self.excitations_by_type["Winding"]
-        # wdg_groups = self.excitations_by_type["Winding Group"]
+        wdg_keys = ["Winding", "Winding Group"]
+        wdgs = []
+        for wdg_key in wdg_keys:
+            if wdg_key in self.excitations_by_type.keys():
+                wdgs.append(self.excitations_by_type[wdg_key])
+        if not wdgs:
+            self.logger.error(
+                "No windings in the Maxwell design."
+            )
+            return False
+
+        wdgs = wdgs[0]
         external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
 
         for w in external_wdgs:
