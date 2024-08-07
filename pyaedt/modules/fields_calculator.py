@@ -363,7 +363,7 @@ class FieldsCalculator:
         new_expression_catalog = read_configuration_file(input_file)
 
         if new_expression_catalog:
-            for new_expression_name, new_expression_props in new_expression_catalog.items():
+            for _, new_expression_props in new_expression_catalog.items():
                 new_expression = self.validate_expression(new_expression_props)
                 if new_expression:
                     self.expression_catalog.update(new_expression)
