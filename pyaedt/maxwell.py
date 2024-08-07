@@ -1988,9 +1988,7 @@ class Maxwell(object):
             if wdg_key in self.excitations_by_type.keys():
                 wdgs.append(self.excitations_by_type[wdg_key])
         if not wdgs:
-            self.logger.error(
-                "No windings in the Maxwell design."
-            )
+            self.logger.error("No windings in the Maxwell design.")
             return False
 
         wdgs = wdgs[0]
