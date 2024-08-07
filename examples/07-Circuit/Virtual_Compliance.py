@@ -19,7 +19,7 @@ from pyaedt.generic.compliance import VirtualCompliance
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -54,7 +54,7 @@ d = pyaedt.Desktop(aedt_version, new_desktop=new_thread, non_graphical=non_graph
 # Before solving, this code ensures that the model is solved from DC to 70GHz and that
 # causality and passivity are enforced.
 
-h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), version=241)
+h3d = pyaedt.Hfss3dLayout(os.path.join(projectdir, "PCIE_GEN5_only_layout.aedtz"), version=242)
 h3d.remove_all_unused_definitions()
 h3d.edit_cosim_options(simulate_missing_solution=False)
 h3d.setups[0].sweeps[0].props["EnforcePassivity"] = True
@@ -62,7 +62,7 @@ h3d.setups[0].sweeps[0].props["Sweeps"]["Data"] = 'LIN 0MHz 70GHz 0.1GHz'
 h3d.setups[0].sweeps[0].props["EnforceCausality"] = True
 h3d.setups[0].sweeps[0].update()
 h3d.analyze()
-h3d = pyaedt.Hfss3dLayout(version=241)
+h3d = pyaedt.Hfss3dLayout(version=242)
 touchstone_path = h3d.export_touchstone()
 
 ###############################################################################
@@ -92,8 +92,8 @@ return_comm = cir.get_all_return_loss_list(excitations=comm_pairs, excitation_na
 # The original circuit schematic is duplicated and modified to achieve this target.
 
 result, tdr_probe_name = cir.create_tdr_schematic_from_snp(input_file=touchstone_path,
-                                                           probe_pins=["X1.A2.PCIe_Gen4_RX0_P"],
-                                                           probe_ref_pins=["X1.A3.PCIe_Gen4_RX0_N"],
+                                                           tx_schematic_pins=["X1.A2.PCIe_Gen4_RX0_P"],
+                                                           tx_schematic_differential_pins=["X1.A3.PCIe_Gen4_RX0_N"],
                                                            termination_pins=["U1.AP26.PCIe_Gen4_RX0_P",
                                                                              "U1.AN26.PCIe_Gen4_RX0_N"],
                                                            differential=True, rise_time=35, use_convolution=True,
@@ -105,14 +105,18 @@ result, tdr_probe_name = cir.create_tdr_schematic_from_snp(input_file=touchstone
 # Create an Ibis AMI project to compute an eye diagram simulation and retrieve
 # eye mask violations.
 result, eye_curve_tx, eye_curve_rx = cir.create_ami_schematic_from_snp(input_file=touchstone_path,
-                                                                       ibis_ami=os.path.join(projectdir, "models",
-                                                                                             "pcieg5_32gt.ibs"),
-                                                                       component_name="Spec_Model", tx_buffer_name="1p",
-                                                                       rx_buffer_name="2p",
-                                                                       tx_pins=["U1.AM25.PCIe_Gen4_TX0_CAP_P"],
-                                                                       tx_refs=["U1.AL25.PCIe_Gen4_TX0_CAP_N"],
-                                                                       rx_pins=["X1.B2.PCIe_Gen4_TX0_P"],
-                                                                       rx_refs=["X1.B3.PCIe_Gen4_TX0_N"],
+                                                                       ibis_tx_file=os.path.join(projectdir, "models",
+                                                                                                 "pcieg5_32gt.ibs"),
+                                                                       tx_buffer_name="1p", rx_buffer_name="2p",
+                                                                       tx_schematic_pins=[
+                                                                           "U1.AM25.PCIe_Gen4_TX0_CAP_P"],
+                                                                       rx_schematic_pins=[
+                                                                           "X1.B2.PCIe_Gen4_TX0_P"],
+                                                                       tx_schematic_differential_pins=[
+                                                                           "U1.AL25.PCIe_Gen4_TX0_CAP_N"],
+                                                                       rx_schematic_differentialial_pins=[
+                                                                           "X1.B3.PCIe_Gen4_TX0_N"],
+                                                                       ibis_tx_component_name="Spec_Model",
                                                                        use_ibis_buffer=False, differential=True,
                                                                        bit_pattern="random_bit_count=2.5e3 random_seed=1",
                                                                        unit_interval="31.25ps", use_convolution=True,

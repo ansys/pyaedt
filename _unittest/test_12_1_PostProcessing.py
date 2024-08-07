@@ -88,6 +88,8 @@ class TestClass:
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(), dict)
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
         assert len(self.aedtapp.post.available_report_solutions()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]
@@ -100,7 +102,7 @@ class TestClass:
         plot1.update_field_plot_settings()
         plot1.update()
         assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
-        assert plot1.change_plot_scale(min_value, "30000")
+        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic

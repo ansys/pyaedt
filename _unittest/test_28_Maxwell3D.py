@@ -525,7 +525,14 @@ class TestClass:
         m3d.assign_current(rectangle4.faces[0], amplitude=1, name="Cur4")
 
         L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
+        assert not L.reduced_matrices
+        m3d.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix3")
+        assert not out[0]
+        assert not out[1]
+        m3d.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
         out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
+        assert L.reduced_matrices
         assert isinstance(out[0], str)
         assert isinstance(out[1], str)
         out = L.join_parallel(["Cur1", "Cur3"], matrix_name="ReducedMatrix2")
@@ -534,7 +541,27 @@ class TestClass:
         out = L.join_parallel(["Cur5"])
         assert not out[0]
 
-    def test_32b_export_rl_matrix(self):
+    def test_32b_reduced_matrix(self):
+        self.aedtapp.set_active_design("Matrix2")
+        parent_matrix = [m for m in self.aedtapp.boundaries if m.type == "Matrix"][0]
+        assert parent_matrix.reduced_matrices
+        reduced_matrix_1 = parent_matrix.reduced_matrices[0]
+        assert reduced_matrix_1.name == "ReducedMatrix1"
+        assert reduced_matrix_1.parent_matrix == parent_matrix.name
+        source_name = list(reduced_matrix_1.sources.keys())[0]
+        assert reduced_matrix_1.update(old_source=source_name, source_type="series", new_source="new_series")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert reduced_matrix_1.sources["new_series"] == "Cur1, Cur2"
+        assert reduced_matrix_1.update(old_source="new_series", source_type="series", new_excitations="Cur2, Cur3")
+        assert list(reduced_matrix_1.sources.keys())[0] == "new_series"
+        assert reduced_matrix_1.sources["new_series"] == "Cur2, Cur3"
+        assert not reduced_matrix_1.update(old_source="invalid", source_type="series", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.update(old_source="new_series", source_type="invalid", new_excitations="Cur2, Cur3")
+        assert not reduced_matrix_1.delete(source="invalid")
+        assert reduced_matrix_1.delete(source="new_series")
+        assert len(parent_matrix.reduced_matrices) == 1
+
+    def test_32c_export_rl_matrix(self):
         self.aedtapp.set_active_design("Matrix2")
         L = self.aedtapp.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="matrix_export_test")
         L.join_series(["Cur1", "Cur2"], matrix_name="reduced_matrix_export_test")
@@ -553,7 +580,7 @@ class TestClass:
         assert self.aedtapp.export_rl_matrix("matrix_export_test", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
 
-    def test_32c_post_processing(self):
+    def test_32d_post_processing(self):
         expressions = self.aedtapp.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
@@ -895,7 +922,7 @@ class TestClass:
         segments_number = 5
         object_name = "PM_I1"
         sheets = cyl_gap.modeler.objects_segmentation(
-            object_name, segments_number=segments_number, apply_mesh_sheets=True
+            assignment=object_name, segments=segments_number, apply_mesh_sheets=True
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0], dict)
@@ -907,7 +934,7 @@ class TestClass:
         object_name = "PM_I1_1"
         magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
         sheets = cyl_gap.modeler.objects_segmentation(
-            magnet_id, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=mesh_sheets_number
+            magnet_id, segments=segments_number, apply_mesh_sheets=True, mesh_sheets=mesh_sheets_number
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
@@ -926,11 +953,11 @@ class TestClass:
         assert len(sheets[0][object_name]) == segments_number - 1
         assert not cyl_gap.modeler.objects_segmentation(object_name)
         assert not cyl_gap.modeler.objects_segmentation(
-            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
+            object_name, segmentation_thickness=segmentation_thickness, segments=segments_number
         )
         object_name = "PM_O1_1"
         segments_number = 10
-        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments=segments_number)
         assert isinstance(sheets, dict)
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1

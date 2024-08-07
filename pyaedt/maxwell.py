@@ -1850,7 +1850,6 @@ class Maxwell(object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         if self.solution_type != "TransientAPhiFormulation":
             self.logger.error("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
@@ -1943,6 +1942,53 @@ class Maxwell(object):
             f1 = number_of_frequency
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup, freq_option, f1, f2)
         return output_directory
+
+    @pyaedt_function_handler()
+    def create_external_circuit(self, circuit_design=None):
+        """
+        Create the external circuit including all the windings of type ``External`` in the Maxwell design.
+
+        Parameters
+        ----------
+        circuit_design : str, optional
+            Name of the created circuit design.
+            If not provided the design name + ``ckt`` is used.
+
+        Returns
+        -------
+        :class:`pyaedt.maxwellcircuit.MaxwellCircuit`
+            MaxwellCircuit object if successful, ``False`` otherwise.
+
+        Examples
+        --------
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_coil(assignment=["Coil1"])
+        >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
+        >>> cir = m2d.create_external_circuit()
+        >>> m2d.release_desktop(True, True)
+        """
+        if self.solution_type not in ["EddyCurrent", "Transient"]:
+            self.logger.error(
+                "External circuit excitation for windings is available only for Eddy current or Transient solutions."
+            )
+            return False
+
+        if not circuit_design:
+            circuit_design = self.design_name + "_ckt"
+
+        from pyaedt.maxwellcircuit import MaxwellCircuit
+
+        circuit = MaxwellCircuit(design=circuit_design)
+
+        wdgs = self.excitations_by_type["Winding Group"]
+        external_wdgs = [w for w in wdgs if w.props["Type"] == "External"]
+
+        for w in external_wdgs:
+            circuit.modeler.schematic.create_winding(name=w.name)
+
+        return circuit
 
     @pyaedt_function_handler()
     def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
@@ -2136,7 +2182,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(version="2024.1", project="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(version="2024.2", project="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """

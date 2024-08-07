@@ -47,9 +47,6 @@ class Parser:
     Parser class that loads an HDM-format export file from HFSS SBR+, interprets
     its header and its binary content. Except for the header, the binary content is
     not parsed until an explicit call to parse_message.
-    Usage:
-    parser = Parser('filename')
-    bundle = parser.parse_message()
     """
 
     def __init__(self, filename):

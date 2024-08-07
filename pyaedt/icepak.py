@@ -4865,7 +4865,7 @@ class Icepak(FieldAnalysis3D):
         temperature="AmbientTemp",
         radiation_temperature="AmbientRadTemp",
         pressure="AmbientPressure",
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        velocity=None,
     ):
         """
         Assign free opening boundary condition.
@@ -4920,6 +4920,8 @@ class Icepak(FieldAnalysis3D):
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_velocity_free_opening(f_id)
         """
+        if velocity is None:
+            velocity = ["0m_per_sec", "0m_per_sec", "0m_per_sec"]
         return self.assign_free_opening(
             assignment,
             boundary_name=boundary_name,
@@ -6463,6 +6465,28 @@ class Icepak(FieldAnalysis3D):
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)
+
+    @pyaedt_function_handler()
+    def clear_linked_data(self):
+        """
+        Clear the linked data of all the solution setups.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ClearLinkedData
+        """
+        try:
+            self.odesign.ClearLinkedData()
+        except:
+            return False
+        else:
+            return True
 
 
 class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
