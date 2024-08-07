@@ -5088,7 +5088,7 @@ class GeometryModeler(Modeler):
         if ansys_install_dir:
             if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
                 self.logger.error("Discovery installation not found.")
-        else:
+        else:  # pragma: no cover
             self.logger.error("Discovery version is different from AEDT version.")
             return False
 
