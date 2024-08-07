@@ -1,7 +1,7 @@
-Create Power Map
+Create power map
 ==============
 
-You can import a csv file containing sources layout and power dissipation information in to Icepak.
+You can import a CSV file containing sources layout and power dissipation information in to Icepak.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
@@ -14,7 +14,7 @@ The following image shows the extension user interface:
 
 The available argument is: ``file_path``.
 
-csv file example:
+CSV file example:
 
 :download:`CSV File example <../../Resources/icepak_classic_powermap.csv>`
 
