@@ -22,7 +22,7 @@
 # SOFTWARE.
 
 import csv
-import os.path
+import os
 
 import pyaedt
 from pyaedt import Icepak
