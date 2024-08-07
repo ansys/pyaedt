@@ -2015,5 +2015,5 @@ class TestClass:
             assert not self.aedtapp.modeler.import_discovery_model(self.discovery_file)
         else:
             assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
-        assert self.aedtapp.modeler.objects
-        assert self.aedtapp.modeler.solid_bodies
+            assert self.aedtapp.modeler.objects
+            assert self.aedtapp.modeler.solid_bodies
