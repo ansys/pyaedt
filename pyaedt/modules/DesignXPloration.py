@@ -360,7 +360,9 @@ class CommonOptimetrics(PropsManager, object):
                         if context == f.name:
                             report_type = "Far Fields"
                 except Exception:
-                    pass
+                    self._app.logger.debug(
+                        "An error occurred when handling `report_type` while adding calculation."
+                    )  # pragma: no cover
         sweepdefinition = self._get_context(
             calculation,
             condition,
@@ -381,7 +383,7 @@ class CommonOptimetrics(PropsManager, object):
                 try:
                     dx_variables[el] = self._app[el]
                 except Exception:
-                    pass
+                    self._app.logger.debug("An error occurred while adding calculation.")  # pragma: no cover
         for v in list(dx_variables.keys()):
             self._activate_variable(v)
         if self.soltype in ["OptiDesignExplorer", "OptiDXDOE"] and is_goal:
@@ -1115,7 +1117,9 @@ class ParametricSetups(object):
                     ):
                         self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except Exception:
-                pass
+                self._app.logger.debug(
+                    "An error occurred while creating an instance of ParametricSetups."
+                )  # pragma: no cover
 
     @property
     def p_app(self):
@@ -1323,7 +1327,9 @@ class OptimizationSetups(object):
                     ]:
                         self.setups.append(SetupOpti(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except Exception:
-                pass
+                self._app.logger.debug(
+                    "An error occurred while creating an instance of OptimizationSetups."
+                )  # pragma: no cover
 
     @property
     def p_app(self):
@@ -1457,7 +1463,9 @@ class OptimizationSetups(object):
                             if context == f.name:
                                 report_type = "Far Fields"
                     except Exception:
-                        pass
+                        self._app.logger.debug(
+                            "An error occurred when handling `report_type` while adding a basic optimization analysis."
+                        )  # pragma: no cover
             sweepdefinition = setup._get_context(
                 calculation,
                 condition,
@@ -1480,7 +1488,9 @@ class OptimizationSetups(object):
                 try:
                     dx_variables[el] = self._app[el]
                 except Exception:
-                    pass
+                    self._app.logger.debug(
+                        "An error occurred while adding a basic optimization analysis."
+                    )  # pragma: no cover
         for v in list(dx_variables.keys()):
             if optimization_type in ["OptiOptimization", "OptiDXDOE", "OptiDesignExplorer", "optiSLang"]:
                 self._app.activate_variable_optimization(v)
