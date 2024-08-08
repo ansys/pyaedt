@@ -376,8 +376,7 @@ def disable_auto_update(func):
 
 
 class PCBSettingsPackageParts(object):
-    """
-    Handle package part settings of the PCB component.
+    """Handle package part settings of the PCB component.
 
     Parameters
     ----------
