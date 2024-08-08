@@ -497,7 +497,8 @@ class TestClass:
         ]
 
     def test_29_assign_surface_material(self):
-        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        surf_mat = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert surf_mat.emissivity.value == 0.5
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
         assert self.aedtapp.assign_surface_material("box", "Fe-cast")
