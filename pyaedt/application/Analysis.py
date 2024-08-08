@@ -1764,7 +1764,7 @@ class Analysis(Design, object):
             Name of the setup, which can be an optimetric setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         cores : int, optional
-            Number of simulation cores.  The default is ``1``.
+            Number of simulation cores.  The default is ``4``.
         tasks : int, optional
             Number of simulation tasks.  The default is ``1``.
         gpus : int, optional
@@ -1772,7 +1772,7 @@ class Analysis(Design, object):
         acf_file : str, optional
             Full path to the custom ACF file. The default is ``None``.
         use_auto_settings : bool, optional
-            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+            Either use or not auto settings in task/cores. It is not supported by all Setup.
         num_variations_to_distribute : int, optional
             Number of variations to distribute. For this to take effect ``use_auto_settings`` must be set to ``True``.
         allowed_distribution_types : list, optional
