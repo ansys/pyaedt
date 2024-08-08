@@ -7,11 +7,11 @@ $begin 'Configs'
 				$begin 'DSOMachineInfo'
 					MachineName='localhost'
 					NumEngines=1
-					NumCores=8
+					NumCores=4
 					IsEnabled=true
 					RAMPercent=90
 					NumJobCores=0
-					NumGPUs=1
+					NumGPUs=0
 				$end 'DSOMachineInfo'
 			$end 'DSOMachineList'
 			UseAutoSettings=true
