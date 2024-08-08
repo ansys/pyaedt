@@ -609,7 +609,7 @@ class TestClass:
         )
         assert os.path.exists(output_file)
 
-    def test_39_create_external_circuit(self, add_app):
+    def test_39_create_external_circuit(self):
         assert self.m2d_circuit.create_external_circuit()
         assert self.m2d_circuit.create_external_circuit(circuit_design="test_cir")
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
@@ -617,8 +617,5 @@ class TestClass:
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in self.m2d_circuit.excitations_by_type["Winding Group"]:
             w.delete()
-        # for i,_ in enumerate(self.m2d_circuit.excitations_by_type["Winding Group"]):
-        #     self.m2d_circuit.excitations_by_type["Winding Group"][i].delete()
-        # [w.delete() for w in self.m2d_circuit.excitations_by_type["Winding Group"]]
         self.m2d_circuit.save_project()
         assert not self.m2d_circuit.create_external_circuit()
