@@ -1020,7 +1020,7 @@ def available_license_feature(
 
     available_licenses = 0
     pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"
-    pattern_error = r"Error getting statu"
+    pattern_error = r"Error getting status"
     with open_file(tempfile_checkout, "r") as f:
         for line in f:
             line = line.strip()
