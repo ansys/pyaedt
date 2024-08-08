@@ -498,7 +498,8 @@ class TestClass:
         ]
 
     def test_29_assign_surface_material(self):
-        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        surf_mat = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert surf_mat.emissivity.value == 0.5
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
         assert self.aedtapp.assign_surface_material("box", "Fe-cast")
@@ -876,7 +877,7 @@ class TestClass:
             os.path.join(file_path, file_name),
             name="board_assembly",
             coordinate_systems=cs_list,
-            reference_coordinate_systems="CS1",
+            reference_coordinate_system="CS1",
             export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
@@ -953,7 +954,7 @@ class TestClass:
             os.path.join(file_path, file_name),
             name="board_assembly",
             coordinate_systems=cs_list,
-            reference_coordinate_systems="CS1",
+            reference_coordinate_system="CS1",
             export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
