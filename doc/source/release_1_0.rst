@@ -10,8 +10,8 @@ of the codebase.
 Deprecation of function argument names
 --------------------------------------
 
-In the 1.0 release, several function argument names are deprecated and are no longer 
-allowed. You should review your code and check the warnings that are logged at run time.
+In the 1.0 release, several function argument names are deprecated. You should review 
+your code and check the warnings that are logged at run time.
 The following example shows a warning triggered by the use of an argument that is currently acceptable but is not going to work with version 1.0.
 
 .. code-block:: python
@@ -38,12 +38,14 @@ The changes to the structure follow:
 
     Old structure:
     --------------
+
     pyaedt/
     ├── application/
     └── ...
 
     New structure:
     --------------
+
     src/
     └── ansys/
         └── aedt/
@@ -52,6 +54,7 @@ The changes to the structure follow:
 
 When migrating to major release `1.0`, please update any references or imports in your project
 accordingly. An example of migration is shown below:
+
 **Old import:**
 
 .. code-block:: python
