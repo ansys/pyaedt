@@ -29,7 +29,8 @@ import uuid
 is_linux = os.name == "posix"
 
 
-def default_log_filename():
+def generate_log_filename():
+    """Generate a log filename."""
     base = "pyaedt"
     username = os.path.split(os.path.expanduser("~"))[-1]
     unique_id = uuid.uuid4()
