@@ -73,7 +73,7 @@ class Settings(object):  # pragma: no cover
         self._force_error_on_missing_project = False
         self._enable_pandas_output = False
         self.time_tick = time.time()
-        self._global_log_file_name = default_log_filename()
+        self._global_log_file_name = generate_log_filename()
         self._enable_global_log_file = True
         self._enable_local_log_file = False
         self._global_log_file_size = 10
