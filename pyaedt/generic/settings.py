@@ -24,8 +24,16 @@
 
 import os
 import time
+import uuid
 
 is_linux = os.name == "posix"
+
+
+def default_log_filename():
+    base = "pyaedt"
+    username = os.path.split(os.path.expanduser("~"))[-1]
+    unique_id = uuid.uuid4()
+    return f"{base}_{username}_{unique_id}.log"
 
 
 class Settings(object):  # pragma: no cover
@@ -64,7 +72,7 @@ class Settings(object):  # pragma: no cover
         self._force_error_on_missing_project = False
         self._enable_pandas_output = False
         self.time_tick = time.time()
-        self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
+        self._global_log_file_name = default_log_filename()
         self._enable_global_log_file = True
         self._enable_local_log_file = False
         self._global_log_file_size = 10
