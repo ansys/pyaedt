@@ -66,7 +66,7 @@ repos:
   -   id: check-pre-commit-ci-config
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.4.2
+  rev: v0.4.3
   hooks:
     - id: add-license-headers
       files: '(pyaedt|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'

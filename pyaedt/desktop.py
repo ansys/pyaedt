@@ -116,7 +116,7 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
     _aedt_process_thread.start()
     timeout = settings.desktop_launch_timeout
     k = 0
-    while not _check_grpc_port(port):
+    while not _is_port_occupied(port):
         if k > timeout:  # pragma: no cover
             active_s = active_sessions(student_version=student_version)
             for pid in active_s:
@@ -196,7 +196,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             aedt_startup_timeout = 120
             k = 0
             # LSF resources are assigned. Make sure AEDT starts
-            while not _check_grpc_port(port, machine_name=m.group(1)):
+            while not _is_port_occupied(port, machine_name=m.group(1)):
                 if k > aedt_startup_timeout:
                     pyaedt_logger.error("LSF allocated resources, but AEDT was unable to start due to a timeout.")
                     return False, err
@@ -208,7 +208,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     return False, err
 
 
-def _check_grpc_port(port, machine_name=""):
+def _is_port_occupied(port, machine_name=""):
     if not port:
         return False
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -236,8 +236,9 @@ def _find_free_port():
 
     while True:
         new_port = _find()
-        if new_port not in list(active_sessions().values()):
+        if new_port not in list(active_sessions().values()) and new_port not in range(50051, 50070, 1):
             return new_port
+        time.sleep(0.1)
 
 
 def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
@@ -1145,13 +1146,13 @@ class Desktop(object):
                     self.port = _find_free_port()
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
                     new_aedt_session = True
-        elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
+        elif new_aedt_session and not _is_port_occupied(self.port, self.machine):
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session:
             self.logger.warning("New Session of AEDT cannot be started on specified port because occupied.")
             self.port = _find_free_port()
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
-        elif _check_grpc_port(self.port, self.machine):
+        elif _is_port_occupied(self.port, self.machine):
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
         else:
             self.logger.info("AEDT session is starting on gRPC port %s", self.port)
