@@ -4865,7 +4865,7 @@ class Icepak(FieldAnalysis3D):
         temperature="AmbientTemp",
         radiation_temperature="AmbientRadTemp",
         pressure="AmbientPressure",
-        velocity=["0m_per_sec", "0m_per_sec", "0m_per_sec"],
+        velocity=None,
     ):
         """
         Assign free opening boundary condition.
@@ -4920,6 +4920,8 @@ class Icepak(FieldAnalysis3D):
         >>> f_id = icepak.modeler["Region"].faces[0].id
         >>> icepak.assign_velocity_free_opening(f_id)
         """
+        if velocity is None:
+            velocity = ["0m_per_sec", "0m_per_sec", "0m_per_sec"]
         return self.assign_free_opening(
             assignment,
             boundary_name=boundary_name,

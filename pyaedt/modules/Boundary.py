@@ -135,7 +135,9 @@ class BoundaryCommon(PropsManager):
                         ],
                     ]
         except Exception:
-            pass
+            self._app.logger.debug(
+                "An error occurred while getting boundary data for MaxwellParameterSetup."
+            )  # pragma: no cover
         try:
             if (
                 "ModelSetup" in self._app.design_properties
@@ -150,7 +152,7 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
                     ]
         except Exception:
-            pass
+            self._app.logger.debug("An error occurred while getting boundary data for ModelSetup.")  # pragma: no cover
         try:
             if ds in self._app.design_properties["BoundarySetup"]["Boundaries"]:
                 if (
@@ -164,6 +166,9 @@ class BoundaryCommon(PropsManager):
                         self._app.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"],
                     ]
         except Exception:
+            self._app.logger.debug(
+                "An error occurred while getting boundary data for BoundarySetup."
+            )  # pragma: no cover
             return []
 
 

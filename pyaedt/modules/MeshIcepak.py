@@ -1039,7 +1039,8 @@ class IcepakMesh(object):
         self._odesign = self._app._odesign
         self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
-        assert design_type in meshers, "Invalid design type {}".format(design_type)
+        if design_type not in meshers:
+            raise RuntimeError("Invalid design type {}".format(design_type))  # pragma: no cover
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units

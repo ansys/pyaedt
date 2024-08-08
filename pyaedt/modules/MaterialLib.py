@@ -233,7 +233,7 @@ class Materials(object):
                     material_update=False,
                 )
         except Exception:
-            pass
+            self.logger.debug("An error occurred while accessing surface materials.")  # pragma: no cover
         return mats
 
     @pyaedt_function_handler(mat="material")
@@ -388,7 +388,7 @@ class Materials(object):
         else:
             material = SurfaceMaterial(self._app, name, material_update=False)
             if emissivity:
-                material.emissivity = emissivity
+                material.emissivity.value = emissivity
             material.update()
             material._material_update = True
             self.logger.info("Material has been added. Edit it to update in Desktop.")
@@ -412,7 +412,8 @@ class Materials(object):
                 if a < tol:
                     del matprop[prop]
             except Exception:
-                pass
+                self.logger.debug("An error occurred while creating material property.")  # pragma: no cover
+
         return matprop
 
     @pyaedt_function_handler(materials_list="assignment", material_name="name")

@@ -245,7 +245,7 @@ class Mesh3d(object):
                         props = self._app.design_properties["Setup"]["Data"][ds]["MeshOps"][ops]
                         meshops.append(Mesh3DOperation(self, ds, ops, props))
         except Exception:
-            pass
+            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
         return meshops
 
     @pyaedt_function_handler(

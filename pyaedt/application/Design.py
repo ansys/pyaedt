@@ -502,7 +502,7 @@ class Design(AedtObjects):
         >>> hfss.odesktop
         <class 'win32com.client.CDispatch'>
         """
-        return self._desktop
+        return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
@@ -1040,13 +1040,25 @@ class Design(AedtObjects):
             valids = []
             for name in names:
                 des = self.get_oo_object(self.oproject, name)
-                if hasattr(des, "GetDesignType") and des.GetDesignType() == self.design_type:
+                des_type = None
+                if hasattr(des, "GetDesignType"):
+                    des_type = des.GetDesignType()
+                if des_type == self.design_type or (
+                    des_type == "RMxprt"
+                    and self.design_type
+                    in [
+                        "RMxprtSolution",
+                        "ModelCreation",
+                    ]
+                ):
                     if self.design_type in [
                         "Circuit Design",
                         "Twin Builder",
                         "HFSS 3D Layout Design",
                         "EMIT",
                         "Q3D Extractor",
+                        "RMxprtSolution",
+                        "ModelCreation",
                     ]:
                         valids.append(name)
                     elif not self._temp_solution_type:

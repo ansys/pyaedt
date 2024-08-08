@@ -1,0 +1,131 @@
+<Metadata>
+  <ElementPatterns>
+    <Source name='A[1,1]Rect_UnitCell1_1_Patch_T1'>
+      <Filename>exportfield_0.ffd      </Filename>
+      <ReferenceLocation>0.004750,0.003150,-0.000367      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='21GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.001877              </AcceptedPower>
+              <RadiatedPower>0.000611              </RadiatedPower>
+            </Power>
+            <Power Freq='23.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.005228              </AcceptedPower>
+              <RadiatedPower>0.002665              </RadiatedPower>
+            </Power>
+            <Power Freq='26GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.009258              </AcceptedPower>
+              <RadiatedPower>0.005616              </RadiatedPower>
+            </Power>
+            <Power Freq='28.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008736              </AcceptedPower>
+              <RadiatedPower>0.005016              </RadiatedPower>
+            </Power>
+            <Power Freq='31GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008107              </AcceptedPower>
+              <RadiatedPower>0.004513              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='A[1,2]Rect_UnitCell1_1_Patch_T1'>
+      <Filename>exportfield_1.ffd      </Filename>
+      <ReferenceLocation>0.004750,-0.000850,-0.000367      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='21GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.002233              </AcceptedPower>
+              <RadiatedPower>0.000696              </RadiatedPower>
+            </Power>
+            <Power Freq='23.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.006146              </AcceptedPower>
+              <RadiatedPower>0.003070              </RadiatedPower>
+            </Power>
+            <Power Freq='26GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.009089              </AcceptedPower>
+              <RadiatedPower>0.005359              </RadiatedPower>
+            </Power>
+            <Power Freq='28.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008881              </AcceptedPower>
+              <RadiatedPower>0.005323              </RadiatedPower>
+            </Power>
+            <Power Freq='31GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008507              </AcceptedPower>
+              <RadiatedPower>0.004582              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='A[2,1]Rect_UnitCell1_1_Patch_T1'>
+      <Filename>exportfield_2.ffd      </Filename>
+      <ReferenceLocation>-0.000750,0.003150,-0.000367      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='21GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.002450              </AcceptedPower>
+              <RadiatedPower>0.000678              </RadiatedPower>
+            </Power>
+            <Power Freq='23.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.005864              </AcceptedPower>
+              <RadiatedPower>0.002678              </RadiatedPower>
+            </Power>
+            <Power Freq='26GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.009447              </AcceptedPower>
+              <RadiatedPower>0.005648              </RadiatedPower>
+            </Power>
+            <Power Freq='28.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008296              </AcceptedPower>
+              <RadiatedPower>0.005327              </RadiatedPower>
+            </Power>
+            <Power Freq='31GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008654              </AcceptedPower>
+              <RadiatedPower>0.004560              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+    <Source name='A[2,2]Rect_UnitCell1_1_Patch_T1'>
+      <Filename>exportfield_3.ffd      </Filename>
+      <ReferenceLocation>-0.000750,-0.000850,-0.000366      </ReferenceLocation>
+        <PowerInfo>
+            <Power Freq='21GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.002831              </AcceptedPower>
+              <RadiatedPower>0.000685              </RadiatedPower>
+            </Power>
+            <Power Freq='23.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.006430              </AcceptedPower>
+              <RadiatedPower>0.002551              </RadiatedPower>
+            </Power>
+            <Power Freq='26GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.009406              </AcceptedPower>
+              <RadiatedPower>0.005383              </RadiatedPower>
+            </Power>
+            <Power Freq='28.5GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008572              </AcceptedPower>
+              <RadiatedPower>0.004944              </RadiatedPower>
+            </Power>
+            <Power Freq='31GHz'>
+              <IncidentPower>0.010000              </IncidentPower>
+              <AcceptedPower>0.008816              </AcceptedPower>
+              <RadiatedPower>0.003614              </RadiatedPower>
+            </Power>
+        </PowerInfo>
+    </Source>
+  </ElementPatterns>
+  <TouchstoneInfo>
+    <Filename>Sweep_DV231.s4p    </Filename>
+  </TouchstoneInfo>
+</Metadata>

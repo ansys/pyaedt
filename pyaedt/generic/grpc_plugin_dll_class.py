@@ -366,9 +366,7 @@ class AEDT:
 
     @property
     def odesktop(self):
-        if settings.use_multi_desktop:
-            self.aedt = self.recreate_application()
-        return self.aedt.GetAppDesktop()
+        return self.recreate_application()
 
     def recreate_application(self, force=False):
         def run():
@@ -379,14 +377,15 @@ class AEDT:
             self.port = port
             self.machine = machine
             self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, self.non_graphical, False)
-            return self.aedt
+            return self.aedt.GetAppDesktop()
 
         if force:
             return run()
         else:
             try:
-                self.aedt.GetAppDesktop()
-                return self.aedt
+                odesktop = self.aedt.GetAppDesktop()
+                if odesktop:
+                    return odesktop
             except Exception:
                 return run()
 
