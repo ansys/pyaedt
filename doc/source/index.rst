@@ -16,7 +16,7 @@ enabling straightforward and efficient automation in your workflow.
 .. note:: Expected breaking changes with version `1.0`
 
    If you want to know more about the breaking changes expected
-   if the incoming version `1.0`, see the :ref:`release_1_0`.
+   in the incoming version `1.0`, see the :ref:`release_1_0`.
 
 .. note::
     Also consider viewing the `PyEDB documentation <https://edb.docs.pyansys.com/version/stable/>`_.

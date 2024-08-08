@@ -3,17 +3,16 @@
 Breaking changes in release 1.0
 ===============================
 
-This document outlines the breaking changes expected in the upcoming major version `1.0` of PyAEDT.
+This page describes the breaking changes expected in the upcoming major version 1.0 of PyAEDT.
 These changes include the deprecation of certain function argument names and the restructuring
-of the sources.
+of the codebase.
 
 Deprecation of function argument names
 --------------------------------------
 
-In the next major version, several function argument names are deprecated and are no longer 
-allowed. Please review your code and check the warning that are logged at run time.
-Below is an example of a warning triggered by the use of an argument that is currently tolerated
-but which is not going to work with version `1.0`.
+In the 1.0 release, several function argument names are deprecated and are no longer 
+allowed. You should review your code and check the warnings that are logged at run time.
+The following example shows a warning triggered by the use of an argument that is currently acceptable but is not going to work with version 1.0.
 
 .. code-block:: python
 
@@ -30,20 +29,20 @@ Restructuring of the codebase
 -----------------------------
 
 To facilitate the maintenance of PyAEDT and to adhere to PyAnsys' guidelines, the codebase
-is being restructured. The sources are to be moved from `pyaedt` to `src.ansys.aedt`.
-This change aims to improve the organization and maintainability of the codebase.
+is being restructured. The sources are to be moved from ``pyaedt`` to ``src.ansys.aedt``
+to improve the organization and maintainability of the codebase.
 
-The new structure is going to be as follow:
+The changes to the structure follow:
 
 .. code-block:: text
 
-    Old Structure:
+    Old structure:
     --------------
     pyaedt/
     ├── application/
     └── ...
 
-    New Structure:
+    New structure:
     --------------
     src/
     └── ansys/
@@ -53,25 +52,25 @@ The new structure is going to be as follow:
 
 When migrating to major release `1.0`, please update any references or imports in your project
 accordingly. An example of migration is shown below:
+**Old import:**
 
 .. code-block:: python
 
     from pyaedt import Circuit    
 
-should be updated into
+**New import:**
 
 .. code-block:: python
 
     from ansys.aedt import Circuit
 
-Other changes to reach release 1.0
-==================================
+Other changes in release 1.0
+============================
 
-In addition to the major changes described above, modifications are continuously performed to
+In addition to the major changes described earlier, modifications are continuously performed to
 improve the quality of the project, its maintainability, its documentation, and
 to ensure users' need are met as efficiently as possible. This includes ensuring
-consistency on argument names, improving data encapsulation, strengthening CI/CD, extracting
+consistent argument names, improving data encapsulation, strengthening CI/CD, and extracting
 examples to a dedicated project.
 
-See `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ for more information on
-the status of the release.
+For more information on the status of the 1.0 release, see `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>` .
