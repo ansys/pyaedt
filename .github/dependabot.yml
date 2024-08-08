@@ -6,13 +6,14 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "CHORE"
+      prefix: "BUILD"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -20,10 +21,11 @@ updates:
       interval: "daily"
     reviewers: 
       - "MaxJPRey"
+      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
       - "maintenance"
       - "dependencies"
     commit-message:
-      prefix: "CHORE"
+      prefix: "BUILD"

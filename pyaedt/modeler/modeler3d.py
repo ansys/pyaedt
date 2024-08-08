@@ -88,7 +88,7 @@ class Modeler3D(Primitives3D):
         boundaries_list="boundaries",
         excitation_list="excitations",
         included_cs="coordinate_systems",
-        reference_cs="reference_coordinate_systems",
+        reference_cs="reference_coordinate_system",
         auxiliary_dict="export_auxiliary",
     )
     def create_3dcomponent(
@@ -100,7 +100,7 @@ class Modeler3D(Primitives3D):
         boundaries=None,
         excitations=None,
         coordinate_systems=None,
-        reference_coordinate_systems="Global",
+        reference_coordinate_system="Global",
         is_encrypted=False,
         allow_edit=False,
         security_message="",
@@ -134,7 +134,7 @@ class Modeler3D(Primitives3D):
             List of Excitation names to export. The default is all excitations.
         coordinate_systems : list, optional
             List of Coordinate Systems to export. The default is the ``reference_cs``.
-        reference_coordinate_systems : str, optional
+        reference_coordinate_system : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
@@ -273,7 +273,7 @@ class Modeler3D(Primitives3D):
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_coordinate_systems)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
         par_description = []
         variables = []
         dependent_variables = []
@@ -429,6 +429,7 @@ class Modeler3D(Primitives3D):
         boundaries_list="boundaries",
         excitation_list="excitations",
         included_cs="coordinate_systems",
+        reference_cs="reference_coordinate_system",
     )
     def replace_3dcomponent(
         self,
@@ -437,8 +438,8 @@ class Modeler3D(Primitives3D):
         assignment=None,
         boundaries=None,
         excitations=None,
-        included_cs=None,
-        coordinate_systems="Global",
+        coordinate_systems=None,
+        reference_coordinate_system="Global",
     ):
         """Replace with 3D component.
 
@@ -454,10 +455,10 @@ class Modeler3D(Primitives3D):
             List of Boundaries names to export. The default is all boundaries.
         excitations : list, optional
             List of Excitation names to export. The default is all excitations.
-        included_cs : list, optional
-            List of Coordinate Systems to export. The default is all coordinate systems.
-        coordinate_systems : str, optional
-            The Coordinate System reference. The default is ``"Global"``.
+        coordinate_systems : list, optional
+            List of coordinate systems to export. The default is all coordinate systems.
+        reference_coordinate_system : str, optional
+            The coordinate system reference. The default is ``"Global"``.
 
         Returns
         -------
@@ -516,12 +517,10 @@ class Modeler3D(Primitives3D):
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
-        if included_cs:
-            allcs = included_cs
-        else:
-            allcs = self.oeditor.GetCoordinateSystems()
-        arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(coordinate_systems)
+        if not coordinate_systems:
+            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
+        arg.append("IncludedCS:="), arg.append(coordinate_systems)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
         par_description = []
         variables = []
         if variables_to_include:
