@@ -388,7 +388,7 @@ class Materials(object):
         else:
             material = SurfaceMaterial(self._app, name, material_update=False)
             if emissivity:
-                material.emissivity = emissivity
+                material.emissivity.value = emissivity
             material.update()
             material._material_update = True
             self.logger.info("Material has been added. Edit it to update in Desktop.")
