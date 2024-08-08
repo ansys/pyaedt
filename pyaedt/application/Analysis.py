@@ -1764,7 +1764,7 @@ class Analysis(Design, object):
             Name of the setup, which can be an optimetric setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         cores : int, optional
-            Number of simulation cores.  The default is ``1``.
+            Number of simulation cores.  The default is ``4``.
         tasks : int, optional
             Number of simulation tasks.  The default is ``1``.
         gpus : int, optional
