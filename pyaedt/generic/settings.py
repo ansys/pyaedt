@@ -33,7 +33,7 @@ def default_log_filename():
     base = "pyaedt"
     username = os.path.split(os.path.expanduser("~"))[-1]
     unique_id = uuid.uuid4()
-    return f"{base}_{username}_{unique_id}.log"
+    return "{}_{}_{}.log".format(base, username, unique_id)
 
 
 class Settings(object):  # pragma: no cover
