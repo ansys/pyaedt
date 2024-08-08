@@ -141,13 +141,13 @@ class TestClass:
         assert ffdata.get_accepted_power()
 
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
+        ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", output_file=img1, show=False)
         assert os.path.exists(img1)
         img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
+        ffdata.plot_cut(secondary_sweep_value=[0, 1], output_file=img2, show=False)
         assert os.path.exists(img2)
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_cut(image_path=img3, show=False)
+        ffdata.plot_cut(output_file=img3, show=False)
         assert os.path.exists(img3)
         curve_2d = ffdata.plot_cut(show=False)
         assert isinstance(curve_2d, Figure)
@@ -156,7 +156,7 @@ class TestClass:
 
         img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
         ffdata.plot_3d(
-            quantity="RealizedGain", image_path=img4, show=False, background=[255, 0, 0], show_geometry=False
+            quantity="RealizedGain", output_file=img4, show=False, background=[255, 0, 0], show_geometry=False
         )
         assert os.path.exists(img4)
         data_pyvista = ffdata.plot_3d(quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False)
@@ -172,17 +172,13 @@ class TestClass:
         assert ffdata.farfield_data.plot_contour(
             quantity="RealizedGain",
             title="Contour at {}Hz".format(ffdata.farfield_data.frequency),
-            image_path=img1,
+            output_file=img1,
             show=False,
         )
         assert os.path.exists(img1)
 
         img1_1 = os.path.join(self.local_scratch.path, "contour1.jpg")
-        assert ffdata.farfield_data.plot_contour(
-            quantity="RealizedGain",
-            image_path=img1_1,
-            show=False,
-        )
+        assert ffdata.farfield_data.plot_contour(quantity="RealizedGain", output_file=img1_1, show=False)
         assert os.path.exists(img1_1)
 
         img2 = os.path.join(self.local_scratch.path, "2d1.jpg")
@@ -191,7 +187,7 @@ class TestClass:
             primary_sweep="theta",
             secondary_sweep_value=[-180, -75, 75],
             title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
-            image_path=img2,
+            output_file=img2,
             show=False,
         )
         assert os.path.exists(img2)
@@ -202,7 +198,7 @@ class TestClass:
             primary_sweep="phi",
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
-            image_path=img3,
+            output_file=img3,
             show=False,
         )
         assert os.path.exists(img3)
@@ -213,20 +209,16 @@ class TestClass:
             primary_sweep="phi",
             secondary_sweep_value=30,
             title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
-            image_path=img3_polar,
-            is_polar=True,
+            output_file=img3_polar,
             show=False,
+            is_polar=True,
         )
         assert os.path.exists(img3_polar)
 
         img4 = os.path.join(self.local_scratch.path, "3d1.jpg")
-        ffdata.farfield_data.plot_3d_chart(
-            quantity="RealizedGain",
-            image_path=img4,
-            show=False,
-        )
+        ffdata.farfield_data.plot_3d_chart(quantity="RealizedGain", output_file=img4, show=False)
         assert os.path.exists(img4)
 
         img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
-        ffdata.farfield_data.plot_3d(quantity="RealizedGain", image_path=img5, show=False)
+        ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
         assert os.path.exists(img5)
