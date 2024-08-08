@@ -368,3 +368,11 @@ class TestClass:
                      "expansion_void_mm": 0.1,
                      "relative_parametric": True,
                      "project_name": "new_parametrized", })
+
+    def test_14_power_map_creation_ipk(self, local_scratch, add_app):
+        from pyaedt.workflows.icepak.power_map_from_csv import main
+        file_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
+        aedtapp = add_app("PowerMap", application=pyaedt.Icepak, subfolder=test_subfolder)
+        assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.modeler.object_list) == 3
+        aedtapp.close_project()
