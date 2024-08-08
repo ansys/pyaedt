@@ -436,8 +436,7 @@ class PCBSettingsPackageParts(object):
         bondwire_material="Au-Typical",
         bondwire_diameter="0.05mm",
     ):
-        """
-        Set how to model connectors.
+        """Set how to model connectors.
 
         Parameters
         ----------
@@ -494,8 +493,7 @@ class PCBSettingsPackageParts(object):
 
 
 class PCBSettingsDeviceParts(object):
-    """
-    Handle device part settings of the PCB component.
+    """Handle device part settings of the PCB component.
 
     Parameters
     ----------
@@ -1002,8 +1000,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
-        """
-        Set high side radiation properties.
+        """Set high side radiation properties.
 
         Parameters
         ----------
@@ -1047,8 +1044,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         view_factor=1,
         ref_temperature="AmbientTemp",
     ):
-        """
-        Set low side radiation properties.
+        """Set low side radiation properties.
 
         Parameters
         ----------
@@ -4952,8 +4948,7 @@ class NetworkObject(BoundaryObject):
 
     @pyaedt_function_handler()
     def add_internal_node(self, name, power, mass=None, specific_heat=None):
-        """
-        Add an internal node to the network.
+        """Add an internal node to the network.
 
         Parameters
         ----------
