@@ -615,5 +615,10 @@ class TestClass:
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.m2d_circuit.create_external_circuit()
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
-        m2d = add_app(application=Maxwell2d, design_name="no_winding", solution_type="EddyCurrent")
-        assert not m2d.create_external_circuit()
+        for w in self.m2d_circuit.excitations_by_type["Winding Group"]:
+            w.delete()
+        # for i,_ in enumerate(self.m2d_circuit.excitations_by_type["Winding Group"]):
+        #     self.m2d_circuit.excitations_by_type["Winding Group"][i].delete()
+        # [w.delete() for w in self.m2d_circuit.excitations_by_type["Winding Group"]]
+        self.m2d_circuit.save_project()
+        assert not self.m2d_circuit.create_external_circuit()
