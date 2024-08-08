@@ -609,9 +609,11 @@ class TestClass:
         )
         assert os.path.exists(output_file)
 
-    def test_39_create_external_circuit(self):
+    def test_39_create_external_circuit(self, add_app):
         assert self.m2d_circuit.create_external_circuit()
         assert self.m2d_circuit.create_external_circuit(circuit_design="test_cir")
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.m2d_circuit.create_external_circuit()
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d = add_app(application=Maxwell2d, design_name="no_winding", solution_type="EddyCurrent")
+        assert not m2d.create_external_circuit()
