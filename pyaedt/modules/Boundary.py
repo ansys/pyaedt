@@ -119,7 +119,7 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
-            if self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+            if self._app.design_type not in ["Q3D Extractor", "Q2D Extractor"]:
                 self._app.excitation_objects.pop(self.name)
         self._app.boundaries
         return True
