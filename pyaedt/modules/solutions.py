@@ -1802,7 +1802,7 @@ class FieldPlot:
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename=None):
+    def get_points_value(self, points, filename=None, visibility=False):
         """
         Get points data from field plot.
 
@@ -1818,9 +1818,11 @@ class FieldPlot:
             List with [x,y,z] coordinates of a point or list of lists of points or
             dictionary with keys containing point names and for each key the point
             coordinates [x,y,z].
-        filename : str
+        filename : str, optional
             Full path or relative path with filename.
             Default is ``None`` in which case no file is exported.
+        visibility : bool, optional
+            Whether to keep the markers visible in the UI. Default is ``False``.
 
         Returns
         -------
@@ -1894,7 +1896,8 @@ class FieldPlot:
                 shutil.copy2(temp_file.name, filename)
             os.remove(temp_file.name)
 
-        self.oField.ClearAllMarkers()
+        if not visibility:
+            self.oField.ClearAllMarkers()
 
         # Convert to pandas
         if pd is not None:
