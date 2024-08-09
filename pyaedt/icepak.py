@@ -2525,7 +2525,7 @@ class Icepak(FieldAnalysis3D):
             if extent_type == "Polygon" and not outline_polygon:
                 outline_polygon = native.identify_extent_poly()
                 if outline_polygon:
-                    native.set_board_settings("Polygon", outline_polygon)
+                    native.set_board_extents("Polygon", outline_polygon)
             return native
         return False
 
