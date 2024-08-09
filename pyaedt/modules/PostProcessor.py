@@ -1123,6 +1123,49 @@ class PostProcessorCommon(object):
         return []  # pragma: no cover
 
     @pyaedt_function_handler()
+    def get_all_report_quantities(
+        self,
+        solution=None,
+        context=None,
+        is_siwave_dc=False,
+    ):
+        """Return all the possible report categories organized by report types, solution and categories.
+
+        Parameters
+        ----------
+        solution : str optional
+            Solution to get the report quantities.
+            The default is ``None``, in which case the all solutions are used.
+        context : str, dict, optional
+            Report Context.
+            The default is ``None``, in which case the default context is used.
+            For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
+            where the key is the matrix name and value the reduced matrix.
+        is_siwave_dc : bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
+
+        Returns
+        -------
+        dict
+            A dictionary with primary key the report type, secondary key the solution type and
+            third key the report categories.
+        """
+        rep_quantities = {}
+        for rep in self.available_report_types:
+            rep_quantities[rep] = {}
+            solutions = [solution] if isinstance(solution, str) else self.available_report_solutions(rep)
+            for solution in solutions:
+                rep_quantities[rep][solution] = {}
+                for quant in self.available_quantities_categories(
+                    rep, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                ):
+                    rep_quantities[rep][solution][quant] = self.available_report_quantities(
+                        rep, quantities_category=quant, context=context, solution=solution, is_siwave_dc=is_siwave_dc
+                    )
+
+        return rep_quantities
+
+    @pyaedt_function_handler()
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
         This list differs from the one obtained with ``app.existing_analysis_sweeps``,
@@ -1443,7 +1486,7 @@ class PostProcessorCommon(object):
             Step range with units for the sweep if the ``uniform`` parameter is
             set to ``True``.
         use_trace_number_format : bool, optional
-            Whether to use trace number formats. The default is ``False``.
+            Whether to use trace number formats and use separate columns for curve. The default is ``False``.
 
         Returns
         -------
@@ -1484,10 +1527,8 @@ class PostProcessorCommon(object):
             self.oreportsetup.ExportReportDataToFile(plot_name, file_path)
         elif uniform:
             self.oreportsetup.ExportUniformPointsToFile(plot_name, file_path, start, end, step, use_trace_number_format)
-
         else:
-            self.oreportsetup.ExportToFile(plot_name, file_path)
-
+            self.oreportsetup.ExportToFile(plot_name, file_path, use_trace_number_format)
         return file_path
 
     @pyaedt_function_handler()
@@ -2455,7 +2496,9 @@ class PostProcessor(PostProcessorCommon, object):
                             name2refid[cs_id + 1] = name + ":YZ"
                             name2refid[cs_id + 2] = name + ":XZ"
                 except Exception:
-                    pass
+                    self.logger.debug(
+                        "Something went wrong with key {} while retrieving coordinate systems plane ids.".format(ds)
+                    )  # pragma: no cover
         return name2refid
 
     @pyaedt_function_handler()
@@ -2509,7 +2552,9 @@ class PostProcessor(PostProcessorCommon, object):
                         plots[plot_name].MaxArrowSpacing = arrow_setts["MaxArrowSpacing"]
                         plots[plot_name].GridColor = surf_setts["GridColor"]
                 except Exception:
-                    pass
+                    self.logger.debug(
+                        "Something went wrong with setup {} while retrieving fields plot.".format(setup)
+                    )  # pragma: no cover
         return plots
 
     # TODO: define a fields calculator module and make robust !!
@@ -3247,7 +3292,7 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app.modeler.fit_all()
         except Exception:
-            pass
+            self.logger.debug("Something went wrong with `fit_all` while creating field plot.")  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -3307,7 +3352,9 @@ class PostProcessor(PostProcessorCommon, object):
         try:
             self._app._modeler.fit_all()
         except Exception:
-            pass
+            self.logger.debug(
+                "Something went wrong with `fit_all` while creating field plot with line traces."
+            )  # pragma: no cover
         self._desktop.TileWindows(0)
         self._app.desktop_class.active_design(self._oproject, self._app.design_name)
 
@@ -3358,11 +3405,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3433,11 +3479,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3615,11 +3660,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         name : str, optional
@@ -3707,11 +3751,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_on_surface : bool, optional
@@ -3861,11 +3904,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -3945,11 +3987,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -4291,7 +4332,8 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
-        assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
+        if self._app._aedt_version < "2021.2":
+            raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
         if not export_path:
             export_path = self._app.working_directory
         if not assignment:
@@ -4350,11 +4392,10 @@ class PostProcessor(PostProcessorCommon, object):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed as:
-                    - ``"Freq"`` or ``"Frequency"``
-                    - ``"Time"``
-                    - ``"Phase"``
-                in lower or camel case.
+                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+                    - ``"Freq"`` or ``"Frequency"``.
+                    - ``"Time"``.
+                    - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional
@@ -5637,6 +5678,7 @@ class FieldSummary:
         side="Default",
         mesh="All",
         ref_temperature="AmbientTemp",
+        time="0s",
     ):
         """
         Add an entry in the field summary calculation requests.
@@ -5669,6 +5711,8 @@ class FieldSummary:
         ref_temperature : str, optional
             Reference temperature to use in the calculation of the heat transfer
             coefficient. The default is ``"AmbientTemp"``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -5687,9 +5731,20 @@ class FieldSummary:
             normal = ",".join(normal)
         if isinstance(geometry_name, str):
             geometry_name = [geometry_name]
-        self.calculations.append(
-            [entity, geometry, ",".join(geometry_name), quantity, normal, side, mesh, ref_temperature, False]
-        )  # TODO : last argument not documented
+        calc_args = [
+            entity,
+            geometry,
+            ",".join(geometry_name),
+            quantity,
+            normal,
+            side,
+            mesh,
+            ref_temperature,
+            False,
+        ]  # TODO : last argument not documented
+        if self._app.solution_type == "Transient":
+            calc_args = [time] + calc_args
+        self.calculations.append(calc_args)
         return True
 
     @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup", design_variation="variation")

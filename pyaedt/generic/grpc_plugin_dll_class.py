@@ -332,7 +332,7 @@ class AEDT:
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
 
     @staticmethod
-    def _check_grpc_port(port, machine_name=""):
+    def _is_port_occupied(port, machine_name=""):
         s = socket.socket()
         try:
             if not machine_name:
@@ -350,7 +350,7 @@ class AEDT:
         try:
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
         except Exception:  # pragma: no cover
-            if port and self._check_grpc_port(port):
+            if port and self._is_port_occupied(port):
                 time.sleep(5)  # waiting for Desktop to initialize Grpc Server
                 self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
             if not self.aedt:
@@ -366,9 +366,7 @@ class AEDT:
 
     @property
     def odesktop(self):
-        if settings.use_multi_desktop:
-            self.aedt = self.recreate_application()
-        return self.aedt.GetAppDesktop()
+        return self.recreate_application()
 
     def recreate_application(self, force=False):
         def run():
@@ -379,14 +377,15 @@ class AEDT:
             self.port = port
             self.machine = machine
             self.aedt = self.AedtAPI.CreateAedtApplication(self.machine, self.port, self.non_graphical, False)
-            return self.aedt
+            return self.aedt.GetAppDesktop()
 
         if force:
             return run()
         else:
             try:
-                self.aedt.GetAppDesktop()
-                return self.aedt
+                odesktop = self.aedt.GetAppDesktop()
+                if odesktop:
+                    return odesktop
             except Exception:
                 return run()
 

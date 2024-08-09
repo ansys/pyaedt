@@ -43,6 +43,7 @@ if config["desktopVersion"] > "2022.2":
     coldplate = "ColdPlateExample_231"
     power_budget = "PB_test_231"
     native_import = "one_native_component"
+    transient_fs = "transient_fs"
 
 else:
     coldplate = "ColdPlateExample"
@@ -497,7 +498,8 @@ class TestClass:
         ]
 
     def test_29_assign_surface_material(self):
-        self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        surf_mat = self.aedtapp.materials.add_surface_material("my_surface", 0.5)
+        assert surf_mat.emissivity.value == 0.5
         obj = ["box2", "box3"]
         assert self.aedtapp.assign_surface_material(obj, "my_surface")
         assert self.aedtapp.assign_surface_material("box", "Fe-cast")
@@ -875,7 +877,7 @@ class TestClass:
             os.path.join(file_path, file_name),
             name="board_assembly",
             coordinate_systems=cs_list,
-            reference_coordinate_systems="CS1",
+            reference_coordinate_system="CS1",
             export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
@@ -952,7 +954,7 @@ class TestClass:
             os.path.join(file_path, file_name),
             name="board_assembly",
             coordinate_systems=cs_list,
-            reference_coordinate_systems="CS1",
+            reference_coordinate_system="CS1",
             export_auxiliary=True,
             monitor_objects=mon_list,
             datasets=["test_dataset"],
@@ -1800,3 +1802,11 @@ class TestClass:
         g_m_r.update()
         g_m_r.global_region.object.material_name = "Carbon Monoxide"
         assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
+
+    def test_81_transient_fs(self, add_app):
+        app = add_app(application=Icepak, project_name=transient_fs, subfolder=test_subfolder)
+        fs = app.post.create_field_summary()
+        for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
+            fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty

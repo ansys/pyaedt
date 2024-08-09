@@ -43,7 +43,7 @@ class RMXprtModule(object):
 
     @property
     def properties(self):
-        """Object history.
+        """Object parameters.
 
         Returns
         -------
@@ -121,7 +121,7 @@ class Shaft(RMXprtModule):
 class Machine(RMXprtModule):
     """Provides rotor properties."""
 
-    component = ""
+    component = "General"
 
 
 class Circuit(RMXprtModule):

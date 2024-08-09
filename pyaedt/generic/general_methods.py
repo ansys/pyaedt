@@ -66,6 +66,7 @@ inclusion_list = [
     "Rename",
     "RestoreProjectArchive",
     "ImportGerber",
+    "EditSources",
 ]
 
 
@@ -972,55 +973,44 @@ def is_project_locked(project_path):
 
 
 @pyaedt_function_handler()
-def is_license_feature_available(feature="electronics_desktop", count=1):  # pragma: no cover
-    """Check if license feature is available.
+def available_license_feature(
+    feature="electronics_desktop", input_dir=None, port=1055, name="127.0.0.1"
+):  # pragma: no cover
+    """Check available license feature.
 
     Parameters
     ----------
     feature : str
-        Feature increment name. The default is the electronics desktop one.
-    count : int
-        Number of increments of the same feature available.
+        Feature increment name. The default is the ``"electronics_desktop"``.
+    input_dir : str, optional
+        AEDT installation path. The default is ``None``, in which
+        case the first identified AEDT installation from :func:`pyaedt.misc.misc.installed_versions` method
+        is taken.
+    port : int, optional
+        Server port number.
+    name : str, optional
+        License server name.
 
     Returns
     -------
-    bool
-        ``True`` when feature available, ``False`` when feature not available.
+    int
+        Number of available license features, ``False`` when license server is down.
     """
     import subprocess  # nosec B404
 
-    aedt_install_folder = list(installed_versions().values())[0]
+    if not input_dir:
+        input_dir = list(installed_versions().values())[0]
 
     if is_linux:
-        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "linx64", "ansysli_util")
+        ansysli_util_path = os.path.join(input_dir, "licensingclient", "Linux64", "lmutil")
     else:
-        ansysli_util_path = os.path.join(aedt_install_folder, "licensingclient", "winx64", "ansysli_util")
+        ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "lmutil")
+
     my_env = os.environ.copy()
 
-    tempfile_status = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
     tempfile_checkout = tempfile.NamedTemporaryFile(suffix=".txt", delete=False).name
 
-    # License server status
-    cmd = [ansysli_util_path, "-statli"]
-
-    f = open(tempfile_status, "w")
-
-    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
-
-    f.close()
-
-    is_server_down = False
-    with open_file(tempfile_status, "r") as f:
-        for line in f:
-            if line == "ansysli_server process could not be found.\n":
-                is_server_down = True
-                break
-
-    if is_server_down:
-        pyaedt_logger.warning("License server process could not be found.")
-        return False
-
-    cmd = [ansysli_util_path, "-checkcount", str(count), "-checkout", feature]
+    cmd = [ansysli_util_path, "lmstat", "-f", feature, "-c", str(port) + "@" + str(name)]
 
     f = open(tempfile_checkout, "w")
 
@@ -1028,14 +1018,23 @@ def is_license_feature_available(feature="electronics_desktop", count=1):  # pra
 
     f.close()
 
-    checkout_lines = []
+    available_licenses = 0
+    pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"
+    pattern_error = r"Error getting status"
     with open_file(tempfile_checkout, "r") as f:
         for line in f:
-            checkout_lines.append(line)
-    if "CHECKOUT FAILED" in checkout_lines[1] or len(checkout_lines) != 2:
-        pyaedt_logger.warning(checkout_lines[0])
-        return False
-    return True
+            line = line.strip()
+            match_license = re.search(pattern_license, line)
+            if match_license:
+                total_licenses_issued = int(match_license.group(1))
+                total_licenses_in_use = int(match_license.group(2))
+                available_licenses = total_licenses_issued - total_licenses_in_use
+                break
+            match_error = re.search(pattern_error, line)
+            if match_error:
+                pyaedt_logger.error(line)
+                return False
+    return available_licenses
 
 
 @pyaedt_function_handler()

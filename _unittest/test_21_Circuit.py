@@ -963,3 +963,16 @@ class TestClass:
         assert not nexxim_customization["Reciprocal"]
         assert "" == nexxim_customization["ModelOption"]
         assert 2 == nexxim_customization["DataType"]
+
+    def test_51_change_symbol_pin_location(self):
+        self.aedtapp.insert_design("Pin_location")
+        self.aedtapp.modeler.schematic_units = "mil"
+        ts_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        pins = ts_component.pins
+        pin_locations = {
+            "left": [pins[0].name, pins[1].name, pins[2].name, pins[3].name, pins[4].name],
+            "right": [pins[5].name],
+        }
+        assert ts_component.change_symbol_pin_locations(pin_locations)
+        pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
+        assert not ts_component.change_symbol_pin_locations(pin_locations)

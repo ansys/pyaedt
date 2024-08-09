@@ -1007,7 +1007,13 @@ class Maxwell(object):
                 else:
                     props = OrderedDict({"Faces": assignment, "Value": amplitude})
             else:
-                props = OrderedDict({"Faces": assignment, "Voltage": amplitude})
+                object_names_set = set(self.modeler.object_names)
+                props = OrderedDict({"Faces": [], "Objects": [], "Voltage": amplitude})
+                for element in assignment:
+                    if isinstance(element, str) and element in object_names_set:
+                        props["Objects"].append(element)
+                    else:
+                        props["Faces"].append(element)
         bound = BoundaryObject(self, name, props, "Voltage")
         if bound.create():
             self._boundaries[bound.name] = bound
@@ -2182,7 +2188,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(version="2024.1", project="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(version="2024.2", project="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """

@@ -44,6 +44,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
@@ -4094,7 +4095,7 @@ class GeometryModeler(Modeler):
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region(pad_percent=[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage=is_percentage)
+        return self.create_region(pad_percent=[x_pos, x_neg, y_pos, y_neg, z_pos, z_neg], is_percentage=is_percentage)
 
     @pyaedt_function_handler(listvalues="values")
     def edit_region_dimensions(self, values):
@@ -4503,7 +4504,9 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler()
     def get_bounding_dimension(self):
-        """Retrieve the dimension array of the bounding box.
+        """Retrieve the x, y and z size of the bounding box for the model.
+
+        This method is called without arguments.
 
         Returns
         -------
@@ -5058,6 +5061,79 @@ class GeometryModeler(Modeler):
                 "",
             ]
         )
+        self.refresh_all_ids()
+        return True
+
+    def import_discovery_model(self, input_file):
+        """Import a Discovery file.
+
+        Parameters
+        ----------
+        input_file :
+            Full path and name of the Discovery file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateUserDefinedModel
+        """
+        if is_linux:
+            self.logger.error("Discovery not supported on Linux.")
+            return False
+        version = self._app.aedt_version_id[-3:]
+
+        ansys_install_dir = os.environ.get("AWP_ROOT{}".format(version), "")
+
+        if ansys_install_dir:
+            if "Discovery" not in os.listdir(ansys_install_dir):  # pragma: no cover
+                self.logger.error("Discovery installation not found.")
+                return False
+        else:  # pragma: no cover
+            self.logger.error("Discovery version is different from AEDT version.")
+            return False
+
+        model = self.oeditor.CreateUserDefinedModel(
+            [
+                "NAME:UserDefinedModelParameters",
+                [
+                    "NAME:Definition",
+                    [
+                        "NAME:UDMParam",
+                        "Name:=",
+                        "GeometryFilePath",
+                        "Value:=",
+                        '"' + input_file + '"',
+                    ],
+                ],
+                [
+                    "NAME:Options",
+                    [
+                        "NAME:UDMParam",
+                        "Name:=",
+                        "IsDiscoveryLink",
+                        "Value:=",
+                        "1",
+                    ],
+                ],
+                ["NAME:GeometryParams"],
+                "DllName:=",
+                "SACADIntegUDM",
+                "Library:=",
+                "installLib",
+                "Version:=",
+                "1.0",
+                "ConnectionID:=",
+                "",
+            ]
+        )
+        # Disconnect from the running Discovery instance.
+        args = ["NAME:Selections", "Selections:=", model]
+        self.oeditor.BreakUDMConnection(args)
         self.refresh_all_ids()
         return True
 

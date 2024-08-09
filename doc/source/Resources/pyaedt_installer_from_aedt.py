@@ -75,35 +75,13 @@ def run_pyinstaller_from_c_python(oDesktop):
                 if os.path.isdir(pyaedt_path):
                     break
 
-    # Create PyAEDT symbolic link in PersonalLib
-    personal_lib_dir = oDesktop.GetPersonalLibDirectory()
-    pers1 = os.path.join(personal_lib_dir, "pyaedt")
-
-    if os.path.exists(pers1):
-        if is_windows:
-            command = 'rmdir "{}"'.format(pers1)
-        else:
-            command = 'rm "{}"'.format(pers1)
-        ret_code = os.system(command)
-        if ret_code != 0:
-            oDesktop.AddMessage("", "", 2,
-                                "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
-
-    if is_windows:
-        command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
-    else:
-        command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
-    ret_code = os.system(command)
-    if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error occurred while configuring the symbolic link to PyAEDT in 'PersonalLib'.")
-
     # Create Toolkits in PersonalLib
     import tempfile
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
     if os.path.isfile(python_script):
         os.remove(python_script)
     with open(python_script, "w") as f:
-        # enable in debu mode
+        # enable in debug mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
@@ -220,7 +198,7 @@ def install_pyaedt():
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
@@ -244,14 +222,14 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe,
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.3"'.format(pip_exe,
                                                                                                                unzipped_path))
             else:
                 run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
                                                                                                               unzipped_path))
         else:
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
