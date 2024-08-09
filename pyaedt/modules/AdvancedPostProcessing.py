@@ -1085,13 +1085,7 @@ class IcepakPostProcessor(PostProcessor, object):
 
     @pyaedt_function_handler(faces_list="faces", quantity_name="quantity", design_variation="variation")
     def evaluate_faces_quantity(
-        self,
-        faces,
-        quantity,
-        side="Default",
-        setup_name=None,
-        variations=None,
-        ref_temperature="",
+        self, faces, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
     ):
         """Export the field surface output.
 
@@ -1111,6 +1105,8 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -1131,7 +1127,9 @@ class IcepakPostProcessor(PostProcessor, object):
         facelist_name = generate_unique_name(quantity)
         self._app.modeler.create_face_list(faces, facelist_name)
         fs = self.create_field_summary()
-        fs.add_calculation("Object", "Surface", facelist_name, quantity, side=side, ref_temperature=ref_temperature)
+        fs.add_calculation(
+            "Object", "Surface", facelist_name, quantity, side=side, ref_temperature=ref_temperature, time=time
+        )
         out = self._parse_field_summary_content(fs, setup_name, variations, quantity)
         self._app.oeditor.Delete(["NAME:Selections", "Selections:=", facelist_name])
         return out
@@ -1146,6 +1144,7 @@ class IcepakPostProcessor(PostProcessor, object):
         setup_name=None,
         variations=None,
         ref_temperature="",
+        time="0s",
     ):
         """Export the field output on a boundary.
 
@@ -1169,6 +1168,8 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -1193,18 +1194,13 @@ class IcepakPostProcessor(PostProcessor, object):
             quantity,
             side=side,
             ref_temperature=ref_temperature,
+            time=time,
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(monitor_name="monitor", quantity_name="quantity", design_variation="variations")
     def evaluate_monitor_quantity(
-        self,
-        monitor,
-        quantity,
-        side="Default",
-        setup_name=None,
-        variations=None,
-        ref_temperature="",
+        self, monitor, quantity, side="Default", setup_name=None, variations=None, ref_temperature="", time="0s"
     ):
         """Export monitor field output.
 
@@ -1224,6 +1220,8 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -1251,7 +1249,9 @@ class IcepakPostProcessor(PostProcessor, object):
             else:
                 raise AttributeError("Monitor {} is not found in the design.".format(monitor))
             fs = self.create_field_summary()
-            fs.add_calculation("Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature)
+            fs.add_calculation(
+                "Monitor", field_type, monitor, quantity, side=side, ref_temperature=ref_temperature, time=time
+            )
             return self._parse_field_summary_content(fs, setup_name, variations, quantity)
 
     @pyaedt_function_handler(design_variation="variations")
@@ -1264,6 +1264,7 @@ class IcepakPostProcessor(PostProcessor, object):
         setup_name=None,
         variations=None,
         ref_temperature="",
+        time="0s",
     ):
         """Export the field output on or in an object.
 
@@ -1285,6 +1286,8 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -1310,5 +1313,6 @@ class IcepakPostProcessor(PostProcessor, object):
             quantity_name,
             side=side,
             ref_temperature=ref_temperature,
+            time=time,
         )
         return self._parse_field_summary_content(fs, setup_name, variations, quantity_name)
