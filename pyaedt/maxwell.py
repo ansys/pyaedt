@@ -2182,7 +2182,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2024 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(version="2024.1", project="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(version="2024.2", project="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """

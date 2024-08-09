@@ -5630,7 +5630,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> ffdata = hfss.get_antenna_data()
-        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", is_polar=False, theta=0)
+        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
         """
         from pyaedt.generic.farfield_visualization import FfdSolutionData
         from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter

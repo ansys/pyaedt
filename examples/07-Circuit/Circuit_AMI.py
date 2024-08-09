@@ -26,7 +26,7 @@ project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folde
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ##########################################################
 # Set non-graphical mode

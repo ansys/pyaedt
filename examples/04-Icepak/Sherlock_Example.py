@@ -23,7 +23,7 @@ input_dir = pyaedt.downloads.download_sherlock(destination=project_folder)
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
