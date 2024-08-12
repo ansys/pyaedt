@@ -1585,7 +1585,7 @@ class Icepak(FieldAnalysis3D):
             name_map["NumColumnsPerSide"],
             True,
         )
-        cs = self.modeler.oeditor.GetActiveCoordinateSystem()
+        cs = self.modeler.get_working_coordinate_system()
         cs_ymax = self.modeler.create_coordinate_system(
             self.Position(0, name_map["HSHeight"] + "/2", 0),
             mode="view",

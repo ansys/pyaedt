@@ -1531,7 +1531,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.error("This native component only applies to a SBR+ solution.")
             return False
         if target_cs is None:
-            target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
+            target_cs = self.modeler.get_working_coordinate_system()
         parameters_defaults = self.SBRAntennaDefaults.parameters[antenna_type].copy()
         if use_current_source_representation and antenna_type in [
             "Conical Horn",

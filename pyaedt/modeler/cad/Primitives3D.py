@@ -1346,7 +1346,7 @@ class Primitives3D(GeometryModeler):
             3d component.
         """
         app = assignment.edit_definition(password=password)
-        wcs = app.modeler.oeditor.GetActiveCoordinateSystem()
+        wcs = app.modeler.get_working_coordinate_system()
         if wcs != "Global":
             temp_folder = os.path.join(
                 self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
