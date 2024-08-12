@@ -1080,7 +1080,7 @@ class Primitives3D(GeometryModeler):
 
     # fmt: off
     @pyaedt_function_handler()
-    def create_equationbased_surface(self, x_uv=0, y_uv=0, z_uv=0, u_start=0, u_end=1, v_start=0, v_end=1, 
+    def create_equationbased_surface(self, x_uv=0, y_uv=0, z_uv=0, u_start=0, u_end=1, v_start=0, v_end=1,
                                      name=None, **kwargs):  # fmt: on
         """Create an equation-based surface.
 
@@ -1120,10 +1120,10 @@ class Primitives3D(GeometryModeler):
 
         Examples
         --------
-        
+
         The optional parameter ``matname`` allows you to set the material name.
         The optional parameter ``name`` allows you to assign a name to the surface.
-        
+
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
