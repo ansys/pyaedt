@@ -681,18 +681,33 @@ class TestClass:
     def test_43_set_working_coordinate_system(self):
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="new1")
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("new1")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "new1"
+        
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+        
         assert self.aedtapp.modeler.set_working_coordinate_system(cs1)
+        assert self.aedtapp.modeler.get_working_coordinate_system() == cs1.name
 
     def test_43_set_working_face_coordinate_system(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1], name="new2")
+        
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("new2")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "new2"
+        
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+        
         assert self.aedtapp.modeler.set_working_coordinate_system(fcs)
+        assert self.aedtapp.modeler.get_working_coordinate_system() == fcs.name
 
     def test_44_sweep_around_axis(self):
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_split")

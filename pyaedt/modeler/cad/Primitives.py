@@ -1784,6 +1784,23 @@ class GeometryModeler(Modeler):
                 ["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False]
             )
         return True
+    
+    @pyaedt_function_handler()
+    def get_working_coordinate_system(self, name):
+        """Get the active coordinate system.
+
+        Returns
+        -------
+        str
+            Name of the active coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetActiveCoordinateSystem
+        """
+
+        return self.oeditor.GetActiveCoordinateSystem()
 
     @pyaedt_function_handler()
     def invert_cs(self, coordinate_system, to_global=False):
