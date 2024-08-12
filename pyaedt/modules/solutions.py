@@ -1802,7 +1802,7 @@ class FieldPlot:
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename=None, visibility=False):
+    def get_points_value(self, points, filename=None, visibility=False):  # pragma: no cover
         """
         Get points data from field plot.
 
@@ -1836,8 +1836,7 @@ class FieldPlot:
 
         # Clean inputs
         if isinstance(points, dict):
-            points_name = list(points.keys())
-            points_value = [points[pt_name] for pt_name in points_name]
+            points_name, points_value = list(points.keys()), list(points.values())
         elif isinstance(points, list):
             points_name = None
             if not isinstance(points[0], list):

@@ -11,7 +11,7 @@ To use PyAEDT to create a report in AEDT, you can follow this general structure:
 
     from pyaedt import Hfss
     hfss = Hfss()
-    hfss.analyze_nominal()
+    hfss.analyze()
     hfss.post.create_report(["db(S11)", "db(S12)"])
 
 
@@ -26,7 +26,7 @@ You can also generate reports in Matplotlib:
 
     from pyaedt import Hfss
     hfss = Hfss()
-    hfss.analyze_nominal()
+    hfss.analyze()
 
     traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
     report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
@@ -46,7 +46,7 @@ To access all available category, use the ``reports_by_category`` class.
 
     from pyaedt import Hfss
     hfss = Hfss()
-    hfss.analyze_nominal()
+    hfss.analyze()
     # Create a 3D far field
     new_report = hfss.post.reports_by_category.far_field(expressions="db(RealizedGainTotal)",
                                                          setup=hfss.nominal_adaptive)
@@ -58,7 +58,7 @@ You can plot the field plot directly in HFSS and export it to image files.
 
     from pyaedt import Hfss
     hfss = Hfss()
-    hfss.analyze_nominal()
+    hfss.analyze()
 
     cutlist = ["Global:XY"]
     setup_name = hfss.existing_analysis_sweeps[0]
@@ -82,7 +82,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
 
     from pyaedt import Hfss
     hfss = Hfss()
-    hfss.analyze_nominal()
+    hfss.analyze()
     cutlist = ["Global:XY"]
     setup_name = hfss.existing_analysis_sweeps[0]
     quantity_name = "ComplexMag_E"
