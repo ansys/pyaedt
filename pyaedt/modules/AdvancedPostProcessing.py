@@ -1105,7 +1105,7 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
-        time : str
+        time : str, optional
             Timestep to get the data from. Default is ``"0s"``.
 
         Returns
@@ -1168,7 +1168,7 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
-        time : str
+        time : str, optional
             Timestep to get the data from. Default is ``"0s"``.
 
         Returns
@@ -1220,7 +1220,7 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
-        time : str
+        time : str, optional
             Timestep to get the data from. Default is ``"0s"``.
 
         Returns
@@ -1286,7 +1286,7 @@ class IcepakPostProcessor(PostProcessor, object):
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
         ref_temperature: str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
-        time : str
+        time : str, optional
             Timestep to get the data from. Default is ``"0s"``.
 
         Returns

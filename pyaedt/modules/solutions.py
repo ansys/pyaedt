@@ -21,18 +21,22 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from collections import OrderedDict
+from collections import defaultdict
+import csv
 import itertools
 import logging
 import math
 import os
+import shutil
 import sys
+import tempfile
 
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+from pyaedt.generic.general_methods import GrpcApiError
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
@@ -1796,6 +1800,111 @@ class FieldPlot:
                 ],
             ]
         return arg
+
+    @pyaedt_function_handler()
+    def get_points_value(self, points, filename=None, visibility=False):  # pragma: no cover
+        """
+        Get points data from field plot.
+
+        .. note::
+           This method is working only if the associated field plot is currently visible.
+
+        .. note::
+           This method does not work in non-graphical mode.
+
+        Parameters
+        ----------
+        points : list, list of lists or dict
+            List with [x,y,z] coordinates of a point or list of lists of points or
+            dictionary with keys containing point names and for each key the point
+            coordinates [x,y,z].
+        filename : str, optional
+            Full path or relative path with filename.
+            Default is ``None`` in which case no file is exported.
+        visibility : bool, optional
+            Whether to keep the markers visible in the UI. Default is ``False``.
+
+        Returns
+        -------
+        dict or pd.DataFrame
+            Dict containing 5 keys: point names, x,y,z coordinates and the quantity probed.
+            Each key is associated with a list with the same length of the argument points.
+            If pandas is installed, the output is a pandas DataFrame with point names as
+            index and coordinates and quantity as columns.
+        """
+        self.oField.ClearAllMarkers()
+
+        # Clean inputs
+        if isinstance(points, dict):
+            points_name, points_value = list(points.keys()), list(points.values())
+        elif isinstance(points, list):
+            points_name = None
+            if not isinstance(points[0], list):
+                points_value = [points]
+            else:
+                points_value = points
+        else:
+            raise AttributeError("``points`` argument is invalid.")
+        if filename is not None:
+            if not os.path.isdir(os.path.dirname(filename)):
+                raise AttributeError("Specified path ({}) does not exist".format(filename))
+
+        # Create markers
+        u = self._postprocessor._app.modeler.model_units
+        added_points_name = []
+        for pt_name_idx, pt in enumerate(points_value):
+            try:
+                pt = [c if isinstance(c, str) else "{}{}".format(c, u) for c in pt]
+                self.oField.AddMarkerToPlot(pt, self.name)
+                if points_name is not None:
+                    added_points_name.append(points_name[pt_name_idx])
+            except (GrpcApiError, SystemExit) as e:  # pragma: no cover
+                self._postprocessor.logger.error(
+                    "Point {} not added. Check if it lies inside the plot.".format(str(pt))
+                )
+                raise e
+
+        # Export data
+        temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
+        temp_file.close()
+        self.oField.ExportMarkerTable(temp_file.name)
+        with open_file(temp_file.name, "r") as f:
+            reader = csv.DictReader(f)
+            out_dict = defaultdict(list)
+            for row in reader:
+                for key in row.keys():
+                    if key == "Name":
+                        val = row[key]
+                    else:
+                        val = float(row[key].lstrip())
+                    out_dict[key.lstrip()].append(val)
+
+        # Modify data if needed
+        if points_name is not None:
+            out_dict["Name"] = added_points_name
+            # Export data
+            if filename is not None:
+                with open(filename, mode="w") as outfile:
+                    writer = csv.DictWriter(outfile, fieldnames=out_dict.keys())
+                    writer.writeheader()
+                    for i in range(len(out_dict["Name"])):
+                        row = {field: out_dict[field][i] for field in out_dict}
+                        writer.writerow(row)
+        elif filename is not None:
+            # Export data
+            shutil.copy2(temp_file.name, filename)
+        os.remove(temp_file.name)
+
+        if not visibility:
+            self.oField.ClearAllMarkers()
+
+        # Convert to pandas
+        if pd is not None:
+            df = pd.DataFrame(out_dict, columns=out_dict.keys())
+            df = df.set_index("Name")
+            return df
+        else:
+            return out_dict
 
     @property
     def surfacePlotInstruction(self):
