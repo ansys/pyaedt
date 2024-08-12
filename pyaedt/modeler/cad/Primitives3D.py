@@ -1079,6 +1079,93 @@ class Primitives3D(GeometryModeler):
         return self._create_object(new_name, **kwargs)
 
     # fmt: off
+    @pyaedt_function_handler()
+    def create_equationbased_surface(self, x_uv=0, y_uv=0, z_uv=0, u_start=0, u_end=1, v_start=0, v_end=1, 
+                                     name=None, **kwargs):  # fmt: on
+        """Create an equation-based surface.
+
+        Parameters
+        ----------
+        x_uv : str or float
+            Expression for the X-component of the curve as a function of ``"_t"``.
+            For example, ``"3 * cos(_t)"``.
+        y_uv : str or float
+            Expression for the Y-component of the curve as a function of ``"_t"``
+        z_uv : str or float
+            Expression for the Z-component of the curve as a function of ``"_t"``
+        u_start : str or float
+            Starting value of the parameter ``"_u"``.
+        u_end : str or float
+            Ending value of the parameter ``"_u"``.
+        v_start : str or float
+            Starting value of the parameter ``"_v"``.
+        v_end : str or float
+            Ending value of the parameter ``"_v"``.
+        name : str, optional
+            Name of the created curve in the 3D modeler. The default is ``None``,
+            in which case the default name is assigned.
+        **kwargs : optional
+            Additional keyword arguments may be passed when creating the primitive to set properties. See
+            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.cad.object3d.Object3d`
+            3D object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEquationSurface
+
+        Examples
+        --------
+        
+        The optional parameter ``matname`` allows you to set the material name
+        of the ellipse. The optional parameter ``name`` allows you to assign a name
+        to the ellipse.
+
+        This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
+        and Mechanical.
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> eq_xsection = aedtapp.modeler.create_equationbased_surf(x_uv=(cos(_v)+2)*cos(_u),
+        ...                                                         y_uv=(cos(_v)+2)*sin(_u),
+        ...                                                         z_uv=cos(_v),
+        ...                                                         u_start=0,
+        ...                                                         u_end='2*pi',
+        ...                                                         v_start=0,
+        ...                                                         v_end='2*pi',
+        ...                                                         )
+        """
+
+        vArg1 = [
+            "NAME:EquationBasedSurfaceParameters",
+            "XuvFunction:=",
+            str(x_uv),
+            "YuvFunction:=",
+            str(y_uv),
+            "ZuvFunction:=",
+            str(z_uv),
+            "uStart:=",
+            str(u_start),
+            "uEnd:=",
+            str(u_end),
+            "vStart:=",
+            str(v_start),
+            "vEnd:=",
+            str(v_end),
+            "Version:=",
+            1,
+        ]
+
+        vArg2 = self._default_object_attributes(name)
+
+        new_name = self.oeditor.CreateEquationSurface(vArg1, vArg2)
+        return self._create_object(new_name, **kwargs)
+
+    # fmt: off
     @pyaedt_function_handler(polyline_name="assignment", position="origin", num_thread="turns")
     def create_helix(self, assignment, origin, x_start_dir, y_start_dir, z_start_dir, turns=1,
                      right_hand=True, radius_increment=0.0, thread=1, **kwargs):  # fmt: on
