@@ -1130,14 +1130,14 @@ class Primitives3D(GeometryModeler):
 
         >>> from pyaedt import Hfss
         >>> aedtapp = Hfss()
-        >>> eq_xsection = aedtapp.modeler.create_equationbased_surf(x_uv=(cos(_v)+2)*cos(_u),
-        ...                                                         y_uv=(cos(_v)+2)*sin(_u),
-        ...                                                         z_uv=cos(_v),
-        ...                                                         u_start=0,
-        ...                                                         u_end='2*pi',
-        ...                                                         v_start=0,
-        ...                                                         v_end='2*pi',
-        ...                                                         )
+        >>> surf = aedtapp.modeler.create_equationbased_surface(x_uv='(cos(_v)+2)*cos(_u)',
+        ...                                                     y_uv='(cos(_v)+2)*sin(_u)',
+        ...                                                     z_uv='sin(_v)',
+        ...                                                     u_start=0,
+        ...                                                     u_end='2*pi',
+        ...                                                     v_start=0,
+        ...                                                     v_end='2*pi'
+        ...                                                     )
         """
 
         vArg1 = [
