@@ -685,10 +685,10 @@ class TestClass:
 
         assert self.aedtapp.modeler.set_working_coordinate_system("new1")
         assert self.aedtapp.modeler.get_working_coordinate_system() == "new1"
-        
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
         assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
-        
+
         assert self.aedtapp.modeler.set_working_coordinate_system(cs1)
         assert self.aedtapp.modeler.get_working_coordinate_system() == cs1.name
 
@@ -696,16 +696,16 @@ class TestClass:
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1], name="new2")
-        
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
         assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
 
         assert self.aedtapp.modeler.set_working_coordinate_system("new2")
         assert self.aedtapp.modeler.get_working_coordinate_system() == "new2"
-        
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
         assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
-        
+
         assert self.aedtapp.modeler.set_working_coordinate_system(fcs)
         assert self.aedtapp.modeler.get_working_coordinate_system() == fcs.name
 

@@ -1784,7 +1784,7 @@ class GeometryModeler(Modeler):
                 ["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False]
             )
         return True
-    
+
     @pyaedt_function_handler()
     def get_working_coordinate_system(self, name):
         """Get the active coordinate system.
