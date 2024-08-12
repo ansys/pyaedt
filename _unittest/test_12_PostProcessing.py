@@ -869,8 +869,8 @@ class TestClass:
 
         f4 = ipk.modeler["Box1"].top_face_x
         p4 = ipk.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
-        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv") as temp_file:
-            temp_file.close()
-            d4 = p4.get_points_value(f4.center, filename=temp_file.name)
-            assert isinstance(d4, pd.DataFrame)
-            os.path.exists(temp_file.name)
+        temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
+        temp_file.close()
+        d4 = p4.get_points_value(f4.center, filename=temp_file.name)
+        assert isinstance(d4, pd.DataFrame)
+        os.path.exists(temp_file.name)

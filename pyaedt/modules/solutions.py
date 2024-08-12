@@ -1866,35 +1866,35 @@ class FieldPlot:
                 raise e
 
         # Export data
-        with tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv") as temp_file:
-            temp_file.close()
-            self.oField.ExportMarkerTable(temp_file.name)
-            with open_file(temp_file.name, "r") as f:
-                reader = csv.DictReader(f)
-                out_dict = defaultdict(list)
-                for row in reader:
-                    for key in row.keys():
-                        if key == "Name":
-                            val = row[key]
-                        else:
-                            val = float(row[key].lstrip())
-                        out_dict[key.lstrip()].append(val)
+        temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
+        temp_file.close()
+        self.oField.ExportMarkerTable(temp_file.name)
+        with open_file(temp_file.name, "r") as f:
+            reader = csv.DictReader(f)
+            out_dict = defaultdict(list)
+            for row in reader:
+                for key in row.keys():
+                    if key == "Name":
+                        val = row[key]
+                    else:
+                        val = float(row[key].lstrip())
+                    out_dict[key.lstrip()].append(val)
 
-            # Modify data if needed
-            if points_name is not None:
-                out_dict["Name"] = added_points_name
-                # Export data
-                if filename is not None:
-                    with open(filename, mode="w") as outfile:
-                        writer = csv.DictWriter(outfile, fieldnames=out_dict.keys())
-                        writer.writeheader()
-                        for i in range(len(out_dict["Name"])):
-                            row = {field: out_dict[field][i] for field in out_dict}
-                            writer.writerow(row)
-            elif filename is not None:
-                # Export data
-                shutil.copy2(temp_file.name, filename)
-            os.remove(temp_file.name)
+        # Modify data if needed
+        if points_name is not None:
+            out_dict["Name"] = added_points_name
+            # Export data
+            if filename is not None:
+                with open(filename, mode="w") as outfile:
+                    writer = csv.DictWriter(outfile, fieldnames=out_dict.keys())
+                    writer.writeheader()
+                    for i in range(len(out_dict["Name"])):
+                        row = {field: out_dict[field][i] for field in out_dict}
+                        writer.writerow(row)
+        elif filename is not None:
+            # Export data
+            shutil.copy2(temp_file.name, filename)
+        os.remove(temp_file.name)
 
         if not visibility:
             self.oField.ClearAllMarkers()
