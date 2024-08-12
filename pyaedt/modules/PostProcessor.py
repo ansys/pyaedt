@@ -5711,7 +5711,7 @@ class FieldSummary:
         ref_temperature : str, optional
             Reference temperature to use in the calculation of the heat transfer
             coefficient. The default is ``"AmbientTemp"``.
-        time : str
+        time : str, optional
             Timestep to get the data from. Default is ``"0s"``.
 
         Returns
