@@ -1087,12 +1087,12 @@ class Primitives3D(GeometryModeler):
         Parameters
         ----------
         x_uv : str or float
-            Expression for the X-component of the curve as a function of ``"_t"``.
-            For example, ``"3 * cos(_t)"``.
+            Expression for the X-component of the surface as a function of ``"_u,_v"``.
+            For example, ``"cos(_u) * sin(_v)"``.
         y_uv : str or float
-            Expression for the Y-component of the curve as a function of ``"_t"``
+            Expression for the Y-component of the surface as a function of ``"_u,_v"``
         z_uv : str or float
-            Expression for the Z-component of the curve as a function of ``"_t"``
+            Expression for the Z-component of the surface as a function of ``"_u,_v"``
         u_start : str or float
             Starting value of the parameter ``"_u"``.
         u_end : str or float
@@ -1102,7 +1102,7 @@ class Primitives3D(GeometryModeler):
         v_end : str or float
             Ending value of the parameter ``"_v"``.
         name : str, optional
-            Name of the created curve in the 3D modeler. The default is ``None``,
+            Name of the created surface in the 3D modeler. The default is ``None``,
             in which case the default name is assigned.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
@@ -1121,10 +1121,9 @@ class Primitives3D(GeometryModeler):
         Examples
         --------
         
-        The optional parameter ``matname`` allows you to set the material name
-        of the ellipse. The optional parameter ``name`` allows you to assign a name
-        to the ellipse.
-
+        The optional parameter ``matname`` allows you to set the material name.
+        The optional parameter ``name`` allows you to assign a name to the surface.
+        
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
