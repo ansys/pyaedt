@@ -1002,7 +1002,7 @@ def available_license_feature(
         input_dir = list(installed_versions().values())[0]
 
     if is_linux:
-        ansysli_util_path = os.path.join(input_dir, "licensingclient", "Linux64", "lmutil")
+        ansysli_util_path = os.path.join(input_dir, "licensingclient", "linx64", "lmutil")
     else:
         ansysli_util_path = os.path.join(input_dir, "licensingclient", "winx64", "lmutil")
 
