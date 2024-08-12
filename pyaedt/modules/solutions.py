@@ -1802,7 +1802,7 @@ class FieldPlot:
         return arg
 
     @pyaedt_function_handler()
-    def get_points_value(self, points, filename=None, visibility=False):
+    def get_points_value(self, points, filename=None, visibility=False):  # pragma: no cover
         """
         Get points data from field plot.
 
