@@ -483,12 +483,16 @@ class TestClass:
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
         rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
         rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+        box1 = m3d.modeler.create_box([0, 0, 0], [10, 10, 5], "MyBox1")
+        box2 = m3d.modeler.create_box([10, 10, 10], [10, 10, 5], "MyBox2")
 
         m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
         m3d.assign_voltage("Sheet1", amplitude=1, name="Voltage5")
         m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
         m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
         m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
+        m3d.assign_voltage(box1.faces, amplitude=1, name="Voltage6")
+        m3d.assign_voltage(box2, amplitude=1, name="Voltage7")
 
         L = m3d.assign_matrix(assignment="Voltage1")
         assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"

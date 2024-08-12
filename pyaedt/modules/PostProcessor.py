@@ -5678,6 +5678,7 @@ class FieldSummary:
         side="Default",
         mesh="All",
         ref_temperature="AmbientTemp",
+        time="0s",
     ):
         """
         Add an entry in the field summary calculation requests.
@@ -5710,6 +5711,8 @@ class FieldSummary:
         ref_temperature : str, optional
             Reference temperature to use in the calculation of the heat transfer
             coefficient. The default is ``"AmbientTemp"``.
+        time : str
+            Timestep to get the data from. Default is ``"0s"``.
 
         Returns
         -------
@@ -5728,9 +5731,20 @@ class FieldSummary:
             normal = ",".join(normal)
         if isinstance(geometry_name, str):
             geometry_name = [geometry_name]
-        self.calculations.append(
-            [entity, geometry, ",".join(geometry_name), quantity, normal, side, mesh, ref_temperature, False]
-        )  # TODO : last argument not documented
+        calc_args = [
+            entity,
+            geometry,
+            ",".join(geometry_name),
+            quantity,
+            normal,
+            side,
+            mesh,
+            ref_temperature,
+            False,
+        ]  # TODO : last argument not documented
+        if self._app.solution_type == "Transient":
+            calc_args = [time] + calc_args
+        self.calculations.append(calc_args)
         return True
 
     @pyaedt_function_handler(IntrinsincDict="intrinsics", setup_name="setup", design_variation="variation")

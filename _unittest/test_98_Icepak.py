@@ -43,6 +43,7 @@ if config["desktopVersion"] > "2022.2":
     coldplate = "ColdPlateExample_231"
     power_budget = "PB_test_231"
     native_import = "one_native_component"
+    transient_fs = "transient_fs"
 
 else:
     coldplate = "ColdPlateExample"
@@ -1801,3 +1802,11 @@ class TestClass:
         g_m_r.update()
         g_m_r.global_region.object.material_name = "Carbon Monoxide"
         assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
+
+    def test_81_transient_fs(self, add_app):
+        app = add_app(application=Icepak, project_name=transient_fs, subfolder=test_subfolder)
+        fs = app.post.create_field_summary()
+        for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
+            fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
+        df = fs.get_field_summary_data(pandas_output=True)
+        assert not df["Mean"].empty
