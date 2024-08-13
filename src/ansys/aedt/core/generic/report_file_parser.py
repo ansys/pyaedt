@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
+from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 
 
 def parse_rdat_file(file_path):

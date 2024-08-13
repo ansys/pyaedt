@@ -42,8 +42,8 @@ import string
 import tempfile
 
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython

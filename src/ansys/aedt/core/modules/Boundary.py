@@ -32,9 +32,9 @@ import copy
 import re
 
 from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import filter_tuple

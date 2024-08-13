@@ -38,11 +38,11 @@ if (3, 8) < sys.version_info < (3, 12):
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 else:  # pragma: no cover
     warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
-from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
-from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.LayerStackup import Layers
 

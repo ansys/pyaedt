@@ -35,9 +35,9 @@ import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
+from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
-from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import parse_excitation_file

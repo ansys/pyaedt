@@ -39,8 +39,8 @@ import warnings
 
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -48,18 +48,18 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.modeler.cad.modeler import BaseCoordinateSystem
-from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
-from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
-from ansys.aedt.core.modeler.cad.modeler import Lists
-from ansys.aedt.core.modeler.cad.modeler import Modeler
-from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import Plane
 from ansys.aedt.core.modeler.cad.elements_3d import Point
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.modeler import BaseCoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import Lists
+from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment

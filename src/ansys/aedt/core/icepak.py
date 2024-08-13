@@ -35,10 +35,10 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
+from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
-from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
