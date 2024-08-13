@@ -182,7 +182,7 @@ omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 minversion = "7.1"
-addopts = "-ra --cov=src/ansys/aedt/core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+addopts = "-ra --cov=ansys.aedt.core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
 testpaths = [
     "_unittest",
 ]

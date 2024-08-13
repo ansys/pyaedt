@@ -69,7 +69,7 @@ aedtapp["inner"] = "3mm"
 # Create coaxial and cylinders
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a coaxial and three cylinders. You can apply parameters
-# directly using the :func:`ansys.aedt.core.modeler.Primitives3D.Primitives3D.create_cylinder`
+# directly using the :func:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D.create_cylinder`
 # method. You can assign a material directly to the object creation action.
 # Optionally, you can assign a material using the :func:`assign_material` method.
 

@@ -29,8 +29,8 @@ import sys
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
-from ansys.aedt.core.generic.LoadAEDTFile import load_entire_aedt_file
-from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 import pytest
 
 test_subfolder = "T13"

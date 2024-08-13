@@ -33,9 +33,9 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.modeler.cad.Primitives import PolylineSegment
+from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-from ansys.aedt.core.modeler.cad.object3d import Object3d
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
@@ -1924,8 +1924,8 @@ class TestClass:
             self.aedtapp.modeler.import_primitives_from_file(input_file=primitive_file)
 
     def test_91_primitives_builder(self, add_app):
-        from ansys.aedt.core.generic.DataHandlers import json_to_dict
-        from ansys.aedt.core.modeler.cad.Primitives import PrimitivesBuilder
+        from ansys.aedt.core.generic.data_handlers import json_to_dict
+        from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
 
         ipk = add_app(application=Icepak)
 

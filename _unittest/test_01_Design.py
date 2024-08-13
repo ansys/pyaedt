@@ -32,7 +32,7 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
-from ansys.aedt.core.application.Design import DesignSettings
+from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.generic.general_methods import is_linux

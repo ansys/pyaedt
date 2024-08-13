@@ -15,9 +15,9 @@ if (3,7) < sys.version_info <(3, 12):
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-    from ansys.aedt.core.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
-    from ansys.aedt.core.modeler.circuits.PrimitivesEmit import EmitComponent
-    from ansys.aedt.core.modeler.circuits.PrimitivesEmit import EmitComponents
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
