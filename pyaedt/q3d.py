@@ -2126,7 +2126,7 @@ class Q3d(QExtractor, object):
         assignment = {}
 
         for net in self.nets:
-            source_name = f"source_1"
+            source_name = "source_1"
             sources = self.net_sources(net)
             sinks = self.net_sinks(net)
             assignment[net] = {}
