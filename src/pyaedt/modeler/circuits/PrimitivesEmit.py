@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.circuits.PrimitivesEmit import *
+from ansys.aedt.core.modeler.circuits.primitives_emit import *

@@ -34,8 +34,8 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
-from ansys.aedt.core.modeler.cad.elements3d import _dict2arg
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modeler.cad.elements_3d import _dict2arg
 
 
 class UserDefinedComponentParameters(dict):
@@ -89,7 +89,7 @@ class UserDefinedComponent(object):
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Inherited parent object.
     name : str, optional
         Name of the component. The default value is ``None``.
@@ -223,7 +223,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-            :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
             ``False`` when failed.
 
         """
@@ -931,7 +931,7 @@ class LayoutComponent(object):
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Inherited parent object.
     name : str, optional
         Name of the component. The default value is ``None``.

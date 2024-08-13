@@ -247,11 +247,11 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.modelerpcb.Modeler3DLayout`
+        :class:`ansys.aedt.core.modeler.modeler_pcb.Modeler3DLayout`
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.modeler.modelerpcb import Modeler3DLayout
+            from ansys.aedt.core.modeler.modeler_pcb import Modeler3DLayout
 
             self._modeler = Modeler3DLayout(self)
             self.logger.info_timer("Modeler class has been initialized!")

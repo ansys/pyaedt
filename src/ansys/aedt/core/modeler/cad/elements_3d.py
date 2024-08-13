@@ -217,7 +217,7 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    object3d : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+    object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
         Pointer to the calling object that provides additional functionality.
     objid : int
         Object ID as determined by the parent object.
@@ -268,7 +268,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     Parameters
     ----------
-    object3d : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+    object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
         Pointer to the calling object that provides additional functionality.
     edge_id : int
         Object ID as determined by the parent object.
@@ -331,7 +331,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.VertexPrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
             List of vertices.
 
         References
@@ -402,7 +402,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         non_model : bool, optional
             Either if create the new object as model or non-model. The default is `False`.
@@ -455,7 +455,7 @@ class FacePrimitive(object):
 
         Parameters
         ----------
-        object3d : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        object3d : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
         obj_id : int
         """
         self._id = obj_id
@@ -510,7 +510,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
             List of Edges.
 
         References
@@ -530,7 +530,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.VertexPrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.VertexPrimitive`
             List of Vertices.
 
         References
@@ -674,7 +674,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         References
         ----------
@@ -695,7 +695,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         """
         try:
@@ -711,7 +711,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         """
         try:
@@ -727,7 +727,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         """
         try:
@@ -743,7 +743,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         """
         try:
@@ -759,7 +759,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.EdgePrimitive`
 
         """
         try:
@@ -948,7 +948,7 @@ class FacePrimitive(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         non_model : bool, optional
             Either to create the new object as model or non-model. Default is ``False``.
@@ -966,7 +966,7 @@ class Point(object):
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Inherited parent object.
     name : str
         Name of the point.
@@ -1165,7 +1165,7 @@ class Plane(object):
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Inherited parent object.
     name : str
         Name of the point.

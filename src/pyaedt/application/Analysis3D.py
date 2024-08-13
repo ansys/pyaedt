@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.Analysis3D import *
+from ansys.aedt.core.application.analysis_3d import *

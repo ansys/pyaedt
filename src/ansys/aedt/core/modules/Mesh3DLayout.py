@@ -33,7 +33,7 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

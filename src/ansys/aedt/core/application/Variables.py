@@ -1331,7 +1331,7 @@ class VariableManager(object):
 
         Parameters
         ----------
-        history : :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree`
+        history : :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree`
             Object history.
 
         var_name : str

@@ -2778,7 +2778,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        assignment : list of int  or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : list of int  or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects to assign an end connection to.
         x_component_real : float, str, optional
             X component value real part. The default is ``0``.
@@ -2855,7 +2855,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        assignment : list of int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : list of int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects to assign an end connection to.
         boundary : str, optional
             Name of the end connection boundary. The default is ``None``, in which case the
@@ -3288,7 +3288,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        assignment : list of int or str or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : list of int or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of objects to assign an end connection to.
         resistance : float or str, optional
             Resistance value. If float is provided, the units are assumed to be ohms.

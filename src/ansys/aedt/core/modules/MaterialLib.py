@@ -35,8 +35,8 @@ import re
 import sys
 import warnings
 
-from ansys.aedt.core.generic.DataHandlers import _arg2dict
-from ansys.aedt.core.generic.LoadAEDTFile import load_entire_aedt_file
+from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file

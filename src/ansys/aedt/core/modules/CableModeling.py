@@ -27,7 +27,7 @@ import json
 import os
 
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.LoadAEDTFile import load_entire_aedt_file
+from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

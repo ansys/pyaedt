@@ -1157,7 +1157,7 @@ class Layers(object):
 
     Parameters
     ----------
-    modeler : :class:`ansys.aedt.core.modeler.modelerpcb.Modeler3DLayout`
+    modeler : :class:`ansys.aedt.core.modeler.modeler_pcb.Modeler3DLayout`
 
     roughnessunits : str, optional
        Units for the roughness of layers. The default is ``"um"``.

@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.modeler2d import *
+from ansys.aedt.core.modeler.modeler_2d import *

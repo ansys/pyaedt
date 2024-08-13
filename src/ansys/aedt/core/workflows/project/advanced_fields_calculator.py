@@ -26,7 +26,7 @@ import os.path
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments

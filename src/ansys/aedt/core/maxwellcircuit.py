@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 import math
 import os
 
-from ansys.aedt.core.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
+from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 

@@ -42,7 +42,7 @@ import string
 import tempfile
 
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.DataHandlers import _dict_items_to_list_items
+from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -51,7 +51,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 import ansys.aedt.core.modules.report_templates as rt
 from ansys.aedt.core.modules.solutions import FieldPlot
 from ansys.aedt.core.modules.solutions import SolutionData
@@ -2363,7 +2363,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        ansys.aedt.core.modeler.Primitives
+        ansys.aedt.core.modeler.cad.primitives
             Primitives object.
 
         """

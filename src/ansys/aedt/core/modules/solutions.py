@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.plot import plot_2d_chart
 from ansys.aedt.core.generic.plot import plot_3d_chart
 from ansys.aedt.core.generic.plot import plot_polar_chart
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 np = None

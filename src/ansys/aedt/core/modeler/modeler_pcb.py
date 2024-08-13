@@ -34,9 +34,9 @@ from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.Modeler import Modeler
-from ansys.aedt.core.modeler.pcb.Primitives3DLayout import Primitives3DLayout
-from ansys.aedt.core.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
+from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
+from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
 from ansys.aedt.core.modules.LayerStackup import Layers
 
 
@@ -193,7 +193,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.primitives_3d_layout.Primitives3DLayout`
 
         """
         mess = "`primitives` is deprecated.\n"

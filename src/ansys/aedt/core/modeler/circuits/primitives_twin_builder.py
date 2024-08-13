@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.circuits.PrimitivesCircuit import CircuitComponents
-from ansys.aedt.core.modeler.circuits.PrimitivesCircuit import ComponentCatalog
+from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
+from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
 
 class TwinBuilderComponents(CircuitComponents):
@@ -72,7 +72,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -97,7 +97,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.PrimitivesCircuit.ComponentCatalog`
+        :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentCatalog`
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -122,7 +122,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -165,7 +165,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -207,7 +207,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -256,7 +256,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -305,7 +305,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -343,7 +343,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -381,7 +381,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -445,7 +445,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References

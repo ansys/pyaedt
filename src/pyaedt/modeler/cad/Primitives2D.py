@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.cad.Primitives2D import *
+from ansys.aedt.core.modeler.cad.primitives_2d import *

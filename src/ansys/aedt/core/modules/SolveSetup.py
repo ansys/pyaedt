@@ -39,7 +39,7 @@ import re
 import time
 import warnings
 
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -251,7 +251,7 @@ class CommonSetup(PropsManager, object):
 
         Returns
         -------
-        dict of :class:ansys.aedt.core.modeler.cad.elements3d.BinaryTree when solved setups exist,
+        dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
         ``None`` when no solved setups or no compatible application exists.
         """
         profile = self._app.get_profile(self.name)

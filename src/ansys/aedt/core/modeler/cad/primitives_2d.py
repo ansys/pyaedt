@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.Primitives import GeometryModeler
+from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 
 
 class Primitives2D(GeometryModeler, object):
@@ -80,12 +80,12 @@ class Primitives2D(GeometryModeler, object):
              Either to create the new object as model or non-model. The default is ``False``.
          **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -159,12 +159,12 @@ class Primitives2D(GeometryModeler, object):
             The default is ``0``.
         **kwargs : optional
             Additional keyword arguments to pass to set properties when creating the primitive.
-           For more information, see ``ansys.aedt.core.modeler.cad.object3d.Object3d``.
+           For more information, see ``ansys.aedt.core.modeler.cad.object_3d.Object3d``.
 
 
         Returns
         -------
-        ansys.aedt.core.modeler.cad.object3d.Object3d
+        ansys.aedt.core.modeler.cad.object_3d.Object3d
             Object 3d.
 
         References
@@ -218,7 +218,7 @@ class Primitives2D(GeometryModeler, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
 
         References
         ----------
@@ -275,12 +275,12 @@ class Primitives2D(GeometryModeler, object):
              Either if create the new object as model or non-model. The default is ``False``.
          **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
 
         Returns
         -------
-        ansys.aedt.core.modeler.cad.object3d.Object3d
+        ansys.aedt.core.modeler.cad.object_3d.Object3d
 
         References
         ----------
@@ -341,7 +341,7 @@ class Primitives2D(GeometryModeler, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Region object.
 
         References

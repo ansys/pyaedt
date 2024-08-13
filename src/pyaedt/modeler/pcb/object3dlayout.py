@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.pcb.object3dlayout import *
+from ansys.aedt.core.modeler.pcb.object_3d_layout import *

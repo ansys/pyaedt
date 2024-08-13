@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.circuits.object3dcircuit import *
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import *

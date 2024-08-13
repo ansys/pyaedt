@@ -33,10 +33,10 @@ import re
 import shutil
 import time
 
-from ansys.aedt.core.application.analysisNexxim import FieldAnalysisCircuit
+from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic import ibis_reader
-from ansys.aedt.core.generic.DataHandlers import from_rkm_to_aedt
+from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.filesystem import search_files
 from ansys.aedt.core.generic.general_methods import generate_unique_name

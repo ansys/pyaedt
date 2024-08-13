@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.circuits.PrimitivesNexxim import *
+from ansys.aedt.core.modeler.circuits.primitives_nexxim import *

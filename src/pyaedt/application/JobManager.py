@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.JobManager import *
+from ansys.aedt.core.application.job_manager import *

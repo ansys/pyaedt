@@ -35,8 +35,8 @@ import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
-from ansys.aedt.core.generic.DataHandlers import str_to_bool
+from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
@@ -1695,9 +1695,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             First solid connected to the spiral port.
-        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Second object connected to the spiral port.
         width : float, optional
             Width of the spiral port.
@@ -1876,9 +1876,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             First object connected to the voltage source.
-        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Second object connected to the voltage source.
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
@@ -1931,9 +1931,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             First object connected to the current source.
-        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Second object connected to the current source.
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
@@ -2186,7 +2186,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to assign a lattice to.
         coordinate_system : str, optional
             Coordinate system to look for the lattice on.
@@ -2370,8 +2370,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
            ``True`` when successful, ``False`` when failed.
 
         """
-        if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements3d.FacePrimitive):
-            obj = obj_name.create_object()  # Create face object of type cad.object3d.Object3d from FacePrimitive
+        if isinstance(sheet_name, str) and isinstance(obj_name, cad.elements_3d.FacePrimitive):
+            obj = obj_name.create_object()  # Create face object of type cad.object_3d.Object3d from FacePrimitive
             oname = obj_name._object3d.name
             bounding1 = self.modeler[oname].bounding_box
         else:
@@ -2415,9 +2415,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Starting object for the integration line.
-        reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
            Ending object for the integration line.
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for
@@ -2486,9 +2486,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Starting object for the integration line.
-        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line.
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
@@ -2755,9 +2755,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        start_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Starting object for the integration line.
-        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line.
         start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
@@ -4221,7 +4221,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -4261,7 +4261,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -4307,7 +4307,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str or list or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more object names or IDs.
         name : str, optional
             Name of the boundary. The default is ``None``, in which case a name is automatically assigned.
@@ -5930,10 +5930,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+        assignment : int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Signal object.
-        reference : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+        reference : int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Reference object.
         port_location : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
@@ -6021,10 +6021,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str, int, list, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
-            :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        assignment : str, int, list, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : int, list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port sheet.
@@ -6140,10 +6140,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : int, str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
-         :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        assignment : int, str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
+         :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             Main object for port creation or starting object for the integration line.
-        reference : int, str, list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        reference : int, str, list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use the start object as the surface
@@ -6207,7 +6207,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
                 self.logger.error("One or both objects do not exist. Check and retry.")
                 return False
-            elif isinstance(assignment, cad.elements3d.FacePrimitive):
+            elif isinstance(assignment, cad.elements_3d.FacePrimitive):
                 port_sheet = assignment.create_object()
                 oname = port_sheet.name
             if is_microstrip:
@@ -6232,7 +6232,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             sheet_name = self.modeler.convert_to_selections(assignment, True)[0]
             if isinstance(sheet_name, int):
                 try:
-                    # NOte: if isinstance(sheet_name, cad.elements3d.FacePrimitive) then
+                    # NOte: if isinstance(sheet_name, cad.elements_3d.FacePrimitive) then
                     # the name of the 3d object is returned.
                     # TODO: Need to improve the way a FacePrimitive is handled.
                     oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet_name)
@@ -6262,7 +6262,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
             if create_pec_cap:
                 if oname:
-                    #  if isinstance(signal, cad.elements3d.FacePrimitive):
+                    #  if isinstance(signal, cad.elements_3d.FacePrimitive):
                     #      pec_face = signal.create_object()
                     #      face = pec_face.id
                     #  else:

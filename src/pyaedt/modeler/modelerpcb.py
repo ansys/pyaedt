@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.modelerpcb import *
+from ansys.aedt.core.modeler.modeler_pcb import *

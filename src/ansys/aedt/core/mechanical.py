@@ -28,7 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 
-from ansys.aedt.core.application.Analysis3D import FieldAnalysis3D
+from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.Boundary import BoundaryObject

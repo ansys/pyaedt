@@ -32,7 +32,7 @@ from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.object3d import Object3d
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -115,14 +115,14 @@ class Polyline(Object3d):
     """Creates and manipulates a polyline.
 
     The constructor for this class is intended to be called from the
-    :func:`ansys.aedt.core.modeler.Primitives.Primitives.create_polyline` method.
+    :func:`ansys.aedt.core.modeler.cad.primitives.Primitives.create_polyline` method.
     The documentation is provided there.
 
     The returned Polyline object exposes the methods for manipulating the polyline.
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Pointer to the parent Primitives object.
     src_object : optional
         The default is ``None``. If specified, all other arguments are ignored.
@@ -134,7 +134,7 @@ class Polyline(Object3d):
         For a string, ``"Line"`` or ``"Arc"`` is valid.
         Use a ``"PolylineSegment"``, for ``"Line"``, ``"Arc"``, ``"Spline"``,
         or ``"AngularArc"``.
-        A list of segment types (str or :class:`ansys.aedt.core.modeler.Primitives.PolylineSegment`) is
+        A list of segment types (str or :class:`ansys.aedt.core.modeler.cad.primitives.PolylineSegment`) is
         valid for a compound polyline.
         The default is ``None``.
     cover_surface : bool, optional
@@ -518,7 +518,7 @@ class Polyline(Object3d):
     @pyaedt_function_handler()
     def _point_segment_string_array(self):
         """Retrieve the parameter arrays for specifying the points and segments of a polyline
-        used in the :class:`ansys.aedt.core.modeler.Primitives.Polyline` constructor.
+        used in the :class:`ansys.aedt.core.modeler.cad.primitives.Polyline` constructor.
 
         Returns
         -------
@@ -655,11 +655,11 @@ class Polyline(Object3d):
     @pyaedt_function_handler()
     def _segment_array(self, segment_data, start_index=0, start_point=None):
         """Retrieve a property array for a polyline segment for use in the
-        :class:`ansys.aedt.core.modeler.Primitives.Polyline` constructor.
+        :class:`ansys.aedt.core.modeler.cad.primitives.Polyline` constructor.
 
         Parameters
         ----------
-        segment_data : :class:`ansys.aedt.core.modeler.Primitives.PolylineSegment` or str
+        segment_data : :class:`ansys.aedt.core.modeler.cad.primitives.PolylineSegment` or str
             Pointer to the calling object that provides additional functionality
             or a string with the segment type ``Line`` or ``Arc``.
         start_index : int, string
@@ -1078,10 +1078,10 @@ class Polyline(Object3d):
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
-        segment : str or :class:`ansys.aedt.core.modeler.Primitives.PolylineSegment`, optional
+        segment : str or :class:`ansys.aedt.core.modeler.cad.primitives.PolylineSegment`, optional
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
-            and ``"Spline"``, use the :class:`ansys.aedt.core.modeler.Primitives.PolylineSegment`
+            and ``"Spline"``, use the :class:`ansys.aedt.core.modeler.cad.primitives.PolylineSegment`
             object to define the segment precisely. The default is ``None``.
 
         Returns

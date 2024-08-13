@@ -35,7 +35,7 @@ from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.Primitives3D import Primitives3D
+from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.solutions import nastran_to_stl
 
@@ -73,7 +73,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+        :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
 
         """
         mess = "The property `primitives` is deprecated.\n"
@@ -899,7 +899,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.object3d.Object3d`, bool
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, bool
             List of 3D object or ``False`` if it fails.
 
         References
@@ -983,7 +983,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1369,7 +1369,7 @@ class Modeler3D(Primitives3D):
         assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
-            a list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` classes.
+            a list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
@@ -1392,7 +1392,7 @@ class Modeler3D(Primitives3D):
             - Second dictionary is the mesh sheets eventually needed to apply the mesh.
             to inside the object. Keys are the object names, and values are respectively
             segments sheets and mesh sheets of the
-            :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` class.
+            :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` class.
             If mesh sheets are not applied the method returns only the dictionary of
             segments that the object has been divided into.
             ``False`` is returned if the method fails.

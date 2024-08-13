@@ -26,8 +26,8 @@ from collections import OrderedDict
 import copy
 import csv
 
-from ansys.aedt.core.generic.DataHandlers import _arg2dict
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file

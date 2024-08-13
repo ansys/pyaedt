@@ -40,8 +40,8 @@ import time
 
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
-from ansys.aedt.core.application.Variables import Variable
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import GRAVITY
 from ansys.aedt.core.generic.constants import PLANE

@@ -69,7 +69,7 @@ class FieldsCalculator:
             If provided as a string, it has to be a name defined in the expression_catalog.toml.
             If provided as a dict, it has to contain all the necessary arguments to define an expression.
             For reference look at the expression_catalog.toml.
-        assignment : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
+        assignment : int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive
             Name of the object to add the named expression from.
         name : str, optional

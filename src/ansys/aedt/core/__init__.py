@@ -72,7 +72,7 @@ if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragm
 from ansys.aedt.core.edb import Edb  # nosec
 from ansys.aedt.core.edb import Siwave  # nosec
 from ansys.aedt.core.generic import constants
-import ansys.aedt.core.generic.DataHandlers as data_handler
+import ansys.aedt.core.generic.data_handlers as data_handler
 from ansys.aedt.core.generic.design_types import Circuit
 from ansys.aedt.core.generic.design_types import Desktop
 from ansys.aedt.core.generic.design_types import Emit

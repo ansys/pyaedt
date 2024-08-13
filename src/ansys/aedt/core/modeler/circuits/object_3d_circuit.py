@@ -34,7 +34,7 @@ from ansys.aedt.core.generic.general_methods import _arg2dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.elements3d import _dict2arg
+from ansys.aedt.core.modeler.cad.elements_3d import _dict2arg
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
@@ -165,7 +165,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        assignment : :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.CircuitPins`
+        assignment : :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case

@@ -29,16 +29,16 @@ import time
 import warnings
 
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.circuits.PrimitivesCircuit import CircuitComponents
-from ansys.aedt.core.modeler.circuits.PrimitivesCircuit import ComponentCatalog
-from ansys.aedt.core.modeler.circuits.object3dcircuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
+from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modules.Boundary import Excitations
 
 
@@ -77,7 +77,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         if isinstance(partname, int):
@@ -118,7 +118,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
              Circuit Component Object.
         """
         if name in self.components:
@@ -162,7 +162,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.PrimitivesCircuit.ComponentCatalog`
+        :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentCatalog`
         """
         if not self._components_catalog:
             self._components_catalog = ComponentCatalog(self)
@@ -187,7 +187,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object when successful or ``False`` when failed.
 
         Examples
@@ -282,7 +282,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : list of :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        assignment : list of :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
         use_wire : bool, optional
             Whether to use wires or a page port to connect the pins.
@@ -325,7 +325,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        assignment : list of :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        assignment : list of :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
 
         Returns
@@ -368,7 +368,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -660,7 +660,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -697,7 +697,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -740,7 +740,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -783,7 +783,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -824,7 +824,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -869,7 +869,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -927,7 +927,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -989,7 +989,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1040,7 +1040,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1087,7 +1087,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1132,7 +1132,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1174,7 +1174,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1216,7 +1216,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1501,7 +1501,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1587,7 +1587,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1986,7 +1986,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         Examples
@@ -2036,7 +2036,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         assert os.path.exists(input_file), "Project file doesn't exist"

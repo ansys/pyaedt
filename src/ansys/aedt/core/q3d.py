@@ -1563,7 +1563,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        assignment : str, int or list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, int or list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name of the object or face ID or face ID list.
         direction : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -1595,7 +1595,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        assignment : str, int or list or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, int or list or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name of the object or face ID or face ID list.
         direction : int, optional
             Initial axis direction. Options are ``0`` to ``5``. The default is ``0``.
@@ -2031,7 +2031,7 @@ class Q3d(QExtractor, object):
 
         Parameters
         ----------
-        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or list
+        assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list
             Object assignment.
         material : str, optional
             Material. Default is ``"copper"``.
@@ -2222,7 +2222,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References

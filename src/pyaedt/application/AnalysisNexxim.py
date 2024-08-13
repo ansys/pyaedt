@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.AnalysisNexxim import *
+from ansys.aedt.core.application.analysis_nexxim import *

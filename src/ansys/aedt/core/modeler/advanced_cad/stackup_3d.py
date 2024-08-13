@@ -1173,7 +1173,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object created.
         """
         if not instance_name:
@@ -1925,7 +1925,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
         """
         return self._aedt_object
 

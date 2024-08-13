@@ -34,15 +34,15 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
-from ansys.aedt.core.modeler.cad.object3d import Object3d
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -1332,7 +1332,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
         Parameters
         ----------
-        assignment : str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Origin where the object coordinate system is anchored.

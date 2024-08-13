@@ -46,10 +46,10 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 
 class Object3d(object):
@@ -57,7 +57,7 @@ class Object3d(object):
 
     Parameters
     ----------
-    primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+    primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
         Inherited parent object.
     name : str
 
@@ -79,7 +79,7 @@ class Object3d(object):
         """
         Parameters
         ----------
-        primitives : :class:`ansys.aedt.core.modeler.Primitives3D.Primitives3D`
+        primitives : :class:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D`
             Inherited parent object.
         name : str
         """
@@ -378,7 +378,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -418,7 +418,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
         """
         b = [float(i) for i in list(self._oeditor.GetModelBoundingBox())]
         f_id = None
@@ -509,7 +509,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -530,7 +530,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -551,7 +551,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -572,7 +572,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -593,7 +593,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -614,7 +614,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
 
         References
         ----------
@@ -635,7 +635,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         References
         ----------
@@ -656,7 +656,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -672,7 +672,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -688,7 +688,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -704,7 +704,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -720,7 +720,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         """
         try:
@@ -736,7 +736,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
 
         References
         ----------
@@ -758,7 +758,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.elements3d.VertexPrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.VertexPrimitive`
 
         References
         ----------
@@ -1354,7 +1354,7 @@ class Object3d(object):
 
         Returns
         -------
-            :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
             ``False`` when failed.
 
         """
@@ -1404,12 +1404,12 @@ class Object3d(object):
 
         Parameters
         ----------
-        assignment : list of str or list of ansys.aedt.core.modeler.cad.object3d.Object3d
+        assignment : list of str or list of ansys.aedt.core.modeler.cad.object_3d.Object3d
             List of objects.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
            Object 3D object.
 
         References
@@ -1435,7 +1435,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Retrieve the resulting 3D Object when succeeded.
 
         References
@@ -1491,7 +1491,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1521,7 +1521,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object. ``False`` when failed.
 
         References
@@ -1545,7 +1545,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
             ``False`` when failed.
 
@@ -1574,7 +1574,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             List of names of the newly added objects.
 
         References
@@ -1651,7 +1651,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_object : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        sweep_object : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.
@@ -1665,7 +1665,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Swept object.
 
         References
@@ -1694,7 +1694,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Swept object.
 
         References
@@ -1721,7 +1721,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -1744,7 +1744,7 @@ class Object3d(object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object3d.Object3d`]
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of object resulting from the operation.
 
         References
@@ -1761,7 +1761,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object that was added.
 
         References
@@ -1790,7 +1790,7 @@ class Object3d(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Modified 3D object following the subtraction.
 
         References
@@ -1860,7 +1860,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of face primitives.
         """
 
@@ -1904,7 +1904,7 @@ class Object3d(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.elements3d.EdgePrimitive`
+        list of :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`
             List of edge primitives.
         """
         filters = ["==", "<=", ">=", "<", ">"]

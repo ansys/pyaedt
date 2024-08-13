@@ -31,19 +31,19 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.Modeler import Modeler
+from ansys.aedt.core.modeler.cad.modeler import Modeler
 
 if (3, 8) < sys.version_info < (3, 12):
-    from ansys.aedt.core.modeler.circuits.PrimitivesEmit import EmitComponent
-    from ansys.aedt.core.modeler.circuits.PrimitivesEmit import EmitComponents
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 else:  # pragma: no cover
     warnings.warn("Emit API is only available for Python 3.8+,<3.12.")
-from ansys.aedt.core.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
-from ansys.aedt.core.modeler.circuits.PrimitivesNexxim import NexximComponents
-from ansys.aedt.core.modeler.circuits.PrimitivesTwinBuilder import TwinBuilderComponents
-from ansys.aedt.core.modeler.circuits.object3dcircuit import CircuitComponent
-from ansys.aedt.core.modeler.circuits.object3dcircuit import Wire
-from ansys.aedt.core.modeler.pcb.Primitives3DLayout import Primitives3DLayout
+from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellCircuitComponents
+from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
+from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
+from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
 from ansys.aedt.core.modules.LayerStackup import Layers
 
 
@@ -512,7 +512,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.NexximComponents`
+        :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.NexximComponents`
         """
         return self._schematic
 
@@ -525,7 +525,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.circuits.PrimitivesNexxim.NexximComponents`
+        :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.NexximComponents`
         """
         return self._schematic
 
@@ -564,7 +564,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.primitives_3d_layout.Primitives3DLayout`
 
         """
         if self._app.design_type == "Twin Builder":
@@ -580,7 +580,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives3DLayout.Primitives3DLayout`
+        :class:`ansys.aedt.core.modeler.cad.primitives_3d_layout.Primitives3DLayout`
 
         """
         return self._primitives
@@ -711,7 +711,7 @@ class ModelerTwinBuilder(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.PrimitivesTwinBuilder.TwinBuilderComponents`
+        :class:`ansys.aedt.core.modeler.cad.primitivesTwinBuilder.TwinBuilderComponents`
 
         """
         return self._components
@@ -772,7 +772,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.PrimitivesMaxwellCircuit.MaxwellCircuitComponents`
+        :class:`ansys.aedt.core.modeler.cad.primitivesMaxwellCircuit.MaxwellCircuitComponents`
 
         """
         return self._components

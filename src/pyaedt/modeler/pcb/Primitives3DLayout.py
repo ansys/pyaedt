@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.pcb.Primitives3DLayout import *
+from ansys.aedt.core.modeler.pcb.primitives_3d_layout import *

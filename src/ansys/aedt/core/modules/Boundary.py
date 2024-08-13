@@ -32,17 +32,17 @@ import copy
 import re
 
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
-from ansys.aedt.core.generic.DataHandlers import random_string
+from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modules.CircuitTemplates import SourceKeys
 
 
@@ -903,10 +903,10 @@ class BoundaryObject(BoundaryCommon, object):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         child_object = None
         design_childs = self._app.get_oo_name(self._app.odesign)
@@ -1455,11 +1455,11 @@ class MaxwellParameters(BoundaryCommon, object):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
 
-        from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
@@ -2453,10 +2453,10 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
         Returns
         -------
-        class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTreeNode`
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
 
         """
-        from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         cc = self._app.odesign.GetChildObject("Excitations")
         child_object = None

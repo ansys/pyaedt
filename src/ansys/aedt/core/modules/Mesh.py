@@ -33,15 +33,15 @@ import os
 import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
-from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.general_methods import MethodNotSupportedError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 meshers = {
     "HFSS": "MeshSetup",
@@ -627,7 +627,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        assignment : list or str or :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        assignment : list or str or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
             List of faces to apply the surface mesh to.
         surface_deviation : float or str, optional
             Surface deviation. The default is ``None``. You can specify a float value, a number with units, or `"inf"`.
@@ -1420,7 +1420,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        entity : int or str or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        entity : int or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to assign cylindrical gap to.
         name : str, optional
             Name of the mesh. The default is ``None``, in which

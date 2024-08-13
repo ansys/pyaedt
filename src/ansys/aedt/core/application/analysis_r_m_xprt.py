@@ -104,11 +104,11 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.modeler2d.ModelerRMxprt`
+        :class:`ansys.aedt.core.modules.modeler_2d.ModelerRMxprt`
 
         """
         if self._modeler is None and self._odesign:
-            from ansys.aedt.core.modeler.modeler2d import ModelerRMxprt
+            from ansys.aedt.core.modeler.modeler_2d import ModelerRMxprt
 
             self._modeler = ModelerRMxprt(self)
 

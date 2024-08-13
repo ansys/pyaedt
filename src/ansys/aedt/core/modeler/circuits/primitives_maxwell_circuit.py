@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.circuits.PrimitivesCircuit import CircuitComponents
+from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 
 
 class MaxwellCircuitComponents(CircuitComponents):
@@ -61,7 +61,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -98,7 +98,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -141,7 +141,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -184,7 +184,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -224,7 +224,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -264,7 +264,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References

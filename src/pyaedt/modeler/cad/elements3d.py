@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.cad.elements3d import *
+from ansys.aedt.core.modeler.cad.elements_3d import *

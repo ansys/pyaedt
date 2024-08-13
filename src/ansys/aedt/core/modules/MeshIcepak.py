@@ -26,14 +26,14 @@ from collections import OrderedDict
 import os.path
 import warnings
 
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-from ansys.aedt.core.modeler.cad.object3d import Object3d
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modules.Mesh import MeshOperation
 from ansys.aedt.core.modules.Mesh import meshers
 
@@ -276,7 +276,7 @@ class CommonRegion(object):
 
         Returns
         -------
-        ::class::modeler.cad.object3d.Object3d
+        ::class::modeler.cad.object_3d.Object3d
         """
         if isinstance(self, Region):
             # use native apis instead of history() for performance reasons
@@ -417,7 +417,7 @@ class SubRegion(CommonRegion):
          Returns
         -------
         dict
-            Dictionary with the part names as keys and ::class::modeler.cad.object3d.Object3d as values.
+            Dictionary with the part names as keys and ::class::modeler.cad.object_3d.Object3d as values.
         """
         if self.object:
             return {

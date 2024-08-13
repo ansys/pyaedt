@@ -32,7 +32,7 @@ import io
 import os
 import re
 
-from ansys.aedt.core.application.Analysis3DLayout import FieldAnalysis3DLayout
+from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
@@ -41,7 +41,7 @@ from ansys.aedt.core.generic.general_methods import parse_excitation_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import tech_to_control_file
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.pcb.object3dlayout import Line3dLayout  # noqa: F401
+from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout  # noqa: F401
 from ansys.aedt.core.modules.Boundary import BoundaryObject3dLayout
 
 
@@ -231,7 +231,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        assignment : str or :class:`ansys.aedt.core.modeler.pcb.object3dlayout.Line3dLayout`
+        assignment : str or :class:`ansys.aedt.core.modeler.pcb.object_3d_layout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edge_number :
             Edge number to create the edge port on.

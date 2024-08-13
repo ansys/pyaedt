@@ -31,9 +31,9 @@ import string
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 
 json_to_dict = read_json
 
@@ -461,7 +461,7 @@ def from_rkm(code):
 
     Examples
     --------
-    >>> from ansys.aedt.core.generic.DataHandlers import from_rkm
+    >>> from ansys.aedt.core.generic.data_handlers import from_rkm
     >>> from_rkm('R47')
     '0.47'
 

@@ -26,8 +26,8 @@ import math
 from warnings import warn
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modeler.cad.Modeler import Modeler
-from ansys.aedt.core.modeler.cad.Primitives2D import Primitives2D
+from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.cad.primitives_2d import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
@@ -85,7 +85,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives2D.Primitives2D`
+        :class:`ansys.aedt.core.modeler.cad.primitives_2d.Primitives2D`
 
         """
         mess = "`primitives` is deprecated.\n"
@@ -178,7 +178,7 @@ class Modeler2D(Primitives2D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
         """
         if len(bounding_box) != 4 and len(bounding_box) != 6:
             raise ValueError("Bounding box must be a list of 4 or 6 elements.")

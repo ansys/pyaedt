@@ -1,1 +1,1 @@
-from ansys.aedt.core.generic.DataHandlers import *
+from ansys.aedt.core.generic.data_handlers import *

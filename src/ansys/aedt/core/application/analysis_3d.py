@@ -145,14 +145,14 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.modeler3d.Modeler3D` or :class:`ansys.aedt.core.modeler.modeler2d.Modeler2D`
+        :class:`ansys.aedt.core.modeler.modeler_3d.Modeler3D` or :class:`ansys.aedt.core.modeler.modeler_2d.Modeler2D`
             Modeler object.
         """
         if self._modeler is None and self._odesign:
             self.logger.reset_timer()
 
-            from ansys.aedt.core.modeler.modeler2d import Modeler2D
-            from ansys.aedt.core.modeler.modeler3d import Modeler3D
+            from ansys.aedt.core.modeler.modeler_2d import Modeler2D
+            from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 
             self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
             self.logger.info_timer("Modeler class has been initialized!")

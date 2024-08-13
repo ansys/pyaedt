@@ -35,9 +35,9 @@ import warnings
 import ansys.aedt.core
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.design import DesignSettingsManipulation
-from ansys.aedt.core.generic.DataHandlers import _arg2dict
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
-from ansys.aedt.core.generic.DataHandlers import random_string
+from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import random_string
 from ansys.aedt.core.generic.configurations import ConfigurationsIcepak
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.Boundary import BoundaryDictionary
@@ -1334,7 +1334,7 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        top_face : modeler.cad.elements3d.FacePrimitive
+        top_face : modeler.cad.elements_3d.FacePrimitive
             Face to build the heatsink on.
         relative : bool, optional
             Whether the dimensions used as arguments of the function are
@@ -1375,7 +1375,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Heatsink created or ``False`` when failed.
         dict
             Variable mapping. Keys are the different parameters names, and values
@@ -5571,7 +5571,7 @@ class Icepak(FieldAnalysis3D):
         face_list : list
             List of face primitive objects or a list of integers
             containing faces IDs.
-        extract_face : modeler.cad.elements3d.FacePrimitive, int
+        extract_face : modeler.cad.elements_3d.FacePrimitive, int
              ID of the face on the extract side.
         thermal_specification : str, optional
             Type of the thermal assignment across the two recirculation
@@ -5729,9 +5729,9 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         faces : list
-            List of modeler.cad.elements3d.FacePrimitive or of integers
+            List of modeler.cad.elements_3d.FacePrimitive or of integers
             containing faces ids.
-        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+        inlet_face : modeler.cad.elements_3d.FacePrimitive, int or list
              Inlet faces.
         fan_curve_pressure : list
             List of the fan curve pressure values. Only floats should
@@ -5814,9 +5814,9 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         faces : list
-            List of modeler.cad.elements3d.FacePrimitive or of integers
+            List of modeler.cad.elements_3d.FacePrimitive or of integers
             containing faces ids.
-        inlet_face : modeler.cad.elements3d.FacePrimitive, int or list
+        inlet_face : modeler.cad.elements_3d.FacePrimitive, int or list
              Inlet faces.
         fan_curve_pressure : list
             List of the fan curve pressure values. Only floats should

@@ -1,1 +1,1 @@
-from ansys.aedt.core.modeler.circuits.PrimitivesTwinBuilder import *
+from ansys.aedt.core.modeler.circuits.primitives_twin_builder import *

@@ -25,7 +25,7 @@
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.circuits.object3dcircuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modules.Boundary import CurrentSinSource
 from ansys.aedt.core.modules.Boundary import Excitations
 from ansys.aedt.core.modules.Boundary import PowerIQSource
@@ -128,7 +128,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component : str or :class:`ansys.aedt.core.modeler.cad.object3d.circuit.CircuitComponent`
+        component : str or :class:`ansys.aedt.core.modeler.cad.object_3d.circuit.CircuitComponent`
             Component to initialize.
 
         Returns

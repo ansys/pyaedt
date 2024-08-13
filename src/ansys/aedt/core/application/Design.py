@@ -46,9 +46,9 @@ import threading
 import time
 import warnings
 
-from ansys.aedt.core.application.Variables import DataSet
-from ansys.aedt.core.application.Variables import VariableManager
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import DataSet
+from ansys.aedt.core.application.variables import VariableManager
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design_solutions import DesignSolution
 from ansys.aedt.core.application.design_solutions import HFSSDesignSolution
@@ -60,8 +60,8 @@ from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.desktop import _init_desktop_from_design
 from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.desktop import get_version_env_variable
-from ansys.aedt.core.generic.DataHandlers import variation_string_to_dict
-from ansys.aedt.core.generic.LoadAEDTFile import load_entire_aedt_file
+from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.general_methods import GrpcApiError
@@ -325,7 +325,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.Variables.DataSet`]
+        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
@@ -337,7 +337,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.Variables.DataSet`]
+        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
@@ -1313,10 +1313,10 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
+        dict of :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
         ``False`` when failed.
         """
-        from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
         if not name:
             name = self.setup_names
@@ -1668,7 +1668,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        ansys.aedt.core.application.Variables.VariableManager
+        ansys.aedt.core.application.variables.VariableManager
 
         """
         return self._variable_manager
@@ -2666,7 +2666,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
 
         References
         ----------
@@ -2697,7 +2697,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References
@@ -2751,7 +2751,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References
@@ -2796,7 +2796,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
 
         References
         ----------
@@ -2854,7 +2854,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
 
         References
         ----------
@@ -2974,7 +2974,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Variables.DataSet`
+        :class:`ansys.aedt.core.application.variables.DataSet`
             Dataset object when the dataset is created, ``False`` otherwise.
 
         References

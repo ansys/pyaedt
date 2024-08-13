@@ -37,7 +37,7 @@ import os
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Icepak
-from ansys.aedt.core.generic import LoadAEDTFile
+from ansys.aedt.core.generic import load_aedt_file
 from ansys.aedt.core.generic.desktop_sessions import _edb_sessions
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
@@ -49,7 +49,7 @@ from ansys.aedt.core.modeler.advanced_cad.actors import Person
 from ansys.aedt.core.modeler.advanced_cad.actors import Vehicle
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Environment
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
-from ansys.aedt.core.modeler.cad.Primitives import GeometryModeler
+from ansys.aedt.core.modeler.cad.primitives import GeometryModeler
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -63,7 +63,7 @@ class Primitives3D(GeometryModeler):
     class.
 
     Primitives created using methods of ``app.modeler`` are of the type
-    ``ansys.aedt.core.modeler.cad.object3d.Object3D``. All settable properties may be
+    ``ansys.aedt.core.modeler.cad.object_3d.Object3D``. All settable properties may be
     initialized by passing optional named arguments when a method is used to create
     a primitive. Some examples are:
     - ``color`` : tuple, optional
@@ -128,7 +128,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -201,7 +201,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -286,7 +286,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -367,7 +367,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -451,7 +451,7 @@ class Primitives3D(GeometryModeler):
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -518,11 +518,11 @@ class Primitives3D(GeometryModeler):
             invalid, the default material is assigned.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -624,11 +624,11 @@ class Primitives3D(GeometryModeler):
             Coordinate system axis. The default is ``"Z"``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -744,11 +744,11 @@ class Primitives3D(GeometryModeler):
             Whether the rectangle is covered. The default is ``True``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -804,11 +804,11 @@ class Primitives3D(GeometryModeler):
              Either if create the new object as model or non-model. The default is ``False``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -897,11 +897,11 @@ class Primitives3D(GeometryModeler):
             The default is ``0``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -1004,11 +1004,11 @@ class Primitives3D(GeometryModeler):
             bend type should be set to ``"Curved"``.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -1106,11 +1106,11 @@ class Primitives3D(GeometryModeler):
             in which case the default name is assigned.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -1191,11 +1191,11 @@ class Primitives3D(GeometryModeler):
         thread : float
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
-        bool, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        bool, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object or ``False`` if it fails.
 
         References
@@ -1381,7 +1381,7 @@ class Primitives3D(GeometryModeler):
             Spiral name. Default is `None`.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object_3d.Object3d`` for more details.
 
         Returns
         -------
@@ -1642,7 +1642,7 @@ class Primitives3D(GeometryModeler):
                 ipkapp_temp.oproject.Paste()
                 temp_proj = ipkapp_temp.project_file
                 ipkapp_temp.close_project()
-                read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
+                read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
                 read_cs = False
                 parts_name = self._app.odesign.GetChildObject("3D Modeler").GetChildObject(udm_obj.name).GetChildNames()
                 mapping_dict = {
@@ -1683,7 +1683,7 @@ class Primitives3D(GeometryModeler):
                 if mapping_dict["ReferenceCoordSystemID"] != 1:
                     read_cs = True
                 if read_cs:
-                    read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
+                    read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
                     if isinstance(read_dict["CoordinateSystems"]["Operation"], list):
                         cs_dict = {
                             cs["ID"]: cs["Attributes"]["Name"] for cs in read_dict["CoordinateSystems"]["Operation"]
@@ -2449,10 +2449,10 @@ class Primitives3D(GeometryModeler):
         List of
             bool
                 ``True`` when successful, ``False`` when failed.
-            :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+            :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
                 3D object core.
             list of
-                :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+                :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
                     3D object winding.
                 list
                     list of point coordinates of the winding.

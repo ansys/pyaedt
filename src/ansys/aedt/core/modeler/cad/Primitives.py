@@ -39,7 +39,7 @@ import warnings
 
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.generic.DataHandlers import json_to_dict
+from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
@@ -48,19 +48,19 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.modeler.cad.Modeler import BaseCoordinateSystem
-from ansys.aedt.core.modeler.cad.Modeler import CoordinateSystem
-from ansys.aedt.core.modeler.cad.Modeler import FaceCoordinateSystem
-from ansys.aedt.core.modeler.cad.Modeler import Lists
-from ansys.aedt.core.modeler.cad.Modeler import Modeler
-from ansys.aedt.core.modeler.cad.Modeler import ObjectCoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import BaseCoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
+from ansys.aedt.core.modeler.cad.modeler import Lists
+from ansys.aedt.core.modeler.cad.modeler import Modeler
+from ansys.aedt.core.modeler.cad.modeler import ObjectCoordinateSystem
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
-from ansys.aedt.core.modeler.cad.elements3d import EdgePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive
-from ansys.aedt.core.modeler.cad.elements3d import Plane
-from ansys.aedt.core.modeler.cad.elements3d import Point
-from ansys.aedt.core.modeler.cad.elements3d import VertexPrimitive
-from ansys.aedt.core.modeler.cad.object3d import Object3d
+from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.elements_3d import Plane
+from ansys.aedt.core.modeler.cad.elements_3d import Point
+from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -224,7 +224,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Returns ``None`` if the part ID or the object name is not found.
 
         """
@@ -537,7 +537,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         # self._refresh_solids()
@@ -549,7 +549,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         self._refresh_sheets()
@@ -561,7 +561,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         self._refresh_lines()
@@ -573,7 +573,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         self._refresh_points()
@@ -585,7 +585,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         self._refresh_unclassified()
@@ -597,7 +597,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
         """
         self._refresh_object_types()
@@ -1118,7 +1118,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list of class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        list of class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             If a material name is not provided, the method returns
             a list of dictionaries where keys are material names
             of conductors, dielectrics, gases, and liquids respectively
@@ -1624,7 +1624,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : str, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Object to attach the object coordinate system to.
         origin : int, VertexPrimitive, EdgePrimitive, FacePrimitive, list
             Refer to the origin where the object coordinate system is anchored.
@@ -2611,8 +2611,8 @@ class GeometryModeler(Modeler):
             Which side to keep. The default is ``"Both"``, in which case
             all objects are kept after the split. Options are ``"Both"``,
             ``"NegativeOnly"``, and ``"PositiveOnly"``.
-        tool : str, int, :class:`ansys.aedt.core.modeler.cad.elements3d.FacePrimitive`or
-                :class:`ansys.aedt.core.modeler.cad.elements3d.EdgePrimitive`, optional
+        tool : str, int, :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`or
+                :class:`ansys.aedt.core.modeler.cad.elements_3d.EdgePrimitive`, optional
             For 3D design types is the name, ID, face, edge or polyline used to split the objects.
             For 2D design types is the name of the plane used to split the objects.
             The default value is ``None``.
@@ -2759,7 +2759,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : str, int, or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : str, int, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         origin : list
             List of the ``[x, y, z]`` coordinates or
@@ -3038,7 +3038,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.cad.object3d.Object3d
+        ansys.aedt.core.modeler.cad.object_3d.Object3d
 
         References
         ----------
@@ -3076,7 +3076,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        ansys.aedt.core.modeler.cad.object3d.Object3d
+        ansys.aedt.core.modeler.cad.object_3d.Object3d
 
         References
         ----------
@@ -3131,7 +3131,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects created.
 
         References
@@ -3780,7 +3780,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modeler.cad.object3d.Object3d`]
+        List[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
             List of objects resulting from the operation (including the original one).
 
         References
@@ -4104,7 +4104,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object.
 
         References
@@ -6059,7 +6059,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        modeler.cad.elements3d.FacePrimitive
+        modeler.cad.elements_3d.FacePrimitive
             Face object.
 
         """
@@ -6086,7 +6086,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.elements3d.Point`
+        :class:`ansys.aedt.core.modeler.cad.elements_3d.Point`
             Point object.
 
         References
@@ -6158,7 +6158,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.Primitives.Plane`
+        :class:`ansys.aedt.core.modeler.cad.primitives.Plane`
             Planes object.
 
         References
@@ -6265,7 +6265,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
            Updated 3D object.
 
         """
@@ -6369,7 +6369,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Subregion object.
 
         References
@@ -6518,7 +6518,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Region object.
 
         References
@@ -6712,12 +6712,12 @@ class GeometryModeler(Modeler):
         """Draw a polyline object in the 3D modeler.
 
         This method retrieves the
-        :class:`ansys.aedt.core.modeler.Primitives.Polyline` object, which has
+        :class:`ansys.aedt.core.modeler.cad.primitives.Polyline` object, which has
         additional methods for manipulating the polyline. For example,
         you can use
-        :func:`ansys.aedt.core.modeler.Primitives.Polyline.insert_segment` to
+        :func:`ansys.aedt.core.modeler.cad.primitives.Polyline.insert_segment` to
         insert a segment or
-        :attr:`ansys.aedt.core.modeler.Primitives.Polyline.id` to retrieve the
+        :attr:`ansys.aedt.core.modeler.cad.primitives.Polyline.id` to retrieve the
         ID of the polyline object.
 
         Parameters
@@ -6733,7 +6733,7 @@ class GeometryModeler(Modeler):
             ``"Line"`` segments. The default is ``None``.
             Use a ``"PolylineSegment"``, for ``"Line"``, ``"Arc"``, ``"Spline"``,
             or ``"AngularArc"``.
-            A list of segment types (str or :class:`ansys.aedt.core.modeler.Primitives.PolylineSegment`) is
+            A list of segment types (str or :class:`ansys.aedt.core.modeler.cad.primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.
@@ -6870,7 +6870,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : int or str or :class:`ansys.aedt.core.modeler.elements3d.FacePrimitive`
+        assignment : int or str or :class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`
         width : float
         filling_factor : float
 
@@ -6932,7 +6932,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        src_object : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        src_object : :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             An existing polyline object in the 3D Modeler.
 
         Returns
@@ -6963,7 +6963,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             UDP object created.
 
         References
@@ -7180,7 +7180,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             3D object returned.
 
         """
@@ -7596,8 +7596,8 @@ class GeometryModeler(Modeler):
         ----------
         assignment : int or str
             Object ID or object name, which is available
-            using the methods :func:`ansys.aedt.core.modeler.Primitives3D.Primitives3D.get_object_vertices`
-            or :func:`ansys.aedt.core.modeler.Primitives2D.Primitives2D.get_object_vertices`.
+            using the methods :func:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D.get_object_vertices`
+            or :func:`ansys.aedt.core.modeler.cad.primitives_2d.Primitives2D.get_object_vertices`.
 
         Returns
         -------
@@ -7649,8 +7649,8 @@ class GeometryModeler(Modeler):
         ----------
         assignment : int, str
             Object ID or object name, which is available using the
-            methods :func:`ansys.aedt.core.modeler.Primitives3D.Primitives3D.get_object_vertices`
-            or :func:`ansys.aedt.core.modeler.Primitives2D.Primitives2D.get_object_vertices`.
+            methods :func:`ansys.aedt.core.modeler.cad.primitives_3d.Primitives3D.get_object_vertices`
+            or :func:`ansys.aedt.core.modeler.cad.primitives_2d.Primitives2D.get_object_vertices`.
 
         Returns
         -------
@@ -8827,7 +8827,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        assignment : int, str, or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Specified for the object.
 
         Returns
@@ -8880,13 +8880,13 @@ class PrimitivesBuilder(object):
 
     Returns
     -------
-    :class:`ansys.aedt.core.modeler.cad.PrimitivesBuilder`
+    :class:`ansys.aedt.core.modeler.cad.primitives.PrimitivesBuilder`
         Primitives builder object if successful.
 
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.cad.Primitives import PrimitivesBuilder
+    >>> from ansys.aedt.core.modeler.cad.primitives import PrimitivesBuilder
     >>> aedtapp = Hfss()
     >>> primitive_file = "primitives_file.json"
     >>> primitives_builder = PrimitivesBuilder(aedtapp, input_file=primitive_file)

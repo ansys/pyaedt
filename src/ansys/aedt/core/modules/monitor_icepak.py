@@ -24,7 +24,7 @@
 
 import re
 
-from ansys.aedt.core.generic.DataHandlers import _dict2arg
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.general_methods import generate_unique_name
