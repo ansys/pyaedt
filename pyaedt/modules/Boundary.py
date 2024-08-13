@@ -119,6 +119,8 @@ class BoundaryCommon(PropsManager):
             self._app.o_maxwell_parameters.DeleteParameters([self.name])
         else:
             self._app.oboundary.DeleteBoundaries([self.name])
+            if self.name in self._app.excitation_objects.keys():
+                self._app.excitation_objects.pop(self.name)
         self._app.boundaries
         return True
 
