@@ -45,16 +45,16 @@ from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.Boundary import BoundaryObject
-from ansys.aedt.core.modules.Boundary import BoundaryProps
-from ansys.aedt.core.modules.Boundary import NativeComponentObject
-from ansys.aedt.core.modules.Boundary import NativeComponentPCB
-from ansys.aedt.core.modules.DesignXPloration import SetupOpti
-from ansys.aedt.core.modules.DesignXPloration import SetupParam
-from ansys.aedt.core.modules.MaterialLib import Material
-from ansys.aedt.core.modules.Mesh import MeshOperation
-from ansys.aedt.core.modules.MeshIcepak import MeshRegion
-from ansys.aedt.core.modules.MeshIcepak import SubRegion
+from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary import BoundaryProps
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.design_xploration import SetupOpti
+from ansys.aedt.core.modules.design_xploration import SetupParam
+from ansys.aedt.core.modules.material_lib import Material
+from ansys.aedt.core.modules.mesh import MeshOperation
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from ansys.aedt.core.modules.mesh_icepak import SubRegion
 
 if not is_ironpython:
     from jsonschema import exceptions

@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.CircuitTemplates import *
+from ansys.aedt.core.modules.circuit_templates import *

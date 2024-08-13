@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.MeshIcepak import *
+from ansys.aedt.core.modules.mesh_icepak import *

@@ -42,7 +42,7 @@ from ansys.aedt.core import pyaedt_path
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.MaterialLib import Material
+from ansys.aedt.core.modules.material_lib import Material
 
 LAYERS = {"s": "signal", "g": "ground", "d": "dielectric"}
 
@@ -476,7 +476,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
             Material.
         """
         return self._material
@@ -498,7 +498,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
             Material.
         """
         return self._fill_material
@@ -607,7 +607,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
             Material object.
         """
 

@@ -46,12 +46,12 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
-from ansys.aedt.core.modules.SolveSweeps import SetupProps
-from ansys.aedt.core.modules.SolveSweeps import SweepHFSS
-from ansys.aedt.core.modules.SolveSweeps import SweepHFSS3DLayout
-from ansys.aedt.core.modules.SolveSweeps import SweepMatrix
-from ansys.aedt.core.modules.SolveSweeps import identify_setup
+from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_sweeps import SetupProps
+from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
+from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
+from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
+from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
@@ -2220,7 +2220,7 @@ class Setup3DLayout(CommonSetup):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS3DLayout`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
             Sweep object.
 
         References
@@ -2248,7 +2248,7 @@ class Setup3DLayout(CommonSetup):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS3DLayout`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
 
         Examples
         --------
@@ -2444,7 +2444,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -2461,7 +2461,7 @@ class SetupHFSS(Setup, object):
         >>> setup = hfss.create_setup("LinearCountSetup")
         >>> linear_count_sweep = setup.create_linear_count_sweep(,,
         >>> type(linear_count_sweep)
-        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
         """
 
@@ -2538,7 +2538,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -2557,7 +2557,7 @@ class SetupHFSS(Setup, object):
         ...                                                   unit="MHz", start_frequency=1.1e3,
         ...                                                   stop_frequency=1200.1, step_size=153.8)
         >>> type(linear_step_sweep)
-        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
         """
         if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
@@ -2620,7 +2620,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -2637,7 +2637,7 @@ class SetupHFSS(Setup, object):
         >>> setup = hfss.create_setup("LinearStepSetup")
         >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
-        <class 'from ansys.aedt.core.modules.SetupTemplates.SweepHFSS'>
+        <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
         """
         if name is None:
@@ -2697,7 +2697,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.SolveSweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
         References
@@ -2733,7 +2733,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.SolveSweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
 
         Examples
         --------
@@ -3486,7 +3486,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepQ3D` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -3569,7 +3569,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepQ3D` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -3649,7 +3649,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepQ3D` or bool
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -3726,7 +3726,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.SolveSweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
         References
@@ -3766,7 +3766,7 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepQ3D` or :class:`ansys.aedt.core.modules.SolveSweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
 
         Examples
         --------

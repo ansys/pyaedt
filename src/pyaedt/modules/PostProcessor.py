@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.PostProcessor import *
+from ansys.aedt.core.modules.post_processor import *

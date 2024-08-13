@@ -78,9 +78,9 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.Boundary import BoundaryObject
-from ansys.aedt.core.modules.Boundary import MaxwellParameters
-from ansys.aedt.core.modules.Boundary import NetworkObject
+from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary import MaxwellParameters
+from ansys.aedt.core.modules.boundary import NetworkObject
 
 if sys.version_info.major > 2:
     import base64
@@ -349,7 +349,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        List of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
         """
         bb = []
         if "GetBoundaries" in self.oboundary.__dir__():
@@ -2333,7 +2333,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        [:class:`ansys.aedt.core.modules.Boundary.BoundaryObject`]
+        [:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:

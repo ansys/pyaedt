@@ -39,7 +39,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-from ansys.aedt.core.modules.Boundary import Excitations
+from ansys.aedt.core.modules.boundary import Excitations
 
 
 class NexximComponents(CircuitComponents):

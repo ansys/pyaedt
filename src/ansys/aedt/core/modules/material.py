@@ -265,7 +265,7 @@ class MatProperty(object):
 
     Parameters
     ----------
-    material : :class:`ansys.aedt.core.modules.Material.Material`
+    material : :class:`ansys.aedt.core.modules.material.Material`
         Inherited parent object.
     name : str
         Name of the material property.
@@ -1210,7 +1210,7 @@ class CommonMaterial(object):
 
     Parameters
     ----------
-    materials : :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+    materials : :class:`ansys.aedt.core.modules.material_lib.Materials`
 
     name : str
 
@@ -1370,7 +1370,7 @@ class Material(CommonMaterial, object):
 
     Parameters
     ----------
-    materiallib : :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+    materiallib : :class:`ansys.aedt.core.modules.material_lib.Materials`
         Inherited parent object.
     name : str
         Name of the material.
@@ -1548,7 +1548,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Permittivity of the material.
 
         References
@@ -1568,7 +1568,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Permeability of the material.
 
         References
@@ -1588,7 +1588,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Conductivity of the material.
 
         References
@@ -1623,7 +1623,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Magnetic loss tangent of the material.
 
         References
@@ -1643,7 +1643,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Thermal conductivity of the material.
 
         References
@@ -1665,7 +1665,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Mass density of the material.
 
         References
@@ -1685,7 +1685,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Specific heat of the material.
 
         References
@@ -1705,7 +1705,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Thermal expansion coefficient of the material.
 
         References
@@ -1725,7 +1725,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Young's modulus of the material.
 
         References
@@ -1747,7 +1747,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Poisson's ratio of the material.
 
         References
@@ -1769,7 +1769,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Diffusivity of the material.
 
         References
@@ -1789,7 +1789,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Magnetic coercivity of the material.
 
         References
@@ -1811,7 +1811,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Molecular mass of the material.
 
         References
@@ -1831,7 +1831,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Viscosity of the material.
 
         References
@@ -1963,7 +1963,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Number of strands for the wire.
 
         References
@@ -1985,7 +1985,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Thickness of the litz wire.
 
         References
@@ -2007,7 +2007,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Diameter of the litz wire.
 
         References
@@ -2029,7 +2029,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Width of the litz wire.
 
         References
@@ -2051,7 +2051,7 @@ class Material(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Stacking factor.
 
         References
@@ -2791,7 +2791,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
     Parameters
     ----------
-    materiallib : :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+    materiallib : :class:`ansys.aedt.core.modules.material_lib.Materials`
         Inherited parent object.
     name : str
         Name of the surface material
@@ -2841,7 +2841,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Emissivity of the surface material.
 
         References
@@ -2863,7 +2863,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Surface diffuse absorptance of the surface material.
 
         References
@@ -2885,7 +2885,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Surface incident absorptance of the surface material.
 
         References
@@ -2907,7 +2907,7 @@ class SurfaceMaterial(CommonMaterial, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.MatProperty`
+        :class:`ansys.aedt.core.modules.material.MatProperty`
             Surface roughness of the surface material.
 
         References

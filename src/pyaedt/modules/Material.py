@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.Material import *
+from ansys.aedt.core.modules.material import *

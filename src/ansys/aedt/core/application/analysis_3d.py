@@ -164,14 +164,14 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Mesh.Mesh` or :class:`ansys.aedt.core.modules.MeshIcepak.IcepakMesh`
+        :class:`ansys.aedt.core.modules.mesh.Mesh` or :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh`
             Mesh object.
         """
         if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
-            from ansys.aedt.core.modules.Mesh import Mesh
-            from ansys.aedt.core.modules.MeshIcepak import IcepakMesh
+            from ansys.aedt.core.modules.mesh import Mesh
+            from ansys.aedt.core.modules.mesh_icepak import IcepakMesh
 
             self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
             self.logger.info_timer("Mesh class has been initialized!")
@@ -184,17 +184,17 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.AdvancedPostProcessing.PostProcessor`
+        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessor`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.modules.PostProcessor import PostProcessor
+                from ansys.aedt.core.modules.post_processor import PostProcessor
             elif self.design_type == "Icepak":
-                from ansys.aedt.core.modules.AdvancedPostProcessing import IcepakPostProcessor as PostProcessor
+                from ansys.aedt.core.modules.advanced_post_processing import IcepakPostProcessor as PostProcessor
             else:
-                from ansys.aedt.core.modules.AdvancedPostProcessing import PostProcessor
+                from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
             self._post = PostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")
 

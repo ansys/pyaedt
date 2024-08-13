@@ -41,9 +41,9 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.plot import ModelPlotter
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.PostProcessor import FieldSummary
-from ansys.aedt.core.modules.PostProcessor import PostProcessor as Post
-from ansys.aedt.core.modules.PostProcessor import TOTAL_QUANTITIES
+from ansys.aedt.core.modules.post_processor import FieldSummary
+from ansys.aedt.core.modules.post_processor import PostProcessor as Post
+from ansys.aedt.core.modules.post_processor import TOTAL_QUANTITIES
 from ansys.aedt.core.modules.fields_calculator import FieldsCalculator
 
 if not is_ironpython:

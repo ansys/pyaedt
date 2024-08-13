@@ -312,7 +312,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.Excitation`
+        :class:`ansys.aedt.core.modules.boundary.Excitation`
             Circuit Excitation Object.
 
         References

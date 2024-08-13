@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.Mesh3DLayout import *
+from ansys.aedt.core.modules.mesh_3d_layout import *

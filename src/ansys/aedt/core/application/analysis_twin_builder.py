@@ -25,8 +25,8 @@
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
-from ansys.aedt.core.modules.SolveSetup import SetupCircuit
+from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import SetupCircuit
 
 
 class AnalysisTwinBuilder(Analysis):
@@ -135,11 +135,11 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.post_processor.CircuitPostProcessor`
         """
         if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
-            from ansys.aedt.core.modules.PostProcessor import CircuitPostProcessor
+            from ansys.aedt.core.modules.post_processor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")
@@ -165,7 +165,7 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupCircuit`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupCircuit`
             Setup object.
         """
         if setup_type is None:

@@ -1208,7 +1208,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.AdvancedPostProcessing.FieldClass`
+        list of :class:`ansys.aedt.core.modules.advanced_post_processing.FieldClass`
         """
         return self._fields
 
@@ -1218,7 +1218,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.AdvancedPostProcessing.FieldClass`
+        list of :class:`ansys.aedt.core.modules.advanced_post_processing.FieldClass`
         """
         return self._frames
 
@@ -1228,7 +1228,7 @@ class ModelPlotter(CommonPlotter):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.AdvancedPostProcessing.ObjClass`
+        list of :class:`ansys.aedt.core.modules.advanced_post_processing.ObjClass`
         """
         return self._objects
 

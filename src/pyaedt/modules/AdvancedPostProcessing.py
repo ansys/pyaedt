@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.AdvancedPostProcessing import *
+from ansys.aedt.core.modules.advanced_post_processing import *

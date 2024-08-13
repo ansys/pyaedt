@@ -64,7 +64,7 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.MaterialLib import Material
+from ansys.aedt.core.modules.material_lib import Material
 
 default_materials = {
     "Icepak": "air",
@@ -414,7 +414,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.material_lib.Materials`
 
         """
         return self._app.materials
@@ -735,7 +735,7 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.material_lib.Materials`
             Material Manager that is used to manage materials in the project.
         """
         return self._app.materials
@@ -6389,7 +6389,7 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        region : :class:`ansys.aedt.core.modules.MeshIcepak.SubRegion`
+        region : :class:`ansys.aedt.core.modules.mesh_icepak.SubRegion`
             Subregion to modify.
         parts : list of str
             One or more names of the parts to include in the subregion.

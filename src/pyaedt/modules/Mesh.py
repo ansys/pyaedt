@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.Mesh import *
+from ansys.aedt.core.modules.mesh import *

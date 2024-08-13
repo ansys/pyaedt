@@ -35,9 +35,9 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.SetupTemplates import Sweep3DLayout
-from ansys.aedt.core.modules.SetupTemplates import SweepHfss3D
-from ansys.aedt.core.modules.SetupTemplates import SweepSiwave
+from ansys.aedt.core.modules.setup_templates import Sweep3DLayout
+from ansys.aedt.core.modules.setup_templates import SweepHfss3D
+from ansys.aedt.core.modules.setup_templates import SweepSiwave
 
 open3 = open
 if sys.version_info < (3, 0):
@@ -86,7 +86,7 @@ class SweepHFSS(object):
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
         Setup to use for the analysis.
     name : str
         Name of the sweep.
@@ -343,7 +343,7 @@ class SweepHFSS3DLayout(object):
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
         Setup to use for the analysis.
     name : str
         Name of the sweep.
@@ -596,7 +596,7 @@ class SweepMatrix(object):
 
     Parameters
     ----------
-    setup : :class 'from ansys.aedt.core.modules.SolveSetup.Setup'
+    setup : :class 'from ansys.aedt.core.modules.solve_setup.Setup'
         Setup used for the analysis.
     name : str
         Name of the sweep.

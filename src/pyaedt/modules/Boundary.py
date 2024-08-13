@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.Boundary import *
+from ansys.aedt.core.modules.boundary import *

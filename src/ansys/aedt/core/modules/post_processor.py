@@ -1215,7 +1215,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.oreportsetup`
+        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.oreportsetup`
 
         References
         ----------
@@ -2397,7 +2397,7 @@ class PostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.PostProcessor.PostProcessor.ofieldsreporter`
+        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.ofieldsreporter`
 
         References
         ----------

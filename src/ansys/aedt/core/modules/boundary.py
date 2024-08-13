@@ -43,7 +43,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
-from ansys.aedt.core.modules.CircuitTemplates import SourceKeys
+from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
 class BoundaryProps(OrderedDict):
@@ -190,7 +190,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
     Examples
     --------
-    in this example the par_beam returned object is a ``ansys.aedt.core.modules.Boundary.NativeComponentObject``
+    in this example the par_beam returned object is a ``ansys.aedt.core.modules.boundary.NativeComponentObject``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(solution_type="SBR+")
     >>> ffd_file ="path/to/ffdfile.ffd"
@@ -389,7 +389,7 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     Examples
     --------
-    In this example, the returned object, ``par_beam`` is a ``ansys.aedt.core.modules.Boundary.NativeComponentObject`` instance.
+    In this example, the returned object, ``par_beam`` is a ``ansys.aedt.core.modules.boundary.NativeComponentObject`` instance.
     >>> from ansys.aedt.core import Icepak
     >>> ipk = Icepak(solution_type="SBR+")
     >>> par_beam = ipk.create_ipk_3dcomponent_pcb()
@@ -876,7 +876,7 @@ class BoundaryObject(BoundaryCommon, object):
     --------
 
     Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it. The Coating is a boundary
-    operation and coat will return a ``ansys.aedt.core.modules.Boundary.BoundaryObject``
+    operation and coat will return a ``ansys.aedt.core.modules.boundary.BoundaryObject``
 
     >>> from ansys.aedt.core import Hfss
     >>> hfss =Hfss()
@@ -1402,7 +1402,7 @@ class MaxwellParameters(BoundaryCommon, object):
     Examples
     --------
 
-    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.Boundary.BoundaryObject``
+    Create a matrix in Maxwell3D return a ``ansys.aedt.core.modules.boundary.BoundaryObject``
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
@@ -1720,7 +1720,7 @@ class FieldSetup(BoundaryCommon, object):
 
     Examples
     --------
-    In this example the sphere1 returned object is a ``ansys.aedt.core.modules.Boundary.FarFieldSetup``
+    In this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.FarFieldSetup``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
@@ -1832,7 +1832,7 @@ class FarFieldSetup(FieldSetup, object):
 
     Examples
     --------
-    in this example the sphere1 returned object is a ``ansys.aedt.core.modules.Boundary.FarFieldSetup``
+    in this example the sphere1 returned object is a ``ansys.aedt.core.modules.boundary.FarFieldSetup``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> sphere1 = hfss.insert_infinite_sphere()
@@ -2169,7 +2169,7 @@ class NearFieldSetup(FieldSetup, object):
 
     Examples
     --------
-    in this example the rectangle1 returned object is a ``ansys.aedt.core.modules.Boundary.NearFieldSetup``
+    in this example the rectangle1 returned object is a ``ansys.aedt.core.modules.boundary.NearFieldSetup``
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> rectangle1 = hfss.insert_near_field_rectangle()
@@ -4571,7 +4571,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> network.add_internal_node("TestNode", {"Type": "Transient",
         >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
         """
@@ -4626,7 +4626,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> network.add_boundary_node("TestNode", "Temperature", 2)
         >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
         >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
@@ -4701,7 +4701,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
@@ -4821,7 +4821,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
@@ -4891,7 +4891,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
@@ -4936,7 +4936,7 @@ class NetworkObject(BoundaryObject):
 
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
-        >>> network = ansys.aedt.core.modules.Boundary.Network(app)
+        >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]

@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.SetupTemplates import *
+from ansys.aedt.core.modules.setup_templates import *

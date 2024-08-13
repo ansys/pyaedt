@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.OptimetricsTemplates import *
+from ansys.aedt.core.modules.optimetrics_templates import *

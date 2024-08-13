@@ -40,9 +40,9 @@ from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.Boundary import BoundaryObject
-from ansys.aedt.core.modules.Boundary import Matrix
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
+from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary import Matrix
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 if not is_ironpython:
     try:
@@ -156,7 +156,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.Matrix`
+        :class:`ansys.aedt.core.modules.boundary.Matrix`
             Matrix object.
         """
         if not reduced_matrix:
@@ -1522,7 +1522,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
 
         References
@@ -1576,7 +1576,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
 
         References
@@ -1608,7 +1608,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Sink object.
 
         References
@@ -1684,7 +1684,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Sink object.
 
         References
@@ -1741,7 +1741,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
 
         References
@@ -1816,7 +1816,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSweeps.SweepHFSS3DLayout`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS3DLayout`
             Sweep object when successful, ``False`` when failed.
 
         References
@@ -1994,7 +1994,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupQ3D`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupQ3D`
             3D Solver Setup object.
 
         References
@@ -2042,7 +2042,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -2298,7 +2298,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
 
         References
@@ -2351,7 +2351,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Source object.
 
         References
@@ -2574,7 +2574,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             Solver Setup object.
 
         References

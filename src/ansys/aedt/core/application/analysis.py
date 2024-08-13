@@ -56,18 +56,18 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.Boundary import MaxwellParameters
-from ansys.aedt.core.modules.Boundary import NativeComponentObject
-from ansys.aedt.core.modules.Boundary import NativeComponentPCB
-from ansys.aedt.core.modules.DesignXPloration import OptimizationSetups
-from ansys.aedt.core.modules.DesignXPloration import ParametricSetups
-from ansys.aedt.core.modules.SolveSetup import Setup
-from ansys.aedt.core.modules.SolveSetup import SetupHFSS
-from ansys.aedt.core.modules.SolveSetup import SetupHFSSAuto
-from ansys.aedt.core.modules.SolveSetup import SetupIcepak
-from ansys.aedt.core.modules.SolveSetup import SetupMaxwell
-from ansys.aedt.core.modules.SolveSetup import SetupQ3D
-from ansys.aedt.core.modules.SolveSetup import SetupSBR
+from ansys.aedt.core.modules.boundary import MaxwellParameters
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.design_xploration import OptimizationSetups
+from ansys.aedt.core.modules.design_xploration import ParametricSetups
+from ansys.aedt.core.modules.solve_setup import Setup
+from ansys.aedt.core.modules.solve_setup import SetupHFSS
+from ansys.aedt.core.modules.solve_setup import SetupHFSSAuto
+from ansys.aedt.core.modules.solve_setup import SetupIcepak
+from ansys.aedt.core.modules.solve_setup import SetupMaxwell
+from ansys.aedt.core.modules.solve_setup import SetupQ3D
+from ansys.aedt.core.modules.solve_setup import SetupSBR
 from ansys.aedt.core.modules.SolveSweeps import SetupProps
 
 if is_linux and is_ironpython:
@@ -213,13 +213,13 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.MaterialLib.Materials`
+        :class:`ansys.aedt.core.modules.material_lib.Materials`
            Materials in the project.
 
         """
         if self._materials is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.modules.MaterialLib import Materials
+            from ansys.aedt.core.modules.material_lib import Materials
 
             self._materials = Materials(self)
             for material in self._materials.material_keys:
@@ -234,7 +234,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        List[:class:`ansys.aedt.core.modules.SolveSetup.Setup`]
+        List[:class:`ansys.aedt.core.modules.solve_setup.Setup`]
             Setups in the project.
 
         """
@@ -249,7 +249,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.DesignXPloration.ParametricSetups`
+        :class:`ansys.aedt.core.modules.design_xploration.ParametricSetups`
             Parametric setups in the project.
 
         """
@@ -263,7 +263,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.DesignXPloration.OptimizationSetups`
+        :class:`ansys.aedt.core.modules.design_xploration.OptimizationSetups`
             Parametric setups in the project.
 
         """
@@ -1500,7 +1500,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.Setup`
+        :class:`ansys.aedt.core.modules.solve_setup.Setup`
 
         References
         ----------
@@ -1525,7 +1525,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.Setup`
+        :class:`ansys.aedt.core.modules.solve_setup.Setup`
 
         """
         setuptype = self.design_solutions.default_setup
@@ -1919,7 +1919,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.SolveSetup(name)
+                self.ooptimetrics.solve_setup(name)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)

@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.SolveSetup import *
+from ansys.aedt.core.modules.solve_setup import *

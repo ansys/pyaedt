@@ -29,8 +29,8 @@ from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
-from ansys.aedt.core.modules.SolveSetup import Setup3DLayout
+from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solve_setup import Setup3DLayout
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -148,15 +148,15 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.AdvancedPostProcessing.PostProcessor`
+        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessor`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.modules.PostProcessor import PostProcessor
+                from ansys.aedt.core.modules.post_processor import PostProcessor
             else:
-                from ansys.aedt.core.modules.AdvancedPostProcessing import PostProcessor
+                from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
             self._post = PostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")
 
@@ -168,10 +168,10 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Mesh3DLayout.Mesh3d`
+        :class:`ansys.aedt.core.modules.mesh_3d_layout.Mesh3d`
         """
         if self._mesh is None and self._odesign:
-            from ansys.aedt.core.modules.Mesh3DLayout import Mesh3d
+            from ansys.aedt.core.modules.mesh_3d_layout import Mesh3d
 
             self._mesh = Mesh3d(self)
         return self._mesh
@@ -305,7 +305,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.Setup3DLayout`
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
 
         References
         ----------
@@ -356,7 +356,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.Setup3DLayout`
+        :class:`ansys.aedt.core.modules.solve_setup.Setup3DLayout`
             Setup object.
 
         """

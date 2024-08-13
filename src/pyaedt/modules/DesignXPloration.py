@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.DesignXPloration import *
+from ansys.aedt.core.modules.design_xploration import *

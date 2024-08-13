@@ -1532,7 +1532,7 @@ class FieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`ansys.aedt.core.modules.PostProcessor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
     objects : list
         List of objects.
     solution : str
@@ -2358,7 +2358,7 @@ class VRTFieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`ansys.aedt.core.modules.PostProcessor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
     is_creeping_wave : bool
         Whether it is a creeping wave model or not.
     quantity : str, optional

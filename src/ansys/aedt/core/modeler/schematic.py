@@ -44,7 +44,7 @@ from ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit import MaxwellC
 from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 from ansys.aedt.core.modeler.circuits.primitives_twin_builder import TwinBuilderComponents
 from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
-from ansys.aedt.core.modules.LayerStackup import Layers
+from ansys.aedt.core.modules.layer_stackup import Layers
 
 
 class ModelerCircuit(Modeler):

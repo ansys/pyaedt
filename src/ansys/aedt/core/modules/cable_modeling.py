@@ -48,7 +48,7 @@ class Cable:
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modules.CableModeling import Cable
+    >>> from ansys.aedt.core.modules.cable_modeling import Cable
     >>> hfss = Hfss()
     >>> cable_class = Cable(hfss)
 

@@ -49,19 +49,19 @@ from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modules.Boundary import BoundaryDictionary
-from ansys.aedt.core.modules.Boundary import BoundaryObject
-from ansys.aedt.core.modules.Boundary import ExponentialDictionary
-from ansys.aedt.core.modules.Boundary import LinearDictionary
-from ansys.aedt.core.modules.Boundary import NativeComponentObject
-from ansys.aedt.core.modules.Boundary import NativeComponentPCB
-from ansys.aedt.core.modules.Boundary import NetworkObject
-from ansys.aedt.core.modules.Boundary import PieceWiseLinearDictionary
-from ansys.aedt.core.modules.Boundary import PowerLawDictionary
-from ansys.aedt.core.modules.Boundary import SinusoidalDictionary
-from ansys.aedt.core.modules.Boundary import SquareWaveDictionary
-from ansys.aedt.core.modules.Boundary import _create_boundary
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
+from ansys.aedt.core.modules.boundary import BoundaryDictionary
+from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.boundary import ExponentialDictionary
+from ansys.aedt.core.modules.boundary import LinearDictionary
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.boundary import PieceWiseLinearDictionary
+from ansys.aedt.core.modules.boundary import PowerLawDictionary
+from ansys.aedt.core.modules.boundary import SinusoidalDictionary
+from ansys.aedt.core.modules.boundary import SquareWaveDictionary
+from ansys.aedt.core.modules.boundary import _create_boundary
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.monitor_icepak import Monitor
 
 
@@ -288,7 +288,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -335,7 +335,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -445,7 +445,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             List of boundaries inserted.
 
         References
@@ -511,7 +511,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -620,7 +620,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -709,7 +709,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -804,7 +804,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -902,7 +902,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        list of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             List of boundary objects created.
 
         References
@@ -2269,7 +2269,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.NativeComponentObject`
+        :class:`ansys.aedt.core.modules.boundary.NativeComponentObject`
             NativeComponentObject object.
 
         References
@@ -2418,7 +2418,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.NativeComponentPCB`
+        :class:`ansys.aedt.core.modules.boundary.NativeComponentPCB`
             NativeComponentObject object.
 
         References
@@ -2976,7 +2976,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
         """
         version = self.aedt_version_id[-3:]
         ansys_install_dir = os.environ.get("ANSYS{}_DIR".format(version), "")
@@ -3432,7 +3432,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3663,7 +3663,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -3799,7 +3799,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3862,7 +3862,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -3998,7 +3998,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object.
 
         References
@@ -4057,7 +4057,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             3D Solver Setup object.
 
         References
@@ -4153,7 +4153,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4250,7 +4250,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryNetwork`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryNetwork`
             Boundary network object when successful or ``None`` when failed.
 
         References
@@ -4298,7 +4298,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryNetwork`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryNetwork`
             Boundary network object when successful or ``None`` when failed.
 
         References
@@ -4381,7 +4381,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4491,7 +4491,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4694,7 +4694,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4833,7 +4833,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4906,7 +4906,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -4989,7 +4989,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5029,7 +5029,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5077,7 +5077,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5228,7 +5228,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5353,7 +5353,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5441,7 +5441,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5525,7 +5525,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5610,7 +5610,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5760,7 +5760,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5843,7 +5843,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         References
@@ -5975,7 +5975,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6074,7 +6074,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6131,7 +6131,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6187,7 +6187,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6243,7 +6243,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Boundary object when successful or ``None`` when failed.
 
         """
@@ -6305,7 +6305,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6325,7 +6325,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.PieceWiseLinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.PieceWiseLinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
 
         """
@@ -6353,7 +6353,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.LinearDictionary`
+        :class:`ansys.aedt.core.modules.boundary.LinearDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return LinearDictionary(intercept, slope)
@@ -6380,7 +6380,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.PowerLawDictionary`
+        :class:`ansys.aedt.core.modules.boundary.PowerLawDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return PowerLawDictionary(intercept, coefficient, scaling_exponent)
@@ -6407,7 +6407,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.ExponentialDictionary`
+        :class:`ansys.aedt.core.modules.boundary.ExponentialDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return ExponentialDictionary(vertical_offset, coefficient, exponent_coefficient)
@@ -6436,7 +6436,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.SinusoidalDictionary`
+        :class:`ansys.aedt.core.modules.boundary.SinusoidalDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SinusoidalDictionary(vertical_offset, vertical_scaling, period, period_offset)
@@ -6461,7 +6461,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.SquareWaveDictionary`
+        :class:`ansys.aedt.core.modules.boundary.SquareWaveDictionary`
             Boundary dictionary object that can be passed to boundary condition assignment functions.
         """
         return SquareWaveDictionary(on_value, initial_time_off, on_time, off_time, off_value)

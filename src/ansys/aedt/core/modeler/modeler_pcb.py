@@ -37,7 +37,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
 from ansys.aedt.core.modeler.pcb.primitives_3d_layout import Primitives3DLayout
-from ansys.aedt.core.modules.LayerStackup import Layers
+from ansys.aedt.core.modules.layer_stackup import Layers
 
 
 class Modeler3DLayout(Modeler, Primitives3DLayout):
@@ -82,7 +82,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.LayerStackup.Layers`
+        :class:`ansys.aedt.core.modules.layer_stackup.Layers`
         """
         return self.layers
 

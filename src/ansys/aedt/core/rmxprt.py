@@ -29,7 +29,7 @@ from __future__ import absolute_import  # noreorder
 from ansys.aedt.core.application.analysis_r_m_xprt import FieldAnalysisRMxprt
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class RMXprtModule(object):
@@ -298,7 +298,7 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             Solver Setup object.
 
         References

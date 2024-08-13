@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.CableModeling import *
+from ansys.aedt.core.modules.cable_modeling import *

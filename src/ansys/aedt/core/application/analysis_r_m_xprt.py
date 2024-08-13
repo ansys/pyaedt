@@ -87,11 +87,11 @@ class FieldAnalysisRMxprt(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.post_processor.CircuitPostProcessor`
         """
         if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
-            from ansys.aedt.core.modules.PostProcessor import CircuitPostProcessor
+            from ansys.aedt.core.modules.post_processor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")

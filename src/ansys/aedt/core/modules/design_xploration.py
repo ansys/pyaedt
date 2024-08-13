@@ -32,12 +32,12 @@ from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultdoeSetup
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultdxSetup
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultoptiSetup
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultparametricSetup
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultsensitivitySetup
-from ansys.aedt.core.modules.OptimetricsTemplates import defaultstatisticalSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetup
+from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
 from ansys.aedt.core.modules.SolveSweeps import SetupProps
 
 
@@ -1172,7 +1172,7 @@ class ParametricSetups(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.DesignXPloration.SetupParam`
+        :class:`ansys.aedt.core.modules.design_xploration.SetupParam`
             Optimization Object.
 
         References
@@ -1424,7 +1424,7 @@ class OptimizationSetups(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.DesignXPloration.SetupOpti`
+        :class:`ansys.aedt.core.modules.design_xploration.SetupOpti`
             Optimization object.
 
         References

@@ -31,8 +31,8 @@ from collections import OrderedDict
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.modules.Boundary import BoundaryObject
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
+from ansys.aedt.core.modules.boundary import BoundaryObject
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Mechanical(FieldAnalysis3D, object):
@@ -211,7 +211,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
 
         References
         ----------
@@ -318,7 +318,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -403,7 +403,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -452,7 +452,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -498,7 +498,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -544,7 +544,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        aedt.modules.Boundary.Boundary
+        aedt.modules.boundary.Boundary
             Boundary object.
 
         References
@@ -607,7 +607,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -655,7 +655,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`aedt.modules.Boundary.Boundary object`
+        :class:`aedt.modules.boundary.Boundary object`
             Boundary object.
 
         References
@@ -702,7 +702,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.SolveSetup.SetupHFSS`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`
             Solver Setup object.
 
         References

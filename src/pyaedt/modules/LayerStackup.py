@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.LayerStackup import *
+from ansys.aedt.core.modules.layer_stackup import *

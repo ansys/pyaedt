@@ -44,10 +44,10 @@ from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.Material import MatProperties
-from ansys.aedt.core.modules.Material import Material
-from ansys.aedt.core.modules.Material import OrderedDict
-from ansys.aedt.core.modules.Material import SurfaceMaterial
+from ansys.aedt.core.modules.material import MatProperties
+from ansys.aedt.core.modules.material import Material
+from ansys.aedt.core.modules.material import OrderedDict
+from ansys.aedt.core.modules.material import SurfaceMaterial
 
 
 class Materials(object):
@@ -107,7 +107,7 @@ class Materials(object):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modules.Material.Material`
+        dict of :class:`ansys.aedt.core.modules.material.Material`
         """
         if not self._surface_material_keys:
             self._surface_material_keys = self._get_surface_materials()
@@ -248,7 +248,7 @@ class Materials(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
             Material object if present, ``False`` when failed.
 
         References
@@ -313,7 +313,7 @@ class Materials(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
 
         References
         ----------
@@ -494,7 +494,7 @@ class Materials(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
 
         References
         ----------
@@ -687,7 +687,7 @@ class Materials(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Material.Material`
+        :class:`ansys.aedt.core.modules.material.Material`
         """
         if matname not in self.odefinition_manager.GetProjectMaterialNames() and not (
             settings.remote_api or settings.remote_rpc_session
@@ -787,7 +787,7 @@ class Materials(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.Material.Material`
+        List of :class:`ansys.aedt.core.modules.material.Material`
 
         """
 
@@ -894,7 +894,7 @@ class Materials(object):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.Material.Material`
+        List of :class:`ansys.aedt.core.modules.material.Material`
 
         """
         try:  # pragma: no cover

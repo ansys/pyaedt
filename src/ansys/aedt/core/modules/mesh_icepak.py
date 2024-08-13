@@ -34,8 +34,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
-from ansys.aedt.core.modules.Mesh import MeshOperation
-from ansys.aedt.core.modules.Mesh import meshers
+from ansys.aedt.core.modules.mesh import MeshOperation
+from ansys.aedt.core.modules.mesh import meshers
 
 
 class CommonRegion(object):
@@ -623,7 +623,7 @@ class MeshRegionCommon(object):
             Name of the mesh region.
         manual_settings : bool
             Whether to use manual settings. If ``False``, automatic settings are used.
-        settings : :class:`modules.MeshIcepak.MeshSettings`
+        settings : :class:`modules.mesh_icepak.MeshSettings`
             Dictionary-like object to handle settings.
     """
 
@@ -1185,7 +1185,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
+        list of :class:`ansys.aedt.core.modules.mesh.MeshOperation`
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -1226,7 +1226,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-         :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
+         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
             Mesh Operation object. ``False`` when failed.
 
         References
@@ -1556,7 +1556,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.MeshIcepak.IcepakMesh.MeshRegion`
+        :class:`ansys.aedt.core.modules.mesh_icepak.IcepakMesh.MeshRegion`
 
         References
         ----------
@@ -1639,7 +1639,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
 
         References
         ----------
@@ -1682,7 +1682,7 @@ class IcepakMesh(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.Mesh.MeshOperation`
+        :class:`ansys.aedt.core.modules.mesh.MeshOperation`
 
         References
         ----------
