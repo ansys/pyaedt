@@ -470,10 +470,19 @@ class TestClass:
 
     def test_31b_skin_depth(self):
         edge = self.aedtapp.modeler["Rotor"].edges[0]
-        self.aedtapp.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
         edge1 = self.aedtapp.modeler["Rotor"].edges[1]
-        self.aedtapp.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
-        pass
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge1.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
 
     def test_32_control_program(self):
         user_ctl_path = "user.ctl"
