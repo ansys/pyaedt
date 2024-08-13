@@ -1,1 +1,1 @@
-from ansys.aedt.core.emit_core.Couplings import *
+from ansys.aedt.core.emit_core.couplings import *
