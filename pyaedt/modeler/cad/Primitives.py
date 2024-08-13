@@ -1786,7 +1786,7 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
-    def get_working_coordinate_system(self, name):
+    def get_working_coordinate_system(self):
         """Get the active coordinate system.
 
         Returns
