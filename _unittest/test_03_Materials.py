@@ -28,8 +28,8 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.modules.Material import MatProperties
-from ansys.aedt.core.modules.Material import SurfMatProperties
+from ansys.aedt.core.modules.material import MatProperties
+from ansys.aedt.core.modules.material import SurfMatProperties
 import pytest
 
 test_subfolder = "T03"

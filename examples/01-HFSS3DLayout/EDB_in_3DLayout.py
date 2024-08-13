@@ -97,7 +97,7 @@ h3d.modeler.fit_all()
 # Disable component visibility
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Disable component visibility for ``"TOP"`` and ``"BOTTOM"``.
-# The :func:`ansys.aedt.core.modules.LayerStackup.Layer.update_stackup_layer` method
+# The :func:`ansys.aedt.core.modules.layer_stackup.Layer.update_stackup_layer` method
 # applies modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]

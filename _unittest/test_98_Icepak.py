@@ -28,10 +28,10 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modules.Boundary import NativeComponentObject
-from ansys.aedt.core.modules.Boundary import NetworkObject
-from ansys.aedt.core.modules.MeshIcepak import MeshRegion
-from ansys.aedt.core.modules.SetupTemplates import SetupKeys
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 import pytest
 
 test_subfolder = "T98"
