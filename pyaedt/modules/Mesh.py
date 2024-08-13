@@ -1101,8 +1101,6 @@ class Mesh(object):
         else:
             name = generate_unique_name("SkinDepth")
 
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
-
         if self._app.design_type == "Maxwell 2D":
             seltype = "Edges"
             props = OrderedDict(
