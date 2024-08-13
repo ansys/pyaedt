@@ -1088,9 +1088,28 @@ class Maxwell(object):
 
         References
         ----------
-
         >>> oModule.AssignFloating
 
+        Examples
+        --------
+        Assign a floating excitation for a Maxwell 2d Electrostatic design
+
+        >>> from pyaedt import Maxwell2d
+        >>> m2d = Maxwell2d(version="2024.2")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        >>> rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
+        >>> floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test")
+        >>> m2d.release_desktop(True, True)
+
+        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+        >>> from pyaedt import Maxwell3d
+        >>> m3d = Maxwell3d(version="2024.2")
+        >>> m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        >>> box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        Assign a floating excitation providing a list of faces
+        >>> floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in ["Electrostatic", "ElectricTransient"]:
             self.logger.error(
