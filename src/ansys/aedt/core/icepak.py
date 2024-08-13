@@ -61,8 +61,8 @@ from ansys.aedt.core.modules.boundary import PowerLawDictionary
 from ansys.aedt.core.modules.boundary import SinusoidalDictionary
 from ansys.aedt.core.modules.boundary import SquareWaveDictionary
 from ansys.aedt.core.modules.boundary import _create_boundary
-from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.monitor_icepak import Monitor
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 
 
 class Icepak(FieldAnalysis3D):
