@@ -2016,3 +2016,10 @@ class TestClass:
             assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
             assert self.aedtapp.modeler.objects
             assert self.aedtapp.modeler.solid_bodies
+
+    def test_94_create_equationbased_surface(self):
+        self.aedtapp.insert_design("Equations_surf")
+        surf = self.aedtapp.modeler.create_equationbased_surface(
+            x_uv="(sin(_v*2*pi)^2+1.2)*cos(_u*2*pi)", y_uv="(sin(_v*2*pi)^2+1.2)*sin(_u*2*pi)", z_uv="_v*2"
+        )
+        assert surf.name in self.aedtapp.modeler.sheet_names
