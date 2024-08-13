@@ -1106,11 +1106,11 @@ class Primitives3D(GeometryModeler):
             in which case the default name is assigned.
         **kwargs : optional
             Additional keyword arguments may be passed when creating the primitive to set properties. See
-            ``pyaedt.modeler.cad.object3d.Object3d`` for more details.
+            ``ansys.aedt.core.modeler.cad.object3d.Object3d`` for more details.
 
         Returns
         -------
-        :class:`pyaedt.modeler.cad.object3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             3D object.
 
         References
