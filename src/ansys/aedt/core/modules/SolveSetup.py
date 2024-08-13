@@ -476,7 +476,7 @@ class Setup(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -1040,7 +1040,7 @@ class SetupCircuit(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
         Inherited app object.
     solution_type : str, int
         Type of the setup.
@@ -1730,7 +1730,7 @@ class Setup3DLayout(CommonSetup):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout`
+    app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
         Inherited app object.
     solution_type : int or str
         Type of the setup.
@@ -2311,7 +2311,7 @@ class SetupHFSS(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -2938,7 +2938,7 @@ class SetupHFSSAuto(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3203,7 +3203,7 @@ class SetupSBR(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3282,7 +3282,7 @@ class SetupMaxwell(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis.Analysis`
+    app : :class:`ansys.aedt.core.application.analysis.Analysis`
         Inherited app object.
     solution_type : int, str
         Type of the setup.
@@ -3422,7 +3422,7 @@ class SetupQ3D(Setup, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
         Inherited app object.
     solution_type : int, str
         Type of the setup.

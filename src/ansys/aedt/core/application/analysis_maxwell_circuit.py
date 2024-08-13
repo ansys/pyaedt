@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.application.Analysis import Analysis
+from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.settings import settings
 
 

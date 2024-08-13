@@ -7,7 +7,7 @@ import warnings
 
 WARNING_MESSAGE = """Module 'pyaedt' has become an alias to the new package structure.
 Please update you imports to use the new architecture based on 'ansys.aedt.core'.
-The old structure will be deprecated in future versions, see ...
+The old structure will be deprecated in future versions, see https://aedt.docs.pyansys.com/version/stable/release_1_0.html#restructuring-of-the-codebase
 """
 
 def alias_deprecation_warning():

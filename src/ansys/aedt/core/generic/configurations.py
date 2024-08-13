@@ -31,7 +31,7 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.DataHandlers import _arg2dict
 from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.general_methods import GrpcApiError

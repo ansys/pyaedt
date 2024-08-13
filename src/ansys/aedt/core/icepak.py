@@ -33,8 +33,8 @@ import re
 import warnings
 
 import ansys.aedt.core
-from ansys.aedt.core.application.Analysis3D import FieldAnalysis3D
-from ansys.aedt.core.application.Design import DesignSettingsManipulation
+from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.application.design import DesignSettingsManipulation
 from ansys.aedt.core.generic.DataHandlers import _arg2dict
 from ansys.aedt.core.generic.DataHandlers import _dict2arg
 from ansys.aedt.core.generic.DataHandlers import random_string

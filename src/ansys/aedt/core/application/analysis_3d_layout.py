@@ -24,7 +24,7 @@
 
 import os
 
-from ansys.aedt.core.application.Analysis import Analysis
+from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

@@ -41,7 +41,7 @@ import re
 import string
 import tempfile
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.DataHandlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_file
@@ -862,7 +862,7 @@ class PostProcessorCommon(object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analsis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
@@ -2336,7 +2336,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analsis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
         Inherited parent object. The parent object must provide the members
         ``_modeler``, ``_desktop``, ``_odesign``, and ``logger``.
 
@@ -5087,7 +5087,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
         Inherited parent object. The parent object must provide the members
         `_modeler`, `_desktop`, `_odesign`, and `logger`.
 

@@ -32,7 +32,7 @@ from __future__ import absolute_import  # noreorder
 
 from collections import OrderedDict
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 

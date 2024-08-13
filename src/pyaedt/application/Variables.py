@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.Variables import *
+from ansys.aedt.core.application.variables import *

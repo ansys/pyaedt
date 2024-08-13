@@ -149,7 +149,7 @@ class Mesh3d(object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout`
+    app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
 
     """
 

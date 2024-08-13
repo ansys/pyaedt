@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.Design import *
+from ansys.aedt.core.application.design import *

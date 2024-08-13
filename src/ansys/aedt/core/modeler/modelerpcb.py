@@ -47,7 +47,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis3DLayout.FieldAnalysis3DLayout`
+    app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
             Inherited parent object.
 
     Examples

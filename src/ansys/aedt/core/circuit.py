@@ -33,7 +33,7 @@ import re
 import shutil
 import time
 
-from ansys.aedt.core.application.AnalysisNexxim import FieldAnalysisCircuit
+from ansys.aedt.core.application.analysisNexxim import FieldAnalysisCircuit
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic import ibis_reader
 from ansys.aedt.core.generic.DataHandlers import from_rkm_to_aedt

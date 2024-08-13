@@ -41,7 +41,7 @@ from collections import OrderedDict
 import copy
 import warnings
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.DataHandlers import _dict2arg
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter

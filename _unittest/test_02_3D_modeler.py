@@ -26,7 +26,7 @@ import random
 from sys import float_info
 
 from _unittest.conftest import config
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.modeler.cad.Modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.Primitives import PolylineSegment
 from ansys.aedt.core.modeler.cad.elements3d import FacePrimitive

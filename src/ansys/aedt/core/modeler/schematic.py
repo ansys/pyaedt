@@ -52,7 +52,7 @@ class ModelerCircuit(Modeler):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
 
     Examples
     --------
@@ -482,7 +482,7 @@ class ModelerNexxim(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisNexxim.FieldAnalysisCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
 
     """
 
@@ -686,7 +686,7 @@ class ModelerTwinBuilder(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisTwinBuilder.AnalysisTwinBuilder`
+    app : :class:`ansys.aedt.core.application.analysis_twin_builder.AnalysisTwinBuilder`
 
     """
 
@@ -722,7 +722,7 @@ class ModelerEmit(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisEmit`
+    app : :class:`ansys.aedt.core.application.analysis_emit`
 
     """
 
@@ -756,7 +756,7 @@ class ModelerMaxwellCircuit(ModelerCircuit):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.AnalysisMaxwellCircuit`
+    app : :class:`ansys.aedt.core.application.analysis_maxwell_circuit`
 
     """
 

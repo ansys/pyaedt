@@ -32,8 +32,8 @@ import os
 import re
 import time
 
-from ansys.aedt.core.application.Analysis3D import FieldAnalysis3D
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux

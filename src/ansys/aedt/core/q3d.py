@@ -31,8 +31,8 @@ import os
 import re
 import warnings
 
-from ansys.aedt.core.application.Analysis3D import FieldAnalysis3D
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name

@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.AEDT_File_Management import *
+from ansys.aedt.core.application.aedt_file_management import *

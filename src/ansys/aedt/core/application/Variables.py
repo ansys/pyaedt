@@ -376,7 +376,7 @@ class VariableManager(object):
     This class provides access to all variables or a subset of the
     variables. Manipulation of the numerical or string definitions of
     variable values is provided in the
-    :class:`ansys.aedt.core.application.Variables.Variable` class.
+    :class:`ansys.aedt.core.application.variables.Variable` class.
 
     Parameters
     ----------
@@ -418,7 +418,7 @@ class VariableManager(object):
 
     See Also
     --------
-    ansys.aedt.core.application.Variables.Variable
+    ansys.aedt.core.application.variables.Variable
 
     Examples
     --------
@@ -442,23 +442,23 @@ class VariableManager(object):
     Get a dictionary of all project and design variables.
 
     >>> v.variables
-    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f34c448>,
-     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f34c308>,
-     'Var3': <ansys.aedt.core.application.Variables.Expression at 0x2661f34cb48>,
-     '$PrjVar1': <ansys.aedt.core.application.Variables.Expression at 0x2661f34cc48>}
+    {'Var1': <ansys.aedt.core.application.variables.Variable at 0x2661f34c448>,
+     'Var2': <ansys.aedt.core.application.variables.Variable at 0x2661f34c308>,
+     'Var3': <ansys.aedt.core.application.variables.Expression at 0x2661f34cb48>,
+     '$PrjVar1': <ansys.aedt.core.application.variables.Expression at 0x2661f34cc48>}
 
     Get a dictionary of only the design variables.
 
     >>> v.design_variables
-    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f339508>,
-     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f3415c8>,
-     'Var3': <ansys.aedt.core.application.Variables.Expression at 0x2661f341808>}
+    {'Var1': <ansys.aedt.core.application.variables.Variable at 0x2661f339508>,
+     'Var2': <ansys.aedt.core.application.variables.Variable at 0x2661f3415c8>,
+     'Var3': <ansys.aedt.core.application.variables.Expression at 0x2661f341808>}
 
     Get a dictionary of only the independent design variables.
 
     >>> v.independent_design_variables
-    {'Var1': <ansys.aedt.core.application.Variables.Variable at 0x2661f335d08>,
-     'Var2': <ansys.aedt.core.application.Variables.Variable at 0x2661f3557c8>}
+    {'Var1': <ansys.aedt.core.application.variables.Variable at 0x2661f335d08>,
+     'Var2': <ansys.aedt.core.application.variables.Variable at 0x2661f3557c8>}
 
     """
 
@@ -1408,7 +1408,7 @@ class Variable(object):
     Examples
     --------
 
-    >>> from ansys.aedt.core.application.Variables import Variable
+    >>> from ansys.aedt.core.application.variables import Variable
 
     Define a variable using a string value consistent with the AEDT properties.
 
@@ -1848,7 +1848,7 @@ class Variable(object):
 
         Examples
         --------
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
 
         >>> v = Variable("10W")
         >>> assert v.numeric_value == 10
@@ -1885,7 +1885,7 @@ class Variable(object):
 
         Examples
         --------
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
 
         >>> v = Variable("10W")
         >>> assert v.format("f") == '10.000000W'
@@ -1911,7 +1911,7 @@ class Variable(object):
 
                 Examples
                 --------
-                >>> from ansys.aedt.core.application.Variables import Variable
+                >>> from ansys.aedt.core.application.variables import Variable
 
                 Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.
                 A numerical value is also considered to be unitless.
@@ -1962,7 +1962,7 @@ class Variable(object):
 
         Parameters
         ----------
-        other : class:`ansys.aedt.core.application.Variables.Variable`
+        other : class:`ansys.aedt.core.application.variables.Variable`
             Object to be multiplied.
 
         Returns
@@ -1972,7 +1972,7 @@ class Variable(object):
 
         Examples
         --------
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
         >>> import ansys.aedt.core.generic.constants
         >>> v1 = Variable("3mA")
         >>> v2 = Variable("10A")
@@ -2004,7 +2004,7 @@ class Variable(object):
 
         Parameters
         ----------
-        other : class:`ansys.aedt.core.application.Variables.Variable`
+        other : class:`ansys.aedt.core.application.variables.Variable`
             Object to be subtracted.
 
         Returns
@@ -2016,7 +2016,7 @@ class Variable(object):
         --------
 
         >>> import ansys.aedt.core.generic.constants
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
         >>> v3 = Variable("3mA")
         >>> v4 = Variable("10A")
         >>> result_2 = v3 - v4
@@ -2061,7 +2061,7 @@ class Variable(object):
         Divide a variable with units ``"W"`` by a variable with units ``"V"`` and automatically
         resolve the new units to ``"A"``.
 
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
         >>> import ansys.aedt.core.generic.constants
         >>> v1 = Variable("10W")
         >>> v2 = Variable("40V")
@@ -2108,7 +2108,7 @@ class Variable(object):
         the result is in ``"Hz"``.
 
         >>> import ansys.aedt.core.generic.constants
-        >>> from ansys.aedt.core.application.Variables import Variable
+        >>> from ansys.aedt.core.application.variables import Variable
         >>> v = Variable("1s")
         >>> result = 3.0 / v
         >>> assert result.numeric_value == 3.0

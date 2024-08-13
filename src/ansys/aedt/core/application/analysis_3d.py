@@ -26,7 +26,7 @@ import csv
 import ntpath
 import os
 
-from ansys.aedt.core.application.Analysis import Analysis
+from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import generate_unique_name

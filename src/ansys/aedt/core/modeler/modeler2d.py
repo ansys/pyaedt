@@ -60,10 +60,6 @@ class Modeler2D(Primitives2D):
     This class is inherited in the caller application and is accessible through the modeler variable
     object( eg. ``maxwell2d.modeler``).
 
-    Parameters
-    ----------
-    application : :class:`ansys.aedt.core.application.Analysis2D.FieldAnalysis2D`
-
     Examples
     --------
     >>> from ansys.aedt.core import Maxwell2d

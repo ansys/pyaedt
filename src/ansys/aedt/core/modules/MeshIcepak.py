@@ -1030,7 +1030,7 @@ class IcepakMesh(object):
 
     Parameters
     ----------
-    app : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
+    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
     """
 
     def __init__(self, app):

@@ -27,7 +27,7 @@ from __future__ import absolute_import
 import warnings
 
 from ansys.aedt.core import emit_core
-from ansys.aedt.core.application.Design import Design
+from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.emit_core.Couplings import CouplingsEmit
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum

@@ -26,7 +26,7 @@ import math
 import os
 import random
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import filter_string

@@ -38,8 +38,8 @@ import shutil
 import tempfile
 import time
 
-from ansys.aedt.core.application.Design import Design
-from ansys.aedt.core.application.JobManager import update_hpc_option
+from ansys.aedt.core.application.design import Design
+from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.Variables import Variable
 from ansys.aedt.core.application.Variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AXIS
@@ -291,7 +291,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.application.Analysis.Analysis.AvailableVariations`
+        :class:`ansys.aedt.core.application.analysis.Analysis.AvailableVariations`
             Available variation object.
 
         """

@@ -318,7 +318,7 @@ class Object3d(object):
     @pyaedt_function_handler()
     def touching_conductors(self):
         """Get the conductors of given object.
-        See :func:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D.identify_touching_conductors`.
+        See :func:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D.identify_touching_conductors`.
 
         Returns
         -------

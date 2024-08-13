@@ -2493,7 +2493,7 @@ class Patch(CommonObject, object):
             Change the side where the port is created.
         port_name : str, optional
             Name of the lumped port.
-        axisdir : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -3230,7 +3230,7 @@ class Trace(CommonObject, object):
             Change the side where the port is created.
         port_name : str, optional
             Name of the lumped port.
-        axisdir : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        axisdir : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.

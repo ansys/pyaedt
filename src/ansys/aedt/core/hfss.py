@@ -33,7 +33,7 @@ import os
 import tempfile
 import warnings
 
-from ansys.aedt.core.application.Analysis3D import FieldAnalysis3D
+from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.DataHandlers import _dict2arg
 from ansys.aedt.core.generic.DataHandlers import str_to_bool
@@ -1880,7 +1880,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             First object connected to the voltage source.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Second object connected to the voltage source.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -1935,7 +1935,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             First object connected to the current source.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Second object connected to the current source.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the port location.
             It should be one of the values for ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -2419,7 +2419,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference :  str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
            Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for
             ``Application.AxisDir``, which are: ``XNeg``, ``YNeg``,
             ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.  The default
@@ -2490,7 +2490,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2653,7 +2653,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         reference :
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location.. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2759,7 +2759,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Starting object for the integration line.
         end_assignment : str or int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
             Ending object for the integration line.
-        start_direction : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        start_direction : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Start direction for the boundary location. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -2938,7 +2938,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -2990,7 +2990,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -3146,7 +3146,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         assignment : str
             Name of the sheet to apply the boundary to.
-        start_direction : int, :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir` or list, optional
+        start_direction : int, :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
@@ -5936,7 +5936,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         reference : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive`or :class:`ansys.aedt.core.modeler.cad.EdgePrimitive`
             Reference object.
-        port_location : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        port_location : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Position of the port when an object different from an edge is provided.
             It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
@@ -6028,7 +6028,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             Ending object for the integration line or reference for Terminal solution. Can be multiple objects.
         create_port_sheet : bool, optional
             Whether to create a port sheet or use given start_object as port sheet.
-        integration_line : int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
@@ -6150,7 +6150,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             to create the port. The default is ``False``.
         create_pec_cap : bool, False
             Whether to create a port cap. The default is ``False``.
-        integration_line : list or int or :class:`ansys.aedt.core.application.Analysis.Analysis.AxisDir`, optional
+        integration_line : list or int or :class:`ansys.aedt.core.application.analysis.Analysis.AxisDir`, optional
             Position of the integration. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``
             The default is ``Application.AxisDir.XNeg``.

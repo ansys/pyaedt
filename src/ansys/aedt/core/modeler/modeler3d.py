@@ -30,7 +30,7 @@ import json
 import os.path
 import warnings
 
-from ansys.aedt.core.application.Variables import generate_validation_errors
+from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import open_file
@@ -48,7 +48,7 @@ class Modeler3D(Primitives3D):
 
     Parameters
     ----------
-    application : :class:`ansys.aedt.core.application.Analysis3D.FieldAnalysis3D`
+    application : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
 
     Examples
     --------

@@ -140,7 +140,7 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 # Draw full waveguide with ports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use ``hfss.variable_manager`` which acts like a dict() to return an instance of
-# the ``ansys.aedt.core.application.Variables.VariableManager`` class for any variable.
+# the ``ansys.aedt.core.application.variables.VariableManager`` class for any variable.
 # The ``VariableManager`` instance takes the HFSS variable name as a key.
 # ``VariableManager`` properties enable access to update, modify and
 # evaluate variables.

@@ -31,7 +31,7 @@ from collections import OrderedDict
 import copy
 import re
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.DataHandlers import _dict2arg
 from ansys.aedt.core.generic.DataHandlers import random_string
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D

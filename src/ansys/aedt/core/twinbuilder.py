@@ -29,9 +29,9 @@ from __future__ import absolute_import  # noreorder
 import math
 import os.path
 
-from ansys.aedt.core.application.AnalysisTwinBuilder import AnalysisTwinBuilder
-from ansys.aedt.core.application.Variables import Variable
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.analysis_twin_builder import AnalysisTwinBuilder
+from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_number
 from ansys.aedt.core.generic.general_methods import open_file

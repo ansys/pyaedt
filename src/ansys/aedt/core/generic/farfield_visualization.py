@@ -31,7 +31,7 @@ import sys
 import time
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter

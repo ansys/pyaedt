@@ -28,7 +28,7 @@ from collections import OrderedDict
 import math
 import time
 
-from ansys.aedt.core.application.Variables import decompose_variable_value
+from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _arg2dict
 from ansys.aedt.core.generic.general_methods import _dim_arg

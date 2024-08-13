@@ -1,1 +1,1 @@
-from ansys.aedt.core.application.Analysis import *
+from ansys.aedt.core.application.analysis import *
