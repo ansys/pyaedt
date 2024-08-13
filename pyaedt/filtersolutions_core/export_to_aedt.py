@@ -28,6 +28,7 @@ from ctypes import byref
 from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
+from ctypes import create_string_buffer
 from enum import Enum
 from typing import Union
 
@@ -322,6 +323,16 @@ class ExportToAedt:
         self._dll.getUpperWidthGeometricLimitValue.argtypes = [c_char_p, c_int]
         self._dll.getUpperWidthGeometricLimitValue.restype = c_int
 
+        self._dll.setInterConnectInductorTolerance.argtype = c_char_p
+        self._dll.setInterConnectInductorTolerance.restype = c_int
+        self._dll.getInterConnectInductorTolerance.argtypes = [c_char_p, c_int]
+        self._dll.getInterConnectInductorTolerance.restype = c_int
+
+        self._dll.setInterConnectCapacitorTolerance.argtype = c_char_p
+        self._dll.setInterConnectCapacitorTolerance.restype = c_int
+        self._dll.getInterConnectCapacitorTolerance.argtypes = [c_char_p, c_int]
+        self._dll.getInterConnectCapacitorTolerance.restype = c_int
+
         self._dll.setInterconnectGeometryOptimization.argtype = c_bool
         self._dll.setInterconnectGeometryOptimization.restype = c_int
         self._dll.getInterconnectGeometryOptimization.argtype = POINTER(c_bool)
@@ -381,6 +392,75 @@ class ExportToAedt:
         self._dll.setGroundedCoverAboveLine.restype = c_int
         self._dll.getGroundedCoverAboveLine.argtype = POINTER(c_bool)
         self._dll.getGroundedCoverAboveLine.restype = c_int
+
+        self._dll.getModelithicsInductorsListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsInductorsListCount.restype = c_int
+
+        self._dll.getModelithicsInductorsList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsInductorsList.restype = c_int
+
+        self._dll.setModelithicsInductors.argtype = c_char_p
+        self._dll.setModelithicsInductors.restype = c_int
+        self._dll.getModelithicsInductors.argtypes = [c_char_p, c_int]
+        self._dll.getModelithicsInductors.restype = c_int
+
+        self._dll.getModelithicsInductorsFamilyListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsInductorsFamilyListCount.restype = c_int
+
+        self._dll.getModelithicsInductorsFamilyList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsInductorsFamilyList.restype = c_int
+
+        self._dll.addModelithicsInductorsFamily.argtype = c_char_p
+        self._dll.addModelithicsInductorsFamily.restype = c_int
+
+        self._dll.removeModelithicsInductorsFamily.argtype = c_char_p
+        self._dll.removeModelithicsInductorsFamily.restype = c_int
+
+        self._dll.getModelithicsCapacitorsListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsCapacitorsListCount.restype = c_int
+
+        self._dll.getModelithicsCapacitorsList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsCapacitorsList.restype = c_int
+
+        self._dll.setModelithicsCapacitors.argtype = c_char_p
+        self._dll.setModelithicsCapacitors.restype = c_int
+        self._dll.getModelithicsCapacitors.argtypes = [c_char_p, c_int]
+        self._dll.getModelithicsCapacitors.restype = c_int
+
+        self._dll.getModelithicsCapacitorsFamilyListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsCapacitorsFamilyListCount.restype = c_int
+
+        self._dll.getModelithicsCapacitorsFamilyList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsCapacitorsFamilyList.restype = c_int
+
+        self._dll.addModelithicsCapacitorsFamily.argtype = c_char_p
+        self._dll.addModelithicsCapacitorsFamily.restype = c_int
+
+        self._dll.removeModelithicsCapacitorsFamily.argtype = c_char_p
+        self._dll.removeModelithicsCapacitorsFamily.restype = c_int
+
+        self._dll.getModelithicsResistorsListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsResistorsListCount.restype = c_int
+
+        self._dll.getModelithicsResistorsList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsResistorsList.restype = c_int
+
+        self._dll.setModelithicsResistors.argtype = c_char_p
+        self._dll.setModelithicsResistors.restype = c_int
+        self._dll.getModelithicsResistors.argtypes = [c_char_p, c_int]
+        self._dll.getModelithicsResistors.restype = c_int
+
+        self._dll.getModelithicsResistorsFamilyListCount.argtype = POINTER(c_int)
+        self._dll.getModelithicsResistorsFamilyListCount.restype = c_int
+
+        self._dll.getModelithicsResistorsFamilyList.argtype = [c_int, c_char_p, c_int]
+        self._dll.getModelithicsResistorsFamilyList.restype = c_int
+
+        self._dll.addModelithicsResistorsFamily.argtype = c_char_p
+        self._dll.addModelithicsResistorsFamily.restype = c_int
+
+        self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
+        self._dll.removeModelithicsResistorsFamily.restype = c_int
 
     def open_aedt_export(self):
         """Open export page to accept manipulate export parameters"""
@@ -979,6 +1059,46 @@ class ExportToAedt:
         )
 
     @property
+    def interconnect_inductor_tolerance_value(self) -> str:
+        """Tolerance value of interconnect inductor in ``%``.
+        The default is ``1``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_inductor_tolerance_value_string = self._dll_interface.get_string(
+            self._dll.getInterConnectInductorTolerance
+        )
+        return interconnect_inductor_tolerance_value_string
+
+    @interconnect_inductor_tolerance_value.setter
+    def interconnect_inductor_tolerance_value(self, interconnect_inductor_tolerance_value_string):
+        self._dll_interface.set_string(
+            self._dll.setInterConnectInductorTolerance, interconnect_inductor_tolerance_value_string
+        )
+
+    @property
+    def interconnect_capacitor_tolerance_value(self) -> str:
+        """Tolerance value of interconnect capacitor in ``%``.
+        The default is ``1``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_capacitor_tolerance_value_string = self._dll_interface.get_string(
+            self._dll.getInterConnectCapacitorTolerance
+        )
+        return interconnect_capacitor_tolerance_value_string
+
+    @interconnect_capacitor_tolerance_value.setter
+    def interconnect_capacitor_tolerance_value(self, interconnect_capacitor_tolerance_value_string):
+        self._dll_interface.set_string(
+            self._dll.setInterConnectCapacitorTolerance, interconnect_capacitor_tolerance_value_string
+        )
+
+    @property
     def interconnect_geometry_optimization_enabled(self) -> bool:
         """Flag indicating if the interconnect geometry optimization is enabled.
 
@@ -994,6 +1114,16 @@ class ExportToAedt:
     @interconnect_geometry_optimization_enabled.setter
     def interconnect_geometry_optimization_enabled(self, interconnect_geometry_optimization_enabled: bool):
         status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def update_interconncet_parameters(self):
+        """Update interconnect geometry equations with entered and selected parameters"""
+        status = self._dll.updateInterConnectParmeters()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def update_inductor_capacitor_tolerances(self):
+        """Update interconnect inductor and capacitor tolerances with entered values"""
+        status = self._dll.updatePartsTolerances()
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
@@ -1236,3 +1366,272 @@ class ExportToAedt:
     def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
         status = self._dll.setGroundedCoverAboveLine(substrate_cover_height_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def load_modelithics_models(self):
+        """Load ``Modelithics`` modesl from ``AEDT``."""
+        status = self._dll.loadModelitichsModels()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def modelithics_inductor_list_count(self) -> int:
+        """Number of loaded ``Modelithics`` inductors.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsInductorsListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_inductor_list(self, row_index) -> str:
+        """Get the ``Modelithics`` inductor from the loaded list at the given index."""
+
+        modelithics_inductor_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_inductor = modelithics_inductor_buffer.value.decode("utf-8")
+        return modelithics_inductor
+
+    @property
+    def modelithics_inductor_selection(self) -> str:
+        """Selected ``Modelithics`` inductor from the loaded list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_inductor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsInductors)
+        return modelithics_inductor_selection_string
+
+    @modelithics_inductor_selection.setter
+    def modelithics_inductor_selection(self, modelithics_inductor_selection_string):
+        self._dll_interface.set_string(self._dll.setModelithicsInductors, modelithics_inductor_selection_string)
+
+    @property
+    def modelithics_inductor_family_list_count(self) -> int:
+        """Number of ``Modelithics`` family inductors added to the inductor family list.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsInductorsFamilyListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_inductor_family_list(self, index) -> str:
+        """Get the ``Modelithics`` inductor family from the inductor family list at give index.
+
+        Parameters
+        ----------
+        index : int
+            Index of the inductor family list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_inductor_family_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsInductorsFamilyList(index, modelithics_inductor_family_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_inductor_family = modelithics_inductor_family_buffer.value.decode("utf-8")
+        return modelithics_inductor_family
+
+    def modelithics_inductor_add_family(self, modelithics_inductor) -> str:
+        """Add ``Modelithics`` inductor family to the inductor family list.
+
+        Parameters
+        ----------
+        modelithics_inductor : str
+            Name of the inductor family.
+        """
+        self._dll_interface.set_string(self._dll.addModelithicsInductorsFamily, modelithics_inductor)
+
+    def modelithics_inductor_remove_family(self, modelithics_inductor) -> str:
+        """Remove ``Modelithics`` inductor family from the inductor family list.
+
+        Parameters
+        ----------
+        modelithics_inductor : str
+            Name of the inductor family.
+        """
+        self._dll_interface.set_string(self._dll.removeModelithicsInductorsFamily, modelithics_inductor)
+
+    @property
+    def modelithics_capacitor_list_count(self) -> int:
+        """Number of loaded ``Modelithics`` capacitors.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsCapacitorsListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_capacitor_list(self, row_index) -> str:
+        """Get the ``Modelithics`` capacitor from the loaded list at the given index."""
+
+        modelithics_capacitor_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_capacitor = modelithics_capacitor_buffer.value.decode("utf-8")
+        return modelithics_capacitor
+
+    @property
+    def modelithics_capacitor_selection(self) -> str:
+        """Selected ``Modelithics`` capacitor from the loaded list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_capacitor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsCapacitors)
+        return modelithics_capacitor_selection_string
+
+    @modelithics_capacitor_selection.setter
+    def modelithics_capacitor_selection(self, modelithics_capacitor_selection_string):
+        self._dll_interface.set_string(self._dll.setModelithicsCapacitors, modelithics_capacitor_selection_string)
+
+    @property
+    def modelithics_capacitor_family_list_count(self) -> int:
+        """Number of ``Modelithics`` family capacitors added to the capacitor family list.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsCapacitorsFamilyListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_capacitor_family_list(self, index) -> str:
+        """Get the ``Modelithics`` capacitor family from the capacitor family list at give index.
+
+        Parameters
+        ----------
+        index : int
+            Index of the capacitor family list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_capacitor_family_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsCapacitorsFamilyList(index, modelithics_capacitor_family_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_capacitor_family = modelithics_capacitor_family_buffer.value.decode("utf-8")
+        return modelithics_capacitor_family
+
+    def modelithics_capacitor_add_family(self, modelithics_capacitor) -> str:
+        """Add ``Modelithics`` capacitor family to the capacitor family list.
+
+        Parameters
+        ----------
+        modelithics_capacitor : str
+            Name of the capacitor family.
+        """
+        self._dll_interface.set_string(self._dll.addModelithicsCapacitorsFamily, modelithics_capacitor)
+
+    def modelithics_capacitor_remove_family(self, modelithics_capacitor) -> str:
+        """Remove ``Modelithics`` capacitor family from the capacitor family list.
+
+        Parameters
+        ----------
+        modelithics_capacitor : str
+            Name of the capacitor family.
+        """
+        self._dll_interface.set_string(self._dll.removeModelithicsCapacitorsFamily, modelithics_capacitor)
+
+    @property
+    def modelithics_resistor_list_count(self) -> int:
+        """Number of loaded ``Modelithics`` resistors.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsResistorsListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_resistor_list(self, row_index) -> str:
+        """Get the ``Modelithics`` resistor from the loaded list at the given index."""
+
+        modelithics_resistor_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_resistor = modelithics_resistor_buffer.value.decode("utf-8")
+        return modelithics_resistor
+
+    @property
+    def modelithics_resistor_selection(self) -> str:
+        """Selected ``Modelithics`` resistor from the loaded list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_resistor_selection_string = self._dll_interface.get_string(self._dll.getModelithicsResistors)
+        return modelithics_resistor_selection_string
+
+    @modelithics_resistor_selection.setter
+    def modelithics_resistor_selection(self, modelithics_resistor_selection_string):
+        self._dll_interface.set_string(self._dll.setModelithicsResistors, modelithics_resistor_selection_string)
+
+    @property
+    def modelithics_resistor_family_list_count(self) -> int:
+        """Number of ``Modelithics`` family resistors added to the resistor family list.
+
+        Returns
+        -------
+        int
+        """
+        count = c_int()
+        status = self._dll.getModelithicsResistorsFamilyListCount(byref(count))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return int(count.value)
+
+    def modelithics_resistor_family_list(self, index) -> str:
+        """Get the ``Modelithics`` resistor family from the resistor family list at give index.
+
+        Parameters
+        ----------
+        index : int
+            Index of the resistor family list.
+
+        Returns
+        -------
+        str
+        """
+        modelithics_resistor_family_buffer = create_string_buffer(100)
+        status = self._dll.getModelithicsResistorsFamilyList(index, modelithics_resistor_family_buffer, 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        modelithics_resistor_family = modelithics_resistor_family_buffer.value.decode("utf-8")
+        return modelithics_resistor_family
+
+    def modelithics_resistor_add_family(self, modelithics_resistor) -> str:
+        """Add ``Modelithics`` resistor family to the resistor family list.
+
+        Parameters
+        ----------
+        modelithics_resistor : str
+            Name of the resistor family.
+        """
+        self._dll_interface.set_string(self._dll.addModelithicsResistorsFamily, modelithics_resistor)
+
+    def modelithics_resistor_remove_family(self, modelithics_resistor) -> str:
+        """Remove ``Modelithics`` resistor family from the resistor family list.
+
+        Parameters
+        ----------
+        modelithics_resistor : str
+            Name of the resistor family.
+        """
+        self._dll_interface.set_string(self._dll.removeModelithicsResistorsFamily, modelithics_resistor)
