@@ -1131,7 +1131,7 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignVoltage(self._get_args())
         elif bound_type == "VoltageDrop":
             self._app.oboundary.AssignVoltageDrop(self._get_args())
-        elif bound_type == "AssignFloating":
+        elif bound_type == "Floating":
             self._app.oboundary.AssignFloating(self._get_args())
         elif bound_type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())

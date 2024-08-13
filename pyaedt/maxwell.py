@@ -1135,7 +1135,7 @@ class Maxwell(object):
         if not name:
             name = generate_unique_name("Floating")
 
-        bound = BoundaryObject(self, name, props, "AssignFloating")
+        bound = BoundaryObject(self, name, props, "Floating")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
