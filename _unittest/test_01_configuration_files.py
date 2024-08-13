@@ -261,7 +261,7 @@ class TestClass:
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2023.1" and config["use_grpc"],
-        reason="Not working in 2022.2 GRPC",
+        reason="Not working in 2022.2 gRPC",
     )
     def test_04b_icepak(self, icepak_b, add_app):
         box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])

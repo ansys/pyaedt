@@ -24,7 +24,7 @@ from ansys.aedt.core import general_methods
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Launch Ansys Electronics Desktop (AEDT)

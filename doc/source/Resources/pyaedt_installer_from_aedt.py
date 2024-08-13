@@ -65,37 +65,15 @@ def run_pyinstaller_from_c_python(oDesktop):
     else:
         venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
-    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
+    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "ansys", "aedt", "core")
     if is_linux:
         for dirpath, dirnames, _ in os.walk(venv_dir):
             if "site-packages" in dirnames:
                 pyaedt_path = os.path.normpath(
-                    os.path.join(dirpath, "site-packages", "pyaedt")
+                    os.path.join(dirpath, "site-packages", "ansys", "aedt", "core")
                 )
                 if os.path.isdir(pyaedt_path):
                     break
-
-    # Create PyAEDT symbolic link in PersonalLib
-    personal_lib_dir = oDesktop.GetPersonalLibDirectory()
-    pers1 = os.path.join(personal_lib_dir, "pyaedt")
-
-    if os.path.exists(pers1):
-        if is_windows:
-            command = 'rmdir "{}"'.format(pers1)
-        else:
-            command = 'rm "{}"'.format(pers1)
-        ret_code = os.system(command)
-        if ret_code != 0:
-            oDesktop.AddMessage("", "", 2,
-                                "Error occurred while removing the symbolic link to PyAEDT in 'PersonalLib'.")
-
-    if is_windows:
-        command = 'mklink /D "{}" "{}"'.format(pers1, pyaedt_path)
-    else:
-        command = 'ln -s "{}" "{}"'.format(pyaedt_path, pers1)
-    ret_code = os.system(command)
-    if ret_code != 0:
-        oDesktop.AddMessage("", "", 2, "Error occurred while configuring the symbolic link to PyAEDT in 'PersonalLib'.")
 
     # Create Toolkits in PersonalLib
     import tempfile
@@ -103,7 +81,7 @@ def run_pyinstaller_from_c_python(oDesktop):
     if os.path.isfile(python_script):
         os.remove(python_script)
     with open(python_script, "w") as f:
-        # enable in debu mode
+        # enable in debug mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
@@ -193,15 +171,18 @@ def install_pyaedt():
 
         if args.wheel and os.path.exists(args.wheel):
             wheel_pyaedt = args.wheel
-            import zipfile
-            unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
-                                         os.path.splitext(os.path.basename(wheel_pyaedt))[0])
-            if os.path.exists(unzipped_path):
-                shutil.rmtree(unzipped_path, ignore_errors=True)
-            with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
-                # Extract all contents to a directory. (You can specify a different extraction path if needed.)
-                zip_ref.extractall(unzipped_path)
-
+            if wheel_pyaedt.endswith(".zip"):
+                import zipfile
+                unzipped_path = os.path.join(os.path.dirname(wheel_pyaedt),
+                                             os.path.splitext(os.path.basename(wheel_pyaedt))[0])
+                if os.path.exists(unzipped_path):
+                    shutil.rmtree(unzipped_path, ignore_errors=True)
+                with zipfile.ZipFile(wheel_pyaedt, 'r') as zip_ref:
+                    # Extract all contents to a directory. (You can specify a different extraction path if needed.)
+                    zip_ref.extractall(unzipped_path)
+            else:
+                # Extracted folder.
+                unzipped_path = wheel_pyaedt
             if args.version <= "231":
                 run_command(
                     '"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all,dotnet]'.format(pip_exe,
@@ -217,7 +198,7 @@ def install_pyaedt():
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
@@ -241,14 +222,14 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]'.format(pip_exe,
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.3"'.format(pip_exe,
                                                                                                                unzipped_path))
             else:
                 run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
                                                                                                               unzipped_path))
         else:
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))

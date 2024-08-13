@@ -69,7 +69,7 @@ class TestClass:
     def test_03_check_touchstone_file(self):
         from ansys.aedt.core.generic.touchstone_parser import check_touchstone_files
 
-        check = check_touchstone_files(folder=test_T44_dir)
+        check = check_touchstone_files(input_dir=test_T44_dir)
         assert check
         for k, v in check.items():
             if v and v[0] == "passivity":

@@ -1056,20 +1056,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                     self.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweep_name
                     )
-                name = setupdata.add_sweep(name=sweep_name)
-                if not name:
+                sweep = setupdata.add_sweep(name=sweep_name, sweep_type=sweep_type)
+                if not sweep:
                     return False
-                name.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
-                name.props["GenerateSurfaceCurrent"] = save_fields
-                name.props["SaveRadFieldsOnly"] = save_rad_fields_only
-                name.props["FastSweep"] = interpolation
-                name.props["SAbsError"] = interpolation_tol
-                name.props["EnforcePassivity"] = interpolation
-                name.props["UseQ3DForDC"] = use_q3d_for_dc
-                name.props["MaxSolutions"] = interpolation_max_solutions
-                name.update()
+                sweep.change_range("LinearCount", start_frequency, stop_frequency, num_of_freq_points, unit)
+                sweep.props["GenerateSurfaceCurrent"] = save_fields
+                sweep.props["SaveRadFieldsOnly"] = save_rad_fields_only
+                sweep.props["FastSweep"] = interpolation
+                sweep.props["SAbsError"] = interpolation_tol
+                sweep.props["EnforcePassivity"] = interpolation
+                sweep.props["UseQ3DForDC"] = use_q3d_for_dc
+                sweep.props["MaxSolutions"] = interpolation_max_solutions
+                sweep.update()
                 self.logger.info("Linear count sweep %s has been correctly created.", sweep_name)
-                return name
+                return sweep
         return False
 
     @pyaedt_function_handler(

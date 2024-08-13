@@ -33,6 +33,8 @@ from ansys.aedt.core.generic.general_methods import settings
 
 class AedtObjects(object):
     def __init__(self, desktop=None, project=None, design=None, is_inherithed=False):
+        self._odesign = design
+        self._oproject = project
         if desktop:
             self._odesktop = desktop.odesktop
         elif _desktop_sessions and project:
@@ -48,15 +50,14 @@ class AedtObjects(object):
 
         if not is_inherithed:
             if project:
-                self.oproject = project
                 if design:
-                    self.odesign = design
+                    self._odesign = design
                 else:
-                    self.odesign = self.oproject.GetActiveDesign()
+                    self._odesign = self._oproject.GetActiveDesign()
             else:
-                self.oproject = self._odesktop.GetActiveProject()
-                if self.oproject:
-                    self.odesign = self.oproject.GetActiveDesign()
+                self._oproject = self._odesktop.GetActiveProject()
+                if self._oproject:
+                    self._odesign = self._oproject.GetActiveDesign()
         self._oboundary = None
         self._oimport_export = None
         self._ooptimetrics = None
@@ -90,16 +91,16 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("RadField")
         """
-        if self.design_type == "HFSS" and self.odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
-            return self.odesign.GetModule("RadField")
+        if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
+            return self._odesign.GetModule("RadField")
         return None
 
     @pyaedt_function_handler()
     def get_module(self, module_name):
         """Aedt Module object."""
-        if self.design_type not in ["EMIT"] and self.odesign:
+        if self.design_type not in ["EMIT"] and self._odesign:
             try:
-                return self.odesign.GetModule(module_name)
+                return self._odesign.GetModule(module_name)
             except Exception:
                 return None
         return None
@@ -113,7 +114,9 @@ class AedtObjects(object):
 
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
-        return self.odefinition_manager.GetManager("Symbol")
+        if self.odefinition_manager:
+            return self.odefinition_manager.GetManager("Symbol")
+        return
 
     @property
     def opadstackmanager(self):
@@ -124,13 +127,13 @@ class AedtObjects(object):
 
         >>> oPadstackManger = oDefinitionManager.GetManager("Padstack")
         """
-        if not self._opadstackmanager:
-            self._opadstackmanager = self.oproject.GetDefinitionManager().GetManager("Padstack")
+        if self._oproject and not self._opadstackmanager:
+            self._opadstackmanager = self._oproject.GetDefinitionManager().GetManager("Padstack")
         return self._opadstackmanager
 
     @property
     def design_type(self):
-        return self.odesign.GetDesignType()
+        return self._odesign.GetDesignType()
 
     @property
     def oboundary(self):
@@ -215,8 +218,8 @@ class AedtObjects(object):
 
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
-        if not self._odefinition_manager:
-            self._odefinition_manager = self.oproject.GetDefinitionManager()
+        if not self._odefinition_manager and self._oproject:
+            self._odefinition_manager = self._oproject.GetDefinitionManager()
         return self._odefinition_manager
 
     @property
@@ -228,9 +231,8 @@ class AedtObjects(object):
 
         >>> oMaterialManager = oDefinitionManager.GetManager("Material")
         """
-        if not self._omaterial_manager:
-            if self.odefinition_manager:
-                self._omaterial_manager = self.odefinition_manager.GetManager("Material")
+        if self.odefinition_manager and not self._omaterial_manager:
+            self._omaterial_manager = self.odefinition_manager.GetManager("Material")
         return self._omaterial_manager
 
     @property
@@ -247,7 +249,7 @@ class AedtObjects(object):
         if not self._omodel_setup:
             if (
                 self.design_type in ["Maxwell 3D", "Maxwell 2D"]
-                and self.odesign.GetSolutionType() == "Transient"
+                and self._odesign.GetSolutionType() == "Transient"
                 or self.design_type == "HFSS"
             ):
                 self._omodel_setup = self.get_module("ModelSetup")
@@ -262,7 +264,7 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("MaxwellParameterSetup")
         """
-        if self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
+        if self._odesign and self.design_type not in ["Maxwell 3D", "Maxwell 2D"]:
             return
         if not self._o_maxwell_parameters:
             self._o_maxwell_parameters = self.get_module("MaxwellParameterSetup")
@@ -271,7 +273,7 @@ class AedtObjects(object):
     @property
     def omonitor(self):
         """AEDT Monitor Object."""
-        if not self.design_type == "Icepak":
+        if not self._odesign or not self.design_type == "Icepak":
             return
         if not self._omonitor:
             self._omonitor = self.get_module("Monitor")
@@ -395,18 +397,18 @@ class AedtObjects(object):
         ----------
 
         >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
-        if not self._oeditor:
+        if not self._oeditor and self._odesign:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
-                self._oeditor = self.odesign.SetActiveEditor("SchematicEditor")
+                self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":
                     time.sleep(1)
                     self._odesktop.CloseAllWindows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
-                self._oeditor = self.odesign.SetActiveEditor("Layout")
+                self._oeditor = self._odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:
-                self._oeditor = self.odesign.SetActiveEditor("Machine")
+                self._oeditor = self._odesign.SetActiveEditor("Machine")
             else:
-                self._oeditor = self.odesign.SetActiveEditor("3D Modeler")
+                self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         return self._oeditor
 
     @property
@@ -419,19 +421,19 @@ class AedtObjects(object):
         >>> oDesign.SetActiveEditor("Layout")
         """
         if not self._layouteditor and self.design_type in ["Circuit Design"]:
-            self._layouteditor = self.odesign.SetActiveEditor("Layout")
+            self._layouteditor = self._odesign.SetActiveEditor("Layout")
         return self._layouteditor
 
     @property
     def o_component_manager(self):
         """Component manager object."""
-        if not self._o_component_manager:
+        if not self._o_component_manager and self.odefinition_manager:
             self._o_component_manager = self.odefinition_manager.GetManager("Component")
         return self._o_component_manager
 
     @property
     def o_model_manager(self):
         """Model manager object."""
-        if not self._o_model_manager:
+        if not self._o_model_manager and self.odefinition_manager:
             self._o_model_manager = self.odefinition_manager.GetManager("Model")
         return self._o_model_manager

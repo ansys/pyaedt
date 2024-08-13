@@ -62,7 +62,7 @@ def _replace_by_underscore(character, string):
     Examples
     --------
 
-    >>> from ansys.aedt.core.modeler.stackup_3d import _replace_by_underscore
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import _replace_by_underscore
     >>> name = "Duroid (tm)"
     >>> name = _replace_by_underscore(" ", name)
     >>> name = _replace_by_underscore("(", name)
@@ -97,7 +97,7 @@ class NamedVariable(object):
     --------
 
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import NamedVariable
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
     >>> hfss = Hfss()
     >>> my_frequency = NamedVariable(hfss, "my_frequency", "900000Hz")
     >>> wave_length_formula = "c0/" + my_frequency.name
@@ -220,7 +220,7 @@ class DuplicatedParametrizedMaterial(object):
     --------
 
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import DuplicatedParametrizedMaterial
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
     >>> hfss = Hfss()
     >>> my_copper = DuplicatedParametrizedMaterial(hfss, "copper", "my_copper")
     >>> my_material_name = my_copper.material_name
@@ -310,7 +310,7 @@ class Layer3D(object):
 
     Parameters
     ----------
-    stackup : :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+    stackup : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
         The stackup where the layers will be added.
     app : :class:`ansys.aedt.core.hfss.Hfss`
         HFSS design or project where the variable is to be created.
@@ -487,7 +487,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.DuplicatedParametrizedMaterial`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.DuplicatedParametrizedMaterial`
             Material.
         """
         return self._duplicated_material
@@ -519,7 +519,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._thickness
@@ -545,7 +545,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._position
@@ -566,7 +566,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Stackup3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Stackup3D`
         """
         return self._stackup
 
@@ -576,7 +576,7 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
         """
         return self._frequency
 
@@ -661,13 +661,13 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Patch`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Patch`
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -736,13 +736,13 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.MachineLearningPatch`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.MachineLearningPatch`
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -823,13 +823,13 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Trace`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Trace`
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop=True)
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -894,13 +894,13 @@ class Layer3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Polygon`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Polygon`
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -1255,7 +1255,7 @@ class Stackup3D(object):
     --------
 
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
 
@@ -1300,7 +1300,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
         """
         return self._stackup_thickness
 
@@ -1386,7 +1386,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
         """
         return self._start_position
 
@@ -1400,7 +1400,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._dielectric_x_position
@@ -1415,7 +1415,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._dielectric_x_position
@@ -1430,7 +1430,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._dielectric_width
@@ -1445,7 +1445,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._dielectric_length
@@ -1500,7 +1500,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
         """
         return self._frequency
 
@@ -1527,7 +1527,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Padstack`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Padstack`
         """
         p = Padstack(self._app, self, name, material)
         self._padstacks.append(p)
@@ -1566,14 +1566,14 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Layer object.
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> my_layer = my_stackup.add_layer("my_layer")
@@ -1643,14 +1643,14 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Layer object.
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> my_signal_layer = my_stackup.add_signal_layer("signal_layer")
@@ -1683,14 +1683,14 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Layer object.
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> my_dielectric_layer = my_stackup.add_dielectric_layer("diel", thickness=1.5, material="Duroid (tm)")
@@ -1726,14 +1726,14 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Layer Object.
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> my_ground_layer = my_stackup.add_ground_layer("gnd")
@@ -1825,7 +1825,8 @@ class Stackup3D(object):
 
         Parameters
         ----------
-        element : :class:`ansys.aedt.core.modeler.stackup_3d.Patch, :class:`ansys.aedt.core.modeler.stackup_3d.Trace
+        element : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Patch,
+            :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Trace
             Element around which the resizing is done.
         percentage_offset : float, optional
             Offset of resize. Value accepted are greater than 0. O.25 by default.
@@ -1838,7 +1839,7 @@ class Stackup3D(object):
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -1889,7 +1890,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         """
         return self._dielectric_layer
 
@@ -1899,7 +1900,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         """
         return self._signal_layer
 
@@ -1986,9 +1987,9 @@ class Patch(CommonObject, object):
         layer or of the stackup.
     dx : float
         The patch width.
-    signal_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    signal_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
-    dielectric_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    dielectric_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
         prediction formulas.
     dy : float, None, optional
@@ -2143,7 +2144,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._frequency
@@ -2154,7 +2155,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._substrate_thickness
@@ -2165,7 +2166,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._width
@@ -2176,7 +2177,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._position_x
@@ -2187,7 +2188,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._position_y
@@ -2198,7 +2199,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._permittivity
@@ -2209,7 +2210,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         self._permittivity = self.application.materials[self._dielectric_material].permittivity
@@ -2221,7 +2222,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._effective_permittivity
@@ -2232,7 +2233,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         # "(substrat_permittivity + 1)/2 + (substrat_permittivity -
@@ -2252,7 +2253,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         return self._added_length
@@ -2263,7 +2264,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable object.
         """
         # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
@@ -2285,7 +2286,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._wave_length
@@ -2296,7 +2297,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
@@ -2316,7 +2317,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._length
@@ -2327,7 +2328,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "patch_wave_length / 2 - 2 * patch_added_length"
@@ -2343,7 +2344,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._impedance_l_w, self._impedance_w_l
@@ -2354,7 +2355,7 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "45 * (patch_wave_length/patch_width * sqrt(patch_eff_permittivity)) ** 2"
@@ -2388,7 +2389,7 @@ class Patch(CommonObject, object):
 
         Parameters
         ----------
-        reference_layer : class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        reference_layer : class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Reference layer (ground).
 
         rel_x_offset : float,
@@ -2419,7 +2420,7 @@ class Patch(CommonObject, object):
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -2486,7 +2487,7 @@ class Patch(CommonObject, object):
 
         Parameters
         ----------
-        reference_layer : class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        reference_layer : class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
@@ -2505,7 +2506,7 @@ class Patch(CommonObject, object):
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -2554,13 +2555,13 @@ class Patch(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.Trace`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Trace`
 
         Examples
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -2601,7 +2602,7 @@ class Patch(CommonObject, object):
         --------
 
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -2634,9 +2635,9 @@ class Trace(CommonObject, object):
     line_impedance : float
         The characteristic impedance of the line. If a line width is entered by the user, the characteristic impedance
         will be calculated from it.
-    signal_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    signal_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The signal layer where the line will be drawn.
-    dielectric_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    dielectric_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The dielectric layer between the line and the ground layer. Its permittivity and thickness are used in
         prediction formulas.
     line_electrical_length : float, None, optional
@@ -2660,7 +2661,7 @@ class Trace(CommonObject, object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -2816,7 +2817,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._frequency
@@ -2827,7 +2828,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._substrate_thickness
@@ -2838,7 +2839,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         if self._width is not None:
@@ -2856,7 +2857,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         if self._width_h_w is not None:
@@ -2868,7 +2869,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         if self._width_w_h is not None:
@@ -2880,7 +2881,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # if w/h < 2 :
@@ -2939,7 +2940,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._position_x
@@ -2950,7 +2951,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._position_y
@@ -2961,7 +2962,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._permittivity
@@ -2989,7 +2990,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._added_length
@@ -3000,7 +3001,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "0.412 * substrate_thickness * (patch_eff_permittivity + 0.3) * (patch_width/substrate_thickness + 0.264)"
@@ -3022,7 +3023,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._length
@@ -3033,7 +3034,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         d_l = self._added_length.name
@@ -3049,7 +3050,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._charac_impedance
@@ -3060,7 +3061,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # if w / h > 1: 60 * log(8 * h / w + w / (4 * h)) / sqrt(er_e)
@@ -3088,7 +3089,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         if self.width.numeric_value >= self.dielectric_layer.thickness.numeric_value:
@@ -3102,7 +3103,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._effective_permittivity_w_h
@@ -3113,7 +3114,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._effective_permittivity_h_w
@@ -3124,7 +3125,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "(substrat_permittivity + 1)/2 +
@@ -3165,7 +3166,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._wave_length
@@ -3176,7 +3177,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
@@ -3197,7 +3198,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         return self._electrical_length
@@ -3208,7 +3209,7 @@ class Trace(CommonObject, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.stackup_3d.NamedVariable`
+        :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.NamedVariable`
             Variable Object.
         """
         lbd = self._wave_length.name
@@ -3223,7 +3224,7 @@ class Trace(CommonObject, object):
 
         Parameters
         ----------
-        reference_layer : class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+        reference_layer : class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
             Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
@@ -3243,7 +3244,7 @@ class Trace(CommonObject, object):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+        >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop=True)
         >>> my_stackup = Stackup3D(hfss, 2.5e9)
         >>> gnd = my_stackup.add_ground_layer("gnd")
@@ -3302,7 +3303,7 @@ class Polygon(CommonObject, object):
         HFSS design or project where the variable is to be created.
     point_list : list
         Points list of [x,y] coordinates.
-    signal_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    signal_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The signal layer where the line will be drawn.
     poly_name : str, optional
             Polygon name. The default is ``poly``.
@@ -3319,7 +3320,7 @@ class Polygon(CommonObject, object):
     --------
 
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> gnd = my_stackup.add_ground_layer("gnd", thickness=None)
@@ -3417,9 +3418,9 @@ class MachineLearningPatch(Patch, object):
         layer or of the stackup. From 0.1 to 10 GHz.
     dx : float
         The patch width. From O.5 to 1.5 of the optimal width value : c0 * 1000/(2 * f * sqrt((er  + 1)/2))
-    signal_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    signal_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The signal layer where the patch will be drawn.
-    dielectric_layer : :class:`ansys.aedt.core.modeler.stackup_3d.Layer3D`
+    dielectric_layer : :class:`ansys.aedt.core.modeler.advanced_cad.stackup_3d.Layer3D`
         The dielectric layer between the patch and the ground layer. Its permittivity and thickness are used in
         prediction formulas. Thickness must be from 0.003 to 0.05 of the wavelength in vacuum and relative permittivity
         from 1 to 12.
@@ -3438,7 +3439,7 @@ class MachineLearningPatch(Patch, object):
     --------
 
     >>> from ansys.aedt.core import Hfss
-    >>> from ansys.aedt.core.modeler.stackup_3d import Stackup3D
+    >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> gnd = my_stackup.add_ground_layer("gnd")

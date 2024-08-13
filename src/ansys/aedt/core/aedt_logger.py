@@ -800,18 +800,18 @@ class AedtLogger(object):
     def disable_desktop_log(self):
         """Disable the log in AEDT."""
         self._log_on_desktop = False
-        self.info("Log on Desktop Message Manager is disabled")
+        self.info("Log on AEDT is disabled.")
 
     def enable_desktop_log(self):
         """Enable the log in AEDT."""
         self._log_on_desktop = True
-        self.info("Log on Desktop Message Manager is enabled")
+        self.info("Log on AEDT is enabled.")
 
     def disable_stdout_log(self):
         """Disable printing log messages to stdout."""
         self._log_on_screen = False
         self._global.removeHandler(self._std_out_handler)
-        self.info("StdOut is disabled")
+        self.info("Log on console is disabled.")
 
     def enable_stdout_log(self):
         """Enable printing log messages to stdout."""
@@ -824,7 +824,7 @@ class AedtLogger(object):
             self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
         self._global.addHandler(self._std_out_handler)
-        self.info("StdOut is enabled")
+        self.info("Log on console is enabled.")
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
@@ -843,14 +843,15 @@ class AedtLogger(object):
             if isinstance(_file_handler, FileHandler):
                 _file_handler.close()
                 self.project_logger.removeHandler(_file_handler)
-        self.info("Log on file is disabled")
+        self.info("Log on file is disabled.")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
         for _file_handler in self._files_handlers:
             self._global.addHandler(_file_handler)
-        self.info("Log on file is enabled")
+            if "baseFilename" in dir(_file_handler):
+                self.info("Log on file {} is enabled.".format(_file_handler.baseFilename))
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""

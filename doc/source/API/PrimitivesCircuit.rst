@@ -34,7 +34,7 @@ modeler, including all primitives methods and properties:
 * ``ModelerEmit`` for EMIT
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
@@ -51,7 +51,7 @@ Schematic in Circuit
 The following classes define the object properties for Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
+.. currentmodule:: ansys.aedt.core.modeler.circuits.PrimitivesNexxim
 
 .. autosummary::
    :toctree: _autosummary
@@ -78,7 +78,7 @@ Objects in Circuit
 The following classes define the object properties for Circuit.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits
+.. currentmodule:: ansys.aedt.core.modeler.circuits
 
 .. autosummary::
    :toctree: _autosummary
@@ -115,7 +115,7 @@ Schematic in EMIT
 The following classes define the object properties for EMIT components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
+.. currentmodule:: ansys.aedt.core.modeler.circuits.PrimitivesEmit
 
 .. autosummary::
    :toctree: _autosummary
@@ -129,7 +129,7 @@ Schematic in Twin Builder
 The following classes define the object properties for Twin Builder components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
+.. currentmodule:: ansys.aedt.core.modeler.circuits.PrimitivesTwinBuilder
 
 .. autosummary::
    :toctree: _autosummary
@@ -165,7 +165,7 @@ Schematic in Maxwell Circuit
 The following classes define the object properties for Maxwell Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
+.. currentmodule:: ansys.aedt.core.modeler.circuits.PrimitivesMaxwellCircuit
 
 .. autosummary::
    :toctree: _autosummary

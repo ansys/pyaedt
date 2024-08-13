@@ -28,6 +28,7 @@ from __future__ import absolute_import  # noreorder
 
 from ansys.aedt.core.application.AnalysisRMxprt import FieldAnalysisRMxprt
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.modeler.cad.elements3d import BinaryTreeNode
 from ansys.aedt.core.modules.SetupTemplates import SetupKeys
 
 
@@ -35,113 +36,98 @@ class RMXprtModule(object):
     """Provides RMxprt module properties."""
 
     component = None
-    prop_servers = None
 
-    @pyaedt_function_handler()
-    def get_prop_server(self, parameter_name):
-        """Get the properties of the server.
+    def __init__(self, app):
+        self._app = app
+        self.oeditor = app.oeditor
 
-        Parameters
-        ----------
-        parameter_name : str
-            Name of the server.
-
+    @property
+    def properties(self):
+        """Object parameters.
 
         Returns
         -------
-        list
-            List of server properties.
+            :class:`ansys.aedt.core.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
 
         """
-        prop_server = None
-        for key, parameter_list in self.prop_servers.items():
-            if parameter_name in parameter_list:
-                prop_server = key
-                break
-        assert prop_server is not None, "Unknown parameter name {0} exists in component {1}.".format(
-            prop_server, self.component
-        )
-        return prop_server
-
-    def __init__(self, oeditor):
-        self.oeditor = oeditor
+        try:
+            child_object = self._app.odesign.GetChildObject("Machine")
+            if self.component:
+                child_object = child_object.GetChildObject(self.component)
+            parent = BinaryTreeNode(self.component if self.component else "Machine", child_object, False)
+            return parent
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def __setitem__(self, parameter_name, value):
-        self.set_rmxprt_parameter(parameter_name, value)
-        return True
+        def _apply_val(dict_in, name, value):
+            if name in dict_in.props:
+                if (
+                    isinstance(dict_in.props[name], list)
+                    and ":=" in dict_in.props[name][0]
+                    and not isinstance(value, list)
+                ):
+                    prps = dict_in.props[name][::]
+                    prps[1] = value
+                    value = prps
+                dict_in.props[name] = value
+                return True
+            else:
+                for _, child in dict_in.children.items():
+                    ret = _apply_val(child, name, value)
+                    if ret:
+                        return True
+
+        if self.properties:
+            _apply_val(self.properties, parameter_name, value)
+        else:  # pragma: no cover
+            self._app.logger.error("Properties not available for {}".format(self.component))
 
     @pyaedt_function_handler()
     def __getitem__(self, parameter_name):
-        prop_server = self.get_prop_server(parameter_name)
-        separator = ":" if prop_server else ""
-        val = self.oeditor.GetPropertyValue(
-            self.component, "{0}{1}{2}".format(self.component, separator, prop_server), parameter_name
-        )
-        return val
+        def _get_val(dict_in, name):
+            if name in dict_in.props:
+                return dict_in.props[name]
+            else:
+                for _, child in dict_in.children.items():
+                    return _get_val(child, name)
 
-    @pyaedt_function_handler()
-    def set_rmxprt_parameter(self, parameter_name, value):
-        """Modify a parameter value.
-
-        Parameters
-        ----------
-        parameter_name : str
-            Name of the parameter.
-        value :
-            Value to assign to the parameter.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed
-
-        References
-        ----------
-
-        >>> oEditor.ChangeProperty
-        """
-        prop_server = self.get_prop_server(parameter_name)
-        separator = ":" if prop_server else ""
-        self.oeditor.ChangeProperty(
-            [
-                "NAME:AllTabs",
-                [
-                    "NAME:" + self.component,
-                    ["NAME:PropServers", "{0}{1}{2}".format(self.component, separator, prop_server)],
-                    ["NAME:ChangedProps", ["NAME:" + parameter_name, "Value:=", value]],
-                ],
-            ]
-        )
-        return True
+        if self.properties:
+            return _get_val(self.properties, parameter_name)
+        else:  # pragma: no cover
+            self._app.logger.error("Properties not available for {}".format(self.component))
 
 
 class Stator(RMXprtModule):
     """Provides stator properties."""
 
     component = "Stator"
-    prop_servers = {
-        "": [
-            "Outer Diameter",
-            "Inner Diameter",
-            "Length",
-            "Stacking Factor" "Steel Type",
-            "Number of Slots",
-            "Slot Type",
-            "Lamination Sectors",
-            "Press Board Thickness",
-            "Skew Width",
-        ],
-        "Slot": ["Hs0", "Hs1", "Hs2", "Bs0", "Bs1", "Bs2"],
-        "Winding": ["Winding Type", "Parallel Branches"],
-    }
 
 
 class Rotor(RMXprtModule):
     """Provides rotor properties."""
 
     component = "Rotor"
-    prop_servers = {"": ["Outer Diameter"], "Slot": [], "Winding": []}
+
+
+class Shaft(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = "Shaft"
+
+
+class Machine(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = "General"
+
+
+class Circuit(RMXprtModule):
+    """Provides rotor properties."""
+
+    component = "Circuit"
 
 
 class Rmxprt(FieldAnalysisRMxprt):
@@ -269,11 +255,14 @@ class Rmxprt(FieldAnalysisRMxprt):
         )
         if not model_units or model_units == "mm":
             model_units = "mm"
-        else:
-            assert model_units == "in", "Invalid model units string {}".format(model_units)
+        elif model_units != "in":
+            raise AssertionError("Invalid model units string {}.".format(model_units))
         self.modeler.oeditor.SetMachineUnits(["NAME:Units Parameter", "Units:=", model_units, "Rescale:=", False])
-        self.stator = Stator(self.modeler.oeditor)
-        self.rotor = Rotor(self.modeler.oeditor)
+        self.general = Machine(self)
+        self.stator = Stator(self)
+        self.rotor = Rotor(self)
+        self.shaft = Shaft(self)
+        self.circuit = Circuit(self)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -340,3 +329,69 @@ class Rmxprt(FieldAnalysisRMxprt):
         setup.auto_update = True
         setup.update()
         return setup
+
+    @pyaedt_function_handler()
+    def export_configuration(self, output_file):
+        """Export Rmxprt project to config file.
+
+        Parameters
+        ----------
+        output_file : str
+            Full path to json file to be created.
+
+        Returns
+        -------
+        str
+           Full path to json file created.
+        """
+
+        def jsonalize(dict_in, dict_out):
+            dict_out[dict_in.node] = {}
+            for k, v in dict_in.props.items():
+                if not k.endswith("/Choices"):
+                    dict_out[dict_in.node][k] = v
+            for _, c in dict_in.children.items():
+                jsonalize(c, dict_out)
+
+        new_dict = {}
+        jsonalize(self.general.properties, new_dict)
+        jsonalize(self.stator.properties, new_dict)
+        jsonalize(self.rotor.properties, new_dict)
+        jsonalize(self.circuit.properties, new_dict)
+        jsonalize(self.shaft.properties, new_dict)
+        from ansys.aedt.core.generic.general_methods import write_configuration_file
+
+        write_configuration_file(new_dict, output_file)
+        return output_file
+
+    @pyaedt_function_handler()
+    def import_configuration(self, input_file):
+        """Parse a json file and assign all the properties to the Rmxprt design.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path to json file to be used.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+
+        from ansys.aedt.core.generic.general_methods import read_configuration_file
+
+        new_dict = read_configuration_file(input_file)
+        for k, v in new_dict.items():
+            dictin = self.stator
+            if k == "General":
+                dictin = self.general
+            elif k == "Circuit":
+                dictin = self.circuit
+            elif k in ["Rotor", "Pole"]:
+                dictin = self.rotor
+            elif k == "Shaft":
+                dictin = self.shaft
+            for i, j in v.items():
+                dictin[i] = j
+        return True

@@ -16,12 +16,14 @@ coverage:
     - "examples"  # ignore folders and all its contents
     - "_unittest"  # ignore folders and all its contents
     - "_unittest_ironpython"  # ignore folders and all its contents
-    - "pyaedt/rpc/**/*.py"  # ignore folders and all its contents
-    - "pyaedt/doctest_fixtures/*.py"  # ignore folders and all its contents
-    - "pyaedt/misc/*.py"  # ignore folders and all its contents
-    - "pyaedt/sbrplus/hdm_utils.py" # ignore folder and all its contents
-    - "pyaedt/workflows/installer"  # ignore folders and all its contents
-    - "pyaedt/workflows/templates"  # ignore folders and all its contents
-    - "pyaedt/common_rpc.py"  # ignore folders and all its contents
-    - "pyaedt/generic/grpc_plugin_dll_class.py"  # ignore file to interact with AEDT grpc api
-    - "pyaedt/edb.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/rpc/**/*.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/doctest_fixtures/*.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/misc/*.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/sbrplus/hdm_utils.py" # ignore folder and all its contents
+    - "src/ansys/aedt/core/workflows/installer"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/workflows/templates"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/common_rpc.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/generic/grpc_plugin_dll_class.py"  # ignore file to interact with AEDT grpc api
+    - "src/ansys/aedt/core/edb.py"  # ignore folders and all its contents
+    - "src/ansys/aedt/core/filtersolutions_core"  # ignore filtersolutions feature for the current release pending 2025R1 update
+    - "src/ansys/aedt/core/filtersolutions.py"   # ignore filtersolutions feature for the current release pending 2025R1 update

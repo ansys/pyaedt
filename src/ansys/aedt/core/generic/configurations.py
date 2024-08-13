@@ -714,7 +714,18 @@ class Configurations(object):
         self._app = app
         self.options = ConfigurationsOptions()
         self.results = ImportResults()
+        self._schema = None
 
+    @property
+    def schema(self):
+        """Schema dictionary.
+
+        Returns
+        -------
+        dict
+        """
+        if self._schema:
+            return self._schema
         pyaedt_installed_path = os.path.dirname(ansys.aedt.core.__file__)
 
         schema_bytes = None
@@ -732,6 +743,7 @@ class Configurations(object):
         else:  # pragma: no cover
             self._app.logger.error("Failed to load configuration schema.")
             self._schema = None
+        return self._schema
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1069,7 +1081,7 @@ class Configurations(object):
             self._app.logger.warning("Iron Python: Unable to validate json Schema.")
         else:
             try:
-                validate(instance=config_data, schema=self._schema)
+                validate(instance=config_data, schema=self.schema)
                 return True
             except exceptions.ValidationError as e:
                 self._app.logger.warning("Configuration is invalid.")
@@ -1700,22 +1712,27 @@ class ConfigurationsIcepak(Configurations):
         dict_out["mesh"]["Settings"] = mop["Settings"]
         if self._app.mesh.meshregions:
             for mesh in self._app.mesh.meshregions:
-                if mesh.name == "Settings":
+                if mesh.name in ["Settings", "Global"]:
                     args = ["NAME:Settings"]
                 else:
                     args = ["NAME:" + mesh.name, "Enable:=", mesh.Enable]
                 args += mesh.settings.parse_settings_as_args()
-                args += getattr(mesh, "_parse_assignment_value")()
+                if mesh.name not in ["Settings", "Global"]:
+                    args += getattr(mesh, "_parse_assignment_value")()
                 args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
                 mop = OrderedDict({})
                 _arg2dict(args, mop)
-                if self._app.modeler[args[-3][0]].history().command == "CreateSubRegion":
+                if (
+                    mesh.name not in ["Settings", "Global"]
+                    and self._app.modeler[args[-3][0]].history().command == "CreateSubRegion"
+                ):
                     mop[mesh.name]["_subregion_information"] = {
                         "pad_vals": mesh.assignment.padding_values,
                         "pad_types": mesh.assignment.padding_types,
                         "parts": list(mesh.assignment.parts.keys()),
                     }
-                dict_out["mesh"][mesh.name] = mop[mesh.name]
+                if mesh.name in mop:
+                    dict_out["mesh"][mesh.name] = mop[mesh.name]
                 self._map_object(mop, dict_out)
 
     @pyaedt_function_handler()

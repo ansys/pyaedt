@@ -71,7 +71,7 @@ def main():
         term = pyaedt_utils.get_linux_terminal()
         if not term:
             pyaedt_utils.show_error("No Terminals found.", oDesktop)
-
+        pyaedt_utils.set_ansys_em_environment(oDesktop)
         command = [
             term,
             "-e",

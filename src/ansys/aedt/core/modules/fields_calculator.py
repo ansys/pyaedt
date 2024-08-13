@@ -26,14 +26,24 @@ import os
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.general_methods import generate_unique_project_name
+from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_toml
+from ansys.aedt.core.generic.general_methods import read_configuration_file
+
+if not is_ironpython:
+    from jsonschema import exceptions
+    from jsonschema import validate
 
 
 class FieldsCalculator:
     def __init__(self, app):
-        self.expression_catalog = read_toml(os.path.join(ansys.aedt.core.__path__[0], "misc", "expression_catalog.toml"))
+        self.expression_catalog = read_configuration_file(
+            os.path.join(ansys.aedt.core.__path__[0], "misc", "expression_catalog.toml")
+        )
+        self.expression_schema = read_configuration_file(
+            os.path.join(ansys.aedt.core.__path__[0], "misc", "fields_calculator.schema.json")
+        )
         self.__app = app
         self.design_type = app.design_type
         self.ofieldsreporter = app.ofieldsreporter
@@ -54,8 +64,11 @@ class FieldsCalculator:
 
         Parameters
         ----------
-        calculation :
+        calculation : str, dict
             Calculation type.
+            If provided as a string, it has to be a name defined in the expression_catalog.toml.
+            If provided as a dict, it has to contain all the necessary arguments to define an expression.
+            For reference look at the expression_catalog.toml.
         assignment : int or :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` or
          :class:`ansys.aedt.core.modeler.cad.FacePrimitive
             Name of the object to add the named expression from.
@@ -71,10 +84,15 @@ class FieldsCalculator:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)[0]
 
         if calculation not in self.expression_names:
-            self.__app.logger.error("Calculation is not available.")
-            return False
-
-        expression_info = copy.deepcopy(self.expression_catalog[calculation])
+            if isinstance(calculation, dict):
+                expression_info = self.validate_expression(calculation)
+                if not expression_info:
+                    return False
+            else:
+                self.__app.logger.error("Calculation does not exist in expressions catalog.")
+                return False
+        else:
+            expression_info = copy.deepcopy(self.expression_catalog[calculation])
 
         if not name:
             name = expression_info["name"]
@@ -342,12 +360,51 @@ class FieldsCalculator:
             self.__app.logger.error("File does not exist.")
             return False
 
-        new_expression_catalog = read_toml(input_file)
+        new_expression_catalog = read_configuration_file(input_file)
 
         if new_expression_catalog:
-            self.expression_catalog.update(new_expression_catalog)
+            for _, new_expression_props in new_expression_catalog.items():
+                new_expression = self.validate_expression(new_expression_props)
+                if new_expression:
+                    self.expression_catalog.update(new_expression)
 
         return self.expression_catalog
+
+    @pyaedt_function_handler()
+    def validate_expression(self, expression):
+        """Validate expression file against the schema.
+
+        The default schema can be found in ``pyaedt/misc/fields_calculator.schema.json``.
+
+        Parameters
+        ----------
+        expression : dict
+            Expression defined as a dictionary.
+
+        Returns
+        -------
+        dict or bool
+            Expression if the input expression is valid, ``False`` otherwise.
+        """
+
+        if not isinstance(expression, dict):
+            self.__app.logger.error("Incorrect data type.")
+            return False
+
+        if is_ironpython:  # pragma: no cover
+            self.__app.logger.warning("Iron Python: Unable to validate json Schema.")
+        else:
+            try:
+                validate(instance=expression, schema=self.expression_schema)
+                for prop_name, sub_schema in self.expression_schema["properties"].items():
+                    if "default" in sub_schema and prop_name not in expression:
+                        expression[prop_name] = sub_schema["default"]
+                return expression
+            except exceptions.ValidationError as e:
+                self.__app.logger.warning("Configuration is invalid.")
+                self.__app.logger.warning("Validation error:" + e.message)
+                return False
+        return True
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover

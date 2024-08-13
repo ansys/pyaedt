@@ -105,7 +105,7 @@ elif is_windows:
         student_version=student_version,
     )
 else:
-    print("Error. AEDT should be started in GRPC mode in Linux to connect to Pyaedt")
+    print("Error. AEDT should be started in gRPC mode in Linux to connect to Pyaedt")
     print("use ansysedt -grpcsrv portnumber command.")
     error = True
 if not error:

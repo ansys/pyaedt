@@ -81,17 +81,26 @@ class Modeler3D(Primitives3D):
         warnings.warn(mess, DeprecationWarning)
         return self
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        component_file="input_file",
+        component_name="name",
+        object_list="assignment",
+        boundaries_list="boundaries",
+        excitation_list="excitations",
+        included_cs="coordinate_systems",
+        reference_cs="reference_coordinate_system",
+        auxiliary_dict="export_auxiliary",
+    )
     def create_3dcomponent(
         self,
-        component_file,
-        component_name=None,
+        input_file,
+        name=None,
         variables_to_include=None,
-        object_list=None,
-        boundaries_list=None,
-        excitation_list=None,
-        included_cs=None,
-        reference_cs="Global",
+        assignment=None,
+        boundaries=None,
+        excitations=None,
+        coordinate_systems=None,
+        reference_coordinate_system="Global",
         is_encrypted=False,
         allow_edit=False,
         security_message="",
@@ -101,7 +110,7 @@ class Modeler3D(Primitives3D):
         hide_contents=False,
         replace_names=False,
         component_outline="BoundingBox",
-        auxiliary_dict=False,
+        export_auxiliary=False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
@@ -111,21 +120,21 @@ class Modeler3D(Primitives3D):
 
         Parameters
         ----------
-        component_file : str
+        input_file : str
             Full path to the A3DCOMP file.
-        component_name : str, optional
+        name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
             List of variables to include. The default is all variables.
-        object_list : list, optional
+        assignment : list, optional
             List of object names to export. The default is all object names.
-        boundaries_list : list, optional
+        boundaries : list, optional
             List of Boundaries names to export. The default is all boundaries.
-        excitation_list : list, optional
+        excitations : list, optional
             List of Excitation names to export. The default is all excitations.
-        included_cs : list, optional
+        coordinate_systems : list, optional
             List of Coordinate Systems to export. The default is the ``reference_cs``.
-        reference_cs : str, optional
+        reference_coordinate_system : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
@@ -153,7 +162,7 @@ class Modeler3D(Primitives3D):
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
-        auxiliary_dict : bool or str, optional
+        export_auxiliary : bool or str, optional
             Whether to export the auxiliary file containing information about defined
             datasets and Icepak monitor objects. A destination file can be specified
             using a string.
@@ -182,8 +191,8 @@ class Modeler3D(Primitives3D):
         ----------
         >>> oEditor.Create3DComponent
         """
-        if not component_name:
-            component_name = self._app.design_name
+        if not name:
+            name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
             return False
@@ -198,7 +207,7 @@ class Modeler3D(Primitives3D):
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
-            component_name,
+            name,
             "Company:=",
             "",
             "Company URL:=",
@@ -240,12 +249,12 @@ class Modeler3D(Primitives3D):
             "ComponentOutline:=",
             component_outline,
         ]
-        if object_list:
-            objs = object_list
+        if assignment:
+            objs = assignment
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
-            if not native_components and native_objs and not auxiliary_dict:
+            if not native_components and native_objs and not export_auxiliary:
                 self.logger.warning(
                     "Native component objects cannot be exported. Use native_components argument to"
                     " export an auxiliary dictionary file containing 3D components information"
@@ -259,12 +268,12 @@ class Modeler3D(Primitives3D):
             arg.append([])
         else:
             arg.append(hide_contents)
-        if included_cs:
-            allcs = included_cs
+        if coordinate_systems:
+            allcs = coordinate_systems
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
         par_description = []
         variables = []
         dependent_variables = []
@@ -296,8 +305,8 @@ class Modeler3D(Primitives3D):
         arg.append("VendorComponentIdentifier:="), arg.append("")
         arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries_list is not None:
-            boundaries = boundaries_list
+        if boundaries is not None:
+            boundaries = boundaries
         else:
             boundaries = self.get_boundaries_name()
         arg2.append("Boundaries:="), arg2.append(boundaries)
@@ -310,8 +319,8 @@ class Modeler3D(Primitives3D):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list is not None:
-                excitations = excitation_list
+            if excitations is not None:
+                excitations = excitations
             else:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
@@ -337,9 +346,9 @@ class Modeler3D(Primitives3D):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        if auxiliary_dict:
-            if isinstance(auxiliary_dict, bool):
-                auxiliary_dict = component_file + ".json"
+        if export_auxiliary:
+            if isinstance(export_auxiliary, bool):
+                export_auxiliary = input_file + ".json"
             cachesettings = {
                 prop: getattr(self._app.configurations.options, prop)
                 for prop in vars(self._app.configurations.options)
@@ -401,48 +410,55 @@ class Modeler3D(Primitives3D):
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
                         del out_dict["coordinatesystems"][cs]
-            with open_file(auxiliary_dict, "w") as outfile:
+            with open_file(export_auxiliary, "w") as outfile:
                 json.dump(out_dict, outfile)
-        if not os.path.isdir(os.path.dirname(component_file)):
-            self.logger.warning("Folder '" + os.path.dirname(component_file) + "' doesn't exist.")
+        if not os.path.isdir(os.path.dirname(input_file)):
+            self.logger.warning("Folder '" + os.path.dirname(input_file) + "' doesn't exist.")
             if create_folder:  # Folder doesn't exist.
-                os.mkdir(os.path.dirname(component_file))
-                self.logger.warning("Created folder '" + os.path.dirname(component_file) + "'")
+                os.mkdir(os.path.dirname(input_file))
+                self.logger.warning("Created folder '" + os.path.dirname(input_file) + "'")
             else:
-                self.logger.warning("Unable to create 3D Component: '" + component_file + "'")
+                self.logger.warning("Unable to create 3D Component: '" + input_file + "'")
                 return False
-        self.oeditor.Create3DComponent(arg, arg2, component_file, arg3)
+        self.oeditor.Create3DComponent(arg, arg2, input_file, arg3)
         return True
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        component_name="name",
+        object_list="assignment",
+        boundaries_list="boundaries",
+        excitation_list="excitations",
+        included_cs="coordinate_systems",
+        reference_cs="reference_coordinate_system",
+    )
     def replace_3dcomponent(
         self,
-        component_name=None,
+        name=None,
         variables_to_include=None,
-        object_list=None,
-        boundaries_list=None,
-        excitation_list=None,
-        included_cs=None,
-        reference_cs="Global",
+        assignment=None,
+        boundaries=None,
+        excitations=None,
+        coordinate_systems=None,
+        reference_coordinate_system="Global",
     ):
         """Replace with 3D component.
 
         Parameters
         ----------
-        component_name : str, optional
+        name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
             List of variables to include. The default is ``None``.
-        object_list : list, optional
+        assignment : list, optional
             List of object names to export. The default is all object names.
-        boundaries_list : list, optional
+        boundaries : list, optional
             List of Boundaries names to export. The default is all boundaries.
-        excitation_list : list, optional
+        excitations : list, optional
             List of Excitation names to export. The default is all excitations.
-        included_cs : list, optional
-            List of Coordinate Systems to export. The default is all coordinate systems.
-        reference_cs : str, optional
-            The Coordinate System reference. The default is ``"Global"``.
+        coordinate_systems : list, optional
+            List of coordinate systems to export. The default is all coordinate systems.
+        reference_coordinate_system : str, optional
+            The coordinate system reference. The default is ``"Global"``.
 
         Returns
         -------
@@ -456,13 +472,13 @@ class Modeler3D(Primitives3D):
         """
         if not variables_to_include:
             variables_to_include = []
-        if not component_name:
-            component_name = generate_unique_name(self._app.design_name)
+        if not name:
+            name = generate_unique_name(self._app.design_name)
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
-            component_name,
+            name,
             "Company:=",
             "",
             "Company URL:=",
@@ -486,8 +502,8 @@ class Modeler3D(Primitives3D):
             "HasLabel:=",
             False,
         ]
-        if object_list:
-            objs = object_list
+        if assignment:
+            objs = assignment
         else:
             native_objs = [obj.name for _, v in self.user_defined_components.items() for _, obj in v.parts.items()]
             objs = [obj for obj in self.object_names if obj not in native_objs]
@@ -501,12 +517,10 @@ class Modeler3D(Primitives3D):
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
-        if included_cs:
-            allcs = included_cs
-        else:
-            allcs = self.oeditor.GetCoordinateSystems()
-        arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        if not coordinate_systems:
+            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
+        arg.append("IncludedCS:="), arg.append(coordinate_systems)
+        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
         par_description = []
         variables = []
         if variables_to_include:
@@ -536,8 +550,8 @@ class Modeler3D(Primitives3D):
         arg.append("ParameterDescription:="), arg.append(par_description)
 
         arg2 = ["NAME:DesignData"]
-        if boundaries_list:
-            boundaries = boundaries_list
+        if boundaries:
+            boundaries = boundaries
         else:
             boundaries = self.get_boundaries_name()
         if boundaries:
@@ -551,8 +565,8 @@ class Modeler3D(Primitives3D):
             if meshregions:
                 arg2.append("MeshRegions:="), arg2.append(meshregions)
         else:
-            if excitation_list:
-                excitations = excitation_list
+            if excitations:
+                excitations = excitations
             else:
                 excitations = self._app.excitations
                 if self._app.design_type == "HFSS":
@@ -1339,33 +1353,33 @@ class Modeler3D(Primitives3D):
                     self[obj].color = color
         return scene
 
-    @pyaedt_function_handler
+    @pyaedt_function_handler(objects_list="assignment", segments_number="segments", mesh_sheets_number="mesh_sheets")
     def objects_segmentation(
         self,
-        objects_list,
+        assignment,
         segmentation_thickness=None,
-        segments_number=None,
+        segments=None,
         apply_mesh_sheets=False,
-        mesh_sheets_number=2,
+        mesh_sheets=2,
     ):
         """Get segmentation of an object given the segmentation thickness or number of segments.
 
         Parameters
         ----------
-        objects_list : list, str
+        assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
             a list of :class:`ansys.aedt.core.modeler.cad.object3d.Object3d` classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.
-        segments_number : int, optional
+        segments : int, optional
             Number of segments to segment the object to. The default is ``None``.
         apply_mesh_sheets : bool, optional
             Whether to apply mesh sheets to selected objects.
             Mesh sheets are needed in case the user would like to have additional layers
             inside the objects for a finer mesh and more accurate results. The default is ``False``.
-        mesh_sheets_number : int, optional
+        mesh_sheets : int, optional
             Number of mesh sheets within one magnet segment.
             If nothing is provided and ``apply_mesh_sheets=True``, the default value is ``2``.
 
@@ -1383,37 +1397,35 @@ class Modeler3D(Primitives3D):
             segments that the object has been divided into.
             ``False`` is returned if the method fails.
         """
-        if not segmentation_thickness and not segments_number:
+        if not segmentation_thickness and not segments:
             self.logger.error("Provide at least one option to segment the objects in the list.")
             return False
-        elif segmentation_thickness and segments_number:
+        elif segmentation_thickness and segments:
             self.logger.error("Only one segmentation option can be selected.")
             return False
 
-        objects_list = self.convert_to_selections(objects_list, True)
+        assignment = self.convert_to_selections(assignment, True)
 
         segment_sheets = {}
         segment_objects = {}
-        for obj_name in objects_list:
+        for obj_name in assignment:
             obj = self[obj_name]
             obj_axial_length = GeometryOperators.points_distance(obj.top_face_z.center, obj.bottom_face_z.center)
-            if segments_number:
-                segmentation_thickness = obj_axial_length / segments_number
+            if segments:
+                segmentation_thickness = obj_axial_length / segments
             elif segmentation_thickness:
-                segments_number = round(obj_axial_length / segmentation_thickness)
+                segments = round(obj_axial_length / segmentation_thickness)
             face_object = self.create_object_from_face(obj.bottom_face_z)
             # segment sheets
-            segment_sheets[obj.name] = face_object.duplicate_along_line(
-                ["0", "0", segmentation_thickness], segments_number
-            )
+            segment_sheets[obj.name] = face_object.duplicate_along_line(["0", "0", segmentation_thickness], segments)
             segment_objects[obj.name] = []
             for value in segment_sheets[obj.name]:
                 segment_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
             if apply_mesh_sheets:
-                mesh_sheets = {}
+                sheets = {}
                 mesh_objects = {}
                 # mesh sheets
-                mesh_sheet_position = segmentation_thickness / (mesh_sheets_number + 1)
+                mesh_sheet_position = segmentation_thickness / (mesh_sheets + 1)
                 for i in range(len(segment_objects[obj.name]) + 1):
                     if i == 0:
                         face = obj.bottom_face_z
@@ -1421,11 +1433,9 @@ class Modeler3D(Primitives3D):
                         face = segment_objects[obj.name][i - 1].faces[0]
                     mesh_face_object = self.create_object_from_face(face)
                     self.move(mesh_face_object, [0, 0, mesh_sheet_position])
-                    mesh_sheets[obj.name] = mesh_face_object.duplicate_along_line(
-                        [0, 0, mesh_sheet_position], mesh_sheets_number
-                    )
+                    sheets[obj.name] = mesh_face_object.duplicate_along_line([0, 0, mesh_sheet_position], mesh_sheets)
                 mesh_objects[obj.name] = [mesh_face_object]
-                for value in mesh_sheets[obj.name]:
+                for value in sheets[obj.name]:
                     mesh_objects[obj.name].append([x for x in self.sheet_objects if x.name == value][0])
         face_object.delete()
         if apply_mesh_sheets:
@@ -1525,16 +1535,16 @@ class Modeler3D(Primitives3D):
         except (GrpcApiError, SystemExit):
             return False
 
-    @pyaedt_function_handler
-    def change_region_coordinate_system(self, region_cs="Global", region_name="Region"):
+    @pyaedt_function_handler(region_cs="assignment", region_name="name")
+    def change_region_coordinate_system(self, assignment="Global", name="Region"):
         """
         Change region coordinate system.
 
         Parameters
         ----------
-        region_cs : str, optional
+        assignment : str, optional
             Region coordinate system. Default is ``Global``.
-        region_name : str optional
+        name : str optional
             Region name. Default is ``Region``.
 
         Returns
@@ -1547,11 +1557,11 @@ class Modeler3D(Primitives3D):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
-        >>> app.modeler.change_region_coordinate_system(region_cs="NewCS")
+        >>> app.modeler.change_region_coordinate_system(assignment="NewCS")
         """
         try:
-            create_region_name = self._app.get_oo_object(self._app.oeditor, region_name).GetChildNames()[0]
-            create_region = self._app.get_oo_object(self._app.oeditor, region_name + "/" + create_region_name)
-            return create_region.SetPropValue("Coordinate System", region_cs)
+            create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]
+            create_region = self._app.get_oo_object(self._app.oeditor, name + "/" + create_region_name)
+            return create_region.SetPropValue("Coordinate System", assignment)
         except (GrpcApiError, SystemExit):
             return False

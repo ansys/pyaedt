@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _arg2dict
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements3d import _dict2arg
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
@@ -40,9 +41,10 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 class CircuitPins(object):
     """Manages circuit component pins."""
 
-    def __init__(self, circuit_comp, pinname):
+    def __init__(self, circuit_comp, pinname, pin_number):
         self._circuit_comp = circuit_comp
         self.name = pinname
+        self.pin_number = pin_number
         self._oeditor = circuit_comp._oeditor
 
     @property
@@ -413,6 +415,14 @@ class ModelParameters(object):
 class CircuitComponent(object):
     """Manages circuit components."""
 
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.pins[item - 1]
+        for i in self.pins:
+            if i.name == item:
+                return i
+        raise KeyError("Pin {} not found.".format(item))
+
     @property
     def composed_name(self):
         """Composed names."""
@@ -606,21 +616,22 @@ class CircuitComponent(object):
         if self._pins:
             return self._pins
         self._pins = []
-
+        idx = 1
         try:
             pins = list(self._oeditor.GetComponentPins(self.composed_name))
             if "Port@" in self.composed_name and pins == []:
-                self._pins.append(CircuitPins(self, self.composed_name))
+                self._pins.append(CircuitPins(self, self.composed_name, idx))
                 return self._pins
             elif not pins:
                 return []
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
-                    self._pins.append(CircuitPins(self, pin))
+                    self._pins.append(CircuitPins(self, pin, idx))
                 elif pin not in list(self.parameters.keys()):
-                    self._pins.append(CircuitPins(self, pin))
+                    self._pins.append(CircuitPins(self, pin, idx))
+                idx += 1
         except AttributeError:
-            self._pins.append(CircuitPins(self, self.composed_name))
+            self._pins.append(CircuitPins(self, self.composed_name, idx))
         return self._pins
 
     @property
@@ -681,12 +692,17 @@ class CircuitComponent(object):
                 if "Angle=" in info:
                     self._angle = float(info[6:])
                     break
-        else:
+        elif settings.aedt_version > "2023.2":
             self._angle = float(
                 self._oeditor.GetPropertyValue("BaseElementTab", self.composed_name, "Component Angle").replace(
                     "deg", ""
                 )
             )
+        else:  # pragma: no cover
+            self._circuit_components._app.logger.warning(
+                "Angles are not supported by gRPC in AEDT versions lower than 2024 R1."
+            )
+
         return self._angle
 
     @angle.setter
@@ -938,6 +954,150 @@ class CircuitComponent(object):
         props["ModTime"] = int(time.time())
         self.model_data.props = props
         return self.model_data.update()
+
+    @pyaedt_function_handler()
+    def change_symbol_pin_locations(self, pin_locations):
+        """Change the locations of symbol pins.
+
+        Parameters
+        ----------
+        pin_locations : dict
+            A dictionary with two keys: "left" and "right",
+            each containing a list of pin names to be placed on the left and
+            right sides of the symbol, respectively.
+
+        Returns
+        -------
+        bool
+            ``True`` if pin locations were successfully changed, ``False`` otherwise.
+
+        References
+        ----------
+        >>> oSymbolManager.EditSymbolAndUpdateComps
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> cir = Circuit(my_project)
+        >>> cir.modeler.schematic_units = "mil"
+        >>> ts_path = os.path.join(current_path, "connector_model.s4p")
+        >>> ts_component = cir.modeler.schematic.create_touchstone_component(ts_path, show_bitmap=False)
+        >>> pin_locations = {"left":
+        ...                 ['DDR_CH3_DM_DBI0_BGA_BE47', 'DDR_CH3_DM_DBI1_BGA_BJ50','DDR_CH3_DM_DBI1_DIE_12471'],
+        ...                 "right": ['DDR_CH3_DM_DBI0_DIE_7976']}
+        >>> ts_component.change_symbol_pin_locations(pin_locations)
+        """
+        base_spacing = 0.00254
+        symbol_pin_name_list = self.model_data.props.get("PortNames", [])
+        pin_name_str_max_length = max(len(s) for s in symbol_pin_name_list)
+
+        left_pins = pin_locations["left"]
+        right_pins = pin_locations["right"]
+        left_pins_length = len(left_pins)
+        right_pins_length = len(right_pins)
+        max_pins_length = max(left_pins_length, right_pins_length)
+
+        # Ensure the total number of pins matches the symbol pin names
+        if (right_pins_length + left_pins_length) != len(symbol_pin_name_list):
+            self._circuit_components._app.logger.error(
+                "The number of pins in the input pin_locations does not match the number of pins in the Symbol."
+            )
+            return False
+
+        x_factor = int(pin_name_str_max_length / 3)
+
+        x1 = 0
+        x2 = base_spacing * x_factor
+        y1 = 0
+        y2 = base_spacing * (max_pins_length + 1)
+
+        pin_left_x = -base_spacing
+        pin_left_angle = 0
+        pin_right_x = base_spacing * (x_factor + 1)
+        pin_right_angle = math.pi
+
+        def create_pin_def(pin_name, x, y, angle):
+            pin_def = [pin_name, x, y, angle, "N", 0, base_spacing * 2, False, 0, True, "", True, False, pin_name, True]
+            pin_name_rect = [
+                1,
+                0,
+                0,
+                0,
+                x,
+                y + 0.00176388888889594 / 2,
+                0.00111403508 * len(pin_name),
+                0.00176388888889594,
+                0,
+                0,
+                0,
+            ]
+            pin_text = [
+                x,
+                y + 0.00176388888889594 / 2,
+                0,
+                4,
+                5,
+                False,
+                "Arial",
+                0,
+                pin_name,
+                False,
+                False,
+                "ExtentRect:=",
+                pin_name_rect,
+            ]
+            pin_name_def = [2, 5, 1, "Text:=", pin_text]
+            props_display_map = ["NAME:PropDisplayMap", "PinName:=", pin_name_def]
+            return ["NAME:PinDef", "Pin:=", pin_def, props_display_map]
+
+        args = [
+            "NAME:{}".format(self.model_name),
+            "ModTime:=",
+            int(time.time()),
+            "Library:=",
+            "",
+            "ModSinceLib:=",
+            False,
+            "LibLocation:=",
+            "Project",
+            "HighestLevel:=",
+            1,
+            "Normalize:=",
+            False,
+            "InitialLevels:=",
+            [0, 1],
+        ]
+        terminals_arg = ["NAME:Terminals"]
+
+        yp = base_spacing * max_pins_length
+        for pin_name in left_pins:
+            args.append(create_pin_def(pin_name, pin_left_x, yp, pin_left_angle))
+            yp -= base_spacing
+
+        yp = base_spacing * max_pins_length
+        for pin_name in right_pins:
+            args.append(create_pin_def(pin_name, pin_right_x, yp, pin_right_angle))
+            yp -= base_spacing
+
+        args.append(
+            [
+                "NAME:Graphics",
+                "Rect:=",
+                [0, 0, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, x2 - x1, y2 - y1, 0, 0, 0],
+                "Rect:=",
+                [0, 1, 0, 0, (x1 + x2) / 2, (y1 + y2) / 2, 0.000423333333333333, 0.000423333333333333, 0, 0, 0],
+            ]
+        )
+
+        for pin_name in self.model_data.props.get("PortNames", []):
+            terminals_arg.append("TermAttributes:=")
+            terminals_arg.append([pin_name, pin_name, 0 if pin_name in left_pins else 1, 0, -1, ""])
+
+        edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", self.model_name, terminals_arg]
+
+        self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
+        self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
+        return True
 
 
 class Wire(object):

@@ -251,7 +251,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="DXDOE",
+            optimization_type="DXDOE",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10)
@@ -278,7 +278,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables=None,
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 1, 10, 51)
@@ -286,7 +286,7 @@ class TestClass:
             calculation=None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="optiSLang",
+            optimization_type="optiSLang",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -304,7 +304,7 @@ class TestClass:
             None,
             ranges=None,
             variables=None,
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup1.add_variation("w1", 5, 10, 51)
@@ -312,7 +312,7 @@ class TestClass:
             None,
             ranges=None,
             variables={"w1": "1mm", "w2": "2mm"},
-            optim_type="DesignExplorer",
+            optimization_type="DesignExplorer",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("a1", 1, 10, 51)
@@ -329,7 +329,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Sensitivity",
+            optimization_type="Sensitivity",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 3.2)
@@ -346,7 +346,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation,
             ranges={"Freq": "2.5GHz"},
-            optim_type="Statistical",
+            optimization_type="Statistical",
             solution="{} : {}".format(new_setup.name, sweep.name),
         )
         assert setup2.add_variation("w1", 0.1, 10, 0.3)

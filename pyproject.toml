@@ -8,7 +8,7 @@ name = "pyaedt"
 dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
-requires-python = ">=3.7,<4"
+requires-python = ">=3.8,<4"
 license = {file = "LICENSE"}
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
@@ -19,8 +19,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -37,15 +36,15 @@ dependencies = [
     "fpdf2",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0",
+    "pyedb>=0.4.0; python_version == '3.7'",
+    "pyedb>=0.20.0; python_version > '3.7'",
     "pytomlpp",
     "rpyc>=6.0.0,<6.1",
 ]
 
 [project.optional-dependencies]
 tests = [
-    "imageio>=2.30.0,<2.35",
-    "ipython>=7.30.0,<8.26",
+    "ipython>=7.30.0,<8.27",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.9",
     "mock>=5.1.0,<5.2",
@@ -53,46 +52,39 @@ tests = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.3",
+    "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<5.1",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
-    "cffi==1.15.1; platform_system=='Linux' and python_version == '3.7'",
-    "cffi>=1.16.0,<1.17; platform_system=='Linux' and python_version > '3.7'",
+    "cffi==1.17.0; platform_system=='Linux' and python_version == '3.7'",
+    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
     "ansys-sphinx-theme>=0.10.0,<0.17",
-    "imageio>=2.30.0,<2.35",
-    #"imageio-ffmpeg>=0.4.0,<0.5",
-    "ipython>=7.34.0; python_version == '3.7'",
-    "ipython>=8.13.0,<8.26; python_version > '3.7'",
-    #"ipywidgets>=8.0.0,<8.2",
+    "ipython>=8.13.0,<8.27",
     "joblib>=1.3.0,<1.5",
     "jupyterlab>=4.0.0,<4.3",
     "matplotlib>=3.5.0,<3.9",
     "nbsphinx>=0.9.0,<0.10",
-    "numpydoc>=1.5.0,<1.8",
+    "numpydoc>=1.5.0,<1.9",
     "openpyxl>=3.0.0,<3.2",
     "osmnx>=1.1.0,<1.10",
     "pypandoc>=1.10.0,<1.14",
     #"pytest-sphinx",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.45",
     "recommonmark",
-    "scikit-rf>=0.30.0,<1.2",
-    "Sphinx==5.3.0; python_version == '3.7'",
-    "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
-    "sphinx-autobuild==2021.3.14; python_version == '3.7'",
+    "scikit-rf>=0.30.0,<1.3",
+    "Sphinx>=7.1.0,<7.4",
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
@@ -103,17 +95,12 @@ doc = [
     #"sphinxcontrib-websupport",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 doc-no-examples = [
     "ansys-sphinx-theme>=0.10.0,<0.17",
-    "imageio>=2.30.0,<2.35",
-    #"imageio-ffmpeg",
-    "numpydoc>=1.5.0,<1.8",
+    "numpydoc>=1.5.0,<1.9",
     "recommonmark",
-    "Sphinx==5.3.0; python_version == '3.7'",
-    "Sphinx>=7.1.0,<7.4; python_version > '3.7'",
-    "sphinx-autobuild==2021.3.14; python_version == '3.7'",
+    "Sphinx>=7.1.0,<7.4",
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
@@ -122,39 +109,38 @@ doc-no-examples = [
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.7",
+    "matplotlib>=3.5.0,<3.9",
+    "scikit-rf>=0.30.0,<1.3",
+    "pyvista[io]>=0.38.0,<0.45",
 ]
 all = [
-    "imageio>=2.30.0,<2.35",
     "matplotlib>=3.5.0,<3.9",
     "numpy>=1.20.0,<2",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
 ]
 installer = [
-    "imageio>=2.30.0,<2.35",
     "matplotlib>=3.5.0,<3.9",
     "numpy>=1.20.0,<2",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.44",
+    "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.2",
+    "scikit-rf>=0.30.0,<1.3",
     "SRTM.py",
     "utm",
-    "vtk==9.2.6; python_version < '3.12'",
     "jupyterlab>=3.6.0,<4.3",
-    "ipython>=7.30.0,<8.26",
+    "ipython>=7.30.0,<8.27",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
@@ -176,33 +162,33 @@ profile = "black"
 force_sort_within_sections = true
 line_length = 120
 default_section = "THIRDPARTY"
-src_paths = ["doc", "pyaedt", "_unittests"]
+src_paths = ["doc", "src/ansys/aedt/core", "_unittests"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"
 skip = """
 *.pyc,*.aedt,*.xml,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,\
 *.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./docs/build/*,./docs/images/*,./dist/*,*~,.hypothesis*,\
-./pyaedt/third_party,./docs/source/examples/*,*cover,*.dat,*.mac,PKG-INFO,*.mypy_cache/*,*.xml,*.aedt,*.svg
+./src/ansys/aedt/core/third_party,./docs/source/examples/*,*cover,*.dat,*.mac,PKG-INFO,*.mypy_cache/*,*.xml,*.aedt,*.svg
 """
 enable-colors = true
 
 [tool.coverage.run]
-source = ["pyaedt"]
+source = ["src/ansys/aedt/core"]
 
 [tool.coverage.report]
 show_missing = true
-omit = ["pyaedt/rpc/*.py"]
+omit = ["src/ansys/aedt/core/rpc/*.py"]
 
 [tool.pytest.ini_options]
 minversion = "7.1"
-addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+addopts = "-ra --cov=src/ansys/aedt/core --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
 testpaths = [
     "_unittest",
 ]
 filterwarnings = [
-    "ignore::UserWarning:pyaedt.*",
-    "ignore::DeprecationWarning:pyaedt.*",
+    "ignore::UserWarning:src.ansys.aedt.core.*",
+    "ignore::DeprecationWarning:src.*",
     "ignore::UserWarning:ansys.aedt.core.*",
     "ignore::DeprecationWarning:ansys.aedt.core.*"
 ]

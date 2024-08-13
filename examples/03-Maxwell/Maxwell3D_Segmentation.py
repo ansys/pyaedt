@@ -19,7 +19,7 @@ import tempfile
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory
@@ -72,7 +72,7 @@ modeler = m3d.modeler
 
 segments_number = 5
 object_name = "PM_I1"
-sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_1 = modeler.objects_segmentation(object_name, segments=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment second magnet by specifying the number of segments
@@ -83,7 +83,7 @@ sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_nu
 segments_number = 4
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
-sheets_2 = modeler.objects_segmentation(magnet_id, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_2 = modeler.objects_segmentation(magnet_id, segments=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment third magnet by specifying the segmentation thickness
@@ -104,7 +104,7 @@ sheets_3 = modeler.objects_segmentation(magnet, segmentation_thickness=segmentat
 
 object_name = "PM_O1_1"
 segments_number = 10
-sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
+sheets_4 = modeler.objects_segmentation(object_name, segments=segments_number)
 
 ###################################################################################
 # Save project and close AEDT

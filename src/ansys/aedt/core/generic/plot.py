@@ -32,6 +32,7 @@ import tempfile
 import time
 import warnings
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import is_ironpython
@@ -83,6 +84,8 @@ def update_plot_settings(func, *args, **kwargs):
     if callable(func):
 
         def wrapper(*args, **kwargs):
+            # Turn off interactive mode
+            plt.ioff()
             default_rc_params = plt.rcParams.copy()
             plt.rcParams.update(rc_params)  # Apply new settings.
             out = func(*args, **kwargs)
@@ -375,18 +378,17 @@ def plot_polar_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-
-    ax = plt.subplot(111, projection="polar")
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
 
     label_id = 1
     legend = []
-    for object in plot_data:
-        if len(object) == 3:
-            label = object[2]
+    for plot_object in plot_data:
+        if len(plot_object) == 3:
+            label = plot_object[2]
         else:
             label = "Trace " + str(label_id)
-        theta = np.array(object[0])
-        r = np.array(object[1])
+        theta = np.array(plot_object[0])
+        r = np.array(plot_object[1])
         ax.plot(theta, r)
         ax.grid(True)
         ax.set_theta_zero_location("N")
@@ -398,11 +400,11 @@ def plot_polar_chart(
     if show_legend:
         ax.legend(legend)
 
-    fig = plt.gcf()
+    # fig = plt.gcf()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if snapshot_path:
         fig.savefig(snapshot_path)
-    if show:
+    if show:  # pragma: no cover
         fig.show()
     return fig
 
@@ -419,14 +421,16 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         `[x points, y points, z points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
-    xlabel : str
+    xlabel : str, optional
         Plot X label.
-    ylabel : str
+    ylabel : str, optional
         Plot Y label.
-    title : str
+    title : str, optional
         Plot Title label.
-    snapshot_path : str
+    snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
     Returns
     -------
@@ -434,9 +438,8 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         Matplotlib figure object.
     """
     dpi = 100.0
-
-    ax = plt.subplot(111, projection="3d")
-
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     if isinstance(plot_data[0], np.ndarray):
         x = plot_data[0]
         y = plot_data[1]
@@ -450,13 +453,15 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         x = r * np.sin(theta_grid) * np.cos(phi_grid)
         y = r * np.sin(theta_grid) * np.sin(phi_grid)
         z = r * np.cos(theta_grid)
-    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+
+    ax.set_xlabel(xlabel, labelpad=20)
+    ax.set_ylabel(ylabel, labelpad=20)
+    ax.set_title(title)
     ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=plt.get_cmap("jet"), linewidth=0, antialiased=True, alpha=0.8)
-    fig = plt.gcf()
-    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
+
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    if show:  # pragma: no cover
         fig.show()
     return fig
 
@@ -474,7 +479,7 @@ def plot_2d_chart(
         List of plot data. Every item has to be in the following format
         `[x points, y points, label]`.
     size : tuple, optional
-        Image size in pixel (width, height).
+        Image size in pixel (width, height). The default is `(2000,1600)`.
     show_legend : bool, optional
         Either to show legend or not. The default value is ``True``.
     xlabel : str, optional
@@ -486,6 +491,8 @@ def plot_2d_chart(
     snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
         The default value is ``None``.
+    show : bool, optional
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
     Returns
     -------
@@ -493,8 +500,7 @@ def plot_2d_chart(
         Matplotlib figure object.
     """
     dpi = 100.0
-    ax = plt.subplot(111)
-    fig = plt.gcf()
+    fig, ax = plt.subplots()
     fig.set_size_inches(size[0] / dpi, size[1] / dpi)
     label_id = 1
     for plo_obj in plot_data:
@@ -516,7 +522,7 @@ def plot_2d_chart(
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    elif show and not is_notebook():
+    elif show and not is_notebook():  # pragma: no cover
         fig.show()
     return fig
 
@@ -536,7 +542,7 @@ def plot_matplotlib(
     axis_equal=False,
     annotations=None,
     show=True,
-):
+):  # pragma: no cover
     """Create a matplotlib plot based on a list of data.
 
     Parameters
@@ -577,9 +583,9 @@ def plot_matplotlib(
         Matplotlib figure object.
     """
     dpi = 100.0
-    figsize = (size[0] / dpi, size[1] / dpi)
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(1, 1, 1)
+    fig, ax = plt.subplots()
+    fig.set_size_inches(size[0] / dpi, size[1] / dpi)
+
     if isinstance(plot_data, str):
         plot_data = ast.literal_eval(plot_data)
     for points in plot_data:
@@ -631,7 +637,7 @@ def plot_matplotlib(
 
     if snapshot_path:
         plt.savefig(snapshot_path)
-    if show:
+    if show:  # pragma: no cover
         plt.show()
     return fig
 
@@ -639,62 +645,95 @@ def plot_matplotlib(
 @pyaedt_function_handler()
 @update_plot_settings
 def plot_contour(
-    qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", title="", levels=64, snapshot_path=None, show=True
+    plot_data,
+    size=(2000, 1600),
+    xlabel="",
+    ylabel="",
+    title="",
+    polar=False,
+    levels=64,
+    max_theta=180,
+    color_bar=None,
+    snapshot_path=None,
+    show=True,
 ):
-    """Create a Matplotlib contour plot.
+    """Create a Matplotlib figure contour based on a list of data.
 
     Parameters
     ----------
-    qty_to_plot : :class:`numpy.ndarray`
-        Quantity to plot.
-    x : :class:`numpy.ndarray`
-        X axis quantity.
-    y : :class:`numpy.ndarray`
-        Y axis quantity.
+    plot_data : list of np.ndarray
+        List of plot data. Each item of the list a numpy array. The list has the following format:
+        `[data, x points, y points]`.
     size : tuple, list, optional
-        Window Size. Default is `(2000,1600)`.
+        Image size in pixel (width, height). The default is `(2000,1600)`.
     xlabel : str, optional
-        X Label. Default is `""`.
+        Plot X label. The default value is ``""``.
     ylabel : str, optional
-        Y Label. Default is `""`.
+        Plot Y label. The default value is ``""``.
     title : str, optional
-        Plot Title Label. Default is `""`.
+        Plot Title label. The default value is ``""``.
+    polar : bool, optional
+        Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+        generated is rectangular.
     levels : int, optional
         Color map levels. The default is ``64``.
+    max_theta : float or int, optional
+        Maximum theta angle for plotting. It applies only for polar plots.
+        The default is ``180``, which plots the data for all angles.
+        Setting ``max_theta`` to 90 limits the displayed data to the upper
+        hemisphere, that is (0 < theta < 90).
+    color_bar : str, optional
+        Color bar title. The default is ``None`` in which case the color bar is not included.
     snapshot_path : str, optional
-        Full path to save the image save. The default is ``None``.
+        Full path to image file if a snapshot is needed.
+        The default value is ``None``.
     show : bool, optional
-        Whether to render the figure. The default is ``True``. If
-        ``False``, the image is not drawn.
+        Whether to show the plot or return the matplotlib object. Default is `True`.
 
     Returns
     -------
     :class:`matplotlib.pyplot.Figure`
         Matplotlib figure object.
     """
+
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
-    fig, ax = plt.subplots(figsize=figsize)
-    if title:
-        plt.title(title)
-    if xlabel:
-        plt.xlabel(xlabel)
-    if ylabel:
-        plt.ylabel(ylabel)
 
+    projection = "polar" if polar else "rectilinear"
+    fig, ax = plt.subplots(figsize=figsize, subplot_kw={"projection": projection})
+
+    ax.set_xlabel(xlabel)
+    if polar:
+        ax.set_rticks(np.linspace(0, max_theta, 3))
+    else:
+        ax.set_ylabel(ylabel)
+
+    ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
+    if len(plot_data) != 3:  # pragma: no cover
+        pyaedt_logger.error("Input should contain 3 numpy arrays.")
+        return False
+    ph = plot_data[2]
+    th = plot_data[1]
+    data_to_plot = plot_data[0]
     plt.contourf(
-        x,
-        y,
-        qty_to_plot.T,
+        ph,
+        th,
+        data_to_plot,
         levels=levels,
         cmap="jet",
     )
 
-    plt.colorbar()
+    if color_bar:
+        cbar = plt.colorbar()
+        cbar.set_label(color_bar, rotation=270, labelpad=20)
+
+    ax = plt.gca()
+    ax.yaxis.set_label_coords(-0.1, 0.5)
+
     if snapshot_path:
-        plt.savefig(snapshot_path)
-    if show:
-        plt.show()
+        fig.savefig(snapshot_path)
+    if show:  # pragma: no cover
+        fig.show()
     return fig
 
 
@@ -1733,12 +1772,17 @@ class ModelPlotter(CommonPlotter):
             self.pv.screenshot(exp, return_img=False)
 
         self.pv.add_key_event("s", s_callback)
-        if export_image_path:
-            self.pv.show(screenshot=export_image_path, full_screen=True)
+        if export_image_path:  # pragma: no cover
+            supported_export = [".svg", ".pdf", ".eps", ".ps", ".tex"]
+            extension = os.path.splitext(export_image_path)[1]
+            if extension in supported_export:
+                self.pv.save_graphic(export_image_path)
+            else:
+                self.pv.show(auto_close=False, screenshot=export_image_path, full_screen=True)
         elif show and self.is_notebook:  # pragma: no cover
-            self.pv.show()  # pragma: no cover
+            self.pv.show(auto_close=False)  # pragma: no cover
         elif show:
-            self.pv.show(full_screen=True)  # pragma: no cover
+            self.pv.show(auto_close=False, full_screen=True)  # pragma: no cover
 
         self.image_file = export_image_path
         return True
@@ -1786,7 +1830,8 @@ class ModelPlotter(CommonPlotter):
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+            self.pv.off_screen = self.off_screen
         if self.background_image:
             self.pv.add_background_image(self.background_image)
         else:
@@ -1905,7 +1950,7 @@ class ModelPlotter(CommonPlotter):
         else:
             self.pv.isometric_view()
         self.pv.camera.zoom(self.zoom)
-        cpos = self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
+        self.pv.show(interactive=False, auto_close=False, interactive_update=not self.off_screen)
 
         start = time.time()
         try:
@@ -1956,7 +2001,8 @@ class ModelPlotter(CommonPlotter):
         -------
         Mesh
         """
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
+        self.pv.off_screen = self.off_screen
         self._read_mesh_files()
         if self.array_coordinates:
             duplicate_mesh = self.meshes.copy()
@@ -1965,3 +2011,17 @@ class ModelPlotter(CommonPlotter):
                 translated_mesh.translate(offset_xyz, inplace=True)
                 self.meshes += translated_mesh
         return self.meshes
+
+    def close(self):
+        """Close the render window."""
+        from pyvista.plotting.plotter import _ALL_PLOTTERS
+
+        if not self.pv:
+            pyaedt_logger.error("No plotter.")
+
+        self.pv.close()
+
+        # NOTE: This extra lines of code are used to ensure that unwanted plotter
+        # are not used during the documentation build (see pvista.BUILDING_GALLERY)
+        if _ALL_PLOTTERS is not None:
+            _ALL_PLOTTERS.pop(self.pv._id_name, None)

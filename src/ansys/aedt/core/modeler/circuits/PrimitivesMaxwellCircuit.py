@@ -249,12 +249,12 @@ class MaxwellCircuitComponents(CircuitComponents):
 
     @pyaedt_function_handler(compname="name")
     def create_winding(self, name=None, location=None, angle=0, use_instance_id_netlist=False):
-        """Create an NPN transistor.
+        """Create a winding linked to a Maxwell design.
 
         Parameters
         ----------
         name : str, optional
-            Name of the NPN transistor. The default is ``None``.
+            Name of the winding. The default is ``None``.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional

@@ -378,10 +378,10 @@ class TestClass:
 
     def test_33_aedt_object(self):
         aedt_obj = AedtObjects()
-        assert aedt_obj.odesign
-        assert aedt_obj.oproject
+        assert aedt_obj._odesign
+        assert aedt_obj._oproject
         aedt_obj = AedtObjects(self.aedtapp._desktop_class, self.aedtapp.oproject, self.aedtapp.odesign)
-        assert aedt_obj.odesign == self.aedtapp.odesign
+        assert aedt_obj._odesign == self.aedtapp.odesign
 
     def test_34_force_project_path_disable(self):
         settings.force_error_on_missing_project = True
@@ -443,7 +443,7 @@ class TestClass:
     def test_38_toolkit(self, desktop):
         file = os.path.join(self.local_scratch.path, "test.py")
         with open(file, "w") as f:
-            f.write("import pyaedt\n")
+            f.write("import ansys.aedt.core\n")
         assert customize_automation_tab.add_script_to_menu(name="test_toolkit", script_file=file)
         assert customize_automation_tab.remove_script_from_menu(
             desktop_object=self.aedtapp.desktop_class, name="test_toolkit"
@@ -483,3 +483,18 @@ class TestClass:
             hfss.set_active_design(hfss.design_name)
             assert desktop._connected_app_instances == num_references + 1
         assert desktop._connected_app_instances == num_references
+
+    def test_42_save_project_with_file_name(self):
+        # Save into path with existing parent dir
+        self.aedtapp.create_new_project("Test")
+        new_project = os.path.join(self.local_scratch.path, "new.aedt")
+        assert os.path.exists(self.local_scratch.path)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)
+
+        # Save into path with non-existing parent dir
+        new_parent_dir = os.path.join(self.local_scratch.path, "new_dir")
+        new_project = os.path.join(new_parent_dir, "new_2.aedt")
+        assert not os.path.exists(new_parent_dir)
+        self.aedtapp.save_project(file_name=new_project)
+        assert os.path.isfile(new_project)

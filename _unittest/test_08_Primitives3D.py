@@ -54,6 +54,7 @@ cylinder_primitive_csv_file_wrong_keys = "cylinder_geometry_creation_wrong_keys.
 prism_primitive_csv_file = "prism_geometry_creation.csv"
 prism_primitive_csv_file_missing_values = "prism_geometry_creation_missing_values.csv"
 prism_primitive_csv_file_wrong_keys = "prism_geometry_creation_wrong_keys.csv"
+disco = "input.dsco"
 
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
@@ -92,6 +93,8 @@ def examples(local_scratch):
     test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(local_path, "example_models", test_subfolder, layout_comp)
+    discovery_file = os.path.join(local_path, "example_models", test_subfolder, disco)
+    discovery_file = local_scratch.copyfile(discovery_file)
     return (
         scdoc_file,
         step_file,
@@ -100,6 +103,7 @@ def examples(local_scratch):
         test_98_project,
         test_99_project,
         layout_component,
+        discovery_file,
     )
 
 
@@ -116,6 +120,7 @@ class TestClass:
         self.test_98_project = examples[4]
         self.test_99_project = examples[5]
         self.layout_component = examples[6]
+        self.discovery_file = examples[7]
 
     def create_copper_box(self, name=None):
         if not name:
@@ -165,10 +170,14 @@ class TestClass:
         test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
 
         if self.aedtapp.modeler[name + "segmented"]:
-            self.aedtapp.modeler.delete(name + "segmented")
+            self.aedtapp.modeler.delete(
+                name + "segmented",
+            )
 
         if self.aedtapp.modeler[name + "compound"]:
-            self.aedtapp.modeler.delete(name + "compound")
+            self.aedtapp.modeler.delete(
+                name + "compound",
+            )
 
         p1 = self.aedtapp.modeler.create_polyline(points=test_points, name=name + "segmented")
         p2 = self.aedtapp.modeler.create_polyline(
@@ -589,7 +598,9 @@ class TestClass:
     def test_31_delete_object(self):
         self.create_rectangle(name="MyRectangle")
         assert "MyRectangle" in self.aedtapp.modeler.object_names
-        deleted = self.aedtapp.modeler.delete("MyRectangle")
+        deleted = self.aedtapp.modeler.delete(
+            "MyRectangle",
+        )
         assert deleted
         assert "MyRectangle" not in self.aedtapp.modeler.object_names
 
@@ -620,7 +631,7 @@ class TestClass:
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_36_get_face_center(self):
         plane = self.aedtapp.PLANE.XY
         rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
@@ -1214,38 +1225,35 @@ class TestClass:
         mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            object_list=["Solid", new_obj[1][0], box1.name, box2.name],
-            boundaries_list=[rad.name],
-            excitation_list=[exc.name],
-            included_cs="Global",
             variables_to_include=["test_variable"],
+            assignment=["Solid", new_obj[1][0], box1.name, box2.name],
+            boundaries=[rad.name],
+            excitations=[exc.name],
+            coordinate_systems="Global",
         )
         assert os.path.exists(self.component3d_file)
 
     def test_64_create_3d_component_encrypted(self):
         assert self.aedtapp.modeler.create_3dcomponent(
-            self.component3d_file,
-            included_cs="Global",
-            is_encrypted=True,
-            password="password_test",
+            self.component3d_file, coordinate_systems="Global", is_encrypted=True, password="password_test"
         )
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             hide_contents=["Solid"],
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             password_type="Invalid",
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            included_cs="Global",
+            coordinate_systems="Global",
             is_encrypted=True,
             password="password_test",
             component_outline="Invalid",
@@ -1459,6 +1467,7 @@ class TestClass:
         self.aedtapp.delete_design(self.aedtapp.design_name)
 
     def test_72_check_choke_values(self):
+        self.aedtapp.insert_design("ChokeValues")
         choke_file1 = os.path.join(local_path, "example_models", "choke_json_file", "choke_1winding_1Layer.json")
         choke_file2 = os.path.join(local_path, "example_models", "choke_json_file", "choke_2winding_1Layer_Common.json")
         choke_file3 = os.path.join(
@@ -1759,7 +1768,7 @@ class TestClass:
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
     @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_81_operations_3dcomponent(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
@@ -1797,15 +1806,11 @@ class TestClass:
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
         mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box1.name],
-            variables_to_include=["test_variable"],
+            variables_to_include=["test_variable"], assignment=[box1.name]
         )
         assert isinstance(obj_3dcomp, UserDefinedComponent)
 
-        self.aedtapp.modeler.replace_3dcomponent(
-            component_name="new_comp",
-            object_list=[box2.name],
-        )
+        self.aedtapp.modeler.replace_3dcomponent(name="new_comp", assignment=[box2.name])
         assert len(self.aedtapp.modeler.user_defined_components) == 2
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method available in beta from 2023.1")
@@ -1851,13 +1856,9 @@ class TestClass:
     def test_87_set_mesh_fusion_settings(self):
         self.aedtapp.insert_design("MeshFusionSettings")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 30])
-        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box1.name],
-        )
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(assignment=[box1.name])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [100, 20, 30])
-        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
-            object_list=[box2.name],
-        )
+        obj2_3dcomp = self.aedtapp.modeler.replace_3dcomponent(assignment=[box2.name])
         assert self.aedtapp.set_mesh_fusion_settings(assignment=obj2_3dcomp.name, volume_padding=None, priority=None)
 
         assert self.aedtapp.set_mesh_fusion_settings(
@@ -2003,3 +2004,15 @@ class TestClass:
         out_obj = box.detach_faces([box.top_face_z.id, box.bottom_face_z.id])
         assert len(out_obj) == 3
         assert all(isinstance(o, Object3d) for o in out_obj)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
+    def test_93_import_discovery(self):
+        self.aedtapp.insert_design("DiscoImport")
+        assert not self.aedtapp.modeler.objects
+        assert not self.aedtapp.modeler.solid_bodies
+        if is_linux:
+            assert not self.aedtapp.modeler.import_discovery_model(self.discovery_file)
+        else:
+            assert self.aedtapp.modeler.import_discovery_model(self.discovery_file)
+            assert self.aedtapp.modeler.objects
+            assert self.aedtapp.modeler.solid_bodies

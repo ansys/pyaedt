@@ -83,9 +83,17 @@ class NexximComponents(CircuitComponents):
         if isinstance(partname, int):
             return self.components[partname]
         for el in self.components:
-            if self.components[el].name == partname or self.components[el].composed_name == partname or el == partname:
+            cmp = self.components[el]
+            if (
+                cmp.name == partname
+                or cmp.composed_name == partname
+                or el == partname
+                or cmp.refdes == partname
+                or cmp.parameters.get("InstanceName", "") == partname
+            ):
                 return self.components[el]
-
+        if isinstance(partname, CircuitComponent):
+            return partname
         return None
 
     @property

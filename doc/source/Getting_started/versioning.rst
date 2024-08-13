@@ -18,8 +18,8 @@ gRPC interface
 
 This is the default and preferred interface to connect to AEDT.
 Ansys 2022 R2 and later support the latest gRPC interface, allowing
-for remote management of MAPDL with rapid streaming of mesh, results,
-and files from the MAPDL service.
+for remote management of AEDT with rapid streaming of mesh, results,
+and files from the AEDT service.
 
 
 Legacy interfaces

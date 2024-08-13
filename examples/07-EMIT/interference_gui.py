@@ -20,7 +20,7 @@ import subprocess
 import ansys.aedt.core.generic.constants as consts
 
 # Check that emit is a compatible version
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 if aedt_version < "2023.2":
     print("Must have v2023.2 or later")
     sys.exit()

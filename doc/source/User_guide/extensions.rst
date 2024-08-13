@@ -17,10 +17,34 @@ Project extension apply to all extensions that are applicable for all AEDT appli
 .. grid:: 2
 
    .. grid-item-card:: Import Nastran
-            :link: pyaedt_extensions_doc/project
+            :link: pyaedt_extensions_doc/project/import_nastran
             :link-type: doc
 
             Import a Nastran or STL file in any 3D modeler application.
+
+   .. grid-item-card:: Configure Layout
+            :link: pyaedt_extensions_doc/project/configure_edb
+            :link-type: doc
+
+            Configure layout for PCB & package analysis.
+
+   .. grid-item-card:: Advanced Fields Calculator
+            :link: pyaedt_extensions_doc/project/advanced_fields_calculator
+            :link-type: doc
+
+            Lear how to use the Advanced Fields Calculator.
+
+   .. grid-item-card:: Kernel converter
+            :link: pyaedt_extensions_doc/project/kernel_convert
+            :link-type: doc
+
+            Lear how to convert projects from 2022R2 to newer versions.
+
+   .. grid-item-card:: Parametrize Layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
+            :link-type: doc
+
+            Learn how to parametrize a full aedb.
 
 .. toctree::
    :hidden:

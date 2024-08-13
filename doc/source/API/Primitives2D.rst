@@ -25,7 +25,7 @@ The ``Modeler`` module contains all properties and methods needed to edit a
 modeler, including all primitives methods and properties:
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary

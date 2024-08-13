@@ -20,7 +20,7 @@ project_full_name = ansys.aedt.core.downloads.download_sbr(ansys.aedt.core.gener
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

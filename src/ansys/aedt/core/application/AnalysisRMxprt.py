@@ -89,7 +89,7 @@ class FieldAnalysisRMxprt(Analysis):
         -------
         :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:  # pragma: no cover
+        if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
             from ansys.aedt.core.modules.PostProcessor import CircuitPostProcessor
 
@@ -107,7 +107,7 @@ class FieldAnalysisRMxprt(Analysis):
         :class:`ansys.aedt.core.modules.modeler2d.ModelerRMxprt`
 
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.modeler2d import ModelerRMxprt
 
             self._modeler = ModelerRMxprt(self)
@@ -129,7 +129,7 @@ class FieldAnalysisRMxprt(Analysis):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._design_type = "RMxprtSolution"
+        self.design_type = "RMxprtSolution"
         self.solution_type = solution_type
         return True
 
@@ -148,9 +148,44 @@ class FieldAnalysisRMxprt(Analysis):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._design_type = "ModelCreation"
+        self.design_type = "ModelCreation"
         self.solution_type = solution_type
         return True
+
+    @pyaedt_function_handler()
+    def create_maxwell_design(self, setup_name, variation="", maxwell_2d=True):
+        """Create a Maxwell design from Rmxprt project. Setup has to be solved to run this method.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of setup.
+        variation : str, optional
+            Variation string to be applied.
+        maxwell_2d : bool, optional
+            Whether if the model has to be exported in Maxwell 2D or Maxwell 3D. Default is ``True``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.maxwell.Maxwell2d` or :class:`ansys.aedt.core.maxwell.Maxwell3d`
+            Maxwell object.
+        """
+        des_list = self.design_list[::]
+        self.oanalysis.CreateMaxwellDesign(0 if maxwell_2d else 1, setup_name, variation)
+        new_des_list = [i for i in self.design_list[::] if i not in des_list and "Maxwell" in i]
+        if new_des_list:
+            if maxwell_2d:
+                from ansys.aedt.core.maxwell import Maxwell2d
+
+                app = Maxwell2d(design=new_des_list[0])
+                return app
+            else:
+                from ansys.aedt.core import Maxwell3d
+
+                app = Maxwell3d(design=new_des_list[0])
+                return app
+        self.logger.error("Failed to generate the Maxwell project.")
+        return False
 
     @pyaedt_function_handler()
     def set_material_threshold(self, conductivity=100000, permeability=100):

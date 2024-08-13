@@ -111,7 +111,7 @@ class AnalysisMaxwellCircuit(Analysis):
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerMaxwellCircuit`
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
 
             self._modeler = ModelerMaxwellCircuit(self)

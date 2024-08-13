@@ -49,7 +49,7 @@ They contain all getters and setters to simplify object manipulation.
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
@@ -104,7 +104,7 @@ method or the ``coordinate_systems`` list. The ``GeometryOperators`` class can b
 imported and used because it is made by static methods.
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary

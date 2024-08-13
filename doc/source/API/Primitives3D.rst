@@ -49,7 +49,7 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary

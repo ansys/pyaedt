@@ -19,7 +19,7 @@ design and project variables in the 3D tools.
     ...
 
 
-.. currentmodule:: pyaedt.application.Variables
+.. currentmodule:: ansys.aedt.core.application.Variables
 
 .. autosummary::
    :toctree: _autosummary

@@ -148,7 +148,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.modeler.modeler3d.Modeler3D` or :class:`ansys.aedt.core.modeler.modeler2d.Modeler2D`
             Modeler object.
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             self.logger.reset_timer()
 
             from ansys.aedt.core.modeler.modeler2d import Modeler2D
@@ -167,7 +167,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.modules.Mesh.Mesh` or :class:`ansys.aedt.core.modules.MeshIcepak.IcepakMesh`
             Mesh object.
         """
-        if self._mesh is None:
+        if self._mesh is None and self._odesign:
             self.logger.reset_timer()
 
             from ansys.aedt.core.modules.Mesh import Mesh
@@ -187,7 +187,7 @@ class FieldAnalysis3D(Analysis, object):
         :class:`ansys.aedt.core.modules.AdvancedPostProcessing.PostProcessor`
             PostProcessor object.
         """
-        if self._post is None:
+        if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
                 from ansys.aedt.core.modules.PostProcessor import PostProcessor
@@ -692,6 +692,22 @@ class FieldAnalysis3D(Analysis, object):
         return list(self.osolution.GetAllSources())
 
     @pyaedt_function_handler()
+    def get_all_source_modes(self):
+        """Retrieve all source modes.
+
+        Returns
+        -------
+        list of str
+            List of all source modes.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSources
+        """
+        return list(self.osolution.GetAllSourceModes())
+
+    @pyaedt_function_handler()
     def set_source_context(self, sources, number_of_modes=1):
         """Set the source context.
 
@@ -1096,7 +1112,7 @@ class FieldAnalysis3D(Analysis, object):
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
-                app[var] = val
+                self[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
             monitor_cache = {}

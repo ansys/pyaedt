@@ -397,6 +397,7 @@ model.index\+
 /.env
 /.venv*
 /doc/source/local_config.json
+/.venv*
 
 # test coverage output
 /.cov/

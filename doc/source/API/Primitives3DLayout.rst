@@ -29,7 +29,7 @@ modeler, including all primitives methods and properties:
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
@@ -43,7 +43,7 @@ Objects in HFSS 3D Layout
 The following classes define the object properties for HFSS 3D Layout.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.pcb
+.. currentmodule:: ansys.aedt.core.modeler.pcb
 
 .. autosummary::
    :toctree: _autosummary

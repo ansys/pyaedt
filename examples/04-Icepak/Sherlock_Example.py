@@ -23,7 +23,7 @@ input_dir = ansys.aedt.core.downloads.download_sherlock(destination=project_fold
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -215,7 +215,7 @@ print(total)
 # Analyze the model
 # ~~~~~~~~~~~~~~~~~
 
-ipk.analyze(cores=4, tasks=4)
+# ipk.analyze(cores=4, tasks=4)
 ipk.save_project()
 
 ###############################################################################
@@ -223,7 +223,7 @@ ipk.save_project()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 plot1 = ipk.post.create_fieldplot_surface(ipk.modeler["COMP_U10"].faces, "SurfTemperature")
-ipk.post.plot_field("SurfPressure", ipk.modeler["COMP_U10"].faces, show=False, export_path=ipk.working_directory)
+# ipk.post.plot_field("SurfPressure", ipk.modeler["COMP_U10"].faces, show=False, export_path=ipk.working_directory)
 
 
 ###############################################################################

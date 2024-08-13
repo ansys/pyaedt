@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor`."""
+"""This module contains these classes: ``Q2d``, ``Q3d``, and ``QExtractor``."""
 
 from __future__ import absolute_import  # noreorder
 

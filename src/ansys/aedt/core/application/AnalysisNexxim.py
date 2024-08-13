@@ -180,7 +180,7 @@ class FieldAnalysisCircuit(Analysis):
         :class:`ansys.aedt.core.modules.AdvancedPostProcessing.CircuitPostProcessor`
             PostProcessor object.
         """
-        if self._post is None:
+        if self._post is None and self._odesign:
             self.logger.reset_timer()
             from ansys.aedt.core.modules.PostProcessor import CircuitPostProcessor
 
@@ -221,7 +221,7 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def modeler(self):
         """Modeler object."""
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             self.logger.reset_timer()
             from ansys.aedt.core.modeler.schematic import ModelerNexxim
 

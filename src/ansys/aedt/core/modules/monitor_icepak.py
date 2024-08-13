@@ -98,13 +98,16 @@ class Monitor:
             self.quantities_dict = quantities_dict_2
         else:
             self.quantities_dict = quantities_dict_1
-        self._omonitor = self._app.odesign.GetModule("Monitor")
         if self._app.design_properties:  # if is not a 3d comp/blank file
             aedtfile_monitor_dict = self._app.design_properties["Monitor"]["IcepakMonitors"].copy()
             del aedtfile_monitor_dict["NextUniqueID"]
             del aedtfile_monitor_dict["MoveBackwards"]
             if aedtfile_monitor_dict:
                 self._load_monitor_objects(aedtfile_monitor_dict)
+
+    @property
+    def _omonitor(self):
+        return self._app.omonitor
 
     @pyaedt_function_handler
     def _find_point(self, position):

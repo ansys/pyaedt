@@ -407,3 +407,42 @@ class TestClass:
             self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
                 points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}, thickness=50
             )
+
+    def test_15_thermalmodifier_and_spatialmodifier(self):
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier is None
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier is None
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = "1"
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier == "1"
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = "1"
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier == "1"
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier is None
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = "2"
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier == "2"
+
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier is None
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = "2"
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier == "2"
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier is None
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier is None
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = "3"
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier == "3"
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = "3"
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier == "3"
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = "4"
+        assert self.aedtapp.materials["vacuum"].conductivity.thermalmodifier == "4"
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = "4"
+        assert self.aedtapp.materials["vacuum"].conductivity.spatialmodifier == "4"
+
+        self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
+        self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None

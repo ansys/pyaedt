@@ -241,7 +241,7 @@ class TestClass:
                 handler.close()
                 logger._global.removeHandler(handler)
         assert stream_content[0] == "PyAEDT INFO: Info for Global\n"
-        assert stream_content[1] == "PyAEDT INFO: StdOut is enabled\n"
+        assert stream_content[1] == "PyAEDT INFO: Log on console is enabled.\n"
         assert stream_content[2] == "PyAEDT INFO: Info after re-enabling the stdout handler.\n"
 
 

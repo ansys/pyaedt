@@ -22,7 +22,7 @@ from ansys.aedt.core.generic.general_methods import write_csv
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory

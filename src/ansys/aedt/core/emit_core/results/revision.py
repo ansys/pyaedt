@@ -413,7 +413,7 @@ class Revision:
         1048576
         """
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+            raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             max_instances = engine.n_to_1_limit
@@ -424,7 +424,7 @@ class Revision:
     @n_to_1_limit.setter
     def n_to_1_limit(self, max_instances):
         if self.emit_project._aedt_version < "2024.1":  # pragma: no cover
-            raise RuntimeError("This function only supported in AEDT version 2024.1 and later.")
+            raise RuntimeError("This function is only supported in AEDT version 2024.1 and later.")
         if self.revision_loaded:
             engine = self.emit_project._emit_api.get_engine()
             engine.n_to_1_limit = max_instances

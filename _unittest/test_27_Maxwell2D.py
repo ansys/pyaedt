@@ -46,6 +46,8 @@ ctrl_prg_file = "timestep_only.py"
 
 m2d_fields = "maxwell_e_line_export_field"
 
+m2d_external_circuit = "External_Circuit"
+
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
@@ -70,12 +72,19 @@ def m2d_field_export(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def m2d_circuit(add_app):
+    app = add_app(application=Maxwell2d, project_name=m2d_external_circuit, subfolder=test_subfolder)
+    return app
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, m2d_ctrl_prg, m2d_field_export, local_scratch):
+    def init(self, aedtapp, m2d_ctrl_prg, m2d_field_export, m2d_circuit, local_scratch):
         self.aedtapp = aedtapp
         self.m2d_ctrl_prg = m2d_ctrl_prg
         self.m2d_field_export = m2d_field_export
+        self.m2d_circuit = m2d_circuit
         self.local_scratch = local_scratch
 
     def test_03_assign_initial_mesh_from_slider(self):
@@ -595,6 +604,13 @@ class TestClass:
     def test_38_export_fields_calc(self):
         output_file = os.path.join(self.local_scratch.path, "e_tang_field.fld")
         assert self.m2d_field_export.post.export_field_file(
-            quantity="E_Line", output_dir=output_file, assignment="Poly1", objects_type="Line"
+            quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
         )
         assert os.path.exists(output_file)
+
+    def test_39_create_external_circuit(self):
+        assert self.m2d_circuit.create_external_circuit()
+        assert self.m2d_circuit.create_external_circuit(circuit_design="test_cir")
+        self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        assert not self.m2d_circuit.create_external_circuit()
+        self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY

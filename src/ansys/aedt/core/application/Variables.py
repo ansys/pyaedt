@@ -1012,7 +1012,7 @@ class VariableManager(object):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> aedtapp = Maxwell3d(specified_version="2024.1")
+        >>> aedtapp = Maxwell3d(specified_version="2024.2")
 
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.

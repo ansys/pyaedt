@@ -123,7 +123,7 @@ class AnalysisTwinBuilder(Analysis):
         -------
         :class:`ansys.aedt.core.modeler.schematic.ModelerTwinBuilder`
         """
-        if self._modeler is None:
+        if self._modeler is None and self._odesign:
             from ansys.aedt.core.modeler.schematic import ModelerTwinBuilder
 
             self._modeler = ModelerTwinBuilder(self)
@@ -137,7 +137,7 @@ class AnalysisTwinBuilder(Analysis):
         -------
         :class:`ansys.aedt.core.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:  # pragma: no cover
+        if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
             from ansys.aedt.core.modules.PostProcessor import CircuitPostProcessor
 
