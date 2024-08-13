@@ -1,1 +1,1 @@
-from ansys.aedt.core.modules.SolveSweeps import *
+from ansys.aedt.core.modules.solve_sweeps import *

@@ -68,7 +68,7 @@ from ansys.aedt.core.modules.solve_setup import SetupIcepak
 from ansys.aedt.core.modules.solve_setup import SetupMaxwell
 from ansys.aedt.core.modules.solve_setup import SetupQ3D
 from ansys.aedt.core.modules.solve_setup import SetupSBR
-from ansys.aedt.core.modules.SolveSweeps import SetupProps
+from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 if is_linux and is_ironpython:
     import subprocessdotnet as subprocess  # nosec

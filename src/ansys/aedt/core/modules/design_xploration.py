@@ -38,7 +38,7 @@ from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultparametricSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultsensitivitySetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultstatisticalSetup
-from ansys.aedt.core.modules.SolveSweeps import SetupProps
+from ansys.aedt.core.modules.solve_sweeps import SetupProps
 
 
 class CommonOptimetrics(PropsManager, object):
