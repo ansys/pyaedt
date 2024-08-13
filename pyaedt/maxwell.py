@@ -42,6 +42,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_configuration_file
 from pyaedt.generic.general_methods import write_configuration_file
 from pyaedt.generic.settings import settings
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
@@ -1057,6 +1058,65 @@ class Maxwell(object):
 
         props = OrderedDict({"Faces": assignment, "Voltage Drop": amplitude, "Point out of terminal": swap_direction})
         bound = BoundaryObject(self, name, props, "VoltageDrop")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def assign_floating(self, assignment, charge_value=0, name=None):
+        """Assign floating excitation to model conductors at unknown potentials
+        and specify the total charge on the conductor.
+
+        Parameters
+        ----------
+        assignment : list of int, :class:`pyaedt.modeler.cad.object3d.Object3d`,
+                    :class:`pyaedt.modeler.Object3d.FacePrimitive` or str
+            List of objects or faces to assign the excitation to.
+        charge_value : int, float, optional
+            Charge value.
+            If not provided, The default is ``0``.
+        name : str, optional
+            Name of the excitation.
+            If not provided, a random name with prefix "Floating" will be generated.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+            ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AssignFloating
+
+        """
+        if self.solution_type not in ["Electrostatic", "ElectricTransient"]:
+            self.logger.error(
+                "Assign floating excitation is only valid for electrostatic or electric transient solvers."
+            )
+            return False
+
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+
+        if isinstance(charge_value, (int, float)):
+            charge_value = str(charge_value)
+
+        if self.dim == "3D" and all([isinstance(a, FacePrimitive) for a in assignment]):
+            assignment_type = "Faces"
+        else:
+            assignment_type = "Objects"
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        props = OrderedDict({assignment_type: assignment, "Value": charge_value})
+
+        if not name:
+            name = generate_unique_name("Floating")
+
+        bound = BoundaryObject(self, name, props, "AssignFloating")
         if bound.create():
             self._boundaries[bound.name] = bound
             return bound
