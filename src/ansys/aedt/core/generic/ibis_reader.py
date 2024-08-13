@@ -31,8 +31,8 @@ import ansys.aedt.core
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import check_if_path_exists
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import get_filename_without_extension
+from ansys.aedt.core.generic.general_methods import open_file
 
 
 class Component:

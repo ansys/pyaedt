@@ -23,13 +23,12 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-
-# from ..filtersolutions_resources import resource_path
-import pytest
-
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.generic.general_methods import is_linux
+
+# from ..filtersolutions_resources import resource_path
+import pytest
 
 from ..resources import read_resource_file
 

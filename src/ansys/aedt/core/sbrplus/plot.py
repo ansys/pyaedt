@@ -27,13 +27,12 @@ import math
 import os
 import warnings
 
-import numpy as np
-import pyvista as pv
-
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.plot import CommonPlotter
 from ansys.aedt.core.generic.plot import ObjClass
+import numpy as np
+import pyvista as pv
 
 
 class HDMPlotter(CommonPlotter):

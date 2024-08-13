@@ -43,10 +43,10 @@ from ansys.aedt.core.generic.DataHandlers import json_to_dict
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import _uname
+from ansys.aedt.core.generic.general_methods import ansys.aedt.core_function_handler
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
-from ansys.aedt.core.generic.general_methods import ansys.aedt.core_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.modeler.cad.Modeler import BaseCoordinateSystem
 from ansys.aedt.core.modeler.cad.Modeler import CoordinateSystem

@@ -23,8 +23,6 @@
 
 import os
 
-from pyedb import Edb
-
 import ansys.aedt.core
 import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
@@ -32,6 +30,7 @@ from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+from pyedb import Edb
 
 port = get_port()
 version = get_aedt_version()

@@ -23,11 +23,10 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-import pytest
-
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.generic.general_methods import is_linux
+import pytest
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")

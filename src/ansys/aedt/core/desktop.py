@@ -1116,7 +1116,9 @@ class Desktop(object):
             if self.machine and self.machine != "127.0.0.1":  # pragma: no cover
                 self.logger.error("New session of AEDT cannot be started on remote machine from Desktop Class.")
                 self.logger.error("Either use port argument or start an rpc session to start AEDT on remote machine.")
-                self.logger.error("Use client = ansys.aedt.core.common_rpc.client(machinename) to start a remote session.")
+                self.logger.error(
+                    "Use client = ansys.aedt.core.common_rpc.client(machinename) to start a remote session."
+                )
                 self.logger.error("Use client.aedt(port) to start aedt on remote machine before connecting.")
             elif new_aedt_session:
                 self.port = _find_free_port()

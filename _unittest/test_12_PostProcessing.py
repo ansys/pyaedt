@@ -37,7 +37,6 @@ from ansys.aedt.core.generic.pdf import AnsysReport
 from ansys.aedt.core.generic.plot import _parse_aedtplt
 from ansys.aedt.core.generic.plot import _parse_streamline
 from ansys.aedt.core.generic.settings import settings
-
 import pandas as pd
 import pytest
 

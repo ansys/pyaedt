@@ -30,9 +30,6 @@ import re
 from struct import unpack
 import subprocess  # nosec
 
-from numpy import float64
-from numpy import zeros
-
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_value
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
@@ -42,6 +39,8 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.misc import current_version
 from ansys.aedt.core.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+from numpy import float64
+from numpy import zeros
 
 
 class SpiSim:

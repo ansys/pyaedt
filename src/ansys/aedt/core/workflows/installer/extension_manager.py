@@ -27,7 +27,6 @@ from tkinter import ttk
 
 import PIL.Image
 import PIL.ImageTk
-
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import is_windows
 import ansys.aedt.core.workflows
@@ -292,7 +291,9 @@ def button_is_clicked(
             else:
                 executable_interpreter = os.path.join(pyaedt_venv_dir, "bin", "python")
             if not file:
-                file = os.path.join(os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py")
+                file = os.path.join(
+                    os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
+                )
             if os.path.isfile(executable_interpreter):
                 template_file = "run_pyaedt_toolkit_script"
                 if selected_toolkit_info:

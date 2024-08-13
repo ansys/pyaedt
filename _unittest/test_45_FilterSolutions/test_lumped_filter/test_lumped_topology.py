@@ -23,14 +23,13 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-import pytest
-
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.general_methods import is_linux
+import pytest
 
 from ..resources import read_resource_file
 
