@@ -1102,10 +1102,9 @@ class Mesh(object):
             name = generate_unique_name("SkinDepth")
 
         if self._app.design_type == "Maxwell 2D":
-            seltype = "Edges"
             props = OrderedDict(
                 {
-                    seltype: assignment,
+                    "Edges": assignment,
                     "SkinDepth": skin_depth,
                     "NumLayers": layers_number,
                 }
