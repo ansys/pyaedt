@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.general_methods import ansys.aedt.core_function_han
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_number
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.modeler.cad.Modeler import BaseCoordinateSystem
 from ansys.aedt.core.modeler.cad.Modeler import CoordinateSystem
