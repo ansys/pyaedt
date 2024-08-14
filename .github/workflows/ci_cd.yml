@@ -472,7 +472,7 @@ jobs:
 
   package:
     name: Package library
-    needs: [test-windows, test-solvers-windows, test-ironpython-windows, test-linux, test-solvers-linux, doc-build]
+    needs: [test-windows, test-solvers-windows, test-linux, test-solvers-linux, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts
