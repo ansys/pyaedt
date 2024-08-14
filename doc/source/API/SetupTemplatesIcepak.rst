@@ -16,9 +16,9 @@ You can edit a setup after it is created. Here is an example:
 
 Available turbulent models are: ``"ZeroEquation"``, ``"TwoEquation"``, ``"EnhancedTwoEquation"``, ``"RNG"``, ``"EnhancedRNG"``, ``"RealizableTwoEquation"``, ``"EnhancedRealizableTwoEquation"``, ``"SpalartAllmaras"``, ``"kOmegaSST"``.
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientFlowOnly
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientTemperatureOnly
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.TransientTemperatureAndFlow
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyFlowOnly
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyTemperatureOnly
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.SteadyTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientFlowOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.TransientTemperatureAndFlow
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyFlowOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyTemperatureOnly
+.. pprint:: ansys.aedt.core.modules.setup_templates.SteadyTemperatureAndFlow

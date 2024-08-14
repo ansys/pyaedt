@@ -21,7 +21,7 @@ optimetrics setups.
 
     ...
 
-.. currentmodule:: ansys.aedt.core.modules.DesignXPloration
+.. currentmodule:: ansys.aedt.core.modules.design_xploration
 
 .. autosummary::
    :toctree: _autosummary

@@ -35,7 +35,7 @@ modeler, including all primitives methods and properties:
    :toctree: _autosummary
    :nosignatures:
 
-   modelerpcb.Modeler3DLayout
+   modeler_pcb.Modeler3DLayout
 
 
 Objects in HFSS 3D Layout
@@ -49,15 +49,15 @@ They contain all getters and setters to simplify object manipulation.
    :toctree: _autosummary
    :nosignatures:
 
-   object3dlayout.Components3DLayout
-   object3dlayout.Nets3DLayout
-   object3dlayout.Pins3DLayout
-   object3dlayout.Line3dLayout
-   object3dlayout.Polygons3DLayout
-   object3dlayout.Circle3dLayout
-   object3dlayout.Rect3dLayout
-   object3dlayout.Points3dLayout
-   object3dlayout.Padstack
+   object_3d_layout.Components3DLayout
+   object_3d_layout.Nets3DLayout
+   object_3d_layout.Pins3DLayout
+   object_3d_layout.Line3dLayout
+   object_3d_layout.Polygons3DLayout
+   object_3d_layout.Circle3dLayout
+   object_3d_layout.Rect3dLayout
+   object_3d_layout.Points3dLayout
+   object_3d_layout.Padstack
 
 .. code:: python
 

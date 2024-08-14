@@ -8,7 +8,7 @@ This section lists setup modules:
 
 The ``Setup`` object is accessible through the ``create_setup`` method and ``setups`` object list.
 
-.. currentmodule:: ansys.aedt.core.modules.SolveSetup
+.. currentmodule:: ansys.aedt.core.modules.solve_setup
 
 .. autosummary::
    :toctree: _autosummary
@@ -51,7 +51,7 @@ This section lists sweep classes and their default values:
 The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
-.. currentmodule:: ansys.aedt.core.modules.SolveSweeps
+.. currentmodule:: ansys.aedt.core.modules.solve_sweeps
 
 .. autosummary::
    :toctree: _autosummary

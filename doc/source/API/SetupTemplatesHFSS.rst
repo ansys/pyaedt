@@ -17,9 +17,9 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSSDrivenAuto
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSSDrivenDefault
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSSDrivenDefault
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSSTransient
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSSSBR
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenAuto
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenDefault
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenDefault
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSSBR
 

@@ -17,7 +17,7 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.MechTerm
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.MechModal
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.MechStructural
+.. pprint:: ansys.aedt.core.modules.setup_templates.MechTerm
+.. pprint:: ansys.aedt.core.modules.setup_templates.MechModal
+.. pprint:: ansys.aedt.core.modules.setup_templates.MechStructural
 

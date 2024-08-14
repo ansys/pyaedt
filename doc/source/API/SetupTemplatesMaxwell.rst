@@ -16,8 +16,8 @@ You can edit a setup after it is created. Here is an example:
     setup.props["MaximumPasses"] = 5
     setup.update ()
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.MaxwellTransient
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.Magnetostatic
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.Electrostatic
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.EddyCurrent
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.ElectricTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.MaxwellTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.Magnetostatic
+.. pprint:: ansys.aedt.core.modules.setup_templates.Electrostatic
+.. pprint:: ansys.aedt.core.modules.setup_templates.EddyCurrent
+.. pprint:: ansys.aedt.core.modules.setup_templates.ElectricTransient

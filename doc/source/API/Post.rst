@@ -4,7 +4,7 @@ This section lists modules for creating and editing
 plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
-   Some capabilities of the ``AdvancedPostProcessing`` module require Python 3 and
+   Some capabilities of the ``advanced_post_processing`` module require Python 3 and
    installations of the `numpy <https://numpy.org/doc/stable/>`_,
    `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_ 
    packages.
@@ -20,7 +20,7 @@ plots in AEDT. They are accessible through the ``post`` property.
    :toctree: _autosummary
    :nosignatures:
 
-   AdvancedPostProcessing.PostProcessor
+   advanced_post_processing.PostProcessor
 
 
 .. code:: python

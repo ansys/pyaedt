@@ -19,4 +19,4 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.HFSS3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSS3DLayout

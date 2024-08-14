@@ -26,7 +26,7 @@ They are accessible through:
    :toctree: _autosummary
    :nosignatures:
 
-   CableModeling.Cable
+   cable_modeling.Cable
 
 Cable bundle creation example:
 
@@ -34,7 +34,7 @@ Cable bundle creation example:
 
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
-    from ansys.aedt.core.modules.CableModeling import Cable
+    from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
@@ -66,7 +66,7 @@ Clock source creation example:
 
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
-    from ansys.aedt.core.modules.CableModeling import Cable
+    from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
@@ -98,7 +98,7 @@ Cable harness creation example:
 
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.generic.DataHandlers import json_to_dict
-    from ansys.aedt.core.modules.CableModeling import Cable
+    from ansys.aedt.core.modules.cable_modeling import Cable
 
     hfss = Hfss(projectname=project_path, specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,

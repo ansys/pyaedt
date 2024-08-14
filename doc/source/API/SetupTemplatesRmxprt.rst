@@ -17,17 +17,17 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.GRM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.DFIG
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.TPIM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.TPSM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.BLDC
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.ASSM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.PMDC
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.SRM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.LSSM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.UNIM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.DCM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.CPSM
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NSSM
+.. pprint:: ansys.aedt.core.modules.setup_templates.GRM
+.. pprint:: ansys.aedt.core.modules.setup_templates.DFIG
+.. pprint:: ansys.aedt.core.modules.setup_templates.TPIM
+.. pprint:: ansys.aedt.core.modules.setup_templates.TPSM
+.. pprint:: ansys.aedt.core.modules.setup_templates.BLDC
+.. pprint:: ansys.aedt.core.modules.setup_templates.ASSM
+.. pprint:: ansys.aedt.core.modules.setup_templates.PMDC
+.. pprint:: ansys.aedt.core.modules.setup_templates.SRM
+.. pprint:: ansys.aedt.core.modules.setup_templates.LSSM
+.. pprint:: ansys.aedt.core.modules.setup_templates.UNIM
+.. pprint:: ansys.aedt.core.modules.setup_templates.DCM
+.. pprint:: ansys.aedt.core.modules.setup_templates.CPSM
+.. pprint:: ansys.aedt.core.modules.setup_templates.NSSM
 

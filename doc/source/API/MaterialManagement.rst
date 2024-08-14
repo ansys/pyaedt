@@ -16,12 +16,12 @@ This section describes all material-related classes and methods.
    :toctree: _autosummary
    :nosignatures:
 
-   MaterialLib.Materials
-   Material.Material
-   Material.SurfaceMaterial
-   Material.MatProperties
-   Material.SurfMatProperties
-   Material.MatProperty
+   material_lib.Materials
+   material.Material
+   material.SurfaceMaterial
+   material.MatProperties
+   material.SurfMatProperties
+   material.MatProperty
 
 
 .. code:: python
@@ -52,5 +52,5 @@ This section describes all layer-related classes and methods used in HFSS 3D Lay
    :nosignatures:
 
 
-   LayerStackup.Layers
-   LayerStackup.Layer
+   layer_stackup.Layers
+   layer_stackup.Layer

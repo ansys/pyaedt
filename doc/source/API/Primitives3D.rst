@@ -55,7 +55,7 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
    :toctree: _autosummary
    :nosignatures:
 
-   modeler3d.Modeler3D
+   modeler_3d.Modeler3D
 
 
 .. code:: python

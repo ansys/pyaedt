@@ -31,7 +31,7 @@ modeler, including all primitives methods and properties:
    :toctree: _autosummary
    :nosignatures:
 
-   modeler2d.Modeler2D
+   modeler_2d.Modeler2D
 
 
 

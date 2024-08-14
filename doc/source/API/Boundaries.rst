@@ -5,7 +5,7 @@ boundaries in the 3D tools. These objects are returned by
 app methods and can be used to edit or delete a boundary condition.
 
 
-.. currentmodule:: ansys.aedt.core.modules.Boundary
+.. currentmodule:: ansys.aedt.core.modules.boundary
 
 .. autosummary::
    :toctree: _autosummary

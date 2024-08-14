@@ -17,10 +17,10 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximLNA
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximDC
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximTransient
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximQuickEye
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximVerifEye
-.. pprint:: ansys.aedt.core.modules.SetupTemplates.NexximAMI
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximLNA
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximDC
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximQuickEye
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximVerifEye
+.. pprint:: ansys.aedt.core.modules.setup_templates.NexximAMI
 
