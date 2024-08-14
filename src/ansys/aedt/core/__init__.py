@@ -29,7 +29,12 @@ import warnings
 if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
-LATEST_DEPRECATED_PYTHON_VERSION = (3, 7)
+LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
+WARNING_MESSAGE = "As part of ou ongoing efforts to align with the Python Scientific Community's " \
+    "best practices, we are moving towards adopting SPEC 0000 " \
+    "(https://scientific-python.org/specs/spec-0000/). To ensure compatibility and " \
+    "take full advantage of the latest features and improvements, we strongly " \
+    "recommend updating the Python version being used."
 
 
 def deprecation_warning():
@@ -46,13 +51,7 @@ def deprecation_warning():
 
     current_version = sys.version_info[:2]
     if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
-        str_current_version = "{}.{}".format(*sys.version_info[:2])
-        warnings.warn(
-            "Current python version ({}) is deprecated in PyAEDT. We encourage you "
-            "to upgrade to the latest version to benefit from the latest features "
-            "and security updates.".format(str_current_version),
-            PendingDeprecationWarning,
-        )
+        warnings.warn(WARNING_MESSAGE, FutureWarning)
 
     # Restore warnings showwarning
     warnings.showwarning = existing_showwarning

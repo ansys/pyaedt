@@ -27,7 +27,7 @@ from unittest.mock import patch
 import warnings
 
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
-from ansys.aedt.core import deprecation_warning
+from ansys.aedt.core import deprecation_warning, WARNING_MESSAGE
 
 
 @patch.object(warnings, "warn")
@@ -36,13 +36,7 @@ def test_deprecation_warning(mock_warn):
 
     current_version = sys.version_info[:2]
     if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
-        str_current_version = "{}.{}".format(*sys.version_info[:2])
-        expected = (
-            "Current python version ({}) is deprecated in PyAEDT. We encourage you "
-            "to upgrade to the latest version to benefit from the latest features "
-            "and security updates.".format(str_current_version)
-        )
-        mock_warn.assert_called_once_with(expected, PendingDeprecationWarning)
+        mock_warn.assert_called_once_with(WARNING_MESSAGE, FutureWarning)
     else:
         mock_warn.assert_not_called()
 
