@@ -67,6 +67,29 @@ accordingly. An example of migration is shown below:
 
     from ansys.aedt import Circuit
 
+Python files renaming
+---------------------
+
+To harmonize the names of the Python files and to follow PEP 8 conventions, some Python
+files are being renamed. This initiative aims to improve the consistency of the codebase
+and ensure that file names are clearer and adhere to Python community best practices.
+For further information, see
+`PEP 8 Package and Module Names <https://peps.python.org/pep-0008/#package-and-module-names>`_ .
+
+An example of migration is shown below:
+
+**Old import:**
+
+.. code-block:: python
+
+    from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
+
+**New import:**
+
+.. code-block:: python
+
+    from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
+
 Other changes in release 1.0
 ============================
 
@@ -76,4 +99,4 @@ to ensure users' need are met as efficiently as possible. This includes ensuring
 consistent argument names, improving data encapsulation, strengthening CI/CD, and extracting
 examples to a dedicated project.
 
-For more information on the status of the 1.0 release, see `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>` .
+For more information on the status of the 1.0 release, see `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ .
