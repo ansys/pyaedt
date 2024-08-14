@@ -1278,7 +1278,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
     ):
-        from ansys.aedt.core.modeler.cad.Modeler import CoordinateSystem
+        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 
         if antenna_name is None:
             antenna_name = generate_unique_name(antenna_type.replace(" ", "").replace("-", ""))

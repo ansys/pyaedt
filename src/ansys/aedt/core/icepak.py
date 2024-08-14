@@ -3202,7 +3202,7 @@ class Icepak(FieldAnalysis3D):
         if mat.lower() not in self.materials.surface_material_keys:
             oo = self.get_oo_object(self.oproject, "Surface Materials/{}".format(mat))
             if oo:
-                from ansys.aedt.core.modules.Material import SurfaceMaterial
+                from ansys.aedt.core.modules.material import SurfaceMaterial
 
                 sm = SurfaceMaterial(self.materials, mat, material_update=False)
                 sm.coordinate_system = oo.GetPropEvaluatedValue("Coordinate System Type")
