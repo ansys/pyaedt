@@ -27,7 +27,8 @@ from unittest.mock import patch
 import warnings
 
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
-from ansys.aedt.core import deprecation_warning, WARNING_MESSAGE
+from ansys.aedt.core import WARNING_MESSAGE
+from ansys.aedt.core import deprecation_warning
 
 
 @patch.object(warnings, "warn")

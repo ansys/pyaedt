@@ -30,11 +30,13 @@ if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
 LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
-WARNING_MESSAGE = "As part of ou ongoing efforts to align with the Python Scientific Community's " \
-    "best practices, we are moving towards adopting SPEC 0000 " \
-    "(https://scientific-python.org/specs/spec-0000/). To ensure compatibility and " \
-    "take full advantage of the latest features and improvements, we strongly " \
+WARNING_MESSAGE = (
+    "As part of ou ongoing efforts to align with the Python Scientific Community's "
+    "best practices, we are moving towards adopting SPEC 0000 "
+    "(https://scientific-python.org/specs/spec-0000/). To ensure compatibility and "
+    "take full advantage of the latest features and improvements, we strongly "
     "recommend updating the Python version being used."
+)
 
 
 def deprecation_warning():
