@@ -1675,7 +1675,29 @@ class TestClass:
 
     def test_69_plane_wave(self, add_app):
         aedtapp = add_app(project_name="test_69")
-        pw1 = aedtapp.plane_wave()
+        assert not aedtapp.plane_wave(vector_format="invented")
+        assert not aedtapp.plane_wave(origin=[0, 0])
+        assert not aedtapp.plane_wave(wave_type="dummy")
+        assert not aedtapp.plane_wave(wave_type="evanescent", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(wave_type="elliptical", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
+        assert not aedtapp.plane_wave(polarization=[1])
+        assert not aedtapp.plane_wave(propagation_vector=[1, 0, 0])
+
+        assert aedtapp.plane_wave(wave_type="Evanescent")
+        assert aedtapp.plane_wave(wave_type="Elliptical")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(vector_format="Cartesian")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(polarization="Horizontal")
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization="Horizontal")
+
+        assert aedtapp.plane_wave(polarization=[1, 0])
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
+
         aedtapp.solution_type = "SBR+"
-        pw2 = aedtapp.plane_wave(vector_format="Cartesian")
+        assert aedtapp.plane_wave()
+        assert len(aedtapp.boundaries) == 10
+
         aedtapp.close_project(save=False)

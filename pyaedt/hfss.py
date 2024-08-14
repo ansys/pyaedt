@@ -377,7 +377,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         name : str
             Name of the boundary.
-        props : list
+        props : list or dict
             List of properties for the boundary.
         boundary_type :
             Type of the boundary.
@@ -6313,11 +6313,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         origin=None,
         polarization=None,
         propagation_vector=None,
-        wave_type=None,
+        wave_type="Propagating",
         wave_type_properties=None,
         name=None,
     ):
-        """Create a waveport from a sheet (``start_object``) or taking the closest edges of two objects.
+        """Create a plane wave excitation.
 
         Parameters
         ----------
@@ -6394,39 +6394,29 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.error("Wave type invalid.")
             return False
 
-        wave_type_props = ["IsPropagating:=", True, "IsEvanescent:=", False, "IsEllipticallyPolarized:=", False]
+        wave_type_props = {"IsPropagating": True, "IsEvanescent": False, "IsEllipticallyPolarized": False}
 
         if wave_type.lower() == "evanescent":
-            wave_type_props[1] = False
-            wave_type_props[3] = True
+            wave_type_props["IsPropagating"] = False
+            wave_type_props["IsEvanescent"] = True
             if not wave_type_properties:
                 wave_type_properties = [0.0, 1.0]
-            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 0:
+            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 2:
                 self.logger.error("Wave type properties invalid.")
                 return False
-            extended_properties = [
-                "RealPropConst:=",
-                wave_type_properties[0],
-                "ImagPropConst:=",
-                wave_type_properties[1],
-            ]
-            wave_type_props.extend(extended_properties)
+            wave_type_props["RealPropConst"] = wave_type_properties[0]
+            wave_type_props["ImagPropConst"] = wave_type_properties[1]
 
         elif wave_type.lower() == "elliptical":
-            wave_type_props[1] = False
-            wave_type_props[5] = True
+            wave_type_props["IsPropagating"] = False
+            wave_type_props["IsEllipticallyPolarized"] = True
             if not wave_type_properties:
                 wave_type_properties = ["0.0deg", 1.0]
-            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 0:
+            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 2:
                 self.logger.error("Wave type properties invalid.")
                 return False
-            extended_properties = [
-                "PolarizationAngle:=",
-                wave_type_properties[0],
-                "PolarizationRatio:=",
-                wave_type_properties[1],
-            ]
-            wave_type_props.extend(extended_properties)
+            wave_type_props["PolarizationAngle"] = wave_type_properties[0]
+            wave_type_props["PolarizationRatio"] = wave_type_properties[0]
 
         if vector_format == "Cartesian":
             if not polarization or polarization == "Vertical":
@@ -6443,28 +6433,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 self.logger.error("Propagation vector invalid.")
                 return False
 
-            inc_wave_args = [
-                "IsCartesian:=",
-                True,
-                "EoX:=",
-                polarization[0],
-                "EoY:=",
-                polarization[1],
-                "EoZ:=",
-                polarization[2],
-                "kX:=",
-                propagation_vector[0],
-                "kY:=",
-                propagation_vector[1],
-                "kZ:=",
-                propagation_vector[2],
-                "OriginX:=",
-                x_origin,
-                "OriginY:=",
-                y_origin,
-                "OriginZ:=",
-                z_origin,
-            ]
+            inc_wave_args = {
+                "IsCartesian": True,
+                "EoX": polarization[0],
+                "EoY": polarization[1],
+                "EoZ": polarization[2],
+                "kX": propagation_vector[0],
+                "kY": propagation_vector[1],
+                "kZ": propagation_vector[2],
+                "OriginX": x_origin,
+                "OriginY": y_origin,
+                "OriginZ": z_origin,
+            }
         else:
             if not polarization or polarization == "Vertical":
                 polarization = [0.0, 1.0]
@@ -6484,36 +6464,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 self.logger.error("Propagation vector invalid.")
                 return False
 
-            inc_wave_args = [
-                "IsCartesian:=",
-                False,
-                "PhiStart:=",
-                propagation_vector[0][0],
-                "PhiStop:=",
-                propagation_vector[0][1],
-                "PhiPoints:=",
-                propagation_vector[0][2],
-                "ThetaStart:=",
-                propagation_vector[1][0],
-                "ThetaStop:=",
-                propagation_vector[1][1],
-                "ThetaPoints:=",
-                propagation_vector[1][2],
-                "EoPhi:=",
-                polarization[0],
-                "EoTheta:=",
-                polarization[1],
-                "OriginX:=",
-                x_origin,
-                "OriginY:=",
-                y_origin,
-                "OriginZ:=",
-                z_origin,
-            ]
+            inc_wave_args = {
+                "IsCartesian": False,
+                "PhiStart": propagation_vector[0][0],
+                "PhiStop": propagation_vector[0][1],
+                "PhiPoints": propagation_vector[0][2],
+                "ThetaStart": propagation_vector[1][0],
+                "ThetaStop": propagation_vector[1][1],
+                "ThetaPoints": propagation_vector[1][2],
+                "EoPhi": polarization[0],
+                "EoTheta": polarization[1],
+                "OriginX": x_origin,
+                "OriginY": y_origin,
+                "OriginZ": z_origin,
+            }
 
-        inc_wave_args.extend(wave_type_props)
+        inc_wave_args.update(wave_type_props)
 
-        return self._create_boundary(name, inc_wave_args, "AssignPlaneWave")
+        return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
     def set_radiated_power_calc_method(self, method="Auto"):
