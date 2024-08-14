@@ -106,7 +106,8 @@ class UserDefinedComponent(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.user_defined_components
 
-    Obtain user defined component names, to return a :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent`.
+    Obtain user defined component names, to return a
+    :class:`ansys.aedt.core.modeler.cad.components_3d.UserDefinedComponent`.
 
     >>> component_names = aedtapp.modeler.user_defined_components
     >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]

@@ -2697,7 +2697,8 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
         References
@@ -2733,7 +2734,8 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
 
         Examples
         --------
@@ -3726,7 +3728,8 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepHFSS` or
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
             Sweep object.
 
         References
@@ -3766,7 +3769,8 @@ class SetupQ3D(Setup, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepQ3D` or
+        :class:`ansys.aedt.core.modules.solve_sweeps.SweepMatrix`
 
         Examples
         --------

@@ -3131,7 +3131,8 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` or list of
+        :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects created.
 
         References

@@ -389,7 +389,8 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     Examples
     --------
-    In this example, the returned object, ``par_beam`` is a ``ansys.aedt.core.modules.boundary.NativeComponentObject`` instance.
+    In this example, the returned object, ``par_beam`` is a
+    ``ansys.aedt.core.modules.boundary.NativeComponentObject`` instance.
     >>> from ansys.aedt.core import Icepak
     >>> ipk = Icepak(solution_type="SBR+")
     >>> par_beam = ipk.create_ipk_3dcomponent_pcb()

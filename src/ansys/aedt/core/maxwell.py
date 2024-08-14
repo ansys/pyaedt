@@ -2545,7 +2545,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`, :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References
@@ -3245,7 +3246,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`, :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`,
+        :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
             Master and slave objects. If the method fails to execute it returns ``False``.
 
         References

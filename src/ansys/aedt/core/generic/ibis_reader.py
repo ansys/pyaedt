@@ -27,7 +27,7 @@ import os
 import re
 import traceback
 
-import ansys.aedt.core
+import ansys.aedt.core  # noqa: F401
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import check_if_path_exists

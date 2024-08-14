@@ -51,6 +51,6 @@ def test_deprecation_warning(mock_warn):
 @patch.object(warnings, "warn")
 def test_alias_deprecation_warning(mock_warn):
     from pyaedt import WARNING_MESSAGE
-    import pyaedt.modules
+    import pyaedt.modules  # noqa: F401
 
     mock_warn.assert_called_once_with(WARNING_MESSAGE, FutureWarning)

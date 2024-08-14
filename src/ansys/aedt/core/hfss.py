@@ -246,7 +246,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.boundary.FarFieldSetup` and :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
+        List of :class:`ansys.aedt.core.modules.boundary.FarFieldSetup` and
+        :class:`ansys.aedt.core.modules.boundary.NearFieldSetup`
         """
         if not self._field_setups:
             self._field_setups = self._get_rad_fields()
@@ -816,7 +817,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`, :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSS`,
+        :class:`ansys.aedt.core.modules.solve_setup.SetupHFSSAuto`
             3D Solver Setup object.
 
         References
