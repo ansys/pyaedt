@@ -10,7 +10,7 @@ Please update you imports to use the new architecture based on 'ansys.aedt.core'
 The old structure will be deprecated in future versions, see https://aedt.docs.pyansys.com/version/stable/release_1_0.html#restructuring-of-the-codebase
 """
 
-def alias_deprecation_warning():
+def alias_deprecation_warning():  # pragma: no cover
     """Warning message informing users of architecture deprecation."""
     # Store warnings showwarning
     existing_showwarning = warnings.showwarning

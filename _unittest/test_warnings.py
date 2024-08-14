@@ -25,7 +25,7 @@
 import sys
 from unittest.mock import patch
 import warnings
-
+import pytest
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
 from ansys.aedt.core import deprecation_warning
 
@@ -45,3 +45,10 @@ def test_deprecation_warning(mock_warn):
         mock_warn.assert_called_once_with(expected, PendingDeprecationWarning)
     else:
         mock_warn.assert_not_called()
+
+@patch.object(warnings, "warn")
+def test_alias_deprecation_warning(mock_warn):
+    from pyaedt import WARNING_MESSAGE
+    import pyaedt.modules
+
+    mock_warn.assert_called_once_with(WARNING_MESSAGE, FutureWarning)
