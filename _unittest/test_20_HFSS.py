@@ -1672,3 +1672,10 @@ class TestClass:
         assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+
+    def test_69_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_69")
+        pw1 = aedtapp.plane_wave()
+        aedtapp.solution_type = "SBR+"
+        pw2 = aedtapp.plane_wave(vector_format="Cartesian")
+        aedtapp.close_project(save=False)
