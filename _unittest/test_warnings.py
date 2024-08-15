@@ -28,7 +28,6 @@ import warnings
 
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
 from ansys.aedt.core import deprecation_warning
-import pytest
 
 
 @patch.object(warnings, "warn")
