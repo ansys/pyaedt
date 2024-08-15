@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-
-# from ..filtersolutions_resources import resource_path
 import pytest
 
 import pyaedt
@@ -34,6 +32,8 @@ from pyaedt.filtersolutions_core.export_to_aedt import SubstrateEr
 from pyaedt.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from pyaedt.filtersolutions_core.export_to_aedt import SubstrateType
 from pyaedt.generic.general_methods import is_linux
+
+from ..resources import resource_path
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -157,6 +157,33 @@ class TestClass:
         assert lumpdesign.export_to_aedt.optimize_after_export_enabled == False
         lumpdesign.export_to_aedt.optimize_after_export_enabled = True
         assert lumpdesign.export_to_aedt.optimize_after_export_enabled == True
+
+    def test_load_library_parts_config(self):
+        lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
+        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        assert lumpdesign.export_to_aedt.substrate_er == "4.5"
+        assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
+        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
+        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
+        assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
+
+    def test_save_library_parts_config(self):
+        lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumpdesign.export_to_aedt.substrate_er = "4.5"
+        lumpdesign.export_to_aedt.substrate_resistivity = "5.8E+07 "
+        lumpdesign.export_to_aedt.substrate_conductor_thickness = "500 nm"
+        lumpdesign.export_to_aedt.substrate_dielectric_height = "2 mm"
+        lumpdesign.export_to_aedt.substrate_loss_tangent = "0.035 "
+        lumpdesign.export_to_aedt.save_library_parts_config(resource_path("library_parts_test.cfg"))
+        lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts_test.cfg"))
+        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        assert lumpdesign.export_to_aedt.substrate_er == "4.5"
+        assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
+        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
+        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
+        assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
 
     def test_part_libraries(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)

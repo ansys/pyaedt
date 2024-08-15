@@ -790,6 +790,26 @@ class ExportToAedt:
         status = self._dll.appendToAEDT(export_format.value)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
+    def load_library_parts_config(self, file_path):
+        """Load the library parts configuration to a file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the file to load the library parts configuration.
+        """
+        self._dll_interface.set_string(self._dll.loadLibraryPartsConf, file_path)
+
+    def save_library_parts_config(self, file_path):
+        """Save the library parts configuration to a file.
+
+        Parameters
+        ----------
+        file_path : str
+            Full path to the file to save the library parts configuration.
+        """
+        self._dll_interface.set_string(self._dll.saveLibraryPartsConf, file_path)
+
     def overwrite_design_to_aedt(self, export_format: ExportFormat.DIRECT):
         """Overwrite existing exported projects."""
         status = self._dll.overwriteToAEDT(export_format.value)
