@@ -15,9 +15,9 @@ as a coupling link in the EMIT design.
 import os
 
 # Import required modules
-import pyaedt
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+import ansys.aedt.core
+from ansys.aedt.core.generic.filesystem import Scratch
+from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
 ##########################################################
 # Set AEDT version
@@ -38,7 +38,7 @@ aedt_version = "2024.2"
 
 non_graphical = False
 NewThread = True
-scratch_path = pyaedt.generate_unique_folder_name()
+scratch_path = ansys.aedt.core.generate_unique_folder_name()
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -46,7 +46,7 @@ scratch_path = pyaedt.generate_unique_folder_name()
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, NewThread)
 
 temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
 if not os.path.exists(temp_folder):
@@ -93,7 +93,7 @@ with Scratch(scratch_path) as local_scratch:
     if os.path.exists(example_pdf):
         local_scratch.copyfile(example_pdf, my_project_pdf)
 
-aedtapp = pyaedt.Emit(my_project)
+aedtapp = ansys.aedt.core.Emit(my_project)
 
 ###############################################################################
 # Create and connect EMIT components
@@ -138,7 +138,7 @@ if aedt_version > "2023.1":
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# :func:`ansys.aedt.core.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 aedtapp.save_project()

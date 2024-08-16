@@ -1,0 +1,14 @@
+[AntennaWizard]
+name = "Antenna Wizard"
+script = "ansys/aedt/toolkits/antenna/run_toolkit.py"
+icon = "images/large/antenna.png"
+template = "run_pyaedt_toolkit_script"
+pip = "ansys-aedt-toolkits-antenna"
+package = "ansys.aedt.toolkits.antenna"
+
+[PushfromTransient]
+name = "Push Excitation from transient data"
+script = "push_excitation_from_file.py"
+icon = "images/large/push.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

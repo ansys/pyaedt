@@ -11,13 +11,13 @@ worst-case interference.
 # Perform required imports.
 
 import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-from pyaedt import get_pyaedt_app
-import pyaedt
+from ansys.aedt.core.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
+from ansys.aedt.core import Emit
+from ansys.aedt.core import get_pyaedt_app
+import ansys.aedt.core
 import os
 import subprocess
-import pyaedt.generic.constants as consts
+import ansys.aedt.core.generic.constants as consts
 
 # Check that emit is a compatible version
 aedt_version = "2024.2"
@@ -53,7 +53,7 @@ import openpyxl
 # Launch EMIT
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(aedt_version, non_graphical, new_thread)
+desktop = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, new_thread)
 
 # Add emitapi to system path
 emit_path = os.path.join(desktop.install_path, "Delcross")
@@ -62,7 +62,7 @@ import EmitApiPython
 api = EmitApiPython.EmitApi()
 
 # Define .ui file for GUI
-ui_file = pyaedt.downloads.download_file("emit", "interference_gui.ui")
+ui_file = ansys.aedt.core.downloads.download_file("emit", "interference_gui.ui")
 Ui_MainWindow, _ = QtUiTools.loadUiType(ui_file)
 
 class DoubleDelegate(QtWidgets.QStyledItemDelegate):

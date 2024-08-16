@@ -11,7 +11,7 @@ and set up a doppler analysis.
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
@@ -26,7 +26,7 @@ aedt_version = "2024.2"
 
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
-library_path = pyaedt.downloads.download_multiparts()
+library_path = ansys.aedt.core.downloads.download_multiparts()
 
 ###############################################################################
 # Set non-graphical mode
@@ -41,10 +41,10 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project.
 
-project_name = pyaedt.generate_unique_project_name(project_name="doppler")
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="doppler")
 
 # Instantiate the application.
-app = pyaedt.Hfss(
+app = ansys.aedt.core.Hfss(
     version=aedt_version,
     solution_type="SBR+",
     new_desktop=True,

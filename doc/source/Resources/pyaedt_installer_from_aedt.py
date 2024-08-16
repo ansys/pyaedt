@@ -65,12 +65,12 @@ def run_pyinstaller_from_c_python(oDesktop):
     else:
         venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, python_version_new)
         python_exe = os.path.join(venv_dir, "bin", "python")
-    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "pyaedt")
+    pyaedt_path = os.path.join(venv_dir, "Lib", "site-packages", "ansys", "aedt", "core")
     if is_linux:
         for dirpath, dirnames, _ in os.walk(venv_dir):
             if "site-packages" in dirnames:
                 pyaedt_path = os.path.normpath(
-                    os.path.join(dirpath, "site-packages", "pyaedt")
+                    os.path.join(dirpath, "site-packages", "ansys", "aedt", "core")
                 )
                 if os.path.isdir(pyaedt_path):
                     break
@@ -84,7 +84,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         # enable in debug mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
-        f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+        f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
