@@ -258,6 +258,11 @@ class ExportToAedt:
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
 
+        self._dll.importTunedVariablesSize.argtype = POINTER(c_int)
+        self._dll.importTunedVariablesSize.restype = c_int
+        self._dll.importTunedVariables.argtypes = [c_char_p, c_int]
+        self._dll.importTunedVariables.restype = c_int
+
         self._dll.setPartLibraries.argtype = c_int
         self._dll.setPartLibraries.restype = c_int
         self._dll.getPartLibraries.argtype = POINTER(c_int)
@@ -392,6 +397,11 @@ class ExportToAedt:
         self._dll.setGroundedCoverAboveLine.restype = c_int
         self._dll.getGroundedCoverAboveLine.argtype = POINTER(c_bool)
         self._dll.getGroundedCoverAboveLine.restype = c_int
+
+        self._dll.setModelithicsIncludeInterconnect.argtype = c_bool
+        self._dll.setModelithicsIncludeInterconnect.restype = c_int
+        self._dll.getModelithicsIncludeInterconnect.argtype = POINTER(c_bool)
+        self._dll.getModelithicsIncludeInterconnect.restype = c_int
 
         self._dll.getModelithicsInductorsListCount.argtype = POINTER(c_int)
         self._dll.getModelithicsInductorsListCount.restype = c_int
@@ -817,8 +827,11 @@ class ExportToAedt:
 
     def import_tuned_variables(self):
         """Imported ``AEDT`` tuned parameter variables back into the ``FilterSolutions`` project."""
-        status = self._dll.importTunedVariables()
+        size = c_int()
+        status = self._dll.importTunedVariablesSize(byref(size))
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        circuit_response_string = self._dll_interface.get_string(self._dll.importTunedVariables, max_size=size.value)
+        return circuit_response_string
 
     @property
     def part_libraries(self) -> PartLibraries:
@@ -1390,6 +1403,24 @@ class ExportToAedt:
     def load_modelithics_models(self):
         """Load ``Modelithics`` modesl from ``AEDT``."""
         status = self._dll.loadModelitichsModels()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def modelithics_include_interconnect_enabled(self) -> bool:
+        """Flag indicating if the ``Modelithics`` interconnect inclusion is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        modelithics_include_interconnect_enabled = c_bool()
+        status = self._dll.getModelithicsIncludeInterconnect(byref(modelithics_include_interconnect_enabled))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(modelithics_include_interconnect_enabled.value)
+
+    @modelithics_include_interconnect_enabled.setter
+    def modelithics_include_interconnect_enabled(self, modelithics_include_interconnect_enabled: bool):
+        status = self._dll.setModelithicsIncludeInterconnect(modelithics_include_interconnect_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
