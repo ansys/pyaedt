@@ -8,7 +8,7 @@ They are accessible through the ``modeler`` property:
 
 .. code:: python
 
-    from pyaedt import Maxwell2d
+    from ansys.aedt.core import Maxwell2d
     app = Maxwell2d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -25,19 +25,19 @@ The ``Modeler`` module contains all properties and methods needed to edit a
 modeler, including all primitives methods and properties:
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   modeler2d.Modeler2D
+   modeler_2d.Modeler2D
 
 
 
 .. code:: python
 
-    from pyaedt import Maxwell2d
+    from ansys.aedt.core import Maxwell2d
     app = Maxwell2d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

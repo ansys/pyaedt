@@ -12,11 +12,11 @@ HSPICE files are fully supported. Mentor files are partially supported.
 
 import os
 
-import pyaedt
+import ansys.aedt.core
 
-netlist = pyaedt.downloads.download_netlist()
+netlist = ansys.aedt.core.downloads.download_netlist()
 
-project_name = pyaedt.generate_unique_project_name()
+project_name = ansys.aedt.core.generate_unique_project_name()
 print(project_name)
 
 ##########################################################
@@ -40,11 +40,11 @@ NewThread = True
 ###############################################################################
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
+# Launch AEDT with Circuit. The :class:`ansys.aedt.core.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-desktop = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
-aedtapp = pyaedt.Circuit(project=project_name)
+desktop = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, NewThread)
+aedtapp = ansys.aedt.core.Circuit(project=project_name)
 
 ###############################################################################
 # Define variable

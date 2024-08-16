@@ -25,9 +25,8 @@
 import os
 
 from _unittest.conftest import config
+from ansys.aedt.core import Q2d
 import pytest
-
-from pyaedt import Q2d
 
 test_subfolder = "T36"
 

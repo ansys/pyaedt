@@ -28,12 +28,11 @@ import shutil
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
-
-from pyaedt import Maxwell3d
-from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
 
 try:
     from IPython.display import Image

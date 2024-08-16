@@ -9,8 +9,8 @@ The method is valid and usable for any object the user would like to segment.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt import Maxwell3d
+from ansys.aedt.core import downloads
+from ansys.aedt.core import Maxwell3d
 
 import tempfile
 
@@ -65,7 +65,7 @@ modeler = m3d.modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select first magnet to segment by specifying the number of segments.
 # The method accepts in input either the list of magnets names to segment or
-# magnets ids or the magnet object :class:`pyaedt.modeler.cad.object3d.Object3d`.
+# magnets ids or the magnet object :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 # ``apply_mesh_sheets`` is enabled which means that the mesh sheets will
 # be applied in the geometry too.
 # In this specific case we give as input the name of the magnet.
@@ -89,7 +89,7 @@ sheets_2 = modeler.objects_segmentation(magnet_id, segments=segments_number, app
 # Segment third magnet by specifying the segmentation thickness
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select third magnet to segment by specifying the segmentation thickness.
-# In this specific case we give as input the magnet object of type :class:`pyaedt.modeler.cad.object3d.Object3d`.
+# In this specific case we give as input the magnet object of type :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 
 segmentation_thickness = 1
 object_name = "PM_O1"

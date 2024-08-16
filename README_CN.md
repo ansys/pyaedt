@@ -132,7 +132,7 @@ pip install pyaedt[all]
 ``` python
     # 以非图形模式启动 AEDT 2022 R2
 
-    from pyaedt import Desktop, Circuit
+    from ansys.aedt.core import Desktop, Circuit
     with Desktop(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
@@ -149,7 +149,7 @@ pip install pyaedt[all]
 ``` python
     # Launch the latest installed version of AEDT in graphical mode
 
-    from pyaedt import Circuit
+    from ansys.aedt.core import Circuit
     with Circuit(specified_version="2022.2",
                  non_graphical=False) as circuit:
         ...
@@ -168,14 +168,14 @@ CPython 服务器：
 ``` python
     # 在CPython上启动PyAEDT远程服务器
 
-    from pyaedt.common_rpc import pyaedt_service_manager
+    from ansys.aedt.core.common_rpc import pyaedt_service_manager
     pyaedt_service_manager()
 ```
 
 任意的 Windows 客户端：
 
 ``` python
-    from pyaedt.common_rpc import create_session
+    from ansys.aedt.core.common_rpc import create_session
     cl1 = create_session("server_name")
     cl1.aedt(port=50000, non_graphical=False)
     hfss = Hfss(machine="server_name", port=50000)
@@ -185,7 +185,7 @@ CPython 服务器：
 ## 变量 Variables
 
 ``` python
-    from pyaedt.HFSS import HFSS
+    from ansys.aedt.core.HFSS import HFSS
     with HFSS as hfss:
          hfss["dim"] = "1mm"   # design variable
          hfss["$dim"] = "1mm"  # project variable
@@ -196,7 +196,7 @@ CPython 服务器：
 ``` python
     # 创建BOX、分配变量和指定材料。
 
-    from pyaedt.hfss import Hfss
+    from ansys.aedt.core.hfss import Hfss
     with Hfss as hfss:
          hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
                                  "mybox", "aluminum")

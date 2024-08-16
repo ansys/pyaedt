@@ -4,9 +4,9 @@ from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 import pytest
 
-from pyaedt import Circuit
-from pyaedt.generic.compliance import VirtualCompliance
-from pyaedt.generic.pdf import AnsysReport
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.compliance import VirtualCompliance
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
@@ -85,7 +85,7 @@ class TestClass(object):
         assert v.create_compliance_report()
 
     def test_spisim_raw_read(self, local_scratch):
-        from pyaedt.generic.spisim import SpiSimRawRead
+        from ansys.aedt.core.generic.spisim import SpiSimRawRead
 
         raw_file = os.path.join(local_path, "example_models", test_subfolder, "SerDes_Demo_02_Thru.s4p_ERL.raw")
         raw_file = local_scratch.copyfile(raw_file)
