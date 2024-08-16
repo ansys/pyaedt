@@ -395,7 +395,6 @@ model.index\+
 
 # local environment settings used by e.g. Visual Studio Code
 /.env
-/.venv*
 /doc/source/local_config.json
 /.venv*
 
