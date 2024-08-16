@@ -1592,8 +1592,13 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                 if i.pid == p.pid and (i.laddr.port > 50050 and i.laddr.port < 50200):
                                     return_dict[p.pid] = i.laddr.port
                                     break
-        except Exception:
-            pyaedt_logger.error("An error occurred while retrieving information for the active AEDT sessions")
+        except psutil.NoSuchProcess:
+            # the process exited so it cannot be an active session
+            pass  # pragma: no cover
+        except Exception as e:
+            pyaedt_logger.error(
+                f"A(n) {type(e)} error occurred while retrieving information for the active AEDT sessions: {e}"
+            )  # pragma: no cover
     return return_dict
 
 
