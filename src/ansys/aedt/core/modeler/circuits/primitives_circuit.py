@@ -91,15 +91,14 @@ class CircuitComponents(object):
     def get_wire_by_name(self, name):
         """Wire class by name.
 
-                Parameters
-                ----------
-                name : str
-                    Wire name.
+        Parameters
+        ----------
+        name : str
+            Wire name.
 
-                Returns
-                -------
-                :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.Wire`
-        `
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.Wire`
         """
         for _, w in self.wires.items():
             if w.name == name:
@@ -113,6 +112,7 @@ class CircuitComponents(object):
         """All schematic wires in the design.
 
         Returns
+        -------
         dict
             Wires.
         """

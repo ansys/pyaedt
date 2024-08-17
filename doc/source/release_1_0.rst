@@ -90,7 +90,7 @@ An example of migration is shown below:
 
     from ansys.aedt.core.application.analysis_3d_layout import FieldAnalysis3DLayout
 
-The following table list the name changes with the old and new pathes:
+The following table list the name changes with the old and new paths:
 
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | Old path without file rename                                   | New path with renamed file                                               |
