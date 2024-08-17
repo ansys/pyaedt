@@ -161,7 +161,6 @@ class Primitives2D(GeometryModeler, object):
             Additional keyword arguments to pass to set properties when creating the primitive.
            For more information, see ``ansys.aedt.core.modeler.cad.object_3d.Object3d``.
 
-
         Returns
         -------
         ansys.aedt.core.modeler.cad.object_3d.Object3d
