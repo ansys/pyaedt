@@ -1,13 +1,12 @@
 files: |
     (?x)(
-        ^pyaedt/|
+        ^src/ansys/aedt/core/|
         _unittest/
     )
 exclude: |
     (?x)(
-        ^pyaedt/rpc/|
-        ^pyaedt/sbrplus/matlab/|
-        pyaedt/conftest.py|
+        ^src/ansys/aedt/core/rpc/|
+        ^src/ansys/aedt/core/sbrplus/matlab/|
         _unittest/example_models/
     )
 
@@ -69,7 +68,7 @@ repos:
   rev: v0.4.3
   hooks:
     - id: add-license-headers
-      files: '(pyaedt|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'
+      files: '(src|examples|_unittest|_unittest_ironpython|_unittest_solvers)/.*\.(py)'
       args:
       - --custom_template=mit_license.jinja2
       - --start_year=2021

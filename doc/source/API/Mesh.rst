@@ -8,19 +8,19 @@ The ``Mesh`` module includes these classes:
 
 They are accessible through the mesh property:
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   Mesh.Mesh
-   MeshIcepak.IcepakMesh
-   Mesh3DLayout.Mesh3d
+   mesh.Mesh
+   mesh_icepak.IcepakMesh
+   mesh_3d_layout.Mesh3d
 
 .. code:: python
 
-    from pyaedt import Maxwell3d
+    from ansys.aedt.core import Maxwell3d
     app = Maxwell3d(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -35,7 +35,7 @@ Icepak mesh
 
 These objects are relevant objects while using the ``MeshIcepak`` class:
 
-.. currentmodule:: pyaedt.modules.MeshIcepak
+.. currentmodule:: ansys.aedt.core.modules.mesh_icepak
 
 .. autosummary::
    :toctree: _autosummary

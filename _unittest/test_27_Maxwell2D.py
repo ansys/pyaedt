@@ -30,11 +30,10 @@ import shutil
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 import pytest
-
-from pyaedt import Maxwell2d
-from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import generate_unique_name
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":

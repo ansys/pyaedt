@@ -14,10 +14,10 @@ EMIT version check and set units example:
 
 .. code:: python
 
-    import pyaedt
-    from pyaedt import Emit
+    import ansys.aedt.core
+    from ansys.aedt.core import Emit
 
-    emit = Emit(pyaedt.generate_unique_project_name(),
+    emit = Emit(ansys.aedt.core.generate_unique_project_name(),
                 specified_version="2024.2", non_graphical=False,
                 new_desktop_session=True, close_on_exit=True)
 
@@ -43,18 +43,18 @@ EMIT-HFSS link creation example:
 .. code:: python
 
     import os
-    import pyaedt
-    from pyaedt import Emit
-    from pyaedt.generic.filesystem import Scratch
+    import ansys.aedt.core
+    from ansys.aedt.core import Emit
+    from ansys.aedt.core.generic.filesystem import Scratch
 
-    scratch_path = pyaedt.generate_unique_folder_name()
+    scratch_path = ansys.aedt.core.generate_unique_folder_name()
     temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
     if not os.path.exists(temp_folder):
         os.mkdir(temp_folder)
 
     # Launch AEDT
-    aedtapp = pyaedt.launch_desktop(specified_version="2024.2", non_graphical=False,
-                                    new_desktop_session=True, close_on_exit=True)
+    aedtapp = ansys.aedt.core.launch_desktop(specified_version="2024.2", non_graphical=False,
+                                             new_desktop_session=True, close_on_exit=True)
 
     # Verify the ``Cell Phone RFT Defense`` example exists
     example_name = "Cell Phone RFI Desense"
@@ -113,11 +113,11 @@ Create and Analyze an EMIT project:
 
 .. code:: python
 
-    import pyaedt
-    from pyaedt import Emit
-    from pyaedt.emit_core.emit_constants import TxRxMode, ResultType
+    import ansys.aedt.core
+    from ansys.aedt.core import Emit
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode, ResultType
 
-    emit = Emit(pyaedt.generate_unique_project_name(),
+    emit = Emit(ansys.aedt.core.generate_unique_project_name(),
                 specified_version="2024.2", non_graphical=False,
                 new_desktop_session=True, close_on_exit=True)
 
