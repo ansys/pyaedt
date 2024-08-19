@@ -1593,9 +1593,7 @@ def active_sessions(version=None, student_version=False, non_graphical=False):
                                     return_dict[p.pid] = i.laddr.port
                                     break
         except psutil.NoSuchProcess as e:  # pragma: no cover
-            pyaedt_logger.debug(
-                f"The process exited and cannot be an active session: {e}"
-            )
+            pyaedt_logger.debug(f"The process exited and cannot be an active session: {e}")
         except Exception as e:  # pragma: no cover
             pyaedt_logger.error(
                 f"A(n) {type(e)} error occurred while retrieving information for the active AEDT sessions: {e}"
