@@ -1762,7 +1762,7 @@ class MonostaticRCSExporter:
             self.__app.logger.info("Using existing RCS file.")
 
         # Export geometry
-        if os.path.isfile(input_file):
+        if os.path.isfile(full_path):
             geometry_path = os.path.join(export_path, "geometry")
             if not os.path.exists(geometry_path):
                 os.mkdir(geometry_path)
@@ -1786,9 +1786,8 @@ class MonostaticRCSExporter:
             "model_info": [],
         }
 
-        if model_info:
-            if "object_list" in model_info:
-                items["model_info"] = model_info["object_list"]
+        if self.model_info and "object_list" in self.model_info:
+            items["model_info"] = self.model_info["object_list"]
 
         with open_file(pyaedt_metadata_file, "w") as f:
             json.dump(items, f, indent=2)
