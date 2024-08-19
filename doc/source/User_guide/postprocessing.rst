@@ -9,7 +9,7 @@ To use PyAEDT to create a report in AEDT, you can follow this general structure:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     hfss = Hfss()
     hfss.analyze()
     hfss.post.create_report(["db(S11)", "db(S12)"])
@@ -24,7 +24,7 @@ You can also generate reports in Matplotlib:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     hfss = Hfss()
     hfss.analyze()
 
@@ -44,7 +44,7 @@ To access all available category, use the ``reports_by_category`` class.
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     hfss = Hfss()
     hfss.analyze()
     # Create a 3D far field
@@ -56,7 +56,7 @@ You can plot the field plot directly in HFSS and export it to image files.
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     hfss = Hfss()
     hfss.analyze()
 
@@ -80,7 +80,7 @@ PyAEDT leverages PyVista to export and plot fields outside AEDT, generating imag
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     hfss = Hfss()
     hfss.analyze()
     cutlist = ["Global:XY"]
@@ -112,7 +112,7 @@ This code creates the previous PDF report:
 
 .. code:: python
 
-    from pyaedt.generic.pdf import AnsysReport
+    from ansys.aedt.core.generic.pdf import AnsysReport
     import os
     report = AnsysReport()
     report.aedt_version = "2024R2"

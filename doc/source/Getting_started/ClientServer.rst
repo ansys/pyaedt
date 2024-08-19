@@ -13,8 +13,8 @@ In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
-    from pyaedt import Hfss
-    from pyaedt import settings
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core import settings
     settings.use_grpc_api=True
     hfss = Hfss(machine="fullmachinename", port=portnumber)
 
@@ -59,7 +59,7 @@ On the server, the ``pyaedt_service_manager`` service listen for incoming connec
 .. code:: python
 
     # Launch PyAEDT remote server on CPython
-    from pyaedt.common_rpc import pyaedt_service_manager
+    from ansys.aedt.core.common_rpc import pyaedt_service_manager
     pyaedt_service_manager()
 
 
@@ -68,7 +68,7 @@ AEDT can be launched directly while creating the session or after the connection
 
 .. code:: python
 
-    from pyaedt.common_rpc import create_session
+    from ansys.aedt.core.common_rpc import create_session
     # User can establish the connection and start a new AEDT session
     cl1 = create_session("server_name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True)
 

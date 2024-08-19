@@ -27,11 +27,11 @@ Finally, this code shows how you can run the extension directly from a Python sc
 
 .. code:: python
 
-    import pyaedt
+    import ansys.aedt.core
     import os
-    from pyaedt.workflows.project.import_nastran import main
+    from ansys.aedt.core.workflows.project.import_nastran import main
     file_path = "my_file.stl"
-    hfss = pyaedt.Hfss()
+    hfss = ansys.aedt.core.Hfss()
     # Specify the AEDT session to connect
     os.environ["PYAEDT_SCRIPT_PORT"] = str(hfss.desktop_class.port)
     os.environ["PYAEDT_SCRIPT_VERSION"] = hfss.desktop_class.aedt_version_id

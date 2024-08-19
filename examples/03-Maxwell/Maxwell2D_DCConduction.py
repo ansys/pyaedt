@@ -7,9 +7,9 @@ Keywords: DXF import, material sweep, expression cache
 """
 import os.path
 
-import pyaedt
+import ansys.aedt.core
 
-from pyaedt.generic.pdf import AnsysReport
+from ansys.aedt.core.generic.pdf import AnsysReport
 
 ##########################################################
 # Set AEDT version
@@ -25,7 +25,7 @@ aedt_version = "2024.2"
 # the solver, and the version. The following code also creates an instance of the
 # ``Maxwell2d`` class named ``m2d``.
 
-m2d = pyaedt.Maxwell2d(
+m2d = ansys.aedt.core.Maxwell2d(
     version=aedt_version,
     new_desktop=True,
     close_on_exit=True,
@@ -50,11 +50,11 @@ if not os.path.exists(results_folder):
 # the following lines.
 # Importing DXF files only works in graphical mode.
 
-# DXFPath = pyaedt.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
+# DXFPath = ansys.aedt.core.downloads.download_file("dxf", "Ansys_logo_2D.dxf")
 # dxf_layers = m2d.get_dxf_layers(DXFPath)
 # m2d.import_dxf(DXFPath, dxf_layers, scale=1E-05)
 
-parasolid_path = pyaedt.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
+parasolid_path = ansys.aedt.core.downloads.download_file("x_t", "Ansys_logo_2D.x_t")
 m2d.modeler.import_3d_cad(parasolid_path)
 
 ##################################################################################

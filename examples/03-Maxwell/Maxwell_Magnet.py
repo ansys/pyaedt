@@ -9,8 +9,8 @@ compute mass center, and move coordinate systems.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import generate_unique_project_name
 import os
 import tempfile
 
