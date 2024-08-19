@@ -971,7 +971,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         """Set custom metal fraction mapping resolution.
 
         Parameters
-        -------
+        ----------
         row : int
             Resolution level in rows direction.
         col : int
