@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import MaxwellParameters
@@ -1069,8 +1070,8 @@ class Maxwell(object):
 
         Parameters
         ----------
-        assignment : list of int, :class:`pyaedt.modeler.cad.object3d.Object3d`,
-                    :class:`pyaedt.modeler.Object3d.FacePrimitive` or str
+        assignment : list of int, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`,
+                    :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive` or str
             List of objects or faces to assign the excitation to.
         charge_value : int, float, optional
             Charge value.
@@ -1081,7 +1082,7 @@ class Maxwell(object):
 
         Returns
         -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
             Boundary object.
             ``False`` when failed.
 
@@ -1571,8 +1572,8 @@ class Maxwell(object):
         Parameters
         ----------
         assignment : list
-            List IDs or :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive` or
-            :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
+            List IDs or :class:`ansys.aedt.core.modeler.elements_3d.EdgePrimitive` or
+            :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive`.
         symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
