@@ -24,7 +24,7 @@ reason, this face position has changed or the object name in the target design h
 the boundary fails to apply.
 
 
-.. currentmodule:: pyaedt.generic.configurations
+.. currentmodule:: ansys.aedt.core.generic.configurations
 
 .. autosummary::
    :toctree: _autosummary
@@ -37,7 +37,7 @@ the boundary fails to apply.
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(project_name="original_project", specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

@@ -33,7 +33,7 @@ import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 
-from pyaedt.generic.near_field_import import convert_nearfield_data
+from ansys.aedt.core.generic.near_field_import import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -1272,7 +1272,7 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.general_methods import read_json
+        from ansys.aedt.core.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
@@ -1432,7 +1432,7 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
-        from pyaedt.modules.solutions import simplify_stl
+        from ansys.aedt.core.modules.solutions import simplify_stl
 
         out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
