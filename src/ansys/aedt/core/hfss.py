@@ -6348,10 +6348,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             The default is ``"Propagating"``.
         wave_type_properties : list, optional
             Properties of the plane wave type.
-            Not additional properties are needed if ``"Propagating"`` selected. The default is ``None``.
-            Propagation constant if ``"Evanescent"`` selected, real and imaginary part.
-            The default is ``[0.0, 1.0]``.
-            Polarization angle and ratio if ``"Elliptical"`` selected. The default is ``["0deg", 1.0]``.
+            If ``"Propagating"`` is used, no additional properties are needed. The default is ``None``.
+            If ``"Evanescent"`` is selected, the propagation constant is expressed as both real and
+            imaginary components. The default is ``[0.0, 1.0]``.
+            If ``"Elliptical"`` is used, the polarization angle and ratio are defined. The default is
+            ``["0deg", 1.0]``.
         name : str, optional
             Name of the excitation. The default is ``None``, in which
             case a name is automatically assigned.
