@@ -362,7 +362,10 @@ class NativeComponentObject(BoundaryCommon, object):
 
 
 def disable_auto_update(func):
+    """Decorator used to disable automatic update."""
+
     def wrapper(self, *args, **kwargs):
+        """Inner wrapper function."""
         obj = self
         if not hasattr(self, "auto_update"):
             obj = self.pcb
