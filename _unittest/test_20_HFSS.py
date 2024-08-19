@@ -1697,7 +1697,9 @@ class TestClass:
         assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
 
         aedtapp.solution_type = "SBR+"
-        assert aedtapp.plane_wave()
+        new_plane_wave = aedtapp.plane_wave()
         assert len(aedtapp.boundaries) == 10
+        new_plane_wave.name = "new_plane_wave"
+        assert new_plane_wave.name in aedtapp.excitations
 
         aedtapp.close_project(save=False)
