@@ -205,11 +205,13 @@ class TestClass:
     def test_diplexer_inner_band_width(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_1
         assert design.attributes.diplexer_inner_band_width == "200M"
         design.attributes.diplexer_inner_band_width = "500M"
         assert design.attributes.diplexer_inner_band_width == "500M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
         assert design.attributes.diplexer_inner_band_width == "500M"
         design.attributes.diplexer_inner_band_width = "300M"
@@ -218,11 +220,13 @@ class TestClass:
     def test_diplexer_outer_band_width(self) -> str:
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_1
         assert design.attributes.diplexer_outer_band_width == "2G"
         design.attributes.diplexer_outer_band_width = "2500M"
         assert design.attributes.diplexer_outer_band_width == "2500M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
         assert design.attributes.diplexer_outer_band_width == "2500M"
         design.attributes.diplexer_outer_band_width = "1G"
@@ -231,11 +235,13 @@ class TestClass:
     def test_diplexer_lower_center_frequency(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
         assert design.attributes.diplexer_lower_center_frequency == "500M"
         design.attributes.diplexer_lower_center_frequency = "300M"
         assert design.attributes.diplexer_lower_center_frequency == "300M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert design.attributes.diplexer_lower_center_frequency == "300M"
         design.attributes.diplexer_lower_center_frequency = "200M"
@@ -244,11 +250,13 @@ class TestClass:
     def test_diplexer_upper_center_frequency(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
         assert design.attributes.diplexer_upper_center_frequency == "2G"
         design.attributes.diplexer_upper_center_frequency = "1.5G"
         assert design.attributes.diplexer_upper_center_frequency == "1.5G"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert design.attributes.diplexer_upper_center_frequency == "1.5G"
         design.attributes.diplexer_upper_center_frequency = "3G"
@@ -257,11 +265,13 @@ class TestClass:
     def test_diplexer_lower_band_width(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
         assert design.attributes.diplexer_lower_band_width == "500M"
         design.attributes.diplexer_lower_band_width = "300M"
         assert design.attributes.diplexer_lower_band_width == "300M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert design.attributes.diplexer_lower_band_width == "300M"
         design.attributes.diplexer_lower_band_width = "600M"
@@ -270,11 +280,13 @@ class TestClass:
     def test_diplexer_upper_band_width(self):
         design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_class = FilterClass.DIPLEXER_1
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
         assert design.attributes.diplexer_upper_band_width == "2G"
         design.attributes.diplexer_upper_band_width = "2.2G"
         assert design.attributes.diplexer_upper_band_width == "2.2G"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
+        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
         design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
         assert design.attributes.diplexer_upper_band_width == "2.2G"
         design.attributes.diplexer_upper_band_width = "1G"

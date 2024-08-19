@@ -469,10 +469,10 @@ class Attributes:
         self._dll.getDelayRipplePeriod.argtypes = [c_char_p, c_int]
         self._dll.getDelayRipplePeriod.restype = c_int
 
-        self._dll.setGroupDealyRipplePercentage.argtype = c_int
-        self._dll.setGroupDealyRipplePercentage.restype = c_int
-        self._dll.getGroupDealyRipplePercentage.argtype = POINTER(c_int)
-        self._dll.getGroupDealyRipplePercentage.restype = c_int
+        self._dll.setGroupDelayRipplePercentage.argtype = c_int
+        self._dll.setGroupDelayRipplePercentage.restype = c_int
+        self._dll.getGroupDelayRipplePercentage.argtype = POINTER(c_int)
+        self._dll.getGroupDelayRipplePercentage.restype = c_int
 
         self._dll.setCutoffAttenuationdB.argtype = c_char_p
         self._dll.setCutoffAttenuationdB.restype = c_int
@@ -966,7 +966,7 @@ class Attributes:
 
     @property
     def diplexer_inner_band_width(self) -> str:
-        """Diplexer inner band width for ``BP1`` and ``Triplexer1`` diplexr types.
+        """Diplexer inner band width for ``BP1`` and ``Triplexer1`` diplexer types.
         The default is ``200 MHz``.
 
         Returns
@@ -982,7 +982,7 @@ class Attributes:
 
     @property
     def diplexer_outer_band_width(self) -> str:
-        """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexr types.
+        """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexer types.
         The default is ``2 GHz``.
 
         Returns
@@ -998,7 +998,7 @@ class Attributes:
 
     @property
     def diplexer_lower_center_frequency(self) -> str:
-        """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexr types.
+        """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
         The default is ``500 MHz``.
 
         Returns
@@ -1018,7 +1018,7 @@ class Attributes:
 
     @property
     def diplexer_upper_center_frequency(self) -> str:
-        """Diplexer upper center frequency for ``BP2`` and ``Triplexer2`` diplexr types.
+        """Diplexer upper center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
         The default is ``2 GHz``.
 
         Returns
@@ -1038,7 +1038,7 @@ class Attributes:
 
     @property
     def diplexer_lower_band_width(self) -> str:
-        """Diplexer lower band width for ``BP2`` and ``Triplexer2`` diplexr types.
+        """Diplexer lower band width for ``BP2`` and ``Triplexer2`` diplexer types.
         The default is ``500 MHz``.
 
         Returns
@@ -1054,7 +1054,7 @@ class Attributes:
 
     @property
     def diplexer_upper_band_width(self) -> str:
-        """Diplexer upper band width for ``BP2`` and ``Triplexer2`` diplexr types.
+        """Diplexer upper band width for ``BP2`` and ``Triplexer2`` diplexer types.
         The default is ``2 GHz``.
 
         Returns

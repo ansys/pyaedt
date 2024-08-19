@@ -151,7 +151,8 @@ class ExportToAedt:
 
     @property
     def schematic_name(self) -> str:
-        """Schematic name for exporting to ``AEDT``.
+        """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
+        The default name is ``FilterSolutions`` if not specified.
 
         Returns
         -------
@@ -166,7 +167,7 @@ class ExportToAedt:
 
     @property
     def simulate_after_export_enabled(self) -> bool:
-        """Flag indicating if the simulation option after exporting to ``AEDT`` is enabled.
+        """Flag indicating if the simulation will be initiated upon export to ``AEDT``.
 
         Returns
         -------
@@ -184,7 +185,7 @@ class ExportToAedt:
 
     @property
     def include_group_delay_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the group delay report in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the group delay report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -202,8 +203,8 @@ class ExportToAedt:
 
     @property
     def include_gt_gain_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the total voltage gain report in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the total voltage gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -221,8 +222,8 @@ class ExportToAedt:
 
     @property
     def include_vgsl_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the voltage gain source load report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the voltage gain source load report will be created upon
+         export to ``AEDT``.
 
         Returns
         -------
@@ -240,8 +241,8 @@ class ExportToAedt:
 
     @property
     def include_vgin_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the voltage gain insertion report in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the voltage gain insertion report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -259,8 +260,8 @@ class ExportToAedt:
 
     @property
     def include_input_return_loss_s11_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the input return loss report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the input return loss report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -278,8 +279,8 @@ class ExportToAedt:
 
     @property
     def include_forward_transfer_s21_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the forward transfer gain report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the forward transfer gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -297,8 +298,8 @@ class ExportToAedt:
 
     @property
     def include_reverse_transfer_s12_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the reverse transfer gain report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the reverse transfer gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -316,8 +317,8 @@ class ExportToAedt:
 
     @property
     def include_output_return_loss_s22_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the output return loss report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the output return loss report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------

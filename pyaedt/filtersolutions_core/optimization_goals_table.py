@@ -38,15 +38,20 @@ class OptimizationGoalParameter(Enum):
 
     **Attributes:**
 
-    - RATIO: Represents transmission zeros ratio table.
-    - BANDWIDTH: Represents transmission zeros bandwidth table.
-    - LOWER_FREQUENCY = Represents lower frequency parameters.
-    - UPPER_FREQUENCY = Represents upper frequency parameters.
-    - GOAL_VALUE = Represents goal value parameters.
-    - CONDITION = Represents condition parameters.
-    - PARAMETER_NAME = Represents name of parameters.
-    - WEIGHT = Represents weight parameters.
-     -ENABLED = Represents status of using the goal parameters.
+    - LOWER_FREQUENCY: Represents the lower frequency parameter, positioned
+    as the first value in the optimization goal table.
+    - UPPER_FREQUENCY: Represents the upper frequency parameter, positioned
+    as the second value in the optimization goal table.
+    - GOAL_VALUE: Represents the goal value parameter, positioned
+    as the third value in the optimization goal table.
+    - CONDITION: Represents the condition parameter, positioned
+    as the fourth value in the optimization goal table.
+    - PARAMETER_NAME: Represents the name of the parameter, positioned
+    as the fifth value in the optimization goal table.
+    - WEIGHT: Represents the weight parameter, positioned
+    as the sixth value in the optimization goal table.
+    - ENABLED: Represents the status of using the goal parameters, positioned
+    as the seventh value in the optimization goal table.
     """
 
     LOWER_FREQUENCY = 0
@@ -59,19 +64,22 @@ class OptimizationGoalParameter(Enum):
 
 
 class OptimizationGoalsTable:
-    """Manipulates access to the entries of optimization goals table.
+    """Provides management of optimization goals within a table structure.
 
-    This class lets you to enter, edit or remove goal parameters in the optimization goals table.
-    The table includes the lower frequency, upper frequency, goal desired value, goal condition,
-    parameter name, weight, and enabled status.
+    This class offers functionality to add, update, or delete entries in the optimization goals table,
+    facilitating the manipulation of optimization parameters for simulation tasks.
+    Each entry in the table can specify a range of parameters including lower and upper frequency limits,
+    a target value for the optimization goal, a condition that defines how the goal is evaluated,
+    the name of the parameter to optimize, the weight of the goal in the overall optimization process,
+    and whether the goal is active or not.
     """
 
     def __init__(self):
         self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
         self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
-        self._define_multiple_bands_dll_functions()
+        self._define_optimization_goals_dll_functions()
 
-    def _define_multiple_bands_dll_functions(self):
+    def _define_optimization_goals_dll_functions(self):
         """Define C++ API DLL functions."""
         self._dll.getOptimizationGoalDefinitionRowCount.argtype = POINTER(c_int)
         self._dll.getOptimizationGoalDefinitionRowCount.restype = c_int
@@ -94,6 +102,11 @@ class OptimizationGoalsTable:
         self._dll.adjustGoalFrequency.argtype = c_char_p
         self._dll.adjustGoalFrequency.restype = c_int
 
+    def _bytes_or_none(self, str_value):
+        if str_value:
+            return bytes(str_value, "ascii")
+        return None
+
     @property
     def row_count(self) -> int:
         """Number of golas in the optimization goals table.
@@ -109,7 +122,8 @@ class OptimizationGoalsTable:
         return int(table_row_count.value)
 
     def row(self, row_index) -> list:
-        """Get the row parameters of the optimization goals table as a list.
+        """Get the values for one row of the optimization goals table.
+        The values are returned as a list: [value1, value2, ..., value7].
 
         Parameters
         ----------
@@ -140,7 +154,7 @@ class OptimizationGoalsTable:
         weight=None,
         enabled=None,
     ):
-        """Update the row parameters for a row in the optimization goals table.
+        """Update the row parameters for an existing row in the optimization goals table.
 
         Parameters
         ----------
@@ -168,44 +182,15 @@ class OptimizationGoalsTable:
             New enabled value to set.
             If no value is specified, the value remains unchanged.
         """
-        if lower_frequency:
-            lower_frequency_bytes_value = bytes(lower_frequency, "ascii")
-        else:
-            lower_frequency_bytes_value = None
-        if upper_frequency:
-            upper_frequency_bytes_value = bytes(upper_frequency, "ascii")
-        else:
-            upper_frequency_bytes_value = None
-        if goal_value:
-            goal_value_bytes_value = bytes(goal_value, "ascii")
-        else:
-            goal_value_bytes_value = None
-        if condition:
-            condition_bytes_value = bytes(condition, "ascii")
-        else:
-            condition_bytes_value = None
-        if parameter_name:
-            parameter_name_bytes_value = bytes(parameter_name, "ascii")
-        else:
-            parameter_name_bytes_value = None
-        if weight:
-            weight_bytes_value = bytes(weight, "ascii")
-        else:
-            weight_bytes_value = None
-
-        if enabled:
-            enabled_bytes_value = bytes(enabled, "ascii")
-        else:
-            enabled_bytes_value = None
         status = self._dll.updateOptimizationGoalDefinitionRow(
             row_index,
-            lower_frequency_bytes_value,
-            upper_frequency_bytes_value,
-            goal_value_bytes_value,
-            condition_bytes_value,
-            parameter_name_bytes_value,
-            weight_bytes_value,
-            enabled_bytes_value,
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+            self._bytes_or_none(goal_value),
+            self._bytes_or_none(condition),
+            self._bytes_or_none(parameter_name),
+            self._bytes_or_none(weight),
+            self._bytes_or_none(enabled),
         )
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
@@ -219,7 +204,8 @@ class OptimizationGoalsTable:
         weight=None,
         enabled=None,
     ):
-        """Append a new row of parameters into the optimization goals table.
+        """Append a new row of parameters to the optimization goals table,
+        ensuring the total does not exceed 50 entries.
 
         Parameters
         ----------
@@ -238,42 +224,14 @@ class OptimizationGoalsTable:
         enabled: str, optional
             Enabled value to set.
         """
-        if lower_frequency:
-            lower_frequency_bytes_value = bytes(lower_frequency, "ascii")
-        else:
-            lower_frequency_bytes_value = bytes("", "ascii")
-        if upper_frequency:
-            upper_frequency_bytes_value = bytes(upper_frequency, "ascii")
-        else:
-            upper_frequency_bytes_value = bytes("", "ascii")
-        if goal_value:
-            goal_value_bytes_value = bytes(goal_value, "ascii")
-        else:
-            goal_value_bytes_value = bytes("", "ascii")
-        if condition:
-            condition_bytes_value = bytes(condition, "ascii")
-        else:
-            condition_bytes_value = bytes("", "ascii")
-        if parameter_name:
-            parameter_name_bytes_value = bytes(parameter_name, "ascii")
-        else:
-            parameter_name_bytes_value = bytes("", "ascii")
-        if weight:
-            weight_bytes_value = bytes(weight, "ascii")
-        else:
-            weight_bytes_value = bytes("", "ascii")
-        if enabled:
-            enabled_bytes_value = bytes(enabled, "ascii")
-        else:
-            enabled_bytes_value = bytes("", "ascii")
         status = self._dll.appendOptimizationGoalDefinitionRow(
-            lower_frequency_bytes_value,
-            upper_frequency_bytes_value,
-            goal_value_bytes_value,
-            condition_bytes_value,
-            parameter_name_bytes_value,
-            weight_bytes_value,
-            enabled_bytes_value,
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+            self._bytes_or_none(goal_value),
+            self._bytes_or_none(condition),
+            self._bytes_or_none(parameter_name),
+            self._bytes_or_none(weight),
+            self._bytes_or_none(enabled),
         )
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
@@ -288,7 +246,8 @@ class OptimizationGoalsTable:
         weight=None,
         enabled=None,
     ):
-        """Insert a new row of parameters into the optimization goals table.
+        """Insert a new row of parameters to the optimization goals table,
+        ensuring the total does not exceed 50 entries.
 
         Parameters
         ----------
@@ -309,44 +268,15 @@ class OptimizationGoalsTable:
         enabled: str, optional
             Enabled value.
         """
-        if lower_frequency:
-            lower_frequency_bytes_value = bytes(lower_frequency, "ascii")
-        else:
-            lower_frequency_bytes_value = None
-        if upper_frequency:
-            upper_frequency_bytes_value = bytes(upper_frequency, "ascii")
-        else:
-            upper_frequency_bytes_value = None
-        if goal_value:
-            goal_value_bytes_value = bytes(goal_value, "ascii")
-        else:
-            goal_value_bytes_value = None
-        if condition:
-            condition_bytes_value = bytes(condition, "ascii")
-        else:
-            condition_bytes_value = None
-        if parameter_name:
-            parameter_name_bytes_value = bytes(parameter_name, "ascii")
-        else:
-            parameter_name_bytes_value = None
-        if weight:
-            weight_bytes_value = bytes(weight, "ascii")
-        else:
-            weight_bytes_value = None
-
-        if enabled:
-            enabled_bytes_value = bytes(enabled, "ascii")
-        else:
-            enabled_bytes_value = None
         status = self._dll.insertOptimizationGoalDefinitionRow(
             row_index,
-            lower_frequency_bytes_value,
-            upper_frequency_bytes_value,
-            goal_value_bytes_value,
-            condition_bytes_value,
-            parameter_name_bytes_value,
-            weight_bytes_value,
-            enabled_bytes_value,
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+            self._bytes_or_none(goal_value),
+            self._bytes_or_none(condition),
+            self._bytes_or_none(parameter_name),
+            self._bytes_or_none(weight),
+            self._bytes_or_none(enabled),
         )
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
@@ -362,7 +292,7 @@ class OptimizationGoalsTable:
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def set_design_goals(self):
-        """Set the updated design goals definition."""
+        """Configure the optimization goal table according to the recommended goals for the current design."""
         status = self._dll.designGoals()
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
@@ -402,7 +332,8 @@ class OptimizationGoalsTable:
             print(f"An error occurred while loading goals: {e}")
 
     def adjust_goal_frequency(self, adjust_goal_frequency_string):
-        """Adjust the goal frequencies by an entered adjusting frequency value."""
+        """Adjust all goal frequencies in the table by the adjusting
+        frequency value which can be positive or negative."""
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
 
     def clear_goal_entries(self):
