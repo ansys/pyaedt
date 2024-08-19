@@ -1166,22 +1166,6 @@ class NativeComponentPCB(NativeComponentObject, object):
             )
 
     @pyaedt_function_handler()
-    def include_package_parts(
-        self,
-        solderballs=None,
-    ):
-
-        # sanity check
-
-        for arg in [solderbumps_modeling, solderballs]:
-            if arg is not None and arg not in solderbumps_map:
-                self._app.logger.error(
-                    "{} option is not supported. Use one of the following: "
-                    "{}".format(arg, ", ".join(list(solderbumps_map.keys())))
-                )
-                return False
-
-    @pyaedt_function_handler()
     @disable_auto_update
     def set_low_side_radiation(
         self,
