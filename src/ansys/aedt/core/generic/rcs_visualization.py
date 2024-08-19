@@ -30,24 +30,22 @@ import os
 import shutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-
-# from pyaedt.application.Variables import decompose_variable_value
-# from pyaedt.generic.constants import AEDT_UNITS
+from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
-
-# from pyaedt.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-# from pyaedt.generic.plot import is_notebook
-# from pyaedt.generic.plot import plot_2d_chart
-# from pyaedt.generic.plot import plot_3d_chart
-# from pyaedt.generic.plot import plot_contour
-# from pyaedt.generic.plot import plot_polar_chart
 from ansys.aedt.core.generic.settings import settings
 import pandas as pd
+from pyaedt.generic.general_methods import conversion_function
+
+# from pyaedt.generic.plot import plot_3d_chart
+# from pyaedt.generic.plot import plot_contour
+# from pyaedt.generic.plot import is_notebook
+from pyaedt.generic.plot import plot_2d_chart
+from pyaedt.generic.plot import plot_polar_chart
 
 # from pyaedt.generic.plot import ModelPlotter
 # from pyaedt.generic.plot import get_structured_mesh
@@ -102,10 +100,14 @@ class MonostaticRCSData(object):
         self.__logger = logger
         self.__input_file = input_file
         self.__raw_data = {}
+        self.__frequency = None
         self.__freq_index = 0
         self.__model_units = "meter"
+        self.__monostatic_data = None
 
-        self.__element_info = {}
+        self.__incident_wave_theta = None
+        self.__incident_wave_phi = None
+
         self.__frequencies = []
 
         self.__model_info = {}
@@ -117,9 +119,11 @@ class MonostaticRCSData(object):
         if not self.metadata:  # pragma: no cover
             raise Exception("Metadata could not be loaded..")
 
+        self.__frequency_units = self.metadata["frequency_units"]
+
         self.__monostatic_file = os.path.join(self.output_dir, self.metadata["monostatic_file"])
 
-        if not os.path.isfile(monostatic_file):  # pragma: no cover
+        if not os.path.isfile(self.__monostatic_file):  # pragma: no cover
             raise Exception("Monostatic file invalid.")
 
         # Load farfield data
@@ -129,11 +133,7 @@ class MonostaticRCSData(object):
             raise Exception("RCS information can not be loaded.")
 
         # Update active frequency if passed in the initialization
-        if frequency and frequency in self.frequencies:
-            freq_index = self.frequencies.index(frequency)
-            self.frequency = self.frequencies[freq_index]
-        else:
-            self.frequency = self.frequencies[0]
+        self.frequency = self.frequencies[0]
 
     @property
     def metadata(self):
@@ -146,34 +146,42 @@ class MonostaticRCSData(object):
         return self.__input_file
 
     @property
-    def farfield_data(self):
-        """Farfield data."""
-        return self.combine_farfield(self.theta_scan, self.phi_scan)
-
-    @property
-    def element_info(self):
-        """File information."""
-        return self.__element_info
+    def frequency_units(self):
+        """Frequency units."""
+        return self.__frequency_units
 
     @property
     def frequencies(self):
         """Available frequencies."""
+        if "Freq" in self.__raw_data.index.names:
+            frequencies = np.unique(np.array(self.__raw_data.index.get_level_values("Freq")))
+            self.__frequencies = frequencies.tolist()
         return self.__frequencies
 
     @property
-    def all_element_names(self):
-        """Available port names."""
-        return self.__all_element_names
+    def incident_wave_theta(self):
+        """Incident wave Theta."""
+        if "IWaveTheta" in self.__raw_data.index.names:
+            self.__incident_wave_theta = np.unique(np.array(self.__raw_data.index.get_level_values("IWaveTheta")))
+        return self.__incident_wave_theta
 
     @property
-    def weight(self):
-        """Weight."""
-        return self.__weight
+    def incident_wave_phi(self):
+        """Incident wave Phi."""
+        if "IWaveTheta" in self.__raw_data.index.names:
+            self.__incident_wave_phi = np.unique(np.array(self.__raw_data.index.get_level_values("IWavePhi")))
+        return self.__incident_wave_phi
+
+    @property
+    def monostatic_data(self):
+        """Monostatic RCS data."""
+        self.__monostatic_data = self.__raw_data.xs(key=self.frequency, level="Freq")
+        return self.__monostatic_data
 
     @property
     def frequency(self):
         """Active frequency."""
-        return self._frequency
+        return self.__frequency
 
     @frequency.setter
     def frequency(self, val):
@@ -182,43 +190,32 @@ class MonostaticRCSData(object):
             unit_converter(frequency, "Freq", units, "Hz")
             val = frequency
         if val in self.frequencies:
-            self._frequency = val
+            self.__frequency = val
             self.__freq_index = self.frequencies.index(val)
         else:  # pragma: no cover
             self.__logger.error("Frequency not available.")
 
     @pyaedt_function_handler()
-    def plot_cut(
+    def plot_rcs(
         self,
-        quantity="RealizedGain",
-        primary_sweep="phi",
+        primary_sweep="IWavePhi",
         secondary_sweep_value=0,
-        phi=0,
-        theta=0,
-        title="Far Field Cut",
+        title="Monostatic RCS",
         quantity_format="dB10",
         output_file=None,
         show=True,
         is_polar=False,
         show_legend=True,
     ):
-        """Create a 2D plot of a specified quantity in Matplotlib.
+        """Create a 2D plot of the monostatic RCS.
 
         Parameters
         ----------
-        quantity : str, optional
-            Quantity to plot. The default is ``"RealizedGain"``.
-            Available quantities are: ``"RealizedGain"``, ``"RealizedGain_Theta"``, ``"RealizedGain_Phi"``,
-            ``"rETotal"``, ``"rETheta"``, and ``"rEPhi"``.
         primary_sweep : str, optional.
-            X-axis variable. The default is ``"phi"``. Options are ``"phi"`` and ``"theta"``.
+            X-axis variable. The default is ``"IWavePhi"``. Options are ``"IWavePhi"`` and ``"IWaveTheta"``.
         secondary_sweep_value : float, list, string, optional
             List of cuts on the secondary sweep to plot. The default is ``0``. Options are
             `"all"`, a single value float, or a list of float values.
-        phi : float, int, optional
-            Phi scan angle in degrees. The default is ``0``.
-        theta : float, int, optional
-            Theta scan angle in degrees. The default is ``0``.
         title : str, optional
             Plot title. The default is ``"RectangularPlot"``.
         quantity_format : str, optional
@@ -253,54 +250,51 @@ class MonostaticRCSData(object):
         >>> data.plot_cut(theta=20)
         """
 
-        data = self.combine_farfield(phi, theta)
-        if quantity not in data:  # pragma: no cover
-            raise Exception("Far field quantity not available.")
-
-        data_to_plot = data[quantity]
+        data_freq = self.monostatic_data
 
         curves = []
-        if primary_sweep.lower() == "phi":
-            x_key, y_key = "Phi", "Theta"
-            temp = data_to_plot
+        if primary_sweep.lower() == "IWavePhi":
+            x_key = "IWavePhi"
+            y_key = "IWaveTheta"
+
+            x = self.incident_wave_theta
         else:
-            y_key, x_key = "Phi", "Theta"
-            temp = data_to_plot.T
-        x = data[x_key]
+            x_key = "IWaveTheta"
+            y_key = "IWavePhi"
+            x = self.incident_wave_phi
         if is_polar:
             x = [i * 2 * math.pi / 360 for i in x]
         if secondary_sweep_value == "all":
-            for el in data[y_key]:
-                idx = self.__find_nearest(data[y_key], el)
-                y = temp[idx]
-                y = conversion_function(y, quantity_format)
-                if not isinstance(y, np.ndarray):  # pragma: no cover
-                    raise Exception("Format of quantity is wrong.")
-                curves.append([x, y, "{}={}".format(y_key, el)])
+            # TODO
+            pass
+            # for el in data[y_key]:
+            #     idx = self.__find_nearest(data[y_key], el)
+            #     y = temp[idx]
+            #     y = conversion_function(y, quantity_format)
+            #     if not isinstance(y, np.ndarray):  # pragma: no cover
+            #         raise Exception("Format of quantity is wrong.")
+            #     curves.append([x, y, "{}={}".format(y_key, el)])
         elif isinstance(secondary_sweep_value, list):
             list_inserted = []
             for el in secondary_sweep_value:
-                theta_idx = self.__find_nearest(data[y_key], el)
-                if theta_idx not in list_inserted:
-                    y = temp[theta_idx]
-                    y = conversion_function(y, quantity_format)
-                    if not isinstance(y, np.ndarray):  # pragma: no cover
-                        raise Exception("Format of quantity is wrong.")
-                    curves.append([x, y, "{}={}".format(y_key, el)])
-                    list_inserted.append(theta_idx)
+                data = data_freq.xs(key=secondary_sweep_value, level=x_key)
+                y = conversion_function(data, quantity_format)
+                if not isinstance(y, np.ndarray):  # pragma: no cover
+                    raise Exception("Format of quantity is wrong.")
+                curves.append([x, y, "{}={}".format(y_key, el)])
+                list_inserted.append(theta_idx)
         else:
-            theta_idx = self.__find_nearest(data[y_key], secondary_sweep_value)
-            y = temp[theta_idx]
-            y = conversion_function(y, quantity_format)
+            y = data_freq.xs(key=secondary_sweep_value, level=x_key)
+            y = conversion_function(y.values, quantity_format)
             if not isinstance(y, np.ndarray):  # pragma: no cover
                 raise Exception("Wrong format quantity.")
-            curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
+            curves.append([x, y, "{}={}".format(y_key, secondary_sweep_value)])
 
         if is_polar:
             return plot_polar_chart(
                 curves,
                 xlabel=x_key,
-                ylabel=quantity,
+                ylabel="RCS",
                 title=title,
                 snapshot_path=output_file,
                 show_legend=show_legend,
@@ -310,7 +304,7 @@ class MonostaticRCSData(object):
             return plot_2d_chart(
                 curves,
                 xlabel=x_key,
-                ylabel=quantity,
+                ylabel="RCS",
                 title=title,
                 snapshot_path=output_file,
                 show_legend=show_legend,
@@ -467,6 +461,8 @@ class MonostaticRCSExporter:
     frequencies : list
         Frequency list to export. Specify either a list of strings with units or a list of floats in Hertz units.
         For example, ``["9GHz", 9e9]``.
+    expression : str, optional
+        Monostatic expression name. The default value is ``"ComplexMonostaticRCSTheta"``.
     variations : dict, optional
         Dictionary of all families including the primary sweep. The default value is ``None``.
     overwrite : bool, optional
@@ -488,6 +484,7 @@ class MonostaticRCSExporter:
         app,
         setup_name,
         frequencies,
+        expression=None,
         variations=None,
         overwrite=True,
     ):
@@ -495,6 +492,9 @@ class MonostaticRCSExporter:
         self.setup_name = setup_name
         self.variation_name = ""
         self.export_format = "pkl"
+        self.expression = expression
+        if not self.expression:
+            self.expression = "ComplexMonostaticRCSTheta"
 
         if not variations:
             variations = app.available_variations.nominal_w_values_dict_w_dependent
@@ -516,8 +516,9 @@ class MonostaticRCSExporter:
         self.__model_info = {}
         self.__rcs_data = None
         self.__metadata_file = ""
+        self.__frequency_unit = self.__app.odesktop.GetDefaultUnit("Frequency")
 
-        self.__theta_column_name = "ComplexMonostaticRCSTheta"
+        self.__column_name = self.expression
         self.__phi_column_name = "ComplexMonostaticRCSPhi"
 
     @property
@@ -536,24 +537,14 @@ class MonostaticRCSExporter:
         return self.__metadata_file
 
     @property
-    def theta_column_name(self):
-        """Theta column name."""
-        return self.__theta_column_name
+    def column_name(self):
+        """Column name."""
+        return self.__column_name
 
-    @theta_column_name.setter
-    def theta_column_name(self, value):
-        """Theta column name."""
-        self.__theta_column_name = value
-
-    @property
-    def phi_column_name(self):
-        """Phi column name."""
-        return self.__phi_column_name
-
-    @phi_column_name.setter
-    def phi_column_name(self, value):
-        """Phi column name."""
-        self.__phi_column_name = value
+    @column_name.setter
+    def column_name(self, value):
+        """Column name."""
+        self.__column_name = value
 
     @pyaedt_function_handler()
     def get_monostatic_rcs(self):
@@ -565,11 +556,13 @@ class MonostaticRCSExporter:
         variations["Freq"] = self.frequencies
 
         solution_data = self.__app.post.get_solution_data(
-            ["ComplexMonostaticRCSTheta", "ComplexMonostaticRCSPhi"],
+            expressions=self.expression,
             variations=variations,
             setup_sweep_name=self.setup_name,
             report_category="Monostatic RCS",
         )
+
+        self.__frequency_unit = solution_data.units_sweeps["Freq"]
         solution_data.enable_pandas_output = True
         return solution_data
 
@@ -623,13 +616,12 @@ class MonostaticRCSExporter:
             df.index.names = [*data.variations[0].keys(), *data.intrinsics.keys()]
             df = df.reset_index(level=[*data.variations[0].keys()], drop=True)
             df = unit_converter(
-                df, unit_system="Length", input_units=data.units_data["ComplexMonostaticRCSPhi"], output_units="meter"
+                df, unit_system="Length", input_units=data.units_data[self.expression], output_units="meter"
             )
 
             df.rename(
                 columns={
-                    "ComplexMonostaticRCSTheta": self.theta_column_name,
-                    "ComplexMonostaticRCSPhi": self.phi_column_name,
+                    self.expression: self.column_name,
                 }
             )
 
@@ -661,6 +653,7 @@ class MonostaticRCSExporter:
             "variation": self.variation_name,
             "monostatic_file": file_name,
             "model_units": self.__app.modeler.model_units,
+            "frequency_units": self.__frequency_unit,
             "model_info": [],
         }
 
@@ -673,7 +666,7 @@ class MonostaticRCSExporter:
             return False
 
         self.__metadata_file = pyaedt_metadata_file
-        self.__rcs_data = FfdSolutionData(pyaedt_metadata_file)
+        self.__rcs_data = MonostaticRCSData(pyaedt_metadata_file)
         return pyaedt_metadata_file
 
     @pyaedt_function_handler()
@@ -699,3 +692,12 @@ class MonostaticRCSExporter:
                 obj.units,
             ]
         return obj_list
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def __find_nearest(array, value):
+        idx = np.searchsorted(array, value, side="left")
+        if idx > 0 and (idx == len(array) or math.fabs(value - array[idx - 1]) < math.fabs(value - array[idx])):
+            return idx - 1
+        else:
+            return idx
