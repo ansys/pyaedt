@@ -910,7 +910,7 @@ class PCBSettingsDeviceParts(object):
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` if successful, ``False`` otherwise.
         """
         return self._override_common(
             "instanceOverridesMap",
@@ -1181,72 +1181,132 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     @pyaedt_function_handler()
     @disable_auto_update
-    def set_package_parts(
+    def set_low_side_radiation(
         self,
-        solderballs=None,
-        connector=None,
-        solderbumps_modeling="Boxes",
-        bondwire_material="Au-Typical",
-        bondwire_diameter="0.05mm",
+        enabled,
+        surface_material="Steel-oxidised-surface",
+        radiate_to_ref_temperature=False,
+        view_factor=1,
+        ref_temperature="AmbientTemp",
     ):
-        """Set how to include PCB device parts.
+        """Set low side radiation properties.
 
         Parameters
         ----------
-        solderballs : str, optional
-            Specifies whether the solderballs located below the stackup are modeled,
-            and if so whether they are modeled as ``"Boxes"``, ``"Cylinders"`` or ``"Lumped"``.
-        connector : str, optional
-            Specifies whether the connectors located above the stackup are modeled,
-            and if so whether they are modeled as ``"Solderbump"`` or ``"Bondwire"``.
-            Default is ``None`` in which case they are not modeled.
-        solderbumps_modeling : str, optional
-            Specifies how to model solderbumps if ``connector`` is set to ``"Solderbump"``.
-            Accepted options are: ``"Boxes"``, ``"Cylinders"`` and ``"Lumped"``.
-            Default is ``"Boxes"``.
-        bondwire_material : str, optional
-            Specifies bondwires material if ``connector`` is set to ``"Bondwire"``.
-            Default is ``"Au-Typical"``.
+        enabled : bool
+            Whether high side radiation is enabled.
+        surface_material : str, optional
+            Surface material to apply. Default is ``"Steel-oxidised-surface"``.
+        radiate_to_ref_temperature : bool, optional
+            Whether to radiate to a reference temperature instead of objects in the model.
+            Default is ``False``.
+        view_factor : float, optional
+            View factor to use for radiation computation if ``radiate_to_ref_temperature``
+            is set to True. Default is 1.
+        ref_temperature : str, optional
+            Reference temperature to use for radiation computation if
+            ``radiate_to_ref_temperature`` is set to ``True``. Default is ``"AmbientTemp"``.
 
         Returns
         -------
         bool
-            ``True`` if successful. ``False`` otherwise.
+            ``True`` if successful, else ``False``.
         """
-        # sanity check
-        valid_connectors = ["Solderbump", "Bondwire"]
-        if connector is not None and connector not in valid_connectors:
-            self._app.logger.error(
-                "{} option is not supported. Use one of the following: {}".format(
-                    connector, ", ".join(valid_connectors)
-                )
-            )
-            return False
-        solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
-        for arg in [solderbumps_modeling, solderballs]:
-            if arg is not None and arg not in solderbumps_map:
-                self._app.logger.error(
-                    "{} option is not supported. Use one of the following: "
-                    "{}".format(arg, ", ".join(list(solderbumps_map.keys())))
-                )
-                return False
-        if bondwire_material not in self._app.materials.mat_names_aedt:
-            self._app.logger.error("{} material is not present in the library.".format(bondwire_material))
-            return False
-
-        update_properties = {
-            "PartsChoice": 2,
-            "CreateTopSolderballs": connector is not None,
-            "TopConnectorType": connector,
-            "TopSolderballsModelType": solderbumps_map[solderbumps_modeling],
-            "BondwireMaterial": bondwire_material,
-            "BondwireDiameter": bondwire_diameter,
-            "CreateBottomSolderballs": solderballs is not None,
-            "BottomSolderballsModelType": solderbumps_map[solderballs],
+        low_side = {
+            "Radiate": enabled,
+            "RadiateTo": "RefTemperature - High" if radiate_to_ref_temperature else "AllObjects",
+            "Surface Material": surface_material,
         }
-
-        self.props["NativeComponentDefinitionProvider"].update(update_properties)
+        if radiate_to_ref_temperature:
+            low_side["Ref. Temperature"] = (ref_temperature,)
+            low_side["View Factor"] = view_factor
+        self.props["NativeComponentDefinitionProvider"]["LowSide"] = low_side
         return True
+
+    @power.setter
+    @disable_auto_update
+    def power(self, value):
+        """Assign power dissipation to the PCB.
+
+        Parameters
+        ----------
+        value : str
+            Power to apply to the PCB.
+        """
+        self.props["NativeComponentDefinitionProvider"]["Power"] = value
+
+    @property
+    def force_source_solve(self):
+        """Force source solution option."""
+        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
+
+    @force_source_solve.setter
+    @disable_auto_update
+    def force_source_solve(self, val):
+        """Set Whether to force source solution.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to force source solution.
+        """
+        if not isinstance(val, bool):
+            self._app.logger.error("Only Boolean value can be accepted.")
+            return
+        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
+
+    @property
+    def preserve_partner_solution(self):
+        """Preserve parner solution option."""
+        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
+
+    @preserve_partner_solution.setter
+    @disable_auto_update
+    def preserve_partner_solution(self, val):
+        """Set Whether to preserve partner solution.
+
+        Parameters
+        ----------
+        val : bool
+            Whether to preserve partner solution.
+        """
+        if not isinstance(val, bool):
+            self._app.logger.error("Only boolean can be accepted.")
+            return
+        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
+
+    @property
+    def included_parts(self):
+        """Parts options."""
+        p = self.props["NativeComponentDefinitionProvider"].get("PartsChoice", 0)
+        if p == 0:
+            return None
+        elif p == 1:
+            return PCBSettingsDeviceParts(self, self._app)
+        elif p == 2:
+            return PCBSettingsPackageParts(self, self._app)
+
+    @included_parts.setter
+    @disable_auto_update
+    def included_parts(self, value):
+        """Set PCB parts incusion option.
+
+        Parameters
+        ----------
+        value : str or int
+            Valid options are ``"None"``, ``"Device"``, and ``"Package"`` (or 0, 1, and 2 respectivaly)
+        """
+        if value is None:
+            value = "None"
+        part_map = {"None": 0, "Device": 1, "Package": 2}
+        if not isinstance(value, int):
+            value = part_map.get(value, None)
+        if value is not None:
+            self.props["NativeComponentDefinitionProvider"]["PartsChoice"] = value
+        else:
+            self._app.logger.error(
+                'Invalid part choice. Valid options are "None", "Device", and "Package" (or 0, 1, and 2 respectively).'
+            )
 
     @pyaedt_function_handler()
     def identify_extent_poly(self):
