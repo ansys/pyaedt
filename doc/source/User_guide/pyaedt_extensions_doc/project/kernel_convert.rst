@@ -47,7 +47,7 @@ Finally, this code shows how you can run the extension directly from a Python sc
 
 .. code:: python
 
-    from pyaedt.workflows.project.kernel_converter import main
+    from ansys.aedt.core.workflows.project.kernel_converter import main
 
     main(test_args = {"password": "my_pwd",
                     "application": "HFSS",

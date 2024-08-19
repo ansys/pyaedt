@@ -29,10 +29,9 @@ import logging
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.settings import settings
 
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
@@ -46,7 +45,7 @@ def foo(trigger_exception=True):
         raise Exception(ERROR_MESSAGE)
 
 
-@patch("pyaedt.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception(mock_sessions):
     """Test handler while activating or deactivating error handler."""
     mock_session = MagicMock()

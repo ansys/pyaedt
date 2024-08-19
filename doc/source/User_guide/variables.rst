@@ -7,7 +7,7 @@ for the variable name, a project-wide variable is created:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     with Hfss as hfss:
          hfss["dim"] = "1mm"   # design variable
          hfss["$dim"] = "1mm"  # project variable
@@ -49,7 +49,7 @@ optimetrics setups by allowing you to read existing configurations, make edits, 
 
 .. code:: python
 
-    from pyaedt import Maxwell3d
+    from ansys.aedt.core import Maxwell3d
     m3d = Maxwell3d()
     m3d.parametrics.add("Rload", 0.1, 1, 0.1)
 

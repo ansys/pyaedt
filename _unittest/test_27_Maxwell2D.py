@@ -30,11 +30,10 @@ import shutil
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 import pytest
-
-from pyaedt import Maxwell2d
-from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import generate_unique_name
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":
@@ -615,3 +614,7 @@ class TestClass:
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.m2d_circuit.create_external_circuit()
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        for w in self.m2d_circuit.excitations_by_type["Winding Group"]:
+            w.delete()
+        self.m2d_circuit.save_project()
+        assert not self.m2d_circuit.create_external_circuit()
