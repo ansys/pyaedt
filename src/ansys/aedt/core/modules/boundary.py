@@ -1193,6 +1193,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignHybridRegion(self._get_args())
         elif bound_type == "FluxTangential":
             self._app.oboundary.AssignFluxTangential(self._get_args())
+        elif bound_type == "Plane Incident Wave":
+            self._app.oboundary.AssignPlaneWave(self._get_args())
         else:
             return False
         return True
@@ -1336,6 +1338,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
         elif bound_type == "Terminal":
             self._app.oboundary.EditTerminal(self._boundary_name, self._get_args())
+        elif bound_type == "Plane Incident Wave":
+            self._app.oboundary.EditIncidentWave(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
 
