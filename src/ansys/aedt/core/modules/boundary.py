@@ -802,11 +802,6 @@ class PCBSettingsDeviceParts(object):
         r_jc=None,
         height=None,
     ):
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
-            self._app.logger.error(
-                "Device parts modeling is not active.  No filtering or override option is available."
-            )
-            return False
         override_component = (
             self.pcb.props["NativeComponentDefinitionProvider"]
             .get(map_name, {})  # "instanceOverridesMap"
