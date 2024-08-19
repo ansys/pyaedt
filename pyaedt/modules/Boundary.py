@@ -367,7 +367,8 @@ def disable_auto_update(func):
         auto_update = obj.auto_update
         obj.auto_update = False
         out = func(self, *args, **kwargs)
-        obj.update()
+        if auto_update:
+            obj.update()
         obj.auto_update = auto_update
         return out
 
@@ -379,6 +380,17 @@ class PCBSettingsPackageParts(object):
         self._app = app
         self.pcb = pcb_obj
         self._solderbumps_map = {"Lumped": "SbLumped", "Cylinders": "SbCylinder", "Boxes": "SbBlock"}
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return other == "Package"
+        elif isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict_
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     @pyaedt_function_handler()
     @disable_auto_update
@@ -478,6 +490,17 @@ class PCBSettingsDeviceParts(object):
         self._app = app
         self.pcb = pcb_obj
         self._filter_map2name = {"Cap": "Capacitors", "Ind": "Inductors", "Res": "Resistors"}
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return other == "Device"
+        elif isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict_
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return "Device"
@@ -745,16 +768,74 @@ class PCBSettingsDeviceParts(object):
         return {o["overrideName"]: o["overrideProps"] for o in override_component}
 
     @pyaedt_function_handler()
-    @disable_auto_update
-    def override_component(
-        self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
+    def _override_common(
+        self,
+        map_name,
+        package=None,
+        part=None,
+        reference_designator=None,
+        filter_component=False,
+        power=None,
+        r_jb=None,
+        r_jc=None,
+        height=None,
     ):
+        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+            self._app.logger.error(
+                "Device Parts modeling is not active, hence no filtering or override option is available."
+            )
+            return False
+        override_component = (
+            self.pcb.props["NativeComponentDefinitionProvider"]
+            .get(map_name, {})  # "instanceOverridesMap"
+            .get("oneOverrideBlk", [])
+        )
+        if map_name == "instanceOverridesMap":
+            for o in override_component:
+                if o["overrideName"] == reference_designator:
+                    override_component.remove(o)
+        elif map_name == "definitionOverridesMap":
+            for o in override_component:
+                if o["overridePartNumberName"] == part:
+                    override_component.remove(o)
+        new_filter = OrderedDict()
+        if filter_component or any(override_val is not None for override_val in [power, r_jb, r_jc, height]):
+            if map_name == "instanceOverridesMap":
+                new_filter.update({"overrideName": reference_designator})
+            elif map_name == "definitionOverridesMap":
+                new_filter.update({"overridePartNumberName": part, "overrideGeometryName": package})
+            new_filter.update(
+                {
+                    "overrideProps": OrderedDict(
+                        {
+                            "isFiltered": filter_component,
+                            "isOverridePower": power is not None,
+                            "isOverrideThetaJb": r_jb is not None,
+                            "isOverrideThetaJc": r_jc is not None,
+                            "isOverrideHeight": height is not None,
+                            "powerOverride": power if power is not None else "nan",
+                            "thetaJbOverride": r_jb if r_jb is not None else "nan",
+                            "thetaJcOverride": r_jc if r_jc is not None else "nan",
+                            "heightOverride": height if height is not None else "nan",
+                        }
+                    ),
+                }
+            )
+            override_component.append(new_filter)
+        self.pcb.props["NativeComponentDefinitionProvider"][map_name] = {"oneOverrideBlk": override_component}
+        return True
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def override_definition(self, package, part, filter_component=False, power=None, r_jb=None, r_jc=None, height=None):
         """Set component override.
 
         Parameters
         ----------
-        reference_designator : str
-            Reference designator of the part to override.
+        package : str
+            Package name of the definition to override.
+        part : str
+            Part name of the definition to override.
         filter_component : bool, optional
             Whether to filter out the component. Default is ``False``.
         power : str, optional
@@ -771,43 +852,58 @@ class PCBSettingsDeviceParts(object):
         bool
             ``True`` if successful. ``False`` otherwise.
         """
-        if self.pcb.props["NativeComponentDefinitionProvider"]["PartsChoice"] != 1:
+        if self._app.settings.aedt_version < "2024.2":
             self._app.logger.error(
-                "Device Parts modeling is not active, hence no filtering or override option is available."
+                "This method is available only with AEDT 24R2 or newer. Use override_instance instead."
             )
             return False
-        override_component = (
-            self.pcb.props["NativeComponentDefinitionProvider"]
-            .get("instanceOverridesMap", {})
-            .get("oneOverrideBlk", [])
+        return self._override_common(
+            "definitionOverridesMap",
+            package=package,
+            part=part,
+            filter_component=filter_component,
+            power=power,
+            r_jb=r_jb,
+            r_jc=r_jc,
+            height=height,
         )
-        for o in override_component:
-            if o["overrideName"] == reference_designator:
-                override_component.remove(o)
-        if filter_component or any(override_val is not None for override_val in [power, r_jb, r_jc, height]):
-            override_component.append(
-                OrderedDict(
-                    {
-                        "overrideName": reference_designator,
-                        "overrideProps": OrderedDict(
-                            {
-                                "isFiltered": filter_component,
-                                "isOverridePower": power is not None,
-                                "isOverrideThetaJb": r_jb is not None,
-                                "isOverrideThetaJc": r_jc is not None,
-                                "isOverrideHeight": height is not None,
-                                "powerOverride": power if power is not None else "nan",
-                                "thetaJbOverride": r_jb if r_jb is not None else "nan",
-                                "thetaJcOverride": r_jc if r_jc is not None else "nan",
-                            }
-                        ),
-                    }
-                )
-            )
-        self.pcb.props["NativeComponentDefinitionProvider"]["instanceOverridesMap"] = {
-            "oneOverrideBlk": override_component
-        }
-        return True
+
+    @pyaedt_function_handler()
+    @disable_auto_update
+    def override_instance(
+        self, reference_designator, filter_component=False, power=None, r_jb=None, r_jc=None, height=None
+    ):
+        """Set instance override.
+
+        Parameters
+        ----------
+        reference_designator : str
+            Reference designator of the instance to override.
+        filter_component : bool, optional
+            Whether to filter out the component. Default is ``False``.
+        power : str, optional
+            Override component power. Default is ``None``, in which case the power is not overridden.
+        r_jb : str, optional
+            Override component r_jb value. Default is ``None``, in which case the resistance is not overridden.
+        r_jc : str, optional
+            Override component r_jc value. Default is ``None``, in which case the resistance is not overridden.
+        height : str, optional
+            Override component height value. Default is ``None``, in which case the height is not overridden.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful. ``False`` otherwise.
+        """
+        return self._override_common(
+            "instanceOverridesMap",
+            reference_designator=reference_designator,
+            filter_component=filter_component,
+            power=power,
+            r_jb=r_jb,
+            r_jc=r_jc,
+            height=height,
+        )
 
 
 class NativeComponentPCB(NativeComponentObject, object):
@@ -834,6 +930,28 @@ class NativeComponentPCB(NativeComponentObject, object):
 
     def __init__(self, app, component_type, component_name, props):
         NativeComponentObject.__init__(self, app, component_type, component_name, props)
+
+    @property
+    def force_source_solve(self):
+        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("ForceSourceToSolve", False)
+
+    @force_source_solve.setter
+    def force_source_solve(self, val):
+        if not isinstance(val, bool):
+            self._app.logger.error("Only boolean can be accepted.")
+            return
+        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"ForceSourceToSolve": val})
+
+    @property
+    def preserve_partner_solution(self):
+        return self.props["NativeComponentDefinitionProvider"].get("DefnLink", {}).get("PreservePartnerSoln", False)
+
+    @preserve_partner_solution.setter
+    def preserve_partner_solution(self, val):
+        if not isinstance(val, bool):
+            self._app.logger.error("Only boolean can be accepted.")
+            return
+        return self.props["NativeComponentDefinitionProvider"]["DefnLink"].update({"PreservePartnerSoln": val})
 
     @property
     def included_parts(self):
@@ -976,12 +1094,12 @@ class NativeComponentPCB(NativeComponentObject, object):
     @property
     def board_cutout_material(self):
         """Material applied to cutouts regions."""
-        return self.props["NativeComponentDefinitionProvider"]["BoardCutoutMaterial"]
+        return self.props["NativeComponentDefinitionProvider"].get("BoardCutoutMaterial", "air ")
 
     @property
     def via_holes_material(self):
         """Material applied to via holes regions."""
-        return self.props["NativeComponentDefinitionProvider"]["ViaHoleMaterial"]
+        return self.props["NativeComponentDefinitionProvider"].get("ViaHoleMaterial", "copper")
 
     @board_cutout_material.setter
     def board_cutout_material(self, value):
