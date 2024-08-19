@@ -29,26 +29,25 @@ import json
 import os
 import shutil
 
-import pandas as pd
-
-from pyaedt.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
 # from pyaedt.application.Variables import decompose_variable_value
 # from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.constants import unit_converter
+from ansys.aedt.core.generic.constants import unit_converter
 
 # from pyaedt.generic.general_methods import conversion_function
-from pyaedt.generic.general_methods import check_and_download_folder
-from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.general_methods import open_file
-from pyaedt.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.general_methods import check_and_download_folder
+from ansys.aedt.core.generic.general_methods import is_ironpython
+from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 # from pyaedt.generic.plot import is_notebook
 # from pyaedt.generic.plot import plot_2d_chart
 # from pyaedt.generic.plot import plot_3d_chart
 # from pyaedt.generic.plot import plot_contour
 # from pyaedt.generic.plot import plot_polar_chart
-from pyaedt.generic.settings import settings
+from ansys.aedt.core.generic.settings import settings
+import pandas as pd
 
 # from pyaedt.generic.plot import ModelPlotter
 # from pyaedt.generic.plot import get_structured_mesh
@@ -82,10 +81,9 @@ class MonostaticRCSData(object):
 
     Examples
     --------
-
-    >>> import pyaedt
-    >>> from pyaedt.generic.rcs_visualization import MonostaticRCSData
-    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+    >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.generic.rcs_visualization import MonostaticRCSData
+    >>> app = Hfss(version="2023.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -476,8 +474,8 @@ class MonostaticRCSExporter:
 
     Examples
     --------
-    >>> import pyaedt
-    >>> app = pyaedt.Hfss(version="2023.2", design="Antenna")
+    >>> import ansys.aedt.core
+    >>> app = ansys.aedt.core.Hfss(version="2023.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
