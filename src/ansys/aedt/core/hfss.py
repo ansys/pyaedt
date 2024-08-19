@@ -6337,12 +6337,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             The default is ``"Vertical"``.
         propagation_vector : list, optional
             Propagation vector.
-             If ``vector_format`` is ``"Cartesian"`` the type must be a ``list`` with three elements.
-             If `vector_format`` is ``"Spherical"`` the type must be a ``list`` with two elements, the first element
-             corresponds to the phi sweep, which must be ``list`` of three elements, start, stop, and number of points.
-             The second element has the same format, it corresponds to the theta sweep.
-             The default is ``[0.0, 0.0, 1.0]`` for ``"Cartesian"`` and
-             ``[["0.0deg", "0.0deg", 1], ["0.0deg", "0.0deg", 1]]`` for ``"Spherical"``.
+            If ``vector_format`` is ``"Cartesian"`` the type must be a ``list`` with three elements.
+            If ``vector_format`` is ``"Spherical"`` the type must be a ``list`` with two elements. The first element
+            corresponds to the phi sweep, which must be a ``list`` of three elements: start, stop, and number of points.
+            The second element has the same format, it corresponds to the theta sweep.
+            The default is ``[0.0, 0.0, 1.0]`` for ``"Cartesian"`` and
+            ``[["0.0deg", "0.0deg", 1], ["0.0deg", "0.0deg", 1]]`` for ``"Spherical"``.
         wave_type : str, optional
             Type of plane wave. Options are ``"Propagating"``, ``"Evanescent"``,  or ``"Elliptical"``.
             The default is ``"Propagating"``.
