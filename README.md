@@ -203,7 +203,7 @@ Usage examples follow.
 ``` python
     # Launch AEDT 2022 R2 in non-graphical mode
 
-    from pyaedt import Desktop, Circuit
+    from ansys.aedt.core import Desktop, Circuit
     with Desktop(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
@@ -220,7 +220,7 @@ Usage examples follow.
 ``` python
     # Launch the latest installed version of AEDT in graphical mode
 
-    from pyaedt import Circuit
+    from ansys.aedt.core import Circuit
     with Circuit(specified_version="2022.2",
                  non_graphical=False) as circuit:
         ...
@@ -240,14 +240,14 @@ On a CPython Server:
 ``` python
     # Launch PyAEDT remote server on CPython
 
-    from pyaedt.common_rpc import pyaedt_service_manager
+    from ansys.aedt.core.common_rpc import pyaedt_service_manager
     pyaedt_service_manager()
 ```
 
 On any Windows client machine:
 
 ``` python
-    from pyaedt.common_rpc import create_session
+    from ansys.aedt.core.common_rpc import create_session
     cl1 = create_session("server_name")
     cl1.aedt(port=50000, non_graphical=False)
     hfss = Hfss(machine="server_name", port=50000)
@@ -257,7 +257,7 @@ On any Windows client machine:
 ## Variables
 
 ``` python
-    from pyaedt.HFSS import HFSS
+    from ansys.aedt.core.HFSS import HFSS
     with HFSS as hfss:
          hfss["dim"] = "1mm"   # design variable
          hfss["$dim"] = "1mm"  # project variable
@@ -268,7 +268,7 @@ On any Windows client machine:
 ``` python
     # Create a box, assign variables, and assign materials.
 
-    from pyaedt.hfss import Hfss
+    from ansys.aedt.core.hfss import Hfss
     with Hfss as hfss:
          hfss.modeler.create_box([0, 0, 0], [10, "dim", 10],
                                  "mybox", "aluminum")

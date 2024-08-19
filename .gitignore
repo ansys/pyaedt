@@ -361,7 +361,7 @@ doc/build_errors.txt
 _autosummary/
 
 # pip files
-*.egg-info/*
+*.egg-info*
 build/
 dist/
 

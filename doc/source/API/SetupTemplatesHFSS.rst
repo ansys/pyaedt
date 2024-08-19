@@ -7,7 +7,7 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
 
     hfss = Hfss()
     # Any property of this setup can be found on this page.
@@ -17,9 +17,9 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: pyaedt.modules.SetupTemplates.HFSSDrivenAuto
-.. pprint:: pyaedt.modules.SetupTemplates.HFSSDrivenDefault
-.. pprint:: pyaedt.modules.SetupTemplates.HFSSDrivenDefault
-.. pprint:: pyaedt.modules.SetupTemplates.HFSSTransient
-.. pprint:: pyaedt.modules.SetupTemplates.HFSSSBR
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenAuto
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenDefault
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSDrivenDefault
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSTransient
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSSSBR
 

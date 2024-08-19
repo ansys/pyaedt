@@ -11,7 +11,7 @@ They are accessible through the ``modeler.objects`` property:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -49,29 +49,29 @@ They contain all getters and setters to simplify object manipulation.
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   cad.object3d.Object3d
-   cad.elements3d.FacePrimitive
-   cad.elements3d.EdgePrimitive
-   cad.elements3d.VertexPrimitive
+   cad.object_3d.Object3d
+   cad.elements_3d.FacePrimitive
+   cad.elements_3d.EdgePrimitive
+   cad.elements_3d.VertexPrimitive
    cad.polylines.PolylineSegment
    cad.polylines.Polyline
    cad.component_array.ComponentArray
    cad.components_3d.UserDefinedComponent
-   cad.elements3d.Point
-   cad.elements3d.Plane
-   cad.elements3d.HistoryProps
-   cad.elements3d.BinaryTreeNode
+   cad.elements_3d.Point
+   cad.elements_3d.Plane
+   cad.elements_3d.HistoryProps
+   cad.elements_3d.BinaryTreeNode
 
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -104,19 +104,19 @@ method or the ``coordinate_systems`` list. The ``GeometryOperators`` class can b
 imported and used because it is made by static methods.
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   cad.Modeler.CoordinateSystem
+   cad.modeler.CoordinateSystem
    geometry_operators.GeometryOperators
 
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

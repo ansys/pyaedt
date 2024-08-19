@@ -8,10 +8,10 @@ interact with a 3D layout.
 
 import os
 import tempfile
-import pyaedt
+import ansys.aedt.core
 
 tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, pyaedt.generate_unique_name("Example"))
+temp_folder = os.path.join(tmpfold, ansys.aedt.core.generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 print(temp_folder)
@@ -21,7 +21,7 @@ print(temp_folder)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copy an example into the temporary folder.
 
-targetfile = pyaedt.downloads.download_aedb()
+targetfile = ansys.aedt.core.downloads.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
@@ -45,12 +45,12 @@ aedt_version = "2024.2"
 # Initialize AEDT and launch HFSS 3D Layout
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize AEDT and launch HFSS 3D Layout.
-# The ``h3d`` object contains the :class:`pyaedt.Edb` class query methods.
+# The ``h3d`` object contains the :class:`ansys.aedt.core.Edb` class query methods.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical, NewThread)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical, NewThread)
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-h3d = pyaedt.Hfss3dLayout(targetfile)
+h3d = ansys.aedt.core.Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
 
 ###############################################################################
@@ -97,7 +97,7 @@ h3d.modeler.fit_all()
 # Disable component visibility
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Disable component visibility for ``"TOP"`` and ``"BOTTOM"``.
-# The :func:`pyaedt.modules.LayerStackup.Layer.update_stackup_layer` method
+# The :func:`ansys.aedt.core.modules.layer_stackup.Layer.update_stackup_layer` method
 # applies modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
@@ -117,7 +117,7 @@ h3d.modeler.fit_all()
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 h3d.close_project()
