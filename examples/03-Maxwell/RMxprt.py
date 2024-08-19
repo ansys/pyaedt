@@ -7,7 +7,7 @@ Keywords: Rmxprt, Maxwell2D
 import os.path
 import tempfile
 
-import pyaedt
+import ansys.aedt.core
 
 
 ##########################################################
@@ -25,7 +25,7 @@ temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 # As solution type we will use ASSM (Adjust-Speed Syncronous Machine).
 
 
-app = pyaedt.Rmxprt(
+app = ansys.aedt.core.Rmxprt(
     version=aedt_version,
     new_desktop=True,
     close_on_exit=True,
@@ -132,7 +132,7 @@ m2d.plot(show=False, output_file=os.path.join(temp_dir.name, "Image.jpg"), plot_
 # project with import function.
 
 config = app.export_configuration(os.path.join(temp_dir.name, "assm.json"))
-app2 = pyaedt.Rmxprt(project="assm_test2",solution_type=app.solution_type, design="from_configuration")
+app2 = ansys.aedt.core.Rmxprt(project="assm_test2",solution_type=app.solution_type, design="from_configuration")
 app2.import_configuration(config)
 
 

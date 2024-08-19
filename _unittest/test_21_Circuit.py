@@ -27,10 +27,9 @@ import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Circuit
-from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T21"
 
@@ -217,7 +216,7 @@ class TestClass:
         )
 
     def test_16_read_touchstone(self):
-        from pyaedt.generic.touchstone_parser import read_touchstone
+        from ansys.aedt.core.generic.touchstone_parser import read_touchstone
 
         data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0

@@ -28,13 +28,12 @@ import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.pdf import AnsysReport
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt import Maxwell3d
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.pdf import AnsysReport
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"

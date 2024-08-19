@@ -24,18 +24,17 @@
 
 from _unittest.conftest import config
 from _unittest.test_45_FilterSolutions.test_filter import test_transmission_zeros
+import ansys.aedt.core
+from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
-
-import pyaedt
-from pyaedt.filtersolutions_core.attributes import FilterImplementation
-from pyaedt.generic.general_methods import is_linux
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_raise_error(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg

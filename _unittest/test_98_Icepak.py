@@ -26,14 +26,13 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 import pytest
-
-from pyaedt import Icepak
-from pyaedt.generic.settings import settings
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.Boundary import NetworkObject
-from pyaedt.modules.MeshIcepak import MeshRegion
-from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
 if config["desktopVersion"] > "2022.2":

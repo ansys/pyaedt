@@ -28,11 +28,10 @@ import math
 import os
 import sys
 
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.maxwell import Maxwell2d
 import pytest
-
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import isclose
-from pyaedt.maxwell import Maxwell2d
 
 
 @pytest.fixture(scope="class")
