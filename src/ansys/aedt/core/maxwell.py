@@ -1111,7 +1111,7 @@ class Maxwell(object):
         >>> floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in ["Electrostatic", "ElectricTransient"]:
+        if self.solution_type not in ["Electrostatic", "ElectricTransient"]:  # pragma : no cover
             self.logger.error(
                 "Assign floating excitation is only valid for electrostatic or electric transient solvers."
             )
