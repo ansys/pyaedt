@@ -1672,3 +1672,34 @@ class TestClass:
         assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+
+    def test_69_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_69")
+        assert not aedtapp.plane_wave(vector_format="invented")
+        assert not aedtapp.plane_wave(origin=[0, 0])
+        assert not aedtapp.plane_wave(wave_type="dummy")
+        assert not aedtapp.plane_wave(wave_type="evanescent", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(wave_type="elliptical", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
+        assert not aedtapp.plane_wave(polarization=[1])
+        assert not aedtapp.plane_wave(propagation_vector=[1, 0, 0])
+
+        assert aedtapp.plane_wave(wave_type="Evanescent")
+        assert aedtapp.plane_wave(wave_type="Elliptical")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(vector_format="Cartesian")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(polarization="Horizontal")
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization="Horizontal")
+
+        assert aedtapp.plane_wave(polarization=[1, 0])
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
+
+        aedtapp.solution_type = "SBR+"
+        new_plane_wave = aedtapp.plane_wave()
+        assert len(aedtapp.boundaries) == 10
+        new_plane_wave.name = "new_plane_wave"
+        assert new_plane_wave.name in aedtapp.excitations
+
+        aedtapp.close_project(save=False)

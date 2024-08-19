@@ -27,24 +27,28 @@ from unittest.mock import patch
 import warnings
 
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
+from ansys.aedt.core import WARNING_MESSAGE
 from ansys.aedt.core import deprecation_warning
+
+VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 
 
 @patch.object(warnings, "warn")
-def test_deprecation_warning(mock_warn):
+def test_deprecation_warning_with_deprecated_python_version(mock_warn, monkeypatch):
+    monkeypatch.setattr(sys, "version_info", LATEST_DEPRECATED_PYTHON_VERSION)
+
     deprecation_warning()
 
-    current_version = sys.version_info[:2]
-    if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
-        str_current_version = "{}.{}".format(*sys.version_info[:2])
-        expected = (
-            "Current python version ({}) is deprecated in PyAEDT. We encourage you "
-            "to upgrade to the latest version to benefit from the latest features "
-            "and security updates.".format(str_current_version)
-        )
-        mock_warn.assert_called_once_with(expected, PendingDeprecationWarning)
-    else:
-        mock_warn.assert_not_called()
+    mock_warn.assert_called_once_with(WARNING_MESSAGE, FutureWarning)
+
+
+@patch.object(warnings, "warn")
+def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch):
+    monkeypatch.setattr(sys, "version_info", VALID_PYTHON_VERSION)
+
+    deprecation_warning()
+
+    mock_warn.assert_not_called()
 
 
 @patch.object(warnings, "warn")
