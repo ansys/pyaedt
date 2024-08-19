@@ -117,11 +117,13 @@ class TestClass:
         assert cmp2.included_parts is None
         cmp2.included_parts = "Device"
         assert cmp2.included_parts == "Device"
+        assert not cmp2.included_parts == "Package"
         assert cmp2.included_parts == cmp2.included_parts
         assert not cmp2.included_parts == "Package"
         assert not cmp2.included_parts != "Device"
         assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
         cmp2.included_parts = "Package"
+        assert not cmp2.included_parts == "Packages"
         assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
         assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Boxes")
         assert cmp2.included_parts.set_connectors_modeling(

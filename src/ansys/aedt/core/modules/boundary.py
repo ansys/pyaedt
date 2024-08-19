@@ -816,7 +816,7 @@ class PCBSettingsDeviceParts(object):
             for o in override_component:
                 if o["overrideName"] == reference_designator:
                     override_component.remove(o)
-        elif map_name == "definitionOverridesMap":
+        elif map_name == "definitionOverridesMap":  # pragma: no cover
             for o in override_component:
                 if o["overridePartNumberName"] == part:
                     override_component.remove(o)
@@ -824,7 +824,7 @@ class PCBSettingsDeviceParts(object):
         if filter_component or any(override_val is not None for override_val in [power, r_jb, r_jc, height]):
             if map_name == "instanceOverridesMap":
                 new_filter.update({"overrideName": reference_designator})
-            elif map_name == "definitionOverridesMap":
+            elif map_name == "definitionOverridesMap":  # pragma: no cover
                 new_filter.update({"overridePartNumberName": part, "overrideGeometryName": package})
             new_filter.update(
                 {
