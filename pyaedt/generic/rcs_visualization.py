@@ -128,7 +128,7 @@ class MonostaticRCSData(object):
         is_rcs_loaded = self.__init_rcs()
 
         if not is_rcs_loaded:  # pragma: no cover
-            raise Exception("Farfield information from ffd files can not be loaded.")
+            raise Exception("RCS information can not be loaded.")
 
         # Update active frequency if passed in the initialization
         if frequency and frequency in self.frequencies:
@@ -328,7 +328,16 @@ class MonostaticRCSData(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.__raw_data = pd.read_pickle(self.__monostatic_file)
+
+        file_extension = os.path.splitext(self.__monostatic_file)[1]
+        if file_extension == "h5":
+            try:
+                self.__raw_data = df.read_hdf(self.__monostatic_file, key="df", mode="w", format="table")
+            except ImportError as e:  # pragma: no cover
+                self.__app.logger.error(f"PyTables is not installed: {e}")
+                return False
+        else:
+            self.__raw_data = pd.read_pickle(self.__monostatic_file)
         return True
 
     @pyaedt_function_handler()
@@ -487,6 +496,7 @@ class MonostaticRCSExporter:
         # Public
         self.setup_name = setup_name
         self.variation_name = ""
+        self.export_format = "pkl"
 
         if not variations:
             variations = app.available_variations.nominal_w_values_dict_w_dependent
@@ -566,7 +576,7 @@ class MonostaticRCSExporter:
         return solution_data
 
     @pyaedt_function_handler()
-    def export_rcs(self, name="monostatic_data", metadata_name="pyaedt_rcs_metadata"):
+    def export_rcs(self, name="monostatic_data", metadata_name="pyaedt_rcs_metadata", output_format="pkl"):
         """Export RCS solution data."""
 
         # Output directory
@@ -588,7 +598,7 @@ class MonostaticRCSExporter:
         if not self.variation_name:
             self.variation_name = variation
 
-        file_name = f"{name}_{self.variation_name}.pkl"
+        file_name = f"{name}.{output_format}"
         full_path = os.path.join(export_path, file_name)
         pyaedt_metadata_file = os.path.join(export_path, f"{metadata_name}_{self.variation_name}.json")
 
@@ -625,7 +635,14 @@ class MonostaticRCSExporter:
                 }
             )
 
-            df.to_pickle(full_path)
+            if output_format == "h5":
+                try:
+                    df.to_hdf(full_path, key="df", mode="w", format="table")
+                except ImportError as e:  # pragma: no cover
+                    self.__app.logger.error(f"PyTables is not installed: {e}")
+                    return False
+            else:
+                df.to_pickle(full_path)
 
             if not os.path.isfile(full_path):  # pragma: no cover
                 self.__app.logger.error("RCS data file not exported.")
