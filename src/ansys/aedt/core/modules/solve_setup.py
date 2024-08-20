@@ -2041,17 +2041,13 @@ class Setup3DLayout(CommonSetup):
                     primitive_dict[net].append(pt)
 
                 elif prim.__class__.__name__ in ["EdbPolygon", "Polygon"]:
-                    pdata_orig = prim.polygon_data.edb_api
                     pdata = self.p_app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
-                        pdata_orig.GetArcData(), True
+                        prim.polygon_data._edb_object.GetArcData(), True
                     )
 
                     pdata.Scale(0.99, pdata.GetBoundingCircleCenter())
-                    points = [[], []]
-                    for point in list(pdata.Points):
-                        points[0].append(point.X.ToDouble())
-                        points[1].append(point.Y.ToDouble())
-                    # points = prim.points()
+
+                    points = prim.points()
                     pt = [points[0][0], points[1][0]]
                     pt.append(z)
                     primitive_dict[net].append(pt)
