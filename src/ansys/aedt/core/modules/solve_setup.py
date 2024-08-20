@@ -2031,7 +2031,7 @@ class Setup3DLayout(CommonSetup):
                 if prim.layer_name not in layers_elevation:
                     continue
                 z = layers_elevation[prim.layer_name]
-                if "EdbPath" in str(prim):
+                if str(prim) in ["EdbPath", "Path"]:
                     points = list(prim.center_line)
                     pt = [points[0][0], points[0][1]]
                     pt.append(z)
@@ -2040,7 +2040,7 @@ class Setup3DLayout(CommonSetup):
                     pt.append(z)
                     primitive_dict[net].append(pt)
 
-                elif "EdbPolygon" in str(prim):
+                elif str(prim) in ["EdbPolygon", "Polygon"]:
                     pdata_orig = prim.polygon_data.edb_api
                     pdata = self.p_app.modeler.edb._edb.Geometry.PolygonData.CreateFromArcs(
                         pdata_orig.GetArcData(), True
