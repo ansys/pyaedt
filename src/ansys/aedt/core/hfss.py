@@ -378,7 +378,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ----------
         name : str
             Name of the boundary.
-        props : list
+        props : list or dict
             List of properties for the boundary.
         boundary_type :
             Type of the boundary.
@@ -6307,6 +6307,184 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 self.logger.error("Reference conductors are missing.")
                 return False
         return False
+
+    @pyaedt_function_handler()
+    def plane_wave(
+        self,
+        vector_format="Spherical",
+        origin=None,
+        polarization=None,
+        propagation_vector=None,
+        wave_type="Propagating",
+        wave_type_properties=None,
+        name=None,
+    ):
+        """Create a plane wave excitation.
+
+        Parameters
+        ----------
+        vector_format : str, optional
+            Vector input format. Options are ``"Spherical"`` or ``"Cartesian"``. The default is ``"Spherical"``.
+        origin : list, optional
+            Excitation location and zero phase position. The default is ``["0mm", "0mm", "0mm"]``.
+        polarization : str or list, optional
+            Electric field polarization vector. If ``"Vertical"`` or ``"Horizontal"`` is passed, the method computes
+            the electric polarization vector.
+            If a ``list`` is passed, the user can customize the input vector. If ``vector_format`` is ``"Cartesian"``,
+            the vector has three coordinates which corresponds to ``["Ex", "Ey", "Ez"]``.
+            If ``vector_format`` is ``"Spherical"``, the vector has two coordinates which corresponds to
+            ``["Ephi", "Etheta"]``.
+            The default is ``"Vertical"``.
+        propagation_vector : list, optional
+            Propagation vector.
+            If ``vector_format`` is ``"Cartesian"`` the type must be a ``list`` with three elements.
+            If ``vector_format`` is ``"Spherical"`` the type must be a ``list`` with two elements. The first element
+            corresponds to the phi sweep, which must be a ``list`` of three elements: start, stop, and number of points.
+            The second element has the same format, it corresponds to the theta sweep.
+            The default is ``[0.0, 0.0, 1.0]`` for ``"Cartesian"`` and
+            ``[["0.0deg", "0.0deg", 1], ["0.0deg", "0.0deg", 1]]`` for ``"Spherical"``.
+        wave_type : str, optional
+            Type of plane wave. Options are ``"Propagating"``, ``"Evanescent"``,  or ``"Elliptical"``.
+            The default is ``"Propagating"``.
+        wave_type_properties : list, optional
+            Properties of the plane wave type.
+            If ``"Propagating"`` is used, no additional properties are needed. The default is ``None``.
+            If ``"Evanescent"`` is selected, the propagation constant is expressed as both real and
+            imaginary components. The default is ``[0.0, 1.0]``.
+            If ``"Elliptical"`` is used, the polarization angle and ratio are defined. The default is
+            ``["0deg", 1.0]``.
+        name : str, optional
+            Name of the excitation. The default is ``None``, in which
+            case a name is automatically assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Port object.
+
+        References
+        ----------
+
+        >>> oModule.AssignPlaneWave
+
+        Examples
+        --------
+
+        Create a plane wave excitation.
+
+        >>> port1 = hfss.plane_wave(vector_format="Spherical",
+         ...                        polarization="Vertical",
+         ...                        propagation_vector=[["0deg","90deg", 25], ["0deg","0deg", 1]])
+        >>> port2 = hfss.plane_wave(vector_format="Cartesian",
+         ...                        polarization=[1, 1, 0], propagation_vector=[0, 0, 1])
+        """
+
+        if vector_format.lower() not in ["spherical", "cartesian"]:
+            self.logger.error("Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'.")
+            return False
+
+        if not origin:
+            origin = ["0mm", "0mm", "0mm"]
+        elif not isinstance(origin, list) or len(origin) != 3:
+            self.logger.error("Invalid value for `origin`.")
+            return False
+
+        x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
+
+        name = self._get_unique_source_name(name, "IncPWave")
+
+        if wave_type.lower() not in ["propagating", "evanescent", "elliptical"]:
+            self.logger.error(
+                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+            )
+            return False
+
+        wave_type_props = {"IsPropagating": True, "IsEvanescent": False, "IsEllipticallyPolarized": False}
+
+        if wave_type.lower() == "evanescent":
+            wave_type_props["IsPropagating"] = False
+            wave_type_props["IsEvanescent"] = True
+            if not wave_type_properties:
+                wave_type_properties = [0.0, 1.0]
+            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 2:
+                self.logger.error("Invalid value for `wave_type_properties`.")
+                return False
+            wave_type_props["RealPropConst"] = wave_type_properties[0]
+            wave_type_props["ImagPropConst"] = wave_type_properties[1]
+
+        elif wave_type.lower() == "elliptical":
+            wave_type_props["IsPropagating"] = False
+            wave_type_props["IsEllipticallyPolarized"] = True
+            if not wave_type_properties:
+                wave_type_properties = ["0.0deg", 1.0]
+            elif not isinstance(wave_type_properties, list) or len(wave_type_properties) != 2:
+                self.logger.error("Invalid value for `wave_type_properties`.")
+                return False
+            wave_type_props["PolarizationAngle"] = wave_type_properties[0]
+            wave_type_props["PolarizationRatio"] = wave_type_properties[0]
+
+        inc_wave_args = {"OriginX": x_origin, "OriginY": y_origin, "OriginZ": z_origin}
+
+        if vector_format == "Cartesian":
+            if not polarization or polarization == "Vertical":
+                polarization = [1.0, 0.0, 0.0]
+            elif polarization == "Horizontal":
+                polarization = [0.0, 1.0, 0.0]
+            elif not isinstance(polarization, list) or len(polarization) != 3:
+                self.logger.error("Invalid value for `polarization`.")
+                return False
+
+            if not propagation_vector:
+                propagation_vector = [0.0, 0.0, 1.0]
+            elif not isinstance(propagation_vector, list) or len(propagation_vector) != 3:
+                self.logger.error("Invalid value for `propagation_vector`.")
+                return False
+
+            new_inc_wave_args = {
+                "IsCartesian": True,
+                "EoX": polarization[0],
+                "EoY": polarization[1],
+                "EoZ": polarization[2],
+                "kX": propagation_vector[0],
+                "kY": propagation_vector[1],
+                "kZ": propagation_vector[2],
+            }
+
+        else:
+            if not polarization or polarization == "Vertical":
+                polarization = [0.0, 1.0]
+            elif polarization == "Horizontal":
+                polarization = [1.0, 0.0]
+            elif not isinstance(polarization, list) or len(polarization) != 2:
+                self.logger.error("Invalid value for `polarization`.")
+                return False
+
+            if not propagation_vector:
+                propagation_vector = [["0.0deg", "0.0deg", 1], ["0.0deg", "0.0deg", 1]]
+            elif (
+                not isinstance(propagation_vector, list)
+                or len(propagation_vector) != 2
+                or not all(isinstance(vec, list) and len(vec) == 3 for vec in propagation_vector)
+            ):
+                self.logger.error("Invalid value for `propagation_vector`.")
+                return False
+
+            new_inc_wave_args = {
+                "IsCartesian": False,
+                "PhiStart": propagation_vector[0][0],
+                "PhiStop": propagation_vector[0][1],
+                "PhiPoints": propagation_vector[0][2],
+                "ThetaStart": propagation_vector[1][0],
+                "ThetaStop": propagation_vector[1][1],
+                "ThetaPoints": propagation_vector[1][2],
+                "EoPhi": polarization[0],
+                "EoTheta": polarization[1],
+            }
+
+        inc_wave_args.update(new_inc_wave_args)
+        inc_wave_args.update(wave_type_props)
+
+        return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
     def set_radiated_power_calc_method(self, method="Auto"):

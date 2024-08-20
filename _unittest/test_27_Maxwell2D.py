@@ -634,3 +634,16 @@ class TestClass:
             w.delete()
         self.m2d_circuit.save_project()
         assert not self.m2d_circuit.create_external_circuit()
+
+    def test_40_assign_floating(self):
+        self.aedtapp.insert_design("Floating")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
+        floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test")
+        assert floating
+        assert floating.name == "floating_test"
+        assert floating.props["Objects"][0] == rect.name
+        assert floating.props["Value"] == "3"
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
+        assert not floating
