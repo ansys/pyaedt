@@ -1120,11 +1120,6 @@ class Mesh(object):
                 seltype = "Faces"
             elif isinstance(assignment[0], str):
                 seltype = "Objects"
-            else:
-                seltype = None
-            if seltype is None:
-                self.logger.error("Error in Assignment")
-                return
 
             props = OrderedDict(
                 {
