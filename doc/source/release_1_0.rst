@@ -65,7 +65,7 @@ accordingly. An example of migration is shown below:
 
 .. code-block:: python
 
-    from ansys.aedt import Circuit
+    from ansys.aedt.core import Circuit
 
 Python files renaming
 ---------------------
