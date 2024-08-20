@@ -5,7 +5,7 @@ __version__ = __version__
 
 import warnings
 
-WARNING_MESSAGE = (
+ALIAS_WARNING = (
     "Module 'pyaedt' has become an alias to the new package structure. " \
     "Please update you imports to use the new architecture based on 'ansys.aedt.core'. " \
     "In addition, some files have been renamed to follow the PEP 8 naming convention. "
@@ -25,7 +25,7 @@ def alias_deprecation_warning():  # pragma: no cover
 
     warnings.showwarning = custom_show_warning
 
-    warnings.warn(WARNING_MESSAGE, FutureWarning)
+    warnings.warn(ALIAS_WARNING, FutureWarning)
 
     # Restore warnings showwarning
     warnings.showwarning = existing_showwarning
