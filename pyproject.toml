@@ -38,7 +38,7 @@ dependencies = [
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
     "pyedb>=0.24.0; python_version > '3.7'",
-    "pytomlpp",
+    "pytomlpp; python_version < '3.12'",
     "rpyc>=6.0.0,<6.1",
 ]
 
