@@ -1902,7 +1902,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler(file_fullname="output_file")
-    def export_to_hfss(self, output_file, keep_net_name=False):
+    def export_to_hfss(self, output_file, keep_net_name=False, unite=True):
         """Export the HFSS 3D Layout design to an HFSS 3D design.
 
         This method is not supported with IronPython.
@@ -1911,9 +1911,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         output_file : str
             Full path and file name for exporting the project.
-
-        keep_net_name : bool
-            Keep net name in 3D export when ``True`` or by default when ``False``. Default value is ``False``.
+        keep_net_name : bool, optional
+            Keep net name in 3D export.
+            The default is ``False``.
+        unite : bool, optional
+            Unite bodies which belong to the same net.
+            The default is ``True``.
 
         Returns
         -------
@@ -1938,13 +1941,14 @@ class Setup3DLayout(CommonSetup):
             if not is_ironpython:
                 from ansys.aedt.core import Hfss
 
-                self._get_net_names(Hfss, output_file)
+                self._get_net_names(Hfss, output_file, unite)
             else:
                 self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython")
         return succeeded
 
     @pyaedt_function_handler()
-    def _get_net_names(self, app, file_fullname):
+    def _get_net_names(self, app, file_fullname, unite):
+        """Identify nets and unite bodies that belong to the same net."""
         primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
         self.p_app.logger.info("Processing vias...")
         via_per_nets = self._get_via_position_per_net()
@@ -1956,6 +1960,7 @@ class Setup3DLayout(CommonSetup):
         aedtapp = app(project=file_fullname)
         units = aedtapp.modeler.model_units
         aedt_units = AEDT_UNITS["Length"][units]
+        object_list = aedtapp.modeler.object_names
         self._convert_edb_to_aedt_units(input_dict=primitives_3d_pts_per_nets, output_unit=aedt_units)
         self._convert_edb_to_aedt_units(input_dict=via_per_nets, output_unit=aedt_units)
         self._convert_edb_layer_elevation_to_aedt_units(input_dict=layers_elevation, output_units=aedt_units)
@@ -1997,16 +2002,27 @@ class Setup3DLayout(CommonSetup):
             self.p_app.logger.info("Renaming primitives for net {}...".format(net_name))
             object_names = list(set(object_names))
             if len(object_names) == 1:
-
                 object_p = aedtapp.modeler[object_names[0]]
                 object_p.name = net_name
                 object_p.color = [randrange(255), randrange(255), randrange(255)]  # nosec
             elif len(object_names) > 1:
-                united_object = aedtapp.modeler.unite(object_names, purge=True)
-                obj_ind = aedtapp.modeler.objects[united_object].id
-                if obj_ind:
-                    aedtapp.modeler.objects[obj_ind].name = net_name
-                    aedtapp.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]  # nosec
+                if unite:
+                    united_object = aedtapp.modeler.unite(object_names, purge=True)
+                    obj_ind = aedtapp.modeler.objects[united_object].id
+                    if obj_ind:
+                        aedtapp.modeler.objects[obj_ind].name = net_name
+                        aedtapp.modeler.objects[obj_ind].color = [
+                            randrange(255),
+                            randrange(255),
+                            randrange(255),
+                        ]  # nosec
+                else:
+                    name_cont = 0
+                    for body in object_names:
+                        body_name = net_name + f"_{name_cont}"
+                        if body in object_list:
+                            aedtapp.modeler.objects[body].name = body_name
+                        name_cont += 1
 
         if aedtapp.design_type == "Q3D Extractor":
             aedtapp.auto_identify_nets()
@@ -2159,7 +2175,7 @@ class Setup3DLayout(CommonSetup):
         return succeeded
 
     @pyaedt_function_handler(file_fullname="output_file")
-    def export_to_q3d(self, output_file, keep_net_name=False):
+    def export_to_q3d(self, output_file, keep_net_name=False, unite=True):
         """Export the HFSS 3D Layout design to a Q3D design.
 
         Parameters
@@ -2168,6 +2184,9 @@ class Setup3DLayout(CommonSetup):
             Full path and file name for exporting the project.
         keep_net_name : bool
             Whether to keep the net name in the 3D export, The default is ``False``.
+        unite : bool, optional
+            Unite bodies which belong to the same net.
+            The default is ``True``.
 
         Returns
         -------
@@ -2195,7 +2214,7 @@ class Setup3DLayout(CommonSetup):
             if not is_ironpython:
                 from ansys.aedt.core import Q3d
 
-                self._get_net_names(Q3d, output_file)
+                self._get_net_names(Q3d, output_file, unite)
             else:
                 self.p_app.logger.error("Exporting layout while keeping net name is not supported with IronPython.")
         return succeeded
