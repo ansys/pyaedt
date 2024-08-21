@@ -282,7 +282,17 @@ class TestClass:
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
 
     def test_23_create_skin_depth(self):
-        assert self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm", 1000)
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"].faces[0].id, "1mm")
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"], "1mm")
+        assert mesh
 
     def test_24_create_curvilinear(self):
         assert self.aedtapp.mesh.assign_curvilinear_elements(["Coil"], "1mm")
