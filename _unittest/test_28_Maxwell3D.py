@@ -1083,3 +1083,17 @@ class TestClass:
         setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
+
+    def test_59_assign_floating(self):
+        self.aedtapp.insert_design("Floating")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        assert floating
+        assert floating.props["Objects"][0] == box.name
+        assert floating.props["Value"] == "3"
+        floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        assert floating1
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        assert not floating
