@@ -30,7 +30,7 @@ if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
 LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
-WARNING_MESSAGE = (
+PYTHON_VERSION_WARNING = (
     "As part of our ongoing efforts to align with the Python Scientific Community's "
     "best practices, we are moving towards adopting SPEC 0000 "
     "(https://scientific-python.org/specs/spec-0000/). To ensure compatibility and "
@@ -53,7 +53,7 @@ def deprecation_warning():
 
     current_version = sys.version_info[:2]
     if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
-        warnings.warn(WARNING_MESSAGE, FutureWarning)
+        warnings.warn(PYTHON_VERSION_WARNING, FutureWarning)
 
     # Restore warnings showwarning
     warnings.showwarning = existing_showwarning
@@ -64,7 +64,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.10.dev0"
+__version__ = "0.11.dev0"
 version = __version__
 
 #
