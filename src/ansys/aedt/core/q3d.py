@@ -2087,9 +2087,9 @@ class Q3d(QExtractor, object):
             First element sink.
         source2 : str
             Second element source.
-        sink2: str
+        sink2 : str
             Second element sink.
-        calculation: str
+        calculation : str, optional
             Calculation type.
             Available options are: ``"ACL"``, ``"ACR"``, ``"DCL"``, ``"DCR"``.
             The default is ``"ACL"``.
