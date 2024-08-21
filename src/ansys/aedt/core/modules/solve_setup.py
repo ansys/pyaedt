@@ -1912,7 +1912,7 @@ class Setup3DLayout(CommonSetup):
         output_file : str
             Full path and file name for exporting the project.
         keep_net_name : bool, optional
-            Keep net name in 3D export when ``True`` or by default when ``False``.
+            Keep net name in 3D export.
             The default is ``False``.
         unite : bool, optional
             Unite bodies which belong to the same net.
