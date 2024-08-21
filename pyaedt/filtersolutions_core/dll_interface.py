@@ -47,18 +47,21 @@ class DllInterface:
 
     def _init_dll_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
-        latest_version = current_version()
-        if latest_version == "":
-            raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
-        if version is None:
-            version = latest_version
-        if float(version[0:6]) < 2025:
-            raise ValueError(
-                "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
-            )
-        if not (version in installed_versions()) and not (version + "CL" in installed_versions()):
-            raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))
-        self.dll_path = os.path.join(installed_versions()[version], "nuhertz/FilterSolutionsAPI.dll")
+        relative_path = "../../../build_output/64Debug/nuhertz/FilterSolutionsAPI.dll"
+        self.dll_path = os.path.join(os.path.dirname(__file__), relative_path)
+        if not os.path.isfile(self.dll_path):
+            latest_version = current_version()
+            if latest_version == "":
+                raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
+            if version is None:
+                version = latest_version
+            if float(version[0:6]) < 2025:
+                raise ValueError(
+                    "FilterSolutions supports AEDT version 2025 R1 and later. Recommended version is 2025 R1 or later."
+                )
+            if not (version in installed_versions()) and not (version + "CL" in installed_versions()):
+                raise ValueError("Specified version {} is not installed on your system".format(version[0:6]))
+            self.dll_path = os.path.join(installed_versions()[version], "nuhertz/FilterSolutionsAPI.dll")
         print("DLL Path:", self.dll_path)
         if not os.path.isfile(self.dll_path):
             raise RuntimeError(f"The 'FilterSolutions' API DLL was not found at {self.dll_path}.")  # pragma: no cover

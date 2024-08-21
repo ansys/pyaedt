@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ctypes
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 from enum import Enum
+from typing import Union
 
 import pyaedt
 
@@ -45,6 +47,116 @@ class ExportFormat(Enum):
     PYTHON_SCRIPT = 1
 
 
+class PartLibraries(Enum):
+    """Provides an enum of export format types.
+
+    **Attributes:**
+
+    - LUMPED = Represents a lumped part library.
+    - INTERCONNECT_ONLY = Represents an interconnect only part library.
+    - MODELITHICS = Represents a ``Modelithics`` part library.
+    """
+
+    LUMPED = 0
+    INTERCONNECT = 1
+    MODELITHICS = 2
+
+
+class SubstrateType(Enum):
+    """Provides an enum of substrate types for various materials.
+
+    **Attributes:**
+
+    - RGLS = Represents a RGLC substrate type.
+    - STRIPLINE = Represents a stripline substrate type.
+    - MICROSTRIP = Represents a microstrip substrate type.
+    - SUSPEND = Represents a suspended substrate type.
+    - INVERTED = Represents an inverted substrate type.
+    """
+
+    RGLC = 0
+    STRIPLINE = 1
+    MICROSTRIP = 2
+    SUSPEND = 3
+    INVERTED = 4
+
+
+class SubstrateEr(Enum):
+    """Provides an enum of substrate ``Er`` types for various materials..
+    The enum values represent common materials used in substrates and their associated ``Er`` index.
+
+    **Attributes:**
+
+    - AIR = Represents air substrate with an ``Er`` of ``1.00``.
+    - ALUMINA = Represents alumina substrate with an ``Er`` of ``9.8``.
+    - GA_AS = Represents Gallium Arsenide substrate with an ``Er`` of ``12.9``.
+    - GERMANIUM = Represents Germanium substrate with an ``Er`` of ``16.0``.
+    - INDIUM_PHOSPHATE = Represents Indium Phosphate substrate with an ``Er`` of ``12.4``.
+    - SILICON = Represents Silicon substrate with an ``Er`` of ``11.7``.
+    - QUARTZ = Represents Quartz substrate with an ``Er`` of ``3.78``.
+    - RT_DUROID_5880 = Represents RT Duroid 5880 substrate with an ``Er`` of ``2.2``.
+    - RT_DUROID_5870 = Represents RT Duroid 5870 substrate with an ``Er`` of ``2.33``.
+    - RT_DUROID_6006 = Represents RT Duroid 6006 substrate with an ``Er`` of ``6.15``.
+    - G_10_LOW_RESIN = Represents G-10 Low Resin substrate with an ``Er`` of ``4.8``.
+    - G_10_HIGH_RESIN = Represents G-10 High Resin substrate with an ``Er`` of ``3.5``.
+    - PAPER_PHONELIC = Represents Paper Phenolic substrate with an ``Er`` of ``4.5``.
+    - POLYTHYLENE = Represents Polyethylene substrate with an ``Er`` of ``2.25``.
+    - POLYSTYRENE = Represents Polystyrene substrate with an ``Er`` of ``2.56``.
+    - CORNING_GLASS_7059 = Represents Corning Glass 7059 substrate with an ``Er`` of ``7.9``.
+    - BERYLIUM_OXIDE = Represents Beryllium Oxide substrate with an ``Er`` of ``6.7``.
+    """
+
+    AIR = 0
+    ALUMINA = 1
+    GA_AS = 2
+    GERMANIUM = 3
+    INDIUM_PHOSPHATE = 4
+    SILICON = 5
+    QUARTZ = 6
+    RT_DUROID_5880 = 7
+    RT_DUROID_5870 = 8
+    RT_DUROID_6006 = 9
+    G_10_LOW_RESIN = 10
+    G_10_HIGH_RESIN = 11
+    PAPER_PHONELIC = 12
+    POLYTHYLENE = 13
+    POLYSTYRENE = 14
+    CORNING_GLASS_7059 = 15
+    BERYLIUM_OXIDE = 16
+
+
+class SubstrateResistivity(Enum):
+    """Provides an enum of substrate resistivity types for various materials.
+    The enum values represent common materials used in substrates and their associated resistivity index.
+
+    **Attributes:**
+
+    - IDEAL: Represents an ideal, perfect conductor with ``0`` ohm-meter resistivity.
+    - SILVER: Represents Silver, the material with ``0.95`` ohm-meter resistivity.
+    - COPPER: Represents Copper, the material with ``1.00`` ohm-meter resistivity.
+    - GOLD: Represents Gold, the material with ``1.43`` ohm-meter resistivity.
+    - ALUMINUM: Represents Aluminum, the material with ``1.67`` ohm-meter resistivity.
+    - MAGNESIUM: Represents Magnesium, the material with ``2.67`` ohm-meter resistivity.
+    - TUNGSTEN: Represents Tungsten, the material with ``3.23`` ohm-meter resistivity.
+    - ZINC: Represents Zinc, the material with ``3.56`` ohm-meter resistivity.
+    - NICKEL: Represents Nickel, the material with ``4.00`` ohm-meter resistivity.
+    - IRON: Represents Iron, the material with ``5.80`` ohm-meter resistivity.
+    - PLATINUM: Represents Platinum, the material with ``6.34`` ohm-meter resistivity.
+    """
+
+    IDEAL = 0
+    SILVER = 1
+    COPPER = 2
+    GOLD = 3
+    ALUMINUM = 4
+    MAGNESIUM = 5
+    TUNGSTEN = 6
+    ZINC = 7
+    NICKEL = 8
+    IRON = 9
+    PLATINUM = 10
+
+
 class ExportToAedt:
     """Defines attributes and parameters for exporting filter .
 
@@ -55,6 +167,7 @@ class ExportToAedt:
         self._dll = pyaedt.filtersolutions_core._dll_interface()._dll
         self._dll_interface = pyaedt.filtersolutions_core._dll_interface()
         self._define_export_to_desktop_dll_functions()
+        self._substrate_er = SubstrateEr.AIR.value  # Default to AIR's Er value
 
     def _define_export_to_desktop_dll_functions(self):
         """Define C++ API DLL functions."""
@@ -144,6 +257,131 @@ class ExportToAedt:
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
 
+        self._dll.setPartLibraries.argtype = c_int
+        self._dll.setPartLibraries.restype = c_int
+        self._dll.getPartLibraries.argtype = POINTER(c_int)
+        self._dll.getPartLibraries.restype = c_int
+
+        self._dll.setLengthToWidthRatio.argtype = c_char_p
+        self._dll.setLengthToWidthRatio.restype = c_int
+        self._dll.getLengthToWidthRatio.argtypes = [c_char_p, c_int]
+        self._dll.getLengthToWidthRatio.restype = c_int
+
+        self._dll.setLowerLengthGeometricLimitRatio.argtype = c_char_p
+        self._dll.setLowerLengthGeometricLimitRatio.restype = c_int
+        self._dll.getLowerLengthGeometricLimitRatio.argtypes = [c_char_p, c_int]
+        self._dll.getLowerLengthGeometricLimitRatio.restype = c_int
+
+        self._dll.setUpperLengthGeometricLimitRatio.argtype = c_char_p
+        self._dll.setUpperLengthGeometricLimitRatio.restype = c_int
+        self._dll.getUpperLengthGeometricLimitRatio.argtypes = [c_char_p, c_int]
+        self._dll.getUpperLengthGeometricLimitRatio.restype = c_int
+
+        self._dll.setLineWidthToTerminationWidthRatio.argtype = c_char_p
+        self._dll.setLineWidthToTerminationWidthRatio.restype = c_int
+        self._dll.getLineWidthToTerminationWidthRatio.argtypes = [c_char_p, c_int]
+        self._dll.getLineWidthToTerminationWidthRatio.restype = c_int
+
+        self._dll.setLowerWidthGeometricLimitRatio.argtype = c_char_p
+        self._dll.setLowerWidthGeometricLimitRatio.restype = c_int
+        self._dll.getLowerWidthGeometricLimitRatio.argtypes = [c_char_p, c_int]
+        self._dll.getLowerWidthGeometricLimitRatio.restype = c_int
+
+        self._dll.setUpperWidthGeometricLimitRatio.argtype = c_char_p
+        self._dll.setUpperWidthGeometricLimitRatio.restype = c_int
+        self._dll.getUpperWidthGeometricLimitRatio.argtypes = [c_char_p, c_int]
+        self._dll.getUpperWidthGeometricLimitRatio.restype = c_int
+
+        self._dll.setLengthToWidthValue.argtype = c_char_p
+        self._dll.setLengthToWidthValue.restype = c_int
+        self._dll.getLengthToWidthValue.argtypes = [c_char_p, c_int]
+        self._dll.getLengthToWidthValue.restype = c_int
+
+        self._dll.setLowerLengthGeometricLimitValue.argtype = c_char_p
+        self._dll.setLowerLengthGeometricLimitValue.restype = c_int
+        self._dll.getLowerLengthGeometricLimitValue.argtypes = [c_char_p, c_int]
+        self._dll.getLowerLengthGeometricLimitValue.restype = c_int
+
+        self._dll.setUpperLengthGeometricLimitValue.argtype = c_char_p
+        self._dll.setUpperLengthGeometricLimitValue.restype = c_int
+        self._dll.getUpperLengthGeometricLimitValue.argtypes = [c_char_p, c_int]
+        self._dll.getUpperLengthGeometricLimitValue.restype = c_int
+
+        self._dll.setLineWidthToTerminationWidthValue.argtype = c_char_p
+        self._dll.setLineWidthToTerminationWidthValue.restype = c_int
+        self._dll.getLineWidthToTerminationWidthValue.argtypes = [c_char_p, c_int]
+        self._dll.getLineWidthToTerminationWidthValue.restype = c_int
+
+        self._dll.setLowerWidthGeometricLimitValue.argtype = c_char_p
+        self._dll.setLowerWidthGeometricLimitValue.restype = c_int
+        self._dll.getLowerWidthGeometricLimitValue.argtypes = [c_char_p, c_int]
+        self._dll.getLowerWidthGeometricLimitValue.restype = c_int
+
+        self._dll.setUpperWidthGeometricLimitValue.argtype = c_char_p
+        self._dll.setUpperWidthGeometricLimitValue.restype = c_int
+        self._dll.getUpperWidthGeometricLimitValue.argtypes = [c_char_p, c_int]
+        self._dll.getUpperWidthGeometricLimitValue.restype = c_int
+
+        self._dll.setInterconnectGeometryOptimization.argtype = c_bool
+        self._dll.setInterconnectGeometryOptimization.restype = c_int
+        self._dll.getInterconnectGeometryOptimization.argtype = POINTER(c_bool)
+        self._dll.getInterconnectGeometryOptimization.restype = c_int
+
+        self._dll.setSubstrateType.argtype = c_char_p
+        self._dll.setSubstrateType.restype = int
+        self._dll.getSubstrateType.argtypes = [c_char_p, c_int]
+        self._dll.getSubstrateType.restype = int
+
+        self._dll.setEr.argtype = [c_char_p, c_int]
+        self._dll.setEr.restype = c_int
+        self._dll.getEr.argtype = [c_char_p, POINTER(c_int), c_int]
+        self._dll.getEr.restype = c_int
+
+        self._dll.setResistivity.argtype = [c_char_p, c_int]
+        self._dll.setResistivity.restype = c_int
+        self._dll.getResistivity.argtype = [c_char_p, POINTER(c_int), c_int]
+        self._dll.getResistivity.restype = c_int
+
+        self._dll.setLossTangent.argtype = [c_char_p, c_int]
+        self._dll.setLossTangent.restype = c_int
+        self._dll.getLossTangent.argtype = [c_char_p, POINTER(c_int), c_int]
+        self._dll.getLossTangent.restype = c_int
+
+        self._dll.setConductorThickness.argtype = c_char_p
+        self._dll.setConductorThickness.restype = c_int
+        self._dll.getConductorThickness.argtypes = [c_char_p, c_int]
+        self._dll.getConductorThickness.restype = c_int
+
+        self._dll.setDielectricHeight.argtype = c_char_p
+        self._dll.setDielectricHeight.restype = c_int
+        self._dll.getDielectricHeight.argtypes = [c_char_p, c_int]
+        self._dll.getDielectricHeight.restype = c_int
+
+        self._dll.setLowerDielectricHeight.argtype = c_char_p
+        self._dll.setLowerDielectricHeight.restype = c_int
+        self._dll.getLowerDielectricHeight.argtypes = [c_char_p, c_int]
+        self._dll.getLowerDielectricHeight.restype = c_int
+
+        self._dll.setSuspendDielectricHeight.argtype = c_char_p
+        self._dll.setSuspendDielectricHeight.restype = c_int
+        self._dll.getSuspendDielectricHeight.argtypes = [c_char_p, c_int]
+        self._dll.getSuspendDielectricHeight.restype = c_int
+
+        self._dll.setCoverHeight.argtype = c_char_p
+        self._dll.setCoverHeight.restype = c_int
+        self._dll.getCoverHeight.argtypes = [c_char_p, c_int]
+        self._dll.getCoverHeight.restype = c_int
+
+        self._dll.setUnbalancedStripLine.argtype = c_bool
+        self._dll.setUnbalancedStripLine.restype = c_int
+        self._dll.getUnbalancedStripLine.argtype = POINTER(c_bool)
+        self._dll.getUnbalancedStripLine.restype = c_int
+
+        self._dll.setGroundedCoverAboveLine.argtype = c_bool
+        self._dll.setGroundedCoverAboveLine.restype = c_int
+        self._dll.getGroundedCoverAboveLine.argtype = POINTER(c_bool)
+        self._dll.getGroundedCoverAboveLine.restype = c_int
+
     def open_aedt_export(self):
         """Open export page to accept manipulate export parameters"""
         status = self._dll.openLumpedExportPage()
@@ -223,7 +461,7 @@ class ExportToAedt:
     @property
     def include_vgsl_enabled(self) -> bool:
         """Flag indicating if the voltage gain source load report will be created upon
-         export to ``AEDT``.
+        export to ``AEDT``.
 
         Returns
         -------
@@ -451,7 +689,6 @@ class ExportToAedt:
     @property
     def optimize_after_export_enabled(self) -> bool:
         """Flag indicating if the optimization option after exporting to ``AEDT`` is enabled.
-
         Returns
         -------
         bool
@@ -464,6 +701,21 @@ class ExportToAedt:
     @optimize_after_export_enabled.setter
     def optimize_after_export_enabled(self, optimize_after_export_enabled: bool):
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def save_and_close(self):
+        """Save updated export page parameters and close the page."""
+        status = self._dll.saveAndClose()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def default_configuration(self):
+        """Set export page parameters to default values."""
+        status = self._dll.defaultConfiguration()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    def cancel_export_and_close(self):
+        """Close export page with no export to ``AEDT``."""
+        status = self._dll.cancelExportAndClose()
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def append_design_to_aedt(self, export_format: ExportFormat.DIRECT):
@@ -479,4 +731,521 @@ class ExportToAedt:
     def import_tuned_variables(self):
         """Imported ``AEDT`` tuned parameter variables back into the ``FilterSolutions`` project."""
         status = self._dll.importTunedVariables()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def part_libraries(self) -> PartLibraries:
+        """Part libraries definition. The default is ``LUMPED``.
+        The ``PartLibraries`` enum provides a list of all classes.
+
+        Returns
+        -------
+        :enum:`PartLibraries`
+
+        """
+        index = c_int()
+        part_libraries_list = list(PartLibraries)
+        status = self._dll.getPartLibraries(byref(index))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        part_libraries = part_libraries_list[index.value]
+        return part_libraries
+
+    @part_libraries.setter
+    def part_libraries(self, column: PartLibraries):
+        status = self._dll.setPartLibraries(column.value)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def interconnect_length_to_width_ratio(self) -> str:
+        """Length to width ratio of interconnect line.
+        The default is ``2``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_length_to_width_ratio_string = self._dll_interface.get_string(self._dll.getLengthToWidthRatio)
+        return interconnect_length_to_width_ratio_string
+
+    @interconnect_length_to_width_ratio.setter
+    def interconnect_length_to_width_ratio(self, interconnect_length_to_width_ratio_string):
+        self._dll_interface.set_string(self._dll.setLengthToWidthRatio, interconnect_length_to_width_ratio_string)
+
+    @property
+    def interconnect_minimum_length_to_width_ratio(self) -> str:
+        """Minimum length to width ratio of interconnect line.
+        The default is ``0.5``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_minimum_length_to_width_ratio_string = self._dll_interface.get_string(
+            self._dll.getLowerLengthGeometricLimitRatio
+        )
+        return interconnect_minimum_length_to_width_ratio_string
+
+    @interconnect_minimum_length_to_width_ratio.setter
+    def interconnect_minimum_length_to_width_ratio(self, interconnect_minimum_length_to_width_ratio_string):
+        self._dll_interface.set_string(
+            self._dll.setLowerLengthGeometricLimitRatio, interconnect_minimum_length_to_width_ratio_string
+        )
+
+    @property
+    def interconnect_maximum_length_to_width_ratio(self) -> str:
+        """Maximum length to width ratio of interconnect line.
+        The default is ``2``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_maximum_length_to_width_ratio_string = self._dll_interface.get_string(
+            self._dll.getUpperLengthGeometricLimitRatio
+        )
+        return interconnect_maximum_length_to_width_ratio_string
+
+    @interconnect_maximum_length_to_width_ratio.setter
+    def interconnect_maximum_length_to_width_ratio(self, interconnect_maximum_length_to_width_ratio_string):
+        self._dll_interface.set_string(
+            self._dll.setUpperLengthGeometricLimitRatio, interconnect_maximum_length_to_width_ratio_string
+        )
+
+    @property
+    def interconnect_line_to_termination_width_ratio(self) -> str:
+        """Line width to termination width ratio of interconnect line.
+        The default is ``1``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_line_to_termination_width_ratio_string = self._dll_interface.get_string(
+            self._dll.getLineWidthToTerminationWidthRatio
+        )
+        return interconnect_line_to_termination_width_ratio_string
+
+    @interconnect_line_to_termination_width_ratio.setter
+    def interconnect_line_to_termination_width_ratio(self, interconnect_line_to_termination_width_ratio_string):
+        self._dll_interface.set_string(
+            self._dll.setLineWidthToTerminationWidthRatio, interconnect_line_to_termination_width_ratio_string
+        )
+
+    @property
+    def interconnect_minimum_line_to_termination_width_ratio(self) -> str:
+        """Minimum line width to termination width ratio of interconnect line.
+        The default is ``0.5``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_minimum_line_to_termination_width_ratio_string = self._dll_interface.get_string(
+            self._dll.getLowerWidthGeometricLimitRatio
+        )
+        return interconnect_minimum_line_to_termination_width_ratio_string
+
+    @interconnect_minimum_line_to_termination_width_ratio.setter
+    def interconnect_minimum_line_to_termination_width_ratio(
+        self, interconnect_minimum_line_to_termination_width_ratio_string
+    ):
+        self._dll_interface.set_string(
+            self._dll.setLowerWidthGeometricLimitRatio, interconnect_minimum_line_to_termination_width_ratio_string
+        )
+
+    @property
+    def interconnect_maximum_line_to_termination_width_ratio(self) -> str:
+        """Maximum line width to termination width ratio of interconnect line.
+        The default is ``2``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_maximum_line_to_termination_width_ratio_string = self._dll_interface.get_string(
+            self._dll.getUpperWidthGeometricLimitRatio
+        )
+        return interconnect_maximum_line_to_termination_width_ratio_string
+
+    @interconnect_maximum_line_to_termination_width_ratio.setter
+    def interconnect_maximum_line_to_termination_width_ratio(
+        self, interconnect_maximum_line_to_termination_width_ratio_string
+    ):
+        self._dll_interface.set_string(
+            self._dll.setUpperWidthGeometricLimitRatio, interconnect_maximum_line_to_termination_width_ratio_string
+        )
+
+    @property
+    def interconnect_length_value(self) -> str:
+        """Interconnect physical length value.
+        The default is ``2.54 mm``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_length_value_string = self._dll_interface.get_string(self._dll.getLengthToWidthValue)
+        return interconnect_length_value_string
+
+    @interconnect_length_value.setter
+    def interconnect_length_value(self, interconnect_length_value_string):
+        self._dll_interface.set_string(self._dll.setLengthToWidthValue, interconnect_length_value_string)
+
+    @property
+    def interconnect_minimum_length_value(self) -> str:
+        """Minimum value of interconnect physical length.
+        The default is ``1.27 mm``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_minimum_length_value_string = self._dll_interface.get_string(
+            self._dll.getLowerLengthGeometricLimitValue
+        )
+        return interconnect_minimum_length_value_string
+
+    @interconnect_minimum_length_value.setter
+    def interconnect_minimum_length_value(self, interconnect_minimum_length_value_string):
+        self._dll_interface.set_string(
+            self._dll.setLowerLengthGeometricLimitValue, interconnect_minimum_length_value_string
+        )
+
+    @property
+    def interconnect_maximum_length_value(self) -> str:
+        """Maximum value of interconnect physical length.
+        The default is ``5.08 mm``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_maximum_length_value_string = self._dll_interface.get_string(
+            self._dll.getUpperLengthGeometricLimitValue
+        )
+        return interconnect_maximum_length_value_string
+
+    @interconnect_maximum_length_value.setter
+    def interconnect_maximum_length_value(self, interconnect_maximum_length_value_string):
+        self._dll_interface.set_string(
+            self._dll.setUpperLengthGeometricLimitValue, interconnect_maximum_length_value_string
+        )
+
+    @property
+    def interconnect_line_width_value(self) -> str:
+        """Interconnect conductor width value.
+        The default is ``1.27 mm``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_line_width_value_string = self._dll_interface.get_string(
+            self._dll.getLineWidthToTerminationWidthValue
+        )
+        return interconnect_line_width_value_string
+
+    @interconnect_line_width_value.setter
+    def interconnect_line_width_value(self, interconnect_line_width_value_string):
+        self._dll_interface.set_string(
+            self._dll.setLineWidthToTerminationWidthValue, interconnect_line_width_value_string
+        )
+
+    @property
+    def interconnect_minimum_width_value(self) -> str:
+        """Minimum value of interconnect conductor width.
+        The default is ``635 um``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_minimum_width_value_string = self._dll_interface.get_string(
+            self._dll.getLowerWidthGeometricLimitValue
+        )
+        return interconnect_minimum_width_value_string
+
+    @interconnect_minimum_width_value.setter
+    def interconnect_minimum_width_value(self, interconnect_minimum_width_value_string):
+        self._dll_interface.set_string(
+            self._dll.setLowerWidthGeometricLimitValue, interconnect_minimum_width_value_string
+        )
+
+    @property
+    def interconnect_maximum_width_value(self) -> str:
+        """Maximum value of interconnect conductor width.
+        The default is ``2.54 mm``.
+
+        Returns
+        -------
+        str
+        """
+        interconnect_maximum_width_value_string = self._dll_interface.get_string(
+            self._dll.getUpperWidthGeometricLimitValue
+        )
+        return interconnect_maximum_width_value_string
+
+    @interconnect_maximum_width_value.setter
+    def interconnect_maximum_width_value(self, interconnect_maximum_width_value_string):
+        self._dll_interface.set_string(
+            self._dll.setUpperWidthGeometricLimitValue, interconnect_maximum_width_value_string
+        )
+
+    @property
+    def interconnect_geometry_optimization_enabled(self) -> bool:
+        """Flag indicating if the interconnect geometry optimization is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        interconnect_geometry_optimization_enabled = c_bool()
+        status = self._dll.getInterconnectGeometryOptimization(byref(interconnect_geometry_optimization_enabled))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(interconnect_geometry_optimization_enabled.value)
+
+    @interconnect_geometry_optimization_enabled.setter
+    def interconnect_geometry_optimization_enabled(self, interconnect_geometry_optimization_enabled: bool):
+        status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def substrate_type(self) -> SubstrateType:
+        """Subctrate type of the filter.
+        The ``SubstrateType`` enum provides a list of all substrate types.
+
+        Returns
+        -------
+        :enum:`SubstrateType`
+        """
+        type_string = self._dll_interface.get_string(self._dll.getSubstrateType)
+        return self._dll_interface.string_to_enum(SubstrateType, type_string)
+
+    @substrate_type.setter
+    def substrate_type(self, substrate_type: SubstrateType):
+        if substrate_type:
+            string_value = self._dll_interface.enum_to_string(substrate_type)
+            self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+
+    @property
+    def substrate_er(self) -> Union[SubstrateType, str]:
+        """Substrate's relative permittivity ``Er``.
+        The value can be either a string or an instance of the ``SubstrateEr`` enum.
+        The default is ``9.8`` for ``SubstrateEr.ALUMINA``.
+
+        Returns:
+        -------
+        Union[SubstrateEr, str]
+
+        """
+        substrate_er_index = c_int()
+        substrate_er_value_str = ctypes.create_string_buffer(100)
+        status = self._dll.getEr(substrate_er_value_str, byref(substrate_er_index), 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        if substrate_er_index.value in [e.value for e in SubstrateEr]:
+            return SubstrateEr(substrate_er_index.value)
+        else:
+            return substrate_er_value_str.value.decode("ascii")
+
+    @substrate_er.setter
+    def substrate_er(self, substrate_input):
+        if substrate_input in list(SubstrateEr):
+            substrate_er_index = SubstrateEr(substrate_input).value
+            substrate_er_value = ""
+        elif isinstance(substrate_input, str):
+            substrate_er_value = substrate_input
+            substrate_er_index = -1
+        else:
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+
+        substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
+        status = self._dll.setEr(substrate_er_value_bytes, substrate_er_index)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
+        """Substrate's resistivity.
+        The value can be either a string or an instance of the ``SubstrateResistivity`` enum.
+        The default is ``1.43`` for ``SubstrateResistivity.GOLD``.
+
+        Returns:
+        -------
+        Union[SubstrateResistivity, str]
+        """
+        substrate_resistivity_index = c_int()
+        substrate_resistivity_value_str = ctypes.create_string_buffer(100)
+        status = self._dll.getResistivity(substrate_resistivity_value_str, byref(substrate_resistivity_index), 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        if substrate_resistivity_index.value in [e.value for e in SubstrateResistivity]:
+            return SubstrateResistivity(substrate_resistivity_index.value)
+        else:
+            return substrate_resistivity_value_str.value.decode("ascii")
+
+    @substrate_resistivity.setter
+    def substrate_resistivity(self, substrate_input):
+        if substrate_input in list(SubstrateResistivity):
+            substrate_resistivity_index = SubstrateResistivity(substrate_input).value
+            substrate_resistivity_value = ""
+        elif isinstance(substrate_input, str):
+            substrate_resistivity_value = substrate_input
+            substrate_resistivity_index = -1
+        else:
+            raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string.")
+        substrate_resistivity_value_bytes = bytes(substrate_resistivity_value, "ascii")
+        status = self._dll.setResistivity(substrate_resistivity_value_bytes, substrate_resistivity_index)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def substrate_loss_tangent(self) -> Union[SubstrateType, str]:
+        """Substrate's loss tangent.
+        The value can be either a string or an instance of the ``SubstrateEr`` enum.
+        The default is ``0.0005`` for ``SubstrateEr.ALUMINA``.
+
+        Returns:
+        -------
+        Union[SubstrateEr, str]
+        """
+        substrate_loss_tangent_index = c_int()
+        substrate_loss_tangent_value_str = ctypes.create_string_buffer(100)
+        status = self._dll.getLossTangent(substrate_loss_tangent_value_str, byref(substrate_loss_tangent_index), 100)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        if substrate_loss_tangent_index.value in [e.value for e in SubstrateEr]:
+            return SubstrateEr(substrate_loss_tangent_index.value)
+        else:
+            return substrate_loss_tangent_value_str.value.decode("ascii")
+
+    @substrate_loss_tangent.setter
+    def substrate_loss_tangent(self, substrate_input):
+        if substrate_input in list(SubstrateEr):
+            substrate_loss_tangent_index = SubstrateEr(substrate_input).value
+            substrate_loss_tangent_value = ""
+        elif isinstance(substrate_input, str):
+            substrate_loss_tangent_value = substrate_input
+            substrate_loss_tangent_index = -1
+        else:
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+        substrate_loss_tangent_value_bytes = bytes(substrate_loss_tangent_value, "ascii")
+        status = self._dll.setLossTangent(substrate_loss_tangent_value_bytes, substrate_loss_tangent_index)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def substrate_conductor_thickness(self) -> str:
+        """Substrate's conductor thickness.
+        The default is ``2.54 um``.
+
+        Returns
+        -------
+        str
+        """
+        substrate_conductor_thickness_string = self._dll_interface.get_string(self._dll.getConductorThickness)
+        return substrate_conductor_thickness_string
+
+    @substrate_conductor_thickness.setter
+    def substrate_conductor_thickness(self, substrate_conductor_thickness_string):
+        self._dll_interface.set_string(self._dll.setConductorThickness, substrate_conductor_thickness_string)
+
+    @property
+    def substrate_dielectric_height(self) -> str:
+        """Substrate's dielectric height.
+        The default is ``1.27 mm``.
+
+        Returns
+        -------
+        str
+        """
+        substrate_dielectric_height_string = self._dll_interface.get_string(self._dll.getDielectricHeight)
+        return substrate_dielectric_height_string
+
+    @substrate_dielectric_height.setter
+    def substrate_dielectric_height(self, substrate_dielectric_height_string):
+        self._dll_interface.set_string(self._dll.setDielectricHeight, substrate_dielectric_height_string)
+
+    @property
+    def substrate_unbalanced_lower_dielectric_height(self) -> str:
+        """Substrate's lower dielectric height for unbalanced stripline substrate type.
+        The default is ``6.35 mm``.
+
+        Returns
+        -------
+        str
+        """
+        substrate_unbalanced_lower_dielectric_height_string = self._dll_interface.get_string(
+            self._dll.getLowerDielectricHeight
+        )
+        return substrate_unbalanced_lower_dielectric_height_string
+
+    @substrate_unbalanced_lower_dielectric_height.setter
+    def substrate_unbalanced_lower_dielectric_height(self, substrate_unbalanced_lower_dielectric_height_string):
+        self._dll_interface.set_string(
+            self._dll.setLowerDielectricHeight, substrate_unbalanced_lower_dielectric_height_string
+        )
+
+    @property
+    def substrate_suspend_dielectric_height(self) -> str:
+        """Substrate's suspend dielectric height above ground plane for suspend and inverted substrate types.
+        The default is ``1.27 mm``.
+
+        Returns
+        -------
+        str
+        """
+        substrate_suspend_dielectric_height_string = self._dll_interface.get_string(
+            self._dll.getSuspendDielectricHeight
+        )
+        return substrate_suspend_dielectric_height_string
+
+    @substrate_suspend_dielectric_height.setter
+    def substrate_suspend_dielectric_height(self, substrate_suspend_dielectric_height_string):
+        self._dll_interface.set_string(self._dll.setSuspendDielectricHeight, substrate_suspend_dielectric_height_string)
+
+    @property
+    def substrate_cover_height(self) -> str:
+        """Substrate's cover height for microstrip, suspend, and inverted substrate types.
+        The default is ``6.35 mm``.
+
+        Returns
+        -------
+        str
+        """
+        substrate_cover_height_string = self._dll_interface.get_string(self._dll.getCoverHeight)
+        return substrate_cover_height_string
+
+    @substrate_cover_height.setter
+    def substrate_cover_height(self, substrate_cover_height_string):
+        self._dll_interface.set_string(self._dll.setCoverHeight, substrate_cover_height_string)
+
+    @property
+    def substrate_unbalanced_stripline_enabled(self) -> bool:
+        """Flag indicating if the substrate unbalanced stripline is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        substrate_unbalanced_stripline_enabled = c_bool()
+        status = self._dll.getUnbalancedStripLine(byref(substrate_unbalanced_stripline_enabled))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(substrate_unbalanced_stripline_enabled.value)
+
+    @substrate_unbalanced_stripline_enabled.setter
+    def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
+        status = self._dll.setUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def substrate_cover_height_enabled(self) -> bool:
+        """Flag indicating if the substrate cover height is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        substrate_cover_height_enabled = c_bool()
+        status = self._dll.getGroundedCoverAboveLine(byref(substrate_cover_height_enabled))
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(substrate_cover_height_enabled.value)
+
+    @substrate_cover_height_enabled.setter
+    def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
+        status = self._dll.setGroundedCoverAboveLine(substrate_cover_height_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
