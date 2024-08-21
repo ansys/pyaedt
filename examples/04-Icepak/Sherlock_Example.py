@@ -102,7 +102,7 @@ ipk.modeler.create_coordinate_system(
 ###############################################################################
 # Import CAD file
 # ~~~~~~~~~~~~~~~
-# Import a CAD file.
+# Import a CAD file and delete the CAD "pcb" object as the ECAD is already in the design.
 
 ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 ipk.modeler.delete_objects_containing("pcb", False)
