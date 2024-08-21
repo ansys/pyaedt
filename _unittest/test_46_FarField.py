@@ -25,12 +25,12 @@
 import os
 import shutil
 
+from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
+
 # from _unittest.conftest import config
 from matplotlib.figure import Figure
 import pytest
 from pyvista.plotting.plotter import Plotter
-
-from pyaedt.generic.farfield_visualization import FfdSolutionData
 
 array = "array_simple_231"
 test_subfolder = "T46"

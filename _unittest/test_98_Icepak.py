@@ -26,14 +26,15 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modules.boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
+from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
+from ansys.aedt.core.modules.mesh_icepak import MeshRegion
+from ansys.aedt.core.modules.setup_templates import SetupKeys
 import pytest
-
-from pyaedt import Icepak
-from pyaedt.generic.settings import settings
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.Boundary import NetworkObject
-from pyaedt.modules.MeshIcepak import MeshRegion
-from pyaedt.modules.SetupTemplates import SetupKeys
 
 test_subfolder = "T98"
 if config["desktopVersion"] > "2022.2":
@@ -110,75 +111,138 @@ class TestClass:
             custom_y_resolution=500,
             extent_type="Polygon",
         )
-        assert cmp2.set_device_parts(True, "Steel-mild-surface")
-        assert cmp2.disable_device_parts()
-        assert cmp2.set_package_parts(solderballs="Boxes", connector="Solderbump", solderbumps_modeling="Lumped")
-        assert cmp2.set_package_parts(
-            solderballs="Lumped", connector="Bondwire", bondwire_material="Al-Extruded", bondwire_diameter="0.5mm"
+        cmp2.included_parts = 1
+        assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
+        cmp2.included_parts = None
+        assert cmp2.included_parts is None
+        cmp2.included_parts = "Device"
+        assert cmp2.included_parts == "Device"
+        assert not cmp2.included_parts == "Package"
+        assert cmp2.included_parts == cmp2.included_parts
+        assert not cmp2.included_parts == "Package"
+        assert not cmp2.included_parts != "Device"
+        assert isinstance(cmp2.included_parts, PCBSettingsDeviceParts)
+        cmp2.included_parts = "Package"
+        assert not cmp2.included_parts == "Packages"
+        assert isinstance(cmp2.included_parts, PCBSettingsPackageParts)
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Boxes")
+        assert cmp2.included_parts.set_connectors_modeling(
+            modeling="Bondwire", bondwire_material="Au-Typical", bondwire_diameter="0.01mm"
         )
-        assert not cmp2.set_package_parts(solderballs="Error1")  # invalid input
-        assert not cmp2.set_package_parts(connector="Error2")  # invalid input
-        assert not cmp2.set_package_parts(solderbumps_modeling="Error3")  # invalid input
-        assert not cmp2.set_package_parts(bondwire_material="Error4")  # material does not exist
-        assert not bool(cmp2.overridden_components)
-        assert not cmp2.override_component("FCHIP", True)  # invalid part import selection
-        assert cmp2.set_device_parts()
-        assert cmp2.override_component("FCHIP", True)
+        assert cmp2.included_parts.set_connectors_modeling(modeling="Solderbump", solderbumps_modeling="Lumped")
+        assert not cmp2.included_parts.set_connectors_modeling(modeling="Error")
+        assert not cmp2.included_parts.set_connectors_modeling(
+            modeling="Solderbump", solderbumps_modeling="Error1"
+        )  # invalid input
+        assert not cmp2.included_parts.set_connectors_modeling(
+            modeling="Bondwire", bondwire_material="Error4"
+        )  # material does not exist
+        cmp2.included_parts = "Device"
+        cmp2.included_parts.simplify_parts = True
+        assert cmp2.included_parts.simplify_parts
+        cmp2.included_parts.surface_material = "pt-polished"
+        assert cmp2.included_parts.surface_material == "pt-polished"
+        assert cmp2.included_parts.override_instance("FCHIP", True)
         assert "Board_w_cmp_FCHIP_device" not in self.aedtapp.modeler.object_names
-        assert cmp2.override_component("FCHIP", False)
+        assert cmp2.included_parts.override_instance("FCHIP", False)
         assert "Board_w_cmp_FCHIP_device" in self.aedtapp.modeler.object_names
-        assert cmp2.override_component("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
-        assert cmp2.set_board_settings("Bounding Box")
-        assert cmp2.set_board_settings("Polygon")
-        assert cmp2.set_board_settings("Bounding Box")
-        assert cmp2.set_board_settings("Polygon", "outline:poly_0")
-        cmp2.disable_device_parts()
-        cmp2.footprint_filter = "1mm2"
-        assert cmp2.footprint_filter is None
-        cmp2.power_filter = "1W"
-        assert cmp2.power_filter is None
-        cmp2.type_filters = "Resistors"
-        assert cmp2.type_filters is None
-        cmp2.height_filter = "1mm"
-        assert cmp2.height_filter is None
-        cmp2.objects_2d_filter = True
-        assert cmp2.objects_2d_filter is None
+        assert cmp2.included_parts.override_instance("FCHIP", False, "10W", "1Kel_per_W", "1Kel_per_W", "0.1mm")
+        if self.aedtapp.settings.aedt_version >= "2024.2":
+            cmp2.included_parts.override_definition("FCHIP_FCHIP", "FCHIP_FCHIP")
+        else:
+            assert not cmp2.included_parts.override_definition("a", "b")
+        assert cmp2.set_board_extents("Bounding Box")
+        assert cmp2.set_board_extents("Polygon")
+        assert cmp2.set_board_extents("Bounding Box")
+        assert cmp2.set_board_extents("Polygon", "outline:poly_0")
+        p = cmp2.included_parts
+        cmp2.included_parts = "None"
+        p.footprint_filter = "1mm2"
+        assert p.footprint_filter is None
+        p.power_filter = "1W"
+        assert p.power_filter is None
+        p.type_filters = "Resistors"
+        assert p.type_filters is None
+        p.height_filter = "1mm"
+        assert p.height_filter is None
+        p.objects_2d_filter = True
+        assert p.objects_2d_filter is None
+        assert cmp2.power == "0W"
+        cmp2.power = "10W"
+        assert cmp2.power == "10W"
+        assert not cmp2.set_resolution(0)
+        assert cmp2.set_resolution(1)
+        assert cmp2.set_custom_resolution(row=100, col=200)
+        cmp2.set_high_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.5,
+            ref_temperature="20cel",
+        )
+        cmp2.set_low_side_radiation(
+            True,
+            surface_material="Stainless-steel-typical",
+            radiate_to_ref_temperature=True,
+            view_factor=0.8,
+            ref_temperature="25cel",
+        )
+        assert cmp2.force_source_solve
+        cmp2.force_source_solve = True
+        cmp2.preserve_partner_solution = True
+        assert cmp2.preserve_partner_solution
+        cmp2.via_holes_material = "air"
+        cmp2.board_cutout_material = "copper"
+        assert cmp2.via_holes_material == "air"
+        assert cmp2.board_cutout_material == "copper"
 
         component_name = "RadioBoard2"
         cmp = self.aedtapp.create_ipk_3dcomponent_pcb(
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
-        assert not cmp.filters
-        assert cmp.set_device_parts()
-        f = cmp.filters
+        assert cmp.included_parts is None
+        cmp.included_parts = "Device"
+        print(cmp.included_parts)
+        cmp.included_parts = "Packafe"
+        assert cmp.included_parts == "Device"
+        f = cmp.included_parts.filters
         assert len(f.keys()) == 1
         assert all(not v for v in f["Type"].values())
-        assert cmp.height_filter is None
-        assert cmp.footprint_filter is None
-        assert cmp.power_filter is None
-        assert not cmp.objects_2d_filter
-        cmp.height_filter = "1mm"
-        cmp.objects_2d_filter = True
-        cmp.power_filter = "4mW"
-        cmp.type_filters = "Resistors"
-        cmp.type_filters = "Register"  # should not be set
-        cmp.type_filters = "Inductors"
+        assert cmp.included_parts.height_filter is None
+        assert cmp.included_parts.footprint_filter is None
+        assert cmp.included_parts.power_filter is None
+        assert not cmp.included_parts.objects_2d_filter
+        cmp.included_parts.height_filter = "1mm"
+        cmp.included_parts.objects_2d_filter = True
+        cmp.included_parts.power_filter = "4mW"
+        cmp.included_parts.type_filters = "Resistors"
+        cmp.included_parts.type_filters = "Register"  # should not be set
+        cmp.included_parts.type_filters = "Inductors"
         if self.aedtapp.settings.aedt_version >= "2024.2":
-            cmp.footprint_filter = "0.5mm2"
-        f = cmp.filters
+            cmp.included_parts.footprint_filter = "0.5mm2"
+        else:
+            assert cmp.included_parts.footprint_filter is None
+        f = cmp.included_parts.filters
         assert len(f.keys()) >= 4  # 5 if version 2024.2
         assert f["Type"]["Inductors"]
-        assert cmp.set_board_settings()
-        assert not cmp.set_board_settings("Polygon")
-        assert not cmp.set_board_settings("Bounding Domain")
-        cmp.set_board_settings("Bounding Box")
-        cmp.power_filter = None
-        cmp.height_filter = None
-        cmp.objects_2d_filter = False
+        assert cmp.set_board_extents()
+        assert not cmp.set_board_extents("Polygon")
+        assert not cmp.set_board_extents("Bounding Domain")
+        cmp.set_board_extents("Bounding Box")
+        cmp.included_parts.power_filter = None
+        cmp.included_parts.height_filter = None
+        cmp.included_parts.objects_2d_filter = False
         if self.aedtapp.settings.aedt_version >= "2024.2":
-            cmp.footprint_filter = None
-        f = cmp.filters
+            cmp.included_parts.footprint_filter = None
+        f = cmp.included_parts.filters
         assert len(f.keys()) == 1
+        cmp.included_parts = "Package"
+        print(cmp.included_parts)
+        assert cmp.included_parts == "Package"
+        assert cmp.included_parts == cmp.included_parts
+        assert not cmp.included_parts == "Device"
+        assert not cmp.included_parts != "Package"
+        cmp.included_parts.set_solderballs_modeling("Boxes")
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)

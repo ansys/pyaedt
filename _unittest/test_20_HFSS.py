@@ -33,7 +33,7 @@ import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 
-from pyaedt.generic.near_field_import import convert_nearfield_data
+from ansys.aedt.core.generic.near_field_import import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -1272,7 +1272,7 @@ class TestClass:
     )
     def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
-        from pyaedt.generic.general_methods import read_json
+        from ansys.aedt.core.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(
@@ -1432,7 +1432,7 @@ class TestClass:
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.1, preview=True, save_only_stl=True)
         assert self.aedtapp.modeler.import_nastran(example_project2, decimation=0.5)
         example_project = os.path.join(local_path, "../_unittest/example_models", test_subfolder, "sphere.stl")
-        from pyaedt.modules.solutions import simplify_stl
+        from ansys.aedt.core.modules.solutions import simplify_stl
 
         out = simplify_stl(example_project, decimation=0.8)
         assert os.path.exists(out)
@@ -1672,3 +1672,34 @@ class TestClass:
         assert not self.aedtapp.import_gds_3d(gds_file, {})
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1not.gds")
         assert not self.aedtapp.import_gds_3d(gds_file, {7: (100, 10), 9: (110, 5)})
+
+    def test_69_plane_wave(self, add_app):
+        aedtapp = add_app(project_name="test_69")
+        assert not aedtapp.plane_wave(vector_format="invented")
+        assert not aedtapp.plane_wave(origin=[0, 0])
+        assert not aedtapp.plane_wave(wave_type="dummy")
+        assert not aedtapp.plane_wave(wave_type="evanescent", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(wave_type="elliptical", wave_type_properties=[1])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0])
+        assert not aedtapp.plane_wave(vector_format="Cartesian", propagation_vector=[1, 0])
+        assert not aedtapp.plane_wave(polarization=[1])
+        assert not aedtapp.plane_wave(propagation_vector=[1, 0, 0])
+
+        assert aedtapp.plane_wave(wave_type="Evanescent")
+        assert aedtapp.plane_wave(wave_type="Elliptical")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(vector_format="Cartesian")
+        assert aedtapp.plane_wave()
+        assert aedtapp.plane_wave(polarization="Horizontal")
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization="Horizontal")
+
+        assert aedtapp.plane_wave(polarization=[1, 0])
+        assert aedtapp.plane_wave(vector_format="Cartesian", polarization=[1, 0, 0])
+
+        aedtapp.solution_type = "SBR+"
+        new_plane_wave = aedtapp.plane_wave()
+        assert len(aedtapp.boundaries) == 10
+        new_plane_wave.name = "new_plane_wave"
+        assert new_plane_wave.name in aedtapp.excitations
+
+        aedtapp.close_project(save=False)

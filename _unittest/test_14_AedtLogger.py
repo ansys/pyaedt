@@ -31,10 +31,9 @@ import tempfile
 import unittest.mock
 
 from _unittest.conftest import config
+from ansys.aedt.core.aedt_logger import AedtLogger
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.settings import settings
 
 settings.enable_desktop_logs = True
 
@@ -251,7 +250,7 @@ class TestLogMessages:
 
     def test_log_when_accessing_non_existing_object(self, caplog):
         """Check that accessing a non-existent object logs an error message."""
-        from pyaedt import Hfss
+        from ansys.aedt.core import Hfss
 
         app = Hfss(
             project="log_project",

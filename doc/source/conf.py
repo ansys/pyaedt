@@ -110,14 +110,14 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
 try:
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 except ImportError:
 
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 
-from pyaedt import is_windows
+from ansys.aedt.core import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"

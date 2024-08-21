@@ -26,10 +26,9 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T40"
 original_project_name = "ANSYS-HSD_V1"

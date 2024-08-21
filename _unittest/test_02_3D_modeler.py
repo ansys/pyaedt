@@ -26,13 +26,12 @@ import random
 from sys import float_info
 
 from _unittest.conftest import config
+from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
+from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 import pytest
-
-from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
-from pyaedt.modeler.cad.Primitives import PolylineSegment
-from pyaedt.modeler.cad.elements3d import FacePrimitive
-from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
