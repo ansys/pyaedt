@@ -9,7 +9,7 @@ You can edit a setup after it is created. Here is an example:
 
     Launch AEDT 2023 R1 in non-graphical mode
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
 
     hfss = Hfss()
     # Any property of this setup can be found on this page.
@@ -19,4 +19,4 @@ You can edit a setup after it is created. Here is an example:
 
 
 
-.. pprint:: pyaedt.modules.SetupTemplates.HFSS3DLayout
+.. pprint:: ansys.aedt.core.modules.setup_templates.HFSS3DLayout

@@ -12,7 +12,7 @@ They are accessible through the ``modeler`` property:
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -49,18 +49,18 @@ modeler, including all primitives methods and properties for HFSS, Maxwell 3D, Q
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   modeler3d.Modeler3D
+   modeler_3d.Modeler3D
 
 
 .. code:: python
 
-    from pyaedt import Circuit
+    from ansys.aedt.core import Circuit
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)

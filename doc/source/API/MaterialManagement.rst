@@ -10,23 +10,23 @@ Material management
 ~~~~~~~~~~~~~~~~~~~
 This section describes all material-related classes and methods.
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   MaterialLib.Materials
-   Material.Material
-   Material.SurfaceMaterial
-   Material.MatProperties
-   Material.SurfMatProperties
-   Material.MatProperty
+   material_lib.Materials
+   material.Material
+   material.SurfaceMaterial
+   material.MatProperties
+   material.SurfMatProperties
+   material.MatProperty
 
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -45,12 +45,12 @@ Stackup management
 ~~~~~~~~~~~~~~~~~~
 This section describes all layer-related classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
 
-   LayerStackup.Layers
-   LayerStackup.Layer
+   layer_stackup.Layers
+   layer_stackup.Layer

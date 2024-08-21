@@ -14,8 +14,8 @@ import os
 import re
 import csv
 from collections import OrderedDict
-import pyaedt
-from pyaedt.modules.Boundary import BoundaryObject
+import ansys.aedt.core
+from ansys.aedt.core.modules.boundary import BoundaryObject
 
 ##########################################################
 # Set AEDT version
@@ -37,9 +37,9 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
 
-ipk = pyaedt.Icepak(project=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
+ipk = ansys.aedt.core.Icepak(project=os.path.join(temp_folder, "Icepak_CSV_Import.aedt"),
                     version=aedt_version,
                     new_desktop=True,
                     non_graphical=non_graphical
@@ -70,7 +70,7 @@ board = ipk.modeler.create_box([-30.48, -27.305, 0], [146.685, 71.755, 0.4064], 
 # It will create solid blocks and assign BCs.
 # Every row of the csv has information of a particular block.
 
-filename = pyaedt.downloads.download_file('icepak', 'blocks-list.csv', destination=temp_folder)
+filename = ansys.aedt.core.downloads.download_file('icepak', 'blocks-list.csv', destination=temp_folder)
 
 with open(filename, 'r') as csv_file:
     csv_reader = csv.DictReader(csv_file)
