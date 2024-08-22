@@ -28,6 +28,7 @@ from ctypes import c_bool
 from ctypes import c_char_p
 from ctypes import c_int
 from enum import Enum
+import os
 
 import pyaedt
 
@@ -37,12 +38,25 @@ class ExportFormat(Enum):
 
     **Attributes:**
 
-    - DIRECT: Represents a direct export to ``AEDT``.
+    - DIRECT_TO_AEDT: Represents a direct export to ``AEDT``.
     - PYTHON: Represents a Python scripted export.
     """
 
-    DIRECT = 0
+    DIRECT_TO_AEDT = 0
     PYTHON_SCRIPT = 1
+
+
+class ExportCreationMode(Enum):
+    """Provides an enum of export creation modes.
+
+    **Attributes:**
+
+    - OVERWRITE: Represents export to ``AEDT`` and overwrite to existing design.
+    - APPEND: Represents export to ``AEDT`` and append to existing design.
+    """
+
+    OVERWRITE = 0
+    APPEND = 1
 
 
 class ExportToAedt:
@@ -143,11 +157,6 @@ class ExportToAedt:
         self._dll.setOptimizeAfterExport.restype = c_int
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
-
-    def open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def schematic_name(self) -> str:
@@ -466,14 +475,33 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
-    def append_design_to_aedt(self, export_format: ExportFormat.DIRECT):
-        """Append the export to the existing exported projects."""
-        status = self._dll.appendToAEDT(export_format.value)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+    def export_design(self, export_format: ExportFormat.DIRECT_TO_AEDT, export_creation_mode=None, export_path=None):
+        """Export the design directly to ``AEDT` or generate a ``Python`` script for exporting.
+        When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
+        When generating a Python script, the script is created and saved to the specified file location.
 
-    def overwrite_design_to_aedt(self, export_format: ExportFormat.DIRECT):
-        """Overwrite existing exported projects."""
-        status = self._dll.overwriteToAEDT(export_format.value)
+        Parameters
+        ----------
+        export_format : `ExportFormat`
+            The export format type.
+            The default is ``DIRECT_TO_AEDT``.
+        design_creation_mode : `ExportCreationMode`
+            The design creation mode.
+            The default is ``None``.
+        export_path : str
+            The export path for Python script.
+            The default is ``None``.
+        """
+        if export_creation_mode is None:
+            export_creation_mode = ExportCreationMode.OVERWRITE
+        if export_path is None:
+            export_path = ""
+        else:
+            directory_path = os.path.dirname(export_path)
+            if not os.path.exists(directory_path):
+                os.makedirs(directory_path)
+        export_path_bytes = bytes(export_path, "ascii")
+        status = self._dll.exportDesign(export_format.value, export_creation_mode.value, export_path_bytes)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def import_tuned_variables(self):

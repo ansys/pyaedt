@@ -37,12 +37,12 @@ class TestClass:
 
     def test_row_count(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         assert lumpdesign.optimization_goals_table.row_count == 2
 
     def test_row(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         assert lumpdesign.optimization_goals_table.row(0) == [
             "200 MHz",
             "1 GHz",
@@ -69,7 +69,7 @@ class TestClass:
 
     def test_update_row(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         lumpdesign.optimization_goals_table.update_row(
             0, lower_frequency="100 MHz", upper_frequency="2 GHz", condition=">", weight="0.7"
         )
@@ -85,7 +85,7 @@ class TestClass:
 
     def test_append_row(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         lumpdesign.optimization_goals_table.append_row("100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y")
         assert lumpdesign.optimization_goals_table.row(2) == [
             "100 MHz",
@@ -99,7 +99,7 @@ class TestClass:
 
     def test_insert_row(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         lumpdesign.optimization_goals_table.insert_row(
             1, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
         )
@@ -115,7 +115,7 @@ class TestClass:
 
     def test_remove_row(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         lumpdesign.optimization_goals_table.remove_row(1)
         assert lumpdesign.optimization_goals_table.row_count == 1
         assert lumpdesign.optimization_goals_table.row(0) == [
@@ -130,7 +130,7 @@ class TestClass:
 
     def test_adjust_goal_frequency(self):
         lumpdesign = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        lumpdesign.export_to_aedt.open_aedt_export()
+        lumpdesign.optimization_goals_table.set_design_goals()
         lumpdesign.optimization_goals_table.adjust_goal_frequency("150 MHz")
         assert lumpdesign.optimization_goals_table.row(0)[OptimizationGoalParameter.LOWER_FREQUENCY.value] == "350 MHz"
         assert lumpdesign.optimization_goals_table.row(0)[OptimizationGoalParameter.UPPER_FREQUENCY.value] == "1.15 GHz"
