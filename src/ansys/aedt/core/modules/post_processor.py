@@ -3788,6 +3788,7 @@ class PostProcessor(PostProcessorCommon, object):
             lst = []
             for layer in layers_nets:
                 for el in layer[1:]:
+                    el = "<no-net>" if el == "no-net" else el
                     get_ids = self._odesign.GetGeometryIdsForNetLayerCombination(el, layer[0], setup)
                     if isinstance(get_ids, (tuple, list)) and len(get_ids) > 2:
                         lst.extend([int(i) for i in get_ids[2:]])
