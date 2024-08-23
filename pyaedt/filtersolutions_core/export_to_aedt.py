@@ -30,6 +30,7 @@ from ctypes import c_char_p
 from ctypes import c_int
 from ctypes import create_string_buffer
 from enum import Enum
+import os
 from typing import Union
 
 import pyaedt
@@ -40,12 +41,25 @@ class ExportFormat(Enum):
 
     **Attributes:**
 
-    - DIRECT: Represents a direct export to ``AEDT``.
+    - DIRECT_TO_AEDT: Represents a direct export to ``AEDT``.
     - PYTHON: Represents a Python scripted export.
     """
 
-    DIRECT = 0
+    DIRECT_TO_AEDT = 0
     PYTHON_SCRIPT = 1
+
+
+class ExportCreationMode(Enum):
+    """Provides an enum of export creation modes.
+
+    **Attributes:**
+
+    - OVERWRITE: Represents export to ``AEDT`` and overwrite to existing design.
+    - APPEND: Represents export to ``AEDT`` and append to existing design.
+    """
+
+    OVERWRITE = 0
+    APPEND = 1
 
 
 class PartLibraries(Enum):
@@ -472,15 +486,10 @@ class ExportToAedt:
         self._dll.removeModelithicsResistorsFamily.argtype = c_char_p
         self._dll.removeModelithicsResistorsFamily.restype = c_int
 
-    def open_aedt_export(self):
-        """Open export page to accept manipulate export parameters"""
-        status = self._dll.openLumpedExportPage()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-
     @property
     def schematic_name(self) -> str:
-        """Schematic name for exporting to ``AEDT``.
-        The default is ``FilterSolutions``.
+        """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
+        The default name is ``FilterSolutions`` if not specified.
 
 
         Returns
@@ -496,7 +505,7 @@ class ExportToAedt:
 
     @property
     def simulate_after_export_enabled(self) -> bool:
-        """Flag indicating if the simulation after exporting to ``AEDT`` is enabled.
+        """Flag indicating if the simulation will be initiated upon export to ``AEDT``.
 
         Returns
         -------
@@ -514,7 +523,7 @@ class ExportToAedt:
 
     @property
     def include_group_delay_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the group delay report in the exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the group delay report will be created upon export to ``AEDT``.
 
         Returns
         -------
@@ -532,8 +541,8 @@ class ExportToAedt:
 
     @property
     def include_gt_gain_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the total voltage gain report in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the total voltage gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -551,8 +560,8 @@ class ExportToAedt:
 
     @property
     def include_vgsl_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the voltage gain source load report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the voltage gain source load report will be created upon
+         export to ``AEDT``.
 
         Returns
         -------
@@ -570,8 +579,8 @@ class ExportToAedt:
 
     @property
     def include_vgin_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the voltage gain insertion report in the
-        exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the voltage gain insertion report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -589,8 +598,8 @@ class ExportToAedt:
 
     @property
     def include_input_return_loss_s11_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the input return loss report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the input return loss report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -608,8 +617,8 @@ class ExportToAedt:
 
     @property
     def include_forward_transfer_s21_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the forward transfer gain report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the forward transfer gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -627,8 +636,8 @@ class ExportToAedt:
 
     @property
     def include_reverse_transfer_s12_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the reverse transfer gain report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the reverse transfer gain report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -646,8 +655,8 @@ class ExportToAedt:
 
     @property
     def include_output_return_loss_s22_enabled(self) -> bool:
-        """Flag indicating if the inclusion of the output return loss report in the
-         exported filter to ``AEDT`` is enabled.
+        """Flag indicating if the output return loss report will be created upon
+        export to ``AEDT``.
 
         Returns
         -------
@@ -795,34 +804,33 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
-    def append_design_to_aedt(self, export_format: ExportFormat.DIRECT):
-        """Append the export to the existing exported projects."""
-        status = self._dll.appendToAEDT(export_format.value)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-
-    def load_library_parts_config(self, file_path):
-        """Load the library parts configuration to a file.
+    def export_design(self, export_format: ExportFormat.DIRECT_TO_AEDT, export_creation_mode=None, export_path=None):
+        """Export the design directly to ``AEDT` or generate a ``Python`` script for exporting.
+        When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
+        When generating a Python script, the script is created and saved to the specified file location.
 
         Parameters
         ----------
-        file_path : str
-            Full path to the file to load the library parts configuration.
+        export_format : `ExportFormat`
+            The export format type.
+            The default is ``DIRECT_TO_AEDT``.
+        design_creation_mode : `ExportCreationMode`
+            The design creation mode.
+            The default is ``None``.
+        export_path : str
+            The export path for Python script.
+            The default is ``None``.
         """
-        self._dll_interface.set_string(self._dll.loadLibraryPartsConf, file_path)
-
-    def save_library_parts_config(self, file_path):
-        """Save the library parts configuration to a file.
-
-        Parameters
-        ----------
-        file_path : str
-            Full path to the file to save the library parts configuration.
-        """
-        self._dll_interface.set_string(self._dll.saveLibraryPartsConf, file_path)
-
-    def overwrite_design_to_aedt(self, export_format: ExportFormat.DIRECT):
-        """Overwrite existing exported projects."""
-        status = self._dll.overwriteToAEDT(export_format.value)
+        if export_creation_mode is None:
+            export_creation_mode = ExportCreationMode.OVERWRITE
+        if export_path is None:
+            export_path = ""
+        else:
+            directory_path = os.path.dirname(export_path)
+            if not os.path.exists(directory_path):
+                os.makedirs(directory_path)
+        export_path_bytes = bytes(export_path, "ascii")
+        status = self._dll.exportDesign(export_format.value, export_creation_mode.value, export_path_bytes)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     def import_tuned_variables(self):

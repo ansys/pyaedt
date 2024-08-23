@@ -14,7 +14,7 @@ import pyaedt
 import pyaedt.filtersolutions_core.attributes
 from pyaedt.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
 from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from pyaedt.filtersolutions_core.export_to_aedt import ExportFormat,PartLibraries
 from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
 
@@ -47,29 +47,7 @@ print(design.export_to_aedt.modelithics_inductor_family_list_count)
 
 exit()
 
-design.attributes.pass_band_center_frequency = "2G"  
-#design.export_to_aedt.open_aedt_export()
-#design.optimization_goals_table.set_design_goals()
-design.export_to_aedt.schematic_name = "my_schematic"
-print(design.export_to_aedt.schematic_name)
-design.export_to_aedt.simulate_after_export_enabled = True
-#design.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
-design.optimization_goals_table.adjust_goal_frequency("150 MHz")
-print(design.optimization_goals_table.row(0)[OptimizationGoalParameter.LOWER_FREQUENCY.value])
-
-print(design.optimization_goals_table.row_count)
-design.optimization_goals_table.append_row("100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "1", "Y")
-#design.optimization_goals_table.save_goals(design, "c:\\goals.csv")
-design.optimization_goals_table.clear_goal_entries()
-design.optimization_goals_table.load_goals("c:\\goals.csv")
-
-for row_index in range(design.optimization_goals_table.row_count):
-    print(design.optimization_goals_table.row(row_index))
-design.export_to_aedt.include_output_return_loss_s22_enabled = True
-print(design.export_to_aedt.include_output_return_loss_s22_enabled)
-design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
 design.export_to_aedt.interconnect_geometry_optimization_enabled = False
-print(design.export_to_aedt.modelithics_inductor_list_count)
 design.attributes.filter_class = FilterClass.BAND_PASS
 design.attributes.filter_type = FilterType.BUTTERWORTH
 design.attributes.pass_band_center_frequency = "1G"
