@@ -1260,14 +1260,14 @@ class Attributes:
         """
         index = c_int()
         normalized_group_delay_percentage = list(BesselRipplePercentage)
-        status = self._dll.getGroupDealyRipplePercentage(byref(index))
+        status = self._dll.getGroupDelayRipplePercentage(byref(index))
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
         normalized_group_delay_percentage_string = normalized_group_delay_percentage[index.value]
         return normalized_group_delay_percentage_string
 
     @normalized_group_delay_percentage.setter
     def normalized_group_delay_percentage(self, column: BesselRipplePercentage):
-        status = self._dll.setGroupDealyRipplePercentage(column.value)
+        status = self._dll.setGroupDelayRipplePercentage(column.value)
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
@@ -1762,10 +1762,10 @@ class Attributes:
         -------
         bool
         """
-        standard_dealy_equ_cut = c_bool()
-        status = self._dll.getStandardDelayEquCut(byref(standard_dealy_equ_cut))
+        standard_delay_equ_cut = c_bool()
+        status = self._dll.getStandardDelayEquCut(byref(standard_delay_equ_cut))
         pyaedt.filtersolutions_core._dll_interface().raise_error(status)
-        return bool(standard_dealy_equ_cut.value)
+        return bool(standard_delay_equ_cut.value)
 
     @standard_delay_equ_pass_band_attenuation.setter
     def standard_delay_equ_pass_band_attenuation(self, standard_delay_equ_pass_band_attenuation: bool):
