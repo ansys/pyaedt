@@ -528,7 +528,7 @@ class Settings(object):  # pragma: no cover
         """Get the RPyC connection."""
         return self.__remote_rpc_session
 
-    @formatter.setter
+    @remote_rpc_session.setter
     def remote_rpc_session(self, value: Any):
         self.__remote_rpc_session = value
 
@@ -537,7 +537,7 @@ class Settings(object):  # pragma: no cover
         """Get the remote RPyC session temp folder."""
         return self.__remote_rpc_session_temp_folder
 
-    @formatter.setter
+    @remote_rpc_session_temp_folder.setter
     def remote_rpc_session_temp_folder(self, value: str):
         self.__remote_rpc_session_temp_folder = value
 
@@ -546,7 +546,7 @@ class Settings(object):  # pragma: no cover
         """Get the remote RPyC service manager port."""
         return self.__remote_rpc_service_manager_port
 
-    @formatter.setter
+    @remote_rpc_service_manager_port.setter
     def remote_rpc_service_manager_port(self, value: int):
         self.__remote_rpc_service_manager_port = value
 
@@ -555,7 +555,7 @@ class Settings(object):  # pragma: no cover
         """Time in seconds since the 'epoch' as a floating-point number."""
         return self.__time_tick
 
-    @formatter.setter
+    @time_tick.setter
     def time_tick(self, value: float):
         self.__time_tick = value
 
