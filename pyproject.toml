@@ -40,6 +40,7 @@ dependencies = [
     "pyedb>=0.24.0; python_version > '3.7'",
     "pytomlpp",
     "rpyc>=6.0.0,<6.1",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
