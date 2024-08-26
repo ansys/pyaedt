@@ -139,7 +139,7 @@ class AedtObjects(object):
     def oboundary(self):
         """Boundary Object."""
         if not self._oboundary:
-            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design"]:
+            if self.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
                 return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oboundary = self.get_module("Excitations")
@@ -169,7 +169,7 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("Optimetrics")
         """
-        if not self._ooptimetrics and self.design_type not in ["Maxwell Circuit", "EMIT"]:
+        if not self._ooptimetrics and self.design_type not in ["Circuit Netlist", "Maxwell Circuit", "EMIT"]:
             self._ooptimetrics = self.get_module("Optimetrics")
         return self._ooptimetrics
 
@@ -182,7 +182,7 @@ class AedtObjects(object):
 
         >>> oDesign.GetModule("OutputVariable")
         """
-        if not self._ooutput_variable and self.design_type not in ["EMIT", "Maxwell Circuit"]:
+        if not self._ooutput_variable and self.design_type not in ["EMIT", "Maxwell Circuit", "Circuit Netlist"]:
             self._ooutput_variable = self.get_module("OutputVariable")
         return self._ooutput_variable
 
@@ -201,7 +201,7 @@ class AedtObjects(object):
             return self._oanalysis
         if "HFSS 3D Layout Design" in self.design_type:
             self._oanalysis = self.get_module("SolveSetups")
-        elif "EMIT" in self.design_type or "Maxwell Circuit" in self.design_type:
+        elif self.design_type in ["EMIT", "Circuit Netlist", "Maxwell Circuit"]:
             self._oanalysis = None
         elif "Circuit Design" in self.design_type or "Twin Builder" in self.design_type:
             self._oanalysis = self.get_module("SimSetup")
@@ -289,7 +289,14 @@ class AedtObjects(object):
         >>> oModule = oDesign.GetModule("Solutions")
         """
         if not self._osolution:
-            if self.design_type in ["RMxprt", "RMxprtSolution", "Twin Builder", "Circuit Design", "Maxwell Circuit"]:
+            if self.design_type in [
+                "RMxprt",
+                "RMxprtSolution",
+                "Twin Builder",
+                "Circuit Design",
+                "Maxwell Circuit",
+                "Circuit Netlist",
+            ]:
                 return
             if self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._osolution = self.get_module("SolveSetups")
@@ -337,7 +344,7 @@ class AedtObjects(object):
         """
         if self.design_type in [
             "Circuit Design",
-            "Twin Builder",
+            "Circuit Netlist" "Twin Builder",
             "Maxwell Circuit",
             "EMIT",
             "RMxprt",
@@ -407,6 +414,8 @@ class AedtObjects(object):
                 self._oeditor = self._odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:
                 self._oeditor = self._odesign.SetActiveEditor("Machine")
+            elif self.design_type in ["Circuit Netlist"]:
+                self._oeditor = None
             else:
                 self._oeditor = self._odesign.SetActiveEditor("3D Modeler")
         return self._oeditor

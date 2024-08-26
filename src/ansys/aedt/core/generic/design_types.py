@@ -27,6 +27,7 @@ import sys
 import time
 
 from ansys.aedt.core.circuit import Circuit
+from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
 
 Emit = None
@@ -173,6 +174,7 @@ app_map = {
     "Maxwell Circuit": MaxwellCircuit,
     "Twin Builder": TwinBuilder,
     "Circuit Design": Circuit,
+    "Circuit Netlist": CircuitNetlist,
     "2D Extractor": Q2d,
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,

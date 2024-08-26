@@ -875,7 +875,9 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
-        self.oeditor = self.modeler.oeditor
+        self.oeditor = None
+        if self.modeler:
+            self.oeditor = self.modeler.oeditor
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)

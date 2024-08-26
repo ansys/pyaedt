@@ -115,8 +115,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     Examples
     --------
-    Create an instance of Circuit and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
+    Create an instance of Circuit and connect to an existing Circuit
+    design or create a new Circuit design if one does not exist.
 
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()

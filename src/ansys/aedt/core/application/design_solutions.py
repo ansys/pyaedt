@@ -32,6 +32,7 @@ solutions_defaults = {
     "Maxwell 3D": "Magnetostatic",
     "Twin Builder": "TR",
     "Circuit Design": "NexximLNA",
+    "Circuit Netlist": "",
     "Maxwell Circuit": "",
     "2D Extractor": "Open",
     "Q3D Extractor": "Q3D Extractor",
@@ -548,6 +549,7 @@ solutions_types = {
     },
     # Maxwell Circuit has no solution type
     "Maxwell Circuit": {},
+    "Circuit Netlist": {},
 }
 
 model_names = {
@@ -555,6 +557,7 @@ model_names = {
     "Maxwell 3D": "Maxwell3DModel",
     "Twin Builder": "SimplorerCircuit",
     "Circuit Design": "NexximCircuit",
+    "Circuit Netlist": "NexximNetlist",
     "Maxwell Circuit": "MaxCirCircuit",
     "2D Extractor": "2DExtractorModel",
     "Q3D Extractor": "Q3DModel",
