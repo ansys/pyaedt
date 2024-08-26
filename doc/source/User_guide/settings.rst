@@ -2,11 +2,11 @@ Settings
 ========
 
 The Settings class is designed to handle the configurations of PyAEDT and AEDT.
-This includes behavior for logging, lsf scheduler, environment variable and general
+This includes behavior for logging, LSF scheduler, environment variable and general
 settings. Most of the default values used can be modified using a YAML configuration file.
 The path to this YAML file should be defined through the environment variable
 ``PYAEDT_LOCAL_SETTINGS_PATH``. If the environment variable is set and a file exists,
-the default configuration settings will be updated according to the content of the file.
+the default configuration settings are updated according to the content of the file.
 If the environment variable is not defined, a check if performed to see if a file named
 ``"pyaedt_settings.yaml"`` exist in the user's ``APPDATA`` folder for Windows and
 ``HOME`` folder for Linux. If such file exists, it is then used to update the default
@@ -18,7 +18,7 @@ Bellow  is the content that can be updated through the YAML file.
 
 .. note::
     Not all settings from class ``Settings`` can be modified through this file
-    as some of them them expect python objects or values obtained from code execution.
+    as some of them expect python objects or values obtained from code execution.
     For example, that is the case for ``formatter`` which expects an object of type
     ``Formatter`` and ``time_tick`` which expects a time value, in seconds, since the
     `epoch <https://docs.python.org/3/library/time.html#epoc>`_ as a floating-point number.
