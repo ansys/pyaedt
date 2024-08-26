@@ -3290,7 +3290,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
 
-        self._desktop.CloseAllWindows()
+        self._app.desktop_class.close_windows()
         try:
             self._app.modeler.fit_all()
         except Exception:
@@ -3350,7 +3350,7 @@ class PostProcessor(PostProcessorCommon, object):
             for i in self._app.setups:
                 if i.name == setup.split(" : ")[0]:
                     intrinsics = i.default_intrinsics
-        self._desktop.CloseAllWindows()
+        self._app.desktop_class.close_windows()
         try:
             self._app._modeler.fit_all()
         except Exception:

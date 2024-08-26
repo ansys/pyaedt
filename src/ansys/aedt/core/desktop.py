@@ -796,7 +796,7 @@ class Desktop(object):
             active_design = project_object.SetActiveDesign(name)
         if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_design
 
     @pyaedt_function_handler()
@@ -821,7 +821,7 @@ class Desktop(object):
             active_project = self.odesktop.SetActiveProject(name)
         if is_linux and settings.aedt_version == "2024.1":
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_project
 
     @property
@@ -832,6 +832,23 @@ class Desktop(object):
             return installed_versions()[version_key]
         except Exception:  # pragma: no cover
             return installed_versions()[version_key + "CL"]
+
+    @pyaedt_function_handler()
+    def close_windows(self):
+        """Close all windows.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.CloseAllWindows
+        """
+        self.odesktop.CloseAllWindows()
+        return True
 
     @property
     def current_version(self):

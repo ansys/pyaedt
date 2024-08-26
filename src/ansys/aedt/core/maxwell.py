@@ -2113,7 +2113,7 @@ class Maxwell(object):
         oeditor = odesign.SetActiveEditor("SchematicEditor")
         if is_linux and settings.aedt_version == "2024.1":
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []

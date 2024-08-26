@@ -409,7 +409,7 @@ class AedtObjects(object):
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
                 if is_linux and settings.aedt_version == "2024.1":
                     time.sleep(1)
-                    self._odesktop.CloseAllWindows()
+                    self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:
                 self._oeditor = self._odesign.SetActiveEditor("Layout")
             elif self.design_type in ["RMxprt", "RMxprtSolution"]:

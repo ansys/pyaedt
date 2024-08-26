@@ -235,7 +235,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         delta = 0.0508
         use_instance = True
         model = []
-        self._desktop.CloseAllWindows()
+        self.desktop_class.close_windows()
         autosave = False
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
@@ -690,7 +690,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
         if is_linux and settings.aedt_version == "2024.1":
             time.sleep(1)
-            self._desktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:

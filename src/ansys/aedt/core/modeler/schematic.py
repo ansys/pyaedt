@@ -555,7 +555,7 @@ class ModelerNexxim(ModelerCircuit):
         active_units = self.layouteditor.GetActiveUnits()
         if is_linux and settings.aedt_version == "2024.1":
             time.sleep(1)
-            self._app.odesktop.CloseAllWindows()
+            self._app.desktop_class.close_windows()
         return active_units
 
     @property
