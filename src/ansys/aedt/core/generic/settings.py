@@ -40,6 +40,7 @@ import logging
 import os
 import time
 from typing import Any
+from typing import List
 from typing import Optional
 from typing import Union
 import uuid
@@ -756,7 +757,7 @@ class Settings(object):  # pragma: no cover
         """Update default settings from a YAML configuration file."""
         import yaml
 
-        def filter_settings(settings: dict, allowed_keys: list[str]):
+        def filter_settings(settings: dict, allowed_keys: List[str]):
             """Filter the items of settings based on a list of allowed keys."""
             return filter(lambda item: item[0] in allowed_keys, settings.items())
 
