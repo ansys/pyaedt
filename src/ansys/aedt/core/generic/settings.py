@@ -40,6 +40,8 @@ import logging
 import os
 import time
 from typing import Any
+from typing import Optional
+from typing import Union
 import uuid
 
 is_linux = os.name == "posix"
@@ -126,7 +128,7 @@ class _InnerProjectSettings:  # pragma: no cover
     """
 
     properties: dict = {}
-    time_stamp: int | float = 0
+    time_stamp: Union[int, float] = 0
 
 
 class Settings(object):  # pragma: no cover
@@ -135,12 +137,12 @@ class Settings(object):  # pragma: no cover
     def __init__(self):
         # Setup default values then load values from PersoalLib' settings_config.yaml if it exists.
         # Settings related to logging
-        self.__logger: logging.Logger | None = None
+        self.__logger: Optional[logging.Logger] = None
         self.__enable_logger: bool = True
         self.__enable_desktop_logs: bool = True
         self.__enable_screen_logs: bool = True
         self.__enable_file_logs: bool = True
-        self.__logger_file_path: str | None = None
+        self.__logger_file_path: Optional[str] = None
         self.__logger_formatter: str = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self.__logger_datefmt: str = "%Y/%m/%d %H.%M.%S"
         self.__enable_debug_edb_logger: bool = False
@@ -153,17 +155,17 @@ class Settings(object):  # pragma: no cover
         self.__enable_global_log_file: bool = True
         self.__enable_local_log_file: bool = False
         self.__global_log_file_size: int = 10
-        self.__aedt_log_file: str | None = None
+        self.__aedt_log_file: Optional[str] = None
         # Settings related to Linux systems running LSF scheduler
         self.__lsf_num_cores: int = 2
         self.__lsf_ram: int = 1000
         self.__use_lsf_scheduler: bool = False
-        self.__lsf_osrel: str | None = None
-        self.__lsf_ui: int | None = None
+        self.__lsf_osrel: Optional[str] = None
+        self.__lsf_ui: Optional[int] = None
         self.__lsf_aedt_command: str = "ansysedt"
         self.__lsf_timeout: int = 3600
-        self.__lsf_queue: str | None = None
-        self.__custom_lsf_command: str | None = None
+        self.__lsf_queue: Optional[str] = None
+        self.__custom_lsf_command: Optional[str] = None
         # Settings related to environment variables that are set before launching a new AEDT session
         # This includes those that enable the beta features !
         self.__aedt_environment_variables: dict[str, str] = {
@@ -183,14 +185,14 @@ class Settings(object):  # pragma: no cover
         # General settings
         self.__enable_error_handler: bool = True
         self.__release_on_exception: bool = True
-        self.__aedt_version: str | None = None
-        self.__aedt_install_dir: str | None = None
+        self.__aedt_version: Optional[str] = None
+        self.__aedt_install_dir: Optional[str] = None
         self.__use_multi_desktop: bool = False
-        self.__use_grpc_api: bool | None = None
+        self.__use_grpc_api: Optional[bool] = None
         self.__disable_bounding_box_sat = False
         self.__force_error_on_missing_project = False
         self.__enable_pandas_output = False
-        self.__edb_dll_path: str | None = None
+        self.__edb_dll_path: Optional[str] = None
         self.__desktop_launch_timeout: int = 120
         self.__number_of_grpc_api_retries: int = 6
         self.__retry_n_times_time_interval: float = 0.1
@@ -198,7 +200,7 @@ class Settings(object):  # pragma: no cover
         self.__lazy_load: bool = True
         self.__objects_lazy_load: bool = True
         # Previously 'public' attributes
-        self.__formatter: logging.Formatter | None = None
+        self.__formatter: Optional[logging.Formatter] = None
         self.__remote_rpc_session: Any = None
         self.__remote_rpc_session_temp_folder: str = ""
         self.__remote_rpc_service_manager_port: int = 17878
