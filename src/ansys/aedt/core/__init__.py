@@ -67,7 +67,13 @@ pyaedt_path = os.path.dirname(__file__)
 __version__ = "0.11.dev0"
 version = __version__
 
-#
+# isort: off
+# Settings have to be imported before importing other Pyaedt modules
+from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.general_methods import inner_project_settings
+
+# isort: on
+
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.downloads as downloads
 from ansys.aedt.core.edb import Edb  # nosec
@@ -103,7 +109,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.misc import current_student_version
 from ansys.aedt.core.misc import current_version
 from ansys.aedt.core.misc import installed_versions

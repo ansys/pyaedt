@@ -47,6 +47,7 @@ import traceback
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
+from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.misc.misc import installed_versions
 

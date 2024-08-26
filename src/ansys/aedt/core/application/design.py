@@ -66,6 +66,7 @@ from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -78,7 +79,6 @@ from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import MaxwellParameters
 from ansys.aedt.core.modules.boundary import NetworkObject
