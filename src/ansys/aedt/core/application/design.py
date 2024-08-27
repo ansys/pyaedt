@@ -66,6 +66,7 @@ from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -88,8 +89,8 @@ if sys.version_info.major > 2:
 
 def load_aedt_thread(project_path):
     pp = load_entire_aedt_file(project_path)
-    settings._project_properties[os.path.normpath(project_path)] = pp
-    settings._project_time_stamp = os.path.getmtime(project_path)
+    inner_project_settings.properties[os.path.normpath(project_path)] = pp
+    inner_project_settings.time_stamp = os.path.getmtime(project_path)
 
 
 class Design(AedtObjects):
@@ -550,24 +551,28 @@ class Design(AedtObjects):
         start = time.time()
         if self.project_timestamp_changed or (
             os.path.exists(self.project_file)
-            and os.path.normpath(self.project_file) not in settings._project_properties
+            and os.path.normpath(self.project_file) not in inner_project_settings.properties
         ):
-            settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
+            inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+                self.project_file
+            )
             self._logger.info("aedt file load time {}".format(time.time() - start))
         elif (
-            os.path.normpath(self.project_file) not in settings._project_properties
+            os.path.normpath(self.project_file) not in inner_project_settings.properties
             and settings.remote_rpc_session
             and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
         ):
             file_path = check_and_download_file(self.project_file)
             try:
-                settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
+                inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+                    file_path
+                )
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
                 self._logger.info("Time to load AEDT file: {}.".format(time.time() - start))
-        if os.path.normpath(self.project_file) in settings._project_properties:
-            return settings._project_properties[os.path.normpath(self.project_file)]
+        if os.path.normpath(self.project_file) in inner_project_settings.properties:
+            return inner_project_settings.properties[os.path.normpath(self.project_file)]
         return {}
 
     @property
@@ -769,15 +774,15 @@ class Design(AedtObjects):
     def project_time_stamp(self):
         """Return Project time stamp."""
         if os.path.exists(self.project_file):
-            settings._project_time_stamp = os.path.getmtime(self.project_file)
+            inner_project_settings.time_stamp = os.path.getmtime(self.project_file)
         else:
-            settings._project_time_stamp = 0
-        return settings._project_time_stamp
+            inner_project_settings.time_stamp = 0
+        return inner_project_settings.time_stamp
 
     @property
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
-        old_time = settings._project_time_stamp
+        old_time = inner_project_settings.time_stamp
         return old_time != self.project_time_stamp
 
     @property
@@ -3297,8 +3302,8 @@ class Design(AedtObjects):
                 i += 0.2
                 time.sleep(0.2)
 
-        if os.path.normpath(proj_file) in settings._project_properties:
-            del settings._project_properties[os.path.normpath(proj_file)]
+        if os.path.normpath(proj_file) in inner_project_settings.properties:
+            del inner_project_settings.properties[os.path.normpath(proj_file)]
         return True
 
     @pyaedt_function_handler()
