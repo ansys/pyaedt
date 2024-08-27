@@ -1,6 +1,9 @@
-# This file contains the settings used by default to set the PyAEDT environment variables and
-# global settings. If you want to have a different behavior you have to copy / paste this file
-# into your PersonalLib directory and restart your workflow.
+# This file contains the settings used by default to set the PyAEDT and AEDT including logging,
+# LSF, environment variables and general settings. If you want to have a different behavior
+# you can modify this file and save it. To be used in PyAEDT, the path to the configuration file
+# should be specified with the environment variable ``PYAEDT_LOCAL_SETTINGS_PATH``. If no
+# environment variable is set, PyAEDT looks for the configuration file ``pyaedt_settings.yaml``
+# in the user's ``APPDATA`` folder for Windows and ``HOME`` folder for Linux.
 
 # Settings related to logging
 log:
