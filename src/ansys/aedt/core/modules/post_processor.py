@@ -981,7 +981,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if not display_type:
             display_type = self.available_display_types(report_category)[0]
-        if not solution:
+        if not solution and hasattr(self._app, "nominal_adaptive"):
             solution = self._app.nominal_adaptive
         if is_siwave_dc:  # pragma: no cover
             id_ = "0"
@@ -1082,7 +1082,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if not display_type:
             display_type = self.available_display_types(report_category)[0]
-        if not solution:
+        if not solution and hasattr(self._app, "nominal_adaptive"):
             solution = self._app.nominal_adaptive
         if is_siwave_dc:
             id = "0"
@@ -1587,8 +1587,8 @@ class PostProcessorCommon(object):
         )
 
     @pyaedt_function_handler(project_dir="project_path")
-    def export_report_to_jpg(self, project_path, plot_name, width=0, height=0):
-        """Export the SParameter plot to a JPG file.
+    def export_report_to_jpg(self, project_path, plot_name, width=0, height=0, image_format="jpg"):
+        """Export plot to an image file.
 
         Parameters
         ----------
@@ -1600,6 +1600,8 @@ class PostProcessorCommon(object):
             Image width. Default is ``0`` which takes Desktop size or 1980 pixel in case of non-graphical mode.
         height : int, optional
             Image height. Default is ``0`` which takes Desktop size or 1020 pixel in case of non-graphical mode.
+        image_format : str, optional
+            Format of the image file. The default is ``"jpg"``.
 
         Returns
         -------
@@ -1611,9 +1613,7 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportImageToFile
         """
-        # path
-        npath = project_path
-        file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
+        file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
         if self._app.desktop_class.non_graphical:  # pragma: no cover
             if width == 0:
                 width = 1980
@@ -2380,7 +2380,10 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return self.oeditor.GetModelUnits()
+        model_units = None
+        if self.oeditor and hasattr(self.oeditor, "GetModelUnits"):
+            model_units = self.oeditor.GetModelUnits()
+        return model_units
 
     @property
     def post_osolution(self):

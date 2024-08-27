@@ -344,7 +344,8 @@ class AedtObjects(object):
         """
         if self.design_type in [
             "Circuit Design",
-            "Circuit Netlist" "Twin Builder",
+            "Circuit Netlist",
+            "Twin Builder",
             "Maxwell Circuit",
             "EMIT",
             "RMxprt",

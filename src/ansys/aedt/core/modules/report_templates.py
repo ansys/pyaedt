@@ -366,8 +366,9 @@ class CommonReport(object):
         self.props["context"]["primary_sweep_range"] = ["All"]
         self.props["context"]["secondary_sweep_range"] = ["All"]
         self.props["context"]["variations"] = {"Freq": ["All"]}
-        for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-            self.props["context"]["variations"][el] = k
+        if hasattr(self._post._app, "available_variations") and self._post._app.available_variations:
+            for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
+                self.props["context"]["variations"][el] = k
         self.props["expressions"] = None
         self.props["plot_name"] = None
         if expressions:

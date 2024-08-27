@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.application.design import Design
+from ansys.aedt.core.application.analysis import Analysis
+from ansys.aedt.core.generic.settings import settings
 
 
-class AnalysisCircuitNetlist(Design, object):
+class AnalysisCircuitNetlist(Analysis, object):
     """Provides the Circuit Netlist (CircuitNetlist) interface.
     Circuit Netlist Editor has no setup, solution, analysis or postprocessor
     It is automatically initialized by Application call.
@@ -80,11 +81,12 @@ class AnalysisCircuitNetlist(Design, object):
         aedt_process_id,
         remove_lock,
     ):
-        Design.__init__(
+        Analysis.__init__(
             self,
             "Circuit Netlist",
             project,
             design,
+            None,
             None,
             version,
             non_graphical,
@@ -98,6 +100,8 @@ class AnalysisCircuitNetlist(Design, object):
         )
         self._modeler = None
         self._post = None
+        if not settings.lazy_load:
+            self._post = self.post
 
     @property
     def post(self):
@@ -108,6 +112,12 @@ class AnalysisCircuitNetlist(Design, object):
         :class:`ansys.aedt.core.modules.advanced_post_processing.CircuitPostProcessor`
             PostProcessor object.
         """
+        if self._post is None and self._odesign:
+            self.logger.reset_timer()
+            from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
+
+            self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
         return self._post
 
     @property

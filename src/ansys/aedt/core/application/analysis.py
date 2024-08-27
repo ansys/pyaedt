@@ -427,7 +427,9 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = self.oanalysis.GetSetups()
+        setups = []
+        if self.oanalysis and hasattr(self.oanalysis, "GetSetups"):
+            setups = self.oanalysis.GetSetups()
         if setups:
             return list(setups)
         return []
@@ -446,7 +448,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        return self.oanalysis.GetSetups()
+        setup_names = []
+        if self.oanalysis and hasattr(self.oanalysis, "GetSetups"):
+            setup_names = self.oanalysis.GetSetups()
+        return setup_names
 
     @property
     def SimulationSetupTypes(self):
