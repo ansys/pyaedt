@@ -66,6 +66,7 @@ ALLOWED_LOG_SETTINGS = [
     "logger_datefmt",
     "logger_file_path",
     "logger_formatter",
+    "aedt_log_file",
 ]
 ALLOWED_LSF_SETTINGS = [
     "custom_lsf_command",
