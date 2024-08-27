@@ -731,7 +731,7 @@ class Settings(object):  # pragma: no cover
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
 
-    def load_yaml_configuration(self, path: str):
+    def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
 
@@ -739,8 +739,16 @@ class Settings(object):  # pragma: no cover
             """Filter the items of settings based on a list of allowed keys."""
             return filter(lambda item: item[0] in allowed_keys, settings.items())
 
+        def filter_settings_with_raise(settings: dict, allowed_keys: List[str]):
+            """Filter the items of settings based on a list of allowed keys."""
+            for key, value in settings.items():
+                if key not in allowed_keys:
+                    raise KeyError(f"Key '{key}' is not part of the allowed keys {allowed_keys}")
+                yield key, value
+
         if os.path.exists(path):
-            local_settings = yaml.safe_load(path)
+            with open(path, "r") as yaml_file:
+                local_settings = yaml.safe_load(yaml_file)
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
                 ("lsf", ALLOWED_LSF_SETTINGS),
@@ -749,8 +757,12 @@ class Settings(object):  # pragma: no cover
             ]
             for setting_type, allowed_settings_key in pairs:
                 settings = local_settings.get(setting_type, {})
-                for key, value in filter_settings(settings, allowed_settings_key):
-                    setattr(self, key, value)
+                if raise_on_wrong_key:
+                    for key, value in filter_settings_with_raise(settings, allowed_settings_key):
+                        setattr(self, key, value)
+                else:
+                    for key, value in filter_settings(settings, allowed_settings_key):
+                        setattr(self, key, value)
 
     def writte_yaml_configuration(self, path: str):
         """Write the current settings into a YAML configuration file."""
