@@ -389,6 +389,18 @@ class Settings(object):  # pragma: no cover
     def enable_debug_logger(self, val):
         self.__enable_debug_logger = val
 
+    @property
+    def aedt_log_file(self):
+        """Path to the AEDT log file.
+
+        Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
+        """
+        return self.__aedt_log_file
+
+    @aedt_log_file.setter
+    def aedt_log_file(self, value: str):
+        self.__aedt_log_file = value
+
     # ############################# LSF properties ############################
 
     @property
