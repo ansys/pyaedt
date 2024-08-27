@@ -512,7 +512,7 @@ class Settings(object):  # pragma: no cover
 
     @remote_api.setter
     def remote_api(self, value: bool):
-        self.remote_api = value
+        self.__remote_api = value
 
     @property
     def formatter(self):
@@ -561,12 +561,7 @@ class Settings(object):  # pragma: no cover
 
     @property
     def release_on_exception(self):
-        """
-
-        Returns
-        -------
-
-        """
+        """Enable or disable the release of AEDT on exception."""
         return self.__release_on_exception
 
     @release_on_exception.setter
@@ -575,13 +570,7 @@ class Settings(object):  # pragma: no cover
 
     @property
     def objects_lazy_load(self):
-        """Flag for enabling and disabling the lazy load.
-        The default is ``True``.
-
-        Returns
-        -------
-        bool
-        """
+        """Flag for enabling and disabling the lazy load. The default value is ``True``."""
         return self.__objects_lazy_load
 
     @objects_lazy_load.setter
@@ -590,13 +579,7 @@ class Settings(object):  # pragma: no cover
 
     @property
     def lazy_load(self):
-        """Flag for enabling and disabling the lazy load.
-        The default is ``True``.
-
-        Returns
-        -------
-        bool
-        """
+        """Flag for enabling and disabling the lazy load. The default value is ``True``."""
         return self.__lazy_load
 
     @lazy_load.setter
@@ -605,30 +588,13 @@ class Settings(object):  # pragma: no cover
 
     @property
     def wait_for_license(self):
-        """Whether if Electronics Desktop has to be launched with ``-waitforlicense`` flag enabled or not.
-        Default is ``False``.
-
-        Returns
-        -------
-        bool
-        """
+        """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
+        The default value is ``False``."""
         return self.__wait_for_license
 
     @wait_for_license.setter
     def wait_for_license(self, value):
         self.__wait_for_license = value
-
-    @property
-    def aedt_log_file(self):
-        """Path to the AEDT log file.
-
-        Used to specify that Electronics Desktop has to be launched with ``-Logfile`` option.
-        """
-        return self.__aedt_log_file
-
-    @aedt_log_file.setter
-    def aedt_log_file(self, value: str):
-        self.__aedt_log_file = value
 
     @property
     def retry_n_times_time_interval(self):
