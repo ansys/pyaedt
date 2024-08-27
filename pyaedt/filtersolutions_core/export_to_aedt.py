@@ -158,6 +158,13 @@ class ExportToAedt:
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
 
+    def _open_aedt_export(self):
+        """Open export page to accept manipulate export parameters"""
+        status = self._dll.openLumpedExportPage()
+        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+
+
+
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
