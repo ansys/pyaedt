@@ -491,18 +491,6 @@ class Settings(object):  # pragma: no cover
     def aedt_environment_variables(self, value):
         self._aedt_environment_variables = value
 
-    @property
-    def pyaedt_server_path(self):
-        """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable."""
-        self.__pyaedt_server_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-        return self.__pyaedt_server_path
-
-    # NOTE: Convenient way to set the environment variable for RPyC
-    @pyaedt_server_path.setter
-    def pyaedt_server_path(self, val):
-        os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
-        self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
-
     # ##################################### General properties ####################################
 
     @property
@@ -752,6 +740,18 @@ class Settings(object):  # pragma: no cover
     @enable_error_handler.setter
     def enable_error_handler(self, val):
         self.__enable_error_handler = val
+
+    @property
+    def pyaedt_server_path(self):
+        """Get ``PYAEDT_SERVER_AEDT_PATH`` environment variable."""
+        self.__pyaedt_server_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
+        return self.__pyaedt_server_path
+
+    # NOTE: Convenient way to set the environment variable for RPyC
+    @pyaedt_server_path.setter
+    def pyaedt_server_path(self, val):
+        os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
+        self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
 
     def load_yaml_configuration(self, path: str):
         """Update default settings from a YAML configuration file."""
