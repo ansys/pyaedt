@@ -752,6 +752,13 @@ class Settings(object):  # pragma: no cover
                 for key, value in filter_settings(settings, allowed_settings_key):
                     setattr(self, key, value)
 
+    def writte_yaml_configuration(self, path: str):
+        """Write the current settings into a YAML configuration file."""
+        import yaml
+
+        if os.path.exists(path):
+            yaml.safe_dump(settings, path)
+
 
 settings = Settings()
 inner_project_settings = _InnerProjectSettings()
