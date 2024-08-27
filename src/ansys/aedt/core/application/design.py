@@ -352,11 +352,11 @@ class Design(AedtObjects):
         List of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
         """
         bb = []
-        if self.oboundary and hasattr(self.oboundary, "GetBoundaries"):
+        if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
         elif (
             self.oboundary
-            and hasattr(self.oboundary, "GetAllBoundariesList")
+            and "GetAllBoundariesList" in self.oboundary.__dir__()
             and self.design_type == "HFSS 3D Layout Design"
         ):
             bb = list(self.oboundary.GetAllBoundariesList())
@@ -364,14 +364,14 @@ class Design(AedtObjects):
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
         bb = list(bb)
-        if self.oboundary and hasattr(self.oboundary, "GetHybridRegions"):
+        if self.oboundary and "GetHybridRegions" in self.oboundary.__dir__():
             hybrid_regions = self.oboundary.GetHybridRegions()
             for region in hybrid_regions:
                 bb.append(region)
                 bb.append("FE-BI")
         current_excitations = []
         current_excitation_types = []
-        if self.oboundary and hasattr(self.oboundary, "GetExcitations"):
+        if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
             current_excitations = [i.split(":")[0] for i in ee[::2]]
             current_excitation_types = ee[1::2]
@@ -482,12 +482,12 @@ class Design(AedtObjects):
         """
         design_excitations = []
 
-        if self.oboundary and hasattr(self.oboundary, "GetExcitations"):
+        if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
             current_types = ee[1::2]
             for i in set(current_types):
                 new_port = []
-                if hasattr(self.oboundary, "GetExcitationsOfType"):
+                if "GetExcitationsOfType" in self.oboundary.__dir__():
                     new_port = list(self.oboundary.GetExcitationsOfType(i))
                 if new_port:
                     design_excitations += new_port
@@ -496,7 +496,7 @@ class Design(AedtObjects):
 
         elif (
             self.oboundary
-            and hasattr(self.oboundary, "GetAllPortsList")
+            and "GetAllPortsList" in self.oboundary.__dir__()
             and self.design_type in ["HFSS 3D Layout Design"]
         ):
             return self.oboundary.GetAllPortsList()

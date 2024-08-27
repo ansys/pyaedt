@@ -2381,7 +2381,7 @@ class PostProcessor(PostProcessorCommon, object):
            Model units, such as ``"mm"``.
         """
         model_units = None
-        if self.oeditor and hasattr(self.oeditor, "GetModelUnits"):
+        if self.oeditor and "GetModelUnits" in self.oeditor.__dir__():
             model_units = self.oeditor.GetModelUnits()
         return model_units
 

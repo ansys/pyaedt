@@ -428,7 +428,7 @@ class Analysis(Design, object):
         >>> oModule.GetSetups
         """
         setups = []
-        if self.oanalysis and hasattr(self.oanalysis, "GetSetups"):
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
             setups = self.oanalysis.GetSetups()
         if setups:
             return list(setups)
@@ -449,7 +449,7 @@ class Analysis(Design, object):
         >>> oModule.GetSetups
         """
         setup_names = []
-        if self.oanalysis and hasattr(self.oanalysis, "GetSetups"):
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
             setup_names = self.oanalysis.GetSetups()
         return setup_names
 
