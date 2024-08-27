@@ -68,7 +68,7 @@ __version__ = "0.11.dev0"
 version = __version__
 
 # isort: off
-# Settings have to be imported before importing other Pyaedt modules
+# Settings have to be imported before importing other PyAEDT modules
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.general_methods import inner_project_settings
 
