@@ -447,7 +447,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
@@ -456,7 +456,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
@@ -468,14 +468,14 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 

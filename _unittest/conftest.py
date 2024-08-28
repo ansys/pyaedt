@@ -62,6 +62,7 @@ settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
+settings.wait_for_license = True
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
@@ -197,13 +198,16 @@ def add_app(local_scratch):
             test_project = None
         if not application:
             application = Hfss
-        return application(
-            project=test_project,
-            design=design_name,
-            solution_type=solution_type,
-            version=desktop_version,
-            non_graphical=NONGRAPHICAL,
-        )
+
+        args = {
+            "project": test_project,
+            "design": design_name,
+            "version": desktop_version,
+            "non_graphical": NONGRAPHICAL,
+        }
+        if solution_type:
+            args["solution_type"] = solution_type
+        return application(**args)
 
     return _method
 

@@ -1091,7 +1091,7 @@ class Modeler3D(Primitives3D):
         if save_only_stl:
             return output_stls
 
-        self._app.odesktop.CloseAllWindows()
+        self._app.desktop_class.close_windows()
         self.logger.info("Importing STL in 3D Modeler")
         if output_stls:
             for output_stl in output_stls:

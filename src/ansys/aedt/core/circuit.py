@@ -115,8 +115,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     Examples
     --------
-    Create an instance of Circuit and connect to an existing HFSS
-    design or create a new HFSS design if one does not exist.
+    Create an instance of Circuit and connect to an existing Circuit
+    design or create a new Circuit design if one does not exist.
 
     >>> from ansys.aedt.core import Circuit
     >>> aedtapp = Circuit()
@@ -235,7 +235,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         delta = 0.0508
         use_instance = True
         model = []
-        self._desktop.CloseAllWindows()
+        self.desktop_class.close_windows()
         autosave = False
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
@@ -688,9 +688,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self._desktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")
         port = None
         if port_selector == 1:
