@@ -94,6 +94,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
         my_env = os.environ.copy()
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
@@ -174,6 +176,8 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
         command = settings.custom_lsf_command.split(" ")
         command.append("-grpcsrv")

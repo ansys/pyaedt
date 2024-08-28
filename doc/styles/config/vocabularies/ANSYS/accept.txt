@@ -39,6 +39,7 @@ Icepak
 IronPython
 [Ll]ayout
 limitilines
+LSF
 matplotlib
 Maxwell 2D
 Maxwell 3D
