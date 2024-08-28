@@ -237,7 +237,7 @@ class TestClass:
         design.attributes.filter_class = FilterClass.DIPLEXER_1
         assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_lower_center_frequency == "500M"
+        assert design.attributes.diplexer_lower_center_frequency == ".5G"
         design.attributes.diplexer_lower_center_frequency = "300M"
         assert design.attributes.diplexer_lower_center_frequency == "300M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
@@ -267,7 +267,7 @@ class TestClass:
         design.attributes.filter_class = FilterClass.DIPLEXER_1
         assert design.attributes.filter_class == FilterClass.DIPLEXER_1
         design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_lower_band_width == "500M"
+        assert design.attributes.diplexer_lower_band_width == ".5G"
         design.attributes.diplexer_lower_band_width = "300M"
         assert design.attributes.diplexer_lower_band_width == "300M"
         design.attributes.filter_class = FilterClass.DIPLEXER_2
