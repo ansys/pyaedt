@@ -2063,8 +2063,11 @@ class CommonReport(object):
             self.expressions = expr
 
     @pyaedt_function_handler()
-    def apply_report_template(self, input_file, property_type="Graphical"):
+    def apply_report_template(self, input_file, property_type="Graphical"):  # pragma: no cover
         """Apply report template.
+
+        .. note::
+            This method works in only in graphical mode.
 
         Parameters
         ----------
