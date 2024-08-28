@@ -197,21 +197,15 @@ def add_app(local_scratch):
             test_project = None
         if not application:
             application = Hfss
+        args = {
+            project=test_project,
+            design=design_name,
+            version=desktop_version,
+            non_graphical=NONGRAPHICAL,
+        }
         if solution_type:
-            return application(
-                project=test_project,
-                design=design_name,
-                solution_type=solution_type,
-                version=desktop_version,
-                non_graphical=NONGRAPHICAL,
-            )
-        else:
-            return application(
-                project=test_project,
-                design=design_name,
-                version=desktop_version,
-                non_graphical=NONGRAPHICAL,
-            )
+            args["solution_type"]=solution_type
+        return application(**args)
 
     return _method
 
