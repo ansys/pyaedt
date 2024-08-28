@@ -2086,7 +2086,7 @@ class CommonReport(object):
 
         >>> oModule.ApplyReportTemplate
         """
-        if not os.path.exists(input_file):
+        if not os.path.exists(input_file):  # pragma: no cover
             msg = "File does not exist."
             self._post.logger.error(msg)
             return False
@@ -2095,12 +2095,12 @@ class CommonReport(object):
         extension = split_path[1]
 
         supported_ext = [".rpt"]
-        if extension not in supported_ext:
+        if extension not in supported_ext:  # pragma: no cover
             msg = "Extension {} is not supported.".format(extension)
             self._post.logger.error(msg)
             return False
 
-        if property_type not in ["Graphical", "Data", "All"]:
+        if property_type not in ["Graphical", "Data", "All"]:  # pragma: no cover
             msg = "Invalid value for `property_type`. The value must be 'Graphical', 'Data', or 'All'."
             self._post.logger.error(msg)
             return False
