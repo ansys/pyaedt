@@ -2111,7 +2111,7 @@ class Maxwell(object):
             return False
         odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.desktop_class.close_windows()
         comps = oeditor.GetAllComponents()

@@ -688,7 +688,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             self._desktop.OpenProject(source_project_path)
             oSrcProject = self._desktop.SetActiveProject(source_project_name)
         oDesign = oSrcProject.SetActiveDesign(source_design_name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.desktop_class.close_windows()
         tmp_oModule = oDesign.GetModule("BoundarySetup")

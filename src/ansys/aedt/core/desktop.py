@@ -794,7 +794,7 @@ class Desktop(object):
             active_design = project_object.GetActiveDesign()
         else:
             active_design = project_object.SetActiveDesign(name)
-        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
         return active_design
@@ -819,7 +819,7 @@ class Desktop(object):
             active_project = self.odesktop.GetActiveProject()
         else:
             active_project = self.odesktop.SetActiveProject(name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.close_windows()
         return active_project

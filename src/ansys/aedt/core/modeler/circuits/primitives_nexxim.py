@@ -206,14 +206,14 @@ class NexximComponents(CircuitComponents):
             parent_name = "{}:{}".format(self._app.design_name.split("/")[0], ":U" + str(random.randint(1, 10000)))
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self._app.desktop_class.close_windows()
         if nested_subcircuit_id:
             pname = "{}:{}".format(self._app.design_name.split("/")[0], nested_subcircuit_id)
             odes = self._app.desktop_class.active_design(self._app.oproject, pname)
             oed = odes.SetActiveEditor("SchematicEditor")
-            if is_linux and settings.aedt_version == "2024.1":
+            if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                 time.sleep(1)
                 self._app.desktop_class.close_windows()
             objs = oed.GetAllElements()

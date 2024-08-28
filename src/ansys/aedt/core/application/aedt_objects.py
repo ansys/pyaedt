@@ -408,7 +408,7 @@ class AedtObjects(object):
         if not self._oeditor and self._odesign:
             if self.design_type in ["Circuit Design", "Twin Builder", "Maxwell Circuit", "EMIT"]:
                 self._oeditor = self._odesign.SetActiveEditor("SchematicEditor")
-                if is_linux and settings.aedt_version == "2024.1":
+                if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
                     time.sleep(1)
                     self.desktop_class.close_windows()
             elif self.design_type in ["HFSS 3D Layout Design", "HFSS3DLayout"]:

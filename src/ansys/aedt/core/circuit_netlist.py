@@ -151,11 +151,11 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
             remove_lock,
         )
 
-    def _init_from_design(self, *args, **kwargs):
+    def _init_from_design(self, *args, **kwargs):  # pragma: no cover
         self.__init__(*args, **kwargs)
 
     @pyaedt_function_handler(filepath="input_file")
-    def browse_log_file(self, input_file=None):
+    def browse_log_file(self, input_file=None):  # pragma: no cover
         """Save the most recent log file in a new directory.
 
         Parameters
