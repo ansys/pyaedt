@@ -1108,7 +1108,7 @@ class Modeler3D(Primitives3D):
                 aedt_objs = self.object_names[::]
                 for assembly, _ in nas_to_dict["Assemblies"].items():
                     assembly_group_name = assembly
-                    if assembly in self.oeditor.GetChildNames("Groups"):
+                    if assembly in list(self.oeditor.GetChildNames("Groups")):
                         assembly_group_name = generate_unique_name(assembly, n=2)
                     new_group = []
                     for el in nas_to_dict["Assemblies"][assembly]["Solids"].keys():
@@ -1121,7 +1121,7 @@ class Modeler3D(Primitives3D):
                         ]
                         if obj_names:
                             new_group.append(self.create_group(obj_names, group_name=str(el)))
-                    if assembly_group_name in self.oeditor.GetChildNames("Groups"):
+                    if assembly_group_name in list(self.oeditor.GetChildNames("Groups")):
                         self.oeditor.MoveEntityToGroup(
                             [
                                 "Groups:=",
@@ -1180,7 +1180,7 @@ class Modeler3D(Primitives3D):
                             id += 1
                         if group_parts:
                             pids = [i.name for i in polys]
-                            if assembly_name in self.oeditor.GetChildNames("Groups"):
+                            if assembly_name in list(self.oeditor.GetChildNames("Groups")):
                                 self.oeditor.MoveEntityToGroup(
                                     [
                                         "Objects:=",
