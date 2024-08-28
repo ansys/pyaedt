@@ -1196,7 +1196,10 @@ class PostProcessorCommon(object):
     def _get_plot_inputs(self):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
-        if names:
+        skip_plot = False
+        if self._app.design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
+            skip_plot = True
+        if names and not skip_plot:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")

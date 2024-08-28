@@ -44,11 +44,12 @@ class TestClass:
     def init(self, local_scratch):
         self.local_scratch = local_scratch
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode.")
     def test_01_post(self, netlist_test):
-        assert len(netlist_test.post.plots) == 1
+        if config["NonGraphical"]:
+            assert len(netlist_test.post.plots) == 0
+        else:
+            assert len(netlist_test.post.plots) == 1
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode.")
     def test_02_browse_log_file(self, netlist_test, local_scratch):
         assert not netlist_test.browse_log_file()
         netlist_test.analyze()
