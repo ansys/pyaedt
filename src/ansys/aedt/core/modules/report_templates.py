@@ -2062,6 +2062,48 @@ class CommonReport(object):
         finally:
             self.expressions = expr
 
+    @pyaedt_function_handler()
+    def apply_report_template(self, input_file, property_type="Graphical"):
+        """Apply report template.
+
+        Parameters
+        ----------
+        input_file : str
+            Path for the file to import. The extension supported is ``".rpt"``.
+        property_type : str, optional
+            Property types to apply. Options are ``"Graphical"``, ``"Data"``, and ``"All"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ApplyReportTemplate
+        """
+        if not os.path.exists(input_file):
+            msg = "File does not exist."
+            self._post.logger.error(msg)
+            return False
+
+        split_path = os.path.splitext(input_file)
+        extension = split_path[1]
+
+        supported_ext = [".rpt"]
+        if extension not in supported_ext:
+            msg = "Extension {} is not supported.".format(extension)
+            self._post.logger.error(msg)
+            return False
+
+        if property_type not in ["Graphical", "Data", "All"]:
+            msg = "Invalid value for `property_type`. The value must be 'Graphical', 'Data', or 'All'."
+            self._post.logger.error(msg)
+            return False
+        self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
+        return True
+
 
 class Standard(CommonReport):
     """Provides a reporting class that fits most of the app's standard reports."""
