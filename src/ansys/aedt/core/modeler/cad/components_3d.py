@@ -280,7 +280,7 @@ class UserDefinedComponent(object):
 
         """
         if "Group" in self._primitives.oeditor.GetChildObject(self.name).GetPropNames() and name not in list(
-            self._primitives.oeditor.GetChildNames("Groups")
+            list(self._primitives.oeditor.GetChildNames("Groups"))
         ):
             arg = [
                 "NAME:GroupParameter",

@@ -4478,7 +4478,7 @@ class PostProcessor(PostProcessorCommon, object):
         power_dict_obj = {}
         group_hierarchy = {}
 
-        groups = self._app.oeditor.GetChildNames("Groups")
+        groups = list(self._app.oeditor.GetChildNames("Groups"))
         self._app.modeler.add_new_user_defined_component()
         for g in groups:
             g1 = self._app.oeditor.GetChildObject(g)

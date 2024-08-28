@@ -194,6 +194,15 @@ class TestClass:
         )
         new_report4.report_type = "Data Table"
         assert new_report4.create()
+        if not config["NonGraphical"]:
+            local_path = os.path.dirname(os.path.realpath(__file__))
+            template = os.path.join(local_path, "example_models", test_subfolder, "template.rpt")
+            assert new_report4.apply_report_template(template)
+            template = os.path.join(local_path, "example_models", test_subfolder, "template_invented.rpt")
+            assert not new_report4.apply_report_template(template)
+            template = os.path.join(local_path, "example_models", test_subfolder, "template.csv")
+            assert not new_report4.apply_report_template(template)
+            assert not new_report4.apply_report_template(template, property_type="Dummy")
 
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
