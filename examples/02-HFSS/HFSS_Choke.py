@@ -10,7 +10,7 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 
 import json
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ###########################################################################################
@@ -20,7 +20,7 @@ import tempfile
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
-project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, folder_name="choke",
+project_name = ansys.aedt.core.generate_unique_project_name(root_name=temp_dir.name, folder_name="choke",
                                                    project_name="choke")
 
 ##########################################################
@@ -28,7 +28,7 @@ project_name = pyaedt.generate_unique_project_name(root_name=temp_dir.name, fold
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -43,7 +43,7 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launches HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(project=project_name,
+hfss = ansys.aedt.core.Hfss(project=project_name,
                    version=aedt_version,
                    non_graphical=non_graphical,
                    new_desktop=True,
@@ -222,7 +222,7 @@ hfss.plot(show=False, output_file=os.path.join(hfss.working_directory, "Image.jp
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 hfss.release_desktop()

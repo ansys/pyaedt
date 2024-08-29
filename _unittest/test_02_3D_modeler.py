@@ -23,15 +23,15 @@
 # SOFTWARE.
 
 import random
+from sys import float_info
 
 from _unittest.conftest import config
+from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
+from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
+from ansys.aedt.core.modeler.cad.object_3d import Object3d
+from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 import pytest
-
-from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
-from pyaedt.modeler.cad.Primitives import PolylineSegment
-from pyaedt.modeler.cad.elements3d import FacePrimitive
-from pyaedt.modeler.cad.object3d import Object3d
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
@@ -39,7 +39,7 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-tol = 1e-12
+small_number = float_info.epsilon * 10
 
 
 @pytest.fixture(scope="class")
@@ -246,9 +246,9 @@ class TestClass:
 
     def test_18_chamfer(self):
         o1 = self.aedtapp.modeler["box_to_split"]
-        assert abs(o1.volume - 4000.0) < tol
+        assert abs(o1.volume - 4000.0) / 4000.0 < small_number
         assert o1.top_edge_x.chamfer(1)
-        assert abs(o1.volume - 3990.0) < tol  # Volume decreased
+        assert abs(o1.volume - 3990.0) / 3990.0 < small_number  # Volume decreased
 
     def test_19_clone(self):
         self.restore_model()
@@ -301,8 +301,20 @@ class TestClass:
         assert o2.id > 0
 
     def test_27_create_region(self):
+        x_pos = 20
+        y_pos = 21
+        z_pos = 32
+        x_neg = 49
+        y_neg = 50
+        z_neg = 100
+
+        bounding_dims_1 = self.aedtapp.modeler.get_bounding_dimension()
         assert not self.aedtapp.modeler.create_air_region(*["20mm", 20, "30mm", "50", 50, 100])
-        assert self.aedtapp.modeler.create_air_region(20, 20, 30, 50, 50, 100, False)
+        assert self.aedtapp.modeler.create_air_region(x_pos, y_pos, z_pos, x_neg, y_neg, z_neg, False)
+        bounding_dims_2 = self.aedtapp.modeler.get_bounding_dimension()
+        assert abs(bounding_dims_2[0] - bounding_dims_1[0] - (x_pos + x_neg)) < small_number
+        assert abs(bounding_dims_2[1] - bounding_dims_1[1] - (y_pos + y_neg)) < small_number
+        assert abs(bounding_dims_2[2] - bounding_dims_1[2] - (z_pos + z_neg)) < small_number
         self.aedtapp.modeler["Region"].delete()
         self.aedtapp["region_param"] = "20mm"
         assert self.aedtapp.modeler.create_air_region("region_param", 20, "30", "50", 50, 100, False)
@@ -668,18 +680,33 @@ class TestClass:
     def test_43_set_working_coordinate_system(self):
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="new1")
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("new1")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "new1"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system(cs1)
+        assert self.aedtapp.modeler.get_working_coordinate_system() == cs1.name
 
     def test_43_set_working_face_coordinate_system(self):
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face, face.edges[1], name="new2")
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("new2")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "new2"
+
         assert self.aedtapp.modeler.set_working_coordinate_system("Global")
+        assert self.aedtapp.modeler.get_working_coordinate_system() == "Global"
+
         assert self.aedtapp.modeler.set_working_coordinate_system(fcs)
+        assert self.aedtapp.modeler.get_working_coordinate_system() == fcs.name
 
     def test_44_sweep_around_axis(self):
         rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_split")
@@ -879,8 +906,8 @@ class TestClass:
         p1 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1")
         p2 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2")
         p3 = self.aedtapp.modeler.global_to_cs([0, 0, 0], cs2)
-        assert all(abs(p1[i] - s) < tol for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
-        assert all(abs(p2[i] - s) < tol for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
+        assert all(abs(p1[i] - s) < small_number for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
+        assert all(abs(p2[i] - s) < small_number for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
         assert p2 == p3
         assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global") == [0, 0, 0]
 
@@ -901,8 +928,10 @@ class TestClass:
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global(cs4)
         o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
-        assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
-        assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
+        assert all(abs(o[i] - s) < 10 * small_number for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
+        assert all(
+            abs(q[i] - s) < 10 * small_number for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0])
+        )
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
@@ -1023,11 +1052,11 @@ class TestClass:
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=False)
         res = o + q
         sol = [3.716491314709036, -4.160251471689218, 8.0, 0.9570920264890529, -0.0, -0.0, -0.28978414868843005]
-        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
+        assert all(abs(res[i] - sol[i]) < 10 * small_number for i in range(3))
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=True)
         res = o + q
         sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
-        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
+        assert all(abs(res[i] - sol[i]) < 10 * small_number for i in range(3))
         assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
 
     def test_59a_region_property(self):
@@ -1036,7 +1065,7 @@ class TestClass:
         self.aedtapp.modeler.create_coordinate_system(
             origin=[1, 1, 1], name=cs_name, mode="zxz", phi=10, theta=30, psi=50
         )
-        assert self.aedtapp.modeler.change_region_coordinate_system(region_cs=cs_name)
+        assert self.aedtapp.modeler.change_region_coordinate_system(assignment=cs_name)
         assert self.aedtapp.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         assert self.aedtapp.modeler.change_region_padding(
             ["1mm", "-2mm", "3mm", "-4mm", "5mm", "-6mm"],
@@ -1052,7 +1081,7 @@ class TestClass:
 
     def test_59b_region_property_failing(self):
         self.aedtapp.modeler.create_air_region()
-        assert not self.aedtapp.modeler.change_region_coordinate_system(region_cs="NoCS")
+        assert not self.aedtapp.modeler.change_region_coordinate_system(assignment="NoCS")
         assert not self.aedtapp.modeler.change_region_padding(
             "10mm", padding_type="Absolute Offset", direction="-X", region_name="NoRegion"
         )

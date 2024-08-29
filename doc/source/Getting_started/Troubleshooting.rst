@@ -14,11 +14,11 @@ In this case, you can use the Python interpreter available in the AEDT installat
 
    Python 3.7 is available in AEDT 2023 R1 and earlier. Python 3.10 is available in AEDT 2023 R2.
 
-Here is the path to the Python 3.7 interpreter for the 2023 R1 installation:
+Here is the path to the Python 3.10 interpreter for the 2024 R2 installation:
 
 .. code:: python
 
-   path\to\AnsysEM\v231\commonfiles\CPython\3_7\winx64\Release\python"
+   path\to\AnsysEM\v242\commonfiles\CPython\3_10\winx64\Release\python"
 
 
 Error installing PyAEDT using pip
@@ -81,9 +81,9 @@ Starting from 2022R2 the AEDT API has replaced the COM interface with a gRPC int
      - > 2022 R2
    * - Only ``Python.NET``
      - | ``Python.NET``: *Default*
-       | Enable gRPC: ``pyaedt.settings.use_grpc_api = True``
+       | Enable gRPC: ``ansys.aedt.core.settings.use_grpc_api = True``
      - | gRPC: *Default*
-       | Enable ``Python.NET``: ``pyaedt.settings.use_grpc_api = False``
+       | Enable ``Python.NET``: ``ansys.aedt.core.settings.use_grpc_api = False``
 
 The options shown here apply only to the Windows platform.
 On Linux, the Python interface to AEDT uses gRPC for all versions.

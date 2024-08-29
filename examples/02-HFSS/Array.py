@@ -11,15 +11,15 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 # Perform required imports.
 
 import os
-import pyaedt
-from pyaedt.modules.solutions import FfdSolutionData
+import ansys.aedt.core
+from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ##########################################################
 # Set non-graphical mode
@@ -33,14 +33,14 @@ non_graphical = False
 # Download 3D component
 # ~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component that is needed to run the example.
-example_path = pyaedt.downloads.download_3dcomponent()
+example_path = ansys.aedt.core.downloads.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
-project_name = pyaedt.generate_unique_project_name(project_name="array")
-hfss = pyaedt.Hfss(project=project_name,
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="array")
+hfss = ansys.aedt.core.Hfss(project=project_name,
                    version=aedt_version,
                    design="Array_Simple",
                    non_graphical=non_graphical,
@@ -59,7 +59,7 @@ print("Project name " + project_name)
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = ansys.aedt.core.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 array = hfss.add_3d_component_array_from_json(dict_in)
@@ -67,9 +67,8 @@ array = hfss.add_3d_component_array_from_json(dict_in)
 ##########################################################
 # Modify cells
 # ~~~~~~~~~~~~
-# Make center element passive and rotate corner elements.
+# Rotate corner elements.
 
-array.cells[1][1].is_active = False
 array.cells[0][0].rotation = 90
 array.cells[0][2].rotation = 90
 array.cells[2][0].rotation = 90
@@ -85,6 +84,7 @@ setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
 
 hfss.analyze(cores=4)
+hfss.save_project()
 
 ##########################################################
 # Get far field data
@@ -92,7 +92,7 @@ hfss.analyze(cores=4)
 # Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
-ffdata = hfss.get_antenna_ffd_solution_data(frequencies=[5e9], setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
+ffdata = hfss.get_antenna_data(setup=hfss.nominal_adaptive, sphere="Infinite Sphere1")
 
 ##########################################################
 # Generate contour plot
@@ -100,7 +100,8 @@ ffdata = hfss.get_antenna_ffd_solution_data(frequencies=[5e9], setup=hfss.nomina
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.format(ffdata.frequency))
+ffdata.farfield_data.plot_contour(quantity='RealizedGain',
+                                  title='Contour at {}Hz'.format(ffdata.farfield_data.frequency))
 
 ##########################################################
 # Release AEDT
@@ -108,8 +109,7 @@ ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.fo
 # Release AEDT.
 # Far field post-processing can be performed without AEDT because the data is stored.
 
-eep_file = ffdata.eep_files
-frequencies = ffdata.frequencies
+eep_file = ffdata.metadata_file
 working_directory = hfss.working_directory
 
 hfss.release_desktop()
@@ -119,7 +119,7 @@ hfss.release_desktop()
 # ~~~~~~~~~~~~~~~~~~~
 # Load far field data stored.
 
-ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
+ffdata = FfdSolutionData(input_file=eep_file)
 
 ##########################################################
 # Generate contour plot
@@ -127,7 +127,7 @@ ffdata = FfdSolutionData(frequencies=frequencies[0], eep_files=eep_file[0])
 # Generate a contour plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.format(ffdata.frequency))
+ffdata.plot_contour(quantity='RealizedGain', title='Contour at {}Hz'.format(ffdata.frequency))
 
 ##########################################################
 # Generate 2D cutout plots
@@ -135,16 +135,17 @@ ffdata.plot_farfield_contour(quantity='RealizedGain', title='Contour at {}Hz'.fo
 # Generate 2D cutout plots. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
-                   title='Azimuth at {}Hz'.format(ffdata.frequency), quantity_format="dB10")
+ffdata.plot_cut(quantity='RealizedGain', primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
+                title='Azimuth at {}Hz'.format(ffdata.frequency), quantity_format="dB10")
 
-ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="phi", secondary_sweep_value=30, title='Elevation',
-                   quantity_format="dB10")
+ffdata.plot_cut(quantity='RealizedGain', primary_sweep="phi", secondary_sweep_value=30, title='Elevation',
+                quantity_format="dB10")
 
 ##########################################################
-# Generate 3D polar plots in Matplotlib
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate 3D polar plots in Matplotlib. You can define
-# the Theta scan and Phi scan.
+# Generate 3D plots
+# ~~~~~~~~~~~~~~~~~
+# Generate 3D plots. You can define the Theta scan and Phi scan.
 
-ffdata.polar_plot_3d(quantity='RealizedGain')
+# ffdata.plot_3d(quantity='RealizedGain',
+#                output_file=os.path.join(working_directory, "Image.jpg"),
+#                show=False)

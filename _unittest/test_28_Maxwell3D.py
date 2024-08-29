@@ -28,12 +28,11 @@ import shutil
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
-
-from pyaedt import Maxwell3d
-from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
 
 try:
     from IPython.display import Image
@@ -283,7 +282,17 @@ class TestClass:
         assert self.aedtapp.mesh.assign_length_mesh(["Plate"])
 
     def test_23_create_skin_depth(self):
-        assert self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm")
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(["Plate"], "1mm", 1000)
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"].faces[0].id, "1mm")
+        assert mesh
+        mesh.delete()
+        mesh = self.aedtapp.mesh.assign_skin_depth(self.aedtapp.modeler["Plate"], "1mm")
+        assert mesh
 
     def test_24_create_curvilinear(self):
         assert self.aedtapp.mesh.assign_curvilinear_elements(["Coil"], "1mm")
@@ -483,12 +492,16 @@ class TestClass:
         rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
         rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
         rectangle4 = m3d.modeler.create_rectangle(0, [32.5, 1.5, 0], [2.5, 5], name="Sheet4")
+        box1 = m3d.modeler.create_box([0, 0, 0], [10, 10, 5], "MyBox1")
+        box2 = m3d.modeler.create_box([10, 10, 10], [10, 10, 5], "MyBox2")
 
         m3d.assign_voltage(rectangle1.faces[0], amplitude=1, name="Voltage1")
         m3d.assign_voltage("Sheet1", amplitude=1, name="Voltage5")
         m3d.assign_voltage(rectangle2.faces[0], amplitude=1, name="Voltage2")
         m3d.assign_voltage(rectangle3.faces[0], amplitude=1, name="Voltage3")
         m3d.assign_voltage(rectangle4.faces[0], amplitude=1, name="Voltage4")
+        m3d.assign_voltage(box1.faces, amplitude=1, name="Voltage6")
+        m3d.assign_voltage(box2, amplitude=1, name="Voltage7")
 
         L = m3d.assign_matrix(assignment="Voltage1")
         assert L.props["MatrixEntry"]["MatrixEntry"][0]["Source"] == "Voltage1"
@@ -922,7 +935,7 @@ class TestClass:
         segments_number = 5
         object_name = "PM_I1"
         sheets = cyl_gap.modeler.objects_segmentation(
-            object_name, segments_number=segments_number, apply_mesh_sheets=True
+            assignment=object_name, segments=segments_number, apply_mesh_sheets=True
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0], dict)
@@ -934,7 +947,7 @@ class TestClass:
         object_name = "PM_I1_1"
         magnet_id = [obj.id for obj in cyl_gap.modeler.object_list if obj.name == object_name][0]
         sheets = cyl_gap.modeler.objects_segmentation(
-            magnet_id, segments_number=segments_number, apply_mesh_sheets=True, mesh_sheets_number=mesh_sheets_number
+            magnet_id, segments=segments_number, apply_mesh_sheets=True, mesh_sheets=mesh_sheets_number
         )
         assert isinstance(sheets, tuple)
         assert isinstance(sheets[0][object_name], list)
@@ -953,11 +966,11 @@ class TestClass:
         assert len(sheets[0][object_name]) == segments_number - 1
         assert not cyl_gap.modeler.objects_segmentation(object_name)
         assert not cyl_gap.modeler.objects_segmentation(
-            object_name, segments_number=segments_number, segmentation_thickness=segmentation_thickness
+            object_name, segmentation_thickness=segmentation_thickness, segments=segments_number
         )
         object_name = "PM_O1_1"
         segments_number = 10
-        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments_number=segments_number)
+        sheets = cyl_gap.modeler.objects_segmentation(object_name, segments=segments_number)
         assert isinstance(sheets, dict)
         assert isinstance(sheets[object_name], list)
         assert len(sheets[object_name]) == segments_number - 1
@@ -1080,3 +1093,17 @@ class TestClass:
         setup = m3d.create_setup(setup_type=m3d.solution_type)
         assert setup
         setup.delete()
+
+    def test_59_assign_floating(self):
+        self.aedtapp.insert_design("Floating")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        assert floating
+        assert floating.props["Objects"][0] == box.name
+        assert floating.props["Value"] == "3"
+        floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        assert floating1
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        assert not floating

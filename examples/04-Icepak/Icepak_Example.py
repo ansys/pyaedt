@@ -10,14 +10,14 @@ The example file is an Icepak project with a model that is already created and h
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -32,10 +32,10 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
+temp_folder = ansys.aedt.core.generate_unique_folder_name()
+project_temp_name = ansys.aedt.core.downloads.download_icepak(temp_folder)
 
-ipk = pyaedt.Icepak(project=project_temp_name,
+ipk = ansys.aedt.core.Icepak(project=project_temp_name,
                     version=aedt_version,
                     new_desktop=True,
                     non_graphical=non_graphical

@@ -19,14 +19,14 @@ Link HFSS to transient thermal solver to find temperature rise in tissue near im
 # Perform required imports.
 import os.path
 
-from pyaedt import Hfss, Mechanical, Icepak, downloads
+from ansys.aedt.core import Hfss, Mechanical, Icepak, downloads
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

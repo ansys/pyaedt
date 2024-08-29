@@ -10,14 +10,14 @@ This example shows how you can use PyAEDT to create a differential stripline des
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -26,7 +26,7 @@ aedt_version = "2024.1"
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-project_path = pyaedt.generate_unique_project_name()
+project_path = ansys.aedt.core.generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and 2D Extractor
@@ -34,7 +34,7 @@ project_path = pyaedt.generate_unique_project_name()
 # Launch AEDT 2023 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(project=project_path,
+q = ansys.aedt.core.Q2d(project=project_path,
                design="differential_stripline",
                version=aedt_version,
                non_graphical=non_graphical,
@@ -212,9 +212,8 @@ a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg"))  # Save plot as jpg
 
 # Add a parametric sweep and analyze.
-parametric = q.parametrics.add(sweep_var="sig_bot_w", start_point=75, end_point=100, step=5,
-                               variation_type="LinearStep")
-parametric.add_variation(sweep_var="sig_gap", start_point="100um", end_point="200um", step=5,
+parametric = q.parametrics.add(variable="sig_bot_w", start_point=75, end_point=100, step=5, variation_type="LinearStep")
+parametric.add_variation(sweep_variable="sig_gap", start_point="100um", end_point="200um", step=5,
                          variation_type="LinearCount")
 q.analyze_setup(name=parametric.name)
 

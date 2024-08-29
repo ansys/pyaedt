@@ -46,10 +46,10 @@ The workflow steps are as follows:
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
-from pyaedt import Circuit
-from pyaedt import Hfss
-from pyaedt import Icepak
-from pyaedt import downloads
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import downloads
 import os
 
 
@@ -64,7 +64,7 @@ project_path = downloads.download_file("circuit_hfss_icepak", "Circuit-HFSS-Icep
 circuit = Circuit(
     project=project_path,
     new_desktop_session=True,
-    specified_version=241,
+    specified_version=242,
     non_graphical=False
 )
 

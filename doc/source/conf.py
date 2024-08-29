@@ -10,7 +10,7 @@ import warnings
 import numpy as np
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match, pyansys_logo_black,
+                                get_version_match,
                                 watermark, 
                                 ansys_logo_white, 
                                 ansys_logo_white_cropped, latex)
@@ -110,14 +110,14 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 module_path = pathlib.Path(local_path)
 root_path = module_path.parent.parent
 try:
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 except ImportError:
 
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
-    from pyaedt import __version__
+    from ansys.aedt.core import __version__
 
-from pyaedt import is_windows
+from ansys.aedt.core import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -313,7 +313,6 @@ if run_examples:
 # -- Options for HTML output -------------------------------------------------
 html_short_title = html_title = "PyAEDT"
 html_theme = "ansys_sphinx_theme"
-html_logo = pyansys_logo_black
 html_context = {
     "github_user": "ansys",
     "github_repo": "pyaedt",
@@ -323,6 +322,7 @@ html_context = {
 
 # specify the location of your github repo
 html_theme_options = {
+    "logo": "pyansys",
     "github_url": "https://github.com/ansys/pyaedt",
     "navigation_with_keys": False,
     "show_prev_next": False,
