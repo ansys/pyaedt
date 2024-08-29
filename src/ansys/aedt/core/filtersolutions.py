@@ -25,22 +25,18 @@
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
-from pyaedt.filtersolutions_core.export_to_aedt import ExportToAedt
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportToAedt
 from ansys.aedt.core.filtersolutions_core.graph_setup import GraphSetup
 from ansys.aedt.core.filtersolutions_core.ideal_response import IdealResponse
 from ansys.aedt.core.filtersolutions_core.lumped_nodes_and_leads import LumpedNodesandLeads
 from ansys.aedt.core.filtersolutions_core.lumped_parasitics import LumpedParasitics
-from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance import LumpedTerminationImpedance
-from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance import TerminationType
 from ansys.aedt.core.filtersolutions_core.lumped_topology import LumpedTopology
-from pyaedt.filtersolutions_core.lumped_termination_impedance_table import LumpedTerminationImpedance
-from pyaedt.filtersolutions_core.lumped_termination_impedance_table import TerminationType
+from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import LumpedTerminationImpedance
+from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import TerminationType
 from ansys.aedt.core.filtersolutions_core.multiple_bands_table import MultipleBandsTable
 from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
-from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoalsTable
+from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalsTable
 from ansys.aedt.core.filtersolutions_core.transmission_zeros import TransmissionZeros
-from pyaedt.filtersolutions_core.transmission_zeros import TableFormat
-from pyaedt.filtersolutions_core.transmission_zeros import TransmissionZeros
 
 
 class FilterSolutions:

@@ -38,12 +38,6 @@ from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
-from pyaedt.filtersolutions_core.attributes import RaisedCosineAlphaPercentage
-from pyaedt.filtersolutions_core.attributes import RippleConstrictionBandSelect
-from pyaedt.filtersolutions_core.attributes import SinglePointRippleInfZeros
-from pyaedt.filtersolutions_core.attributes import StopbandDefinition
-from pyaedt.generic.general_methods import is_linux
-
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
@@ -206,96 +200,6 @@ class TestClass:
         design.attributes.upper_frequency = "1.2 G"
         assert design.attributes.upper_frequency == "1.2 G"
 
-    def test_diplexer_inner_band_width(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_1
-        assert design.attributes.diplexer_inner_band_width == "200M"
-        design.attributes.diplexer_inner_band_width = "500M"
-        assert design.attributes.diplexer_inner_band_width == "500M"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
-        assert design.attributes.diplexer_inner_band_width == "500M"
-        design.attributes.diplexer_inner_band_width = "300M"
-        assert design.attributes.diplexer_inner_band_width == "300M"
-
-    def test_diplexer_outer_band_width(self) -> str:
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_1
-        assert design.attributes.diplexer_outer_band_width == "2G"
-        design.attributes.diplexer_outer_band_width = "2500M"
-        assert design.attributes.diplexer_outer_band_width == "2500M"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_1
-        assert design.attributes.diplexer_outer_band_width == "2500M"
-        design.attributes.diplexer_outer_band_width = "1G"
-        assert design.attributes.diplexer_outer_band_width == "1G"
-
-    def test_diplexer_lower_center_frequency(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_lower_center_frequency == ".5G"
-        design.attributes.diplexer_lower_center_frequency = "300M"
-        assert design.attributes.diplexer_lower_center_frequency == "300M"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
-        assert design.attributes.diplexer_lower_center_frequency == "300M"
-        design.attributes.diplexer_lower_center_frequency = "200M"
-        assert design.attributes.diplexer_lower_center_frequency == "200M"
-
-    def test_diplexer_upper_center_frequency(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_upper_center_frequency == "2G"
-        design.attributes.diplexer_upper_center_frequency = "1.5G"
-        assert design.attributes.diplexer_upper_center_frequency == "1.5G"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
-        assert design.attributes.diplexer_upper_center_frequency == "1.5G"
-        design.attributes.diplexer_upper_center_frequency = "3G"
-        assert design.attributes.diplexer_upper_center_frequency == "3G"
-
-    def test_diplexer_lower_band_width(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_lower_band_width == ".5G"
-        design.attributes.diplexer_lower_band_width = "300M"
-        assert design.attributes.diplexer_lower_band_width == "300M"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
-        assert design.attributes.diplexer_lower_band_width == "300M"
-        design.attributes.diplexer_lower_band_width = "600M"
-        assert design.attributes.diplexer_lower_band_width == "600M"
-
-    def test_diplexer_upper_band_width(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_class = FilterClass.DIPLEXER_1
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_1
-        design.attributes.diplexer_type = DiplexerType.BP_2
-        assert design.attributes.diplexer_upper_band_width == "2G"
-        design.attributes.diplexer_upper_band_width = "2.2G"
-        assert design.attributes.diplexer_upper_band_width == "2.2G"
-        design.attributes.filter_class = FilterClass.DIPLEXER_2
-        assert design.attributes.filter_class == FilterClass.DIPLEXER_2
-        design.attributes.diplexer_type = DiplexerType.TRIPLEXER_2
-        assert design.attributes.diplexer_upper_band_width == "2.2G"
-        design.attributes.diplexer_upper_band_width = "1G"
-        assert design.attributes.diplexer_upper_band_width == "1G"
-
     def test_stop_band_definition(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.attributes.filter_type = FilterType.ELLIPTIC
@@ -340,28 +244,6 @@ class TestClass:
         assert design.attributes.standard_pass_band_attenuation_value_db == "3.01"
         design.attributes.standard_pass_band_attenuation_value_db = "4"
         assert design.attributes.standard_pass_band_attenuation_value_db == "4"
-
-    def test_root_raised_cosine(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_type = FilterType.RAISED_COS
-        assert design.attributes.root_raised_cosine is False
-        design.attributes.root_raised_cosine = True
-        assert design.attributes.root_raised_cosine
-
-    def test_data_transmission_filter(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_type = FilterType.RAISED_COS
-        assert design.attributes.data_transmission_filter is False
-        design.attributes.data_transmission_filter = True
-        assert design.attributes.data_transmission_filter
-
-    def test_raised_cosine_alpha_percentage(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        design.attributes.filter_type = FilterType.RAISED_COS
-        assert len(RaisedCosineAlphaPercentage) == 10
-        for raised_cosine_alpha_percentage in RaisedCosineAlphaPercentage:
-            design.attributes.raised_cosine_alpha_percentage = raised_cosine_alpha_percentage
-            assert design.attributes.raised_cosine_alpha_percentage == raised_cosine_alpha_percentage
 
     def test_equiripple_delay(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)

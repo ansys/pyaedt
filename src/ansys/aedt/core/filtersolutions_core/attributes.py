@@ -1165,13 +1165,13 @@ class Attributes:
         """
         root_raised_cosine = c_bool()
         status = self._dll.getRootRaisedCosineEnabled(byref(root_raised_cosine))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(root_raised_cosine.value)
 
     @root_raised_cosine.setter
     def root_raised_cosine(self, root_raised_cosine: bool):
         status = self._dll.setRootRaisedCosineEnabled(root_raised_cosine)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def data_transmission_filter(self) -> bool:
@@ -1183,18 +1183,18 @@ class Attributes:
         """
         data_transmission_filter = c_bool()
         status = self._dll.getDataTransmissionEnabled(byref(data_transmission_filter))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(data_transmission_filter.value)
 
     @data_transmission_filter.setter
     def data_transmission_filter(self, data_transmission_filter: bool):
         status = self._dll.setDataTransmissionEnabled(data_transmission_filter)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def raised_cosine_alpha_percentage(self) -> RaisedCosineAlphaPercentage:
         """Raised cosine alpha percentage.
-        The default is ''OPTION_1''.
+        The default is ''FORTY''.
 
         Returns
         -------
@@ -1203,14 +1203,14 @@ class Attributes:
         index = c_int()
         raised_cosine_alpha_percentage = list(RaisedCosineAlphaPercentage)
         status = self._dll.getRaisedCosineAlphaPercentage(byref(index))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         raised_cosine_alpha_percentage = raised_cosine_alpha_percentage[index.value]
         return raised_cosine_alpha_percentage
 
     @raised_cosine_alpha_percentage.setter
     def raised_cosine_alpha_percentage(self, column: RaisedCosineAlphaPercentage):
         status = self._dll.setRaisedCosineAlphaPercentage(column.value)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def equiripple_delay(self) -> bool:
