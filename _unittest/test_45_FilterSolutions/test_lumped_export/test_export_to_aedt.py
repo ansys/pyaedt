@@ -23,13 +23,12 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-
-# from ..filtersolutions_resources import resource_path
-import pytest
-
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 from pyaedt.generic.general_methods import is_linux
+
+# from ..filtersolutions_resources import resource_path
+import pytest
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
