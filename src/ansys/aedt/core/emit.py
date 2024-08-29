@@ -330,3 +330,32 @@ class Emit(Design, object):
             )
             return None
         return self._units[unit_type]
+
+    @pyaedt_function_handler()
+    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+        """Save the AEDT project and the current EMIT revision.
+
+        Parameters
+        ----------
+        file_name : str, optional
+            Full path and project name. The default is ````None``.
+        overwrite : bool, optional
+            Whether to overwrite the existing project. The default is ``True``.
+        refresh_ids : bool, optional
+            Whether to refresh object IDs after saving the project.
+            The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        if self.__emit_api_enabled:
+            self._emit_api.save_project()
+
+        result = Design.save_project(file_name, overwrite, refresh_ids)
+
+        return result
