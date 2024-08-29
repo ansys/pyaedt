@@ -2258,12 +2258,12 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler(input_dict="report_settings")
     def create_report_from_configuration(self, input_file=None, report_settings=None, solution_name=None):
-        """Create a report based on a JSON file, TOML file, or dictionary of properties.
+        """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
         ----------
         input_file : str, optional
-            Path to the JSON or TOML file containing report settings.
+            Path to the JSON, TOML, or RPT file containing report settings.
         report_settings : dict, optional
             Dictionary containing report settings.
         solution_name : str, optional
@@ -2277,18 +2277,47 @@ class PostProcessorCommon(object):
         Examples
         --------
 
+        Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
-        >>>                                            solution_name="Setup1 : LastAdpative")
+        ...                                            solution_name="Setup1 : LastAdpative")
+
+        Create report from RPT file.
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.rpt')
+
+        Create report from dictionary.
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.general_methods import read_json
+        >>> hfss = Hfss()
+        >>> dict_vals = read_json("Report_Simple.json")
+        >>> hfss.post.create_report_from_configuration(report_settings=dict_vals)
         """
         if not report_settings and not input_file:  # pragma: no cover
-            self.logger.error("Either a JSON file or a dictionary must be passed as input.")
+            self.logger.error("Either a file or a dictionary must be passed as input.")
             return False
         if input_file:
-            props = read_configuration_file(input_file)
+            _, file_extension = os.path.splitext(input_file)
+            if file_extension == ".rpt":
+                old_expressions = self.all_report_names
+                self.oreportsetup.CreateReportFromTemplate(input_file)
+                new_expressions = [item for item in self.all_report_names if item not in old_expressions]
+                if new_expressions:
+                    report_name = new_expressions[0]
+                    self.plots = self._get_plot_inputs()
+                    report = None
+                    for plot in self.plots:
+                        if plot.plot_name == report_name:
+                            report = plot
+                            break
+                    return report
+            else:
+                props = read_configuration_file(input_file)
         else:
             props = report_settings
+
         if (
             isinstance(props.get("expressions", {}), list)
             and props["expressions"]
