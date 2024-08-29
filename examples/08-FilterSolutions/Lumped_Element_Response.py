@@ -15,9 +15,6 @@ import ansys.aedt.core.filtersolutions_core.attributes
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
 from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
 import matplotlib.pyplot as plt
-from pyaedt.filtersolutions_core.export_to_aedt import ExportFormat
-from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
-
 
 ###############################################################################
 # Create the lumped design
