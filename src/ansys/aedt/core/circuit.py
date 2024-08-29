@@ -2486,7 +2486,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         if not config_file:
             configuration = read_configuration_file(
-                os.path.join(os.path.dirname(__file__), "misc", "lt_spice_converter.json")
+                os.path.join(os.path.dirname(__file__), "misc", "asc_circuit_mapping.json")
             )
         else:
             configuration = read_configuration_file(config_file)
