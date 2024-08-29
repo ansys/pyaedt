@@ -30,12 +30,12 @@ from ansys.aedt.core.filtersolutions_core.graph_setup import GraphSetup
 from ansys.aedt.core.filtersolutions_core.ideal_response import IdealResponse
 from ansys.aedt.core.filtersolutions_core.lumped_nodes_and_leads import LumpedNodesandLeads
 from ansys.aedt.core.filtersolutions_core.lumped_parasitics import LumpedParasitics
-from ansys.aedt.core.filtersolutions_core.lumped_topology import LumpedTopology
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import LumpedTerminationImpedance
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import TerminationType
+from ansys.aedt.core.filtersolutions_core.lumped_topology import LumpedTopology
 from ansys.aedt.core.filtersolutions_core.multiple_bands_table import MultipleBandsTable
-from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
 from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalsTable
+from ansys.aedt.core.filtersolutions_core.transmission_zeros import TableFormat
 from ansys.aedt.core.filtersolutions_core.transmission_zeros import TransmissionZeros
 
 

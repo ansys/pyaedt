@@ -163,8 +163,6 @@ class ExportToAedt:
         status = self._dll.openLumpedExportPage()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-
-
     @property
     def schematic_name(self) -> str:
         """Name of the exported schematic in ``AEDT``, displayed as the project and design names.
