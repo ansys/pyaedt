@@ -27,6 +27,7 @@ import sys
 import time
 
 from ansys.aedt.core.circuit import Circuit
+from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
 
 Emit = None
@@ -173,6 +174,7 @@ app_map = {
     "Maxwell Circuit": MaxwellCircuit,
     "Twin Builder": TwinBuilder,
     "Circuit Design": Circuit,
+    "Circuit Netlist": CircuitNetlist,
     "2D Extractor": Q2d,
     "Q3D Extractor": Q3d,
     "HFSS": Hfss,
@@ -227,7 +229,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oProject = odesktop.GetActiveProject()
     else:
         oProject = odesktop.SetActiveProject(project_name)
-    if is_linux and settings.aedt_version == "2024.1":
+    if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
         time.sleep(1)
         odesktop.CloseAllWindows()
     if not oProject:
@@ -243,7 +245,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
         oDesign = oProject.GetActiveDesign()
     else:
         oDesign = oProject.SetActiveDesign(design_name)
-    if is_linux and settings.aedt_version == "2024.1":
+    if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
         time.sleep(1)
         odesktop.CloseAllWindows()
     if not oDesign:

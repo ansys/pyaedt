@@ -26,10 +26,10 @@ from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.settings import settings
 
 
-class AnalysisMaxwellCircuit(Analysis):
-    """Provides the Maxwell Circuit (MaxwellCircuit) interface.
-    Maxwell Circuit Editor has no setup, solution, analysis or postprocessor
-    It is automatically initialized by Application call (Maxwell Circuit).
+class AnalysisCircuitNetlist(Analysis, object):
+    """Provides the Circuit Netlist (CircuitNetlist) interface.
+    Circuit Netlist Editor has no setup, solution, analysis or postprocessor
+    It is automatically initialized by Application call.
     Refer to Application function for inputs definition
 
     Parameters
@@ -69,22 +69,21 @@ class AnalysisMaxwellCircuit(Analysis):
 
     def __init__(
         self,
-        application,
         project,
         design,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        remove_lock=False,
+        version,
+        non_graphical,
+        new_desktop,
+        close_on_exit,
+        student_version,
+        machine,
+        port,
+        aedt_process_id,
+        remove_lock,
     ):
         Analysis.__init__(
             self,
-            application,
+            "Circuit Netlist",
             project,
             design,
             None,
@@ -100,19 +99,28 @@ class AnalysisMaxwellCircuit(Analysis):
             remove_lock=remove_lock,
         )
         self._modeler = None
+        self._post = None
         if not settings.lazy_load:
-            self._modeler = self.modeler
+            self._post = self.post
 
     @property
-    def modeler(self):
-        """Design oModeler.
+    def post(self):
+        """PostProcessor.
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.schematic.ModelerMaxwellCircuit`
+        :class:`ansys.aedt.core.modules.advanced_post_processing.CircuitPostProcessor`
+            PostProcessor object.
         """
-        if self._modeler is None and self._odesign:
-            from ansys.aedt.core.modeler.schematic import ModelerMaxwellCircuit
+        if self._post is None and self._odesign:
+            self.logger.reset_timer()
+            from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
 
-            self._modeler = ModelerMaxwellCircuit(self)
+            self._post = PostProcessor(self)
+            self.logger.info_timer("Post class has been initialized!")
+        return self._post
+
+    @property
+    def modeler(self):
+        """Modeler object."""
         return self._modeler

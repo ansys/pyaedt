@@ -81,6 +81,7 @@ from ansys.aedt.core.edb import Siwave  # nosec
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
 from ansys.aedt.core.generic.design_types import Circuit
+from ansys.aedt.core.generic.design_types import CircuitNetlist
 from ansys.aedt.core.generic.design_types import Desktop
 from ansys.aedt.core.generic.design_types import Emit
 from ansys.aedt.core.generic.design_types import FilterSolutions

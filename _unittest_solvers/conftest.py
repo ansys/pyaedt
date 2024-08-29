@@ -36,6 +36,7 @@ settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
+settings.wait_for_license = True
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name

@@ -875,7 +875,9 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
-        self.oeditor = self.modeler.oeditor
+        self.oeditor = None
+        if self.modeler:
+            self.oeditor = self.modeler.oeditor
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
         self.reports_by_category = Reports(self, self._app.design_type)
@@ -979,7 +981,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if not display_type:
             display_type = self.available_display_types(report_category)[0]
-        if not solution:
+        if not solution and hasattr(self._app, "nominal_adaptive"):
             solution = self._app.nominal_adaptive
         if is_siwave_dc:  # pragma: no cover
             id_ = "0"
@@ -1080,7 +1082,7 @@ class PostProcessorCommon(object):
             report_category = self.available_report_types[0]
         if not display_type:
             display_type = self.available_display_types(report_category)[0]
-        if not solution:
+        if not solution and hasattr(self._app, "nominal_adaptive"):
             solution = self._app.nominal_adaptive
         if is_siwave_dc:
             id = "0"
@@ -1194,7 +1196,10 @@ class PostProcessorCommon(object):
     def _get_plot_inputs(self):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
-        if names:
+        skip_plot = False
+        if self._app.design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
+            skip_plot = True
+        if names and not skip_plot:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
@@ -1276,13 +1281,15 @@ class PostProcessorCommon(object):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler(PlotName="plot_name")
-    def copy_report_data(self, plot_name):
+    def copy_report_data(self, plot_name, paste=True):
         """Copy report data as static data.
 
         Parameters
         ----------
         plot_name : str
             Name of the report.
+        paste : bool, optional
+            Whether to paste the report. The default is ``True``.
 
         Returns
         -------
@@ -1296,6 +1303,23 @@ class PostProcessorCommon(object):
         >>> oModule.PasteReports
         """
         self.oreportsetup.CopyReportsData([plot_name])
+        if paste:
+            self.paste_report_data()
+        return True
+
+    @pyaedt_function_handler()
+    def paste_report_data(self):
+        """Paste report data as static data.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.PasteReports
+        """
         self.oreportsetup.PasteReports()
         return True
 
@@ -1585,8 +1609,8 @@ class PostProcessorCommon(object):
         )
 
     @pyaedt_function_handler(project_dir="project_path")
-    def export_report_to_jpg(self, project_path, plot_name, width=0, height=0):
-        """Export the SParameter plot to a JPG file.
+    def export_report_to_jpg(self, project_path, plot_name, width=0, height=0, image_format="jpg"):
+        """Export plot to an image file.
 
         Parameters
         ----------
@@ -1598,6 +1622,8 @@ class PostProcessorCommon(object):
             Image width. Default is ``0`` which takes Desktop size or 1980 pixel in case of non-graphical mode.
         height : int, optional
             Image height. Default is ``0`` which takes Desktop size or 1020 pixel in case of non-graphical mode.
+        image_format : str, optional
+            Format of the image file. The default is ``"jpg"``.
 
         Returns
         -------
@@ -1609,9 +1635,7 @@ class PostProcessorCommon(object):
 
         >>> oModule.ExportImageToFile
         """
-        # path
-        npath = project_path
-        file_name = os.path.join(npath, plot_name + ".jpg")  # name of the image file
+        file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
         if self._app.desktop_class.non_graphical:  # pragma: no cover
             if width == 0:
                 width = 1980
@@ -2253,12 +2277,12 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler(input_dict="report_settings")
     def create_report_from_configuration(self, input_file=None, report_settings=None, solution_name=None):
-        """Create a report based on a JSON file, TOML file, or dictionary of properties.
+        """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
         ----------
         input_file : str, optional
-            Path to the JSON or TOML file containing report settings.
+            Path to the JSON, TOML, or RPT file containing report settings.
         report_settings : dict, optional
             Dictionary containing report settings.
         solution_name : str, optional
@@ -2272,18 +2296,47 @@ class PostProcessorCommon(object):
         Examples
         --------
 
+        Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
-        >>>                                            solution_name="Setup1 : LastAdpative")
+        ...                                            solution_name="Setup1 : LastAdpative")
+
+        Create report from RPT file.
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.rpt')
+
+        Create report from dictionary.
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.general_methods import read_json
+        >>> hfss = Hfss()
+        >>> dict_vals = read_json("Report_Simple.json")
+        >>> hfss.post.create_report_from_configuration(report_settings=dict_vals)
         """
         if not report_settings and not input_file:  # pragma: no cover
-            self.logger.error("Either a JSON file or a dictionary must be passed as input.")
+            self.logger.error("Either a file or a dictionary must be passed as input.")
             return False
         if input_file:
-            props = read_configuration_file(input_file)
+            _, file_extension = os.path.splitext(input_file)
+            if file_extension == ".rpt":
+                old_expressions = self.all_report_names
+                self.oreportsetup.CreateReportFromTemplate(input_file)
+                new_expressions = [item for item in self.all_report_names if item not in old_expressions]
+                if new_expressions:
+                    report_name = new_expressions[0]
+                    self.plots = self._get_plot_inputs()
+                    report = None
+                    for plot in self.plots:
+                        if plot.plot_name == report_name:
+                            report = plot
+                            break
+                    return report
+            else:
+                props = read_configuration_file(input_file)
         else:
             props = report_settings
+
         if (
             isinstance(props.get("expressions", {}), list)
             and props["expressions"]
@@ -2378,7 +2431,10 @@ class PostProcessor(PostProcessorCommon, object):
         str
            Model units, such as ``"mm"``.
         """
-        return self.oeditor.GetModelUnits()
+        model_units = None
+        if self.oeditor and "GetModelUnits" in self.oeditor.__dir__():
+            model_units = self.oeditor.GetModelUnits()
+        return model_units
 
     @property
     def post_osolution(self):
@@ -3288,7 +3344,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not setup:
             setup = self._app.existing_analysis_sweeps[0]
 
-        self._desktop.CloseAllWindows()
+        self._app.desktop_class.close_windows()
         try:
             self._app.modeler.fit_all()
         except Exception:
@@ -3348,7 +3404,7 @@ class PostProcessor(PostProcessorCommon, object):
             for i in self._app.setups:
                 if i.name == setup.split(" : ")[0]:
                     intrinsics = i.default_intrinsics
-        self._desktop.CloseAllWindows()
+        self._app.desktop_class.close_windows()
         try:
             self._app._modeler.fit_all()
         except Exception:
@@ -4478,7 +4534,7 @@ class PostProcessor(PostProcessorCommon, object):
         power_dict_obj = {}
         group_hierarchy = {}
 
-        groups = self._app.oeditor.GetChildNames("Groups")
+        groups = list(self._app.oeditor.GetChildNames("Groups"))
         self._app.modeler.add_new_user_defined_component()
         for g in groups:
             g1 = self._app.oeditor.GetChildObject(g)
