@@ -1281,13 +1281,15 @@ class PostProcessorCommon(object):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler(PlotName="plot_name")
-    def copy_report_data(self, plot_name):
+    def copy_report_data(self, plot_name, paste=True):
         """Copy report data as static data.
 
         Parameters
         ----------
         plot_name : str
             Name of the report.
+        paste : bool, optional
+            Whether to paste the report. The default is ``True``.
 
         Returns
         -------
@@ -1301,6 +1303,23 @@ class PostProcessorCommon(object):
         >>> oModule.PasteReports
         """
         self.oreportsetup.CopyReportsData([plot_name])
+        if paste:
+            self.paste_report_data()
+        return True
+
+    @pyaedt_function_handler()
+    def paste_report_data(self):
+        """Paste report data as static data.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.PasteReports
+        """
         self.oreportsetup.PasteReports()
         return True
 
