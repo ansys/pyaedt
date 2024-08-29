@@ -2281,7 +2281,7 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
-        >>>                                            solution_name="Setup1 : LastAdpative")
+        ...                                            solution_name="Setup1 : LastAdpative")
 
         Create report from RPT file.
         >>> from ansys.aedt.core import Hfss
