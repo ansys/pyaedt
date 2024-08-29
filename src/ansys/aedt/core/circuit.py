@@ -53,6 +53,7 @@ from ansys.aedt.core.modules.boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
+from pyaedt.generic.general_methods import read_configuration_file
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods):
@@ -2361,3 +2362,256 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if analyze:
                 setup_ibis.analyze()
         return True, tx_eye_names, rx_eye_names
+
+    @pyaedt_function_handler()
+    def _parse_asc_file(self, input_file, l_scale=2.54e-3 / 16, c_scale=2.54e-3 / 16, offset_angle=-90):
+        with open(input_file, "r") as fid:
+            asc_data = fid.read()
+
+        wire_xy = [i.split()[1:] for i in asc_data.split("\n") if "WIRE" in i]
+        wire_xy = [
+            [float(i[0]) * l_scale, -float(i[1]) * l_scale, float(i[2]) * l_scale, -float(i[3]) * l_scale]
+            for i in wire_xy
+        ]
+
+        flag = [i.split()[1:] for i in asc_data.split("\n") if "FLAG" in i]
+        flag = [[float(i[0]) * l_scale, -float(i[1]) * l_scale, i[2]] for i in flag]
+
+        for j, i in enumerate(flag):
+            for k in wire_xy:
+                if i[:2] in [[k[0], k[1]], [k[2], k[3]]]:
+                    if k[0] - k[2]:
+                        flag[j] += ["x"]
+                    elif k[1] - k[3]:
+                        flag[j] += ["y"]
+
+        symbol = [i.split("\n")[0].split() for i in asc_data.split("SYMBOL")[1:]]
+        for j, i in enumerate(asc_data.split("SYMBOL")[1:]):
+            tmp = i.split("\n")[0].split()
+            tmp[0] = tmp[0].lower()
+            val = [k for k in i.split("\n") if "SYMATTR Value" in k]
+            if val:
+                if "(" in val[0].split("Value ")[-1]:
+                    value = val[0].split("Value ")[-1]
+                else:
+                    value = re.findall(r"[a-zA-Z]+|\d+", val[0].split("Value ")[-1])
+            else:
+                value = [0]
+            unit_dict = {"f": 1e-15, "p": 1e-12, "n": 1e-9, "u": 1e-6, "m": 1e-3, "k": 1e3, "meg": 1e6}
+            if len(value) > 1:
+                try:
+                    val = float(".".join(value[:-1])) * unit_dict[value[-1].lower()]
+                except:
+                    try:
+                        val = float(".".join(value))
+                    except:
+                        if tmp[0] not in ["voltage", "current"]:
+                            val = 0
+                        elif "PULSE" in value:
+                            tmp[0] = "{}_pulse".format(tmp[0])
+                            val = value
+                        else:
+                            val = value
+
+            else:
+                try:
+                    val = float(".".join(value))
+                except:
+                    if tmp[0] not in ["voltage", "current"]:
+                        val = 0
+                    elif "PULSE" in value:
+                        tmp[0] = "{}_pulse".format(tmp[0])
+                        val = value
+                    else:
+                        val = value
+            if isinstance(val, list):
+                val = " ".join(val)
+            tmp[1] = (float(tmp[1])) * c_scale
+            tmp[2] = (-float(tmp[2])) * c_scale
+            tmp.append([])
+            tmp.append([])
+            tmp.append([])
+            if "R" in tmp[3]:
+                tmp[3] = int(tmp[3].replace("R", "")) - 90
+                tmp[5] = "R"
+            elif "M" in tmp[3]:
+                tmp[3] = int(tmp[3].replace("M", "")) - 90
+                tmp[5] = "M"
+            else:
+                tmp[3] = offset_angle
+
+            cname = [k for k in i.split("\n") if "SYMATTR InstName" in k][0].split(" ")[-1]
+            tmp[4] = cname
+            if val:
+                tmp[6] = val
+            else:
+                tmp[6] = None
+            symbol[j] = tmp
+        self.logger.info("LTSpice file parsed correctly")
+        return flag, wire_xy, symbol
+
+    @pyaedt_function_handler()
+    def create_schematic_from_asc_file(self, input_file, config_file=None):
+        """Import an asc schematic and convert to Circuit Schematic. Only passives and sources will be imported.
+
+        Parameters
+        ----------
+        input_file : str
+            Path to asc file.
+        config_file : str, optional
+            Path to configuration file to map components. Default is None which uses internal mapping.
+
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
+        factor = 2
+
+        scale = 2.54e-3 / (16 / factor)
+
+        flag, wire_xy, symbol = self._parse_asc_file(input_file=input_file, l_scale=scale, c_scale=scale)
+        for i in flag:
+            if i[2] == "0":
+                angle = 0
+                if len(i) > 3:
+                    if i[3] == "x":
+                        i[0] -= 0.002540 * 0
+                        i[1] -= 0.002540 * 1
+                        angle = 0
+                self.modeler.schematic.create_gnd([i[0], i[1]], angle)
+
+            else:
+                self.modeler.schematic.create_interface_port(name=i[2], location=[i[0], i[1]])
+
+        if not config_file:
+            configuration = read_configuration_file(
+                os.path.join(os.path.dirname(__file__), "misc", "lt_spice_converter.json")
+            )
+        else:
+            configuration = read_configuration_file(config_file)
+
+        mils_to_meter = 0.00254 / 100
+
+        for j in symbol:
+            component = j[0].lower()
+            if component in configuration:
+                rotation = j[3]
+                rotation_type = j[5]
+
+                offsetx = configuration[component]["xoffset"] * mils_to_meter
+                offsety = configuration[component]["yoffset"] * mils_to_meter
+                half_comp_size = configuration[component]["component_size"] * mils_to_meter / 2
+                size_change = configuration[component].get("size_change", 0) * mils_to_meter
+                orientation = 1 if configuration[component]["orientation"] == "+x" else -1
+                pts = []
+                if rotation_type == "R":
+                    if rotation == -90:
+                        offsetx = configuration[component]["xoffset"] * mils_to_meter
+                        offsety = configuration[component]["yoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx, j[2] + offsety - half_comp_size * orientation],
+                            [j[1] + offsetx, j[2] + offsety - ((half_comp_size + size_change) * orientation)],
+                        ]
+                    elif rotation == 0:
+                        offsetx = configuration[component]["yoffset"] * mils_to_meter
+                        offsety = -configuration[component]["xoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx - half_comp_size * orientation, j[2] + offsety],
+                            [j[1] + offsetx - ((half_comp_size + size_change) * orientation), j[2] + offsety],
+                        ]
+
+                    elif rotation == 90:
+                        offsetx = -configuration[component]["xoffset"] * mils_to_meter
+                        offsety = -configuration[component]["yoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx, j[2] + offsety + half_comp_size * orientation],
+                            [j[1] + offsetx, j[2] + offsety + ((half_comp_size + size_change) * orientation)],
+                        ]
+
+                    else:
+                        offsetx = -configuration[component]["yoffset"] * mils_to_meter
+                        offsety = configuration[component]["xoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx + half_comp_size * orientation, j[2] + offsety],
+                            [j[1] + offsetx + ((half_comp_size + size_change) * orientation), j[2] + offsety],
+                        ]
+
+                elif rotation_type == "M":
+                    if rotation == -90:
+                        offsetx = -configuration[component]["xoffset"] * mils_to_meter
+                        offsety = configuration[component]["yoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx, j[2] + offsety - half_comp_size * orientation],
+                            [j[1] + offsetx, j[2] + offsety - ((half_comp_size + size_change) * orientation)],
+                        ]
+
+                    elif rotation == 0:
+                        offsetx = -configuration[component]["yoffset"] * mils_to_meter
+                        offsety = -configuration[component]["xoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx - half_comp_size * orientation, j[2] + offsety],
+                            [j[1] + offsetx - ((half_comp_size + size_change) * orientation), j[2] + offsety],
+                        ]
+
+                    elif rotation == 90:
+                        offsetx = configuration[component]["xoffset"] * mils_to_meter
+                        offsety = -configuration[component]["yoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx, j[2] + offsety + half_comp_size * orientation],
+                            [j[1] + offsetx, j[2] + offsety + ((half_comp_size + size_change) * orientation)],
+                        ]
+
+                    else:
+                        offsetx = configuration[component]["yoffset"] * mils_to_meter
+                        offsety = configuration[component]["xoffset"] * mils_to_meter
+                        pts = [
+                            [j[1] + offsetx + half_comp_size * orientation, j[2] + offsety],
+                            [j[1] + offsetx + ((half_comp_size + size_change) * orientation), j[2] + offsety],
+                        ]
+
+                location = [j[1] + offsetx, j[2] + offsety]
+                name = j[4]
+                value = j[6]
+                angle_to_apply = (360 - (rotation + configuration[component]["rotation_offset"])) % 360
+                if component == "res":
+                    self.modeler.schematic.create_resistor(
+                        value=value if value else 0, location=location, angle=angle_to_apply, name=name
+                    )
+                elif component == "cap":
+                    self.modeler.schematic.create_capacitor(
+                        value=value if value else 0, location=location, angle=angle_to_apply, name=name
+                    )
+                elif component in ["ind", "ind2"]:
+                    self.modeler.schematic.create_inductor(
+                        value=value if value else 0, location=location, angle=angle_to_apply, name=name
+                    )
+                else:
+                    comp = self.modeler.schematic.create_component(
+                        component_library=configuration[component]["Component Library"],
+                        component_name=configuration[component]["Component Name"],
+                        location=location,
+                        angle=angle_to_apply,
+                        name=name,
+                    )
+                    if component in ["voltage_pulse", "current_pulse"]:
+                        value = value.replace("PULSE(", "").replace(")", "").split(" ")
+                        els = ["V1", "V2", "TD", "TR", "TF", "PW", "PER"]
+                        for el, val in enumerate(value):
+                            comp.set_property(els[el], val)
+                    elif component in ["voltage", "current"]:
+                        try:
+                            if value and value.startswith("AC"):
+                                comp.set_property("ACMAG", value.split(" ")[-1])
+                            elif value:
+                                comp.set_property("DC", value)
+                        except:
+                            self.logger.info("Failed to set DC Value or unnkown source type {}".format(component))
+                            pass
+
+                if size_change != 0:
+                    self.modeler.schematic.create_wire(points=pts)
+
+        for i, j in enumerate(wire_xy):
+            self.modeler.schematic.create_wire([[j[0], j[1]], [j[2], j[3]]])
+        return True

@@ -975,3 +975,8 @@ class TestClass:
         assert ts_component.change_symbol_pin_locations(pin_locations)
         pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
         assert not ts_component.change_symbol_pin_locations(pin_locations)
+
+    def test_51_import_asc(self):
+        self.aedtapp.insert_design("ASC")
+        asc_file = os.path.join(local_path, "example_models", test_subfolder, "butter.asc")
+        assert self.aedtapp.create_schematic_from_asc_file(asc_file)
