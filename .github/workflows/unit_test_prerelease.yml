@@ -61,7 +61,7 @@ jobs:
           Copy-Item -Path "C:\actions-runner\local_config.json" -Destination "_unittest" -Force
           mkdir tmp
           cd tmp
-          python -c "import pyaedt; print('Imported pyaedt')"
+          python -c "import ansys.aedt.core; print('Imported pyaedt')"
 
       # - name: "Check licences of packages"
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
@@ -71,7 +71,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest --tx 6*popen --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
+          pytest --tx 6*popen --durations=50 --dist loadfile -v --cov=ansys.aedt.core  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
       - uses: codecov/codecov-action@v4
         env:

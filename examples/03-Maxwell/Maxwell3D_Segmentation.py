@@ -9,8 +9,8 @@ The method is valid and usable for any object the user would like to segment.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt import Maxwell3d
+from ansys.aedt.core import downloads
+from ansys.aedt.core import Maxwell3d
 
 import tempfile
 
@@ -19,7 +19,7 @@ import tempfile
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory
@@ -65,14 +65,14 @@ modeler = m3d.modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select first magnet to segment by specifying the number of segments.
 # The method accepts in input either the list of magnets names to segment or
-# magnets ids or the magnet object :class:`pyaedt.modeler.cad.object3d.Object3d`.
+# magnets ids or the magnet object :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 # ``apply_mesh_sheets`` is enabled which means that the mesh sheets will
 # be applied in the geometry too.
 # In this specific case we give as input the name of the magnet.
 
 segments_number = 5
 object_name = "PM_I1"
-sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_1 = modeler.objects_segmentation(object_name, segments=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment second magnet by specifying the number of segments
@@ -83,13 +83,13 @@ sheets_1 = modeler.objects_segmentation(object_name, segments_number=segments_nu
 segments_number = 4
 object_name = "PM_I1_1"
 magnet_id = [obj.id for obj in modeler.object_list if obj.name == object_name][0]
-sheets_2 = modeler.objects_segmentation(magnet_id, segments_number=segments_number, apply_mesh_sheets=True)
+sheets_2 = modeler.objects_segmentation(magnet_id, segments=segments_number, apply_mesh_sheets=True)
 
 ##################################################################################
 # Segment third magnet by specifying the segmentation thickness
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select third magnet to segment by specifying the segmentation thickness.
-# In this specific case we give as input the magnet object of type :class:`pyaedt.modeler.cad.object3d.Object3d`.
+# In this specific case we give as input the magnet object of type :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 
 segmentation_thickness = 1
 object_name = "PM_O1"
@@ -104,7 +104,7 @@ sheets_3 = modeler.objects_segmentation(magnet, segmentation_thickness=segmentat
 
 object_name = "PM_O1_1"
 segments_number = 10
-sheets_4 = modeler.objects_segmentation(object_name, segments_number=segments_number)
+sheets_4 = modeler.objects_segmentation(object_name, segments=segments_number)
 
 ###################################################################################
 # Save project and close AEDT

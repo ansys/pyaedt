@@ -11,14 +11,14 @@ OpenStreeMaps.
 # directory path.
 
 import os
-from pyaedt import Hfss
+from ansys.aedt.core import Hfss
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

@@ -27,13 +27,12 @@ import sys
 import uuid
 
 from _unittest.conftest import config
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.plot import _parse_aedtplt
+from ansys.aedt.core.generic.plot import _parse_streamline
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.general_methods import read_json
-from pyaedt.generic.plot import _parse_aedtplt
-from pyaedt.generic.plot import _parse_streamline
-from pyaedt.generic.settings import settings
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -88,6 +87,8 @@ class TestClass:
         assert len(self.aedtapp.post.available_display_types()) > 0
         assert len(self.aedtapp.post.available_report_types) > 0
         assert len(self.aedtapp.post.available_report_quantities()) > 0
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(), dict)
+        assert isinstance(self.aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
         assert len(self.aedtapp.post.available_report_solutions()) > 0
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]

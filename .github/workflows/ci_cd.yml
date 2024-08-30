@@ -52,11 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         target: ['all', 'installer']
-        exclude:
-          - python-version: '3.7'
-            target: 'installer'
+
     steps:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@v4
@@ -68,7 +66,7 @@ jobs:
 
       - name: Import python package
         run: |
-          python -c "import pyaedt; from pyaedt import __version__"
+          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
   # TODO: Update to ansys/actions/doc-build@v6 once we remove examples
   doc-build:
@@ -95,8 +93,8 @@ jobs:
       - name: Retrieve PyAEDT version
         id: version
         run: |
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from ansys.aedt.core import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from ansys.aedt.core import __version__; print(__version__)")"
 
       - name: Install doc build requirements
         run: |
@@ -168,8 +166,8 @@ jobs:
         id: version
         run: |
           .venv\Scripts\Activate.ps1
-          echo "PYAEDT_VERSION=$(python -c 'from pyaedt import __version__; print(__version__)')" >> $GITHUB_OUTPUT
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PYAEDT_VERSION=$(python -c 'from ansys.aedt.core import __version__; print(__version__)')" >> $GITHUB_OUTPUT
+          echo "PyAEDT version is: $(python -c "from ansys.aedt.core import __version__; print(__version__)")"
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
@@ -266,7 +264,7 @@ jobs:
           PYTHONMALLOC: malloc
         run: |
           .venv\Scripts\Activate.ps1
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -292,7 +290,7 @@ jobs:
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -305,7 +303,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -314,16 +312,16 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
 
       - name: Run tests on _unittest_solvers
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
         with:
@@ -387,7 +385,7 @@ jobs:
           timeout_minutes: 50
           command: |
             .venv\Scripts\Activate.ps1
-            pytest -n 4 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 4 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         with:
@@ -413,7 +411,7 @@ jobs:
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
-      ANSYSEM_ROOT241: '/opt/AnsysEM/v241/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -426,7 +424,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -435,7 +433,7 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
@@ -454,9 +452,9 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT241 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT241 }}/Delcross:$LD_LIBRARY_PATH
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest -n 2 --dist loadfile --durations=50 -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
+            pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4
         with:
@@ -472,38 +470,9 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
-# # =================================================================================================
-# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-# # =================================================================================================
-
-  test-ironpython-windows:
-    name: Testing IronPython and coverage (Windows)
-    needs: [smoke-tests]
-    runs-on: [ self-hosted, Windows, pyaedt ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Ironpython tests
-        timeout-minutes: 5
-        run: |
-          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
-          $processA.WaitForExit()
-
-      - name: Get log content
-        run: |
-          get-content .\_unittest_ironpython\pyaedt_unit_test_ironpython.log
-
-      - name: Check for errors
-        run: |
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\pyaedt_unit_test_ironpython.log -Pattern "TextTestResult errors="
-          if ($test_errors_failures -ne $null)
-          {
-            exit 1
-          }
-
   package:
     name: Package library
-    needs: [test-windows, test-solvers-windows, test-ironpython-windows, test-linux, test-solvers-linux, doc-build]
+    needs: [test-windows, test-solvers-windows, test-linux, test-solvers-linux, doc-build]
     runs-on: ubuntu-latest
     steps:
       - name: Build library source and wheel artifacts
@@ -554,12 +523,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install the package requirements
-        run: pip install -e .
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
 
       - name: Get the version to PyMeilisearch
         run: |
-          VERSION=$(python -c "from pyaedt import __version__; print('.'.join(__version__.split('.')[:2]))")
-          VERSION_MEILI=$(python -c "from pyaedt import __version__; print('-'.join(__version__.split('.')[:2]))")
+          VERSION=$(python -c "from ansys.aedt.core import __version__; print('.'.join(__version__.split('.')[:2]))")
+          VERSION_MEILI=$(python -c "from ansys.aedt.core import __version__; print('-'.join(__version__.split('.')[:2]))")
           echo "Calculated VERSION: $VERSION"
           echo "Calculated VERSION_MEILI: $VERSION_MEILI"
           echo "VERSION=$VERSION" >> $GITHUB_ENV

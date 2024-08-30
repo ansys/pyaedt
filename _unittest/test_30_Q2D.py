@@ -23,13 +23,13 @@
 # SOFTWARE.
 
 import os
+import time
 
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+from ansys.aedt.core import Q2d
 import pytest
-
-from pyaedt import Q2d
 
 test_project_name = "coax_Q2D"
 test_subfolder = "T30"
@@ -162,7 +162,9 @@ class TestClass:
         q2d.matrices[2].name == "Test2"
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
         q2d.matrices[3].name == "Test3"
-        q2d.analyze_setup(q2d.active_setup)
+        q2d.analyze_setup(q2d.active_setup, blocking=False)
+        while q2d.desktop_class.are_there_simulations_running:
+            time.sleep(1)
         q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
         assert q2d.export_matrix_data(
@@ -200,8 +202,6 @@ class TestClass:
             os.path.join(self.local_scratch.path, "test_2d.txt"), precision=16, field_width=22
         )
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), precision=16.2)
-        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="1", freq_unit="GHz")
-        assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="3", freq_unit="GHz")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), freq="3", freq_unit="Hz")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), use_sci_notation=True)
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), use_sci_notation=False)

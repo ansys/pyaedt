@@ -24,7 +24,7 @@ Install these libraries with:
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ##########################################################
@@ -32,7 +32,7 @@ import tempfile
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory
@@ -54,8 +54,8 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", version=aedt_version, non_graphical=non_graphical,
-                              new_desktop=True, project=pyaedt.generate_unique_project_name())
+maxwell_2d = ansys.aedt.core.Maxwell2d(solution_type="TransientXY", version=aedt_version, non_graphical=non_graphical,
+                              new_desktop=True, project=ansys.aedt.core.generate_unique_project_name())
 
 ###############################################################################
 # Create rectangle and duplicate it

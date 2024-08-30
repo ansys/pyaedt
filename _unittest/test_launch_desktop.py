@@ -23,20 +23,20 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import CircuitNetlist
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core import Mechanical
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
+from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt import Circuit
-from pyaedt import Hfss
-from pyaedt import Hfss3dLayout
-from pyaedt import Icepak
-from pyaedt import Maxwell2d
-from pyaedt import Maxwell3d
-from pyaedt import Mechanical
-from pyaedt import Q2d
-from pyaedt import Q3d
-from pyaedt import TwinBuilder
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.settings import settings
 
 settings.lazy_load = False
 settings.wait_for_license = True
@@ -98,3 +98,8 @@ class TestClass:
         aedtapp = Maxwell3d()
         assert aedtapp.design_type == "Maxwell 3D"
         assert aedtapp.solution_type == "Magnetostatic"
+
+    def test_run_desktop_circuit_netlist(self):
+        aedtapp = CircuitNetlist()
+        assert aedtapp.design_type == "Circuit Netlist"
+        assert aedtapp.solution_type == ""

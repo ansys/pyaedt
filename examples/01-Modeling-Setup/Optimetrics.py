@@ -9,7 +9,7 @@ This example shows how you can use PyAEDT to create a project in HFSS and create
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
+import ansys.aedt.core
 
 import os
 
@@ -18,7 +18,7 @@ import os
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -34,7 +34,7 @@ non_graphical = False
 # Initialize the ``Hfss`` object and create two needed design variables,
 # ``w1`` and ``w2``.
 
-hfss = pyaedt.Hfss(version=aedt_version, new_desktop=True, non_graphical=non_graphical, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(version=aedt_version, new_desktop=True, non_graphical=non_graphical, solution_type="Modal")
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
@@ -100,7 +100,7 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create an optimetrics sensitivity analysis with output calculations.
 
-sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
+sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optimization_type="Sensitivity")
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
@@ -124,7 +124,7 @@ sweep3.add_goal(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a DX (DesignXplorer) optimization based on a goal and a calculation.
 
-sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer")
+sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optimization_type="DesignExplorer")
 sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
@@ -132,7 +132,7 @@ sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a DOE (Design of Experiments) based on a goal and a calculation.
 
-sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
+sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optimization_type="DXDOE")
 
 ###############################################################################
 # Create DOE based on a goal and calculation
@@ -142,18 +142,15 @@ sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GH
 region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)
 hfss.insert_infinite_sphere(name="Infinite_1")
-sweep6 = hfss.optimizations.add(
-    calculation="RealizedGainTotal",
-    solution=hfss.nominal_adaptive,
-    ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"},
-    context="Infinite_1",
-)
+sweep6 = hfss.optimizations.add(calculation="RealizedGainTotal",
+                                ranges={"Freq": "5GHz", "Theta": ["0deg", "10deg", "20deg"], "Phi": "0deg"},
+                                solution=hfss.nominal_adaptive, context="Infinite_1")
 
 ###############################################################################
 # Close AEDT
 # ----------
 # After the simulaton completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 hfss.release_desktop()

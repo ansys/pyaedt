@@ -1,1 +1,1 @@
-"%ANSYSEM_ROOT241%\ansysedt.exe" -ng -RunScriptAndExit "_unittest_ironpython\run_unittests.py"
+"%ANSYSEM_ROOT242%\ansysedt.exe" -ng -RunScriptAndExit "_unittest_ironpython\run_unittests.py"

@@ -5,19 +5,19 @@ import tempfile
 
 from _unittest_solvers.conftest import config
 import pytest
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic import constants as consts
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic import constants as consts
 
 if (3,7) < sys.version_info <(3, 12):
-    from pyaedt import Emit
-    from pyaedt import generate_unique_project_name
-    from pyaedt.emit_core.emit_constants import EmiCategoryFilter
-    from pyaedt.emit_core.emit_constants import InterfererType
-    from pyaedt.emit_core.emit_constants import ResultType
-    from pyaedt.emit_core.emit_constants import TxRxMode
-    from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
-    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
-    from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
+    from ansys.aedt.core import Emit
+    from ansys.aedt.core import generate_unique_project_name
+    from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
+    from ansys.aedt.core.emit_core.emit_constants import InterfererType
+    from ansys.aedt.core.emit_core.emit_constants import ResultType
+    from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
+    from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True

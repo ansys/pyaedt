@@ -4,7 +4,7 @@ from _unittest_solvers.conftest import desktop_version
 from _unittest_solvers.conftest import local_path
 import pytest
 
-from pyaedt import Q3d
+from ansys.aedt.core import Q3d
 
 test_project_name = "coax_Q3D"
 if desktop_version > "2022.2":
@@ -15,12 +15,20 @@ else:
     bondwire_project_name = "bondwireq3d.aedt"
     q2d_q3d = "q2d_q3d"
 
+mutual_coupling = "coupling"
+
 test_subfolder = "T31"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Q3d)
+    return app
+
+
+@pytest.fixture(scope="class")
+def coupling(add_app):
+    app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
     return app
 
 
@@ -450,3 +458,18 @@ class TestClass:
         q3d.modeler.create_box([0, 0, 0], [10, 20, 30], material="vacuum")
         assert q3d.auto_identify_nets()
         assert not q3d.nets
+
+    def test_21_mutual_coupling(self, coupling):
+        data1 = coupling.get_mutual_coupling("a1", "a2", "b2", "b1", setup_sweep_name="Setup1 : Sweep1")
+        assert data1
+        assert len(coupling.matrices) == 3
+        data2 = coupling.get_mutual_coupling("a2", "a1", "b2", "b3")
+        assert data2
+        assert len(coupling.matrices) == 4
+
+        data3 = coupling.get_mutual_coupling("a2", "a1", "a3", "a1")
+        assert data3
+        assert len(coupling.matrices) == 5
+
+        assert not coupling.get_mutual_coupling("ac2", "a1", "a3", "a1")
+        assert not coupling.get_mutual_coupling("a1", "a2", "b2", "b1", calculation="ACL2")

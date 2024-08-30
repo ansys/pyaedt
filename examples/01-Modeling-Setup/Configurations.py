@@ -28,17 +28,17 @@ design has changed, the boundary fails to apply.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports from PyAEDT.
+# Perform required imports from ansys.aedt.core.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -53,9 +53,9 @@ non_graphical = False
 # ~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
+project_full_name = ansys.aedt.core.downloads.download_icepak(ansys.aedt.core.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(project=project_full_name, version=aedt_version,
+ipk = ansys.aedt.core.Icepak(project=project_full_name, version=aedt_version,
                     new_desktop=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
@@ -115,7 +115,7 @@ ipk.close_project()
 # ~~~~~~~~~~~~~~
 # Create an Icepak project and import the step.
 
-app = pyaedt.Icepak(project="new_proj_Ipk")
+app = ansys.aedt.core.Icepak(project="new_proj_Ipk")
 app.modeler.import_3d_cad(file_path)
 
 ###############################################################################

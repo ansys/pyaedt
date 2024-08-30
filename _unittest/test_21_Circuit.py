@@ -27,10 +27,9 @@ import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Circuit
-from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T21"
 
@@ -217,7 +216,7 @@ class TestClass:
         )
 
     def test_16_read_touchstone(self):
-        from pyaedt.generic.touchstone_parser import read_touchstone
+        from ansys.aedt.core.generic.touchstone_parser import read_touchstone
 
         data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0
@@ -448,7 +447,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
@@ -457,7 +456,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
@@ -469,14 +468,14 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 
@@ -963,3 +962,21 @@ class TestClass:
         assert not nexxim_customization["Reciprocal"]
         assert "" == nexxim_customization["ModelOption"]
         assert 2 == nexxim_customization["DataType"]
+
+    def test_51_change_symbol_pin_location(self):
+        self.aedtapp.insert_design("Pin_location")
+        self.aedtapp.modeler.schematic_units = "mil"
+        ts_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        pins = ts_component.pins
+        pin_locations = {
+            "left": [pins[0].name, pins[1].name, pins[2].name, pins[3].name, pins[4].name],
+            "right": [pins[5].name],
+        }
+        assert ts_component.change_symbol_pin_locations(pin_locations)
+        pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
+        assert not ts_component.change_symbol_pin_locations(pin_locations)
+
+    def test_51_import_asc(self):
+        self.aedtapp.insert_design("ASC")
+        asc_file = os.path.join(local_path, "example_models", test_subfolder, "butter.asc")
+        assert self.aedtapp.create_schematic_from_asc_file(asc_file)

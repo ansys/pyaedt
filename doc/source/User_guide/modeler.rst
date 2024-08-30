@@ -7,7 +7,7 @@ The following code creates a box and changes the color to red:
 
 .. code:: python
 
-     from pyaedt.hfss import Hfss
+     from ansys.aedt.core.hfss import Hfss
      hfss = Hfss()
      box = hfss.modeler.create_box(origin=[0, 0, 0],
                                    sizes=[10, "dim", 10],

@@ -27,14 +27,13 @@ from __future__ import division  # noreorder
 import math
 
 from _unittest.conftest import desktop_version
+from ansys.aedt.core import MaxwellCircuit
+from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.application.variables import decompose_variable_value
+from ansys.aedt.core.application.variables import generate_validation_errors
+from ansys.aedt.core.generic.general_methods import isclose
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 import pytest
-
-from pyaedt import MaxwellCircuit
-from pyaedt.application.Variables import Variable
-from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.application.Variables import generate_validation_errors
-from pyaedt.generic.general_methods import isclose
-from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 @pytest.fixture(scope="class")

@@ -10,16 +10,16 @@ This example shows how you can use PyAEDT to create a dipole antenna in HFSS and
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
-project_name = pyaedt.generate_unique_project_name(project_name="dipole")
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="dipole")
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -34,14 +34,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(project=project_name, solution_type="Modal")
 
 ###############################################################################
 # Define variable
@@ -198,8 +198,8 @@ solutions.plot()
 # field data is generated port by port and stored in a data class, , user can use this data
 # once AEDT is released.
 
-ffdata = hfss.get_antenna_ffd_solution_data(frequencies=["1000MHz"], setup=hfss.nominal_adaptive,
-                                            sphere="Sphere_Custom")
+ffdata = hfss.get_antenna_data(frequencies=["1000MHz"], setup=hfss.nominal_adaptive,
+                               sphere="Sphere_Custom")
 
 ##########################################################
 # Generate 2D cutout plot
@@ -207,14 +207,14 @@ ffdata = hfss.get_antenna_ffd_solution_data(frequencies=["1000MHz"], setup=hfss.
 # Generate 2D cutout plot. You can define the Theta scan
 # and Phi scan.
 
-ffdata.plot_2d_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
-                   quantity_format="dB20", is_polar=True)
+ffdata.farfield_data.plot_cut(quantity='RealizedGain', primary_sweep="theta", secondary_sweep_value=0, title='FarField',
+                              quantity_format="dB20", is_polar=True)
 
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 d.release_desktop()

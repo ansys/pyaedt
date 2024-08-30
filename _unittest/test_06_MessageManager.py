@@ -26,11 +26,10 @@ import logging
 import os.path
 
 from _unittest.conftest import config
+from ansys.aedt.core import Icepak
+from ansys.aedt.core.aedt_logger import AedtLogger
+from ansys.aedt.core.generic.settings import settings
 import pytest
-
-from pyaedt import Icepak
-from pyaedt.aedt_logger import AedtLogger
-from pyaedt.generic.settings import settings
 
 LOGGER = logging.getLogger(__name__)
 
