@@ -107,7 +107,7 @@ def frontend():  # pragma: no cover
 def main(extension_args):
     asc_file = extension_args["asc_file"]
     if not os.path.exists(asc_file):
-        raise ("Error. File doesn't exists.")
+        raise Exception("Error. File doesn't exists.")
     cir = Circuit(design=os.path.split(asc_file)[-1][:-4])
     if asc_file.endswith(".asc"):
         cir.create_schematic_from_asc_file(asc_file)

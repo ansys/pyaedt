@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.modules.boundary import CurrentSinSource
@@ -53,7 +54,6 @@ from ansys.aedt.core.modules.boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
-from pyaedt.generic.general_methods import read_configuration_file
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods):

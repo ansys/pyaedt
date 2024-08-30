@@ -39,6 +39,13 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
 
             How PyAEDT handles mesh operations.
 
+   .. grid-item-card:: Settings
+            :link: settings
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            How to set the configurations of PyAEDT and AEDT
+
    .. grid-item-card:: Setup
             :link: setup
             :link-type: doc
@@ -82,6 +89,7 @@ For end-to-end examples, see `Examples <https://aedt.docs.pyansys.com/version/st
    extensions
    modeler
    mesh
+   settings
    setup
    variables
    files
