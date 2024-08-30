@@ -5622,7 +5622,7 @@ class GeometryModeler(Modeler):
         if components is None and groups is None and objects is None:
             raise AttributeError("At least one between ``objects``, ``components``, ``groups`` has to be defined.")
 
-        all_objects = self.object_names[:] + self.oeditor.GetChildNames("Groups")[::]
+        all_objects = self.object_names[:] + list(self.oeditor.GetChildNames("Groups"))
         if objects:
             object_selection = self.convert_to_selections(objects, return_list=False)
         else:

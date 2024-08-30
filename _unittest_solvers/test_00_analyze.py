@@ -217,6 +217,9 @@ class TestClass:
                                             intrinsics=[])
         assert not os.path.exists(fld_file2)
 
+        hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
+        sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
@@ -548,6 +551,7 @@ class TestClass:
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
+
     def test_10_export_to_maxwell(self, add_app):
         app = add_app("assm_test", application=Rmxprt, subfolder="T00")
         app.analyze(cores=1)

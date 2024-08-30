@@ -30,6 +30,7 @@ from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
 from ansys.aedt.core import PYTHON_VERSION_WARNING
 from ansys.aedt.core import deprecation_warning
 from pyaedt import ALIAS_WARNING
+import pytest
 
 VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 
@@ -60,11 +61,5 @@ def test_alias_deprecation_warning():
 
     import pyaedt
 
-    # Ensure that the warning will be triggered again
-    del pyaedt.__warningregistry__
-
-    importlib.reload(pyaedt)
-
-    # Hardcoded test where 28 is the line number associated to the warning call
-    # TODO: See if pytest.warns can be 'fixed' to work with module reload
-    assert (ALIAS_WARNING, FutureWarning, 28) in pyaedt.__warningregistry__
+    with pytest.warns(FutureWarning, match=ALIAS_WARNING):
+        importlib.reload(pyaedt)

@@ -66,6 +66,7 @@ from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -88,8 +89,8 @@ if sys.version_info.major > 2:
 
 def load_aedt_thread(project_path):
     pp = load_entire_aedt_file(project_path)
-    settings._project_properties[os.path.normpath(project_path)] = pp
-    settings._project_time_stamp = os.path.getmtime(project_path)
+    inner_project_settings.properties[os.path.normpath(project_path)] = pp
+    inner_project_settings.time_stamp = os.path.getmtime(project_path)
 
 
 class Design(AedtObjects):
@@ -306,7 +307,7 @@ class Design(AedtObjects):
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        if not self._design_type == "Maxwell Circuit":
+        if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
             self.design_settings = DesignSettings(self)
 
     @property
@@ -352,28 +353,36 @@ class Design(AedtObjects):
         List of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
         """
         bb = []
-        if "GetBoundaries" in self.oboundary.__dir__():
+        if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
             bb = list(self.oboundary.GetBoundaries())
-        elif "GetAllBoundariesList" in self.oboundary.__dir__() and self.design_type == "HFSS 3D Layout Design":
+        elif (
+            self.oboundary
+            and "GetAllBoundariesList" in self.oboundary.__dir__()
+            and self.design_type == "HFSS 3D Layout Design"
+        ):
             bb = list(self.oboundary.GetAllBoundariesList())
             bb = [elem for sublist in zip(bb, ["Port"] * len(bb)) for elem in sublist]
         elif "Boundaries" in self.get_oo_name(self.odesign):
             bb = self.get_oo_name(self.odesign, "Boundaries")
         bb = list(bb)
-        if "GetHybridRegions" in self.oboundary.__dir__():
+        if self.oboundary and "GetHybridRegions" in self.oboundary.__dir__():
             hybrid_regions = self.oboundary.GetHybridRegions()
             for region in hybrid_regions:
                 bb.append(region)
                 bb.append("FE-BI")
         current_excitations = []
         current_excitation_types = []
-        if "GetExcitations" in self.oboundary.__dir__():
+        if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
             current_excitations = [i.split(":")[0] for i in ee[::2]]
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
-        elif "Excitations" in self.get_oo_name(self.odesign) and self.design_type == "HFSS 3D Layout Design":
+        elif (
+            self.oboundary
+            and "Excitations" in self.get_oo_name(self.odesign)
+            and self.design_type == "HFSS 3D Layout Design"
+        ):
             ee = self.get_oo_name(self.odesign, "Excitations")
             ee = [elem for sublist in zip(ee, ["Port"] * len(ee)) for elem in sublist]
             current_excitations = ee[::2]
@@ -415,12 +424,13 @@ class Design(AedtObjects):
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
-        check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
-        if "nets" in dir(self):
-            check_boundaries += self.nets
-        for k in list(self._boundaries.keys())[:]:
-            if k not in check_boundaries:
-                del self._boundaries[k]
+        if hasattr(self, "excitations"):
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+            if "nets" in dir(self):
+                check_boundaries += self.nets
+            for k in list(self._boundaries.keys())[:]:
+                if k not in check_boundaries:
+                    del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
                 continue
@@ -473,7 +483,7 @@ class Design(AedtObjects):
         """
         design_excitations = []
 
-        if "GetExcitations" in self.oboundary.__dir__():
+        if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
             ee = list(self.oboundary.GetExcitations())
             current_types = ee[1::2]
             for i in set(current_types):
@@ -485,7 +495,11 @@ class Design(AedtObjects):
                     current_types = current_types + [i] * len(new_port)
             return design_excitations
 
-        elif "GetAllPortsList" in self.oboundary.__dir__() and self.design_type in ["HFSS 3D Layout Design"]:
+        elif (
+            self.oboundary
+            and "GetAllPortsList" in self.oboundary.__dir__()
+            and self.design_type in ["HFSS 3D Layout Design"]
+        ):
             return self.oboundary.GetAllPortsList()
         return []
 
@@ -550,24 +564,28 @@ class Design(AedtObjects):
         start = time.time()
         if self.project_timestamp_changed or (
             os.path.exists(self.project_file)
-            and os.path.normpath(self.project_file) not in settings._project_properties
+            and os.path.normpath(self.project_file) not in inner_project_settings.properties
         ):
-            settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
+            inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+                self.project_file
+            )
             self._logger.info("aedt file load time {}".format(time.time() - start))
         elif (
-            os.path.normpath(self.project_file) not in settings._project_properties
+            os.path.normpath(self.project_file) not in inner_project_settings.properties
             and settings.remote_rpc_session
             and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
         ):
             file_path = check_and_download_file(self.project_file)
             try:
-                settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
+                inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+                    file_path
+                )
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
                 self._logger.info("Time to load AEDT file: {}.".format(time.time() - start))
-        if os.path.normpath(self.project_file) in settings._project_properties:
-            return settings._project_properties[os.path.normpath(self.project_file)]
+        if os.path.normpath(self.project_file) in inner_project_settings.properties:
+            return inner_project_settings.properties[os.path.normpath(self.project_file)]
         return {}
 
     @property
@@ -694,7 +712,7 @@ class Design(AedtObjects):
     def design_type(self):
         """Design type.
 
-        Options are ``"Circuit Design"``, ``"Emit"``, ``"HFSS"``,
+        Options are ``"Circuit Design"``, ``"Circuit Netlist"``, ``"Emit"``, ``"HFSS"``,
         ``"HFSS 3D Layout Design"``, ``"Icepak"``, ``"Maxwell 2D"``,
         ``"Maxwell 3D"``, ``"Maxwell Circuit"``, ``"Mechanical"``, ``"ModelCreation"``,
         ``"Q2D Extractor"``, ``"Q3D Extractor"``, ``"RMxprtSolution"``,
@@ -769,15 +787,15 @@ class Design(AedtObjects):
     def project_time_stamp(self):
         """Return Project time stamp."""
         if os.path.exists(self.project_file):
-            settings._project_time_stamp = os.path.getmtime(self.project_file)
+            inner_project_settings.time_stamp = os.path.getmtime(self.project_file)
         else:
-            settings._project_time_stamp = 0
-        return settings._project_time_stamp
+            inner_project_settings.time_stamp = 0
+        return inner_project_settings.time_stamp
 
     @property
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
-        old_time = settings._project_time_stamp
+        old_time = inner_project_settings.time_stamp
         return old_time != self.project_time_stamp
 
     @property
@@ -1233,7 +1251,7 @@ class Design(AedtObjects):
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     if not is_windows and settings.aedt_version:
                         time.sleep(1)
-                        self.odesktop.CloseAllWindows()
+                        self.desktop_class.close_windows()
                     self._add_handler()
                     self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
@@ -3297,8 +3315,8 @@ class Design(AedtObjects):
                 i += 0.2
                 time.sleep(0.2)
 
-        if os.path.normpath(proj_file) in settings._project_properties:
-            del settings._project_properties[os.path.normpath(proj_file)]
+        if os.path.normpath(proj_file) in inner_project_settings.properties:
+            del inner_project_settings.properties[os.path.normpath(proj_file)]
         return True
 
     @pyaedt_function_handler()
@@ -3464,7 +3482,7 @@ class Design(AedtObjects):
                 )
         if not is_windows and settings.aedt_version and self.design_type == "Circuit Design":
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         if new_design is None:  # pragma: no cover
             new_design = self.desktop_class.active_design(self.oproject, unique_design_name, self.design_type)
             if new_design is None:

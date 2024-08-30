@@ -30,6 +30,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
 import pytest
 
@@ -93,3 +94,48 @@ def test_handler_deprecation_log_warning(caplog):
 
     foo(trigger_exception=False)
     assert len(caplog.records) == 1
+
+
+def test_settings_load_yaml(tmp_path):
+    """Test loading a configure file with correct input."""
+    default_settings = Settings()
+
+    # Create temporary YAML configuration file
+    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path.write_text(
+        """
+    log:
+        global_log_file_name: 'dummy'
+    lsf:
+        lsf_num_cores: 12
+    general:
+        desktop_launch_timeout: 12
+    """
+    )
+
+    default_settings.load_yaml_configuration(str(yaml_path))
+
+    assert default_settings.global_log_file_name == "dummy"
+    assert default_settings.lsf_num_cores == 12
+    assert default_settings.desktop_launch_timeout == 12
+
+
+def test_settings_load_yaml_with_non_allowed_key(tmp_path):
+    """Test loading a configuration file with invalid key."""
+    default_settings = Settings()
+
+    # Create temporary YAML configuration file
+    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path.write_text(
+        """
+    general:
+        dummy: 12.0
+    """
+    )
+
+    default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=False)
+    assert not hasattr(default_settings, "dummy")
+
+    with pytest.raises(KeyError) as excinfo:
+        default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
+        assert str(excinfo) in "Key 'dummy' is not part of the allowed keys"

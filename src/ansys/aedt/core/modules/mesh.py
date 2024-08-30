@@ -1066,7 +1066,7 @@ class Mesh(object):
         Parameters
         ----------
         assignment : list
-           List of the object names or face IDs.
+           List of the object names, face IDs or edges IDs for Maxwell 2D design.
         skin_depth : str, float, optional
             Skin depth value.
             It can be either provided as a float or as a string.
@@ -1092,7 +1092,7 @@ class Mesh(object):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
+        if self._app.design_type not in ["HFSS", "Maxwell 3D", "Maxwell 2D"]:
             raise MethodNotSupportedError
         if name:
             for m in self.meshoperations:
@@ -1101,35 +1101,38 @@ class Mesh(object):
         else:
             name = generate_unique_name("SkinDepth")
 
-        if maximum_elements is None:
-            restrictlength = False
-            maximum_elements = "1000"
+        if self._app.design_type == "Maxwell 2D":
+            props = OrderedDict(
+                {
+                    "Edges": assignment,
+                    "SkinDepth": skin_depth,
+                    "NumLayers": layers_number,
+                }
+            )
         else:
-            restrictlength = True
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
+            if maximum_elements is None:
+                restrictlength = False
+                maximum_elements = "1000"
+            else:
+                restrictlength = True
 
-        if isinstance(assignment[0], int):
-            seltype = "Faces"
-        elif isinstance(assignment[0], str):
-            seltype = "Objects"
-        else:
-            seltype = None
-        if seltype is None:
-            self.logger.error("Error in Assignment")
-            return
+            if isinstance(assignment[0], int):
+                seltype = "Faces"
+            elif isinstance(assignment[0], str):
+                seltype = "Objects"
 
-        props = OrderedDict(
-            {
-                "Type": "SkinDepthBased",
-                "Enabled": True,
-                seltype: assignment,
-                "RestrictElem": restrictlength,
-                "NumMaxElem": str(maximum_elements),
-                "SkinDepth": skin_depth,
-                "SurfTriMaxLength": triangulation_max_length,
-                "NumLayers": layers_number,
-            }
-        )
+            props = OrderedDict(
+                {
+                    "Type": "SkinDepthBased",
+                    "Enabled": True,
+                    seltype: assignment,
+                    "RestrictElem": restrictlength,
+                    "NumMaxElem": str(maximum_elements),
+                    "SkinDepth": skin_depth,
+                    "SurfTriMaxLength": triangulation_max_length,
+                    "NumLayers": layers_number,
+                }
+            )
 
         mop = MeshOperation(self, name, props, "SkinDepthBased")
         mop.create()

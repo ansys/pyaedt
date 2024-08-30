@@ -4,6 +4,7 @@ from ansys.aedt.core import *
 __version__ = __version__
 
 import warnings
+import os
 
 ALIAS_WARNING = (
     "Module 'pyaedt' has become an alias to the new package structure. " \
@@ -22,6 +23,9 @@ def alias_deprecation_warning():  # pragma: no cover
     def custom_show_warning(message, category, filename, lineno, file=None, line=None):
         """Custom warning used to remove <stdin>:loc: pattern."""
         print("{}: {}".format(category.__name__, message))
+        # NOTE: This line is added to ensure that pytest handle the warning correctly.
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            existing_showwarning(message, category, filename, lineno, file=file, line=line)
 
     warnings.showwarning = custom_show_warning
 

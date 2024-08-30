@@ -450,7 +450,7 @@ class TestClass:
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_31_cylindrical_gap(self):
+    def test_31a_cylindrical_gap(self):
         assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
         [
             x.delete()
@@ -466,6 +466,22 @@ class TestClass:
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
         assert self.aedtapp.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
+
+    def test_31b_skin_depth(self):
+        edge = self.aedtapp.modeler["Rotor"].edges[0]
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
+        edge1 = self.aedtapp.modeler["Rotor"].edges[1]
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge1.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
 
     def test_32_control_program(self):
         user_ctl_path = "user.ctl"
