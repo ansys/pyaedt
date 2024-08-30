@@ -2401,10 +2401,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if len(value) > 1:
                 try:
                     val = float(".".join(value[:-1])) * unit_dict[value[-1].lower()]
-                except:
+                except Exception:
                     try:
                         val = float(".".join(value))
-                    except:
+                    except Exception:
                         if tmp[0] not in ["voltage", "current"]:
                             val = 0
                         elif "PULSE" in value:
@@ -2605,9 +2605,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                                 comp.set_property("ACMAG", value.split(" ")[-1])
                             elif value:
                                 comp.set_property("DC", value)
-                        except:
+                        except Exception:
                             self.logger.info("Failed to set DC Value or unnkown source type {}".format(component))
-                            pass
 
                 if size_change != 0:
                     self.modeler.schematic.create_wire(points=pts)
