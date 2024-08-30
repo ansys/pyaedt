@@ -376,3 +376,11 @@ class TestClass:
         assert main({"is_test": True, "file_path": file_path})
         assert len(aedtapp.modeler.object_list) == 3
         aedtapp.close_project()
+
+    def test_15_import_asc(self, local_scratch, add_app):
+        aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
+        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
+        from ansys.aedt.core.workflows.circuit.import_schematic import main
+        assert main({"is_test": True, "asc_file": file_path})
+        aedtapp.close_project()
+
