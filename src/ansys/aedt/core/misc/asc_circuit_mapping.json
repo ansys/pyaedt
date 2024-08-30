@@ -43,7 +43,7 @@
   "Component Name": "DIODE_Level1",
   "xoffset": 200,
   "yoffset": -600,
-  "rotation_offset": 0,
+  "rotation_offset": 180,
     "component_size": 400,
   "orientation":  "-x",
       "size_change": 400
@@ -53,7 +53,7 @@
   "Component Name": "DIODE_Level1",
   "xoffset": 200,
   "yoffset": -600,
-  "rotation_offset": 0,
+  "rotation_offset": 180,
        "component_size": 400,
   "orientation": "-x",
        "size_change": 400
