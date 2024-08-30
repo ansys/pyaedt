@@ -2401,10 +2401,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if len(value) > 1:
                 try:
                     val = float(".".join(value[:-1])) * unit_dict[value[-1].lower()]
-                except:
+                except Exception:
                     try:
                         val = float(".".join(value))
-                    except:
+                    except Exception:
                         if tmp[0] not in ["voltage", "current"]:
                             val = 0
                         elif "PULSE" in value:
@@ -2416,7 +2416,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             else:
                 try:
                     val = float(".".join(value))
-                except:
+                except Exception:
                     if tmp[0] not in ["voltage", "current"]:
                         val = 0
                     elif "PULSE" in value:
