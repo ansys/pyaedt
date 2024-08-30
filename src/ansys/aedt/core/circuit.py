@@ -53,7 +53,7 @@ from ansys.aedt.core.modules.boundary import VoltageDCSource
 from ansys.aedt.core.modules.boundary import VoltageFrequencyDependentSource
 from ansys.aedt.core.modules.boundary import VoltageSinSource
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
-from pyaedt.generic.general_methods import read_configuration_file
+from ansys.aedt.core.generic.general_methods import read_configuration_file
 
 
 class Circuit(FieldAnalysisCircuit, ScatteringMethods):
