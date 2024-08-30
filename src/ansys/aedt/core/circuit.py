@@ -2601,9 +2601,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             comp.set_property(els[el], val)
                     elif component in ["voltage", "current"]:
                         try:
-                            if value and value.startswith("AC"):
+                            if isinstance(value, str) and value.startswith("AC"):
                                 comp.set_property("ACMAG", value.split(" ")[-1])
-                            elif value:
+                            elif isinstance(value, (int, float)):
                                 comp.set_property("DC", value)
                         except:
                             self.logger.info("Failed to set DC Value or unnkown source type {}".format(component))
