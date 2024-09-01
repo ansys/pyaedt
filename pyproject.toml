@@ -59,7 +59,7 @@ tests = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.3",
+    "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
 ]
@@ -72,7 +72,7 @@ dotnet = [
 ]
 doc = [
     "ansys-sphinx-theme>=0.10.0,<1.1",
-    "ipython>=8.13.0,<8.27",
+    "ipython>=8.13.0,<8.28",
     "joblib>=1.3.0,<1.5",
     "jupyterlab>=4.0.0,<4.3",
     "matplotlib>=3.5.0,<3.10",
@@ -84,13 +84,13 @@ doc = [
     #"pytest-sphinx",
     "pyvista[io]>=0.38.0,<0.45",
     "recommonmark",
-    "scikit-rf>=0.30.0,<1.3",
+    "scikit-rf>=0.30.0,<1.4",
     "Sphinx>=7.1.0,<8.1",
     "sphinx-autobuild==2021.3.14; python_version == '3.8'",
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.17",
+    "sphinx-gallery>=0.14.0,<0.18",
     #"sphinx-notfound-page",
     "sphinx_design>=0.4.0,<0.7",
     #"sphinxcontrib-websupport",
@@ -106,12 +106,12 @@ doc-no-examples = [
     "sphinx-autobuild==2024.4.16; python_version > '3.8'",
     #"sphinx-autodoc-typehints",
     "sphinx-copybutton>=0.5.0,<0.6",
-    "sphinx-gallery>=0.14.0,<0.17",
+    "sphinx-gallery>=0.14.0,<0.18",
     #"sphinx-notfound-page",
     #"sphinxcontrib-websupport",
     "sphinx_design>=0.4.0,<0.7",
     "matplotlib>=3.5.0,<3.10",
-    "scikit-rf>=0.30.0,<1.3",
+    "scikit-rf>=0.30.0,<1.4",
     "pyvista[io]>=0.38.0,<0.45",
 ]
 all = [
@@ -124,7 +124,7 @@ all = [
     "fast-simplification>=0.1.7",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.3",
+    "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
 ]
@@ -137,7 +137,7 @@ installer = [
     "pyvista[io]>=0.38.0,<0.45",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
-    "scikit-rf>=0.30.0,<1.3",
+    "scikit-rf>=0.30.0,<1.4",
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.3",
