@@ -62,6 +62,8 @@ Below  is the content that can be updated through the YAML file.
         logger_file_path: null
         # Message format of the log entries
         logger_formatter: '%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'
+        # Path to the AEDT log file
+        aedt_log_file: null
 
     # Settings related to Linux systems running LSF scheduler
     lsf:
