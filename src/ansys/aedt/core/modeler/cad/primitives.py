@@ -8446,20 +8446,16 @@ class GeometryModeler(Modeler):
         if material:
             if "[" in material or "(" in material:
                 array = material.split("[") or material.split("(")
-                if array[0] not in self._app.variable_manager.design_variables.keys():
-                    self.logger.warning("Material %s does not exists. Assigning default material", material)
-                else:
+                if array[0] in self._app.variable_manager.design_variables.keys():
                     index = int(array[1].strip("]"))
                     material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
-                    if self._app.materials[material]:
-                        if self._app._design_type == "HFSS":
-                            return self._app.materials[material].name, self._app.materials[material].is_dielectric(
-                                threshold
-                            )
-                        else:
-                            return self._app.materials[material].name, True
-                    else:
-                        self.logger.warning("Material %s doesn not exists. Assigning default material", material)
+            if self._app.materials[material]:
+                if self._app._design_type == "HFSS":
+                    return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
+                else:
+                    return self._app.materials[material].name, True
+            else:
+                self.logger.warning("Material %s doesn not exists. Assigning default material", material)
         if self._app._design_type == "HFSS":
             return default_material, self._app.materials.material_keys[default_material].is_dielectric(threshold)
         else:

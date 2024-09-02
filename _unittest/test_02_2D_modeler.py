@@ -61,7 +61,7 @@ class TestClass:
         assert self.aedtapp.modeler._odefinition_manager
         assert self.aedtapp.modeler._omaterial_manager
 
-    def test_04_create_rectangle(self):
+    def test_04a_create_rectangle(self):
         test_color = (220, 90, 0)
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, -2], [3, 8])
         rect2 = self.aedtapp.modeler.create_rectangle(
@@ -87,6 +87,20 @@ class TestClass:
 
         list_of_pos = [ver.position for ver in rect2.vertices]
         assert sorted(list_of_pos) == [[10.0, -2.0, -2.0], [10.0, 8.0, -2.0], [13.0, -2.0, -2.0], [13.0, 8.0, -2.0]]
+
+    def test_04b_create_rectangle(self):
+        materials = {"Coil_material": "copper", "Core_material": "steel_1008", "Magnet_material": "NdFe30"}
+        material_array = []
+        for k, v in materials.items():
+            material_array.append('"' + v + '"')
+        s = ", ".join(material_array)
+        self.aedtapp["Materials"] = "[{}]".format(s)
+        rect1 = self.aedtapp.modeler.create_rectangle(
+            origin=[0, 0, 0], sizes=[6, 12], name="rect1", material="Materials[1]"
+        )
+        assert rect1.material_name == "steel_1008"
+        rect2 = self.aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[6, 12], name="rect2", material="test[0]")
+        assert rect1.material_name == "vacuum"
 
     def test_05_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"
