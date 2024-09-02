@@ -8455,7 +8455,7 @@ class GeometryModeler(Modeler):
                 else:
                     return self._app.materials[material].name, True
             else:
-                self.logger.warning("Material %s doesn not exists. Assigning default material", material)
+                self.logger.warning("Material %s does not exists. Assigning default material", material)
         if self._app._design_type == "HFSS":
             return default_material, self._app.materials.material_keys[default_material].is_dielectric(threshold)
         else:
