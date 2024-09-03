@@ -22,24 +22,23 @@
 # SOFTWARE.
 
 import os
-
 import pathlib
+import tkinter
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import ttk
+
+import PIL.Image
+import PIL.ImageTk
 import ansys.aedt.core
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.edb import Edb
-from  ansys.aedt.core.hfss import Hfss
-from ansys.aedt.core.workflows.misc import get_arguments
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.hfss import Hfss
 from ansys.aedt.core.workflows.misc import get_aedt_version
+from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
-
-from tkinter import filedialog
-import tkinter
-from tkinter import messagebox
-from tkinter import ttk
-import PIL.Image
-import PIL.ImageTk
 
 port = get_port()
 version = get_aedt_version()
@@ -83,9 +82,10 @@ def frontend():  # pragma: no cover
 
     def browse_source_file_call_back():
         if not import_edb_variable.get():
-            file_type = (('odb++', '*.tgz'), ('cadence pcb', '*.brd'), (('cadence package', '*.mcm'),
-                                                                    ('', '*.zip')))
-            source_file_path.set(filedialog.askopenfilename(filetypes=file_type, title="Please select the source design"))
+            file_type = (("odb++", "*.tgz"), ("cadence pcb", "*.brd"), (("cadence package", "*.mcm"), ("", "*.zip")))
+            source_file_path.set(
+                filedialog.askopenfilename(filetypes=file_type, title="Please select the source design")
+            )
         else:
             source_file_path.set(filedialog.askdirectory(title="Import aedb folder"))
         source_file.delete("1.0", "end")
@@ -99,18 +99,24 @@ def frontend():  # pragma: no cover
         component_3d_file = os.path.join(_wdir, "wave_port.a3dcomp")
         if os.path.exists(_wdir):
             if len(os.listdir(_wdir)) > 0:
-                res = messagebox.askyesno(title="Warning", message="The selected working directory is not empty, "
-                                                                   "he entire content will be deleted. "
-                                                                   "Are you sure to continue ?")
+                res = messagebox.askyesno(
+                    title="Warning",
+                    message="The selected working directory is not empty, "
+                    "he entire content will be deleted. "
+                    "Are you sure to continue ?",
+                )
                 if res == "no":
                     return
         edb = Edb(edbpath=rf"{edb_file}", edbversion=version)
-        if not edb.create_model_for_arbitrary_wave_ports(temp_directory=_wdir,
-                                                  mounting_side=mounting_side_variable.get(),
-                                                  output_edb=edb_project):
-            messagebox.showerror("EDB model failure", "Failed to create EDB model, please make sure you "
-                                                      "selected the correct mounting side. The selected side must "
-                                                      "must contain explicit voids with pad-stack instances inside.")
+        if not edb.create_model_for_arbitrary_wave_ports(
+            temp_directory=_wdir, mounting_side=mounting_side_variable.get(), output_edb=edb_project
+        ):
+            messagebox.showerror(
+                "EDB model failure",
+                "Failed to create EDB model, please make sure you "
+                "selected the correct mounting side. The selected side must "
+                "must contain explicit voids with pad-stack instances inside.",
+            )
         signal_nets = list(edb.nets.signal.keys())
         edb.close()
         hfss3d = Hfss3dLayout(projectname=edb_project, specified_version=version)
@@ -155,7 +161,6 @@ def frontend():  # pragma: no cover
 
             app.active_design().modeler.insert_3d_component(component_3d_file)
 
-
     # workdir
     var1 = tkinter.StringVar()
     label_work_dir = tkinter.Label(master, textvariable=var1)
@@ -191,14 +196,15 @@ def frontend():  # pragma: no cover
 
     # checkbox import EDB
     import_edb_variable.set(True)
-    ttk.Checkbutton(master=master, text="Import EDB",
-                                               variable=import_edb_variable).grid(row=2, column=1, padx=5, pady=10)
-
+    ttk.Checkbutton(master=master, text="Import EDB", variable=import_edb_variable).grid(
+        row=2, column=1, padx=5, pady=10
+    )
 
     # checkbox import 3D component
     import_3d_component_variable.set(True)
-    ttk.Checkbutton(master=master, text="Import 3D component",
-                    variable=import_3d_component_variable).grid(row=3, column=1, padx=5, pady=10)
+    ttk.Checkbutton(master=master, text="Import 3D component", variable=import_3d_component_variable).grid(
+        row=3, column=1, padx=5, pady=10
+    )
 
     # execute button
     execute_button = tkinter.Button(master=master, text="Generate", command=create_3d_component)
