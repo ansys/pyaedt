@@ -1533,10 +1533,25 @@ class SolutionData(object):
 class BaseFolderPlot:
     @abstractmethod
     def to_dict(self):
+        """Convert the settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing settings.
+        """
         pass
 
     @abstractmethod
-    def from_dict(self):
+    def from_dict(self, dictionary):
+        """Initialize the settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration settings.
+            Dictionary syntax must be the same of the AEDT file.
+        """
         pass
 
 
@@ -1545,24 +1560,44 @@ class ColorMapSettings(BaseFolderPlot):
         self._map_type = None
         self.map_type = map_type
 
+        # Default color settings
         self._color_spectrum = "Rainbow"
         self._color_ramp = [255, 127, 127]
         self._color_uniform = [127, 255, 255]
 
+        # User-provided color settings
         self.color = color
 
     @property
     def map_type(self):
+        """Get the color map type for the field plot."""
         return self._map_type
 
     @map_type.setter
     def map_type(self, value):
+        """Set the type of color mapping for the field plot.
+
+        Parameters
+        ----------
+        value : str
+            The type of mapping to set. Must be one of 'Spectrum', 'Ramp', or 'Uniform'.
+
+        Raises
+        ------
+        ValueError
+            If the provided `value` is not valid, raises a ``ValueError`` with an appropriate message.
+        """
         if value not in ["Spectrum", "Ramp", "Uniform"]:
             raise ValueError(f"{value} is not valid. Only 'Spectrum', 'Ramp', and 'Uniform' are accepted.")
         self._map_type = value
 
     @property
     def color(self):
+        """Get the color based on the map type.
+
+        Returns:
+            str or list of float: The color scheme based on the map type.
+        """
         if self.map_type == "Spectrum":
             return self._color_spectrum
         elif self.map_type == "Ramp":
@@ -1572,6 +1607,16 @@ class ColorMapSettings(BaseFolderPlot):
 
     @color.setter
     def color(self, v):
+        """Set the colormap based on the map type.
+
+        Parameters:
+            v (str or tuple): The color value to be set. If a string, it should represent a valid color
+            spectrum specification (`"Magenta"`, `"Rainbow"`, `"Temperature"` or `"Gray"`).
+            If a tuple, it should contain three elements representing RGB values.
+
+        Raises:
+            ValueError: If the provided color value is not valid for the specified map type.
+        """
         if self.map_type == "Spectrum":
             self._validate_color_spectrum(v)
             self._color_spectrum = v
@@ -1582,13 +1627,15 @@ class ColorMapSettings(BaseFolderPlot):
             else:
                 self._color_uniform = v
 
-    def _validate_color_spectrum(self, value):
+    @staticmethod
+    def _validate_color_spectrum(value):
         if value not in ["Magenta", "Rainbow", "Temperature", "Gray"]:
             raise ValueError(
                 f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Gray' are accepted."
             )
 
-    def _validate_color(self, value):
+    @staticmethod
+    def _validate_color(value):
         if not isinstance(value, list) or len(value) != 3:
             raise ValueError(f"{value} is not valid. Three values (R, G, B) must be passed.")
 
@@ -1597,6 +1644,14 @@ class ColorMapSettings(BaseFolderPlot):
         return f"ColorMapSettings(map_type='{self.map_type}', color={color_repr})"
 
     def to_dict(self):
+        """Convert the color map settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the color map settings
+            for the folder field plot settings.
+        """
         return {
             "ColorMapSettings": {
                 "ColorMapType": self.map_type,
@@ -1605,6 +1660,14 @@ class ColorMapSettings(BaseFolderPlot):
         }
 
     def from_dict(self, settings):
+        """Initialize the number format settings of the colormap settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for colormap settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self._map_type = settings["ColorMapType"]
         self._color_spectrum = settings["SpectrumType"]
         self._color_ramp = settings["RampColor"]
@@ -1629,6 +1692,14 @@ class AutoScale(BaseFolderPlot):
         )
 
     def to_dict(self):
+        """Convert the auto-scale settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the auto-scale settings
+            for the folder field plot settings.
+        """
         return {
             "m_nLevels": self.n_levels,
             "LimitFieldValuePrecision": self.limit_precision_digits,
@@ -1637,6 +1708,14 @@ class AutoScale(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary):
+        """Initialize the auto-scale settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for auto-scale settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self.n_levels = dictionary["m_nLevels"]
         self.limit_precision_digits = dictionary["LimitFieldValuePrecision"]
         self.precision_digits = dictionary["FieldValuePrecisionDigits"]
@@ -1652,9 +1731,25 @@ class MinMaxScale(BaseFolderPlot):
         return f"MinMaxScale(min_value={self.min_value}, " f"max_value={self.max_value})"
 
     def to_dict(self):
+        """Convert the min-max scale settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the min-max scale settings
+            for the folder field plot settings.
+        """
         return {"minvalue": self.min_value, "maxvalue": self.max_value}
 
     def from_dict(self, dictionary):
+        """Initialize the min-max scale settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for min-max scale settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self.min_value = dictionary["minvalue"]
         self.max_value = dictionary["maxvalue"]
 
@@ -1671,9 +1766,25 @@ class SpecifiedScale:
         return f"SpecifiedScale(scale_values={self.scale_values})"
 
     def to_dict(self):
+        """Convert the specified scale settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the specified scale settings
+            for the folder field plot settings.
+        """
         return {"UserSpecifyValues": [len(self.scale_values)] + self.scale_values}
 
     def from_dict(self, dictionary):
+        """Initialize the specified scale settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for specified scale settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self.scale_values = dictionary["UserSpecifyValues"][:-1]
 
 
@@ -1686,19 +1797,39 @@ class NumberFormat(BaseFolderPlot):
 
     @property
     def format_type(self):
+        """Get the current number format type."""
         return self._format_type
 
     @format_type.setter
     def format_type(self, v):
+        """Set the numeric format type of the scale.
+
+        Parameters:
+        -----------
+            v (str): The new format type to be set. Must be one of the accepted values
+            ("Automatic", "Scientific" or "Decimal").
+
+        Raises:
+        -------
+            ValueError: If the provided value is not in the list of accepted values.
+        """
         if v is not None and v in self._accepted:
             self._format_type = v
         else:
-            raise ValueError(f"{v} is not valid. Accepted values are {','.join(self._accepted)}.")
+            raise ValueError(f"{v} is not valid. Accepted values are {', '.join(self._accepted)}.")
 
     def __repr__(self):
         return f"NumberFormat(format_type={self.format_type}, width={self.width}, precision={self.precision})"
 
     def to_dict(self):
+        """Convert the number format settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the number format settings
+            for the folder field plot settings.
+        """
         return {
             "ValueNumberFormatTypeAuto": self._accepted.index(self.format_type),
             "ValueNumberFormatTypeScientific": self.format_type == "Scientific",
@@ -1707,6 +1838,14 @@ class NumberFormat(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary):
+        """Initialize the number format settings of the field plot settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for number format settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self._format_type = self._accepted[dictionary["ValueNumberFormatTypeAuto"]]
         self.width = dictionary["ValueNumberFormatWidth"]
         self.precision = dictionary["ValueNumberFormatPrecision"]
@@ -1728,11 +1867,22 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_type(self):
+        """Get type of scale used for the field plot."""
         return self._scale_type
 
     @scale_type.setter
     def scale_type(self, value):
+        """Set the scale type used for the field plot.
 
+        Parameters:
+        -----------
+            value (str): The type of scaling to set.
+            Must be one of the accepted values ("Auto", "MinMax" or "Specified").
+
+        Raises:
+        -------
+            ValueError: If the provided value is not in the list of accepted values.
+        """
         if value is not None and value not in self.accepted:
             raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self.accepted)}.")
         self._scale_type = value
@@ -1748,6 +1898,7 @@ class Scale3DSettings(BaseFolderPlot):
 
     @property
     def scale_settings(self):
+        """Get the current scale settings based on the scale type."""
         self.scale_type = self.scale_type  # update correct scale settings
         return self._scale_settings
 
@@ -1758,6 +1909,14 @@ class Scale3DSettings(BaseFolderPlot):
         )
 
     def to_dict(self):
+        """Convert the scale settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all scale settings
+            for the folder field plot settings.
+        """
         arg_out = {
             "Scale3DSettings": {
                 "unit": self.unit,
@@ -1771,6 +1930,14 @@ class Scale3DSettings(BaseFolderPlot):
         return arg_out
 
     def from_dict(self, dictionary):
+        """Initialize the scale settings of the field plot settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for scale settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self._scale_type = self.accepted[dictionary["ScaleType"]]
         self.number_format = NumberFormat()
         self.number_format.from_dict(dictionary)
@@ -1815,6 +1982,14 @@ class StreamlineMarkerSettings(BaseFolderPlot):
         )
 
     def to_dict(self):
+        """Convert the streamline marker settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the streamline marker settings
+            for the folder field plot settings.
+        """
         return {
             "Marker3DSettings": {
                 "MarkerType": self._allowed_marker_types[self.marker_type],
@@ -1825,6 +2000,14 @@ class StreamlineMarkerSettings(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary):
+        """Initialize the streamline marker settings of the field plot settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for streamline marker settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self.marker_type = self._allowed_marker_types_inverse[int(dictionary["MarkerType"])]
         self.map_size = dictionary["MarkerMapSize"]
         self.map_color = dictionary["MarkerMapColor"]
@@ -1858,10 +2041,21 @@ class ArrowSettings(BaseFolderPlot):
 
     @property
     def arrow_type(self):
+        """Get the type of arrows used in the field plot."""
         return self._arrow_type
 
     @arrow_type.setter
     def arrow_type(self, v):
+        """Set the type of arrows for the field plot.
+
+        Parameters:
+        -----------
+            v (str): The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
+
+        Raises:
+        -------
+            ValueError: If the provided value is not in the list of allowed arrow types.
+        """
         if v in self._allowed_arrow_types:
             self._arrow_type = v
         else:
@@ -1877,6 +2071,14 @@ class ArrowSettings(BaseFolderPlot):
         )
 
     def to_dict(self):
+        """Convert the arrow settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the arrow settings
+            for the folder field plot settings.
+        """
         return {
             "Arrow3DSettings": {
                 "ArrowType": self._allowed_arrow_types.index(self.arrow_type),
@@ -1892,6 +2094,14 @@ class ArrowSettings(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary):
+        """Initialize the arrow settings of the field plot settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for arrow settings.
+            Dictionary syntax must be the same of relevant portion of the AEDT file.
+        """
         self.arrow_type = self._allowed_arrow_types[dictionary["ArrowType"]]
         self.arrow_size = dictionary["ArrowType"]
         self.map_size = dictionary["ArrowMapSize"]
@@ -1921,11 +2131,23 @@ class FolderPlotSettings(BaseFolderPlot):
         self._folder_name = folder_name
 
     def update(self):
+        """
+        Update folder plot settings.
+        """
         out = []
         _dict2arg(self.to_dict(), out)
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])
 
     def to_dict(self):
+        """Convert the field plot settings to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing all the settings for the field plot,
+            including arrow settings, streamline marker settings,
+            scale settings, and color map settings.
+        """
         out = {}
         out.update(self.arrow_settings.to_dict())
         out.update(self.streamline_marker_settings.to_dict())
@@ -1934,6 +2156,15 @@ class FolderPlotSettings(BaseFolderPlot):
         return {"FieldsPlotSettings": out}
 
     def from_dict(self, dictionary):
+        """Initialize the field plot settings from a dictionary.
+
+        Parameters
+        ----------
+        dictionary : dict
+            Dictionary containing the configuration for the color map,
+            scale, arrow, and marker settings. Dictionary syntax must
+            be the same of the AEDT file.
+        """
         cmap = ColorMapSettings()
         cmap.from_dict(dictionary["ColorMapSettings"])
         self.color_map_settings = cmap
@@ -2037,31 +2268,50 @@ class FieldPlot:
         self._folder_settings = None
 
     def _parse_folder_settings(self):
+        """Parse the folder settings for the field plot from the AEDT file.
+
+        Returns:
+            FolderPlotSettings or None: An instance of FolderPlotSettings if found, otherwise None.
+        """
         folder_settings_data = load_keyword_in_aedt_file(self._postprocessor._app.project_file, "FieldsPlotManagerID")
-        folder_settings = [
+        relevant_settings = [
             d
             for d in folder_settings_data["FieldsPlotManagerID"].values()
             if isinstance(d, dict) and d.get("PlotFolder", False) and d["PlotFolder"] == self.plot_folder
         ]
-        if not folder_settings:
+
+        if not relevant_settings:
             self._postprocessor._app.logger.error(
-                "Could not find settings data in the design properties. "
-                "Define the a `FolderPlotSettings` class from scratch or save the project file and try again."
+                "Could not find settings data in the design properties."
+                " Define the `FolderPlotSettings` class from scratch or save the project file and try again."
             )
             return None
         else:
             fps = FolderPlotSettings(self._postprocessor, self.plot_folder)
-            fps.from_dict(folder_settings[0])
+            fps.from_dict(relevant_settings[0])
             return fps
 
     @property
     def folder_settings(self):
+        """Get the folder settings."""
         if self._folder_settings is None:
             self._folder_settings = self._parse_folder_settings()
         return self._folder_settings
 
     @folder_settings.setter
     def folder_settings(self, v):
+        """Set the fieldplor folder settings.
+
+        Parameters
+        ----------
+        v : FolderPlotSettings
+            The new folder plot settings to be set.
+
+        Raises
+        ------
+        ValueError
+            If the provided value is not an instance of `FolderPlotSettings`.
+        """
         if isinstance(v, FolderPlotSettings):
             self._folder_settings = v
         else:
