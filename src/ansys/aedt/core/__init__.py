@@ -29,7 +29,14 @@ import warnings
 if os.name == "nt":
     os.environ["PYTHONMALLOC"] = "malloc"
 
-LATEST_DEPRECATED_PYTHON_VERSION = (3, 7)
+LATEST_DEPRECATED_PYTHON_VERSION = (3, 9)
+PYTHON_VERSION_WARNING = (
+    "As part of our ongoing efforts to align with the Python Scientific Community's "
+    "best practices, we are moving towards adopting SPEC 0000 "
+    "(https://scientific-python.org/specs/spec-0000/). To ensure compatibility and "
+    "take full advantage of the latest features and improvements, we strongly "
+    "recommend updating the Python version being used."
+)
 
 
 def deprecation_warning():
@@ -46,13 +53,7 @@ def deprecation_warning():
 
     current_version = sys.version_info[:2]
     if current_version <= LATEST_DEPRECATED_PYTHON_VERSION:
-        str_current_version = "{}.{}".format(*sys.version_info[:2])
-        warnings.warn(
-            "Current python version ({}) is deprecated in PyAEDT. We encourage you "
-            "to upgrade to the latest version to benefit from the latest features "
-            "and security updates.".format(str_current_version),
-            PendingDeprecationWarning,
-        )
+        warnings.warn(PYTHON_VERSION_WARNING, FutureWarning)
 
     # Restore warnings showwarning
     warnings.showwarning = existing_showwarning
@@ -63,10 +64,16 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.10.dev0"
+__version__ = "0.11.dev0"
 version = __version__
 
-#
+# isort: off
+# Settings have to be imported before importing other PyAEDT modules
+from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.general_methods import inner_project_settings
+
+# isort: on
+
 if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.downloads as downloads
 from ansys.aedt.core.edb import Edb  # nosec
@@ -74,6 +81,7 @@ from ansys.aedt.core.edb import Siwave  # nosec
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
 from ansys.aedt.core.generic.design_types import Circuit
+from ansys.aedt.core.generic.design_types import CircuitNetlist
 from ansys.aedt.core.generic.design_types import Desktop
 from ansys.aedt.core.generic.design_types import Emit
 from ansys.aedt.core.generic.design_types import FilterSolutions
@@ -102,7 +110,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.misc import current_student_version
 from ansys.aedt.core.misc import current_version
 from ansys.aedt.core.misc import installed_versions

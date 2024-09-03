@@ -94,6 +94,8 @@ def launch_aedt(full_path, non_graphical, port, student_version, first_run=True)
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
         my_env = os.environ.copy()
         for env, val in settings.aedt_environment_variables.items():
             my_env[env] = val
@@ -174,6 +176,8 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
             command.append("-ng")
         if settings.wait_for_license:
             command.append("-waitforlicense")
+        if settings.aedt_log_file:
+            command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
         command = settings.custom_lsf_command.split(" ")
         command.append("-grpcsrv")
@@ -794,9 +798,9 @@ class Desktop(object):
             active_design = project_object.GetActiveDesign()
         else:
             active_design = project_object.SetActiveDesign(name)
-        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":
+        if is_linux and settings.aedt_version == "2024.1" and design_type == "Circuit Design":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_design
 
     @pyaedt_function_handler()
@@ -819,9 +823,9 @@ class Desktop(object):
             active_project = self.odesktop.GetActiveProject()
         else:
             active_project = self.odesktop.SetActiveProject(name)
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.close_windows()
         return active_project
 
     @property
@@ -832,6 +836,23 @@ class Desktop(object):
             return installed_versions()[version_key]
         except Exception:  # pragma: no cover
             return installed_versions()[version_key + "CL"]
+
+    @pyaedt_function_handler()
+    def close_windows(self):
+        """Close all windows.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesktop.CloseAllWindows
+        """
+        self.odesktop.CloseAllWindows()
+        return True
 
     @property
     def current_version(self):

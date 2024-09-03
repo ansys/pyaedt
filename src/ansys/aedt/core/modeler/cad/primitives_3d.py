@@ -1127,7 +1127,7 @@ class Primitives3D(GeometryModeler):
         This method applies to all 3D applications: HFSS, Q3D, Icepak, Maxwell 3D,
         and Mechanical.
 
-        >>> from pyaedt import Hfss
+        >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
         >>> surf = aedtapp.modeler.create_equationbased_surface(x_uv='(cos(_v)+2)*cos(_u)',
         ...                                                     y_uv='(cos(_v)+2)*sin(_u)',

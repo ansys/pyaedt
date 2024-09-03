@@ -366,8 +366,9 @@ class CommonReport(object):
         self.props["context"]["primary_sweep_range"] = ["All"]
         self.props["context"]["secondary_sweep_range"] = ["All"]
         self.props["context"]["variations"] = {"Freq": ["All"]}
-        for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-            self.props["context"]["variations"][el] = k
+        if hasattr(self._post._app, "available_variations") and self._post._app.available_variations:
+            for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
+                self.props["context"]["variations"][el] = k
         self.props["expressions"] = None
         self.props["plot_name"] = None
         if expressions:
@@ -2061,6 +2062,51 @@ class CommonReport(object):
             return False
         finally:
             self.expressions = expr
+
+    @pyaedt_function_handler()
+    def apply_report_template(self, input_file, property_type="Graphical"):  # pragma: no cover
+        """Apply report template.
+
+        .. note::
+            This method works in only in graphical mode.
+
+        Parameters
+        ----------
+        input_file : str
+            Path for the file to import. The extension supported is ``".rpt"``.
+        property_type : str, optional
+            Property types to apply. Options are ``"Graphical"``, ``"Data"``, and ``"All"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ApplyReportTemplate
+        """
+        if not os.path.exists(input_file):  # pragma: no cover
+            msg = "File does not exist."
+            self._post.logger.error(msg)
+            return False
+
+        split_path = os.path.splitext(input_file)
+        extension = split_path[1]
+
+        supported_ext = [".rpt"]
+        if extension not in supported_ext:  # pragma: no cover
+            msg = "Extension {} is not supported.".format(extension)
+            self._post.logger.error(msg)
+            return False
+
+        if property_type not in ["Graphical", "Data", "All"]:  # pragma: no cover
+            msg = "Invalid value for `property_type`. The value must be 'Graphical', 'Data', or 'All'."
+            self._post.logger.error(msg)
+            return False
+        self._post.oreportsetup.ApplyReportTemplate(self.plot_name, input_file, property_type)
+        return True
 
 
 class Standard(CommonReport):

@@ -239,7 +239,7 @@ class Analysis(Design, object):
 
         """
         if not self._setups:
-            if self.design_type != "Maxwell Circuit":
+            if self.design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
                 self._setups = [self.get_setup(setup_name) for setup_name in self.setup_names]
         return self._setups
 
@@ -427,7 +427,9 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        setups = self.oanalysis.GetSetups()
+        setups = []
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
+            setups = self.oanalysis.GetSetups()
         if setups:
             return list(setups)
         return []
@@ -446,7 +448,10 @@ class Analysis(Design, object):
 
         >>> oModule.GetSetups
         """
-        return self.oanalysis.GetSetups()
+        setup_names = []
+        if self.oanalysis and "GetSetups" in self.oanalysis.__dir__():
+            setup_names = self.oanalysis.GetSetups()
+        return setup_names
 
     @property
     def SimulationSetupTypes(self):
@@ -1919,7 +1924,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.solve_setup(name)
+                self.ooptimetrics.SolveSetup(name)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)

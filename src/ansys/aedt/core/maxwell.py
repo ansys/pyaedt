@@ -42,6 +42,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary import BoundaryObject
 from ansys.aedt.core.modules.boundary import MaxwellParameters
@@ -1062,6 +1063,84 @@ class Maxwell(object):
             return bound
         return False
 
+    @pyaedt_function_handler()
+    def assign_floating(self, assignment, charge_value=0, name=None):
+        """Assign floating excitation to model conductors at unknown potentials
+        and specify the total charge on the conductor.
+
+        Parameters
+        ----------
+        assignment : list of int, :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`,
+                    :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive` or str
+            List of objects or faces to assign the excitation to.
+        charge_value : int, float, optional
+            Charge value.
+            If not provided, The default is ``0``.
+        name : str, optional
+            Name of the excitation.
+            If not provided, a random name with prefix "Floating" will be generated.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.Boundary.BoundaryObject`
+            Boundary object.
+            ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignFloating
+
+        Examples
+        --------
+        Assign a floating excitation for a Maxwell 2d Electrostatic design
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version="2024.2")
+        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        >>> rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
+        >>> floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test")
+        >>> m2d.release_desktop(True, True)
+
+        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2024.2")
+        >>> m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        >>> box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
+        >>> floating = self.aedtapp.assign_floating(assignment=box, charge_value=3)
+        Assign a floating excitation providing a list of faces
+        >>> floating1 = self.aedtapp.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
+        >>> m3d.release_desktop(True, True)
+        """
+        if self.solution_type not in ["Electrostatic", "ElectricTransient"]:  # pragma : no cover
+            self.logger.error(
+                "Assign floating excitation is only valid for electrostatic or electric transient solvers."
+            )
+            return False
+
+        if not isinstance(assignment, list):
+            assignment = [assignment]
+
+        if isinstance(charge_value, (int, float)):
+            charge_value = str(charge_value)
+
+        if self.dim == "3D" and all([isinstance(a, FacePrimitive) for a in assignment]):
+            assignment_type = "Faces"
+        else:
+            assignment_type = "Objects"
+
+        assignment = self.modeler.convert_to_selections(assignment, True)
+
+        props = OrderedDict({assignment_type: assignment, "Value": charge_value})
+
+        if not name:
+            name = generate_unique_name("Floating")
+
+        bound = BoundaryObject(self, name, props, "Floating")
+        if bound.create():
+            self._boundaries[bound.name] = bound
+            return bound
+        return False
+
     @pyaedt_function_handler(coil_terminals="assignment", current_value="current", res="resistance", ind="inductance")
     def assign_winding(
         self,
@@ -1493,8 +1572,8 @@ class Maxwell(object):
         Parameters
         ----------
         assignment : list
-            List IDs or :class:`ansys.aedt.core.modeler.Object3d.EdgePrimitive` or
-            :class:`ansys.aedt.core.modeler.Object3d.FacePrimitive`.
+            List IDs or :class:`ansys.aedt.core.modeler.elements_3d.EdgePrimitive` or
+            :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive`.
         symmetry_name : str, optional
             Name of the symmetry.
         is_odd : bool, optional
@@ -2032,9 +2111,9 @@ class Maxwell(object):
             return False
         odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
         oeditor = odesign.SetActiveEditor("SchematicEditor")
-        if is_linux and settings.aedt_version == "2024.1":
+        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
-            self.odesktop.CloseAllWindows()
+            self.desktop_class.close_windows()
         comps = oeditor.GetAllComponents()
         sources_array = []
         sources_type_array = []

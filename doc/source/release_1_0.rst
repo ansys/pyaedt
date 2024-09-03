@@ -29,10 +29,10 @@ Restructuring of the codebase
 -----------------------------
 
 To facilitate the maintenance of PyAEDT and to adhere to PyAnsys' guidelines, the codebase
-is being restructured. The sources are to be moved from ``pyaedt`` to ``src.ansys.aedt``
+is being restructured. The sources are to be moved from ``pyaedt`` to ``ansys.aedt.core``
 to improve the organization and maintainability of the codebase.
 
-The changes to the structure follow:
+The changes follow the structure below:
 
 .. code-block:: text
 
@@ -49,8 +49,9 @@ The changes to the structure follow:
     src/
     └── ansys/
         └── aedt/
-            ├── application/
-            ├── ...
+            └── core/
+                ├── application/
+                ├── ...
 
 When migrating to major release `1.0`, please update any references or imports in your project
 accordingly. An example of migration is shown below:
@@ -65,7 +66,7 @@ accordingly. An example of migration is shown below:
 
 .. code-block:: python
 
-    from ansys.aedt import Circuit
+    from ansys.aedt.core import Circuit
 
 Python files renaming
 ---------------------
@@ -175,8 +176,8 @@ Other changes in release 1.0
 
 In addition to the major changes described earlier, modifications are continuously performed to
 improve the quality of the project, its maintainability, its documentation, and
-to ensure users' need are met as efficiently as possible. This includes ensuring
-consistent argument names, improving data encapsulation, strengthening CI/CD, and extracting
-examples to a dedicated project.
+to ensure users' needs are met as efficiently as possible. This includes ensuring
+consistent argument names, improving data encapsulation, strengthening CI/CD, and migrate
+examples to a different repository.
 
 For more information on the status of the 1.0 release, see `PyAEDT Milestone <https://github.com/ansys/pyaedt/milestone/3>`_ .
