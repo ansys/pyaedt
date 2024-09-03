@@ -1821,7 +1821,7 @@ class TestClass:
         assert plot_object.folder_settings is None
         assert (
             app.logger.error_messages[-1] == "[error] Could not find settings data in the design properties."
-            " Define the a `FolderPlotSettings` class from scratch or save the project file and try again."
+            " Define the `FolderPlotSettings` class from scratch or save the project file and try again."
         )
         app.save_project()
         fs = plot_object.folder_settings
