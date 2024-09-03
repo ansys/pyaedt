@@ -45,7 +45,7 @@ dependencies = [
 
 [project.optional-dependencies]
 tests = [
-    "ipython>=7.30.0,<8.27",
+    "ipython>=7.30.0,<8.28",
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.10",
     "mock>=5.1.0,<5.2",
@@ -141,7 +141,7 @@ installer = [
     "SRTM.py",
     "utm",
     "jupyterlab>=3.6.0,<4.3",
-    "ipython>=7.30.0,<8.27",
+    "ipython>=7.30.0,<8.28",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
