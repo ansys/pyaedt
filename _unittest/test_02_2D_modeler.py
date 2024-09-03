@@ -89,23 +89,27 @@ class TestClass:
         assert sorted(list_of_pos) == [[10.0, -2.0, -2.0], [10.0, 8.0, -2.0], [13.0, -2.0, -2.0], [13.0, 8.0, -2.0]]
 
     def test_04b_create_rectangle(self):
-        materials = {"Coil_material": "copper", "Core_material": "steel_1008", "Magnet_material": "NdFe30"}
+        materials = ["copper", "steel_1008"]
         material_array = []
-        for k, v in materials.items():
-            material_array.append('"' + v + '"')
+        for m in materials:
+            material_array.append('"' + m + '"')
         s = ", ".join(material_array)
         self.aedtapp["Materials"] = "[{}]".format(s)
-        self.aedtapp["Materials1"] = "({})".format(s)
+        material_index = 1
         rect1 = self.aedtapp.modeler.create_rectangle(
-            origin=[0, 0, 0], sizes=[6, 12], name="rect1", material="Materials[1]"
+            origin=[0, 0, 0], sizes=[6, 12], name="rect1", material=f"Materials[{material_index}]"
         )
-        assert rect1.material_name == "steel_1008"
+        assert rect1.material_name == materials[material_index]
         rect2 = self.aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[6, 12], name="rect2", material="test[0]")
         assert rect2.material_name == "vacuum"
+        self.aedtapp["disp"] = 0
         rect3 = self.aedtapp.modeler.create_rectangle(
-            origin=[0, 0, 0], sizes=[6, 12], name="rect3", material="Materials1(0)"
+            origin=[0, 0, 0],
+            sizes=[6, 12],
+            name="rect3",
+            material="Materials[if(disp<={} && {}<=disp+{}-1,0,1)]".format(2, 2, 10),
         )
-        assert rect3.material_name == "vacuum"
+        assert rect3.material_name == materials[0]
 
     def test_05_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"
