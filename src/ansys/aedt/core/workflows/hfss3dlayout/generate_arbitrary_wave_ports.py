@@ -99,8 +99,9 @@ def frontend():  # pragma: no cover
         component_3d_file = os.path.join(_wdir, "wave_port.a3dcomp")
         if os.path.exists(_wdir):
             if len(os.listdir(_wdir)) > 0:
-                res = messagebox.askyesno(title="Warning", message="The selected working directory is not empty, the entire"
-                                                             "content will be deleted. Are you sure to continue ?")
+                res = messagebox.askyesno(title="Warning", message="The selected working directory is not empty, "
+                                                                   "he entire content will be deleted. "
+                                                                   "Are you sure to continue ?")
                 if res == "no":
                     return
         edb = Edb(edbpath=rf"{edb_file}", edbversion=version)
