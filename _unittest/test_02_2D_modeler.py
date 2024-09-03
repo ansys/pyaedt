@@ -95,12 +95,17 @@ class TestClass:
             material_array.append('"' + v + '"')
         s = ", ".join(material_array)
         self.aedtapp["Materials"] = "[{}]".format(s)
+        self.aedtapp["Materials1"] = "({})".format(s)
         rect1 = self.aedtapp.modeler.create_rectangle(
             origin=[0, 0, 0], sizes=[6, 12], name="rect1", material="Materials[1]"
         )
         assert rect1.material_name == "steel_1008"
         rect2 = self.aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[6, 12], name="rect2", material="test[0]")
-        assert rect1.material_name == "vacuum"
+        assert rect2.material_name == "vacuum"
+        rect3 = self.aedtapp.modeler.create_rectangle(
+            origin=[0, 0, 0], sizes=[6, 12], name="rect3", material="Materials1(0)"
+        )
+        assert rect3.material_name == "vacuum"
 
     def test_05_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"

@@ -8444,8 +8444,9 @@ class GeometryModeler(Modeler):
             else:
                 return material.name, True
         if material:
-            if "[" in material or "(" in material:
-                array = material.split("[") or material.split("(")
+            # how to handle "(" ?
+            if "[" in material:
+                array = material.split("[")
                 if array[0] in self._app.variable_manager.design_variables.keys():
                     index = int(array[1].strip("]"))
                     material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
