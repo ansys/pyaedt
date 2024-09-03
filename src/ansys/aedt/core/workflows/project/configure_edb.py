@@ -45,11 +45,8 @@ from ansys.aedt.core import Hfss3dLayout
 
 port = get_port()
 version = get_aedt_version()
-# version = "2024.2"
 aedt_process_id = get_process_id()
 is_student = is_student()
-
-extension_description = "EDB Conifiguration 2.0"
 
 
 def get_active_project_info():
@@ -448,9 +445,13 @@ class ConfigureEdbBackend:
         edbapp.close()
 
 
-def main():
+def main(is_test=False, execute=""):
     app = ConfigureEdbFrontend()
-    app.mainloop()
+    if is_test:
+        app._execute = execute
+        app.execute()
+    else:
+        app.mainloop()
 
 
 if __name__ == "__main__":

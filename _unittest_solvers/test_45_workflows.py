@@ -162,7 +162,19 @@ class TestClass:
         local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
                                  file_path)
 
-        assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
+        main(is_test=True, execute={
+            "aedt_load": [
+ 
+            ],
+            "aedt_export": [
+                {"project_file": file_path,
+                 "file_path_save": configuration_path.replace(".json", "_1.json")}
+            ],
+            "active_load": [],
+            "active_export": [],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
