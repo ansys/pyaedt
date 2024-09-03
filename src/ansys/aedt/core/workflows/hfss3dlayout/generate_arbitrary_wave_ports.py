@@ -153,7 +153,7 @@ def frontend():  # pragma: no cover
                 student_version=is_student,
             )
 
-            app.modeler.insert_3d_component(component_3d_file)
+            app.active_design().modeler.insert_3d_component(component_3d_file)
 
 
     # workdir
