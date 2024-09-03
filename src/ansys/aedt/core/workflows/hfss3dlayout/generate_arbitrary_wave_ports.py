@@ -100,7 +100,7 @@ def frontend():  # pragma: no cover
         if os.path.exists(_wdir):
             if len(os.listdir(_wdir)) > 0:
                 res = messagebox.askyesno(title="Warning", message="The selected working directory is not empty, "
-                                                                   "he entire content will be deleted. "
+                                                                   "the entire content will be deleted. "
                                                                    "Are you sure to continue ?")
                 if res == "no":
                     return
