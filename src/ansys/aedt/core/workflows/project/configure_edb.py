@@ -21,125 +21,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+import tkinter as tk
+from tkinter import filedialog
+from tkinter import ttk
+from pathlib import Path
+
+import PIL.Image
+import PIL.ImageTk
+
+import os
 
 import ansys.aedt.core
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.generic.filesystem import search_files
-import ansys.aedt.core.workflows
+import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
-from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
 from ansys.aedt.core.workflows.misc import get_process_id
 from ansys.aedt.core.workflows.misc import is_student
+
+from ansys.aedt.core import generate_unique_name
+from pyedb import Siwave
 from pyedb import Edb
+from ansys.aedt.core import Hfss3dLayout
 
 port = get_port()
 version = get_aedt_version()
+# version = "2024.2"
 aedt_process_id = get_process_id()
 is_student = is_student()
 
-# Extension batch arguments
-extension_arguments = {"aedb_path": "", "configuration_path": ""}
-extension_description = "Configure project from aedb file"
+extension_description = "EDB Conifiguration 2.0"
 
 
-def frontend():  # pragma: no cover
-
-    import tkinter
-    from tkinter import filedialog
-    from tkinter import ttk
-
-    import PIL.Image
-    import PIL.ImageTk
-
-    master = tkinter.Tk()
-
-    master.geometry("750x250")
-
-    master.title(extension_description)
-
-    # Load the logo for the main window
-    icon_path = os.path.join(ansys.aedt.core.workflows.__path__[0], "images", "large", "logo.png")
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
-
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Browse file:")
-    label2.grid(row=0, column=0, pady=10)
-    text = tkinter.Text(master, width=40, height=1)
-    text.grid(row=0, column=1, pady=10, padx=5)
-
-    def browse_aedb():
-        filename = filedialog.askopenfilename(
-            initialdir="/",
-            title="Select a layout folder or file",
-            filetypes=(("aedb file", "*.def"), ("brd", "*.brd"), ("all files", "*.*")),
-        )
-        if filename.endswith(".def"):
-            filename = os.path.dirname(filename)
-        text.insert(tkinter.END, filename)
-
-    b1 = tkinter.Button(master, text="...", width=10, command=browse_aedb)
-    b1.grid(row=0, column=2, pady=10)
-
-    var3 = tkinter.StringVar()
-    label3 = tkinter.Label(master, textvariable=var3)
-    var3.set("Browse configuration file or folder:")
-    label3.grid(row=1, column=0, pady=10)
-    text2 = tkinter.Text(master, width=40, height=1)
-    text2.grid(row=1, column=1, pady=10, padx=5)
-
-    def browse_config():
-        inital_dir = text.get("1.0", tkinter.END).strip()
-        filename = filedialog.askopenfilename(
-            initialdir=os.path.dirname(inital_dir) if inital_dir else "/",
-            title="Select configuration file",
-            filetypes=(("Configuration file", "*.json"), ("Configuration file", "*.toml")),
-        )
-        text2.insert(tkinter.END, filename)
-
-    b2 = tkinter.Button(master, text="...", width=10, command=browse_config)
-    b2.grid(row=1, column=2, pady=10)
-
-    def callback():
-        master.aedb_path_ui = text.get("1.0", tkinter.END).strip()
-        master.configuration_path_ui = text2.get("1.0", tkinter.END).strip()
-        master.destroy()
-
-    b3 = tkinter.Button(master, text="Ok", width=40, command=callback)
-    b3.grid(row=25, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    aedb_path_ui = getattr(master, "aedb_path_ui", extension_arguments["aedb_path"])
-
-    configuration_path_ui = getattr(master, "configuration_path_ui", extension_arguments["configuration_path"])
-
-    output_dict = {
-        "configuration_path": configuration_path_ui,
-        "aedb_path": aedb_path_ui,
-    }
-    return output_dict
-
-
-def main(extension_args):
-    aedb_path = extension_args["aedb_path"]
-    config = extension_args["configuration_path"]
-    if os.path.isdir(config):
-        configs = search_files(config, "*.json")
-        configs += search_files(config, "*.toml")
-    else:
-        configs = [config]
+def get_active_project_info():
     app = ansys.aedt.core.Desktop(
         new_desktop_session=False,
         specified_version=version,
@@ -147,40 +60,399 @@ def main(extension_args):
         aedt_process_id=aedt_process_id,
         student_version=is_student,
     )
-    if aedb_path == "":
-        project_name = app.active_project().GetName()
-        aedb_path = os.path.join(app.active_project().GetPath(), project_name + ".aedb")
-    else:
-        project_name = os.path.splitext(os.path.split(aedb_path)[-1])[0]
-    if project_name in app.project_list():
-        app.odesktop.CloseProject(project_name)
-    for config in configs:
-        edbapp = Edb(aedb_path, edbversion=version)
-        config_name = os.path.splitext(os.path.split(config)[-1])[0]
-        output_path = aedb_path[:-5] + f"_{config_name}.aedb"
-        if os.path.exists(output_path):
-            new_name = generate_unique_name(config_name, n=2)
-            output_path = aedb_path[:-5] + f"_{new_name}.aedb"
-        edbapp.configuration.load(config_file=config)
-        edbapp.configuration.run()
-        edbapp.save_edb_as(output_path)
-        edbapp.close()
-        h3d = Hfss3dLayout(output_path)
-        h3d.save_project()
-    if not extension_args["is_test"]:  # pragma: no cover
+    if not app.active_project():
         app.release_desktop(False, False)
-    return True
+        return
+    project_name = app.active_project().GetName()
+    project_dir = app.active_project().GetPath()
+    project_file = os.path.join(project_dir, project_name + ".aedt")
+    app.release_desktop(False, False)
+    return [project_dir, project_file]
 
 
-if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+class ConfigureEdbFrontend(tk.Tk):
+    app_options = ["Active Design", "HFSS 3D Layout", "SIwave"]
+    _execute = {
+        "active_load": [],
+        "siwave_load": [],
+        "aedt_load": [],
+        "active_export": [],
+        "siwave_export": [],
+        "aedt_export": [],
+    }
 
+    def __init__(self):
+        super().__init__()
+
+        self.geometry("500x300")
+        self.title("EDB Configuration 2.0")
+
+        self.status = tk.StringVar(value="Ready")
+        self.selected_app_option = tk.StringVar(value="Active Design")
+        self.selected_project_file_path = ""
+        self.selected_project_file = tk.StringVar(value="")
+        self.selected_cfg_file_folder = tk.StringVar(value="")
+
+        # Load the logo for the main window
+        icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+        im = PIL.Image.open(icon_path)
+        photo = PIL.ImageTk.PhotoImage(im)
+
+        # Set the icon for the main window
+        self.iconphoto(True, photo)
+
+        # Configure style for ttk buttons
+        style = ttk.Style()
+        style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+
+        # Main window
+        self.create_main_window()
+
+    def create_main_window(self):
+        col_width = [30, 20, 30]
+
+        # Section 1
+        self.label_version = ttk.Label(self, text=f"AEDT {version}")
+        self.label_version.grid(row=0, column=0)
+        label = ttk.Label(self, textvariable=self.status)
+        label.grid(row=0, column=1)
+
+        # Section 2
+        s2_start_row = 1
+        for index, option in enumerate(self.app_options):
+            ttk.Radiobutton(
+                self,
+                text=option,
+                value=option,
+                variable=self.selected_app_option
+            ).grid(row=index + s2_start_row, column=0, sticky=tk.W)
+
+        # Section 3
+        s3_start_row = 4
+        button_select_project_file = ttk.Button(self, text="Select project file", width=col_width[0],
+                                                command=lambda: self.call_select_project())
+        button_select_project_file.grid(row=s3_start_row, column=0)
+
+        # Siwave
+        label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
+        label_project_file.grid(row=s3_start_row, column=2)
+
+        # Apply cfg
+        button = ttk.Button(self, text="Apply Configuration", width=col_width[0],
+                            command=lambda: self.call_apply_cfg_file())
+        button.grid(row=s3_start_row + 2, column=0)
+
+        button = ttk.Button(self, text="Apply Configuration Batch", width=col_width[0],
+                            command=lambda: self.call_select_cfg_folder())
+        button.grid(row=s3_start_row + 3, column=0)
+
+        # Export cfg
+        button = ttk.Button(self, text="Export Configuration", width=col_width[0],
+                            command=lambda: self.call_export_cfg())
+        button.grid(row=s3_start_row + 4, column=0)
+
+    def call_select_project(self):
+        if self.selected_app_option.get() == "HFSS 3D Layout":
+            file_path = filedialog.askopenfilename(
+                initialdir="/",
+                title="Select File",
+                filetypes=(("Electronics Desktop", "*.aedt"),),
+            )
+        elif self.selected_app_option.get() == "SIwave":
+            file_path = filedialog.askopenfilename(
+                initialdir="/",
+                title="Select File",
+                filetypes=(("SIwave project", "*.siw"),),
+            )
+        else:
+            file_path = None
+
+        if not file_path:
+            return
+        else:
+            self.selected_project_file_path = file_path
+            self.selected_project_file.set(Path(file_path).parts[-1])
+
+    def call_apply_cfg_file(self):
+        if not self.selected_app_option.get() == "Active Design":
+            if not self.selected_project_file_path:
+                return
+
+        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
+        file_cfg_path = filedialog.askopenfilename(
+            initialdir=init_dir,
+            title="Select Configuration File",
+            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
+            defaultextension=".json")
+
+        if not file_cfg_path:
+            return
+
+        if self.selected_app_option.get() == "SIwave":
+            project_file = self.selected_project_file_path
+            file_save_path = filedialog.asksaveasfilename(
+                initialdir=init_dir,
+                title="Save new project as",
+                filetypes=[("SIwave", "*.siw")],
+                defaultextension=".siw")
+            if not file_save_path:
+                return
+            self._execute["siwave_load"].append(
+                {"project_file": project_file,
+                 "file_cfg_path": file_cfg_path,
+                 "file_save_path": file_save_path}
+            )
+            # self.execute_load_cfg_siw(project_file, file_cfg_path, file_save_path)
+        elif self.selected_app_option.get() == "HFSS 3D Layout":
+            project_file = self.selected_project_file_path
+            file_save_path = filedialog.asksaveasfilename(
+                initialdir=init_dir,
+                title="Save new project as",
+                filetypes=[("Electronics Desktop", "*.aedt")],
+                defaultextension=".aedt")
+            self._execute["aedt_load"].append(
+                {"project_file": project_file,
+                 "file_cfg_path": file_cfg_path,
+                 "file_save_path": file_save_path}
+            )
+            # self.execute_load_cfg_aedt(project_file, file_cfg_path, file_save_path)
+        else:
+            data = get_active_project_info()
+            if data:
+                project_dir, project_file = data
+            else:
+                return
+            file_save_path = os.path.join(project_dir,
+                                          Path(project_file).stem + "_" + generate_unique_name(
+                                              Path(file_cfg_path).stem) + ".aedt")
+            self._execute["active_load"].append(
+                {"project_file": project_file,
+                 "file_cfg_path": file_cfg_path,
+                 "file_save_path": file_save_path}
+            )
+            # self.execute_load_cfg_active(file_cfg_path)
+        self.execute()
+
+    def call_select_cfg_folder(self):
+        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
+        file_dir = filedialog.askdirectory(
+            initialdir=init_dir,
+            title="Select a Folder"
+        )
+        if not file_dir:
+            return
+
+        if self.selected_app_option.get() == "Active Design":
+            data = get_active_project_info()
+            if data:
+                project_dir, project_file = data
+            else:
+                return
+        else:
+            file_save_dir = filedialog.askdirectory(
+                initialdir=init_dir,
+                title="Save new projects to",
+            )
+            project_file = self.selected_project_file_path
+
+        for i in os.listdir(file_dir):
+            if i.endswith(".json") or i.endswith(".toml"):
+                file_cfg_path = os.path.join(file_dir, i)
+                if self.selected_app_option.get() == "SIwave":
+                    file_save_path = os.path.join(Path(file_save_dir),
+                                                  Path(project_file).stem + "_" + Path(i).stem + ".siw")
+                    self._execute["siwave_load"].append(
+                        {"project_file": project_file,
+                         "file_cfg_path": file_cfg_path,
+                         "file_save_path": file_save_path}
+                    )
+                    """self.execute_load_cfg_siw(project_file,
+                                              file_cfg_path,
+                                              file_save_path)"""
+                elif self.selected_app_option.get() == "HFSS 3D Layout":
+                    file_save_path = os.path.join(Path(file_save_dir),
+                                                  Path(project_file).stem + "_" + Path(i).stem + ".aedt")
+                    self._execute["aedt_load"].append(
+                        {"project_file": project_file,
+                         "file_cfg_path": file_cfg_path,
+                         "file_save_path": file_save_path}
+                    )
+                    """self.execute_load_cfg_aedt(project_file,
+                                               file_cfg_path,
+                                               file_save_path)"""
+                else:
+
+                    file_save_path = os.path.join(project_dir,
+                                                  Path(project_file).stem + "_" + generate_unique_name(
+                                                      Path(i).stem) + ".aedt")
+                    self._execute["active_load"].append(
+                        {"project_file": project_file,
+                         "file_cfg_path": file_cfg_path,
+                         "file_save_path": file_save_path}
+                    )
+                    # self.execute_load_cfg_active(project_file, file_cfg_path, file_save_path)
+        self.execute()
+
+    def call_select_cfg_file(self, tk_label):
+        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
+        file_path = filedialog.askopenfilename(
+            initialdir=init_dir,
+            title="Select Configuration File",
+            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
+            defaultextension=".json")
+
+        if not file_path:
+            return
+        self.selected_cfg_file_folder.set(file_path)
+        tk_label.config(text=Path(file_path).parts[-1])
+
+    def call_export_cfg(self):
+        """Export configuration file."""
+        init_dir = Path(self.selected_project_file_path).parent
+        file_path_save = filedialog.asksaveasfilename(
+            initialdir=init_dir,
+            title="Select Configuration File",
+            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
+            defaultextension=".json")
+        if not file_path_save:
+            return
+
+        if self.selected_app_option.get() == "SIwave":
+            # self.execute_export_cfg_siw(self.selected_project_file_path, file_path_save)
+            self._execute["siwave_export"].append(
+                {"project_file": self.selected_project_file_path,
+                 "file_path_save": file_path_save}
+            )
+        elif self.selected_app_option.get() == "HFSS 3D Layout":
+            # self.execute_export_cfg_aedt(self.selected_project_file_path, file_path_save)
+            self._execute["aedt_export"].append(
+                {"project_file": self.selected_project_file_path,
+                 "file_path_save": file_path_save}
+            )
+        else:
+            data = get_active_project_info()
+            if data:
+                project_dir, project_file = data
+            else:
+                return
+            self._execute["active_export"].append(
+                {"project_file": project_file,
+                 "file_path_save": file_path_save}
+            )
+
+        self.execute()
+
+    def execute(self):
+        ConfigureEdbBackend(self._execute)
+        self._execute = {
+            "active_load": [],
+            "siwave_load": [],
+            "aedt_load": [],
+            "active_export": [],
+            "siwave_export": [],
+            "aedt_export": [],
+        }
+
+
+class ConfigureEdbBackend:
+    def __init__(self, args):
+        """{"project_file": project_file,
+         "file_cfg_path": file_cfg_path,
+         "file_save_path": file_save_path}
+         {"project_file": project_file,
+                 "file_path_save": file_path_save}"""
+        print(args)
+        if len(args["siwave_load"]):
+            for i in args["siwave_load"]:
+                self.execute_load_cfg_siw(**i)
+        elif len(args["aedt_load"]):
+            for i in args["aedt_load"]:
+                self.execute_load_cfg_aedt(**i)
+        elif len(args["active_load"]):
+            for i in args["active_load"]:
+                self.execute_load_cfg_aedt(**i)
+        elif len(args["siwave_export"]):
+            for i in args["siwave_export"]:
+                self.execute_export_cfg_siw(**i)
+        elif len(args["aedt_export"]):
+            for i in args["aedt_export"]:
+                self.execute_export_cfg_aedt(**i)
+        elif len(args["active_export"]):
+            for i in args["active_export"]:
+                self.execute_export_cfg_aedt(**i)
+
+    @staticmethod
+    def execute_load_cfg_siw(project_file, file_cfg_path, file_save_path):
+        """Load configuration file."""
+        fdir = Path(file_save_path).parent
+        fname = Path(file_save_path).stem
+        siw = Siwave(specified_version=version)
+        siw.open_project(str(project_file))
+        siw.load_configuration(file_cfg_path)
+        siw.save_project(fdir, fname)
+        siw.quit_application()
+
+    @staticmethod
+    def execute_load_cfg_aedt(project_file, file_cfg_path, file_save_path):
+        fedb = Path(project_file).with_suffix(".aedb")
+        edbapp = Edb(str(fedb), edbversion=version)
+        edbapp.configuration.load(file_cfg_path)
+        edbapp.configuration.run()
+        edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
+        edbapp.close()
+
+        app = ansys.aedt.core.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+        h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
+        h3d.save_project()
+        app.release_desktop(False, False)
+
+    @staticmethod
+    def execute_load_cfg_active(project_file, file_cfg_path, file_save_path):
+        app = ansys.aedt.core.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+
+        fedb = Path(project_file).with_suffix(".aedb")
+
+        edbapp = Edb(fedb, edbversion=version)
+        edbapp.configuration.load(config_file=file_cfg_path)
+        edbapp.configuration.run()
+        edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
+        edbapp.close()
+        h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
+        h3d.save_project()
+        app.release_desktop(False, False)
+
+    @staticmethod
+    def execute_export_cfg_siw(project_file, file_path_save):
+        siw = Siwave(specified_version=version)
+        siw.open_project(str(project_file))
+        siw.export_configuration(file_path_save)
+        siw.quit_application()
+
+    @staticmethod
+    def execute_export_cfg_aedt(project_file, file_path_save):
+        fedb = Path(project_file).with_suffix(".aedb")
+        edbapp = Edb(str(fedb), edbversion=version)
+        edbapp.configuration.export(file_path_save)
+        edbapp.close()
+
+
+def main():
+    app = ConfigureEdbFrontend()
+    app.mainloop()
+
+
+if __name__ == "__main__":
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-
-    main(args)
+    main()
