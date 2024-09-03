@@ -37,6 +37,7 @@ import string
 import time
 import warnings
 
+import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -8448,8 +8449,20 @@ class GeometryModeler(Modeler):
             if "[" in material:
                 array = material.split("[")
                 if array[0] in self._app.variable_manager.design_variables.keys():
-                    index = int(array[1].strip("]"))
-                    material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
+                    if "(" not in array[1]:
+                        index = int(array[1].strip("]"))
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
+                    else:
+                        condition = array[1].strip("]")
+                        condition_name = ansys.aedt.core.generate_unique_name("condition")
+                        self._app.variable_manager.set_variable(
+                            name=condition_name, expression=condition, is_post_processing=True
+                        )
+                        condition_value = int(
+                            self._app.variable_manager.post_processing_variables[condition_name].numeric_value
+                        )
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[condition_value]
+                        self._app.variable_manager.delete_variable(name=condition_name)
             if self._app.materials[material]:
                 if self._app._design_type == "HFSS":
                     return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
