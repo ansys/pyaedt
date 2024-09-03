@@ -49,22 +49,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 
-def get_active_project_info():
-    app = ansys.aedt.core.Desktop(
-        new_desktop_session=False,
-        specified_version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-    if not app.active_project():
-        app.release_desktop(False, False)
-        return
-    project_name = app.active_project().GetName()
-    project_dir = app.active_project().GetPath()
-    project_file = os.path.join(project_dir, project_name + ".aedt")
-    app.release_desktop(False, False)
-    return [project_dir, project_file]
+
 
 
 class ConfigureEdbFrontend(tk.Tk):
@@ -78,8 +63,15 @@ class ConfigureEdbFrontend(tk.Tk):
         "aedt_export": [],
     }
 
-    def __init__(self):
+    def get_active_project_info(self):
+        project_name = self.desktop.active_project().GetName()
+        project_dir = self.desktop.active_project().GetPath()
+        project_file = os.path.join(project_dir, project_name + ".aedt")
+        return [project_dir, project_file]
+
+    def __init__(self, desktop):
         super().__init__()
+        self.desktop = desktop
 
         self.geometry("500x300")
         self.title("EDB Configuration 2.0")
@@ -214,7 +206,7 @@ class ConfigureEdbFrontend(tk.Tk):
             )
             # self.execute_load_cfg_aedt(project_file, file_cfg_path, file_save_path)
         else:
-            data = get_active_project_info()
+            data = self.get_active_project_info()
             if data:
                 project_dir, project_file = data
             else:
@@ -240,7 +232,7 @@ class ConfigureEdbFrontend(tk.Tk):
             return
 
         if self.selected_app_option.get() == "Active Design":
-            data = get_active_project_info()
+            data = self.get_active_project_info()
             if data:
                 project_dir, project_file = data
             else:
@@ -327,7 +319,7 @@ class ConfigureEdbFrontend(tk.Tk):
                  "file_path_save": file_path_save}
             )
         else:
-            data = get_active_project_info()
+            data = self.get_active_project_info()
             if data:
                 project_dir, project_file = data
             else:
@@ -398,27 +390,11 @@ class ConfigureEdbBackend:
         edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
         edbapp.close()
 
-        app = ansys.aedt.core.Desktop(
-            new_desktop_session=False,
-            specified_version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-        )
         h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
         h3d.save_project()
-        app.release_desktop(False, False)
 
     @staticmethod
     def execute_load_cfg_active(project_file, file_cfg_path, file_save_path):
-        app = ansys.aedt.core.Desktop(
-            new_desktop_session=False,
-            specified_version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-        )
-
         fedb = Path(project_file).with_suffix(".aedb")
 
         edbapp = Edb(fedb, edbversion=version)
@@ -428,7 +404,6 @@ class ConfigureEdbBackend:
         edbapp.close()
         h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
         h3d.save_project()
-        app.release_desktop(False, False)
 
     @staticmethod
     def execute_export_cfg_siw(project_file, file_path_save):
@@ -445,13 +420,24 @@ class ConfigureEdbBackend:
         edbapp.close()
 
 
-def main(is_test=False, execute=""):
-    app = ConfigureEdbFrontend()
+def main(is_test=False, execute="", desktop=None):
+    if not desktop:
+        desktop = ansys.aedt.core.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+
+    app = ConfigureEdbFrontend(desktop)
     if is_test:
         app._execute = execute
         app.execute()
     else:
         app.mainloop()
+    if not is_test:
+        desktop.release_desktop(False, False)
 
 
 if __name__ == "__main__":

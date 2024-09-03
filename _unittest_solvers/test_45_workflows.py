@@ -164,7 +164,9 @@ class TestClass:
 
         main(is_test=True, execute={
             "aedt_load": [
- 
+                {"project_file": file_path,
+                 "file_cfg_path": configuration_path,
+                 "file_save_path": file_path.replace(".aedb", "_1.aedt")}
             ],
             "aedt_export": [
                 {"project_file": file_path,
@@ -191,13 +193,13 @@ class TestClass:
             "assignment": "",
             "assignment_type": ["Line"],
             "operations": ["Fundamental_Quantity('E')",
-                            "Operation('Real')",
-                            "Operation('Tangent')",
-                            "Operation('Dot')",
-                            "EnterLine('assignment')",
-                            "Operation('LineValue')",
-                            "Operation('Integrate')",
-                            "Operation('CmplxR')"],
+                           "Operation('Real')",
+                           "Operation('Tangent')",
+                           "Operation('Dot')",
+                           "EnterLine('assignment')",
+                           "Operation('LineValue')",
+                           "Operation('Integrate')",
+                           "Operation('CmplxR')"],
             "report": ["Data Table", "Rectangular Plot"],
         }
 
@@ -395,4 +397,3 @@ class TestClass:
         from ansys.aedt.core.workflows.circuit.import_schematic import main
         assert main({"is_test": True, "asc_file": file_path})
         aedtapp.close_project()
-
