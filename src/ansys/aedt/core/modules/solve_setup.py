@@ -2341,13 +2341,13 @@ class Setup3DLayout(CommonSetup):
             Entry Selection. ``0`` for All, ``1`` for Diagonal Entries, ``2`` for custom entries.
         ignore_phase_when_mag_is_less_than : float
             Value of magnitude when phase is ignored.
-        all_diagonal_entries: bool
+        all_diagonal_entries : bool
             Whether diagonal entries has to be included in convergence or not. Default is ``True``.
         max_delta : float
             Maximum Delta S.
         max_delta_phase : float, str
             Maximum delta phase in degree.
-        all_offdiagonal_entries: bool
+        all_offdiagonal_entries : bool
             Whether off-diagonal entries has to be included in convergence or not. Default is ``True``.
         off_diagonal_mag : float
             Maximum offdiagonal Delta S.
@@ -3052,13 +3052,13 @@ class SetupHFSS(Setup, object):
             Entry Selection. ``0`` for All, ``1`` for Diagonal Entries, ``2`` for custom entries.
         ignore_phase_when_mag_is_less_than : float
             Value of magnitude when phase is ignored.
-        all_diagonal_entries: bool
+        all_diagonal_entries : bool
             Whether diagonal entries has to be included in convergence or not. Default is ``True``.
         max_delta : float
             Maximum Delta S.
         max_delta_phase : float, str
             Maximum delta phase in degree.
-        all_offdiagonal_entries: bool
+        all_offdiagonal_entries : bool
             Whether off-diagonal entries has to be included in convergence or not. Default is ``True``.
         off_diagonal_mag : float
             Maximum offdiagonal Delta S.
