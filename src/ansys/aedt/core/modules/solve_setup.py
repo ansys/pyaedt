@@ -32,7 +32,6 @@ It is based on templates to allow for easy creation and modification of setup pr
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os.path
 from random import randrange
 import re
@@ -181,18 +180,18 @@ class CommonSetup(PropsManager, object):
                             app.pop("MoveBackForward", None)
                             app.pop("MoveBackwards", None)
                             for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
+                                if isinstance(app[el], dict):
                                     self.sweeps.append(SweepHFSS(self, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
+                                if isinstance(app[el], dict):
                                     self.sweeps.append(SweepMatrix(self, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
-                    self.props = SetupProps(self, OrderedDict(setup_data))
+                    self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
 
     @property
     def is_solved(self):
@@ -880,7 +879,7 @@ class Setup(CommonSetup):
             else:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
-            meshlinks["Params"] = OrderedDict({})
+            meshlinks["Params"] = {}
             if parameters is None:
                 parameters = self.p_app.available_variations.nominal_w_values_dict
                 for el in parameters:
@@ -905,7 +904,7 @@ class Setup(CommonSetup):
 
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
-        params = OrderedDict({})
+        params = {}
         if map_variables_by_name:
             parameters = self.p_app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
@@ -923,7 +922,7 @@ class Setup(CommonSetup):
         return params
 
     def _parse_link_solution(self, project, design, solution):
-        prev_solution = OrderedDict({})
+        prev_solution = {}
 
         # project name
         if project != "This Project*":
@@ -1062,7 +1061,7 @@ class SetupCircuit(CommonSetup):
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
-            self.props = SetupProps(self, OrderedDict())
+            self.props = SetupProps(self, {})
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                 if not isinstance(setups_data, list):
@@ -1073,7 +1072,7 @@ class SetupCircuit(CommonSetup):
                         setup_data.pop("Sweeps", None)
                         self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
         self.props["Name"] = self.name
 
     @property
@@ -1350,9 +1349,9 @@ class SetupCircuit(CommonSetup):
             else:
                 self.props["SweepDefinition"]["Data"] += " " + equation
             return self.update()
-        if isinstance(self.props["SweepDefinition"], (OrderedDict, dict)):
+        if isinstance(self.props["SweepDefinition"], dict):
             self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
-        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0})
+        prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
         self.props["SweepDefinition"].append(prop)
         return self.update()
 
@@ -1758,12 +1757,12 @@ class Setup3DLayout(CommonSetup):
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
-                            if isinstance(app[el], (OrderedDict, dict)):
+                            if isinstance(app[el], dict):
                                 self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
-                    self.props = SetupProps(self, OrderedDict(setup_data))
+                    self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
                 settings.logger.error("Unable to set props.")
 
     @property
@@ -3352,7 +3351,7 @@ class SetupMaxwell(Setup, object):
             return False
         legacy_update = self.auto_update
         self.auto_update = False
-        props = OrderedDict()
+        props = {}
         props["RangeType"] = range_type
         props["RangeStart"] = "{}{}".format(start, units)
         if range_type == "LinearStep":
