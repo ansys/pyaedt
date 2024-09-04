@@ -46,7 +46,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 
-class ConfigureEdbFrontend(tk.Tk):
+class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
     app_options = ["Active Design", "HFSS 3D Layout", "SIwave"]
     _execute = {
         "active_load": [],
@@ -110,7 +110,7 @@ class ConfigureEdbFrontend(tk.Tk):
         # Section 3
         s3_start_row = 4
         button_select_project_file = ttk.Button(
-            self, text="Select project file", width=col_width[0], command=lambda: self.call_select_project()
+            self, text="Select project file", width=col_width[0], command=self.call_select_project
         )
         button_select_project_file.grid(row=s3_start_row, column=0)
 
@@ -120,18 +120,18 @@ class ConfigureEdbFrontend(tk.Tk):
 
         # Apply cfg
         button = ttk.Button(
-            self, text="Apply Configuration", width=col_width[0], command=lambda: self.call_apply_cfg_file()
+            self, text="Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
         )
         button.grid(row=s3_start_row + 2, column=0)
 
         button = ttk.Button(
-            self, text="Apply Configuration Batch", width=col_width[0], command=lambda: self.call_select_cfg_folder()
+            self, text="Apply Configuration Batch", width=col_width[0], command=self.call_select_cfg_folder
         )
         button.grid(row=s3_start_row + 3, column=0)
 
         # Export cfg
         button = ttk.Button(
-            self, text="Export Configuration", width=col_width[0], command=lambda: self.call_export_cfg()
+            self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg
         )
         button.grid(row=s3_start_row + 4, column=0)
 
@@ -243,9 +243,6 @@ class ConfigureEdbFrontend(tk.Tk):
                     self._execute["siwave_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
-                    """self.execute_load_cfg_siw(project_file,
-                                              file_cfg_path,
-                                              file_save_path)"""
                 elif self.selected_app_option.get() == "HFSS 3D Layout":
                     file_save_path = os.path.join(
                         Path(file_save_dir), Path(project_file).stem + "_" + Path(i).stem + ".aedt"
@@ -253,9 +250,6 @@ class ConfigureEdbFrontend(tk.Tk):
                     self._execute["aedt_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
-                    """self.execute_load_cfg_aedt(project_file,
-                                               file_cfg_path,
-                                               file_save_path)"""
                 else:
 
                     file_save_path = os.path.join(
@@ -264,7 +258,6 @@ class ConfigureEdbFrontend(tk.Tk):
                     self._execute["active_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
-                    # self.execute_load_cfg_active(project_file, file_cfg_path, file_save_path)
         self.execute()
 
     def call_select_cfg_file(self, tk_label):
@@ -294,12 +287,10 @@ class ConfigureEdbFrontend(tk.Tk):
             return
 
         if self.selected_app_option.get() == "SIwave":
-            # self.execute_export_cfg_siw(self.selected_project_file_path, file_path_save)
             self._execute["siwave_export"].append(
                 {"project_file": self.selected_project_file_path, "file_path_save": file_path_save}
             )
         elif self.selected_app_option.get() == "HFSS 3D Layout":
-            # self.execute_export_cfg_aedt(self.selected_project_file_path, file_path_save)
             self._execute["aedt_export"].append(
                 {"project_file": self.selected_project_file_path, "file_path_save": file_path_save}
             )
@@ -307,10 +298,9 @@ class ConfigureEdbFrontend(tk.Tk):
             data = self.get_active_project_info()
             if data:
                 project_dir, project_file = data
+                self._execute["active_export"].append({"project_file": project_file, "file_path_save": file_path_save})
             else:
                 return
-            self._execute["active_export"].append({"project_file": project_file, "file_path_save": file_path_save})
-
         self.execute()
 
     def execute(self):
@@ -327,11 +317,6 @@ class ConfigureEdbFrontend(tk.Tk):
 
 class ConfigureEdbBackend:
     def __init__(self, args):
-        """{"project_file": project_file,
-        "file_cfg_path": file_cfg_path,
-        "file_save_path": file_save_path}
-        {"project_file": project_file,
-                "file_path_save": file_path_save}"""
         if len(args["siwave_load"]):
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
