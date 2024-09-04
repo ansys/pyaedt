@@ -67,6 +67,7 @@ class TestClass:
         assert setup1.props["MaxDeltaS"] == 0.01
         setup1.disable()
         setup1.enable()
+
         assert setup1.use_matrix_convergence(
             entry_selection=0,
             ignore_phase_when_mag_is_less_than=0.015,
