@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 import os
+import pathlib
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -147,18 +148,16 @@ def frontend():  # pragma: no cover
 
         # create 3D component
         hfss.save_project(file_name=out_3d_project)
-        hfss.modeler.create_3dcomponent(component_file=component_3d_file)
-        hfss.release_desktop(close_projects=True, close_desktop=False)
-        if import_3d_component_variable.get():
-            app = ansys.aedt.core.Desktop(
-                new_desktop=False,
-                version=version,
-                port=port,
-                aedt_process_id=aedt_process_id,
-                student_version=is_student,
+        if hfss.modeler.create_3dcomponent(component_file=component_3d_file):
+            comp_name = pathlib.Path(component_3d_file).name
+            messagebox.showinfo(
+                title="3D component export completed",
+                message=f"3D component with arbitrary wave ports"
+                f"has been generated. You can import"
+                f" the file {comp_name} located in working"
+                f"directory {_wdir}",
             )
-
-            app.active_design().modeler.insert_3d_component(component_3d_file)
+        hfss.release_desktop(close_projects=True, close_desktop=False)
 
     # workdir
     var1 = tkinter.StringVar()
@@ -196,12 +195,6 @@ def frontend():  # pragma: no cover
     # checkbox import EDB
     import_edb_variable.set(True)
     ttk.Checkbutton(master=master, text="Import EDB", variable=import_edb_variable).grid(
-        row=2, column=1, padx=5, pady=10
-    )
-
-    # checkbox import 3D component
-    import_3d_component_variable.set(True)
-    ttk.Checkbutton(master=master, text="Import 3D component", variable=import_3d_component_variable).grid(
         row=3, column=1, padx=5, pady=10
     )
 
