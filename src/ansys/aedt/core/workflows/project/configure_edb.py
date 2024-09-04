@@ -119,9 +119,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         label_project_file.grid(row=s3_start_row, column=2)
 
         # Apply cfg
-        button = ttk.Button(
-            self, text="Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
-        )
+        button = ttk.Button(self, text="Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file)
         button.grid(row=s3_start_row + 2, column=0)
 
         button = ttk.Button(
@@ -130,9 +128,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         button.grid(row=s3_start_row + 3, column=0)
 
         # Export cfg
-        button = ttk.Button(
-            self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg
-        )
+        button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
         button.grid(row=s3_start_row + 4, column=0)
 
     def call_select_project(self):
