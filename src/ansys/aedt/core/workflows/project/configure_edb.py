@@ -332,7 +332,6 @@ class ConfigureEdbBackend:
         "file_save_path": file_save_path}
         {"project_file": project_file,
                 "file_path_save": file_path_save}"""
-        print(args)
         if len(args["siwave_load"]):
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
@@ -402,8 +401,10 @@ class ConfigureEdbBackend:
         edbapp.close()
 
 
-def main(is_test=False, execute="", desktop=None):
-    if not desktop:
+def main(is_test=False, execute=""):
+    if is_test:
+        ConfigureEdbBackend(execute)
+    else:
         desktop = ansys.aedt.core.Desktop(
             new_desktop_session=False,
             specified_version=version,
@@ -411,14 +412,8 @@ def main(is_test=False, execute="", desktop=None):
             aedt_process_id=aedt_process_id,
             student_version=is_student,
         )
-
-    app = ConfigureEdbFrontend(desktop)
-    if is_test:
-        app._execute = execute
-        app.execute()
-    else:
+        app = ConfigureEdbFrontend(desktop)
         app.mainloop()
-    if not is_test:
         desktop.release_desktop(False, False)
 
 
