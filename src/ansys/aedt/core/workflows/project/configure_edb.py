@@ -293,7 +293,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         else:
             data = self.get_active_project_info()
             if data:
-                project_dir, project_file = data
+                _, project_file = data
                 self._execute["active_export"].append({"project_file": project_file, "file_path_save": file_path_save})
             else:
                 return
@@ -313,7 +313,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
 
 class ConfigureEdbBackend:
     def __init__(self, args):
-        if len(args["siwave_load"]):
+        if len(args["siwave_load"]):  # pragma: no cover
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
         elif len(args["aedt_load"]):
@@ -322,7 +322,7 @@ class ConfigureEdbBackend:
         elif len(args["active_load"]):
             for i in args["active_load"]:
                 self.execute_load_cfg_aedt(**i)
-        elif len(args["siwave_export"]):
+        elif len(args["siwave_export"]):  # pragma: no cover
             for i in args["siwave_export"]:
                 self.execute_export_cfg_siw(**i)
         elif len(args["aedt_export"]):
@@ -333,7 +333,7 @@ class ConfigureEdbBackend:
                 self.execute_export_cfg_aedt(**i)
 
     @staticmethod
-    def execute_load_cfg_siw(project_file, file_cfg_path, file_save_path):
+    def execute_load_cfg_siw(project_file, file_cfg_path, file_save_path):  # pragma: no cover
         """Load configuration file."""
         fdir = Path(file_save_path).parent
         fname = Path(file_save_path).stem
@@ -368,7 +368,7 @@ class ConfigureEdbBackend:
         h3d.save_project()
 
     @staticmethod
-    def execute_export_cfg_siw(project_file, file_path_save):
+    def execute_export_cfg_siw(project_file, file_path_save):  # pragma: no cover
         siw = Siwave(specified_version=version)
         siw.open_project(str(project_file))
         siw.export_configuration(file_path_save)

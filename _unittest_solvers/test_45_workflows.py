@@ -178,6 +178,18 @@ class TestClass:
             "siwave_export": [],
         })
 
+        main(is_test=True, execute={
+            "aedt_load": [],
+            "aedt_export": [],
+            "active_load": [{"project_file": file_path,
+                             "file_cfg_path": configuration_path,
+                             "file_save_path": file_path.replace(".aedb", "_1.aedt")}],
+            "active_export": [{"project_file": file_path,
+                               "file_path_save": configuration_path.replace(".json", "_1.json")}],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
+
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=fields_calculator,
