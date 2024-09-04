@@ -1540,7 +1540,6 @@ class BaseFolderPlot:
         dict
             A dictionary containing settings.
         """
-        pass
 
     @abstractmethod
     def from_dict(self, dictionary):
@@ -1552,7 +1551,6 @@ class BaseFolderPlot:
             Dictionary containing the configuration settings.
             Dictionary syntax must be the same of the AEDT file.
         """
-        pass
 
 
 class ColorMapSettings(BaseFolderPlot):
@@ -1893,8 +1891,6 @@ class Scale3DSettings(BaseFolderPlot):
             self._scale_settings = self._minmax_scale
         elif value == "Specified":
             self._scale_settings = self._specified_scale
-        else:
-            raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self.accepted)}.")
 
     @property
     def scale_settings(self):
@@ -1968,7 +1964,7 @@ class StreamlineMarkerSettings(BaseFolderPlot):
 
     @marker_type.setter
     def marker_type(self, v):
-        if v is None or v in self._allowed_marker_types.keys():
+        if v is None or v in self._allowed_marker_types:
             self._marker_type = v
         else:
             raise ValueError(
@@ -2300,7 +2296,7 @@ class FieldPlot:
 
     @folder_settings.setter
     def folder_settings(self, v):
-        """Set the fieldplor folder settings.
+        """Set the fieldplot folder settings.
 
         Parameters
         ----------

@@ -1913,6 +1913,7 @@ class TestClass:
 
         fs.arrow_settings.arrow_type = "Line"
         assert fs.arrow_settings.arrow_type == "Line"
+        assert isinstance(fs.arrow_settings.to_dict(), dict)
 
         with pytest.raises(ValueError):
             fs.streamline_marker_settings.marker_type = "Line"
@@ -1920,20 +1921,24 @@ class TestClass:
 
         fs.streamline_marker_settings.marker_type = "Tetrahedron"
         assert fs.streamline_marker_settings.marker_type == "Tetrahedron"
+        assert isinstance(fs.streamline_marker_settings.to_dict(), dict)
 
         with pytest.raises(ValueError):
             fs.scale_settings.scale_type = "Personalized"
         assert fs.scale_settings.scale_type == "Auto"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
         assert (
             str(fs.scale_settings.scale_settings) == "AutoScale(n_levels=10, limit_precision_digits=False, "
             "precision_digits=4, use_current_scale_for_animation=False)"
         )
-        fs.scale_settings.scale_type = "MinMax"
-        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(min_value=1, max_value=100)"
         fs.scale_settings.scale_type = "Specified"
         assert str(fs.scale_settings.scale_settings) == "SpecifiedScale(scale_values=[])"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
         with pytest.raises(ValueError):
             SpecifiedScale(1)
+        fs.scale_settings.scale_type = "MinMax"
+        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(min_value=1, max_value=100)"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
 
         assert str(fs.scale_settings.number_format) == "NumberFormat(format_type=Automatic, width=12, precision=4)"
         with pytest.raises(ValueError):
@@ -1941,7 +1946,7 @@ class TestClass:
         assert fs.scale_settings.number_format.format_type == "Automatic"
         fs.scale_settings.number_format.format_type = "Scientific"
         assert fs.scale_settings.number_format.format_type == "Scientific"
-
+        assert isinstance(fs.scale_settings.number_format.to_dict(), dict)
         assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
         with pytest.raises(ValueError):
             fs.color_map_settings.map_type = "Personalized"
@@ -1959,4 +1964,10 @@ class TestClass:
             fs.color_map_settings.color = "Hot"
         assert fs.color_map_settings.color == "Rainbow"
         fs.color_map_settings.color = "Temperature"
+        assert isinstance(fs.color_map_settings.to_dict(), dict)
+        assert isinstance(fs.to_dict(), dict)
+        fs.update()
+        with pytest.raises(ValueError):
+            plot_object.folder_settings = 1
+        plot_object.folder_settings = fs
         app.close_project()
