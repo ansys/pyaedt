@@ -316,19 +316,24 @@ class ConfigureEdbBackend:
         if len(args["siwave_load"]):  # pragma: no cover
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
-        elif len(args["aedt_load"]):
+
+        if len(args["aedt_load"]):
             for i in args["aedt_load"]:
                 self.execute_load_cfg_aedt(**i)
-        elif len(args["active_load"]):
+
+        if len(args["active_load"]):
             for i in args["active_load"]:
                 self.execute_load_cfg_aedt(**i)
-        elif len(args["siwave_export"]):  # pragma: no cover
+
+        if len(args["siwave_export"]):  # pragma: no cover
             for i in args["siwave_export"]:
                 self.execute_export_cfg_siw(**i)
-        elif len(args["aedt_export"]):
+
+        if len(args["aedt_export"]):
             for i in args["aedt_export"]:
                 self.execute_export_cfg_aedt(**i)
-        elif len(args["active_export"]):
+
+        if len(args["active_export"]):
             for i in args["active_export"]:
                 self.execute_export_cfg_aedt(**i)
 
