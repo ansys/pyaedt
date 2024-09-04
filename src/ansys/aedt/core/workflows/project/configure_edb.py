@@ -385,7 +385,7 @@ class ConfigureEdbBackend:
 def main(is_test=False, execute=""):
     if is_test:
         ConfigureEdbBackend(execute)
-    else:
+    else:  # pragma: no cover
         desktop = ansys.aedt.core.Desktop(
             new_desktop_session=False,
             specified_version=version,
