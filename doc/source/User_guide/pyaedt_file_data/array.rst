@@ -7,8 +7,8 @@ This file can be created using the following command:
 
 .. code:: python
 
-    from pyaedt import Hfss
-    from pyaedt.generic.DataHandlers import json_to_dict
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.generic.DataHandlers import json_to_dict
     hfss = Hfss()
     dict_in = json_to_dict("array_simple.json")
     dict_in["Circ_Patch_5GHz1"] = "Circ_Patch_5GHz_232.a3dcomp"

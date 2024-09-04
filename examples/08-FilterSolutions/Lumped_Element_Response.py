@@ -10,20 +10,17 @@ visualize the frequency response of a band-pass Butterworth filter.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
-import pyaedt.filtersolutions_core.attributes
-from pyaedt.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
-from pyaedt.filtersolutions_core.ideal_response import FrequencyResponseColumn
+import ansys.aedt.core
+import ansys.aedt.core.filtersolutions_core.attributes
+from ansys.aedt.core.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
+from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
 import matplotlib.pyplot as plt
-from pyaedt.filtersolutions_core.export_to_aedt import ExportFormat,PartLibraries
-from pyaedt.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
-
 
 ###############################################################################
 # Create the lumped design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
-design = pyaedt.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)
+design = ansys.aedt.core.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
 design.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
 print(design.export_to_aedt.part_libraries)
 design.export_to_aedt.load_modelithics_models()

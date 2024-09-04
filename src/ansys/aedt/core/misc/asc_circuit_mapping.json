@@ -1,0 +1,102 @@
+{"res":{
+  "Component Library": "Resistors",
+  "Component Name": "RES_",
+  "xoffset":  200,
+  "yoffset": -400,
+  "rotation_offset": 0,
+  "component_size": 400,
+  "orientation":  "+x",
+  "size_change": 600
+},
+  "cap":{
+    "Component Library": "Capacitors",
+  "Component Name": "CAP_",
+  "xoffset": 200,
+  "yoffset": -200,
+  "rotation_offset": 0,
+      "component_size": 400,
+  "orientation": "+x",
+    "size_change": 600
+  },
+  "ind":{
+    "Component Library": "Inductors",
+  "Component Name": "IND_",
+  "xoffset": 200,
+  "yoffset": -400,
+  "rotation_offset": 0,
+    "component_size": 400,
+  "orientation":  "+x",
+      "size_change": 600
+  },
+  "ind2":{
+    "Component Library": "Inductors",
+  "Component Name": "IND_",
+  "xoffset": 200,
+  "yoffset": -400,
+  "rotation_offset": 0,
+      "component_size": 400,
+  "orientation":  "+x",
+      "size_change": 600
+  },
+  "diode":{
+   "Component Library": "Diodes",
+  "Component Name": "DIODE_Level1",
+  "xoffset": 200,
+  "yoffset": -600,
+  "rotation_offset": 180,
+    "component_size": 400,
+  "orientation":  "-x",
+      "size_change": 400
+  },
+   "zener":{
+   "Component Library": "Diodes",
+  "Component Name": "DIODE_Level1",
+  "xoffset": 200,
+  "yoffset": -600,
+  "rotation_offset": 180,
+       "component_size": 400,
+  "orientation": "-x",
+       "size_change": 400
+   },
+  "voltage_pulse": {
+    "Component Library": "Independent Sources",
+  "Component Name": "V_PULSE",
+  "xoffset": 0,
+  "yoffset": -1000,
+  "rotation_offset": 90,
+       "component_size": 400,
+  "orientation": "-x",
+       "size_change": 600
+  },
+    "voltage": {
+    "Component Library": "Independent Sources",
+  "Component Name": "V_DC",
+  "xoffset": 0,
+  "yoffset": -1000,
+  "rotation_offset": 90,
+       "component_size": 400,
+  "orientation": "-x",
+       "size_change": 600
+  },
+    "current_pulse": {
+    "Component Library": "Independent Sources",
+  "Component Name": "I_PULSE",
+  "xoffset": 0,
+  "yoffset": -800,
+  "rotation_offset": 90,
+       "component_size": 400,
+  "orientation": "x",
+       "size_change": 600
+  },
+    "current": {
+    "Component Library": "Independent Sources",
+  "Component Name": "I_DC",
+  "xoffset": 0,
+  "yoffset": -800,
+  "rotation_offset": 90,
+       "component_size": 400,
+  "orientation": "x",
+       "size_change": 600
+  }
+}
+

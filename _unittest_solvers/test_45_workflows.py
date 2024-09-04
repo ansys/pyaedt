@@ -2,8 +2,8 @@ import pytest
 import os
 import shutil
 
-import pyaedt
-from pyaedt.generic.settings import is_linux
+import ansys.aedt.core
+from ansys.aedt.core.generic.settings import is_linux
 from _unittest.conftest import local_path
 from _unittest_solvers.conftest import local_path as solver_local_path
 
@@ -15,6 +15,7 @@ fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 
 test_subfolder = "T45"
+TEST_REVIEW_FLAG = True
 
 
 class TestClass:
@@ -24,9 +25,9 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
     def test_01_template(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_test")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
 
-        from pyaedt.workflows.templates.extension_template import main
+        from ansys.aedt.core.workflows.templates.extension_template import main
         assert main({"is_test": True})
 
         assert len(aedtapp.modeler.object_list) == 1
@@ -35,7 +36,7 @@ class TestClass:
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
 
-        from pyaedt.workflows.hfss.push_excitation_from_file import main
+        from ansys.aedt.core.workflows.hfss.push_excitation_from_file import main
 
         # No choice
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
@@ -50,13 +51,13 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
 
-        from pyaedt.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Q3D"})
 
@@ -65,13 +66,13 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
 
-        from pyaedt.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Icepak"})
 
@@ -80,13 +81,13 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss3dLayout,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss3dLayout,
                           project_name=export_3d_project,
                           subfolder=test_subfolder)
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
 
-        from pyaedt.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Maxwell 3D"})
 
@@ -95,11 +96,11 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_04_project_report(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=report,
                           subfolder=test_subfolder)
 
-        from pyaedt.workflows.project.create_report import main
+        from ansys.aedt.core.workflows.project.create_report import main
 
         assert main({"is_test": True})
 
@@ -107,9 +108,9 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_05_project_import_nastran(self, add_app, local_scratch):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_nastran")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_nastran")
 
-        from pyaedt.workflows.project.import_nastran import main
+        from ansys.aedt.core.workflows.project.import_nastran import main
 
         # Non-existing file
         file_path = os.path.join(local_scratch.path, "test_cad_invented.nas")
@@ -130,9 +131,9 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_06_project_import_stl(self, add_app, local_scratch):
-        aedtapp = add_app(application=pyaedt.Hfss, project_name="workflow_stl")
+        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
 
-        from pyaedt.workflows.project.import_nastran import main
+        from ansys.aedt.core.workflows.project.import_nastran import main
 
         file_path = shutil.copy(os.path.join(local_path, "example_models", "T20", "sphere.stl"),
                                 os.path.join(local_scratch.path, "sphere.stl"))
@@ -144,16 +145,16 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
-        aedtapp = add_app(application=pyaedt.TwinBuilder,
+        aedtapp = add_app(application=ansys.aedt.core.TwinBuilder,
                           project_name=twinbuilder_circuit,
                           subfolder=test_subfolder)
 
-        from pyaedt.workflows.twinbuilder.convert_to_circuit import main
+        from ansys.aedt.core.workflows.twinbuilder.convert_to_circuit import main
 
         assert main({"is_test": True})
 
     def test_08_configure_a3d(self, local_scratch):
-        from pyaedt.workflows.project.configure_edb import main
+        from ansys.aedt.core.workflows.project.configure_edb import main
 
         configuration_path = shutil.copy(os.path.join(solver_local_path, "example_models", "T45", "ports.json"),
                                          os.path.join(local_scratch.path, "ports.json"))
@@ -164,9 +165,46 @@ class TestClass:
         assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
-        aedtapp = add_app(application=pyaedt.Hfss,
+        aedtapp = add_app(application=ansys.aedt.core.Hfss,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
+
+        my_expression = {
+            "name": "test",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS", "Q3D Extractor"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "operations": ["Fundamental_Quantity('E')",
+                            "Operation('Real')",
+                            "Operation('Tangent')",
+                            "Operation('Dot')",
+                            "EnterLine('assignment')",
+                            "Operation('LineValue')",
+                            "Operation('Integrate')",
+                            "Operation('CmplxR')"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        name = aedtapp.post.fields_calculator.add_expression(my_expression, "Polyline1")
+        assert name == "test"
+
+        my_invalid_expression = {
+            "name": "test2",
+            "description": "Voltage drop along a line",
+            "design_type": ["HFSS"],
+            "fields_type": ["Fields", "CG Fields"],
+            "solution_type": "",
+            "primary_sweep": "Freq",
+            "assignment": "",
+            "assignment_type": ["Line"],
+            "report": ["Data Table", "Rectangular Plot"],
+        }
+
+        assert not aedtapp.post.fields_calculator.add_expression(my_invalid_expression, "Polyline1")
 
         assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
@@ -182,7 +220,7 @@ class TestClass:
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "inner")
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", 500)
 
-        from pyaedt.workflows.project.advanced_fields_calculator import main
+        from ansys.aedt.core.workflows.project.advanced_fields_calculator import main
 
         assert main({"is_test": True,
                      "setup": "Setup1 : LastAdaptive",
@@ -204,7 +242,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_09_advanced_fields_calculator_general(self, add_app):
-        aedtapp = add_app(application=pyaedt.Q3d,
+        aedtapp = add_app(application=ansys.aedt.core.Q3d,
                           project_name=fields_calculator,
                           subfolder=test_subfolder)
 
@@ -218,7 +256,7 @@ class TestClass:
         assert not aedtapp.post.fields_calculator.add_expression("e_field_magnitude", "Polyline1")
         assert not aedtapp.post.fields_calculator.load_expression_file("invented.toml")
 
-        from pyaedt.workflows.project.advanced_fields_calculator import main
+        from ansys.aedt.core.workflows.project.advanced_fields_calculator import main
 
         assert main({"is_test": True,
                      "setup": "Setup1 : LastAdaptive",
@@ -229,7 +267,7 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-        aedtapp = add_app(application=pyaedt.Maxwell2d,
+        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d,
                           project_name=m2d_electrostatic,
                           design_name="e_tangential",
                           subfolder=test_subfolder)
@@ -244,7 +282,7 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-        aedtapp = add_app(application=pyaedt.Maxwell2d,
+        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d,
                           project_name=m2d_electrostatic,
                           design_name="stress_tensor",
                           subfolder=test_subfolder)
@@ -258,14 +296,14 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_10_push_excitation_3dl(self, local_scratch, desktop):
-        from pyaedt.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
+        from ansys.aedt.core.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
 
         project_path = shutil.copy(os.path.join(local_path, "example_models",
                                                 "T41",
                                                 "test_post_3d_layout_solved_23R2.aedtz"),
                                    os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"))
 
-        h3d = pyaedt.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
+        h3d = ansys.aedt.core.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
 
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
@@ -279,10 +317,14 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
     def test_11_cutout(self, add_app, local_scratch):
-        from pyaedt.workflows.hfss3dlayout.cutout import main
+        from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
 
-        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
+        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
         assert main({"is_test": True, "choice": "ConvexHull",
                      "signals": ["DDR4_A0"],
@@ -290,21 +332,30 @@ class TestClass:
                      "expansion_factor": 3,
                      "fix_disjoints": True, })
         app.close_project()
+
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
     def test_12_export_layout(self, add_app, local_scratch):
-        from pyaedt.workflows.hfss3dlayout.export_layout import main
+        from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
 
+        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
-        app = add_app("ANSYS-HSD_V1", application=pyaedt.Hfss3dLayout, subfolder=test_subfolder)
-
-        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True })
+        assert main({"is_test": True, "export_ipc": True, "export_configuration": True, "export_bom": True})
         app.close_project()
+
+    @pytest.mark.skipif(
+        TEST_REVIEW_FLAG,
+        reason="Test under review in 2024.2",
+    )
     def test_13_parametrize_layout(self, local_scratch):
-        from pyaedt.workflows.hfss3dlayout.parametrize_edb import main
+        from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import main
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
 
         local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
-                                                "T45",
-                                                "ANSYS-HSD_V1.aedb"), file_path)
+                                              "T45",
+                                              "ANSYS-HSD_V1.aedb"), file_path)
 
         assert main({"is_test": True,
                      "aedb_path": file_path,
@@ -317,3 +368,19 @@ class TestClass:
                      "expansion_void_mm": 0.1,
                      "relative_parametric": True,
                      "project_name": "new_parametrized", })
+
+    def test_14_power_map_creation_ipk(self, local_scratch, add_app):
+        from ansys.aedt.core.workflows.icepak.power_map_from_csv import main
+        file_path = os.path.join(solver_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
+        aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
+        assert main({"is_test": True, "file_path": file_path})
+        assert len(aedtapp.modeler.object_list) == 3
+        aedtapp.close_project()
+
+    def test_15_import_asc(self, local_scratch, add_app):
+        aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
+        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
+        from ansys.aedt.core.workflows.circuit.import_schematic import main
+        assert main({"is_test": True, "asc_file": file_path})
+        aedtapp.close_project()
+

@@ -27,10 +27,9 @@ import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Circuit
-from pyaedt.generic.settings import is_linux
 
 test_subfolder = "T21"
 
@@ -169,6 +168,8 @@ class TestClass:
 
     def test_12_connect_components(self):
         myind = self.aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        myind2 = self.aedtapp.modeler.schematic.create_inductor("L1001", 1e-9)
+        myind3 = self.aedtapp.modeler.schematic.create_inductor("L1002", 1e-9)
         myres = self.aedtapp.modeler.schematic.create_resistor("R100", 50)
         mycap = self.aedtapp.modeler.schematic.create_capacitor("C100", 1e-12)
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
@@ -177,6 +178,9 @@ class TestClass:
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
+        assert self.aedtapp.modeler.connect_schematic_components(
+            myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
+        )
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
         # create_interface_port
@@ -212,7 +216,7 @@ class TestClass:
         )
 
     def test_16_read_touchstone(self):
-        from pyaedt.generic.touchstone_parser import read_touchstone
+        from ansys.aedt.core.generic.touchstone_parser import read_touchstone
 
         data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0
@@ -443,7 +447,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.pop_up()
         subcircuit_2 = self.aedtapp.modeler.schematic.create_subcircuit(
@@ -452,7 +456,7 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_3 = active_project.GetName()
         assert active_project_name_1 == active_project_name_3
         assert subcircuit_2.component_info["RefDes"] == "U2"
@@ -464,14 +468,14 @@ class TestClass:
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_1 = active_project.GetName()
         self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         assert self.aedtapp.pop_up()
         active_project = self.aedtapp.oproject.GetActiveDesign()
         if is_linux and config["desktopVersion"] == "2024.1":
             time.sleep(1)
-            self.aedtapp._desktop.CloseAllWindows()
+            self.aedtapp.desktop_class.close_windows()
         active_project_name_2 = active_project.GetName()
         assert active_project_name_1 == active_project_name_2
 
@@ -888,8 +892,8 @@ class TestClass:
 
         result, tdr_probe_name = self.aedtapp.create_tdr_schematic_from_snp(
             input_file=touchstone_file,
-            probe_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
-            probe_ref_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
             termination_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
             differential=True,
             rise_time=35,
@@ -905,16 +909,37 @@ class TestClass:
         ami_file = os.path.join(local_path, "example_models", test_subfolder, "pcieg5_32gt.ibs")
         result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ami_schematic_from_snp(
             input_file=touchstone_file,
-            ibis_ami=ami_file,
-            component_name="Spec_Model",
+            ibis_tx_file=ami_file,
             tx_buffer_name="1p",
             rx_buffer_name="2p",
-            tx_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
-            tx_refs=["A-MII-RXD1_65.SQFP20X20_144.N"],
-            rx_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
-            rx_refs=["A-MII-RXD2_66.SQFP20X20_144.N"],
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            tx_schematic_differential_pins=["A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_schematic_differentialial_pins=["A-MII-RXD2_66.SQFP20X20_144.N"],
             use_ibis_buffer=False,
             differential=True,
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
+
+    @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
+    def test_49_automatic_ibis(self):
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone_custom)
+        ibis_file = os.path.join(local_path, "example_models", "T15", "u26a_800_modified.ibs")
+        result, eye_curve_tx, eye_curve_rx = self.aedtapp.create_ibis_schematic_from_snp(
+            input_file=touchstone_file,
+            ibis_tx_file=ibis_file,
+            tx_buffer_name="DQ_FULL_800",
+            rx_buffer_name="DQ_FULL_800",
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P"],
+            ibis_rx_file=ibis_file,
+            use_ibis_buffer=True,
+            differential=False,
             bit_pattern="random_bit_count=2.5e3 random_seed=1",
             unit_interval="31.25ps",
             use_convolution=True,
@@ -937,3 +962,21 @@ class TestClass:
         assert not nexxim_customization["Reciprocal"]
         assert "" == nexxim_customization["ModelOption"]
         assert 2 == nexxim_customization["DataType"]
+
+    def test_51_change_symbol_pin_location(self):
+        self.aedtapp.insert_design("Pin_location")
+        self.aedtapp.modeler.schematic_units = "mil"
+        ts_component = self.aedtapp.modeler.schematic.create_touchstone_component(self.touchstone_file)
+        pins = ts_component.pins
+        pin_locations = {
+            "left": [pins[0].name, pins[1].name, pins[2].name, pins[3].name, pins[4].name],
+            "right": [pins[5].name],
+        }
+        assert ts_component.change_symbol_pin_locations(pin_locations)
+        pin_locations = {"left": [pins[0].name, pins[1].name, pins[2].name], "right": [pins[5].name]}
+        assert not ts_component.change_symbol_pin_locations(pin_locations)
+
+    def test_51_import_asc(self):
+        self.aedtapp.insert_design("ASC")
+        asc_file = os.path.join(local_path, "example_models", test_subfolder, "butter.asc")
+        assert self.aedtapp.create_schematic_from_asc_file(asc_file)

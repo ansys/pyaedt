@@ -24,36 +24,33 @@
 
 import os
 import sys
+import tempfile
 
 from _unittest.conftest import config
-from matplotlib.figure import Figure
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.generic.plot import _parse_aedtplt
+from ansys.aedt.core.generic.plot import _parse_streamline
+from ansys.aedt.core.generic.settings import settings
+import pandas as pd
 import pytest
-from pyvista.plotting.plotter import Plotter
-
-from pyaedt import Circuit
-from pyaedt import Icepak
-from pyaedt import Maxwell2d
-from pyaedt import Q2d
-from pyaedt import Q3d
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.pdf import AnsysReport
-from pyaedt.generic.plot import _parse_aedtplt
-from pyaedt.generic.plot import _parse_streamline
-from pyaedt.generic.settings import settings
-from pyaedt.modules.solutions import FfdSolutionData
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
     test_project_name = "coax_setup_solved_231"
-    array = "array_simple_231"
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
     m2d_file = "m2d_field_lines_test_231"
+    ipk_markers_proj = "ipk_markers"
 
 else:
     test_field_name = "Potter_Horn"
     test_project_name = "coax_setup_solved"
-    array = "array_simple"
     sbr_file = "poc_scat_small"
     q3d_file = "via_gsg"
     m2d_file = "m2d_field_lines_test"
@@ -128,12 +125,6 @@ def ami_test(add_app, q3dtest):
 
 
 @pytest.fixture(scope="class")
-def array_test(add_app, q3dtest):
-    app = add_app(project_name=array, subfolder=test_subfolder, solution_type="Modal")
-    return app
-
-
-@pytest.fixture(scope="class")
 def m2dtest(add_app, q3dtest):
     app = add_app(project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
     return app
@@ -204,6 +195,18 @@ class TestClass:
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        template = os.path.join(local_path, "example_models", test_subfolder, "template.rpt")
+        if not config["NonGraphical"]:
+            assert new_report4.apply_report_template(template)
+            template2 = os.path.join(local_path, "example_models", test_subfolder, "template_invented.rpt")
+            assert not new_report4.apply_report_template(template2)
+            template3 = os.path.join(local_path, "example_models", test_subfolder, "template.csv")
+            assert not new_report4.apply_report_template(template3)
+            assert not new_report4.apply_report_template(template3, property_type="Dummy")
+
+        assert field_test.post.create_report_from_configuration(template)
+
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
@@ -219,7 +222,7 @@ class TestClass:
             context="3D",
         )
         assert data.plot(snapshot_path=os.path.join(self.local_scratch.path, "reportC.jpg"), show=False)
-        assert data.plot_3d(snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D.jpg"), show=False)
+        assert data.plot_3d(show=False)
         assert field_test.post.create_3d_plot(
             data,
             snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D_2.jpg"),
@@ -596,176 +599,6 @@ class TestClass:
             os.path.join(local_path, "example_models", "report_json", "Spectral_Report.json"), solution_name="Transient"
         )
 
-    def test_70_far_field_data(self):
-        local_path = os.path.dirname(os.path.realpath(__file__))
-        eep_file1 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
-        eep_file2 = os.path.join(local_path, "example_models", test_subfolder, "eep", "eep.txt")
-        frequencies = [0.9e9, "0.9GHz"]
-        eep_files = [eep_file1, eep_file2]
-
-        ffdata = FfdSolutionData(frequencies=frequencies[1], eep_files=eep_file1)
-        assert len(ffdata.frequencies) == 1
-
-        ffdata = FfdSolutionData(frequencies=frequencies, eep_files=eep_files)
-        assert len(ffdata.frequencies) == 2
-        farfield = ffdata.combine_farfield()
-        assert "rETheta" in farfield
-
-        ffdata.taper = "cosine"
-        assert ffdata.combine_farfield()
-        ffdata.taper = "taper"
-        assert not ffdata.taper == "taper"
-
-        ffdata.origin = [0, 2]
-        assert ffdata.origin != [0, 2]
-        ffdata.origin = [0, 0, 1]
-        assert ffdata.origin == [0, 0, 1]
-
-        img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
-        ffdata.plot_2d_cut(primary_sweep="Theta", secondary_sweep_value="all", image_path=img1, show=False)
-        assert os.path.exists(img1)
-        img2 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(secondary_sweep_value=[0, 1], image_path=img2, show=False)
-        assert os.path.exists(img2)
-        img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
-        ffdata.plot_2d_cut(image_path=img3, show=False)
-        assert os.path.exists(img3)
-        curve_2d = ffdata.plot_2d_cut(show=False)
-        assert isinstance(curve_2d, Figure)
-        data = ffdata.polar_plot_3d(show=False)
-        assert isinstance(data, Figure)
-
-        img4 = os.path.join(self.local_scratch.path, "ff_3d1.jpg")
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=img4,
-            show=False,
-            background=[255, 0, 0],
-            show_geometry=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(img4)
-        data_pyvista = ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False, convert_to_db=True
-        )
-        assert isinstance(data_pyvista, Plotter)
-
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_71_antenna_plot(self, field_test):
-        ffdata = field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere="3D")
-        ffdata.phase_offset = [0, 90]
-        assert ffdata.phase_offset == [0, 90]
-        ffdata.phase_offset = [0]
-        assert ffdata.phase_offset != [0.0]
-        assert ffdata.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
-
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
-        )
-
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
-
-        ffdata.polar_plot_3d(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
-
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-
-        try:
-            p = ffdata.polar_plot_3d_pyvista(quantity="RealizedGain", show=False, convert_to_db=True)
-            assert isinstance(p, object)
-        except Exception:
-            assert True
-
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="FarFieldSolution not supported by IronPython")
-    def test_72_antenna_plot(self, array_test):
-        ffdata = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D")
-        ffdata.frequency = 3.5e9
-        assert ffdata.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour.jpg"))
-
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d1.jpg"),
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1.jpg"))
-        ffdata.plot_2d_cut(
-            quantity="RealizedGain",
-            primary_sweep="phi",
-            secondary_sweep_value=30,
-            title="Azimuth at {}Hz".format(ffdata.frequency),
-            image_path=os.path.join(self.local_scratch.path, "2d2.jpg"),
-            show=False,
-        )
-
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d2.jpg"))
-
-        ffdata.polar_plot_3d(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d1.jpg"))
-
-        ffdata.polar_plot_3d_pyvista(
-            quantity="RealizedGain",
-            image_path=os.path.join(self.local_scratch.path, "3d2.jpg"),
-            show=False,
-            convert_to_db=True,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2.jpg"))
-        ffdata1 = array_test.get_antenna_ffd_solution_data(frequencies=3.5e9, sphere="3D", overwrite=False)
-        assert ffdata1.plot_farfield_contour(
-            quantity="RealizedGain",
-            title="Contour at {}Hz".format(ffdata1.frequency),
-            image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
-            convert_to_db=True,
-            show=False,
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
-
     def test_73_ami_solution_data(self, ami_test):
         ami_test.solution_type = "NexximAMI"
         assert ami_test.post.get_solution_data(
@@ -937,7 +770,7 @@ class TestClass:
         assert field_test.cleanup_solution(vars, entire_solution=False)
         assert field_test.cleanup_solution(vars, entire_solution=True)
 
-    def test_76_ipk_get_scalar_field_value(self, icepak_post):
+    def test_100_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -1010,3 +843,45 @@ class TestClass:
             object_type="point",
             adjacent_side=False,
         )
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
+    def test_101_markers(self, add_app):
+        ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
+
+        f1 = ipk.modeler["Region"].top_face_z
+        p1 = ipk.post.create_fieldplot_surface(f1.id, "Uz")
+        f1_c = f1.center
+        f1_p1 = [f1_c[0] + 0.01, f1_c[1] + 0.01, f1_c[2]]
+        f1_p2 = [f1_c[0] - 0.01, f1_c[1] - 0.01, f1_c[2]]
+        d1 = p1.get_points_value([f1_c, f1_p1, f1_p2])
+        assert isinstance(d1, pd.DataFrame)
+        assert d1.index.name == "Name"
+        assert all(d1.index.values == ["m1", "m2", "m3"])
+        assert len(d1["X [mm]"].values) == 3
+        assert len(d1.columns) == 4
+
+        f2 = ipk.modeler["Box1"].top_face_z
+        p2 = ipk.post.create_fieldplot_surface(f2.id, "Pressure")
+        d2 = p2.get_points_value({"Center Point": f2.center})
+        assert isinstance(d2, pd.DataFrame)
+        assert d2.index.name == "Name"
+        assert all(d2.index.values == ["Center Point"])
+        assert len(d2.columns) == 4
+        assert len(d2["X [mm]"].values) == 1
+
+        f3 = ipk.modeler["Box1"].bottom_face_y
+        p3 = ipk.post.create_fieldplot_surface(f3.id, "Temperature")
+        d3 = p3.get_points_value(f3.center)
+        assert isinstance(d3, pd.DataFrame)
+        assert d3.index.name == "Name"
+        assert all(d3.index.values == ["m1"])
+        assert len(d3.columns) == 4
+        assert len(d3["X [mm]"].values) == 1
+
+        f4 = ipk.modeler["Box1"].top_face_x
+        p4 = ipk.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
+        temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
+        temp_file.close()
+        d4 = p4.get_points_value(f4.center, filename=temp_file.name)
+        assert isinstance(d4, pd.DataFrame)
+        os.path.exists(temp_file.name)

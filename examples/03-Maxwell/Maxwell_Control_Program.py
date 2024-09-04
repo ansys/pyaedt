@@ -12,16 +12,16 @@ plot field line traces, relevant for an electrostatic analysis.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-from pyaedt import downloads
-from pyaedt.generic.general_methods import generate_unique_folder_name
-from pyaedt import Maxwell2d
+from ansys.aedt.core import downloads
+from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
+from ansys.aedt.core import Maxwell2d
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode

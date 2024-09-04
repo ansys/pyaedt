@@ -23,8 +23,6 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
-import pytest
-
 import pyaedt
 from pyaedt.filtersolutions_core.attributes import FilterImplementation
 
@@ -34,6 +32,9 @@ from pyaedt.filtersolutions_core.export_to_aedt import SubstrateEr
 from pyaedt.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from pyaedt.filtersolutions_core.export_to_aedt import SubstrateType
 from pyaedt.generic.general_methods import is_linux
+
+# from ..filtersolutions_resources import resource_path
+import pytest
 
 # from ..resources import read_resource_file
 # from ..resources import resource_path

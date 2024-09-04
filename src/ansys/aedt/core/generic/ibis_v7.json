@@ -1,0 +1,134 @@
+{
+	"IBIS Ver": "",
+	"Comment Char": "",
+	"File Name": "",
+	"File Rev": "",
+	"Date": "",
+	"Source": "",
+	"Notes": "",
+	"Disclaimer": "",
+	"Copyright": "",
+	"Component": {
+		"Manufacturer": "",
+		"Package": "",
+		"Pin": "",
+		"Package Model": {
+			"Alternate Package Models": ""
+		},
+		"Interconnect Model Group": "",
+		"Pin Mapping": "",
+		"Bus Label": "",
+		"Die Supply Pads": "",
+		"Diff Pin": "",
+		"Repeater Pin": "",
+		"Series Pin Mapping": "",
+		"Series Switch Groups": "",
+		"Node Declarations": "",
+		"Circuit Call": "",
+		"Begin EMI Component": {
+			"Pin EMI": "",
+			"Pin Domain EMI": ""
+		}
+	},
+	"Model Selector": "",
+	"Model": {
+		"Model Spec": "",
+		"Receiver Thresholds": "",
+		"Add Submodel": "",
+		"Driver Schedule": "",
+		"Temperature Range": "",
+		"Voltage Range": "",
+		"Pullup Reference": "",
+		"Pulldown Reference": "",
+		"POWER Clamp Reference": "",
+		"GND Clamp Reference": "",
+		"External Reference": "",
+		"C Comp Corner": "",
+		"TTgnd": "",
+		"TTpower": "",
+		"Pulldown": "",
+		"Pullup": "",
+		"GND Clamp": "",
+		"POWER Clamp": "",
+		"ISSO PU": "",
+		"ISSO PD": "",
+		"Rgnd": "",
+		"Rpower": "",
+		"Rac": "",
+		"Cac": "",
+		"On": "",
+		"Off": "",
+		"R Series": "",
+		"L Series": "",
+		"Rl Series": "",
+		"C Series": "",
+		"Lc Series": "",
+		"Rc Series": "",
+		"Series Current": "",
+		"Series MOSFET": "",
+		"Ramp": "",
+		"Rising Waveform": {
+			"Composite Current": ""
+		},
+		"Falling Waveform": {
+			"Composite Current": ""
+		},
+		"Initial Delay": "",
+		"External Model": "",
+		"Algorithmic Model": "",
+		"Begin EMI Model": ""
+	},
+	"Submodel": {
+		"Submodel Spec": "",
+		"POWER Pulse Table": "",
+		"GND Pulse Table": "",
+		"Pulldown": "",
+		"Pullup": "",
+		"GND Clamp": "",
+		"POWER Clamp": "",
+		"Ramp": "",
+		"Rising Waveform": "",
+		"Falling Waveform": "",
+		"Initial Delay": ""
+	},
+	"External Circuit": "",
+	"Test Data": {
+		"Rising Waveform Near": "",
+		"Falling Waveform Near": "",
+		"Rising Waveform Far": "",
+		"Falling Waveform Far": "",
+		"Diff Rising Waveform Near": "",
+		"Diff Falling Waveform Near": "",
+		"Diff Rising Waveform Far": "",
+		"Diff Falling Waveform Far": ""
+	},
+	"Test Load": "",
+	"Define Package Model": {
+		"Manufacturer": "",
+		"OEM": "",
+		"Description": "",
+		"Number Of Sections": "",
+		"Number of Pins": "",
+		"Pin Numbers": "",
+		"Merged Pins": "",
+		"Model Data": {
+			"Resistance Matrix": {
+				"Bandwidth": "",
+				"Row": ""
+			},
+			"Inductance Matrix": {
+				"Bandwidth": "",
+				"Row": ""
+			},
+			"Capacitance Matrix": {
+				"Bandwidth": "",
+				"Row": ""
+			}
+		}
+	},
+	"Interconnect Model Set": {
+		"Manufacturer": "",
+		"Description": "",
+		"Interconnect Model": ""
+	}
+}

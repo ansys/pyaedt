@@ -26,13 +26,12 @@ import os
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.general_methods import is_ironpython
+from ansys.aedt.core.generic.settings import is_linux
 import pytest
-
-from pyaedt import Circuit
-from pyaedt import Q2d
-from pyaedt import Q3d
-from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.generic.settings import is_linux
 
 test_subfloder = "T22"
 test_project_name = "Dynamic_Link"

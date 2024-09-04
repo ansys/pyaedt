@@ -10,12 +10,12 @@ from _unittest_solvers.conftest import local_path
 
 from pathlib import Path
 
-from pyaedt.generic.settings import is_linux
-from pyaedt import Icepak
-from pyaedt import Hfss3dLayout
-from pyaedt import Circuit, Maxwell3d
+from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core import Icepak, Rmxprt
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Circuit, Maxwell3d
 from _unittest.conftest import config
-from pyaedt.generic.spisim import SpiSim
+from ansys.aedt.core.generic.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -115,19 +115,20 @@ class TestClass:
         assert isinstance(profile, dict)
         assert not sbr_platform.get_profile("Invented_setup")
 
-        ffdata = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D")
-        ffdata2 = sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere="3D", overwrite=False)
+        ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
+        ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
-        ffdata.plot_2d_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75], theta=20,
-                           title="Azimuth at {}Hz".format(ffdata.frequency), quantity_format="dB10", show=False,
-                           image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+        ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
+                                      theta=20,
+                                      title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
+                                      quantity_format="dB10",
+                                      show=False,
+                                      output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.polar_plot_3d_pyvista(quantity="RealizedGain",
+        ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
                                       rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
-                                      show=False,
-                                      convert_to_db=True)
+                                      output_file=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
@@ -164,7 +165,7 @@ class TestClass:
     )
     def test_02_hfss_export_results(self, hfss_app):
         hfss_app.insert_design("Array_simple_resuts", "Modal")
-        from pyaedt.generic.general_methods import read_json
+        from ansys.aedt.core.generic.general_methods import read_json
 
         if config["desktopVersion"] > "2023.1":
             dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
@@ -190,15 +191,35 @@ class TestClass:
             matrix_type="Y",
         )
         assert len(exported_files) > 0
-
         fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
                                                intrinsics="1GHz", phase="5deg")
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics="1GHz")
+                                               intrinsics={"frequency":"1GHz"})
         assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               intrinsics={"frequency": "1GHz"}, phase="30deg")
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
+        assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                               )
+        assert os.path.exists(fld_file2)
+        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss6.fld")
+        with pytest.raises(AttributeError):
+            hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
+                                            intrinsics=[])
+        assert not os.path.exists(fld_file2)
+
+        hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
+        sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
         self.icepak_app.solution_type = self.icepak_app.SOLUTIONS.Icepak.SteadyFlowOnly
@@ -524,9 +545,21 @@ class TestClass:
         )
         assert com_0 and com_1
 
-        from pyaedt.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+        from ansys.aedt.core.misc.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
-        com_param.load(os.path.join(spisim.working_directory, "custom.json"),)
+        com_param.load(os.path.join(spisim.working_directory, "custom.json"), )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
         assert com_0 and com_1
+
+    def test_10_export_to_maxwell(self, add_app):
+        app = add_app("assm_test", application=Rmxprt, subfolder="T00")
+        app.analyze(cores=1)
+        m2d = app.create_maxwell_design("Setup1")
+        assert m2d.design_type == "Maxwell 2D"
+        m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
+        assert m3d.design_type == "Maxwell 3D"
+        config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
+        app2 = add_app("assm_test2", application=Rmxprt)
+        app2.import_configuration(config)
+        assert app2.circuit

@@ -11,7 +11,7 @@ https://www.compumag.org/wp/wp-content/uploads/2018/06/problem3.pdf
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 import tempfile
 
 ##########################################################
@@ -19,7 +19,7 @@ import tempfile
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory
@@ -47,7 +47,7 @@ project_name = os.path.join(temp_dir.name, "COMPUMAG.aedt")
 design_name = "TEAM 3 Bath Plate"
 solver = "EddyCurrent"
 
-m3d = pyaedt.Maxwell3d(
+m3d = ansys.aedt.core.Maxwell3d(
     project=project_name,
     design=design_name,
     solution_type=solver,
@@ -158,7 +158,7 @@ m3d.eddy_effects_on(assignment=["SearchCoil"], enable_eddy_effects=False, enable
 # Add a linear parametric sweep for the two coil positions.
 
 sweep_name = "CoilSweep"
-param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", parametricname=sweep_name)
+param = m3d.parametrics.add("Coil_Position", -20, 0, 20, "LinearStep", name=sweep_name)
 param["SaveFields"] = True
 param["CopyMesh"] = False
 param["SolveWithCopiedMeshOnly"] = True

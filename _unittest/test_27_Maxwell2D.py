@@ -30,11 +30,10 @@ import shutil
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.general_methods import generate_unique_name
 import pytest
-
-from pyaedt import Maxwell2d
-from pyaedt.generic.constants import SOLUTIONS
-from pyaedt.generic.general_methods import generate_unique_name
 
 test_subfolder = "TMaxwell"
 if config["desktopVersion"] > "2022.2":
@@ -451,7 +450,7 @@ class TestClass:
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
-    def test_31_cylindrical_gap(self):
+    def test_31a_cylindrical_gap(self):
         assert not self.aedtapp.mesh.assign_cylindrical_gap("Band")
         [
             x.delete()
@@ -467,6 +466,22 @@ class TestClass:
             if x.type == "Cylindrical Gap Based" or x.type == "CylindricalGap"
         ]
         assert self.aedtapp.mesh.assign_cylindrical_gap("Band", name="cyl_gap_test", band_mapping_angle=2)
+
+    def test_31b_skin_depth(self):
+        edge = self.aedtapp.modeler["Rotor"].edges[0]
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
+        edge1 = self.aedtapp.modeler["Rotor"].edges[1]
+        mesh = self.aedtapp.mesh.assign_skin_depth(assignment=edge1.id, skin_depth="0.3mm", layers_number=3)
+        assert mesh
+        assert mesh.type == "SkinDepthBased"
+        assert mesh.props["Edges"][0] == edge1.id
+        assert mesh.props["SkinDepth"] == "0.3mm"
+        assert mesh.props["NumLayers"] == 3
 
     def test_32_control_program(self):
         user_ctl_path = "user.ctl"
@@ -615,3 +630,20 @@ class TestClass:
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
         assert not self.m2d_circuit.create_external_circuit()
         self.m2d_circuit.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        for w in self.m2d_circuit.excitations_by_type["Winding Group"]:
+            w.delete()
+        self.m2d_circuit.save_project()
+        assert not self.m2d_circuit.create_external_circuit()
+
+    def test_40_assign_floating(self):
+        self.aedtapp.insert_design("Floating")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        rect = self.aedtapp.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
+        floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test")
+        assert floating
+        assert floating.name == "floating_test"
+        assert floating.props["Objects"][0] == rect.name
+        assert floating.props["Value"] == "3"
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        floating = self.aedtapp.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
+        assert not floating

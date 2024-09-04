@@ -10,16 +10,16 @@ This example shows how you can use PyAEDT to create a FSS unitcell simulations i
 # Perform required imports.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
-project_name = pyaedt.generate_unique_project_name(project_name="FSS")
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="FSS")
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -34,14 +34,14 @@ non_graphical = False
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R2 in graphical mode.
 
-d = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
+d = ansys.aedt.core.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2023 R2 in graphical mode.
 
-hfss = pyaedt.Hfss(project=project_name, solution_type="Modal")
+hfss = ansys.aedt.core.Hfss(project=project_name, solution_type="Modal")
 
 ###############################################################################
 # Define variable
@@ -55,7 +55,7 @@ hfss["patch_dim"] = "10mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component from the example data and insert the 3D Component.
 
-unitcell_3d_component_path = pyaedt.downloads.download_FSS_3dcomponent()
+unitcell_3d_component_path = ansys.aedt.core.downloads.download_FSS_3dcomponent()
 unitcell_path = os.path.join(unitcell_3d_component_path, "FSS_unitcell_23R2.a3dcomp")
 
 comp = hfss.modeler.insert_3d_component(unitcell_path)
@@ -143,7 +143,7 @@ hfss.post.create_report(expressions=str_ang, variations=variation, plot_name="ph
 # Close AEDT
 # ~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.release_desktop` method.
+# :func:`ansys.aedt.core.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
 hfss.release_desktop()
