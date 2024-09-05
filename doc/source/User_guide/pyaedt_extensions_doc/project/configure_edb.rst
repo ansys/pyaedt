@@ -1,4 +1,4 @@
-Edb configuration 2.0
+Edb configuration v2
 ====================
 
 ------------
@@ -86,9 +86,9 @@ Configure HFSS 3D Layout design in a AEDT project
 
     In the second pop-up window. Please specify a folder where to save the new projects.
 
-~~~~~~~~~~~~~~~~~~~~~~~~
-Configure siwave project
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configure design in siwave project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1, Select ``SIwave`` in GUI.
 
