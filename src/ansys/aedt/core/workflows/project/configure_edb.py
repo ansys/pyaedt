@@ -23,8 +23,9 @@
 
 import os
 from pathlib import Path
-import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
+import tkinter as tk
 from tkinter import ttk
 
 import PIL.Image
@@ -70,7 +71,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         self.geometry("500x300")
         self.title("EDB Configuration 2.0")
 
-        self.status = tk.StringVar(value="Ready")
+        self.status = tk.StringVar(value="")
         self.selected_app_option = tk.StringVar(value="Active Design")
         self.selected_project_file_path = ""
         self.selected_project_file = tk.StringVar(value="")
@@ -309,6 +310,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             "siwave_export": [],
             "aedt_export": [],
         }
+        messagebox.showinfo("Information", "Configuration Done!")
 
 
 class ConfigureEdbBackend:
