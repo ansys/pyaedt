@@ -1,4 +1,4 @@
-Edb configuration v2
+Configure layout EDB
 ====================
 
 ------------
