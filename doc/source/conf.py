@@ -200,7 +200,7 @@ numpydoc_validation_checks = {
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
     r"\.Modeler3D\.create_choke$",  # bad RT05
-    r"HistoryProps.",  # bad RT05 because of the base class named OrderedDict
+    r"HistoryProps.",  # bad RT05 because of the base class named dict
 }
 
 # Favicon

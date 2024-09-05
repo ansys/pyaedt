@@ -68,6 +68,40 @@ class TestClass:
         setup1.disable()
         setup1.enable()
 
+        assert setup1.use_matrix_convergence(
+            entry_selection=0,
+            ignore_phase_when_mag_is_less_than=0.015,
+            all_diagonal_entries=True,
+            max_delta=0.03,
+            max_delta_phase=8,
+            custom_entries=None,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+            all_offdiagonal_entries=False,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+        )
+        assert setup1.use_matrix_convergence(
+            entry_selection=2,
+            ignore_phase_when_mag_is_less_than=0.01,
+            all_diagonal_entries=True,
+            max_delta=0.01,
+            max_delta_phase=8,
+            custom_entries=[["1", "2", 0.03, 4]],
+        )
+
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")

@@ -21,8 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from abc import abstractmethod
-from collections import OrderedDict
 from collections import defaultdict
 import csv
 import itertools
@@ -494,7 +494,7 @@ class SolutionData(object):
         self._sweeps_names = []
         self.update_sweeps()
         self.variations = self._get_variations()
-        self.active_intrinsic = OrderedDict({})
+        self.active_intrinsic = {}
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
         if len(self.intrinsics) > 0:
@@ -556,7 +556,7 @@ class SolutionData(object):
     def _get_variations(self):
         variations_lists = []
         for data in self._original_data:
-            variations = OrderedDict({})
+            variations = {}
             for v in data.GetDesignVariableNames():
                 variations[v] = data.GetDesignVariableValue(v)
             variations_lists.append(variations)
@@ -589,12 +589,12 @@ class SolutionData(object):
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
         if not self._intrinsics:
-            self._intrinsics = OrderedDict({})
+            self._intrinsics = {}
             intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
             for el in intrinsics:
                 values = list(self.nominal_variation.GetSweepValues(el, False))
                 self._intrinsics[el] = [i for i in values]
-                self._intrinsics[el] = list(OrderedDict.fromkeys(self._intrinsics[el]))
+                self._intrinsics[el] = list(dict.fromkeys(self._intrinsics[el]))
         return self._intrinsics
 
     @property
@@ -710,7 +710,7 @@ class SolutionData(object):
                 solution = list(data.GetRealDataValues(expression, False))
                 values = []
                 for el in list(self.intrinsics.keys()):
-                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
 
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
@@ -738,7 +738,7 @@ class SolutionData(object):
                     solution = [0] * l
                 values = []
                 for el in list(self.intrinsics.keys()):
-                    values.append(list(OrderedDict.fromkeys(data.GetSweepValues(el, False))))
+                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
                 i = 0
                 c = [comb[v] for v in list(comb.keys())]
                 for t in itertools.product(*values):
@@ -1013,7 +1013,7 @@ class SolutionData(object):
         for el in self.primary_sweep_values:
             temp[position] = el
             if tuple(temp) in solution_data:
-                sol_dict = OrderedDict({})
+                sol_dict = {}
                 i = 0
                 for sn in self._sweeps_names:
                     sol_dict[sn] = temp[i]

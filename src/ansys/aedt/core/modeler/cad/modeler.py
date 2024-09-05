@@ -32,8 +32,6 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
-
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -46,52 +44,52 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
-class CsProps(OrderedDict):
+class CsProps(dict):
     """AEDT Cooardinate System Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_cs.auto_update:
             res = self._pyaedt_cs.update()
             if not res:
                 self._pyaedt_cs._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, cs_object, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (dict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, CsProps(cs_object, value))
+                if isinstance(value, dict):
+                    dict.__setitem__(self, key, CsProps(cs_object, value))
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_cs = cs_object
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
-class ListsProps(OrderedDict):
+class ListsProps(dict):
     """AEDT Lists Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_lists.auto_update:
             res = self._pyaedt_lists.update()
             if not res:
                 self._pyaedt_lists._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, cs_object, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (dict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, CsProps(cs_object, value))
+                if isinstance(value, dict):
+                    dict.__setitem__(self, key, CsProps(cs_object, value))
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_lists = cs_object
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
 class BaseCoordinateSystem(PropsManager, object):
@@ -124,7 +122,7 @@ class BaseCoordinateSystem(PropsManager, object):
             ]
             for ds in cs:
                 try:
-                    if isinstance(cs[ds], (OrderedDict, dict)):
+                    if isinstance(cs[ds], dict):
                         if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
                             props = cs[ds]["RelativeCSParameters"]
                             name = cs[ds]["Attributes"]["Name"]
@@ -150,9 +148,9 @@ class BaseCoordinateSystem(PropsManager, object):
                             geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
                                 "GeometryOperations"
                             ]["ToplevelParts"]["GeometryPart"]
-                            if isinstance(geometry_part, (OrderedDict, dict)):
+                            if isinstance(geometry_part, dict):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                if isinstance(op, (OrderedDict, dict)):
+                                if isinstance(op, dict):
                                     if op["ID"] == op_id:
                                         props = op["FaceCSParameters"]
                                         self._props = CsProps(self, props)
@@ -165,7 +163,7 @@ class BaseCoordinateSystem(PropsManager, object):
                             elif isinstance(geometry_part, list):
                                 for gp in geometry_part:
                                     op = gp["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             self._props = CsProps(self, props)
@@ -185,9 +183,9 @@ class BaseCoordinateSystem(PropsManager, object):
                             geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
                                 "GeometryOperations"
                             ]["ToplevelParts"]["GeometryPart"]
-                            if isinstance(geometry_part, (OrderedDict, dict)):
+                            if isinstance(geometry_part, dict):
                                 op = geometry_part["Operations"]["ObjectCSHolderOperation"]
-                                if isinstance(op, (OrderedDict, dict)):
+                                if isinstance(op, dict):
                                     if op["ID"] == op_id:
                                         props = op["ObjectCSParameters"]
                                         self._props = CsProps(self, props)
@@ -200,7 +198,7 @@ class BaseCoordinateSystem(PropsManager, object):
                             elif isinstance(geometry_part, list):
                                 for gp in geometry_part:
                                     op = gp["Operations"]["ObjectCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["ObjectCSParameters"]
                                             self._props = CsProps(self, props)
@@ -237,9 +235,9 @@ class BaseCoordinateSystem(PropsManager, object):
                                 geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
                                     "GeometryOperations"
                                 ]["ToplevelParts"]["GeometryPart"]
-                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                if isinstance(geometry_part, dict):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             self._props = CsProps(self, props)
@@ -255,7 +253,7 @@ class BaseCoordinateSystem(PropsManager, object):
                                             op = gp["Operations"]["FaceCSHolderOperation"]
                                         except KeyError:
                                             continue
-                                        if isinstance(op, (OrderedDict, dict)):
+                                        if isinstance(op, dict):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
                                                 self._props = CsProps(self, props)
@@ -275,9 +273,9 @@ class BaseCoordinateSystem(PropsManager, object):
                                 geometry_part = self._modeler._app.design_properties["ModelSetup"]["GeometryCore"][
                                     "GeometryOperations"
                                 ]["ToplevelParts"]["GeometryPart"]
-                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                if isinstance(geometry_part, dict):
                                     op = geometry_part["Operations"]["ObjectCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["ObjectCSParameters"]
                                             self._props = CsProps(self, props)
@@ -293,7 +291,7 @@ class BaseCoordinateSystem(PropsManager, object):
                                             op = gp["Operations"]["ObjectCSHolderOperation"]
                                         except KeyError:
                                             continue
-                                        if isinstance(op, (OrderedDict, dict)):
+                                        if isinstance(op, dict):
                                             if op["ID"] == op_id:
                                                 props = op["ObjectCSParameters"]
                                                 self._props = CsProps(self, props)
@@ -577,7 +575,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         if not offset:
             offset = [0, 0]
 
-        originParameters = OrderedDict()
+        originParameters = {}
         originParameters["IsAttachedToEntity"] = True
         originParameters["EntityID"] = origin_id
         originParameters["FacetedBodyTriangleIndex"] = -1
@@ -589,7 +587,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         originParameters["YPosition"] = "0"
         originParameters["ZPosition"] = "0"
 
-        positioningParameters = OrderedDict()
+        positioningParameters = {}
         positioningParameters["IsAttachedToEntity"] = True
         positioningParameters["EntityID"] = axis_position_id
         positioningParameters["FacetedBodyTriangleIndex"] = -1
@@ -601,7 +599,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         positioningParameters["YPosition"] = "0"
         positioningParameters["ZPosition"] = "0"
 
-        parameters = OrderedDict()
+        parameters = {}
         parameters["Origin"] = originParameters
         parameters["MoveToEnd"] = always_move_to_end
         parameters["FaceID"] = face_id
@@ -1039,7 +1037,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         originX = self._dim_arg(origin[0], self.model_units)
         originY = self._dim_arg(origin[1], self.model_units)
         originZ = self._dim_arg(origin[2], self.model_units)
-        orientationParameters = OrderedDict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
+        orientationParameters = dict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
         self.mode = mode
         if mode == "view":
             orientationParameters["Mode"] = "Axis/Position"
@@ -1417,7 +1415,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             origin_y_position = self._position_parser(origin[1])
             origin_z_position = self._position_parser(origin[2])
 
-        originParameters = OrderedDict()
+        originParameters = {}
         originParameters["IsAttachedToEntity"] = is_attached_to_entity
         originParameters["EntityID"] = origin_entity_id
         originParameters["FacetedBodyTriangleIndex"] = -1
@@ -1454,7 +1452,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                     x_axis_position_type = "OnVertex"
                 else:  # pragma: no cover
                     raise ValueError("x axis must identify either Face or Edge or Vertex.")
-            xAxisParameters = OrderedDict()
+            xAxisParameters = {}
             xAxisParameters["IsAttachedToEntity"] = True
             xAxisParameters["EntityID"] = x_axis_entity_id
             xAxisParameters["FacetedBodyTriangleIndex"] = -1
@@ -1471,7 +1469,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             x_axis_y_direction = self._position_parser(x_axis[1])
             x_axis_z_direction = self._position_parser(x_axis[2])
 
-            xAxisParameters = OrderedDict()
+            xAxisParameters = {}
             xAxisParameters["DirectionType"] = "AbsoluteDirection"
             xAxisParameters["EdgeID"] = -1
             xAxisParameters["FaceID"] = -1
@@ -1507,7 +1505,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
                     y_axis_position_type = "OnVertex"
                 else:  # pragma: no cover
                     raise ValueError("x axis must identify either Face or Edge or Vertex.")
-            yAxisParameters = OrderedDict()
+            yAxisParameters = {}
             yAxisParameters["IsAttachedToEntity"] = True
             yAxisParameters["EntityID"] = y_axis_entity_id
             yAxisParameters["FacetedBodyTriangleIndex"] = -1
@@ -1524,7 +1522,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             y_axis_y_direction = self._position_parser(y_axis[1])
             y_axis_z_direction = self._position_parser(y_axis[2])
 
-            yAxisParameters = OrderedDict()
+            yAxisParameters = {}
             yAxisParameters["DirectionType"] = "AbsoluteDirection"
             yAxisParameters["EdgeID"] = -1
             yAxisParameters["FaceID"] = -1
@@ -1535,7 +1533,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
             yAxisParameters["VParam"] = 0
             y_axis_dict_name = "yAxis"
 
-        parameters = OrderedDict()
+        parameters = {}
         parameters["Origin"] = originParameters
         parameters["MoveToEnd"] = move_to_end
         parameters["ReverseXAxis"] = reverse_x_axis

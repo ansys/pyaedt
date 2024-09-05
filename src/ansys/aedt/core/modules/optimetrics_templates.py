@@ -22,48 +22,43 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 
-defaultparametricSetup = OrderedDict(
+defaultparametricSetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "Sim. Setups": [],
-        "Sweeps": OrderedDict(
-            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
-        ),
-        "Sweep Operations": OrderedDict(),
-        "Goals": OrderedDict(),
+        "Sweeps": dict({"SweepDefinition": dict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}),
+        "Sweep Operations": {},
+        "Goals": {},
     }
 )
 
 
-defaultdxSetup = OrderedDict(
+defaultdxSetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "Sim. Setups": [],
-        "Sweeps": OrderedDict(
-            {"SweepDefinition": OrderedDict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}
-        ),
-        "Sweep Operations": OrderedDict(),
+        "Sweeps": dict({"SweepDefinition": dict({"Variable": "", "Data": "", "OffsetF1": False, "Synchronize": 0})}),
+        "Sweep Operations": {},
         "CostFunctionName": "Cost",
         "CostFuncNormType": "L2",
-        "CostFunctionGoals": OrderedDict(),
+        "CostFunctionGoals": {},
         "EmbeddedParamSetup": -1,
-        "Goals": OrderedDict(),
+        "Goals": {},
     }
 )
 
-defaultoptiSetup = OrderedDict(
+defaultoptiSetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "Optimizer": "Quasi Newton",
-        "AnalysisStopOptions": OrderedDict(
+        "AnalysisStopOptions": dict(
             {
                 "StopForNumIteration": True,
                 "StopForElapsTime": False,
@@ -78,9 +73,9 @@ defaultoptiSetup = OrderedDict(
         "CostFuncNormType": "L2",
         "PriorPSetup": "",
         "PreSolvePSetup": True,
-        "Variables": OrderedDict(),
-        "LCS": OrderedDict(),
-        "Goals": OrderedDict(),
+        "Variables": {},
+        "LCS": {},
+        "Goals": {},
         "Acceptable_Cost": 0,
         "Noise": 0.0001,
         "UpdateDesign": False,
@@ -90,48 +85,48 @@ defaultoptiSetup = OrderedDict(
     }
 )
 
-defaultsensitivitySetup = OrderedDict(
+defaultsensitivitySetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "MaxIterations": 10,
         "PriorPSetup": "",
         "PreSolvePSetup": True,
-        "Variables": OrderedDict(),
-        "LCS": OrderedDict(),
-        "Goals": OrderedDict(),
+        "Variables": {},
+        "LCS": {},
+        "Goals": {},
         "Primary Goal": 0,
         "PrimaryError": 0.0001,
         "Perform Worst Case Analysis": False,
     }
 )
 
-defaultstatisticalSetup = OrderedDict(
+defaultstatisticalSetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "MaxIterations": 50,
         "SeedValue": 0,
         "PriorPSetup": "",
-        "Variables": OrderedDict(),
-        "Goals": OrderedDict(),
+        "Variables": {},
+        "Goals": {},
     }
 )
 
-defaultdoeSetup = OrderedDict(
+defaultdoeSetup = dict(
     {
         "IsEnabled": True,
-        "ProdOptiSetupDataV2": OrderedDict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
-        "StartingPoint": OrderedDict(),
+        "ProdOptiSetupDataV2": dict({"SaveFields": False, "CopyMesh": False, "SolveWithCopiedMeshOnly": True}),
+        "StartingPoint": {},
         "Sim. Setups": [],
         "CostFunctionName": "Cost",
         "CostFuncNormType": "L2",
-        "CostFunctionGoals": OrderedDict(),
-        "Variables": OrderedDict(),
-        "Goals": OrderedDict(),
-        "DesignExprData": OrderedDict(
+        "CostFunctionGoals": {},
+        "Variables": {},
+        "Goals": {},
+        "DesignExprData": dict(
             {
                 "Type": "kOSF",
                 "CCDDeignType": "kFaceCentered",
@@ -143,10 +138,10 @@ defaultdoeSetup = OrderedDict(
                 "MaxCydes": 10,
             }
         ),
-        "RespSurfaceSetupData": OrderedDict({"Type": "kGenAggr", "RefineType": "kManual"}),
-        "ResponsePoints": OrderedDict({"NumOfStrs": 0}),
-        "ManualRefinePoints": OrderedDict({"NumOfStrs": 0}),
-        "CustomVerifyPoints": OrderedDict({"NumOfStrs": 0}),
+        "RespSurfaceSetupData": dict({"Type": "kGenAggr", "RefineType": "kManual"}),
+        "ResponsePoints": dict({"NumOfStrs": 0}),
+        "ManualRefinePoints": dict({"NumOfStrs": 0}),
+        "CustomVerifyPoints": dict({"NumOfStrs": 0}),
         "Tolerances": [],
     }
 )
