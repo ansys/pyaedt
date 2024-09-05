@@ -23,9 +23,9 @@
 
 import os
 from pathlib import Path
+import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
-import tkinter as tk
 from tkinter import ttk
 
 import PIL.Image
