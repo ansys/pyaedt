@@ -49,11 +49,13 @@ Extension manager
 The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 
-- Custom PyAEDT scripts.
+- **Custom PyAEDT extensions**.
 
-- Existing workflows in the PyAEDT library.
+- **Pre-installed extensions** already available in the PyAEDT library.
 
-- Open source PyAEDT toolkits described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
+- **Open source PyAEDT toolkits** described in the `PyAEDT Common Toolkit documentation <https://aedt.common.toolkit.docs.pyansys.com/>`_.
+
+See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_ for more information.
 
 .. image:: ../Resources/toolkit_manager_1.png
   :width: 800
