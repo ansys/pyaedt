@@ -1,18 +1,22 @@
-Extensions
-==========
+Extension Manager
+=================
 
-Extensions provide a simplified interface to perform automated workflows in AEDT.
+Extensions provide a simplified interface to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
 In AEDT, you can use the Extension Manager to add or remove extensions.
-For more information, see `Extension Manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_.
+The `Extension Manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ allows the user to install three different types of extensions:
 
-Extensions are generally tool-specific and are therefore only accessible given the appropriate context. The following sections provide further clarification.
+- Custom extensions installable both at project and application level.
+- Pre-installed extensions available at project level.
+- Open source PyAEDT toolkits available at project level.
+
+The following sections provide further clarification.
 
 You can launch extensions in standalone mode from the console or a Python script.
 
-Project extensions
-==================
+Pre-installed extensions
+========================
 
-Project extension apply to all extensions that are applicable for all AEDT applications.
+Pre-installed extensions are available at project level so they are available for all AEDT applications.
 
 .. grid:: 2
 
