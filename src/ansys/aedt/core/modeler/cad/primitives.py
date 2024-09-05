@@ -36,6 +36,7 @@ import string
 import time
 import warnings
 
+import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -8411,8 +8412,8 @@ class GeometryModeler(Modeler):
                 list_objs.append(obj.name)
         return list_objs
 
-    @pyaedt_function_handler()
-    def _check_material(self, matname, defaultmatname, threshold=100000):
+    @pyaedt_function_handler(matname="material", defaultmatname="default_material")
+    def _check_material(self, material, default_material, threshold=100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -8420,10 +8421,10 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        matname : str
+        material : str
             Name of the material.
-        defaultmatname : str
-            Name of the default material to assign if ``metname`` does not exist.
+        default_material : str
+            Name of the default material to assign if ``material`` does not exist.
         threshold : float
             Threshold conductivity in S/m to distinguish dielectric from conductor.
             The default value is ``100000``.
@@ -8437,23 +8438,42 @@ class GeometryModeler(Modeler):
 
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
-        if isinstance(matname, Material):
+        if isinstance(material, Material):
             if self._app._design_type == "HFSS":
-                return matname.name, matname.is_dielectric(threshold)
+                return material.name, material.is_dielectric(threshold)
             else:
-                return matname.name, True
-        if matname:
-            if self._app.materials[matname]:
-                if self._app._design_type == "HFSS":
-                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric(threshold)
+                return material.name, True
+        if material:
+            if "[" in material:
+                array = material.split("[")
+                if array[0] in self._app.variable_manager.design_variables.keys():
+                    if "(" not in array[1]:
+                        index = int(array[1].strip("]"))
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
+                    else:
+                        condition = array[1].strip("]")
+                        condition_name = ansys.aedt.core.generate_unique_name("condition")
+                        self._app.variable_manager.set_variable(
+                            name=condition_name, expression=condition, is_post_processing=True
+                        )
+                        condition_value = int(
+                            self._app.variable_manager.post_processing_variables[condition_name].numeric_value
+                        )
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[condition_value]
+                        self._app.variable_manager.delete_variable(name=condition_name)
                 else:
-                    return self._app.materials[matname].name, True
+                    self.logger.debug(f"Design variable {array[0]} does not exist.")
+            if self._app.materials[material]:
+                if self._app._design_type == "HFSS":
+                    return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
+                else:
+                    return self._app.materials[material].name, True
             else:
-                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
+                self.logger.warning("Material %s does not exists. Assigning default material", material)
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric(threshold)
+            return default_material, self._app.materials.material_keys[default_material].is_dielectric(threshold)
         else:
-            return defaultmatname, True
+            return default_material, True
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
@@ -8595,12 +8615,12 @@ class GeometryModeler(Modeler):
                     self.logger.debug("'" + str(k) + "' is not a valid property of the primitive.")
         return o
 
-    @pyaedt_function_handler()
-    def _default_object_attributes(self, name=None, matname=None, flags=""):
-        if not matname:
-            matname = self.defaultmaterial
+    @pyaedt_function_handler(matname="material")
+    def _default_object_attributes(self, name=None, material=None, flags=""):
+        if not material:
+            material = self.defaultmaterial
 
-        material, is_dielectric = self._check_material(matname, self.defaultmaterial)
+        material, is_dielectric = self._check_material(material, self.defaultmaterial)
 
         solve_inside = True if is_dielectric else False
 
