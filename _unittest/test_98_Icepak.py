@@ -1893,8 +1893,8 @@ class TestClass:
         assert isinstance(fs, FolderPlotSettings)
         assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
         assert (
-            str(fs.streamline_marker_settings)
-            == "StreamlineMarkerSettings(marker_type='Arrow', map_size=False, map_color=False, marker_size=0.25)"
+            str(fs.marker_settings)
+            == "MarkerSettings(marker_type='Arrow', map_size=False, map_color=False, marker_size=0.25)"
         )
         assert (
             str(fs.scale_settings) == "Scale3DSettings(scale_type='Auto', scale_settings=AutoScale(n_levels=10,"
@@ -1915,13 +1915,13 @@ class TestClass:
         assert fs.arrow_settings.arrow_type == "Line"
         assert isinstance(fs.arrow_settings.to_dict(), dict)
 
-        with pytest.raises(ValueError):
-            fs.streamline_marker_settings.marker_type = "Line"
-        assert fs.streamline_marker_settings.marker_type == "Arrow"
+        with pytest.raises(KeyError):
+            fs.marker_settings.marker_type = "Line"
+        assert fs.marker_settings.marker_type == "Arrow"
 
-        fs.streamline_marker_settings.marker_type = "Tetrahedron"
-        assert fs.streamline_marker_settings.marker_type == "Tetrahedron"
-        assert isinstance(fs.streamline_marker_settings.to_dict(), dict)
+        fs.marker_settings.marker_type = "Tetrahedron"
+        assert fs.marker_settings.marker_type == "Tetrahedron"
+        assert isinstance(fs.marker_settings.to_dict(), dict)
 
         with pytest.raises(ValueError):
             fs.scale_settings.scale_type = "Personalized"
@@ -1937,7 +1937,7 @@ class TestClass:
         with pytest.raises(ValueError):
             SpecifiedScale(1)
         fs.scale_settings.scale_type = "MinMax"
-        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(min_value=1, max_value=100)"
+        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(n_levels=10, min_value=1, max_value=100)"
         assert isinstance(fs.scale_settings.to_dict(), dict)
 
         assert str(fs.scale_settings.number_format) == "NumberFormat(format_type=Automatic, width=12, precision=4)"
@@ -1970,4 +1970,8 @@ class TestClass:
         with pytest.raises(ValueError):
             plot_object.folder_settings = 1
         plot_object.folder_settings = fs
+        with pytest.raises(KeyError):
+            fs.scale_settings.unit = "AEDT"
+        fs.scale_settings.unit = "kel"
+        assert fs.scale_settings.unit == "kel"
         app.close_project()
