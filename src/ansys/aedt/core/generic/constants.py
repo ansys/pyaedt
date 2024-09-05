@@ -1097,7 +1097,7 @@ class SymbolStyle(object):
 @unique
 class EnumUnits(IntEnum):
     # Frequency
-    hz = auto(0)
+    hz = 0
     khz = auto()
     mhz = auto()
     ghz = auto()
