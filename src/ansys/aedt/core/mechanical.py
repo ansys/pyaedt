@@ -26,8 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
-
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -246,27 +244,25 @@ class Mechanical(FieldAnalysis3D, object):
         else:
             intr = []
 
-        argparam = OrderedDict({})
+        argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in parameters:
             argparam[el] = el
 
-        props = OrderedDict(
-            {
-                "Objects": allObjects,
-                "allObjects": False,
-                "Project": projname,
-                "projname": "ElectronicsDesktop",
-                "Design": design,
-                "Soln": setup + " : " + sweep,
-                "Params": argparam,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-            }
-        )
+        props = {
+            "Objects": allObjects,
+            "allObjects": False,
+            "Project": projname,
+            "projname": "ElectronicsDesktop",
+            "Design": design,
+            "Soln": setup + " : " + sweep,
+            "Params": argparam,
+            "ForceSourceToSolve": True,
+            "PreservePartnerSoln": True,
+            "PathRelativeTo": "TargetProject",
+        }
         if intr:
             props["Intrinsics"] = intr
             props["SurfaceOnly"] = surfaces
@@ -345,27 +341,25 @@ class Mechanical(FieldAnalysis3D, object):
             allObjects = self.modeler.object_names
         else:
             allObjects = object_list[:]
-        argparam = OrderedDict({})
+        argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
         for el in parameters:
             argparam[el] = el
 
-        props = OrderedDict(
-            {
-                "Objects": allObjects,
-                "Uniform": False,
-                "Project": projname,
-                "Product": "ElectronicsDesktop",
-                "Design": design,
-                "Soln": setup + " : " + sweep,
-                "Params": argparam,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-            }
-        )
+        props = {
+            "Objects": allObjects,
+            "Uniform": False,
+            "Project": projname,
+            "Product": "ElectronicsDesktop",
+            "Design": design,
+            "Soln": setup + " : " + sweep,
+            "Params": argparam,
+            "ForceSourceToSolve": True,
+            "PreservePartnerSoln": True,
+            "PathRelativeTo": "TargetProject",
+        }
 
         name = generate_unique_name("ThermalLink")
         bound = BoundaryObject(self, name, props, "ThermalCondition")
