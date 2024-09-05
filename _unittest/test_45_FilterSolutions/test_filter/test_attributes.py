@@ -46,7 +46,7 @@ class TestClass:
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert design.attributes.filter_type == FilterType.BUTTERWORTH
 
-        assert len(FilterType) == 9
+        assert len(FilterType) == 10
 
         for fimp in [FilterImplementation.LUMPED]:
             design.attributes.filter_implementation = fimp

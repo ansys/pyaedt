@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import os
 
 from ansys.aedt.core.generic.general_methods import is_ironpython
@@ -1008,7 +1007,7 @@ class Padstack(object):
         self._app = app
         self._stackup = stackup
         self.name = name
-        self._padstacks_by_layer = OrderedDict({})
+        self._padstacks_by_layer = {}
         self._vias_objects = []
         self._num_sides = 16
         self._plating_ratio = 1
@@ -1117,7 +1116,7 @@ class Padstack(object):
 
         """
         found = False
-        new_stackup = OrderedDict({})
+        new_stackup = {}
         for k, v in self._stackup.stackup_layers.items():
             if k == layer:
                 found = True
@@ -1146,7 +1145,7 @@ class Padstack(object):
 
         """
         found = False
-        new_stackup = OrderedDict({})
+        new_stackup = {}
         for k in list(self._stackup.stackup_layers.keys()):
             if not found and k in list(self._padstacks_by_layer.keys()):
                 new_stackup[k] = self._padstacks_by_layer[k]
@@ -1279,7 +1278,7 @@ class Stackup3D(object):
         self._z_position_offset = 0
         self._first_layer_position = "layer_1_position"
         self._shifted_index = 0
-        self._stackup = OrderedDict({})
+        self._stackup = {}
         self._start_position = NamedVariable(self._app, self._first_layer_position, "0mm")
         self._dielectric_x_position = NamedVariable(self._app, "dielectric_x_position", "0mm")
         self._dielectric_y_position = NamedVariable(self._app, "dielectric_y_position", "0mm")

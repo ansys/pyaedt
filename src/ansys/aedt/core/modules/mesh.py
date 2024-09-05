@@ -28,7 +28,6 @@ This module contains the `Mesh` class.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import shutil
 
@@ -82,11 +81,11 @@ mesh_props = {
 }
 
 
-class MeshProps(OrderedDict):
+class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
                 res = self._pyaedt_mesh.update_assignment()
@@ -96,17 +95,17 @@ class MeshProps(OrderedDict):
                 self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, mesh_object, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (OrderedDict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, MeshProps(mesh_object, value))
+                if isinstance(value, (dict, dict)):
+                    dict.__setitem__(self, key, MeshProps(mesh_object, value))
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_mesh = mesh_object
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
 class MeshOperation(object):
@@ -511,7 +510,7 @@ class Mesh(object):
         if props:
             bound = MeshOperation(self, "MeshSettings", props, "InitialMeshSettings")
             return bound
-        return OrderedDict()
+        return {}
 
     @pyaedt_function_handler()
     def _get_design_mesh_operations(self):
@@ -606,7 +605,7 @@ class Mesh(object):
             seltype = "Faces"
         else:
             seltype = "Objects"
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "SurfApproxBased",
                 "CurvedSurfaceApproxChoice": "UseSlider",
@@ -682,7 +681,7 @@ class Mesh(object):
             aspect_ratio_enable = 1
             aspect_ratio = "10"
 
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "SurfApproxBased",
                 "Objects": assignment,
@@ -746,9 +745,9 @@ class Mesh(object):
                 self.logger.error("Mesh Operation Applies to Objects only")
                 return False
         if defeature_length is None:
-            props = OrderedDict({"Objects": assignment, "UseAutoLength": True})
+            props = dict({"Objects": assignment, "UseAutoLength": True})
         else:
-            props = OrderedDict(
+            props = dict(
                 {
                     "Type": "DefeatureBased",
                     "Objects": assignment,
@@ -878,9 +877,7 @@ class Mesh(object):
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
-        props = OrderedDict(
-            {"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority}
-        )
+        props = dict({"Type": "SurfaceRepPriority", "Objects": assignment, "SurfaceRepPriority": surface_priority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
         self.meshoperations.append(mop)
@@ -1023,7 +1020,7 @@ class Mesh(object):
         if seltype is None:
             self.logger.error("Error in Assignment")
             return
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "LengthBased",
                 "RefineInside": inside_selection,
@@ -1102,7 +1099,7 @@ class Mesh(object):
             name = generate_unique_name("SkinDepth")
 
         if self._app.design_type == "Maxwell 2D":
-            props = OrderedDict(
+            props = dict(
                 {
                     "Edges": assignment,
                     "SkinDepth": skin_depth,
@@ -1121,7 +1118,7 @@ class Mesh(object):
             elif isinstance(assignment[0], str):
                 seltype = "Objects"
 
-            props = OrderedDict(
+            props = dict(
                 {
                     "Type": "SkinDepthBased",
                     "Enabled": True,
@@ -1183,7 +1180,7 @@ class Mesh(object):
         if seltype is None:
             self.logger.error("Error in Assignment")
             return
-        props = OrderedDict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
+        props = dict({"Type": "Curvilinear", seltype: assignment, "Apply": enable})
         mop = MeshOperation(self, name, props, "Curvilinear")
         mop.create()
         self.meshoperations.append(mop)
@@ -1235,7 +1232,7 @@ class Mesh(object):
         if seltype is None:
             self.logger.error("Error in Assignment")
             return
-        props = OrderedDict(
+        props = dict(
             {"Type": "CurvatureExtraction", seltype: assignment, "DisableForFacetedSurfaces": disabled_for_faceted}
         )
         mop = MeshOperation(self, name, props, "CurvatureExtraction")
@@ -1280,7 +1277,7 @@ class Mesh(object):
         else:
             name = generate_unique_name("RotationalLayer")
         seltype = "Objects"
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "RotationalLayerMesh",
                 seltype: assignment,
@@ -1329,7 +1326,7 @@ class Mesh(object):
         else:
             name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "EdgeCutLayerMesh", seltype: assignment, "Layer Thickness": layer_thickness})
+        props = dict({"Type": "EdgeCutLayerMesh", seltype: assignment, "Layer Thickness": layer_thickness})
 
         mop = MeshOperation(self, name, props, "EdgeCutLayerMesh")
         mop.create()
@@ -1393,7 +1390,7 @@ class Mesh(object):
         else:
             restrlay = True
             restrlaynum = str(layers_number)
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "DensityControlBased",
                 "RefineInside": refine_inside,
@@ -1489,7 +1486,7 @@ class Mesh(object):
                     raise ValueError
                 if clone_mesh and not band_mapping_angle:
                     band_mapping_angle = 3
-                props = OrderedDict(
+                props = dict(
                     {
                         "Name": name,
                         "Objects": entity,
@@ -1505,7 +1502,7 @@ class Mesh(object):
                 else:
                     use_band_mapping_angle = False
                     band_mapping_angle = 3
-                props = OrderedDict(
+                props = dict(
                     {
                         "Name": name,
                         "Objects": entity,

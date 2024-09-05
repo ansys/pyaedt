@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import re
 import warnings
@@ -1496,7 +1495,7 @@ class Q3d(QExtractor, object):
             objects = self.modeler.convert_to_selections(
                 [int(i) for i in list(self.oboundary.GetExcitationAssignment(net))], True
             )
-            props = OrderedDict({"Objects": objects})
+            props = dict({"Objects": objects})
             bound = BoundaryObject(self, net, props, "SignalNet")
             self._boundaries[bound.name] = bound
         if new_nets:
@@ -1543,7 +1542,7 @@ class Q3d(QExtractor, object):
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
             net_name = generate_unique_name("Net")
-        props = OrderedDict({"Objects": assignment})
+        props = dict({"Objects": assignment})
         type_bound = "SignalNet"
         if net_type.lower() == "ground":
             type_bound = "GroundNet"
@@ -1639,9 +1638,9 @@ class Q3d(QExtractor, object):
                 sheets.append(object_name)
 
         if is_face:
-            props = OrderedDict({"Faces": sheets})
+            props = dict({"Faces": sheets})
         else:
-            props = OrderedDict({"Objects": sheets})
+            props = dict({"Objects": sheets})
 
         if terminal_type == "current":
             terminal_str = "UniformCurrent"
@@ -1708,9 +1707,7 @@ class Q3d(QExtractor, object):
         if not net_name:
             net_name = assignment
         if a:
-            props = OrderedDict(
-                {"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name}
-            )
+            props = dict({"Faces": [a], "ParentBndID": assignment, "TerminalType": "ConstantVoltage", "Net": net_name})
             bound = BoundaryObject(self, name, props, "Sink")
             if bound.create():
                 self._boundaries[bound.name] = bound
@@ -1758,9 +1755,9 @@ class Q3d(QExtractor, object):
             sink_name = generate_unique_name("Sink")
         assignment = self.modeler.convert_to_selections(assignment, True)[0]
         if isinstance(assignment, int):
-            props = OrderedDict({"Faces": [assignment]})
+            props = dict({"Faces": [assignment]})
         else:
-            props = OrderedDict({"Objects": [assignment]})
+            props = dict({"Objects": [assignment]})
         if object_name:
             props["ParentBndID"] = object_name
 
@@ -2063,7 +2060,7 @@ class Q3d(QExtractor, object):
             name = generate_unique_name("Thin_Cond")
         if isinstance(thickness, (float, int)):
             thickness = str(thickness) + self.modeler.model_units
-        props = OrderedDict({"Objects": new_ass, "Material": material, "Thickness": thickness})
+        props = dict({"Objects": new_ass, "Material": material, "Thickness": thickness})
 
         bound = BoundaryObject(self, name, props, "ThinConductor")
         if bound.create():
@@ -2466,7 +2463,7 @@ class Q2d(QExtractor, object):
                 t_list.append(t_obj.faces[0].area / perimeter)
             thickness = sum(t_list) / len(t_list)
 
-        props = OrderedDict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
+        props = dict({"Objects": obj_names, "SolveOption": solve_option, "Thickness": str(thickness) + units})
 
         bound = BoundaryObject(self, name, props, conductor_type)
         if bound.create():
@@ -2509,7 +2506,7 @@ class Q2d(QExtractor, object):
 
         a = self.modeler.convert_to_selections(assignment, True)
 
-        props = OrderedDict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
+        props = dict({"Edges": a, "UseCoating": False, "Radius": ra, "Ratio": str(ratio)})
 
         bound = BoundaryObject(self, name, props, "Finite Conductivity")
         if bound.create():
@@ -2534,7 +2531,7 @@ class Q2d(QExtractor, object):
             objects = self.modeler.convert_to_selections(
                 [int(k) for k in list(self.oboundary.GetExcitationAssignment(new_nets[i]))], True
             )
-            props = OrderedDict({"Objects": objects})
+            props = dict({"Objects": objects})
             bound = BoundaryObject(self, new_nets[i], props, new_nets[i + 1])
             self._boundaries[bound.name] = bound
             i += 2
