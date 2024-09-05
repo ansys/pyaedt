@@ -856,14 +856,14 @@ class ExportToAedt:
         index = c_int()
         part_libraries_list = list(PartLibraries)
         status = self._dll.getPartLibraries(byref(index))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         part_libraries = part_libraries_list[index.value]
         return part_libraries
 
     @part_libraries.setter
     def part_libraries(self, column: PartLibraries):
         status = self._dll.setPartLibraries(column.value)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def interconnect_length_to_width_ratio(self) -> str:
@@ -1151,23 +1151,23 @@ class ExportToAedt:
         """
         interconnect_geometry_optimization_enabled = c_bool()
         status = self._dll.getInterconnectGeometryOptimization(byref(interconnect_geometry_optimization_enabled))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(interconnect_geometry_optimization_enabled.value)
 
     @interconnect_geometry_optimization_enabled.setter
     def interconnect_geometry_optimization_enabled(self, interconnect_geometry_optimization_enabled: bool):
         status = self._dll.setInterconnectGeometryOptimization(interconnect_geometry_optimization_enabled)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     def update_interconncet_parameters(self):
         """Update interconnect geometry equations with entered and selected parameters"""
         status = self._dll.updateInterConnectParmeters()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     def update_inductor_capacitor_tolerances(self):
         """Update interconnect inductor and capacitor tolerances with entered values"""
         status = self._dll.updatePartsTolerances()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def substrate_type(self) -> SubstrateType:
@@ -1201,7 +1201,7 @@ class ExportToAedt:
         substrate_er_index = c_int()
         substrate_er_value_str = ctypes.create_string_buffer(100)
         status = self._dll.getEr(substrate_er_value_str, byref(substrate_er_index), 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_er_index.value in [e.value for e in SubstrateEr]:
             return SubstrateEr(substrate_er_index.value)
         else:
@@ -1220,7 +1220,7 @@ class ExportToAedt:
 
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setEr(substrate_er_value_bytes, substrate_er_index)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def substrate_resistivity(self) -> Union[SubstrateResistivity, str]:
@@ -1235,7 +1235,7 @@ class ExportToAedt:
         substrate_resistivity_index = c_int()
         substrate_resistivity_value_str = ctypes.create_string_buffer(100)
         status = self._dll.getResistivity(substrate_resistivity_value_str, byref(substrate_resistivity_index), 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_resistivity_index.value in [e.value for e in SubstrateResistivity]:
             return SubstrateResistivity(substrate_resistivity_index.value)
         else:
@@ -1253,7 +1253,7 @@ class ExportToAedt:
             raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string.")
         substrate_resistivity_value_bytes = bytes(substrate_resistivity_value, "ascii")
         status = self._dll.setResistivity(substrate_resistivity_value_bytes, substrate_resistivity_index)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def substrate_loss_tangent(self) -> Union[SubstrateType, str]:
@@ -1268,7 +1268,7 @@ class ExportToAedt:
         substrate_loss_tangent_index = c_int()
         substrate_loss_tangent_value_str = ctypes.create_string_buffer(100)
         status = self._dll.getLossTangent(substrate_loss_tangent_value_str, byref(substrate_loss_tangent_index), 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_loss_tangent_index.value in [e.value for e in SubstrateEr]:
             return SubstrateEr(substrate_loss_tangent_index.value)
         else:
@@ -1286,7 +1286,7 @@ class ExportToAedt:
             raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
         substrate_loss_tangent_value_bytes = bytes(substrate_loss_tangent_value, "ascii")
         status = self._dll.setLossTangent(substrate_loss_tangent_value_bytes, substrate_loss_tangent_index)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def substrate_conductor_thickness(self) -> str:
@@ -1384,13 +1384,13 @@ class ExportToAedt:
         """
         substrate_unbalanced_stripline_enabled = c_bool()
         status = self._dll.getUnbalancedStripLine(byref(substrate_unbalanced_stripline_enabled))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(substrate_unbalanced_stripline_enabled.value)
 
     @substrate_unbalanced_stripline_enabled.setter
     def substrate_unbalanced_stripline_enabled(self, substrate_unbalanced_stripline_enabled: bool):
         status = self._dll.setUnbalancedStripLine(substrate_unbalanced_stripline_enabled)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def substrate_cover_height_enabled(self) -> bool:
@@ -1402,18 +1402,18 @@ class ExportToAedt:
         """
         substrate_cover_height_enabled = c_bool()
         status = self._dll.getGroundedCoverAboveLine(byref(substrate_cover_height_enabled))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(substrate_cover_height_enabled.value)
 
     @substrate_cover_height_enabled.setter
     def substrate_cover_height_enabled(self, substrate_cover_height_enabled: bool):
         status = self._dll.setGroundedCoverAboveLine(substrate_cover_height_enabled)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     def load_modelithics_models(self):
         """Load ``Modelithics`` modesl from ``AEDT``."""
         status = self._dll.loadModelitichsModels()
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def modelithics_include_interconnect_enabled(self) -> bool:
@@ -1425,13 +1425,13 @@ class ExportToAedt:
         """
         modelithics_include_interconnect_enabled = c_bool()
         status = self._dll.getModelithicsIncludeInterconnect(byref(modelithics_include_interconnect_enabled))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return bool(modelithics_include_interconnect_enabled.value)
 
     @modelithics_include_interconnect_enabled.setter
     def modelithics_include_interconnect_enabled(self, modelithics_include_interconnect_enabled: bool):
         status = self._dll.setModelithicsIncludeInterconnect(modelithics_include_interconnect_enabled)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def modelithics_inductor_list_count(self) -> int:
@@ -1443,7 +1443,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsInductorsListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_inductor_list(self, row_index) -> str:
@@ -1451,7 +1451,7 @@ class ExportToAedt:
 
         modelithics_inductor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_inductor = modelithics_inductor_buffer.value.decode("utf-8")
         return modelithics_inductor
 
@@ -1480,7 +1480,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsInductorsFamilyListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_inductor_family_list(self, index) -> str:
@@ -1497,7 +1497,7 @@ class ExportToAedt:
         """
         modelithics_inductor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsFamilyList(index, modelithics_inductor_family_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_inductor_family = modelithics_inductor_family_buffer.value.decode("utf-8")
         return modelithics_inductor_family
 
@@ -1531,7 +1531,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsCapacitorsListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_capacitor_list(self, row_index) -> str:
@@ -1539,7 +1539,7 @@ class ExportToAedt:
 
         modelithics_capacitor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_capacitor = modelithics_capacitor_buffer.value.decode("utf-8")
         return modelithics_capacitor
 
@@ -1568,7 +1568,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsCapacitorsFamilyListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_capacitor_family_list(self, index) -> str:
@@ -1585,7 +1585,7 @@ class ExportToAedt:
         """
         modelithics_capacitor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsFamilyList(index, modelithics_capacitor_family_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_capacitor_family = modelithics_capacitor_family_buffer.value.decode("utf-8")
         return modelithics_capacitor_family
 
@@ -1619,7 +1619,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsResistorsListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_resistor_list(self, row_index) -> str:
@@ -1627,7 +1627,7 @@ class ExportToAedt:
 
         modelithics_resistor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_resistor = modelithics_resistor_buffer.value.decode("utf-8")
         return modelithics_resistor
 
@@ -1656,7 +1656,7 @@ class ExportToAedt:
         """
         count = c_int()
         status = self._dll.getModelithicsResistorsFamilyListCount(byref(count))
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         return int(count.value)
 
     def modelithics_resistor_family_list(self, index) -> str:
@@ -1673,7 +1673,7 @@ class ExportToAedt:
         """
         modelithics_resistor_family_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsFamilyList(index, modelithics_resistor_family_buffer, 100)
-        pyaedt.filtersolutions_core._dll_interface().raise_error(status)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         modelithics_resistor_family = modelithics_resistor_family_buffer.value.decode("utf-8")
         return modelithics_resistor_family
 

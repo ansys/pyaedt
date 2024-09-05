@@ -293,7 +293,7 @@ class OptimizationGoalsTable:
 
     def set_design_goals(self):
         """Configure the optimization goal table according to the recommended goals for the current design."""
-        status = self._dll.designGoals()
+        status = self._dll.setDesignGoals()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     def save_goals(self, design, file_path) -> str:
