@@ -34,7 +34,9 @@ import sys
 import tempfile
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import CSS4_COLORS
+from ansys.aedt.core.generic.constants import EnumUnits
 from ansys.aedt.core.generic.constants import db10
 from ansys.aedt.core.generic.constants import db20
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -44,13 +46,13 @@ from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_csv
+from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.generic.plot import plot_2d_chart
 from ansys.aedt.core.generic.plot import plot_3d_chart
 from ansys.aedt.core.generic.plot import plot_polar_chart
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from src.ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 
 np = None
 pd = None
@@ -1554,6 +1556,19 @@ class BaseFolderPlot:
 
 
 class ColorMapSettings(BaseFolderPlot):
+    """Provides methods and variables for editing color map folder settings.
+
+    Parameters
+    ----------
+    map_type : str, optional
+        The type of colormap to use. Must be one of the allowed types
+        (`"Spectrum"`, `"Ramp"`, `"Uniform"`).
+        Default is `"Spectrum"`.
+    color : str or list[float], optional
+        Color to use. If "Spectrum" color map, a string is expected.
+        Else a list of 3 values (R,G,B). Default is `"Rainbow"`.
+    """
+
     def __init__(self, map_type="Spectrum", color="Rainbow"):
         self._map_type = None
         self.map_type = map_type
@@ -1608,11 +1623,14 @@ class ColorMapSettings(BaseFolderPlot):
         """Set the colormap based on the map type.
 
         Parameters:
-            v (str or tuple): The color value to be set. If a string, it should represent a valid color
+        -----------
+        v : str or list[float]
+            The color value to be set. If a string, it should represent a valid color
             spectrum specification (`"Magenta"`, `"Rainbow"`, `"Temperature"` or `"Gray"`).
             If a tuple, it should contain three elements representing RGB values.
 
         Raises:
+        -------
             ValueError: If the provided color value is not valid for the specified map type.
         """
         if self.map_type == "Spectrum":
@@ -1673,8 +1691,22 @@ class ColorMapSettings(BaseFolderPlot):
 
 
 class AutoScale(BaseFolderPlot):
+    """Provides methods and variables for editing automatic scale folder settings.
+
+    Parameters
+    ----------
+    n_levels : int, optional
+        Number of color levels of the scale. Default is `10`.
+    limit_precision_digits : bool, optional
+        Whether to limit precision digits. Default is `False`.
+    precision_digits : int, optional
+        Precision digits. Default is `3`.
+    use_current_scale_for_animation : bool, optional
+        Whether to use the scale for the animation. Default is `False`.
+    """
+
     def __init__(
-        self, n_levels=None, limit_precision_digits=None, precision_digits=None, use_current_scale_for_animation=None
+        self, n_levels=10, limit_precision_digits=False, precision_digits=3, use_current_scale_for_animation=False
     ):
         self.n_levels = n_levels
         self.limit_precision_digits = limit_precision_digits
@@ -1721,12 +1753,25 @@ class AutoScale(BaseFolderPlot):
 
 
 class MinMaxScale(BaseFolderPlot):
-    def __init__(self, min_value=None, max_value=None):
+    """Provides methods and variables for editing min-max scale folder settings.
+
+    Parameters
+    ----------
+    n_levels : int, optional
+        Number of color levels of the scale. Default is `10`.
+    min_value : float, optional
+        Minimum value of the scale. Default is `0`.
+    max_value : float, optional
+        Maximum value of the scale. Default is `1`.
+    """
+
+    def __init__(self, n_levels=10, min_value=0, max_value=1):
+        self.n_levels = n_levels
         self.min_value = min_value
         self.max_value = max_value
 
     def __repr__(self):
-        return f"MinMaxScale(min_value={self.min_value}, " f"max_value={self.max_value})"
+        return f"MinMaxScale(n_levels={self.n_levels}, min_value={self.min_value}, max_value={self.max_value})"
 
     def to_dict(self):
         """Convert the min-max scale settings to a dictionary.
@@ -1737,7 +1782,7 @@ class MinMaxScale(BaseFolderPlot):
             A dictionary containing all the min-max scale settings
             for the folder field plot settings.
         """
-        return {"minvalue": self.min_value, "maxvalue": self.max_value}
+        return {"minvalue": self.min_value, "maxvalue": self.max_value, "m_nLevels": self.n_levels}
 
     def from_dict(self, dictionary):
         """Initialize the min-max scale settings from a dictionary.
@@ -1750,9 +1795,18 @@ class MinMaxScale(BaseFolderPlot):
         """
         self.min_value = dictionary["minvalue"]
         self.max_value = dictionary["maxvalue"]
+        self.n_levels = dictionary["m_nLevels"]
 
 
 class SpecifiedScale:
+    """Provides methods and variables for editing min-max scale folder settings.
+
+    Parameters
+    ----------
+    scale_values : int, optional
+        Scale levels. Default is `None`.
+    """
+
     def __init__(self, scale_values=None):
         if scale_values is None:
             scale_values = []
@@ -1787,7 +1841,19 @@ class SpecifiedScale:
 
 
 class NumberFormat(BaseFolderPlot):
-    def __init__(self, format_type=None, width=None, precision=None):
+    """Provides methods and variables for editing number format folder settings.
+
+    Parameters
+    ----------
+    format_type : int, optional
+        Scale levels. Default is `None`.
+    width : int, optional
+        Width of the numbers space. Default is `4`.
+    precision : int, optional
+        Precision of the numbers. Default is `4`.
+    """
+
+    def __init__(self, format_type="Automatic", width=4, precision=4):
         self._format_type = format_type
         self.width = width
         self.precision = precision
@@ -1850,18 +1916,68 @@ class NumberFormat(BaseFolderPlot):
 
 
 class Scale3DSettings(BaseFolderPlot):
-    def __init__(self, scale_type="Auto", scale_settings=None, log=False, db=None, unit=None):
+    """Provides methods and variables for editing scale folder settings.
+
+    Parameters
+    ----------
+    scale_type : str, optional
+        Scale type. Default is `"Auto"`.
+    scale_settings : :class:`ansys.aedt.core.modules.post_processor.AutoScale`,
+                     :class:`ansys.aedt.core.modules.post_processor.MinMaxScale` or
+                     :class:`ansys.aedt.core.modules.post_processor.SpecifiedScale`, optional
+        Scale settings. Default is `AutoScale()`.
+    log : bool, optional
+        Whether to use a log scale. Default is `False`.
+    db : bool, optional
+        Whether to use dB scale. Default is `False`.
+    unit : int, optional
+        Unit to use in the scale. Default is `None`.
+    number_format : :class:`ansys.aedt.core.modules.post_processor.NumberFormat`, optional
+        Number format settings. Default is `NumberFormat()`.
+    """
+
+    def __init__(
+        self,
+        scale_type="Auto",
+        scale_settings=AutoScale(),
+        log=False,
+        db=False,
+        unit=None,
+        number_format=NumberFormat(),
+    ):
         self._scale_type = None  # Initialize with None to use the setter for validation
-        self.accepted = ["Auto", "MinMax", "Specified"]
-        self._scale_settings = scale_settings
-        self.number_format = NumberFormat()
-        self.log = log
-        self.db = db
-        self.unit = unit
+        self._scale_settings = None
+        self._unit = None
         self._auto_scale = AutoScale()
         self._minmax_scale = MinMaxScale()
         self._specified_scale = SpecifiedScale()
+        self._accepted = ["Auto", "MinMax", "Specified"]
+        self.number_format = number_format
+        self.log = log
+        self.db = db
+        self.unit = unit
         self.scale_type = scale_type  # This will trigger the setter and validate the scale_type
+        self.scale_settings = scale_settings
+
+    @property
+    def unit(self):
+        """Get unit used in the plot."""
+        return EnumUnits(self._unit).name
+
+    @unit.setter
+    def unit(self, v):
+        """Set unit used in the plot.
+
+        Parameters
+        ----------
+        v: str
+            Unit to be set.
+        """
+        if v is not None:
+            try:
+                self._unit = EnumUnits[v].value
+            except KeyError:
+                raise KeyError(f"{v} is not a valid unit.")
 
     @property
     def scale_type(self):
@@ -1881,8 +1997,8 @@ class Scale3DSettings(BaseFolderPlot):
         -------
             ValueError: If the provided value is not in the list of accepted values.
         """
-        if value is not None and value not in self.accepted:
-            raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self.accepted)}.")
+        if value is not None and value not in self._accepted:
+            raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self._accepted)}.")
         self._scale_type = value
         # Automatically adjust scale_settings based on scale_type
         if value == "Auto":
@@ -1897,6 +2013,23 @@ class Scale3DSettings(BaseFolderPlot):
         """Get the current scale settings based on the scale type."""
         self.scale_type = self.scale_type  # update correct scale settings
         return self._scale_settings
+
+    @scale_settings.setter
+    def scale_settings(self, value):
+        """Set the current scale settings based on the scale type."""
+        if self.scale_type == "Auto":
+            if isinstance(value, AutoScale):
+                self._scale_settings = value
+                return
+        elif self.scale_type == "MinMax":
+            if isinstance(value, MinMaxScale):
+                self._scale_settings = value
+                return
+        elif self.scale_type == "Specified":
+            if isinstance(value, SpecifiedScale):
+                self._scale_settings = value
+                return
+        raise ValueError("Invalid scale settings for current scale type.")
 
     def __repr__(self):
         return (
@@ -1915,8 +2048,8 @@ class Scale3DSettings(BaseFolderPlot):
         """
         arg_out = {
             "Scale3DSettings": {
-                "unit": self.unit,
-                "ScaleType": self.accepted.index(self.scale_type),
+                "unit": self._unit,
+                "ScaleType": self._accepted.index(self.scale_type),
                 "log": self.log,
                 "dB": self.db,
             }
@@ -1934,12 +2067,12 @@ class Scale3DSettings(BaseFolderPlot):
             Dictionary containing the configuration for scale settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
         """
-        self._scale_type = self.accepted[dictionary["ScaleType"]]
+        self._scale_type = self._accepted[dictionary["ScaleType"]]
         self.number_format = NumberFormat()
         self.number_format.from_dict(dictionary)
         self.log = dictionary["log"]
         self.db = dictionary["dB"]
-        self.unit = dictionary["unit"]
+        self.unit = EnumUnits(int(dictionary["unit"])).name
         self._auto_scale = AutoScale()
         self._auto_scale.from_dict(dictionary)
         self._minmax_scale = MinMaxScale()
@@ -1948,10 +2081,24 @@ class Scale3DSettings(BaseFolderPlot):
         self._specified_scale.from_dict(dictionary)
 
 
-class StreamlineMarkerSettings(BaseFolderPlot):
-    def __init__(self, marker_type=None, map_size=None, map_color=None, marker_size=None):
-        self._allowed_marker_types = {"Octahedron": 12, "Tetrahedron": 11, "Sphere": 9, "Box": 10, "Arrow": 0}
-        self._allowed_marker_types_inverse = {12: "Octahedron", 11: "Tetrahedron", 9: "Sphere", 10: "Box", 0: "Arrow"}
+class MarkerSettings(BaseFolderPlot):
+    """Provides methods and variables for editing marker folder settings.
+
+    Parameters
+    ----------
+    marker_type : str, optional
+        The type of maker to use. Must be one of the allowed types
+        (`"Octahedron"`, `"Tetrahedron"`, `"Sphere"`, `"Box"`, `"Arrow"`).
+        Default is `"Box"`.
+    marker_size : float, optional
+        Size of the marker. Default is `0.005`.
+    map_size : bool, optional
+        Whether to map the field magnitude to the arrow type. Default is `False`.
+    map_color : bool, optional
+        Whether to map the field magnitude to the arrow color. Default is `True`.
+    """
+
+    def __init__(self, marker_type="Box", map_size=False, map_color=True, marker_size=0.005):
         self._marker_type = None
         self.marker_type = marker_type
         self.map_size = map_size
@@ -1960,35 +2107,42 @@ class StreamlineMarkerSettings(BaseFolderPlot):
 
     @property
     def marker_type(self):
-        return self._marker_type
+        """Get the type of maker to use."""
+        return AllowedMarkers(self._marker_type).name
 
     @marker_type.setter
     def marker_type(self, v):
-        if v is None or v in self._allowed_marker_types:
-            self._marker_type = v
-        else:
-            raise ValueError(
-                f"{v} is not valid. Accepted values are {','.join(list(self._allowed_marker_types.keys()))}."
-            )
+        """Set the type of maker to use.
+
+        Parameters:
+        ----------
+        v : str
+            Marker type. Must be one of the allowed types
+            (`"Octahedron"`, `"Tetrahedron"`, `"Sphere"`, `"Box"`, `"Arrow"`).
+        """
+        try:
+            self._marker_type = AllowedMarkers[v].value
+        except KeyError:
+            raise KeyError(f"{v} is not a valid marker type.")
 
     def __repr__(self):
         return (
-            f"StreamlineMarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
+            f"MarkerSettings(marker_type='{self.marker_type}', map_size={self.map_size}, "
             f"map_color={self.map_color}, marker_size={self.marker_size})"
         )
 
     def to_dict(self):
-        """Convert the streamline marker settings to a dictionary.
+        """Convert the marker settings to a dictionary.
 
         Returns
         -------
         dict
-            A dictionary containing all the streamline marker settings
+            A dictionary containing all the marker settings
             for the folder field plot settings.
         """
         return {
             "Marker3DSettings": {
-                "MarkerType": self._allowed_marker_types[self.marker_type],
+                "MarkerType": self._marker_type,
                 "MarkerMapSize": self.map_size,
                 "MarkerMapColor": self.map_color,
                 "MarkerSize": self.marker_size,
@@ -1996,21 +2150,46 @@ class StreamlineMarkerSettings(BaseFolderPlot):
         }
 
     def from_dict(self, dictionary):
-        """Initialize the streamline marker settings of the field plot settings from a dictionary.
+        """Initialize the marker settings of the field plot settings from a dictionary.
 
         Parameters
         ----------
         dictionary : dict
-            Dictionary containing the configuration for streamline marker settings.
+            Dictionary containing the configuration for marker settings.
             Dictionary syntax must be the same of relevant portion of the AEDT file.
         """
-        self.marker_type = self._allowed_marker_types_inverse[int(dictionary["MarkerType"])]
+        self.marker_type = AllowedMarkers(int(dictionary["MarkerType"])).name
         self.map_size = dictionary["MarkerMapSize"]
         self.map_color = dictionary["MarkerMapColor"]
         self.marker_size = dictionary["MarkerSize"]
 
 
 class ArrowSettings(BaseFolderPlot):
+    """Provides methods and variables for editing arrow folder settings.
+
+    Parameters
+    ----------
+    arrow_type : str, optional
+        The type of arrows to use. Must be one of the allowed types
+        (`"Line"`, `"Cylinder"`, `"Umbrella"`). Default is `"Line"`.
+    arrow_size : float, optional
+        Size of the arrow. Default is `0.005`.
+    map_size : bool, optional
+        Whether to map the field magnitude to the arrow type. Default is `False`.
+    map_color : bool, optional
+        Whether to map the field magnitude to the arrow color. Default is `True`.
+    show_arrow_tail : bool, optional
+        Whether to show the arrow tail. Default is `False`.
+    magnitude_filtering : bool, optional
+        Whether to filter the field magnitude for plotting vectors. Default is `False`.
+    magnitude_threshold : bool, optional
+        Threshold value for plotting vectors. Default is `0`.
+    min_magnitude : bool, optional
+        Minimum value for plotting vectors. Default is `0`.
+    max_magnitude : bool, optional
+        Maximum value for plotting vectors. Default is `0.5`.
+    """
+
     def __init__(
         self,
         arrow_type="Line",
@@ -2020,7 +2199,7 @@ class ArrowSettings(BaseFolderPlot):
         show_arrow_tail=False,
         magnitude_filtering=False,
         magnitude_threshold=0,
-        min_magnitude=-0.5,
+        min_magnitude=0,
         max_magnitude=0.5,
     ):
         self._arrow_type = None
@@ -2110,17 +2289,34 @@ class ArrowSettings(BaseFolderPlot):
 
 
 class FolderPlotSettings(BaseFolderPlot):
+    """Provides methods and variables for editing field plots folder settings.
+
+    Parameters
+    ----------
+    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
+    folder_name : str
+        Name of the plot field folder.
+    arrow_settings : :class:`ansys.aedt.core.modules.solution.ArrowSettings`, optional
+        Arrow settings. Default is `None`.
+    marker_settings : :class:`ansys.aedt.core.modules.solution.MarkerSettings`, optional
+        Marker settings. Default is `None`.
+    scale_settings : :class:`ansys.aedt.core.modules.solution.Scale3DSettings`, optional
+        Scale settings. Default is `None`.
+    color_map_settings : :class:`ansys.aedt.core.modules.solution.ColorMapSettings`, optional
+        Colormap settings. Default is `None`.
+    """
+
     def __init__(
         self,
         postprocessor,
         folder_name,
         arrow_settings=None,
-        streamline_marker_settings=None,
+        marker_settings=None,
         scale_settings=None,
         color_map_settings=None,
     ):
         self.arrow_settings = arrow_settings
-        self.streamline_marker_settings = streamline_marker_settings
+        self.marker_settings = marker_settings
         self.scale_settings = scale_settings
         self.color_map_settings = color_map_settings
         self._postprocessor = postprocessor
@@ -2141,12 +2337,12 @@ class FolderPlotSettings(BaseFolderPlot):
         -------
         dict
             A dictionary containing all the settings for the field plot,
-            including arrow settings, streamline marker settings,
+            including arrow settings, marker settings,
             scale settings, and color map settings.
         """
         out = {}
         out.update(self.arrow_settings.to_dict())
-        out.update(self.streamline_marker_settings.to_dict())
+        out.update(self.marker_settings.to_dict())
         out.update(self.scale_settings.to_dict())
         out.update(self.color_map_settings.to_dict())
         return {"FieldsPlotSettings": out}
@@ -2169,10 +2365,10 @@ class FolderPlotSettings(BaseFolderPlot):
         self.scale_settings = scale
         arrow = ArrowSettings()
         arrow.from_dict(dictionary["Arrow3DSettings"])
-        marker = StreamlineMarkerSettings()
+        marker = MarkerSettings()
         marker.from_dict(dictionary["Marker3DSettings"])
         self.arrow_settings = arrow
-        self.streamline_marker_settings = marker
+        self.marker_settings = marker
 
 
 class FieldPlot:

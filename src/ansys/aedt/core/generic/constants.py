@@ -1089,3 +1089,1154 @@ class SymbolStyle(object):
         "HorizontalLeftTriangle",
         "HorizontalRightTriangle",
     )
+
+
+from enum import IntEnum
+from enum import auto
+from enum import unique
+
+
+@unique
+class EnumUnits(IntEnum):
+    # Frequency
+    hz = auto(0)
+    khz = auto()
+    mhz = auto()
+    ghz = auto()
+    thz = auto()
+    rps = auto()
+    dbFrequency = auto()
+    # Resistance
+    mohm = auto()
+    ohm = auto()
+    kohm = auto()
+    megohm = auto()
+    gohm = auto()
+    dbResistance = auto()
+    # Conductance
+    fsie = auto()
+    psie = auto()
+    nsie = auto()
+    usie = auto()
+    msie = auto()
+    sie = auto()
+    dbConductance = auto()
+    # Inductance
+    fh = auto()
+    ph = auto()
+    nh = auto()
+    uh = auto()
+    mh = auto()
+    h = auto()
+    dbInductance = auto()
+    # Capacitance
+    ff = auto()
+    pf = auto()
+    nf = auto()
+    uf = auto()
+    mf = auto()
+    farad = auto()
+    dbCapacitance = auto()
+    # Length
+    nm = auto()
+    um = auto()
+    mm = auto()
+    meter = auto()
+    cm = auto()
+    ft = auto()
+    inch = auto()  # actually it is "in" but would not be valid
+    mil = auto()
+    uin = auto()
+    dbLength = auto()
+    # Time
+    fs = auto()
+    ps = auto()
+    ns = auto()
+    us = auto()
+    ms = auto()
+    s = auto()
+    dbTime = auto()
+    # Angle
+    deg = auto()
+    rad = auto()
+    dbAngle = auto()
+    # Power
+    fw = auto()
+    pw = auto()
+    nw = auto()
+    uw = auto()
+    mw = auto()
+    w = auto()
+    dbm = auto()
+    dbw = auto()
+    dbPower = auto()
+    # Voltage
+    fv = auto()
+    pv = auto()
+    nv = auto()
+    uv = auto()
+    mv = auto()
+    v = auto()
+    kv = auto()
+    dbv = auto()
+    dbVoltage = auto()
+    # Current
+    fa = auto()
+    pa = auto()
+    na = auto()
+    ua = auto()
+    ma = auto()
+    a = auto()
+    dbCurrent = auto()
+    # Temperature
+    kel = auto()
+    cel = auto()
+    fah = auto()
+    dbTemperature = auto()
+    # Noise spectrum (dBc/Hz)
+    dbchz = auto()
+    dbNoiseSpectrum = auto()
+    # Mass (obsolete:  replaced with new enum below)
+    oz_obsolete = auto()
+    dbWeight_obsolete = auto()
+    # Volume
+    l = auto()
+    ml = auto()
+    dbVolume = auto()
+    # Magnetic Induction
+    gauss = auto()
+    ugauss = auto()
+    tesla = auto()
+    utesla = auto()
+    dbMagInduction = auto()
+    # Magnetic Field Strength
+    oersted = auto()
+    a_per_meter = auto()
+    dbMagFieldStrength = auto()
+    # Force
+    fnewton = auto()
+    pnewton = auto()
+    nnewton = auto()
+    unewton = auto()
+    mnewton = auto()
+    newton = auto()
+    knewton = auto()
+    megnewton = auto()
+    gnewton = auto()
+    lbForce = auto()
+    dbForce = auto()
+    # Torque
+    fnewtonmeter = auto()
+    pnewtonmeter = auto()
+    nnewtonmeter = auto()
+    unewtonmeter = auto()
+    mnewtonmeter = auto()
+    newtonmeter = auto()
+    knewtonmeter = auto()
+    megnewtonmeter = auto()
+    gnewtonmeter = auto()
+    OzIn = auto()
+    LbIn = auto()
+    ftlb = auto()
+    GmCm = auto()
+    KgCm = auto()
+    KgMeter = auto()
+    dbTorque = auto()
+    # Speed (mph is meter_per_hour)
+    mmps = auto()
+    cmps = auto()
+    mps = auto()
+    mph = auto()
+    fps = auto()
+    fpm = auto()
+    miph = auto()
+    dbSpeed = auto()
+    # AngularSpeed
+    rpm = auto()
+    degps = auto()
+    degpm = auto()
+    degph = auto()
+    radps = auto()
+    radpm = auto()
+    radph = auto()
+    dbAngularSpeed = auto()
+    # Flux
+    weber = auto()
+    dbFlux = auto()
+    # ElectricFieldStrength
+    vpm = auto()
+    # Mass (replaces obsolete previous)
+    ugram = auto()
+    mgram = auto()
+    gram = auto()
+    kgram = auto()
+    oz = auto()
+    lb = auto()
+    dbMass = auto()
+    # More Length
+    km = auto()
+    # More Voltage
+    megv = auto()
+    # More Current
+    ka = auto()
+    # More MagneticInduction
+    mtesla = auto()
+    mgauss = auto()
+    kgauss = auto()
+    ktesla = auto()
+    # More MagneticFieldStrength
+    ka_per_meter = auto()
+    koersted = auto()
+    # More power units
+    kw = auto()
+    horsepower = auto()
+    btu_per_hr = auto()
+    # More speed units
+    km_per_hr = auto()
+    km_per_min = auto()
+    km_per_sec = auto()
+    mi_per_min = auto()
+    mi_per_sec = auto()
+    in_per_sec = auto()
+    # Pressure units
+    n_per_msq = auto()
+    kn_per_msq = auto()
+    megn_per_msq = auto()
+    gn_per_msq = auto()
+    psi = auto()
+    kpsi = auto()
+    megpsi = auto()
+    gpsi = auto()
+    #
+    upascal = auto()
+    mpascal = auto()
+    cpascal = auto()
+    dpascal = auto()
+    pascal = auto()
+    hpascal = auto()
+    kpascal = auto()
+    megpascal = auto()
+    gpascal = auto()
+    # kAcceleration
+    inps2 = auto()
+    mmps2 = auto()
+    cmps2 = auto()
+    mps2 = auto()
+    # kAIGB
+    aigb2 = auto()
+    aigb1 = auto()
+    # kAmountOfSubstance
+    nmol = auto()
+    umol = auto()
+    mmol = auto()
+    mol = auto()
+    kmol = auto()
+    # kAngle
+    degsec = auto()
+    degmin = auto()
+    # kAngleCoefficient
+    perdeg = auto()
+    perrad = auto()
+    vpervperdeg = auto()
+    vpervperrad = auto()
+    # kAngularAcceleration
+    degpers2 = auto()
+    pers2 = auto()
+    radpers2 = auto()
+    # kAngularDamping
+    dmsperrad = auto()
+    nmsperrad = auto()
+    kmsperrad = auto()
+    # kAngularJerk
+    jerk_degpers2 = auto()
+    jerk_radpers2 = auto()
+    # kAngularMomentum
+    kgm2pers = auto()
+    newtonmetersec = auto()
+    # kAngularSpeed
+    AngRps = auto()
+    AngSpers = auto()
+    # kAngularStiffness
+    newtonmeterperdeg = auto()
+    newtonmeterperrad = auto()
+    # kAngularWindage
+    kgm2perrad2 = auto()
+    nms2perrad2 = auto()
+    # kArea
+    in2 = auto()
+    ft2 = auto()
+    um2 = auto()
+    mm2 = auto()
+    cm2 = auto()
+    m2 = auto()
+    km2 = auto()
+    # kAreaCoefficient
+    percm2 = auto()
+    perm2 = auto()
+    # kArealFlowRate (also Diffusivity)
+    m2perhour = auto()
+    m2permin = auto()
+    m2pers = auto()
+    # kAreaPerPower
+    m2perJs = auto()
+    m2perw = auto()
+    # kAreaPerVoltage
+    Am2perkW = auto()
+    Am2perW = auto()
+    m2perkV = auto()
+    m2perV = auto()
+    # kAreaPerVoltageTemperature
+    Am2perWKel = auto()
+    m2perVKel = auto()
+    # kBIGB
+    bigB1 = auto()
+    bigB2 = auto()
+    # kCapacitancePerArea
+    Fpercm2 = auto()
+    nFperm2 = auto()
+    uFperm2 = auto()
+    mFperm2 = auto()
+    Fperm2 = auto()
+    # kCapacitancePerAreaPerVoltage
+    pFperVm2 = auto()
+    nFperVm2 = auto()
+    uFperVm2 = auto()
+    mFperVm2 = auto()
+    FperVm2 = auto()
+    # kCapacitancePerLength
+    pFperm = auto()
+    nFperm = auto()
+    uFperm = auto()
+    mFperm = auto()
+    Fperm = auto()
+    # kCapacitanceTemperatureCoeff
+    nFperCel = auto()
+    uFperCel = auto()
+    FperCel = auto()
+    pFperFah = auto()
+    nFperFah = auto()
+    uFperFah = auto()
+    mFperFah = auto()
+    FperFah = auto()
+    mFperCel = auto()
+    pFperCel = auto()
+    pFperKel = auto()
+    nFperKel = auto()
+    uFperKel = auto()
+    mFperKel = auto()
+    FperKel = auto()
+    # kCharge
+    As = auto()
+    Ah = auto()
+    nC = auto()
+    uC = auto()
+    mC = auto()
+    C = auto()
+    kC = auto()
+    # kCompliance
+    inperlbf = auto()
+    cmperN = auto()
+    mperN = auto()
+    # kConductance
+    mho = auto()
+    inverseohm = auto()
+    apv = auto()
+    ksie = auto()
+    megsie = auto()
+    # kConductancePerLength
+    uSperm = auto()
+    mSperm = auto()
+    cSperm = auto()
+    Sperm = auto()
+    kSperm = auto()
+    # kCurrentChangeRate
+    Apermin = auto()
+    Aperhour = auto()
+    uApers = auto()
+    mApers = auto()
+    Apers = auto()
+    kApers = auto()
+    # kCurrentDensity
+    uApercm2 = auto()
+    mApercm2 = auto()
+    Apercm2 = auto()
+    uAperm2 = auto()
+    mAperm2 = auto()
+    Aperm2 = auto()
+    Apermm2 = auto()
+    # kCurrentGain
+    ApermA = auto()
+    mAperA = auto()
+    AperA = auto()
+    # kCurrentLengthPerVoltage
+    uAmperV = auto()
+    mAmperV = auto()
+    AmperV = auto()
+    # kCurrentPerCharge
+    AperC = auto()
+    AperAhour = auto()
+    AperAs = auto()
+    # kCurrentPerIrradiance
+    uAperWperm2 = auto()
+    mAperWperm2 = auto()
+    AperWperm2 = auto()
+    kAperWperm2 = auto()
+    # kCurrentPerLength
+    uAperm = auto()
+    mAperm = auto()
+    Aperm = auto()
+    kAperm = auto()
+    # kCurrentPerTemperature2_half
+    AperKel2half = auto()
+    # kCurrentPerTemperatureCubed
+    AperKel3 = auto()
+    # kCurrentPerTemperatureDiffCubed
+    AperCelDiff3 = auto()
+    AperKelDiff3 = auto()
+    # kCurrentSquaredTime
+    mA2s = auto()
+    A2s = auto()
+    # kCurrentTemperatureCoeff
+    uAperCel = auto()
+    mAperCel = auto()
+    AperCel = auto()
+    mAperFah = auto()
+    AperFah = auto()
+    uAperKel = auto()
+    mAperKel = auto()
+    AperKel = auto()
+    kAperKel = auto()
+    # kDamping
+    mNsperm = auto()
+    cNsperm = auto()
+    dNsperm = auto()
+    Nsperm = auto()
+    kNsperm = auto()
+    # kDensity
+    gpcm3 = auto()
+    gpl = auto()
+    kgpl = auto()
+    kgpdm3 = auto()
+    kgpm3 = auto()
+    # kElectricFieldStrength
+    vpcm = auto()
+    # kElectricFluxDensity
+    nCperm2 = auto()
+    uCperm2 = auto()
+    mCperm2 = auto()
+    Cperm2 = auto()
+    # kEnergy
+    Whour = auto()
+    kWhour = auto()
+    eV = auto()
+    erg = auto()
+    Ws = auto()
+    uJ = auto()
+    mJ = auto()
+    J = auto()
+    kJ = auto()
+    megJ = auto()
+    GJ = auto()
+    # kFluidicCapacitance
+    cm3perPa = auto()
+    m3perPa = auto()
+    # kFluidicConductance
+    cm3perPas = auto()
+    m3perPas = auto()
+    # kFluidicResistance
+    Nsperm5 = auto()
+    Pasperm3 = auto()
+    # kFlux
+    maxwell = auto()
+    vh = auto()
+    vs = auto()
+    # kForce
+    dyne = auto()
+    kpond = auto()
+    # kFrequency
+    persec = auto()
+    # kIlluminance
+    lmperm2 = auto()
+    lmpercm2 = auto()
+    Wperm2 = auto()
+    Wpercm2 = auto()
+    lmperin2 = auto()
+    lx = auto()
+    klx = auto()
+    meglx = auto()
+    # kInductancePerLength
+    pHperm = auto()
+    nHperm = auto()
+    uHperm = auto()
+    mHperm = auto()
+    Hperm = auto()
+    # kInertance
+    kgperm4 = auto()
+    Ns2perm5 = auto()
+    Pas2perm3 = auto()
+    # kIrradiance
+    IrradWpercm2 = auto()
+    Wperin2 = auto()
+    uWperm2 = auto()
+    mWperm2 = auto()
+    IrradWperm2 = auto()
+    kWperm2 = auto()
+    megWperm2 = auto()
+    # kJerk
+    inpers3 = auto()
+    nmpers3 = auto()
+    umpers3 = auto()
+    mmpers3 = auto()
+    cmpers3 = auto()
+    mpers3 = auto()
+    # kLength
+    yd = auto()
+    mileUS = auto()
+    ltyr = auto()
+    mileNaut = auto()
+    fm = auto()
+    pm = auto()
+    dm = auto()
+    mileTerr = auto()
+    # kLength2PerVoltage2
+    m2perV2 = auto()
+    # kLengthCoefficient
+    percm = auto()
+    permm = auto()
+    perum = auto()
+    perkm = auto()
+    perin = auto()
+    VperVperm = auto()
+    VperVperin = auto()
+    perm = auto()
+    # kLengthPerVoltage
+    umperV = auto()
+    mmperV = auto()
+    cmperV = auto()
+    dmperV = auto()
+    mperV = auto()
+    kmperV = auto()
+    # kLengthPerVoltageRoot
+    umperVhalf = auto()
+    mmperVhalf = auto()
+    cmperVhalf = auto()
+    dmperVhalf = auto()
+    mperVhalf = auto()
+    kmperVhalf = auto()
+    # kLuminousFlux
+    gm2pers3 = auto()
+    mlm = auto()
+    lm = auto()
+    klm = auto()
+    meglm = auto()
+    # kLuminousIntensity
+    mCd = auto()
+    Cd = auto()
+    kCd = auto()
+    megCd = auto()
+    GCd = auto()
+    # kMagneticReluctance
+    AperVs = auto()
+    AperWb = auto()
+    # kMassFlowRate
+    gpers = auto()
+    kgpers = auto()
+    # kMolarDensity
+    molperdm3 = auto()
+    molpercm3 = auto()
+    molperl = auto()
+    molperm3 = auto()
+    # kMolarEnergy
+    uJpermol = auto()
+    mJpermol = auto()
+    Jpermol = auto()
+    kJpermol = auto()
+    megJpermol = auto()
+    gJpermol = auto()
+    # kMolarVelocity
+    umolpers = auto()
+    mmolpers = auto()
+    cmolpers = auto()
+    molpers = auto()
+    kmolpers = auto()
+    # kMolarViscosity
+    Paspermol = auto()
+    # kMomentInertia
+    lbin2 = auto()
+    lbft2 = auto()
+    kgm2 = auto()
+    # kMomentum
+    gmpers = auto()
+    kgmpers = auto()
+    # kPercentage
+    percent = auto()
+    # kPercentagePerTime
+    percentperm = auto()
+    percentperhour = auto()
+    percentperday = auto()
+    pers = auto()
+    permin = auto()
+    perhour = auto()
+    perday = auto()
+    percentpers = auto()
+    # kPermeance
+    VsperA = auto()
+    WbperA = auto()
+    # kPower
+    megw = auto()
+    gw = auto()
+    # kPressure
+    mbar = auto()
+    bar = auto()
+    mmh2o = auto()
+    mmhg = auto()
+    techAtm = auto()
+    torr = auto()
+    stAtm = auto()
+    # kPressureChangeRate
+    psipermin = auto()
+    statmpermin = auto()
+    techatmpermin = auto()
+    mmH2Opermin = auto()
+    torrpermin = auto()
+    Paperhour = auto()
+    mbarperhour = auto()
+    barperhour = auto()
+    psiperhour = auto()
+    statmperhour = auto()
+    techatmperhour = auto()
+    mbarpers = auto()
+    barpers = auto()
+    mmH2Operhour = auto()
+    torrperhour = auto()
+    psipers = auto()
+    statmpers = auto()
+    techatmpers = auto()
+    mmH2Opers = auto()
+    torrpers = auto()
+    Papermin = auto()
+    mbarpermin = auto()
+    barpermin = auto()
+    Papers = auto()
+    # kPressureCoefficient
+    perbar = auto()
+    permbar = auto()
+    perpsi = auto()
+    perstatm = auto()
+    pertechatm = auto()
+    permmHg = auto()
+    permmH2O = auto()
+    VperVperPa = auto()
+    perPa = auto()
+    # kRatio
+    bel = auto()
+    # kReciprocalPower
+    permegW = auto()
+    permW = auto()
+    perkW = auto()
+    pergW = auto()
+    perJs = auto()
+    perW = auto()
+    # kReciprocalResistanceCharge
+    perOhmAs = auto()
+    perOhmAh = auto()
+    perOhmC = auto()
+    # kReciprocalResistanceTime
+    perOhmmin = auto()
+    perOhmhour = auto()
+    perOhms = auto()
+    # kResistance
+    uohm = auto()
+    # kResistancePerCharge
+    OhmperAs = auto()
+    OhmperAhour = auto()
+    nOhmperC = auto()
+    uOhmperC = auto()
+    mOhmperC = auto()
+    OhmperC = auto()
+    kOhmperC = auto()
+    megOhmperC = auto()
+    gOhmperC = auto()
+    # kResistancePerLength
+    Ohmperum = auto()
+    uOhmperm = auto()
+    mOhmperm = auto()
+    Ohmperm = auto()
+    kOhmperm = auto()
+    megOhmperm = auto()
+    # kResistanceTemperatureCoeff
+    OhmperCel = auto()
+    mOhmperKel = auto()
+    OhmperKel = auto()
+    kOhmperKel = auto()
+    # kResistivity
+    Ohmmm2permm = auto()
+    Ohmum = auto()
+    Ohmcm = auto()
+    Ohmm = auto()
+    # kSpecificHeatCapacity
+    mJperKelkg = auto()
+    JperKelkg = auto()
+    kJperKelkg = auto()
+    # kStiffness
+    Npercm = auto()
+    lbfperin = auto()
+    Nperm = auto()
+    kNperm = auto()
+    # kSurfaceChargeDensity
+    SufCDAsperm2 = auto()
+    SufCDnCperm2 = auto()
+    SufCDuCperm2 = auto()
+    SufCDmCperm2 = auto()
+    SufCDCperm2 = auto()
+    # kSurfaceMobility
+    cm2perVs = auto()
+    m2perVs = auto()
+    # kSurfaceMobilityPerVoltage
+    cm2pV2s = auto()
+    m2pV2s = auto()
+    # kTemperature
+    mkel = auto()
+    ckel = auto()
+    dkel = auto()
+    # kTemperatureAreaPerPower
+    kelm2pw = auto()
+    celm2pw = auto()
+    # kTemperatureCoefficient
+    perCel = auto()
+    perFah = auto()
+    percentperKel = auto()
+    percentperCel = auto()
+    percentperFah = auto()
+    perKel = auto()
+    # kTemperatureCoefficient2
+    perCel2 = auto()
+    perFah2 = auto()
+    perKel2 = auto()
+    # kTemperatureDifference
+    celdiff = auto()
+    mkeldiff = auto()
+    keldiff = auto()
+    # kThermalCapacitance
+    WsperKel = auto()
+    JperKel = auto()
+    # kThermalConductance
+    mWperCel = auto()
+    WperCel = auto()
+    kWperCel = auto()
+    mWperKel = auto()
+    WperKel = auto()
+    kWperKel = auto()
+    # kThermalConductivity
+    mWperKelm = auto()
+    WperKelm = auto()
+    # kThermalConvection
+    wpcm2kel = auto()
+    wpm2kel = auto()
+    # kThermalRadiationCoeff
+    mWperKel4 = auto()
+    WperKel4 = auto()
+    kWperKel4 = auto()
+    # kThermalRadiationConstant
+    Wpercm2Kel4 = auto()
+    Wperm2Kel4 = auto()
+    # kThermalResistance
+    KelsperJ = auto()
+    KelperW = auto()
+    # kTime
+    min = auto()
+    hour = auto()
+    day = auto()
+    # kTimePerAngle
+    sperdeg = auto()
+    sperrev = auto()
+    msperrad = auto()
+    sperrad = auto()
+    # kTimeSqPerAngleSq
+    s2perdeg2 = auto()
+    s2perrad2 = auto()
+    # kTorque
+    cnewtonmeter = auto()
+    # kTransconductanceParameter
+    mAperV = auto()
+    AperV = auto()
+    kAperV = auto()
+    # kTransistorConstant
+    mAperV2 = auto()
+    AperV2 = auto()
+    # kTranslationalAcceleration
+    inpers2 = auto()
+    cmpers2 = auto()
+    dmpers2 = auto()
+    mpers2 = auto()
+    # kVelocitySaturation
+    VelSatumperV = auto()
+    VelSatmmperV = auto()
+    VelSatcmperV = auto()
+    VelSatmperV = auto()
+    # kVelocitySaturationPerVoltage
+    umperV2 = auto()
+    mmperV2 = auto()
+    cmperV2 = auto()
+    mperV2 = auto()
+    # kViscocity
+    Nsperm2 = auto()
+    cpoise = auto()
+    poise = auto()
+    uPas = auto()
+    mPas = auto()
+    cPas = auto()
+    dPas = auto()
+    Pas = auto()
+    hPas = auto()
+    kPas = auto()
+    # kViscousFriction
+    VisFricmNsperm = auto()
+    VisFricCNsperm = auto()
+    VisFricNsperm = auto()
+    VisFrickNsperm = auto()
+    # kVoltage
+    gv = auto()
+    # kVoltageAccelerationCoefficient
+    mVperm2pers2 = auto()
+    Vperm2pers2 = auto()
+    # kVoltageChangeRate
+    Vpermin = auto()
+    Vperhour = auto()
+    mVpers = auto()
+    Vpers = auto()
+    kVpers = auto()
+    # kVoltageCoefficient
+    permV = auto()
+    perkV = auto()
+    perV = auto()
+    # kVoltageCoefficient2
+    perV2 = auto()
+    # kVoltageCubed
+    mV3 = auto()
+    V3 = auto()
+    # kVoltageGain
+    VpermV = auto()
+    mVperV = auto()
+    VperV = auto()
+    # kVoltageJerkCoefficient
+    mVpermpers3 = auto()
+    Vpermpers3 = auto()
+    # kVoltageLength
+    uVm = auto()
+    mVm = auto()
+    Vm = auto()
+    kVm = auto()
+    # kVoltagePerCell
+    pVpercell = auto()
+    nVpercell = auto()
+    uVpercell = auto()
+    mVpercell = auto()
+    Vpercell = auto()
+    kVpercell = auto()
+    megVpercell = auto()
+    gVpercell = auto()
+    # kVoltagePerLengthRoot
+    Vpermhalf = auto()
+    # kVoltagePressureRootCoeff
+    mVperPahalf = auto()
+    VperPahalf = auto()
+    # kVoltageRoot
+    Vhalf = auto()
+    # kVoltageRootCoefficient
+    perVhalf = auto()
+    # kVoltageTemperature10Coeff
+    uVperCel10 = auto()
+    mVperCel10 = auto()
+    VperCel10 = auto()
+    uVperKel10 = auto()
+    mVperKel10 = auto()
+    VperKel10 = auto()
+    # kVoltageTemperature11Coeff
+    uVperCel11 = auto()
+    mVperCel11 = auto()
+    VperCel11 = auto()
+    uVperKel11 = auto()
+    mVperKel11 = auto()
+    VperKel11 = auto()
+    # kVoltageTemperature12Coeff
+    uVperCel12 = auto()
+    mVperCel12 = auto()
+    VperCel12 = auto()
+    uVperKel12 = auto()
+    mVperKel12 = auto()
+    VperKel12 = auto()
+    # kVoltageTemperature13Coeff
+    uVperCel13 = auto()
+    mVperCel13 = auto()
+    VperCel13 = auto()
+    uVperKel13 = auto()
+    mVperKel13 = auto()
+    VperKel13 = auto()
+    # kVoltageTemperature14Coeff
+    uVperCel14 = auto()
+    mVperCel14 = auto()
+    VperCel14 = auto()
+    uVperKel14 = auto()
+    mVperKel14 = auto()
+    VperKel14 = auto()
+    # kVoltageTemperature15Coeff
+    uVperCel15 = auto()
+    mVperCel15 = auto()
+    VperCel15 = auto()
+    uVperKel15 = auto()
+    mVperKel15 = auto()
+    VperKel15 = auto()
+    # kVoltageTemperature2Coeff
+    uVperCel2 = auto()
+    mVperCel2 = auto()
+    VperCel2 = auto()
+    uVperKel2 = auto()
+    mVperKel2 = auto()
+    VperKel2 = auto()
+    # kVoltageTemperature3Coeff
+    uVperCel3 = auto()
+    mVperCel3 = auto()
+    VperCel3 = auto()
+    uVperKel3 = auto()
+    mVperKel3 = auto()
+    VperKel3 = auto()
+    # kVoltageTemperature4Coeff
+    uVperCel4 = auto()
+    mVperCel4 = auto()
+    VperCel4 = auto()
+    uVperKel4 = auto()
+    mVperKel4 = auto()
+    VperKel4 = auto()
+    # kVoltageTemperature5Coeff
+    uVperCel5 = auto()
+    mVperCel5 = auto()
+    VperCel5 = auto()
+    uVperKel5 = auto()
+    mVperKel5 = auto()
+    VperKel5 = auto()
+    # kVoltageTemperature6Coeff
+    uVperCel6 = auto()
+    mVperCel6 = auto()
+    VperCel6 = auto()
+    uVperKel6 = auto()
+    mVperKel6 = auto()
+    VperKel6 = auto()
+    # kVoltageTemperature7Coeff
+    uVperCel7 = auto()
+    mVperCel7 = auto()
+    VperCel7 = auto()
+    uVperKel7 = auto()
+    mVperKel7 = auto()
+    VperKel7 = auto()
+    # kVoltageTemperature8Coeff
+    uVperCel8 = auto()
+    mVperCel8 = auto()
+    VperCel8 = auto()
+    uVperKel8 = auto()
+    mVperKel8 = auto()
+    VperKel8 = auto()
+    # kVoltageTemperature9Coeff
+    uVperCel9 = auto()
+    mVperCel9 = auto()
+    VperCel9 = auto()
+    uVperKel9 = auto()
+    mVperKel9 = auto()
+    VperKel9 = auto()
+    # kVoltageTemperatureCoeff
+    uVperCel = auto()
+    mVperCel = auto()
+    VperCel = auto()
+    uVperKel = auto()
+    mVperKel = auto()
+    VperKel = auto()
+    # kVolume
+    mm3 = auto()
+    m3 = auto()
+    galUK = auto()
+    cup = auto()
+    galUS = auto()
+    # kVolumeCoefficient
+    percm3 = auto()
+    perm3 = auto()
+    # kVolumeFlowConductance
+    VolFConcm3perPas = auto()
+    VolFConm3perPas = auto()
+    # kVolumeFlowPerPressureRoot
+    m3persPahalf = auto()
+    # kVolumeFlowRate
+    m3permin = auto()
+    m3perhour = auto()
+    cm3pers = auto()
+    m3pers = auto()
+    ltrpermin = auto()
+    # kVolumeFlowRateChangeRate
+    cm3pers2 = auto()
+    m3pers2 = auto()
+    # kMass
+    mton = auto()
+    # kWireCrossSection
+    Wirein2 = auto()
+    Wireft2 = auto()
+    Wireum2 = auto()
+    Wiremm2 = auto()
+    Wirecm2 = auto()
+    Wirem2 = auto()
+    # kEnergyDensity
+    JPerM3 = auto()
+    kJPerM3 = auto()
+    # Additional Volume Units
+    cm3 = auto()
+    inch3 = auto()
+    foot3 = auto()
+    yard3 = auto()
+    # Magnetomotive Force
+    at = auto()
+    uat = auto()
+    nat = auto()
+    mat = auto()
+    kat = auto()
+    # additional kPercentage
+    Fraction = auto()
+    # delta temperature
+    fah_diff = auto()
+    # Delta Fahrenheit
+    ckel_diff = auto()
+    dkel_diff = auto()
+    # Delta Kelvin
+    # Additional units for Areal Flow Rate (e.g. Diffusivity)
+    ft2pers = auto()
+    cm2pers = auto()
+    # kMolarMass
+    kgpermol = auto()
+    gpermol = auto()
+    # Additional units for kViscocity
+    kgperms = auto()
+    lbmperfts = auto()
+    slugperfts = auto()
+    # Additions for kTemperatureAreaPerPower (e.g. Thermal Impedance)
+    celin2pw = auto()
+    # C-in2/W
+    celmm2pw = auto()
+    # C-mm2/W
+    # Additions for kIrradiance (e.g. Heat Flux Density)
+    btupspft2 = auto()
+    # BTU/s-ft2
+    btuphrpft2 = auto()
+    # BTU/h-ft2
+    ergpspcm2 = auto()
+    # erg/s-cm2
+    # Additional units for area
+    micron2 = auto()
+    mil2 = auto()
+    # Additional units for thermal conductance
+    btuPerFahSec = auto()
+    btuPerRankSec = auto()
+    btuPerFahHr = auto()
+    btuPerRankHr = auto()
+    # Additional units for thermal conductivity
+    btuPerFahFtSec = auto()
+    btuPerRankFtSec = auto()
+    btuPerFahFtHr = auto()
+    btuPerRankFtHr = auto()
+    calpersmCel = auto()
+    calpersmKel = auto()
+    ergperscmKel = auto()
+    wPerCelM = auto()
+    # Additional units for density
+    lbmPerFt3 = auto()
+    slugPerFt3 = auto()
+    # Additional units for thermal convection
+    btuPerFahSecFt2 = auto()
+    btuPerFahHrFt2 = auto()
+    btuPerRankSecFt2 = auto()
+    btuPerRankHrFt2 = auto()
+    wPerCelM2 = auto()
+    # Additional unit(s) for length
+    copperOzPerFt2 = auto()
+    # Additional units for mass flow rate
+    lbmPerSec = auto()
+    lbmPerMin = auto()
+    # Additional units for power
+    btuPerSec = auto()
+    ergPerSec = auto()
+    # Additional units for power-per-area (surface heat)
+    IrradWPerMm2 = auto()
+    IrradMet = auto()
+    # Power per volume
+    btuPerSecFt3 = auto()
+    btuPerHrFt3 = auto()
+    ergPerSecCm3 = auto()
+    wPerM3 = auto()
+    # Additional unit(s) for pressure
+    lbfPerFt2 = auto()
+    # Additional units for thermal resistance
+    celPerW = auto()
+    fahSecPerBtu = auto()
+    # Additional units for specific heat capacity
+    btuPerLbmFah = auto()
+    btuPerLbmRank = auto()
+    calPerGKel = auto()
+    calPerGCel = auto()
+    ergPerGKel = auto()
+    JPerCelKg = auto()
+    kcalPerKgKel = auto()
+    kcalPerKgCel = auto()
+    # Additional units for temperature and delta-temperature (Rankine)
+    rank = auto()
+    rankdiff = auto()
+    # Turbulent dissipation rate
+    m2PerSec3 = auto()
+    ft2PerSec3 = auto()
+    # Turbulent kinetic energy
+    m2PerSec2 = auto()
+    ft2PerSec2 = auto()
+    # Specific turbulence dissipation rate
+    dissPerSec = auto()
+    # Additional unit for temperature coefficient (volumetric expansion coefficient)
+    perRank = auto()
+    percentperRank = auto()
+    # Additional units for volumetric flow rate
+    ft3PerMin = auto()
+    ft3PerSec = auto()
+    cfm = auto()
+    # Additional unit for pressure
+    pressWaterInches = auto()
+    # Additional unit for kCharge
+    q = auto()
+    # change of a proton (negative for electron)
+    # data rate units of bits/sec (added for EMIT)
+    bps = auto()
+    kbps = auto()
+    mbps = auto()
+    gbps = auto()
+    # kMassFlux
+    kgpersm2 = auto()
+    lbmperminft2 = auto()
+    gperscm2 = auto()
+    # kThermalConductancePerArea
+    Wperm2perCel = auto()
+    Wperin2perCel = auto()
+    Wpermm2perCel = auto()
+    # kAttenutation
+    dBperm = auto()
+    dBpercm = auto()
+    dBperdm = auto()
+    dBperkm = auto()
+    dBperft = auto()
+    dBpermi = auto()
+    Nppercm = auto()
+    Npperdm = auto()
+    Npperft = auto()
+    Npperkm = auto()
+    Npperm = auto()
+    Nppermi = auto()
+
+
+@unique
+class AllowedMarkers(IntEnum):
+    Octahedron = 12
+    Tetrahedron = 11
+    Sphere = 9
+    Box = 10
+    Arrow = 0
