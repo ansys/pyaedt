@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import csv
 import os
 import re
@@ -640,17 +639,18 @@ class Icepak(FieldAnalysis3D):
         elif isinstance(face_id[0], str):
             props["Objects"] = face_id
         if radiate_low:
-            props["LowSide"] = OrderedDict(
-                {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material}
-            )
+            props["LowSide"] = {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material}
         else:
-            props["LowSide"] = OrderedDict({"Radiate": False})
+            props["LowSide"] = {"Radiate": False}
         if radiate_high:
-            props["HighSide"] = OrderedDict(
-                {"Radiate": True, "RadiateTo": "AllObjects - High", "Surface Material - High": high_surf_material}
-            )
+            props["HighSide"] = {
+                "Radiate": True,
+                "RadiateTo": "AllObjects - High",
+                "Surface Material - High": high_surf_material,
+            }
+
         else:
-            props["HighSide"] = OrderedDict({"Radiate": False})
+            props["HighSide"] = {"Radiate": False}
         props["Thermal Specification"] = thermal_specification
         props["Thickness"] = thickness
         props["Solid Material"] = solid_material
@@ -660,13 +660,12 @@ class Icepak(FieldAnalysis3D):
         if thermal_dependent_dataset is None:
             props["Total Power"] = input_power
         else:
-            props["Total Power Variation Data"] = OrderedDict(
-                {
-                    "Variation Type": "Temp Dep",
-                    "Variation Function": "Piecewise Linear",
-                    "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
-                }
-            )
+            props["Total Power Variation Data"] = {
+                "Variation Type": "Temp Dep",
+                "Variation Function": "Piecewise Linear",
+                "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+            }
+
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
         return _create_boundary(bound)
@@ -748,16 +747,14 @@ class Icepak(FieldAnalysis3D):
         if thermal_dependent_dataset is None:
             props["Total Power"] = input_power
         else:
-            props["Total Power Variation Data"] = OrderedDict(
-                {
-                    "Variation Type": "Temp Dep",
-                    "Variation Function": "Piecewise Linear",
-                    "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
-                }
-            )
+            props["Total Power Variation Data"] = {
+                "Variation Type": "Temp Dep",
+                "Variation Function": "Piecewise Linear",
+                "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+            }
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
-        props["Radiation"] = OrderedDict({"Radiate": radiate})
+        props["Radiation"] = {"Radiate": radiate}
         bound = BoundaryObject(self, source_name, props, "SourceIcepak")
         return _create_boundary(bound)
 
@@ -855,20 +852,16 @@ class Icepak(FieldAnalysis3D):
             else:
                 boundary_name = generate_unique_name("Block")
             props["Faces"] = [fcrjc, fcrjb]
-            props["Nodes"] = OrderedDict(
-                {
-                    "Face" + str(fcrjc): [fcrjc, "NoResistance"],
-                    "Face" + str(fcrjb): [fcrjb, "NoResistance"],
-                    "Internal": [power],
-                }
-            )
-            props["Links"] = OrderedDict(
-                {
-                    "Link1": ["Face" + str(fcrjc), "Internal", "R", str(rjc) + "cel_per_w"],
-                    "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
-                }
-            )
-            props["SchematicData"] = OrderedDict({})
+            props["Nodes"] = {
+                "Face" + str(fcrjc): [fcrjc, "NoResistance"],
+                "Face" + str(fcrjb): [fcrjb, "NoResistance"],
+                "Internal": [power],
+            }
+            props["Links"] = {
+                "Link1": ["Face" + str(fcrjc), "Internal", "R", str(rjc) + "cel_per_w"],
+                "Link2": ["Face" + str(fcrjb), "Internal", "R", str(rjb) + "cel_per_w"],
+            }
+            props["SchematicData"] = {}
             bound = BoundaryObject(self, boundary_name, props, "Network")
             if bound.create():
                 self._boundaries[bound.name] = bound
@@ -1859,7 +1852,7 @@ class Icepak(FieldAnalysis3D):
         else:
             intr = []
 
-        argparam = OrderedDict({})
+        argparam = {}
         for el in self.available_variations.nominal_w_values_dict:
             argparam[el] = self.available_variations.nominal_w_values_dict[el]
 
@@ -1870,19 +1863,18 @@ class Icepak(FieldAnalysis3D):
             for el in parameters:
                 argparam[el] = parameters[el]
 
-        props = OrderedDict(
-            {
-                "Objects": assignment,
-                "Project": project_name,
-                "Product": "ElectronicsDesktop",
-                "Design": design,
-                "Soln": setup + " : " + sweep,
-                "Params": argparam,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-            }
-        )
+        props = {
+            "Objects": assignment,
+            "Project": project_name,
+            "Product": "ElectronicsDesktop",
+            "Design": design,
+            "Soln": setup + " : " + sweep,
+            "Params": argparam,
+            "ForceSourceToSolve": True,
+            "PreservePartnerSoln": True,
+            "PathRelativeTo": "TargetProject",
+        }
+
         props["Intrinsics"] = intr
         props["SurfaceOnly"] = surfaces
 
@@ -2280,76 +2272,71 @@ class Icepak(FieldAnalysis3D):
         if not name:
             name = generate_unique_name("Fan")
 
-        basic_component = OrderedDict(
-            {
-                "ComponentName": name,
-                "Company": "",
-                "Company URL": "",
-                "Model Number": "",
-                "Help URL": "",
-                "Version": "1.0",
-                "Notes": "",
-                "IconType": "Fan",
-            }
-        )
+        basic_component = {
+            "ComponentName": name,
+            "Company": "",
+            "Company URL": "",
+            "Model Number": "",
+            "Help URL": "",
+            "Version": "1.0",
+            "Notes": "",
+            "IconType": "Fan",
+        }
+
         if is_2d:
             model = "2D"
         else:
             model = "3D"
         cross_section = GeometryOperators.cs_plane_to_plane_str(cross_section)
-        native_component = OrderedDict(
-            {
-                "Type": "Fan",
-                "Unit": self.modeler.model_units,
-                "ModelAs": model,
-                "Shape": shape,
-                "MovePlane": cross_section,
-                "Radius": self._arg_with_units(radius),
-                "HubRadius": self._arg_with_units(hub_radius),
-                "CaseSide": True,
-                "FlowDirChoice": "NormalPositive",
-                "FlowType": "Curve",
-                "SwirlType": "Magnitude",
-                "FailedFan": False,
-                "DimUnits": ["m3_per_s", "n_per_meter_sq"],
-                "X": ["0", "0.01"],
-                "Y": ["3", "0"],
-                "Pressure Loss Curve": OrderedDict(
-                    {"DimUnits": ["m_per_sec", "n_per_meter_sq"], "X": ["", "", "", "3"], "Y": ["", "1", "10", "0"]}
-                ),
-                "IntakeTemp": "AmbientTemp",
-                "Swirl": "0",
-                "OperatingRPM": "0",
-                "Magnitude": "1",
-            }
-        )
-        native_props = OrderedDict(
-            {
-                "TargetCS": "Global",
-                "SubmodelDefinitionName": name,
-                "ComponentPriorityLists": OrderedDict({}),
-                "NextUniqueID": 0,
-                "MoveBackwards": False,
-                "DatasetType": "ComponentDatasetType",
-                "DatasetDefinitions": OrderedDict({}),
-                "BasicComponentInfo": basic_component,
-                "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
-                "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
-                "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict()}),
-                "MapInstanceParameters": "DesignVariable",
-                "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-"
-                + random_string(12, char_set="abcdef0123456789"),
-                "OriginFilePath": "",
-                "IsLocal": False,
-                "ChecksumString": "",
-                "ChecksumHistory": [],
-                "VersionHistory": [],
-                "NativeComponentDefinitionProvider": native_component,
-                "InstanceParameters": OrderedDict(
-                    {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
-                ),
-            }
-        )
+        native_component = {
+            "Type": "Fan",
+            "Unit": self.modeler.model_units,
+            "ModelAs": model,
+            "Shape": shape,
+            "MovePlane": cross_section,
+            "Radius": self._arg_with_units(radius),
+            "HubRadius": self._arg_with_units(hub_radius),
+            "CaseSide": True,
+            "FlowDirChoice": "NormalPositive",
+            "FlowType": "Curve",
+            "SwirlType": "Magnitude",
+            "FailedFan": False,
+            "DimUnits": ["m3_per_s", "n_per_meter_sq"],
+            "X": ["0", "0.01"],
+            "Y": ["3", "0"],
+            "Pressure Loss Curve": {
+                "DimUnits": ["m_per_sec", "n_per_meter_sq"],
+                "X": ["", "", "", "3"],
+                "Y": ["", "1", "10", "0"],
+            },
+            "IntakeTemp": "AmbientTemp",
+            "Swirl": "0",
+            "OperatingRPM": "0",
+            "Magnitude": "1",
+        }
+
+        native_props = {
+            "TargetCS": "Global",
+            "SubmodelDefinitionName": name,
+            "ComponentPriorityLists": {},
+            "NextUniqueID": 0,
+            "MoveBackwards": False,
+            "DatasetType": "ComponentDatasetType",
+            "DatasetDefinitions": {},
+            "BasicComponentInfo": basic_component,
+            "GeometryDefinitionParameters": {"VariableOrders": {}},
+            "DesignDefinitionParameters": {"VariableOrders": {}},
+            "MaterialDefinitionParameters": {"VariableOrders": {}},
+            "MapInstanceParameters": "DesignVariable",
+            "UniqueDefinitionIdentifier": "57c8ab4e-4db9-4881-b6bb-" + random_string(12, char_set="abcdef0123456789"),
+            "OriginFilePath": "",
+            "IsLocal": False,
+            "ChecksumString": "",
+            "ChecksumHistory": [],
+            "VersionHistory": [],
+            "NativeComponentDefinitionProvider": native_component,
+            "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+        }
 
         component3d_names = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
 
@@ -2442,50 +2429,43 @@ class Icepak(FieldAnalysis3D):
             outline_polygon = kwargs["outlinepolygon"]
 
         low_radiation, high_radiation = self.get_radiation_settings(rad)
-        hfss_link_info = OrderedDict({})
+        hfss_link_info = {}
         _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
         if extent_type == "Polygon" and not outline_polygon:
-            native_props = OrderedDict(
-                {
-                    "NativeComponentDefinitionProvider": OrderedDict(
-                        {
-                            "Type": "PCB",
-                            "Unit": self.modeler.model_units,
-                            "MovePlane": "XY",
-                            "Use3DLayoutExtents": True,
-                            "ExtentsType": extent_type,
-                            "CreateDevices": False,
-                            "CreateTopSolderballs": False,
-                            "CreateBottomSolderballs": False,
-                            "Resolution": int(resolution),
-                            "LowSide": OrderedDict({"Radiate": low_radiation}),
-                            "HighSide": OrderedDict({"Radiate": high_radiation}),
-                        }
-                    )
+            native_props = {
+                "NativeComponentDefinitionProvider": {
+                    "Type": "PCB",
+                    "Unit": self.modeler.model_units,
+                    "MovePlane": "XY",
+                    "Use3DLayoutExtents": True,
+                    "ExtentsType": extent_type,
+                    "CreateDevices": False,
+                    "CreateTopSolderballs": False,
+                    "CreateBottomSolderballs": False,
+                    "Resolution": int(resolution),
+                    "LowSide": {"Radiate": low_radiation},
+                    "HighSide": {"Radiate": high_radiation},
                 }
-            )
+            }
+
         else:
-            native_props = OrderedDict(
-                {
-                    "NativeComponentDefinitionProvider": OrderedDict(
-                        {
-                            "Type": "PCB",
-                            "Unit": self.modeler.model_units,
-                            "MovePlane": "XY",
-                            "Use3DLayoutExtents": False,
-                            "ExtentsType": extent_type,
-                            "OutlinePolygon": outline_polygon,
-                            "CreateDevices": False,
-                            "CreateTopSolderballs": False,
-                            "CreateBottomSolderballs": False,
-                            "Resolution": int(resolution),
-                            "LowSide": OrderedDict({"Radiate": low_radiation}),
-                            "HighSide": OrderedDict({"Radiate": high_radiation}),
-                        }
-                    )
+            native_props = {
+                "NativeComponentDefinitionProvider": {
+                    "Type": "PCB",
+                    "Unit": self.modeler.model_units,
+                    "MovePlane": "XY",
+                    "Use3DLayoutExtents": False,
+                    "ExtentsType": extent_type,
+                    "OutlinePolygon": outline_polygon,
+                    "CreateDevices": False,
+                    "CreateTopSolderballs": False,
+                    "CreateBottomSolderballs": False,
+                    "Resolution": int(resolution),
+                    "LowSide": {"Radiate": low_radiation},
+                    "HighSide": {"Radiate": high_radiation},
                 }
-            )
-        native_props["BasicComponentInfo"] = OrderedDict({"IconType": "PCB"})
+            }
+        native_props["BasicComponentInfo"] = {"IconType": "PCB"}
         if settings.aedt_version > "2023.2":  # pragma: no cover
             native_props["ViaHoleMaterial"] = "copper"
             native_props["IncludeMCAD"] = False
@@ -3502,19 +3482,15 @@ class Icepak(FieldAnalysis3D):
 
         props = {
             "Faces": [board_side.id, case_side.id],
-            "Nodes": OrderedDict(
-                {
-                    "Case_side(" + str(case_side) + ")": [case_side.id, "NoResistance"],
-                    "Board_side(" + str(board_side) + ")": [board_side.id, "NoResistance"],
-                    "Internal": [power],
-                }
-            ),
-            "Links": OrderedDict(
-                {
-                    "Rjc": ["Case_side(" + str(case_side) + ")", "Internal", "R", str(rjc) + "cel_per_w"],
-                    "Rjb": ["Board_side(" + str(board_side) + ")", "Internal", "R", str(rjb) + "cel_per_w"],
-                }
-            ),
+            "Nodes": {
+                "Case_side(" + str(case_side) + ")": [case_side.id, "NoResistance"],
+                "Board_side(" + str(board_side) + ")": [board_side.id, "NoResistance"],
+                "Internal": [power],
+            },
+            "Links": {
+                "Rjc": ["Case_side(" + str(case_side) + ")", "Internal", "R", str(rjc) + "cel_per_w"],
+                "Rjb": ["Board_side(" + str(board_side) + ")", "Internal", "R", str(rjb) + "cel_per_w"],
+            },
             "SchematicData": ({}),
         }
 
@@ -4200,7 +4176,7 @@ class Icepak(FieldAnalysis3D):
                     props[quantity] = assignment_value
             else:
                 props[quantity] = value
-        props["Radiation"] = OrderedDict({"Radiate": radiate})
+        props["Radiation"] = {"Radiate": radiate}
         props["Voltage/Current - Enabled"] = bool(voltage_current_choice)
         default_values = {"Current": "0A", "Voltage": "0V"}
         props["Voltage/Current Option"] = voltage_current_choice

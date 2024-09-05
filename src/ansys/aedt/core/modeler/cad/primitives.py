@@ -28,7 +28,6 @@ This module contains these Primitives classes: `Polyline` and `Primitives`.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import copy
 import math
 import os
@@ -864,7 +863,7 @@ class GeometryModeler(Modeler):
             return 0
 
         for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
-            if isinstance(el, (OrderedDict, dict)):
+            if isinstance(el, dict):
                 attribs = el["Attributes"]
                 operations = el.get("Operations", None)
             else:
@@ -877,7 +876,7 @@ class GeometryModeler(Modeler):
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
-                if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
+                if operations and isinstance(operations.get("Operation", None), dict):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
                     except Exception as e:  # pragma: no cover
@@ -1166,7 +1165,7 @@ class GeometryModeler(Modeler):
             cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if isinstance(cs[ds], (OrderedDict, dict)):
+                    if isinstance(cs[ds], dict):
                         if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
                             props = cs[ds]["RelativeCSParameters"]
                             name = cs[ds]["Attributes"]["Name"]
@@ -1188,9 +1187,9 @@ class GeometryModeler(Modeler):
                             geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
                                 "GeometryPart"
                             ]
-                            if isinstance(geometry_part, (OrderedDict, dict)):
+                            if isinstance(geometry_part, dict):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                if isinstance(op, (OrderedDict, dict)):
+                                if isinstance(op, dict):
                                     if op["ID"] == op_id:
                                         props = op["FaceCSParameters"]
                                         coord.append(FaceCoordinateSystem(self, props, name))
@@ -1203,7 +1202,7 @@ class GeometryModeler(Modeler):
                             elif isinstance(geometry_part, list):
                                 for gp in geometry_part:
                                     op = gp["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             coord.append(FaceCoordinateSystem(self, props, name))
@@ -1236,9 +1235,9 @@ class GeometryModeler(Modeler):
                                 geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
                                     "GeometryPart"
                                 ]
-                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                if isinstance(geometry_part, dict):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             coord.append(FaceCoordinateSystem(self, props, name))
@@ -1254,7 +1253,7 @@ class GeometryModeler(Modeler):
                                             op = gp["Operations"]["FaceCSHolderOperation"]
                                         except KeyError:
                                             continue
-                                        if isinstance(op, (OrderedDict, dict)):
+                                        if isinstance(op, dict):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
                                                 coord.append(FaceCoordinateSystem(self, props, name))
@@ -1292,7 +1291,7 @@ class GeometryModeler(Modeler):
                 entity_list = dp["ModelSetup"]["GeometryCore"][key1][key2]
                 if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
-                    if isinstance(geom_entry, (dict, OrderedDict)):
+                    if isinstance(geom_entry, dict):
                         geom_entry = [geom_entry]
                     for data in geom_entry:
                         props = {}
@@ -6570,7 +6569,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.CreateObjectFromFaces
         """
         edge_ids = self.convert_to_selections(assignment, True)
-        objs = OrderedDict()
+        objs = {}
         for edge_id in edge_ids:
             obj_name = self._find_object_from_edge_id(edge_id)
             if obj_name not in objs:
@@ -6620,7 +6619,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.CreateObjectFromFaces
         """
         face_ids = self.convert_to_selections(assignment, True)
-        objs = OrderedDict()
+        objs = {}
         for face_id in face_ids:
             obj_name = self._find_object_from_face_id(face_id)
             if obj_name not in objs:
@@ -8808,7 +8807,7 @@ class GeometryModeler(Modeler):
                     "NativeComponentDefinition"
                 ]
                 if native_comp_entry:
-                    if isinstance(native_comp_entry, (dict, OrderedDict)):
+                    if isinstance(native_comp_entry, dict):
                         native_comp_entry = [native_comp_entry]
                     for data in native_comp_entry:
                         native_comp_name = data["SubmodelDefinitionName"]
