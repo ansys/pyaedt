@@ -25,8 +25,8 @@
 from _unittest.conftest import config
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
-from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance import ComplexReactanceType
-from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance import ComplexTerminationDefinition
+from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
+from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
 from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 

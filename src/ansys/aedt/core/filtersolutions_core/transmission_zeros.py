@@ -38,8 +38,8 @@ class TableFormat(Enum):
 
     **Attributes:**
 
-    - RATIO: Represents transmission zeros ratio table.
-    - BANDWIDTH: Represents transmission zeros bandwidth table.
+    - RATIO: Represents transmission zeros ratio.
+    - BANDWIDTH: Represents transmission zeros bandwidth.
     """
 
     RATIO = 0

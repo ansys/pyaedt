@@ -21,12 +21,12 @@ import matplotlib.pyplot as plt
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
 design = ansys.aedt.core.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
+
 design.attributes.filter_class = FilterClass.BAND_PASS
 design.attributes.filter_type = FilterType.BUTTERWORTH
 design.attributes.pass_band_center_frequency = "1G"
 design.attributes.pass_band_width_frequency = "500M"
 design.attributes.filter_order = 5
-
 ##############################################################################
 # Plot the frequency response of the filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
