@@ -22,6 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import IntEnum
+from enum import auto
+from enum import unique
 import math
 import warnings
 
@@ -1089,11 +1092,6 @@ class SymbolStyle(object):
         "HorizontalLeftTriangle",
         "HorizontalRightTriangle",
     )
-
-
-from enum import IntEnum
-from enum import auto
-from enum import unique
 
 
 @unique
