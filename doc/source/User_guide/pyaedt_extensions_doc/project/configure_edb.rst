@@ -1,4 +1,4 @@
-EDB Configuration 2.0
+Edb configuration 2.0
 ====================
 
 ------------
@@ -43,7 +43,7 @@ It supports most of the options that the UI also supports (not only the ones exp
 configuration file from the design, by using its export property.
 
 ----------
-How to Use
+How to use
 ----------
 
 .. image:: ../../../_static/extensions/configure_edb.png
@@ -54,58 +54,54 @@ How to Use
 Configure HFSS 3D Layout design in active AEDT project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1, Select Active Design in GUI.
+1, Select ``Active Design`` in GUI.
 
 2, Make sure the HFSS 3D Layout design is open and active in AEDT.
 
 3, To apply configuration from a single configuration file
 
-    Click Apply Configuration and browse to your configuration file.
+    Click ``Apply Configuration`` and browse to your configuration file.
 
 3, To apply configurations in batch
 
-    Click Apply Configuration Batch and browse to the folder which contains all configuration files
-
-Configured project(s) will be loaded and open in AEDT.
+    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure HFSS 3D Layout design in a AEDT project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1, Select HFSS 3D Layout in GUI.
+1, Select ``HFSS 3D Layout`` in GUI.
 
-2, Click Select Project File and browse to .aedt file.
-
-3, To apply configuration from a single configuration file
-
-    Click Apply Configuration and browse to your configuration file.
-
-    Another dialog window will pop up. Please specify where to save the new project.
-
-3, To apply configurations in batch
-
-    Click Apply Configuration Batch and browse to the folder which contains all configuration files
-
-    Another dialog window will pop up. Please specify a folder where to save the new projects.
-
-Configured project(s) will be loaded and open in AEDT.
-
-~~~~~~~~~~~~~~~~~~~~~~~~
-Configure SIwave project
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-1, Select SIwave in GUI.
-
-2, Click Select Project File and browse to .siw file.
+2, Click ``Select Project File`` and browse to .aedt file.
 
 3, To apply configuration from a single configuration file
 
-    Click Apply Configuration and browse to your configuration file.
+    Click ``Apply Configuration`` and browse to your configuration file.
 
-    Another dialog window will pop up. Please specify where to save the new project.
+    In the second pop-up window. Please specify where to save the new project.
 
 3, To apply configurations in batch
 
-    Click Apply Configuration Batch and browse to the folder which contains all configuration files
+    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
 
-    Another dialog window will pop up. Please specify a folder where to save the new projects.
+    In the second pop-up window. Please specify a folder where to save the new projects.
+
+~~~~~~~~~~~~~~~~~~~~~~~~
+Configure siwave project
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+1, Select ``SIwave`` in GUI.
+
+2, Click ``Select Project File`` and browse to .siw file.
+
+3, To apply configuration from a single configuration file
+
+    Click ``Apply Configuration`` and browse to your configuration file.
+
+    In the second pop-up window. Please specify where to save the new project.
+
+3, To apply configurations in batch
+
+    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
+
+    In the second pop-up window. Please specify a folder where to save the new projects.
