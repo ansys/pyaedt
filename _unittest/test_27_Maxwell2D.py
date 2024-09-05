@@ -24,7 +24,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import os
 import shutil
 
@@ -286,7 +285,7 @@ class TestClass:
             group_sources=group_sources,
         )
         assert L.props["MatrixGroup"]["MatrixGroup"]
-        group_sources = OrderedDict()
+        group_sources = {}
         group_sources["Group1_Test"] = ["Current1", "Current3"]
         group_sources["Group2_Test"] = ["Current2", "Current4"]
         L = self.aedtapp.assign_matrix(

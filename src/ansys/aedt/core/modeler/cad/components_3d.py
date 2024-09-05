@@ -24,7 +24,6 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
 import os
 import random
 import re
@@ -60,28 +59,28 @@ class UserDefinedComponentParameters(dict):
         self._component = component
 
 
-class UserDefinedComponentProps(OrderedDict):
+class UserDefinedComponentProps(dict):
     """User Defined Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_user_defined_component.auto_update:
             res = self._pyaedt_user_defined_component.update_native()
             if not res:
                 self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
 
     def __init__(self, user_defined_components, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (dict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, UserDefinedComponentProps(user_defined_components, value))
+                if isinstance(value, dict):
+                    dict.__setitem__(self, key, UserDefinedComponentProps(user_defined_components, value))
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_user_defined_component = user_defined_components
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
 class UserDefinedComponent(object):
@@ -150,44 +149,38 @@ class UserDefinedComponent(object):
             self.auto_update = False
             self._props = UserDefinedComponentProps(
                 self,
-                OrderedDict(
-                    {
-                        "TargetCS": self._target_coordinate_system,
-                        "SubmodelDefinitionName": self.definition_name,
-                        "ComponentPriorityLists": OrderedDict({}),
-                        "NextUniqueID": 0,
-                        "MoveBackwards": False,
-                        "DatasetType": "ComponentDatasetType",
-                        "DatasetDefinitions": OrderedDict({}),
-                        "BasicComponentInfo": OrderedDict(
-                            {
-                                "ComponentName": self.definition_name,
-                                "Company": "",
-                                "Company URL": "",
-                                "Model Number": "",
-                                "Help URL": "",
-                                "Version": "1.0",
-                                "Notes": "",
-                                "IconType": "",
-                            }
-                        ),
-                        "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                        "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                        "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                        "MapInstanceParameters": "DesignVariable",
-                        "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                        + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
-                        "OriginFilePath": "",
-                        "IsLocal": False,
-                        "ChecksumString": "",
-                        "ChecksumHistory": [],
-                        "VersionHistory": [],
-                        "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
-                        "InstanceParameters": OrderedDict(
-                            {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
-                        ),
-                    }
-                ),
+                {
+                    "TargetCS": self._target_coordinate_system,
+                    "SubmodelDefinitionName": self.definition_name,
+                    "ComponentPriorityLists": {},
+                    "NextUniqueID": 0,
+                    "MoveBackwards": False,
+                    "DatasetType": "ComponentDatasetType",
+                    "DatasetDefinitions": {},
+                    "BasicComponentInfo": {
+                        "ComponentName": self.definition_name,
+                        "Company": "",
+                        "Company URL": "",
+                        "Model Number": "",
+                        "Help URL": "",
+                        "Version": "1.0",
+                        "Notes": "",
+                        "IconType": "",
+                    },
+                    "GeometryDefinitionParameters": {"VariableOrders": {}},
+                    "DesignDefinitionParameters": {"VariableOrders": {}},
+                    "MaterialDefinitionParameters": {"VariableOrders": {}},
+                    "MapInstanceParameters": "DesignVariable",
+                    "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                    + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
+                    "OriginFilePath": "",
+                    "IsLocal": False,
+                    "ChecksumString": "",
+                    "ChecksumHistory": [],
+                    "VersionHistory": [],
+                    "NativeComponentDefinitionProvider": {"Type": component_type},
+                    "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+                },
             )
             if props:
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
@@ -715,7 +708,7 @@ class UserDefinedComponent(object):
 
         """
 
-        self.update_props = OrderedDict({})
+        self.update_props = {}
         self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
         self.update_props["DesignDefinitionParameters"] = self._props["DesignDefinitionParameters"]
@@ -788,9 +781,9 @@ class UserDefinedComponent(object):
     @pyaedt_function_handler()
     def _update_props(self, d, u):
         for k, v in u.items():
-            if isinstance(v, (dict, OrderedDict)):
+            if isinstance(v, dict):
                 if k not in d:
-                    d[k] = OrderedDict({})
+                    d[k] = {}
                 d[k] = self._update_props(d[k], v)
             else:
                 d[k] = v

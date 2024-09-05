@@ -31,8 +31,6 @@ This module provides all functionalities for creating and editing the mesh in th
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
-
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import generate_unique_name
@@ -312,22 +310,18 @@ class Mesh3d(object):
             self.logger.error("mesh not assigned due to incorrect settings")
             return
         if isinstance(layer, list) and isinstance(net, list):
-            assignment = OrderedDict({"MeshEntityInfo": []})
+            assignment = dict({"MeshEntityInfo": []})
             for l, n in zip(layer, net):
-                meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
+                meshbody = dict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
                 assignment["MeshEntityInfo"].append(
-                    OrderedDict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
+                    dict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
                 )
         else:
-            meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
-            assignment = OrderedDict(
-                {
-                    "MeshEntityInfo": OrderedDict(
-                        {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
-                    )
-                }
+            meshbody = dict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
+            assignment = dict(
+                {"MeshEntityInfo": dict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})}
             )
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "LengthBased",
                 "RefineInside": is_inside,
@@ -411,15 +405,11 @@ class Mesh3d(object):
             restrictlength = True
         skin_depth = self.modeler.modeler_variable(skin_depth)
         triangulation_max_length = self.modeler.modeler_variable(triangulation_max_length)
-        meshbody = OrderedDict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
-        assignment = OrderedDict(
-            {
-                "MeshEntityInfo": OrderedDict(
-                    {"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []}
-                )
-            }
+        meshbody = dict({"Id": -1, "Nam": "", "Layer": layer, "Net": net, "OrigNet": net})
+        assignment = dict(
+            {"MeshEntityInfo": dict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})}
         )
-        props = OrderedDict(
+        props = dict(
             {
                 "Type": "SkinDepthLengthBased",
                 "Enabled": True,
