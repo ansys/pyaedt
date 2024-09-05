@@ -1,9 +1,9 @@
-Extension Manager
+Extension manager
 =================
 
 Extensions provide a simplified interface to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
-In AEDT, you can use the Extension Manager to add or remove extensions.
-The `Extension Manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ allows the user to install three different types of extensions:
+In AEDT, you can use the Extension manager to add or remove extensions.
+The `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ allows the user to install three different types of extensions:
 
 - **Custom extensions** installable both at project and application level.
 - **Pre-installed extensions** available at project level.
@@ -17,7 +17,7 @@ Custom extensions
 ~~~~~~~~~~~~~~~~~
 
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
-From the Extension Manager select the target destination:
+From the Extension manager select the target destination:
 
 .. image:: ../Resources/toolkit_manager_1.png
   :width: 800
@@ -119,7 +119,7 @@ HFSS 3D Layout extensions
 -------------------------
 
 
-Open Source Toolkits
+Open source toolkits
 ~~~~~~~~~~~~~~~~~~~~
 
 Open source toolkits are available at application level.
