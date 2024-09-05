@@ -45,8 +45,10 @@ class FilterType(Enum):
     - CHEBYSHEV_II: Represents a Chevyshev type II filter.
     - HOURGLASS: Represents an hourglass filter.
     - ELLIPTIC: Represents an elliptic filter.
+    - DELAY: Represents a delay filter.
+    - RAISED_COS: Represents a raised cosine filter.
 
-    Custom, raised-cos, and matched filter types are not available in this release.
+    Custom and matched filter types are not available in this release.
     """
 
     GAUSSIAN = 0
@@ -58,10 +60,10 @@ class FilterType(Enum):
     HOURGLASS = 6
     ELLIPTIC = 7
     DELAY = 8
+    RAISED_COS = 9
 
 
 #   CUSTOM = 8
-#   RAISED_COS = 9
 #   MATCHED = 10
 #   DELAY = 11
 
@@ -133,6 +135,35 @@ class DiplexerType(Enum):
     BP_BS = 3
     TRIPLEXER_1 = 4
     TRIPLEXER_2 = 5
+
+
+class RaisedCosineAlphaPercentage(Enum):
+    """Provides an enum of alpha percentage for raised, root raised, or data transmission filters.
+
+    **Attributes:**
+
+    - FIFTEEN: 15%
+    - TWENTY: 20%
+    - TWENTY_FIVE: 25%
+    - THIRTY: 30%
+    - THIRTY_FIVE: 35%
+    - FORTY: 40%
+    - FORTY_FIVE: 45%
+    - FIFTY: 50%
+    - SEVENTY_FIVE: 75%
+    - HUNDRED: 100%
+    """
+
+    FIFTEEN = 0
+    TWENTY = 1
+    TWENTY_FIVE = 2
+    THIRTY = 3
+    THIRTY_FIVE = 4
+    FORTY = 5
+    FORTY_FIVE = 6
+    FIFTY = 7
+    SEVENTY_FIVE = 8
+    HUNDRED = 9
 
 
 class BesselRipplePercentage(Enum):
@@ -251,7 +282,7 @@ class StopbandDefinition(Enum):
 class Attributes:
     """Defines attributes and parameters of filters.
 
-    This class allows you to construct all the necessary attributes for the ``FilterDesign`` class.
+    This class lets you construct all the necessary attributes for the ``FilterDesign`` class.
     """
 
     def __init__(self):
@@ -297,10 +328,35 @@ class Attributes:
         self._dll.getDiplexerType.argtypes = [c_char_p, c_int]
         self._dll.getDiplexerType.restype = c_int
 
-        self._dll.setDiplexerType.argtype = c_char_p
-        self._dll.setDiplexerType.restype = c_int
-        self._dll.getDiplexerType.argtypes = [c_char_p, c_int]
-        self._dll.getDiplexerType.restype = c_int
+        self._dll.setDiplexerInnerPassbandWidth.argtype = c_char_p
+        self._dll.setDiplexerInnerPassbandWidth.restype = c_int
+        self._dll.getDiplexerInnerPassbandWidth.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerInnerPassbandWidth.restype = c_int
+
+        self._dll.setDiplexerOuterPassbandWidth.argtype = c_char_p
+        self._dll.setDiplexerOuterPassbandWidth.restype = c_int
+        self._dll.getDiplexerOuterPassbandWidth.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerOuterPassbandWidth.restype = c_int
+
+        self._dll.setDiplexerLowerCenterFrequency.argtype = c_char_p
+        self._dll.setDiplexerLowerCenterFrequency.restype = c_int
+        self._dll.getDiplexerLowerCenterFrequency.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerLowerCenterFrequency.restype = c_int
+
+        self._dll.setDiplexerUpperCenterFrequency.argtype = c_char_p
+        self._dll.setDiplexerUpperCenterFrequency.restype = c_int
+        self._dll.getDiplexerUpperCenterFrequency.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerUpperCenterFrequency.restype = c_int
+
+        self._dll.setDiplexerLowerBandwidth.argtype = c_char_p
+        self._dll.setDiplexerLowerBandwidth.restype = c_int
+        self._dll.getDiplexerLowerBandwidth.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerLowerBandwidth.restype = c_int
+
+        self._dll.setDiplexerUpperBandwidth.argtype = c_char_p
+        self._dll.setDiplexerUpperBandwidth.restype = c_int
+        self._dll.getDiplexerUpperBandwidth.argtypes = [c_char_p, c_int]
+        self._dll.getDiplexerUpperBandwidth.restype = c_int
 
         self._dll.setOrder.argtype = c_int
         self._dll.setOrder.restype = c_int
@@ -393,15 +449,30 @@ class Attributes:
         self._dll.getEquirippleDelayEnabled.argtype = POINTER(c_bool)
         self._dll.getEquirippleDelayEnabled.restype = c_int
 
+        self._dll.setRootRaisedCosineEnabled.argtype = c_bool
+        self._dll.setRootRaisedCosineEnabled.restype = c_int
+        self._dll.getRootRaisedCosineEnabled.argtype = POINTER(c_bool)
+        self._dll.getRootRaisedCosineEnabled.restype = c_int
+
+        self._dll.setDataTransmissionEnabled.argtype = c_bool
+        self._dll.setDataTransmissionEnabled.restype = c_int
+        self._dll.getDataTransmissionEnabled.argtype = POINTER(c_bool)
+        self._dll.getDataTransmissionEnabled.restype = c_int
+
+        self._dll.setRaisedCosineAlphaPercentage.argtype = c_int
+        self._dll.setRaisedCosineAlphaPercentage.restype = c_int
+        self._dll.getRaisedCosineAlphaPercentage.argtype = POINTER(c_int)
+        self._dll.getRaisedCosineAlphaPercentage.restype = c_int
+
         self._dll.setDelayRipplePeriod.argtype = c_char_p
         self._dll.setDelayRipplePeriod.restype = c_int
         self._dll.getDelayRipplePeriod.argtypes = [c_char_p, c_int]
         self._dll.getDelayRipplePeriod.restype = c_int
 
-        self._dll.setGroupDealyRipplePercentage.argtype = c_int
-        self._dll.setGroupDealyRipplePercentage.restype = c_int
-        self._dll.setGroupDealyRipplePercentage.argtype = POINTER(c_int)
-        self._dll.setGroupDealyRipplePercentage.restype = c_int
+        self._dll.setGroupDelayRipplePercentage.argtype = c_int
+        self._dll.setGroupDelayRipplePercentage.restype = c_int
+        self._dll.getGroupDelayRipplePercentage.argtype = POINTER(c_int)
+        self._dll.getGroupDelayRipplePercentage.restype = c_int
 
         self._dll.setCutoffAttenuationdB.argtype = c_char_p
         self._dll.setCutoffAttenuationdB.restype = c_int
@@ -894,6 +965,110 @@ class Attributes:
         self._dll_interface.set_string(self._dll.setUpperFrequency, upper_freq_string)
 
     @property
+    def diplexer_inner_band_width(self) -> str:
+        """Diplexer inner band width for ``BP1`` and ``Triplexer1`` diplexer types.
+        The default is ``200 MHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_inner_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerInnerPassbandWidth)
+        return diplexer_inner_band_width_string
+
+    @diplexer_inner_band_width.setter
+    def diplexer_inner_band_width(self, diplexer_inner_band_width_string):
+        self._dll_interface.set_string(self._dll.setDiplexerInnerPassbandWidth, diplexer_inner_band_width_string)
+
+    @property
+    def diplexer_outer_band_width(self) -> str:
+        """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexer types.
+        The default is ``2 GHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_outer_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerOuterPassbandWidth)
+        return diplexer_outer_band_width_string
+
+    @diplexer_outer_band_width.setter
+    def diplexer_outer_band_width(self, diplexer_outer_band_width_string):
+        self._dll_interface.set_string(self._dll.setDiplexerOuterPassbandWidth, diplexer_outer_band_width_string)
+
+    @property
+    def diplexer_lower_center_frequency(self) -> str:
+        """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+        The default is ``500 MHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_lower_center_frequency_string = self._dll_interface.get_string(
+            self._dll.getDiplexerLowerCenterFrequency
+        )
+        return diplexer_lower_center_frequency_string
+
+    @diplexer_lower_center_frequency.setter
+    def diplexer_lower_center_frequency(self, diplexer_lower_center_frequency_string):
+        self._dll_interface.set_string(
+            self._dll.setDiplexerLowerCenterFrequency, diplexer_lower_center_frequency_string
+        )
+
+    @property
+    def diplexer_upper_center_frequency(self) -> str:
+        """Diplexer upper center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+        The default is ``2 GHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_upper_center_frequency_string = self._dll_interface.get_string(
+            self._dll.getDiplexerUpperCenterFrequency
+        )
+        return diplexer_upper_center_frequency_string
+
+    @diplexer_upper_center_frequency.setter
+    def diplexer_upper_center_frequency(self, diplexer_upper_center_frequency_string):
+        self._dll_interface.set_string(
+            self._dll.setDiplexerUpperCenterFrequency, diplexer_upper_center_frequency_string
+        )
+
+    @property
+    def diplexer_lower_band_width(self) -> str:
+        """Diplexer lower band width for ``BP2`` and ``Triplexer2`` diplexer types.
+        The default is ``500 MHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_lower_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerLowerBandwidth)
+        return diplexer_lower_band_width_string
+
+    @diplexer_lower_band_width.setter
+    def diplexer_lower_band_width(self, diplexer_lower_band_width_string):
+        self._dll_interface.set_string(self._dll.setDiplexerLowerBandwidth, diplexer_lower_band_width_string)
+
+    @property
+    def diplexer_upper_band_width(self) -> str:
+        """Diplexer upper band width for ``BP2`` and ``Triplexer2`` diplexer types.
+        The default is ``2 GHz``.
+
+        Returns
+        -------
+        str
+        """
+        diplexer_upper_band_width_string = self._dll_interface.get_string(self._dll.getDiplexerUpperBandwidth)
+        return diplexer_upper_band_width_string
+
+    @diplexer_upper_band_width.setter
+    def diplexer_upper_band_width(self, diplexer_upper_band_width_string):
+        self._dll_interface.set_string(self._dll.setDiplexerUpperBandwidth, diplexer_upper_band_width_string)
+
+    @property
     def stop_band_definition(self) -> StopbandDefinition:
         """Stop band parameter entry option.
         The default is ``RATIO``.
@@ -981,6 +1156,63 @@ class Attributes:
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
+    def root_raised_cosine(self) -> bool:
+        """Flag indicating if the root raised cosine is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        root_raised_cosine = c_bool()
+        status = self._dll.getRootRaisedCosineEnabled(byref(root_raised_cosine))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(root_raised_cosine.value)
+
+    @root_raised_cosine.setter
+    def root_raised_cosine(self, root_raised_cosine: bool):
+        status = self._dll.setRootRaisedCosineEnabled(root_raised_cosine)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def data_transmission_filter(self) -> bool:
+        """Flag indicating if the data transmission filter is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        data_transmission_filter = c_bool()
+        status = self._dll.getDataTransmissionEnabled(byref(data_transmission_filter))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        return bool(data_transmission_filter.value)
+
+    @data_transmission_filter.setter
+    def data_transmission_filter(self, data_transmission_filter: bool):
+        status = self._dll.setDataTransmissionEnabled(data_transmission_filter)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
+    def raised_cosine_alpha_percentage(self) -> RaisedCosineAlphaPercentage:
+        """Raised cosine alpha percentage.
+        The default is ''FORTY''.
+
+        Returns
+        -------
+        :enum:`RaisedCosineAlphaPercentage`
+        """
+        index = c_int()
+        raised_cosine_alpha_percentage = list(RaisedCosineAlphaPercentage)
+        status = self._dll.getRaisedCosineAlphaPercentage(byref(index))
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        raised_cosine_alpha_percentage = raised_cosine_alpha_percentage[index.value]
+        return raised_cosine_alpha_percentage
+
+    @raised_cosine_alpha_percentage.setter
+    def raised_cosine_alpha_percentage(self, column: RaisedCosineAlphaPercentage):
+        status = self._dll.setRaisedCosineAlphaPercentage(column.value)
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
+    @property
     def equiripple_delay(self) -> bool:
         """Flag indicating if the equiripple delay is enabled.
 
@@ -1019,7 +1251,7 @@ class Attributes:
 
     @property
     def normalized_group_delay_percentage(self) -> int:
-        """Bessel filter ripple percentage.
+        """Normalized group delay percentage.
         The default is ''0''.
 
         Returns
@@ -1028,14 +1260,14 @@ class Attributes:
         """
         index = c_int()
         normalized_group_delay_percentage = list(BesselRipplePercentage)
-        status = self._dll.getGroupDealyRipplePercentage(byref(index))
+        status = self._dll.getGroupDelayRipplePercentage(byref(index))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         normalized_group_delay_percentage_string = normalized_group_delay_percentage[index.value]
         return normalized_group_delay_percentage_string
 
     @normalized_group_delay_percentage.setter
     def normalized_group_delay_percentage(self, column: BesselRipplePercentage):
-        status = self._dll.setGroupDealyRipplePercentage(column.value)
+        status = self._dll.setGroupDelayRipplePercentage(column.value)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
@@ -1530,10 +1762,10 @@ class Attributes:
         -------
         bool
         """
-        standard_dealy_equ_cut = c_bool()
-        status = self._dll.getStandardDelayEquCut(byref(standard_dealy_equ_cut))
+        standard_delay_equ_cut = c_bool()
+        status = self._dll.getStandardDelayEquCut(byref(standard_delay_equ_cut))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        return bool(standard_dealy_equ_cut.value)
+        return bool(standard_delay_equ_cut.value)
 
     @standard_delay_equ_pass_band_attenuation.setter
     def standard_delay_equ_pass_band_attenuation(self, standard_delay_equ_pass_band_attenuation: bool):
