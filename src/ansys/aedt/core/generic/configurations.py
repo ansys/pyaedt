@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import copy
 from datetime import datetime
 import json
@@ -63,7 +62,7 @@ if not is_ironpython:
 
 def _find_datasets(d, out_list):
     for v in list(d.values()):
-        if isinstance(v, (dict, OrderedDict)):
+        if isinstance(v, dict):
             _find_datasets(v, out_list)
         else:
             a = copy.deepcopy(v)
@@ -910,14 +909,14 @@ class Configurations(object):
             x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
             y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
             z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
-            p1 = OrderedDict({"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]})
+            p1 = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
             bound.auto_update = False
             bound.props["CurrentLine"] = BoundaryProps(bound, p1)
             bound.auto_update = True
         if bound.props.get("Modes", None):
-            modes = OrderedDict({})
+            modes = {}
             for k, v in bound.props["Modes"].items():
-                p1 = OrderedDict({"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]})
+                p1 = {"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]}
                 if v["UseIntLine"] and v["IntLine"].get("GeometryPosition", None):
                     current = v["IntLine"]["GeometryPosition"]
                     x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
@@ -926,9 +925,7 @@ class Configurations(object):
                     x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
                     y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
                     z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
-                    p1["IntLine"] = OrderedDict(
-                        {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
-                    )
+                    p1["IntLine"] = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
                 elif v["UseIntLine"]:
                     p1["IntLine"] = v["IntLine"]
                 if v.get("AlignmentGroup", None):
@@ -1456,7 +1453,7 @@ class Configurations(object):
             output_dict[val.name] = copy.deepcopy(val._props)
         out_list = []
         _find_datasets(output_dict, out_list)
-        datasets = OrderedDict()
+        datasets = {}
         for ds in out_list:
             if ds in list(self._app.project_datasets.keys()):
                 d = self._app.project_datasets[ds]
@@ -1466,16 +1463,12 @@ class Configurations(object):
                 else:
                     units = [d.xunit, d.yunit]
                     points = [val for tup in zip(d.x, d.y) for val in tup]
-                datasets[ds] = OrderedDict(
-                    {
-                        "Coordinates": OrderedDict(
-                            {
-                                "DimUnits": units,
-                                "Points": points,
-                            }
-                        )
+                datasets[ds] = {
+                    "Coordinates": {
+                        "DimUnits": units,
+                        "Points": points,
                     }
-                )
+                }
 
         dict_out["materials"] = output_dict
         if datasets:
@@ -1707,7 +1700,7 @@ class ConfigurationsIcepak(Configurations):
         dict_out["mesh"] = {}
         args = ["NAME:Settings"]
         args += self._app.mesh.global_mesh_region.settings.parse_settings_as_args()
-        mop = OrderedDict({})
+        mop = {}
         _arg2dict(args, mop)
         dict_out["mesh"]["Settings"] = mop["Settings"]
         if self._app.mesh.meshregions:
@@ -1720,7 +1713,7 @@ class ConfigurationsIcepak(Configurations):
                 if mesh.name not in ["Settings", "Global"]:
                     args += getattr(mesh, "_parse_assignment_value")()
                 args += ["UserSpecifiedSettings:=", not mesh.manual_settings]
-                mop = OrderedDict({})
+                mop = {}
                 _arg2dict(args, mop)
                 if (
                     mesh.name not in ["Settings", "Global"]

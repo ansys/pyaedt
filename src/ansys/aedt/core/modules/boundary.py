@@ -27,7 +27,6 @@ This module contains these classes: ``BoundaryCommon`` and ``BoundaryObject``.
 """
 
 from abc import abstractmethod
-from collections import OrderedDict
 import copy
 import re
 
@@ -46,11 +45,11 @@ from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
 from ansys.aedt.core.modules.circuit_templates import SourceKeys
 
 
-class BoundaryProps(OrderedDict):
+class BoundaryProps(dict):
     """AEDT Boundary Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
         if self._pyaedt_boundary.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
                 res = self._pyaedt_boundary.update_assignment()
@@ -60,25 +59,25 @@ class BoundaryProps(OrderedDict):
                 self._pyaedt_boundary._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, boundary, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (OrderedDict, dict)):
-                    OrderedDict.__setitem__(self, key, BoundaryProps(boundary, value))
+                if isinstance(value, dict):
+                    dict.__setitem__(self, key, BoundaryProps(boundary, value))
                 elif isinstance(value, list):
                     list_els = []
                     for el in value:
-                        if isinstance(el, (OrderedDict, dict)):
+                        if isinstance(el, dict):
                             list_els.append(BoundaryProps(boundary, el))
                         else:
                             list_els.append(el)
-                    OrderedDict.__setitem__(self, key, list_els)
+                    dict.__setitem__(self, key, list_els)
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_boundary = boundary
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
 
 class BoundaryCommon(PropsManager):
@@ -129,7 +128,7 @@ class BoundaryCommon(PropsManager):
             if "MaxwellParameterSetup" in self._app.design_properties:
                 param = "MaxwellParameters"
                 setup = "MaxwellParameterSetup"
-                if isinstance(self._app.design_properties[setup][param][ds], (OrderedDict, dict)):
+                if isinstance(self._app.design_properties[setup][param][ds], dict):
                     return [
                         self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds],
                         self._app.design_properties["MaxwellParameterSetup"]["MaxwellParameters"][ds][
@@ -148,7 +147,7 @@ class BoundaryCommon(PropsManager):
                 motion_list = "MotionSetupList"
                 setup = "ModelSetup"
                 # check moving part
-                if isinstance(self._app.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                if isinstance(self._app.design_properties[setup][motion_list][ds], dict):
                     return [
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds],
                         self._app.design_properties["ModelSetup"]["MotionSetupList"][ds]["MotionType"],
@@ -208,44 +207,38 @@ class NativeComponentObject(BoundaryCommon, object):
 
         self.props = BoundaryProps(
             self,
-            OrderedDict(
-                {
-                    "TargetCS": "Global",
-                    "SubmodelDefinitionName": self.component_name,
-                    "ComponentPriorityLists": OrderedDict({}),
-                    "NextUniqueID": 0,
-                    "MoveBackwards": False,
-                    "DatasetType": "ComponentDatasetType",
-                    "DatasetDefinitions": OrderedDict({}),
-                    "BasicComponentInfo": OrderedDict(
-                        {
-                            "ComponentName": self.component_name,
-                            "Company": "",
-                            "Company URL": "",
-                            "Model Number": "",
-                            "Help URL": "",
-                            "Version": "1.0",
-                            "Notes": "",
-                            "IconType": "",
-                        }
-                    ),
-                    "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                    "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                    "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
-                    "MapInstanceParameters": "DesignVariable",
-                    "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                    + random_string(12, char_set="abcdef0123456789"),
-                    "OriginFilePath": "",
-                    "IsLocal": False,
-                    "ChecksumString": "",
-                    "ChecksumHistory": [],
-                    "VersionHistory": [],
-                    "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
-                    "InstanceParameters": OrderedDict(
-                        {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
-                    ),
-                }
-            ),
+            {
+                "TargetCS": "Global",
+                "SubmodelDefinitionName": self.component_name,
+                "ComponentPriorityLists": {},
+                "NextUniqueID": 0,
+                "MoveBackwards": False,
+                "DatasetType": "ComponentDatasetType",
+                "DatasetDefinitions": {},
+                "BasicComponentInfo": {
+                    "ComponentName": self.component_name,
+                    "Company": "",
+                    "Company URL": "",
+                    "Model Number": "",
+                    "Help URL": "",
+                    "Version": "1.0",
+                    "Notes": "",
+                    "IconType": "",
+                },
+                "GeometryDefinitionParameters": {"VariableOrders": {}},
+                "DesignDefinitionParameters": {"VariableOrders": {}},
+                "MaterialDefinitionParameters": {"VariableOrders": {}},
+                "MapInstanceParameters": "DesignVariable",
+                "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                + random_string(12, char_set="abcdef0123456789"),
+                "OriginFilePath": "",
+                "IsLocal": False,
+                "ChecksumString": "",
+                "ChecksumHistory": [],
+                "VersionHistory": [],
+                "NativeComponentDefinitionProvider": {"Type": component_type},
+                "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
+            },
         )
         if props:
             self._update_props(self.props, props)
@@ -272,9 +265,9 @@ class NativeComponentObject(BoundaryCommon, object):
 
     def _update_props(self, d, u):
         for k, v in u.items():
-            if isinstance(v, (dict, OrderedDict)):
+            if isinstance(v, dict):
                 if k not in d:
-                    d[k] = OrderedDict({})
+                    d[k] = {}
                 d[k] = self._update_props(d[k], v)
             else:
                 d[k] = v
@@ -321,7 +314,7 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
 
-        self.update_props = OrderedDict({})
+        self.update_props = {}
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
         self.update_props["DesignDefinitionParameters"] = self.props["DesignDefinitionParameters"]
@@ -815,7 +808,7 @@ class PCBSettingsDeviceParts(object):
             for o in override_component:
                 if o["overridePartNumberName"] == part:
                     override_component.remove(o)
-        new_filter = OrderedDict()
+        new_filter = {}
         if filter_component or any(override_val is not None for override_val in [power, r_jb, r_jc, height]):
             if map_name == "instanceOverridesMap":
                 new_filter.update({"overrideName": reference_designator})
@@ -823,19 +816,17 @@ class PCBSettingsDeviceParts(object):
                 new_filter.update({"overridePartNumberName": part, "overrideGeometryName": package})
             new_filter.update(
                 {
-                    "overrideProps": OrderedDict(
-                        {
-                            "isFiltered": filter_component,
-                            "isOverridePower": power is not None,
-                            "isOverrideThetaJb": r_jb is not None,
-                            "isOverrideThetaJc": r_jc is not None,
-                            "isOverrideHeight": height is not None,
-                            "powerOverride": power if power is not None else "nan",
-                            "thetaJbOverride": r_jb if r_jb is not None else "nan",
-                            "thetaJcOverride": r_jc if r_jc is not None else "nan",
-                            "heightOverride": height if height is not None else "nan",
-                        }
-                    ),
+                    "overrideProps": {
+                        "isFiltered": filter_component,
+                        "isOverridePower": power is not None,
+                        "isOverrideThetaJb": r_jb is not None,
+                        "isOverrideThetaJc": r_jc is not None,
+                        "isOverrideHeight": height is not None,
+                        "powerOverride": power if power is not None else "nan",
+                        "thetaJbOverride": r_jb if r_jb is not None else "nan",
+                        "thetaJcOverride": r_jc if r_jc is not None else "nan",
+                        "heightOverride": height if height is not None else "nan",
+                    },
                 }
             )
             override_component.append(new_filter)
@@ -1429,7 +1420,7 @@ class BoundaryObject(BoundaryCommon, object):
         self._name = name
         self._props = None
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props))
+            self._props = BoundaryProps(self, props)
         self._type = boundarytype
         self._boundary_name = self.name
         self.auto_update = auto_update
@@ -1497,7 +1488,7 @@ class BoundaryObject(BoundaryCommon, object):
         props = self._get_boundary_data(self.name)
 
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._props = BoundaryProps(self, props[0])
             self._type = props[1]
         return self._props
 
@@ -1960,7 +1951,7 @@ class MaxwellParameters(BoundaryCommon, object):
         self._name = name
         self._props = None
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props))
+            self._props = BoundaryProps(self, props)
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
@@ -2027,7 +2018,7 @@ class MaxwellParameters(BoundaryCommon, object):
         props = self._get_boundary_data(self.name)
 
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._props = BoundaryProps(self, props[0])
             self._type = props[1]
         return self._props
 
@@ -2278,7 +2269,7 @@ class FieldSetup(BoundaryCommon, object):
         self._app = app
         self.type = component_type
         self._name = component_name
-        self.props = BoundaryProps(self, OrderedDict(props))
+        self.props = BoundaryProps(self, props)
         self.auto_update = True
 
     @property
@@ -2985,7 +2976,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         self._name = name
         self._props = None
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props))
+            self._props = BoundaryProps(self, props)
         self.type = boundarytype
         self._boundary_name = self.name
         self.auto_update = True
@@ -3047,7 +3038,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
         props = self._get_boundary_data(self.name)
 
         if props:
-            self._props = BoundaryProps(self, OrderedDict(props[0]))
+            self._props = BoundaryProps(self, props[0])
             self._type = props[1]
         return self._props
 
@@ -3076,7 +3067,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
     def _refresh_properties(self):
         if len(self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))) != len(self.props):
             propnames = self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))
-            props = OrderedDict()
+            props = {}
             for prop in propnames:
                 props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
             self._props = BoundaryProps(self, props)
@@ -3223,7 +3214,7 @@ class Sources(object):
                         elif el[0] != "ModelName" and el[0] != "LabelID":
                             source_prop_dict[el[0]] = el[3]
 
-        return OrderedDict(source_prop_dict)
+        return source_prop_dict
 
     @pyaedt_function_handler()
     def _update_command(self, name, source_prop_dict, source_type, fds_filename=None):
@@ -4692,7 +4683,7 @@ class Excitations(object):
                         ):
                             port_analyses[source] = enabled_analyses[source][port]
                 excitation_prop_dict["EnabledAnalyses"] = port_analyses
-                return OrderedDict(excitation_prop_dict)
+                return excitation_prop_dict
 
     @pyaedt_function_handler()
     def update(self):
@@ -4787,7 +4778,7 @@ class NetworkObject(BoundaryObject):
             self._props = {}
         self._nodes = []
         self._links = []
-        self._schematic_data = OrderedDict({})
+        self._schematic_data = {}
         self._update_from_props()
         if create:
             self.create()
@@ -4827,7 +4818,7 @@ class NetworkObject(BoundaryObject):
         if not self.props.get("Faces", None):
             self.props["Faces"] = [node.props["FaceID"] for _, node in self.face_nodes.items()]
         if not self.props.get("SchematicData", None):
-            self.props["SchematicData"] = OrderedDict({})
+            self.props["SchematicData"] = {}
 
         if self.props.get("Links", None):
             self.props["Links"] = {link_name: link_values.props for link_name, link_values in self.links.items()}
@@ -5253,7 +5244,7 @@ class NetworkObject(BoundaryObject):
         ...                       material="Al-Extruded",thickness="2mm")
         >>> network.add_face_node(faces_ids[2],name="TestNode",thermal_resistance="Specified",resistance=2)
         """
-        props_dict = OrderedDict({})
+        props_dict = {}
         props_dict["FaceID"] = assignment
         if thermal_resistance is not None:
             if thermal_resistance == "Compute":

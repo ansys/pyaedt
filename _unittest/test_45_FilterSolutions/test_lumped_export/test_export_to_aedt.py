@@ -36,9 +36,6 @@ from ansys.aedt.core.generic.general_methods import is_linux
 # from ..filtersolutions_resources import resource_path
 import pytest
 
-# from ..resources import read_resource_file
-# from ..resources import resource_path
-
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")

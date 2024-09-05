@@ -30,8 +30,6 @@ This module provides all layer stackup functionalities for the Circuit and HFSS 
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
-
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -1353,7 +1351,7 @@ class Layers(object):
          Dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
             Number of layers in the current stackup.
         """
-        layers = OrderedDict({})
+        layers = {}
         for el in self.all_layers:
             o = Layer(self, "signal")
             o.name = el
