@@ -8462,6 +8462,8 @@ class GeometryModeler(Modeler):
                         )
                         material = self._app.variable_manager.design_variables[array[0]].numeric_value[condition_value]
                         self._app.variable_manager.delete_variable(name=condition_name)
+                else:
+                     self.logger.debug(f"Design variable {array[0]} does not exist.")
             if self._app.materials[material]:
                 if self._app._design_type == "HFSS":
                     return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
