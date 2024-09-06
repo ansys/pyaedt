@@ -650,6 +650,41 @@ class TestClass:
         assert os.path.exists(plot_obj_3.image_file)
         assert plot_obj_3.range_min is None
         assert plot_obj_3.range_max is None
+        plot_obj_4 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=10e6,
+            scale_max=0,
+        )
+        assert os.path.exists(plot_obj_4.image_file)
+        assert plot_obj_4.range_min is None
+        assert plot_obj_4.range_max is None
+        plot_obj_5 = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=self.local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+        )
+        assert os.path.exists(plot_obj_5.image_file)
+        assert plot_obj_5.range_min is None
+        assert plot_obj_5.range_max is None
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):
