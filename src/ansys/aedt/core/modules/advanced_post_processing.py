@@ -447,14 +447,15 @@ class PostProcessor(Post):
         if is_pcb:
             model.z_scale = 5
 
-        if log_scale and scale_min == 0:
+        if scale_min is not None and scale_max is None or scale_min is None and scale_max is not None:
+            self.logger.warning("Invalid scale values: both values must be None or different from None.")
+        elif scale_min is not None and scale_max is not None and not 0 <= scale_min < scale_max:
+            self.logger.warning("Invalid scale values: scale_min must be greater than zero and less than scale_max.")
+        elif log_scale and scale_min == 0:
             self.logger.warning("Invalid scale minimum value for logarithm scale.")
-        elif not log_scale and scale_min is not None:
-            if 0 <= scale_min < scale_max:
-                model.range_min = scale_min
-                model.range_max = scale_max
-            else:
-                self.logger.warning("scale_max must be greater than scale_min.")
+        else:
+            model.range_min = scale_min
+            model.range_max = scale_max
         if project_path:
             model.plot(os.path.join(project_path, plot_name + "." + image_format))
         elif show:
