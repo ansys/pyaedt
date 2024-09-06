@@ -5,67 +5,13 @@ Extensions provide a simplified interface to perform automated workflows in AEDT
 In AEDT, you can use the Extension manager to add or remove extensions.
 The `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ allows the user to install three different types of extensions:
 
-- **Custom extensions** installable both at project and application level.
 - **Pre-installed extensions** available at project level.
 - **Open source PyAEDT toolkits** available at application level.
+- **Custom extensions** installable both at project and application level.
 
 The following sections provide further clarification.
 
 You can launch extensions in standalone mode from the console or a Python script.
-
-Custom extensions
-~~~~~~~~~~~~~~~~~
-
-Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
-From the Extension manager select the target destination:
-
-.. image:: ../Resources/toolkit_manager_1.png
-  :width: 800
-  :alt: PyAEDT toolkit manager 1
-
-Select `Custom` as the extension type.
-Provide the path of the Python script containing the workflow.
-Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
-
-.. image:: ../Resources/my_custom_extension.png
-  :width: 800
-  :alt: Custom Extension
-
-After the normal completion of the installation a new button appears:
-
-.. image:: ../Resources/my_custom_extension_1.png
-  :width: 800
-  :alt: Custom Extension 1
-
-The example below is a simple example of custom extension.
-The Python script requires a common initial part to define the port and the version of the AEDT session to connect to.
-
-.. code:: python
-
-    import ansys.aedt.core
-    import os
-
-    # common part
-    if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
-        port = os.environ["PYAEDT_SCRIPT_PORT"]
-        version = os.environ["PYAEDT_SCRIPT_VERSION"]
-    else:
-        port = 0
-        version = "2024.2"
-
-    # your pyaedt script
-    app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)
-
-    active_project = app.active_project()
-    active_design = app.active_design(active_project)
-
-    # no need to hardcode you application but get_pyaedt_app will detect it for you
-    aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
-
-    # your workflow
-    aedtapp.modeler.create_sphere([0, 0, 0], 20)
-
-    app.release_desktop(False, False)
 
 Pre-installed extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -129,3 +75,57 @@ They are also fully documented and unit tested.
 Find the links below:
 - Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
 - Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+
+Custom extensions
+~~~~~~~~~~~~~~~~~
+
+Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
+From the Extension manager select the target destination:
+
+.. image:: ../Resources/toolkit_manager_1.png
+  :width: 500
+  :alt: PyAEDT toolkit manager 1
+
+Select `Custom` as the extension type.
+Provide the path of the Python script containing the workflow.
+Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
+
+.. image:: ../Resources/my_custom_extension.png
+  :width: 500
+  :alt: Custom Extension
+
+After the normal completion of the installation a new button appears:
+
+.. image:: ../Resources/my_custom_extension_1.png
+  :width: 500
+  :alt: Custom Extension 1
+
+The example below is a simple example of custom extension.
+The Python script requires a common initial part to define the port and the version of the AEDT session to connect to.
+
+.. code:: python
+
+    import ansys.aedt.core
+    import os
+
+    # common part
+    if "PYAEDT_SCRIPT_PORT" in os.environ and "PYAEDT_SCRIPT_VERSION" in os.environ:
+        port = os.environ["PYAEDT_SCRIPT_PORT"]
+        version = os.environ["PYAEDT_SCRIPT_VERSION"]
+    else:
+        port = 0
+        version = "2024.2"
+
+    # your pyaedt script
+    app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)
+
+    active_project = app.active_project()
+    active_design = app.active_design(active_project)
+
+    # no need to hardcode you application but get_pyaedt_app will detect it for you
+    aedtapp = ansys.aedt.core.get_pyaedt_app(design_name=active_design.GetName(), desktop=app)
+
+    # your workflow
+    aedtapp.modeler.create_sphere([0, 0, 0], 20)
+
+    app.release_desktop(False, False)
