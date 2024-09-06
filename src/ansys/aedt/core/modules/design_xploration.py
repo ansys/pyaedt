@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import copy
 import csv
 
@@ -69,9 +68,11 @@ class CommonOptimetrics(PropsManager, object):
         if optimtype == "OptiParametric":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
             if not inputd and self._app.design_type == "Icepak":
-                self.props["ProdOptiSetupDataV2"] = OrderedDict(
-                    {"SaveFields": False, "FastOptimetrics": False, "SolveWithCopiedMeshOnly": True}
-                )
+                self.props["ProdOptiSetupDataV2"] = {
+                    "SaveFields": False,
+                    "FastOptimetrics": False,
+                    "SolveWithCopiedMeshOnly": True,
+                }
         if optimtype == "OptiDesignExplorer":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
         if optimtype == "OptiOptimization":
@@ -115,7 +116,7 @@ class CommonOptimetrics(PropsManager, object):
                     oparam = [i for i in oparams[0]]
                     calculation = ["NAME:Goal"]
                     calculation.extend(oparam)
-                    arg1 = OrderedDict()
+                    arg1 = {}
                     _arg2dict(calculation, arg1)
                     self.props["Goals"] = arg1
 
@@ -154,12 +155,12 @@ class CommonOptimetrics(PropsManager, object):
         did = 3
         if domain != "Sweep":
             did = 1
-        sweepdefinition = OrderedDict()
+        sweepdefinition = {}
         sweepdefinition["ReportType"] = report_category
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         sweepdefinition["Solution"] = setup_sweep_name
-        ctxt = OrderedDict({})
+        ctxt = {}
 
         if self._app.solution_type in ["TR", "AC", "DC"]:
             ctxt["SimValueContext"] = [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]
@@ -213,11 +214,11 @@ class CommonOptimetrics(PropsManager, object):
             if context in self._app.modeler.line_names:
                 ctxt["PointCount"] = polyline_points
         else:
-            ctxt = OrderedDict({"Domain": domain})
+            ctxt = {"Domain": domain}
         sweepdefinition["SimValueContext"] = ctxt
         sweepdefinition["Calculation"] = expressions
         sweepdefinition["Name"] = expressions
-        sweepdefinition["Ranges"] = OrderedDict({})
+        sweepdefinition["Ranges"] = {}
         if context and context in self._app.modeler.line_names and intrinsics and "Distance" not in intrinsics:
             sweepdefinition["Ranges"]["Range"] = ("Var:=", "Distance", "Type:=", "a")
         if not setup_sweep_name:
@@ -257,9 +258,11 @@ class CommonOptimetrics(PropsManager, object):
                     sweepdefinition["Ranges"]["Range"].append(tuple(r))
         if is_goal:
             sweepdefinition["Condition"] = condition
-            sweepdefinition["GoalValue"] = OrderedDict(
-                {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
-            )
+            sweepdefinition["GoalValue"] = {
+                "GoalValueType": "Independent",
+                "Format": "Real/Imag",
+                "bG": ["v:=", "[{};]".format(goal_value)],
+            }
             sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         return sweepdefinition
 
@@ -396,7 +399,7 @@ class CommonOptimetrics(PropsManager, object):
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
-            self.props[optigoalname] = OrderedDict({})
+            self.props[optigoalname] = {}
             self.props[optigoalname]["Goal"] = sweepdefinition
         self.auto_update = True
         return self.update()
@@ -451,7 +454,7 @@ class CommonOptimetrics(PropsManager, object):
 
         """
         self.auto_update = False
-        sweepdefinition = OrderedDict()
+        sweepdefinition = {}
         sweepdefinition["ReportType"] = reporttype
         if not solution:
             solution = self._app.nominal_sweep
@@ -459,7 +462,7 @@ class CommonOptimetrics(PropsManager, object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         sweepdefinition["Solution"] = solution
-        sweepdefinition["SimValueContext"] = OrderedDict({"Domain": domain})
+        sweepdefinition["SimValueContext"] = {"Domain": domain}
         sweepdefinition["Calculation"] = calculation
         if goal_name:
             sweepdefinition["Name"] = goal_name
@@ -474,39 +477,37 @@ class CommonOptimetrics(PropsManager, object):
                 dr = ",".join(calc_val1)
             else:
                 dr = calc_val1
-            sweepdefinition["Ranges"] = OrderedDict({"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]})
+            sweepdefinition["Ranges"] = {"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]}
         elif calculation_type == "all":
-            sweepdefinition["Ranges"] = OrderedDict(
-                {
-                    "Range": [
-                        "Var:=",
-                        var,
-                        "Type:=",
-                        "a",
-                    ]
-                }
-            )
+            sweepdefinition["Ranges"] = {
+                "Range": [
+                    "Var:=",
+                    var,
+                    "Type:=",
+                    "a",
+                ]
+            }
         else:
-            sweepdefinition["Ranges"] = OrderedDict(
-                {
-                    "Range": [
-                        "Var:=",
-                        var,
-                        "Type:=",
-                        calculation_type,
-                        "Start:=",
-                        calc_val1,
-                        "Stop:=",
-                        calc_val2,
-                        "DiscreteValues:=",
-                        "",
-                    ]
-                }
-            )
+            sweepdefinition["Ranges"] = {
+                "Range": [
+                    "Var:=",
+                    var,
+                    "Type:=",
+                    calculation_type,
+                    "Start:=",
+                    calc_val1,
+                    "Stop:=",
+                    calc_val2,
+                    "DiscreteValues:=",
+                    "",
+                ]
+            }
         sweepdefinition["Condition"] = condition
-        sweepdefinition["GoalValue"] = OrderedDict(
-            {"GoalValueType": "Independent", "Format": "Real/Imag", "bG": ["v:=", "[{};]".format(goal_value)]}
-        )
+        sweepdefinition["GoalValue"] = {
+            "GoalValueType": "Independent",
+            "Format": "Real/Imag",
+            "bG": ["v:=", "[{};]".format(goal_value)],
+        }
         sweepdefinition["Weight"] = "[{};]".format(goal_weight)
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
@@ -514,7 +515,7 @@ class CommonOptimetrics(PropsManager, object):
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
-            self.props[optigoalname] = OrderedDict({})
+            self.props[optigoalname] = {}
             self.props[optigoalname]["Goal"] = sweepdefinition
         self.auto_update = True
         return self.update()
@@ -823,7 +824,7 @@ class SetupOpti(CommonOptimetrics, object):
                     break
                 cont += 1
             if not variable_included:
-                sweepdefinition = OrderedDict()
+                sweepdefinition = {}
                 sweepdefinition["Variable"] = variable_name
                 sweepdefinition["Data"] = self._app.variable_manager.variables[variable_name].evaluated_value
                 sweepdefinition["OffsetF1"] = False
@@ -859,10 +860,10 @@ class SetupOpti(CommonOptimetrics, object):
             if self._app.aedt_version_id > "2023.2":
                 arg.extend(["DiscreteLevel:=", levels])
             if not self.props.get("Variables", None):
-                self.props["Variables"] = OrderedDict({})
+                self.props["Variables"] = {}
             self.props["Variables"][variable_name] = arg
             if not self.props.get("StartingPoint", None):
-                self.props["StartingPoint"] = OrderedDict({})
+                self.props["StartingPoint"] = {}
             if not starting_point:
                 starting_point = self._app.variable_manager[variable_name].numeric_value
                 if starting_point < min_value or starting_point > max_value:
@@ -952,7 +953,7 @@ class SetupParam(CommonOptimetrics, object):
         if not sweep_range:
             return False
         self._activate_variable(sweep_variable)
-        sweepdefinition = OrderedDict()
+        sweepdefinition = {}
         sweepdefinition["Variable"] = sweep_variable
         sweepdefinition["Data"] = sweep_range
         sweepdefinition["OffsetF1"] = False
@@ -1111,10 +1112,7 @@ class ParametricSetups(object):
             try:
                 setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if (
-                        isinstance(setups_data[data], (OrderedDict, dict))
-                        and setups_data[data]["SetupType"] == "OptiParametric"
-                    ):
+                    if isinstance(setups_data[data], dict) and setups_data[data]["SetupType"] == "OptiParametric":
                         self.setups.append(SetupParam(p_app, data, setups_data[data], setups_data[data]["SetupType"]))
             except Exception:
                 self._app.logger.debug(
@@ -1195,7 +1193,7 @@ class ParametricSetups(object):
         setup.auto_update = False
 
         setup.props["Sim. Setups"] = [setupname]
-        setup.props["Sweeps"] = OrderedDict({"SweepDefinition": None})
+        setup.props["Sweeps"] = {"SweepDefinition": None}
         setup.create()
         unit = self._app.variable_manager[variable].units
         setup.add_variation(variable, start_point, end_point, step, unit, variation_type)
@@ -1247,26 +1245,24 @@ class ParametricSetups(object):
         with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
-            setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
+            setup.props["Sweeps"] = {"SweepDefinition": {}}
             sweep_definition = []
             for var_name in csvreader.fieldnames:
                 if var_name != "*":
                     sweep_definition.append(
-                        OrderedDict(
-                            {
-                                "Variable": var_name,
-                                "Data": first_data_line[var_name],
-                                "OffsetF1": False,
-                                "Synchronize": 0,
-                            }
-                        )
+                        {
+                            "Variable": var_name,
+                            "Data": first_data_line[var_name],
+                            "OffsetF1": False,
+                            "Synchronize": 0,
+                        }
                     )
             setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
 
             args = ["NAME:" + name]
             _dict2arg(setup.props, args)
 
-            setup.props["Sweep Operations"] = OrderedDict({"add": []})
+            setup.props["Sweep Operations"] = {"add": []}
             table = []
             for var_name in csvreader.fieldnames:
                 if var_name != "*":
@@ -1317,7 +1313,7 @@ class OptimizationSetups(object):
             try:
                 setups_data = self._app.design_properties["Optimetrics"]["OptimetricsSetups"]
                 for data in setups_data:
-                    if isinstance(setups_data[data], (OrderedDict, dict)) and setups_data[data]["SetupType"] in [
+                    if isinstance(setups_data[data], dict) and setups_data[data]["SetupType"] in [
                         "OptiOptimization",
                         "OptiDXDOE",
                         "OptiDesignExplorer",
@@ -1511,18 +1507,16 @@ class OptimizationSetups(object):
                 for variable in dx_variables.keys():
                     self._app.activate_variable_optimization(variable)
                 for var in dx_variables:
-                    arg = OrderedDict(
-                        {
-                            "Variable": var,
-                            "Data": dx_variables[var].evaluated_value,
-                            "OffsetF1": False,
-                            "Synchronize": 0,
-                        }
-                    )
+                    arg = {
+                        "Variable": var,
+                        "Data": dx_variables[var].evaluated_value,
+                        "OffsetF1": False,
+                        "Synchronize": 0,
+                    }
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
             else:
                 for l, k in dx_variables.items():
-                    arg = OrderedDict({"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0})
+                    arg = {"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0}
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
 
