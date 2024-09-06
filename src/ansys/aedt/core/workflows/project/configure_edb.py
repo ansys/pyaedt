@@ -124,7 +124,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         button.grid(row=s3_start_row + 2, column=0)
 
         button = ttk.Button(
-            self, text="Apply Configuration Batch", width=col_width[0], command=self.call_select_cfg_folder
+            self, text="Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
         )
         button.grid(row=s3_start_row + 3, column=0)
 
@@ -231,26 +231,26 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             project_file = self.selected_project_file_path
 
         for i in os.listdir(file_dir):
+            fname = Path(project_file).stem + "_" + generate_unique_name(Path(i).stem)
             if i.endswith(".json") or i.endswith(".toml"):
                 file_cfg_path = os.path.join(file_dir, i)
                 if self.selected_app_option.get() == "SIwave":
                     file_save_path = os.path.join(
-                        Path(file_save_dir), Path(project_file).stem + "_" + Path(i).stem + ".siw"
+                        Path(file_save_dir), fname + ".siw"
                     )
                     self._execute["siwave_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 elif self.selected_app_option.get() == "HFSS 3D Layout":
                     file_save_path = os.path.join(
-                        Path(file_save_dir), Path(project_file).stem + "_" + Path(i).stem + ".aedt"
+                        Path(file_save_dir), fname + ".aedt"
                     )
                     self._execute["aedt_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 else:
-
                     file_save_path = os.path.join(
-                        project_dir, Path(project_file).stem + "_" + generate_unique_name(Path(i).stem) + ".aedt"
+                        project_dir, fname + ".aedt"
                     )
                     self._execute["active_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
@@ -291,7 +291,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             self._execute["aedt_export"].append(
                 {"project_file": self.selected_project_file_path, "file_path_save": file_path_save}
             )
-        else:
+        elif self.selected_app_option.get() == "Active Design":
             data = self.get_active_project_info()
             if data:
                 _, project_file = data
