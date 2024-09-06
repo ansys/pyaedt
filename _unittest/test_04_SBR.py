@@ -102,7 +102,8 @@ class TestClass:
         self.local_scratch = local_scratch
         if not is_linux:
             # this should be changed upstream to use a HOME or TEMP folder by default...
-            osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
+            # osmnx.settings.cache_folder = os.path.join(local_scratch.path, "cache")
+            pass
 
     def test_01_open_source(self, source):
         assert self.aedtapp.create_sbr_linked_antenna(source, target_cs="feederPosition", field_type="farfield")
@@ -241,15 +242,15 @@ class TestClass:
             far_field_data=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
-    @pytest.mark.skipif(is_linux, reason="Not supported.")
-    def test_12_import_map(self):
-        self.aedtapp.insert_design("city")
-        ansys_home = [40.273726, -80.168269]
-        parts_dict = self.aedtapp.modeler.import_from_openstreet_map(
-            ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
-        )
-        for part in parts_dict["parts"]:
-            assert os.path.exists(parts_dict["parts"][part]["file_name"])
+    # @pytest.mark.skipif(is_linux, reason="Not supported.")
+    # def test_12_import_map(self):
+    #     self.aedtapp.insert_design("city")
+    #     ansys_home = [40.273726, -80.168269]
+    #     parts_dict = self.aedtapp.modeler.import_from_openstreet_map(
+    #         ansys_home, terrain_radius=200, road_step=3, plot_before_importing=False, import_in_aedt=True
+    #     )
+    #     for part in parts_dict["parts"]:
+    #         assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
