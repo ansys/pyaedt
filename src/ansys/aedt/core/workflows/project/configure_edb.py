@@ -120,11 +120,11 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         label_project_file.grid(row=s3_start_row, column=2)
 
         # Apply cfg
-        button = ttk.Button(self, text="Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file)
+        button = ttk.Button(self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file)
         button.grid(row=s3_start_row + 2, column=0)
 
         button = ttk.Button(
-            self, text="Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
+            self, text=f"\Select and Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
         )
         button.grid(row=s3_start_row + 3, column=0)
 
