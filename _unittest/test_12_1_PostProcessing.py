@@ -596,6 +596,8 @@ class TestClass:
             image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
+        assert plot_obj.range_min is None
+        assert plot_obj.range_max is None
         plot_obj_1 = self.aedtapp.post.plot_field(
             "Vector_E",
             cutlist,
@@ -610,6 +612,8 @@ class TestClass:
             log_scale=False,
         )
         assert os.path.exists(plot_obj_1.image_file)
+        assert plot_obj_1.range_min is None
+        assert plot_obj_1.range_max is None
         plot_obj_2 = self.aedtapp.post.plot_field(
             "Vector_E",
             cutlist,
@@ -626,6 +630,8 @@ class TestClass:
             scale_max=10e6,
         )
         assert os.path.exists(plot_obj_2.image_file)
+        assert plot_obj_2.range_min == 0
+        assert plot_obj_2.range_max == 10e6
         plot_obj_3 = self.aedtapp.post.plot_field(
             "Vector_E",
             cutlist,
@@ -642,6 +648,8 @@ class TestClass:
             scale_max=10e6,
         )
         assert os.path.exists(plot_obj_3.image_file)
+        assert plot_obj_3.range_min is None
+        assert plot_obj_3.range_max is None
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_15_export_plot(self):

@@ -449,9 +449,12 @@ class PostProcessor(Post):
 
         if log_scale and scale_min == 0:
             self.logger.warning("Invalid scale minimum value for logarithm scale.")
-        elif not log_scale and scale_min and scale_min >= 0 and scale_max:
-            model.range_min = scale_min
-            model.range_max = scale_max
+        elif not log_scale and scale_min is not None:
+            if 0 <= scale_min < scale_max:
+                model.range_min = scale_min
+                model.range_max = scale_max
+            else:
+                self.logger.warning("scale_max must be greater than scale_min.")
         if project_path:
             model.plot(os.path.join(project_path, plot_name + "." + image_format))
         elif show:
