@@ -89,7 +89,7 @@ jobs:
 
       - name: Install pyaedt and documentation dependencies
         run: |
-          pip install .[doc-no-examples]
+          pip install .[doc-no-examples] --no-cache
 
       - name: Retrieve PyAEDT version
         id: version
@@ -161,7 +161,7 @@ jobs:
       - name: Install pyaedt and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[doc]
+          pip install .[doc] --no-cache
 
       - name: Retrieve PyAEDT version
         id: version
@@ -251,7 +251,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -317,7 +317,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Run tests on _unittest_solvers
@@ -369,7 +369,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -440,7 +440,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
