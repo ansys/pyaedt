@@ -3086,6 +3086,9 @@ class FieldPlot:
     def change_plot_scale(self, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None):
         """Change Field Plot Scale.
 
+        .. deprecated:: 0.10.1
+           Use :class:`FieldPlot.folder_settings` methods instead.
+
         Parameters
         ----------
         minimum_value : str, float
