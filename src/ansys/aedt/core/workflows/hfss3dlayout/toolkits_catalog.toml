@@ -24,7 +24,7 @@ name = "Advanced cutout"
 script = "cutout.py"
 icon = "images/large/cutout.png"
 template = "run_pyedb_toolkit_script"
-pip = ""
+pip =""
 
 [Parametrize]
 name = "Parametrize layout"
