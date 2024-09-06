@@ -32,3 +32,10 @@ script = "parametrize_edb.py"
 icon = "images/large/parametrize.png"
 template = "run_pyedb_toolkit_script"
 pip = ""
+
+[ArbitraryWaveport]
+name = "Arbitrary Waveports"
+script = "generate_arbitrary_wave_ports.py"
+icon = "images/large/arbitrary_wave_port.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
