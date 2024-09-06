@@ -235,23 +235,17 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             if i.endswith(".json") or i.endswith(".toml"):
                 file_cfg_path = os.path.join(file_dir, i)
                 if self.selected_app_option.get() == "SIwave":
-                    file_save_path = os.path.join(
-                        Path(file_save_dir), fname + ".siw"
-                    )
+                    file_save_path = os.path.join(Path(file_save_dir), fname + ".siw")
                     self._execute["siwave_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 elif self.selected_app_option.get() == "HFSS 3D Layout":
-                    file_save_path = os.path.join(
-                        Path(file_save_dir), fname + ".aedt"
-                    )
+                    file_save_path = os.path.join(Path(file_save_dir), fname + ".aedt")
                     self._execute["aedt_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 else:
-                    file_save_path = os.path.join(
-                        project_dir, fname + ".aedt"
-                    )
+                    file_save_path = os.path.join(project_dir, fname + ".aedt")
                     self._execute["active_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
