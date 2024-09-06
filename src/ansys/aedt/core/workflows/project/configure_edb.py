@@ -59,16 +59,32 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
     }
 
     def get_active_project_info(self):
-        project_name = self.desktop.active_project().GetName()
-        project_dir = self.desktop.active_project().GetPath()
-        project_file = os.path.join(project_dir, project_name + ".aedt")
-        return [project_dir, project_file]
+        desktop = self.desktop
+        active_project = desktop.active_project()
+        if active_project:
+            project_name = active_project.GetName()
+            project_dir = active_project.GetPath()
+            project_file = os.path.join(project_dir, project_name + ".aedt")
+            desktop.release_desktop(False, False)
+            return project_file
+        else:
+            desktop.release_desktop(False, False)
+            return
 
-    def __init__(self, desktop):
+    @property
+    def desktop(self):
+        return ansys.aedt.core.Desktop(
+            new_desktop_session=False,
+            specified_version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student,
+        )
+
+    def __init__(self):
         super().__init__()
-        self.desktop = desktop
 
-        self.geometry("500x300")
+        self.geometry("800x300")
         self.title("EDB Configuration 2.0")
 
         self.status = tk.StringVar(value="")
@@ -93,7 +109,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         self.create_main_window()
 
     def create_main_window(self):
-        col_width = [30, 20, 30]
+        col_width = [50, 20, 30]
 
         # Section 1
         self.label_version = ttk.Label(self, text=f"AEDT {version}")
@@ -123,10 +139,10 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         button = ttk.Button(self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file)
         button.grid(row=s3_start_row + 2, column=0)
 
-        button = ttk.Button(
-            self, text=f"\Select and Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
-        )
-        button.grid(row=s3_start_row + 3, column=0)
+        #button = ttk.Button(
+        #    self, text=f"\Select and Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
+        #)
+        #button.grid(row=s3_start_row + 3, column=0)"""
 
         # Export cfg
         button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
@@ -154,7 +170,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             self.selected_project_file_path = file_path
             self.selected_project_file.set(Path(file_path).parts[-1])
 
-    def call_apply_cfg_file(self):
+    def _call_apply_cfg_file(self):
         if not self.selected_app_option.get() == "Active Design":
             if not self.selected_project_file_path:
                 return
@@ -208,32 +224,38 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             self._execute["active_load"].append(
                 {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
             )
-            # self.execute_load_cfg_active(file_cfg_path)
         self.execute()
 
     def call_select_cfg_folder(self):
-        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
-        file_dir = filedialog.askdirectory(initialdir=init_dir, title="Select a Folder")
-        if not file_dir:
-            return
+        pass
 
+    def call_apply_cfg_file(self):
+        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
+        # Get original project file path
         if self.selected_app_option.get() == "Active Design":
-            data = self.get_active_project_info()
-            if data:
-                project_dir, project_file = data
-            else:
+            project_file = self.get_active_project_info()
+            if not project_file:
                 return
         else:
-            file_save_dir = filedialog.askdirectory(
-                initialdir=init_dir,
-                title="Save new projects to",
-            )
             project_file = self.selected_project_file_path
 
-        for i in os.listdir(file_dir):
-            fname = Path(project_file).stem + "_" + generate_unique_name(Path(i).stem)
-            if i.endswith(".json") or i.endswith(".toml"):
-                file_cfg_path = os.path.join(file_dir, i)
+        # Get cfg files
+        cfg_files = filedialog.askopenfilenames(initialdir=init_dir,
+                                              title="Select Configuration",
+                                              filetypes=(("json file", "*.json"), ("toml", "*.toml")),
+                                              defaultextension=".json",
+                                              )
+        if not cfg_files:
+            return
+
+        file_save_dir = filedialog.askdirectory(
+            initialdir=init_dir,
+            title="Save new projects to",
+        )
+
+        for file_cfg_path in cfg_files:
+            fname = Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem)
+            if file_cfg_path.endswith(".json") or file_cfg_path.endswith(".toml"):
                 if self.selected_app_option.get() == "SIwave":
                     file_save_path = os.path.join(Path(file_save_dir), fname + ".siw")
                     self._execute["siwave_load"].append(
@@ -245,25 +267,11 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
                 else:
-                    file_save_path = os.path.join(project_dir, fname + ".aedt")
+                    file_save_path = os.path.join(file_save_dir, fname + ".aedt")
                     self._execute["active_load"].append(
                         {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
                     )
-        self.execute()
-
-    def call_select_cfg_file(self, tk_label):
-        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
-        file_path = filedialog.askopenfilename(
-            initialdir=init_dir,
-            title="Select Configuration File",
-            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
-            defaultextension=".json",
-        )
-
-        if not file_path:
-            return
-        self.selected_cfg_file_folder.set(file_path)
-        tk_label.config(text=Path(file_path).parts[-1])
+        self.execute_load()
 
     def call_export_cfg(self):
         """Export configuration file."""
@@ -288,11 +296,12 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         elif self.selected_app_option.get() == "Active Design":
             data = self.get_active_project_info()
             if data:
-                _, project_file = data
+                project_file = data
                 self._execute["active_export"].append({"project_file": project_file, "file_path_save": file_path_save})
             else:
                 return
-        self.execute()
+
+        self.execute_export(file_path_save)
 
     def execute(self):
         ConfigureEdbBackend(self._execute)
@@ -304,11 +313,28 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             "siwave_export": [],
             "aedt_export": [],
         }
-        messagebox.showinfo("Information", "Configuration Done!")
+
+    def execute_load(self):
+        desktop = self.desktop
+        self.execute()
+        desktop.release_desktop(False, False)
+        messagebox.showinfo("Information", "Done!")
+
+    def execute_export(self, file_path):
+        ConfigureEdbBackend(self._execute)
+        self._execute = {
+            "active_load": [],
+            "siwave_load": [],
+            "aedt_load": [],
+            "active_export": [],
+            "siwave_export": [],
+            "aedt_export": [],
+        }
+        messagebox.showinfo("Information", f"Configuration file saved to {file_path}.")
 
 
 class ConfigureEdbBackend:
-    def __init__(self, args):
+    def __init__(self, args, is_test=False):
         if len(args["siwave_load"]):  # pragma: no cover
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
@@ -357,18 +383,6 @@ class ConfigureEdbBackend:
         h3d.save_project()
 
     @staticmethod
-    def execute_load_cfg_active(project_file, file_cfg_path, file_save_path):
-        fedb = Path(project_file).with_suffix(".aedb")
-
-        edbapp = Edb(fedb, edbversion=version)
-        edbapp.configuration.load(config_file=file_cfg_path)
-        edbapp.configuration.run()
-        edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
-        edbapp.close()
-        h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
-        h3d.save_project()
-
-    @staticmethod
     def execute_export_cfg_siw(project_file, file_path_save):  # pragma: no cover
         siw = Siwave(specified_version=version)
         siw.open_project(str(project_file))
@@ -387,16 +401,9 @@ def main(is_test=False, execute=""):
     if is_test:
         ConfigureEdbBackend(execute)
     else:  # pragma: no cover
-        desktop = ansys.aedt.core.Desktop(
-            new_desktop_session=False,
-            specified_version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-        )
-        app = ConfigureEdbFrontend(desktop)
+
+        app = ConfigureEdbFrontend()
         app.mainloop()
-        desktop.release_desktop(False, False)
 
 
 if __name__ == "__main__":
