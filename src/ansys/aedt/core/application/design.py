@@ -33,7 +33,6 @@ These classes are inherited in the main tool class.
 from __future__ import absolute_import  # noreorder
 
 from abc import abstractmethod
-from collections import OrderedDict
 import gc
 import json
 import os
@@ -254,7 +253,7 @@ class Design(AedtObjects):
         self.last_run_job = ""
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
-        self._project_dictionary = OrderedDict()
+        self._project_dictionary = {}
         self._boundaries = {}
         self._project_datasets = {}
         self._design_datasets = {}
@@ -609,7 +608,7 @@ class Design(AedtObjects):
                     if designs["Name"] == self.design_name:
                         return designs
         except Exception:
-            return OrderedDict()
+            return {}
 
     @property
     def aedt_version_id(self):
@@ -2357,7 +2356,7 @@ class Design(AedtObjects):
         if self.design_properties and "BoundarySetup" in self.design_properties:
             for ds in self.design_properties["BoundarySetup"]["Boundaries"]:
                 try:
-                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], (OrderedDict, dict)):
+                    if isinstance(self.design_properties["BoundarySetup"]["Boundaries"][ds], dict):
                         if (
                             self.design_properties["BoundarySetup"]["Boundaries"][ds]["BoundType"] == "Network"
                             and self.design_type == "Icepak"
@@ -2381,7 +2380,7 @@ class Design(AedtObjects):
                 try:
                     param = "MaxwellParameters"
                     setup = "MaxwellParameterSetup"
-                    if isinstance(self.design_properties[setup][param][ds], (OrderedDict, dict)):
+                    if isinstance(self.design_properties[setup][param][ds], dict):
                         boundaries.append(
                             MaxwellParameters(
                                 self,
@@ -2401,7 +2400,7 @@ class Design(AedtObjects):
                         motion_list = "MotionSetupList"
                         setup = "ModelSetup"
                         # check moving part
-                        if isinstance(self.design_properties[setup][motion_list][ds], (OrderedDict, dict)):
+                        if isinstance(self.design_properties[setup][motion_list][ds], dict):
                             boundaries.append(
                                 BoundaryObject(
                                     self,
