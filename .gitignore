@@ -383,6 +383,7 @@ scratch_notebooks/
 
 # Visual studio code local settings
 .vscode/
+*.code-workspace
 
 # EDB temp and backup files
 *.aedb.bak/
@@ -400,4 +401,3 @@ model.index\+
 
 # test coverage output
 /.cov/
-/pyaedt.code-workspace
