@@ -170,7 +170,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("XSize:="), vArg1.append(XSize)
         vArg1.append("YSize:="), vArg1.append(YSize)
         vArg1.append("ZSize:="), vArg1.append(ZSize)
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateBox(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -251,7 +251,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSides:="), vArg1.append("{}".format(num_sides))
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCylinder(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -336,7 +336,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Height:="), vArg1.append(height)
         vArg1.append("NumSides:="), vArg1.append(int(num_sides))
         vArg1.append("WhichAxis:="), vArg1.append(orientation)
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateRegularPolyhedron(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -427,7 +427,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("BottomRadius:="), vArg1.append(RadiusBt)
         vArg1.append("TopRadius:="), vArg1.append(RadiusUp)
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateCone(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -490,7 +490,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("YCenter:="), vArg1.append(YCenter)
         vArg1.append("ZCenter:="), vArg1.append(ZCenter)
         vArg1.append("Radius:="), vArg1.append(Radius)
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateSphere(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -567,7 +567,7 @@ class Primitives3D(GeometryModeler):
         first_argument.append("MajorRadius:="), first_argument.append(major_radius)
         first_argument.append("MinorRadius:="), first_argument.append(minor_radius)
         first_argument.append("WhichAxis:="), first_argument.append(axis)
-        second_argument = self._default_object_attributes(name=name, matname=material)
+        second_argument = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateTorus(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
@@ -716,7 +716,7 @@ class Primitives3D(GeometryModeler):
         first_argument.append("beta:="), first_argument.append(self._arg_with_dim(beta, "deg"))
         first_argument.append("WhichAxis:="), first_argument.append(GeometryOperators.cs_axis_str(orientation))
         first_argument.append("ReverseDirection:="), first_argument.append(False)
-        second_argument = self._default_object_attributes(name=name, matname=material)
+        second_argument = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateBondwire(first_argument, second_argument)
         return self._create_object(new_object_name, **kwargs)
 
@@ -773,7 +773,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Width:="), vArg1.append(Width)
         vArg1.append("Height:="), vArg1.append(Height)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateRectangle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -852,7 +852,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append("{}".format(num_sides))
-        vArg2 = self._default_object_attributes(name=name, matname=material, flags=non_model_flag)
+        vArg2 = self._default_object_attributes(name=name, material=material, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 
@@ -948,7 +948,7 @@ class Primitives3D(GeometryModeler):
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append(segments)
 
-        vArg2 = self._default_object_attributes(name=name, matname=material)
+        vArg2 = self._default_object_attributes(name=name, material=material)
         new_object_name = self.oeditor.CreateEllipse(vArg1, vArg2)
         return self._create_object(new_object_name, **kwargs)
 

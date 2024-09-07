@@ -34,6 +34,8 @@ from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
+from ansys.aedt.core.modules.solutions import FolderPlotSettings
+from ansys.aedt.core.modules.solutions import SpecifiedScale
 import pytest
 
 test_subfolder = "T98"
@@ -1874,3 +1876,102 @@ class TestClass:
             fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
         df = fs.get_field_summary_data(pandas_output=True)
         assert not df["Mean"].empty
+        app.close_project()
+
+    def test_82_folder_settings(self, add_app):
+        app = add_app(application=Icepak, project_name=transient_fs, subfolder=test_subfolder)
+        plot_object = app.post.create_fieldplot_surface(
+            assignment=app.modeler["Box1"].faces[0].id, quantity="Temperature"
+        )
+        assert plot_object.folder_settings is None
+        assert (
+            app.logger.error_messages[-1] == "[error] Could not find settings data in the design properties."
+            " Define the `FolderPlotSettings` class from scratch or save the project file and try again."
+        )
+        app.save_project()
+        fs = plot_object.folder_settings
+        assert isinstance(fs, FolderPlotSettings)
+        assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
+        assert (
+            str(fs.marker_settings)
+            == "MarkerSettings(marker_type='Arrow', map_size=False, map_color=False, marker_size=0.25)"
+        )
+        assert (
+            str(fs.scale_settings) == "Scale3DSettings(scale_type='Auto', scale_settings=AutoScale(n_levels=10,"
+            " limit_precision_digits=False, precision_digits=4, use_current_scale_for_animation=False),"
+            " log=False, db=False)"
+        )
+        assert (
+            str(fs.arrow_settings)
+            == "Arrow3DSettings(arrow_type='Cylinder', arrow_size=1, map_size=False, map_color=True,"
+            " show_arrow_tail=True, magnitude_filtering=False, magnitude_threshold=0,"
+            " min_magnitude=1, max_magnitude=0)"
+        )
+        with pytest.raises(ValueError):
+            fs.arrow_settings.arrow_type = "Arrow"
+        assert fs.arrow_settings.arrow_type == "Cylinder"
+
+        fs.arrow_settings.arrow_type = "Line"
+        assert fs.arrow_settings.arrow_type == "Line"
+        assert isinstance(fs.arrow_settings.to_dict(), dict)
+
+        with pytest.raises(KeyError):
+            fs.marker_settings.marker_type = "Line"
+        assert fs.marker_settings.marker_type == "Arrow"
+
+        fs.marker_settings.marker_type = "Tetrahedron"
+        assert fs.marker_settings.marker_type == "Tetrahedron"
+        assert isinstance(fs.marker_settings.to_dict(), dict)
+
+        with pytest.raises(ValueError):
+            fs.scale_settings.scale_type = "Personalized"
+        assert fs.scale_settings.scale_type == "Auto"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+        assert (
+            str(fs.scale_settings.scale_settings) == "AutoScale(n_levels=10, limit_precision_digits=False, "
+            "precision_digits=4, use_current_scale_for_animation=False)"
+        )
+        fs.scale_settings.scale_type = "Specified"
+        assert str(fs.scale_settings.scale_settings) == "SpecifiedScale(scale_values=[])"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+        with pytest.raises(ValueError):
+            SpecifiedScale(1)
+        fs.scale_settings.scale_type = "MinMax"
+        assert str(fs.scale_settings.scale_settings) == "MinMaxScale(n_levels=10, min_value=1, max_value=100)"
+        assert isinstance(fs.scale_settings.to_dict(), dict)
+
+        assert str(fs.scale_settings.number_format) == "NumberFormat(format_type=Automatic, width=12, precision=4)"
+        with pytest.raises(ValueError):
+            fs.scale_settings.number_format.format_type = "Science"
+        assert fs.scale_settings.number_format.format_type == "Automatic"
+        fs.scale_settings.number_format.format_type = "Scientific"
+        assert fs.scale_settings.number_format.format_type == "Scientific"
+        assert isinstance(fs.scale_settings.number_format.to_dict(), dict)
+        assert str(fs.color_map_settings) == "ColorMapSettings(map_type='Spectrum', color=Rainbow)"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.map_type = "Personalized"
+        fs.color_map_settings.map_type = "Ramp"
+        assert fs.color_map_settings.map_type == "Ramp"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.color = 1
+        assert fs.color_map_settings.color == [255, 127, 127]
+        fs.color_map_settings.color = [1, 1, 1]
+        fs.color_map_settings.map_type = "Uniform"
+        assert fs.color_map_settings.color != [1, 1, 1]
+        fs.color_map_settings.color = [1, 1, 1]
+        fs.color_map_settings.map_type = "Spectrum"
+        with pytest.raises(ValueError):
+            fs.color_map_settings.color = "Hot"
+        assert fs.color_map_settings.color == "Rainbow"
+        fs.color_map_settings.color = "Temperature"
+        assert isinstance(fs.color_map_settings.to_dict(), dict)
+        assert isinstance(fs.to_dict(), dict)
+        fs.update()
+        with pytest.raises(ValueError):
+            plot_object.folder_settings = 1
+        plot_object.folder_settings = fs
+        with pytest.raises(KeyError):
+            fs.scale_settings.unit = "AEDT"
+        fs.scale_settings.unit = "kel"
+        assert fs.scale_settings.unit == "kel"
+        app.close_project()

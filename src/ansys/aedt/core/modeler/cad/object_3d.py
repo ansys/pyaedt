@@ -1215,10 +1215,11 @@ class Object3d(object):
         if self._transparency is not None:
             return self._transparency
         if "Transparent" in self.valid_properties:
-            transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
             try:
+                transp = self._oeditor.GetPropertyValue("Geometry3DAttributeTab", self._m_name, "Transparent")
                 self._transparency = float(transp)
             except Exception:
+                self._all_props = None
                 self._transparency = 0.3
             return self._transparency
 
