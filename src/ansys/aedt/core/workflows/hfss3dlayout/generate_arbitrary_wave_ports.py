@@ -46,7 +46,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-extension_arguments = {}
+extension_arguments = {"working_dir": "", "source_layout": "", "mounting_side": "top", "import_edb": True}
 extension_description = "Arbitrary wave port creator"
 
 
@@ -91,74 +91,6 @@ def frontend():  # pragma: no cover
         source_file.delete("1.0", "end")
         source_file.insert("end", source_file_path.get())
 
-    def create_3d_component():
-        edb_file = source_file.get("1.0", "end-1c")
-        _wdir = work_dir.get("1.0", "end-1c")
-        edb_project = os.path.join(_wdir, "arbitrary_wave_port.aedb")
-        out_3d_project = os.path.join(_wdir, "output_3d.aedt")
-        component_3d_file = os.path.join(_wdir, "wave_port.a3dcomp")
-        if os.path.exists(_wdir):
-            if len(os.listdir(_wdir)) > 0:
-                res = messagebox.askyesno(
-                    title="Warning",
-                    message="The selected working directory is not empty, "
-                    "the entire content will be deleted. "
-                    "Are you sure to continue ?",
-                )
-                if res == "no":
-                    return
-        edb = Edb(edbpath=rf"{edb_file}", edbversion=version)
-        if not edb.create_model_for_arbitrary_wave_ports(
-            temp_directory=_wdir, mounting_side=mounting_side_variable.get(), output_edb=edb_project
-        ):
-            messagebox.showerror(
-                "EDB model failure",
-                "Failed to create EDB model, please make sure you "
-                "selected the correct mounting side. The selected side must "
-                "must contain explicit voids with pad-stack instances inside.",
-            )
-        signal_nets = list(edb.nets.signal.keys())
-        edb.close()
-        hfss3d = Hfss3dLayout(projectname=edb_project, specified_version=version)
-        setup = hfss3d.create_setup("wave_ports")
-        setup.export_to_hfss(file_fullname=out_3d_project, keep_net_name=True)
-        hfss3d.release_desktop(close_projects=True, close_desktop=False)
-        hfss = Hfss(projectname=out_3d_project, specified_version=version, new_desktop_session=False)
-
-        # deleting dielectric objects
-        [obj.delete() for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics]
-
-        # creating ports
-        sheets_for_ports = hfss.modeler.sheet_objects
-        terminal_faces = []
-        terminal_objects = [obj for obj in hfss.modeler.object_list if obj.name in signal_nets]
-        for obj in terminal_objects:
-            if mounting_side_variable.get() == "bottom":
-                face = obj.bottom_face_z
-            else:
-                face = obj.top_face_z
-            terminal_face = hfss.modeler.create_object_from_face(face.id, non_model=False)
-            hfss.assign_perfecte_to_sheets(terminal_face.name)
-            name = obj.name
-            terminal_faces.append(terminal_face)
-            obj.delete()
-            terminal_face.name = name
-        for sheet in sheets_for_ports:
-            hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
-
-        # create 3D component
-        hfss.save_project(file_name=out_3d_project)
-        if hfss.modeler.create_3dcomponent(component_file=component_3d_file):
-            comp_name = pathlib.Path(component_3d_file).name
-            messagebox.showinfo(
-                title="3D component export completed",
-                message=f"3D component with arbitrary wave ports"
-                f"has been generated. You can import"
-                f" the file {comp_name} located in working"
-                f"directory {_wdir}",
-            )
-        hfss.release_desktop(close_projects=True, close_desktop=False)
-
     # workdir
     var1 = tkinter.StringVar()
     label_work_dir = tkinter.Label(master, textvariable=var1)
@@ -198,22 +130,116 @@ def frontend():  # pragma: no cover
         row=3, column=1, padx=5, pady=10
     )
 
+    def callback():
+        master.choice_ui = combo.get()
+        master.file_path_ui = text.get("1.0", tkinter.END).strip()
+        master.destroy()
+
     # execute button
-    execute_button = tkinter.Button(master=master, text="Generate", command=create_3d_component)
+    execute_button = tkinter.Button(master=master, text="Generate", command=callback)
     execute_button.grid(row=4, column=0, padx=5, pady=10)
 
-    # quit button
-    execute_button = tkinter.Button(master=master, text="Quit", command=master.quit)
-    execute_button.grid(row=4, column=1, padx=5, pady=10)
-    master.mainloop()
+    tkinter.mainloop()
+
+    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
+    choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
+
+    hfss_3dl.release_desktop(False, False)
+
+    output_dict = {"choice": choice_ui, "file_path": file_path_ui}
+
+    return output_dict
 
 
-def main():
-    frontend()
+def main(extension_args):
+
+    edb_file = source_file.get("1.0", "end-1c")
+    _wdir = work_dir.get("1.0", "end-1c")
+    edb_project = os.path.join(_wdir, "arbitrary_wave_port.aedb")
+    out_3d_project = os.path.join(_wdir, "output_3d.aedt")
+    component_3d_file = os.path.join(_wdir, "wave_port.a3dcomp")
+    if os.path.exists(_wdir):
+        if len(os.listdir(_wdir)) > 0:
+            res = messagebox.askyesno(
+                title="Warning",
+                message="The selected working directory is not empty, "
+                "the entire content will be deleted. "
+                "Are you sure to continue ?",
+            )
+            if res == "no":
+                return
+    edb = Edb(edbpath=rf"{edb_file}", edbversion=version)
+    if not edb.create_model_for_arbitrary_wave_ports(
+        temp_directory=_wdir, mounting_side=mounting_side_variable.get(), output_edb=edb_project
+    ):
+        messagebox.showerror(
+            "EDB model failure",
+            "Failed to create EDB model, please make sure you "
+            "selected the correct mounting side. The selected side must "
+            "must contain explicit voids with pad-stack instances inside.",
+        )
+    signal_nets = list(edb.nets.signal.keys())
+    edb.close()
+    hfss3d = Hfss3dLayout(projectname=edb_project, specified_version=version)
+    setup = hfss3d.create_setup("wave_ports")
+    setup.export_to_hfss(file_fullname=out_3d_project, keep_net_name=True)
+    hfss3d.release_desktop(close_projects=True, close_desktop=False)
+    hfss = Hfss(projectname=out_3d_project, specified_version=version, new_desktop_session=False)
+
+    # deleting dielectric objects
+    [obj.delete() for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics]
+
+    # creating ports
+    sheets_for_ports = hfss.modeler.sheet_objects
+    terminal_faces = []
+    terminal_objects = [obj for obj in hfss.modeler.object_list if obj.name in signal_nets]
+    for obj in terminal_objects:
+        if mounting_side_variable.get() == "bottom":
+            face = obj.bottom_face_z
+        else:
+            face = obj.top_face_z
+        terminal_face = hfss.modeler.create_object_from_face(face.id, non_model=False)
+        hfss.assign_perfecte_to_sheets(terminal_face.name)
+        name = obj.name
+        terminal_faces.append(terminal_face)
+        obj.delete()
+        terminal_face.name = name
+    for sheet in sheets_for_ports:
+        hfss.wave_port(assignment=sheet.id, reference="GND", terminals_rename=False)
+
+    # create 3D component
+    hfss.save_project(file_name=out_3d_project)
+    if hfss.modeler.create_3dcomponent(component_file=component_3d_file):
+        comp_name = pathlib.Path(component_3d_file).name
+        messagebox.showinfo(
+            title="3D component export completed",
+            message=f"3D component with arbitrary wave ports"
+            f"has been generated. You can import"
+            f" the file {comp_name} located in working"
+            f"directory {_wdir}",
+        )
+    hfss.release_desktop(close_projects=True, close_desktop=False)
 
 
 if __name__ == "__main__":  # pragma: no cover
+    """This extension is used to generate arbitrary wave ports.
+    It assumes that oblong voids are explicit and some pad-stack instances are inside to define terminal.
+    After defining the working directory and the source file used for creating wave ports, the combobox for defining
+    the mounting side is important. You can choose between `top` and `bottom`. For the selected design, choosing top
+    will search for the top metal layer and bottom for the bottom signal layer. If not void are found the tool will
+    show an error message, you might have to change the mounting side. Note: The selected working directory content
+    will be deleted once you press `Generate` button. If this folder already exists and is not empty, user will get
+    a warning window asking to continue or not. The check box `Import EDB` is checked by default, when user browse
+    for source file, only folders will be displayed since EDB is an AEDB folder. The tool also supports other format,
+    by unchecking this box, when users browse files, odb++, brd, mcm or zip are allowed.
+    """
     args = get_arguments(extension_arguments, extension_description)
+
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        main()
+        output = frontend()
+        if output:
+            for output_name, output_value in output.items():
+                if output_name in extension_arguments:
+                    args[output_name] = output_value
+    main(args)
