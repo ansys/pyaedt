@@ -530,7 +530,8 @@ def read_toml(file_path):  # pragma: no cover
         import tomllib
 
     with open_file(file_path, "rb") as fb:
-        return tomllib.load(fb)
+        data = fb.read().decode("utf-8")
+        return tomllib.loads(data)
 
 
 def _log_method(func, new_args, new_kwargs):
