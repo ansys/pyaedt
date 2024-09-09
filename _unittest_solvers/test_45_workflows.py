@@ -384,6 +384,7 @@ class TestClass:
         assert main({"is_test": True, "asc_file": file_path})
         aedtapp.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_16_arbitrary_waveport(self, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.generate_arbitrary_wave_ports import main
         import tempfile
