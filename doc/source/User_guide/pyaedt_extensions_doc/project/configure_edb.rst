@@ -58,13 +58,7 @@ Configure HFSS 3D Layout design in active AEDT project
 
 2, Make sure the HFSS 3D Layout design is open and active in AEDT.
 
-3, To apply configuration from a single configuration file
-
-    Click ``Apply Configuration`` and browse to your configuration file.
-
-3, To apply configurations in batch
-
-    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
+3, Click ``Select and Apply Configuration`` and browse to your configuration files.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure HFSS 3D Layout design in a AEDT project
@@ -74,17 +68,10 @@ Configure HFSS 3D Layout design in a AEDT project
 
 2, Click ``Select Project File`` and browse to .aedt file.
 
-3, To apply configuration from a single configuration file
+3, Click ``Select and Apply Configuration`` and browse to your configuration files.
 
-    Click ``Apply Configuration`` and browse to your configuration file.
+4, In the second pop-up window. Specify where to save the new project.
 
-    In the second pop-up window. Please specify where to save the new project.
-
-3, To apply configurations in batch
-
-    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
-
-    In the second pop-up window. Please specify a folder where to save the new projects.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Configure design in siwave project
@@ -94,14 +81,6 @@ Configure design in siwave project
 
 2, Click ``Select Project File`` and browse to .siw file.
 
-3, To apply configuration from a single configuration file
+3, Click ``Select and Apply Configuration`` and browse to your configuration files.
 
-    Click ``Apply Configuration`` and browse to your configuration file.
-
-    In the second pop-up window. Please specify where to save the new project.
-
-3, To apply configurations in batch
-
-    Click ``Apply Configuration Batch`` and browse to the folder which contains all configuration files
-
-    In the second pop-up window. Please specify a folder where to save the new projects.
+4, In the second pop-up window. Specify where to save the new project.

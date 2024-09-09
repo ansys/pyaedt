@@ -84,7 +84,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
     def __init__(self):
         super().__init__()
 
-        self.geometry("800x300")
+        self.geometry("600x300")
         self.title("EDB Configuration 2.0")
 
         self.status = tk.StringVar(value="")
