@@ -141,11 +141,6 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         )
         button.grid(row=s3_start_row + 2, column=0)
 
-        # button = ttk.Button(
-        #    self, text=f"\Select and Apply Configs from Folder", width=col_width[0], command=self.call_select_cfg_folder
-        # )
-        # button.grid(row=s3_start_row + 3, column=0)"""
-
         # Export cfg
         button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
         button.grid(row=s3_start_row + 4, column=0)
