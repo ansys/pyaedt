@@ -2465,7 +2465,11 @@ class FieldPlot:
         Returns:
             FolderPlotSettings or None: An instance of FolderPlotSettings if found, otherwise None.
         """
-        folder_settings_data = load_keyword_in_aedt_file(self._postprocessor._app.project_file, "FieldsPlotManagerID")
+        folder_settings_data = load_keyword_in_aedt_file(
+            self._postprocessor._app.project_file,
+            "FieldsPlotManagerID",
+            design_name=self._postprocessor._app.design_name,
+        )
         relevant_settings = [
             d
             for d in folder_settings_data["FieldsPlotManagerID"].values()
