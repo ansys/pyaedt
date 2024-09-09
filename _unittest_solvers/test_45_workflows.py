@@ -162,7 +162,33 @@ class TestClass:
         local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
                                  file_path)
 
-        assert main({"is_test": True, "aedb_path": file_path, "configuration_path": configuration_path})
+        main(is_test=True, execute={
+            "aedt_load": [
+                {"project_file": file_path,
+                 "file_cfg_path": configuration_path,
+                 "file_save_path": file_path.replace(".aedb", "_1.aedt")}
+            ],
+            "aedt_export": [
+                {"project_file": file_path,
+                 "file_path_save": configuration_path.replace(".json", "_1.json")}
+            ],
+            "active_load": [],
+            "active_export": [],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
+
+        main(is_test=True, execute={
+            "aedt_load": [],
+            "aedt_export": [],
+            "active_load": [{"project_file": file_path,
+                             "file_cfg_path": configuration_path,
+                             "file_save_path": file_path.replace(".aedb", "_1.aedt")}],
+            "active_export": [{"project_file": file_path,
+                               "file_path_save": configuration_path.replace(".json", "_1.json")}],
+            "siwave_load": [],
+            "siwave_export": [],
+        })
 
     def test_08_advanced_fields_calculator_non_general(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss,
@@ -179,13 +205,13 @@ class TestClass:
             "assignment": "",
             "assignment_type": ["Line"],
             "operations": ["Fundamental_Quantity('E')",
-                            "Operation('Real')",
-                            "Operation('Tangent')",
-                            "Operation('Dot')",
-                            "EnterLine('assignment')",
-                            "Operation('LineValue')",
-                            "Operation('Integrate')",
-                            "Operation('CmplxR')"],
+                           "Operation('Real')",
+                           "Operation('Tangent')",
+                           "Operation('Dot')",
+                           "EnterLine('assignment')",
+                           "Operation('LineValue')",
+                           "Operation('Integrate')",
+                           "Operation('CmplxR')"],
             "report": ["Data Table", "Rectangular Plot"],
         }
 
@@ -383,4 +409,3 @@ class TestClass:
         from ansys.aedt.core.workflows.circuit.import_schematic import main
         assert main({"is_test": True, "asc_file": file_path})
         aedtapp.close_project()
-
