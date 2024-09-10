@@ -525,13 +525,12 @@ def read_toml(file_path):  # pragma: no cover
     """
     current_version = sys.version_info[:2]
     if current_version < (3, 12):
-        import toml as tomllib
+        import tomli as tomllib
     else:
         import tomllib
 
     with open_file(file_path, "rb") as fb:
-        data = fb.read().decode("utf-8")
-        return tomllib.loads(data)
+        return tomllib.load(fb)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -1326,7 +1325,7 @@ def number_aware_string_key(s):
 def _create_toml_file(input_dict, full_toml_path):
     current_version = sys.version_info[:2]
     if current_version < (3, 12):
-        import toml as tomllib
+        import tomli as tomllib
     else:
         import tomllib
 
