@@ -698,8 +698,11 @@ class Mechanical(FieldAnalysis3D, object):
 
         Examples
         --------
-
-        >>> mech.assign_2way_coupling("Setup1", 1)
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical()
+        >>> setup = mech.create_setup()
+        >>> mech.assign_2way_coupling(setup.name, 1)
+        >>> mech.release_desktop()
 
         """
         if not setup:
