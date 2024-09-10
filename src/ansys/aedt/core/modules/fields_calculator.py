@@ -100,6 +100,7 @@ class FieldsCalculator:
         Returns
         -------
         list
+            List of available expressions in the catalog.
         """
         return list(self.expression_catalog.keys())
 
@@ -268,7 +269,7 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def expression_plot(self, calculation, assignment, names, setup=None):
-        """Add a named expression.
+        """Create plots defined in the expression catalog.
 
         Parameters
         ----------
@@ -285,6 +286,15 @@ class FieldsCalculator:
         -------
         list
             List of created reports.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        >>> reports = hfss.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
+        >>> hfss.release_desktop(False, False)
         """
         if assignment is not None:
             assignment = self.__app.modeler.convert_to_selections(assignment, return_list=True)
@@ -363,6 +373,15 @@ class FieldsCalculator:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        >>> hfss.post.fields_calculator.delete_expression(expr_name)
+        >>> hfss.release_desktop(False, False)
         """
         if not name:
             self.ofieldsreporter.ClearAllNamedExpr()
@@ -383,7 +402,7 @@ class FieldsCalculator:
         Returns
         -------
         bool
-            ``True`` when exists.
+            ``True`` when it exists, ``False`` otherwise.
         """
         is_defined = self.ofieldsreporter.DoesNamedExpressionExists(name)
         if is_defined == 1:
@@ -402,7 +421,7 @@ class FieldsCalculator:
         Returns
         -------
         bool
-            ``True`` if the named expression is general.
+            ``True`` if the named expression is general, ``False`` otherwise.
         """
         if name not in self.expression_names:
             self.__app.logger.error("Named expression not available.")
@@ -416,7 +435,7 @@ class FieldsCalculator:
 
     @pyaedt_function_handler()
     def load_expression_file(self, input_file):
-        """Load expressions from a TOML file.
+        """Load expressions from an external TOML file.
 
         Parameters
         ----------
@@ -427,6 +446,14 @@ class FieldsCalculator:
         -------
         dict
             Dictionary of available expressions.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> my_toml = os.path.join("my_path_to_toml", "my_toml.toml")
+        >>> new_catalog = hfss.post.fields_calculator.load_expression_file(my_toml)
+        >>> hfss.release_desktop(False, False)
         """
         if not os.path.isfile(input_file):
             self.__app.logger.error("File does not exist.")
