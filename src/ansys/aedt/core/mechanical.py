@@ -709,7 +709,7 @@ class Mechanical(FieldAnalysis3D, object):
             if self.setups:
                 setup = self.setups[0].name
             else:
-                self.logger.error("No setup is defined.")
+                self.logger.error("Setup is not defined.")
                 return False
 
         self.oanalysis.AddTwoWayCoupling(
