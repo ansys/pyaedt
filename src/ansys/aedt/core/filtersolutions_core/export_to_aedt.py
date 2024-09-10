@@ -884,8 +884,7 @@ class ExportToAedt:
         """Length to width ratio of interconnect line.
         The length to width ratio is a measure of the proportion between the length and width of the interconnect line.
         This ratio is important for determining the electrical characteristics of the interconnect, such as impedance
-        and
-        signal integrity.
+        and signal integrity.
         The default is ``2``.
 
         Returns
@@ -903,8 +902,8 @@ class ExportToAedt:
     def interconnect_minimum_length_to_width_ratio(self) -> str:
         """Minimum length to width ratio of interconnect line.
         The minimum length to width ratio is a measure of the smallest proportion between the length and width
-        of the interconnect line that is allowed. This ratio is crucial for ensuring that the interconnect line
-        maintains its structural integrity and performs optimally under various conditions.
+        of the interconnect line that is allowed. This parameter is used to determine the minimum dimensions of
+        interconnect lines for optimization purposes.
         The default is ``0.5``.
 
         Returns
@@ -926,9 +925,8 @@ class ExportToAedt:
     def interconnect_maximum_length_to_width_ratio(self) -> str:
         """Maximum length to width ratio of interconnect line.
         The maximum length to width ratio is a measure of the largest proportion between the length and width
-        of the interconnect line that is allowed. This ratio is important for ensuring that the interconnect line
-        does not become too long relative to its width, which could lead to issues such as increased inductance,
-        signal delay, and potential mechanical instability.
+        of the interconnect line that is allowed. This parameter is used to determine the maximum dimensions of
+        interconnect lines for optimization purposes.
         The default is ``2``.
 
         Returns
@@ -974,9 +972,8 @@ class ExportToAedt:
     def interconnect_minimum_line_to_termination_width_ratio(self) -> str:
         """Minimum line width to termination width ratio of interconnect line.
         The minimum line width to termination width ratio is a measure of the smallest proportion between the
-        width of the interconnect line and the width of its termination that is allowed. This ratio is important
-        for ensuring proper impedance matching and signal integrity at the points where the interconnect line
-        connects to other components or circuits.
+        width of the interconnect line and the width of its termination that is allowed. This parameter is used
+        to determine the minimum dimensions of interconnect lines for optimization purposes.
         The default is ``0.5``.
 
         Returns
@@ -1000,9 +997,8 @@ class ExportToAedt:
     def interconnect_maximum_line_to_termination_width_ratio(self) -> str:
         """Maximum line width to termination width ratio of interconnect line.
         The maximum line width to termination width ratio is a measure of the largest proportion between the
-        width of the interconnect line and the width of its termination that is allowed. This ratio is important
-        for ensuring proper impedance matching and signal integrity at the points where the interconnect line
-        connects to other components or circuits.
+        width of the interconnect line and the width of its termination that is allowed. This parameter is used
+        to determine the maximum dimensions of interconnect lines for optimization purposes.
         The default is ``2``.
 
         Returns
@@ -1046,8 +1042,8 @@ class ExportToAedt:
     def interconnect_minimum_length_value(self) -> str:
         """Minimum value of interconnect physical length.
         The minimum value of the interconnect physical length represents the smallest length that the interconnect
-        line can have in the design. This value is important for ensuring that the interconnect line maintains its
-        structural integrity and performs optimally under various conditions.
+        line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
+        for optimization purposes.
         The default is ``1.27 mm``.
 
         Returns
@@ -1069,9 +1065,8 @@ class ExportToAedt:
     def interconnect_maximum_length_value(self) -> str:
         """Maximum value of interconnect physical length.
         The maximum value of the interconnect physical length represents the largest length that the interconnect
-        line can have in the design. This value is important for ensuring that the interconnect line does not become
-        too long relative to its width, which could lead to issues such as increased inductance, signal delay, and
-        potential mechanical instability.
+        line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
+        for optimization purposes.
         The default is ``5.08 mm``.
 
         Returns
@@ -1117,8 +1112,8 @@ class ExportToAedt:
     def interconnect_minimum_width_value(self) -> str:
         """Minimum value of interconnect conductor width.
         The minimum value of the interconnect conductor width represents the smallest width that the interconnect
-        line can have in the design. This value is important for ensuring that the interconnect line maintains its
-        structural integrity and performs optimally under various conditions.
+        line can have in the design. This value is used to determine the minimum dimensions of interconnect lines
+        for optimization purposes.
         The default is ``635 um``.
 
         Returns
@@ -1140,9 +1135,8 @@ class ExportToAedt:
     def interconnect_maximum_width_value(self) -> str:
         """Maximum value of interconnect conductor width.
         The maximum value of the interconnect conductor width represents the largest width that the interconnect
-        line can have in the design. This value is important for ensuring that the interconnect line does not become
-        too wide relative to its length, which could lead to issues such as increased capacitance, signal delay, and
-        potential mechanical instability.
+        line can have in the design. This value is used to determine the maximum dimensions of interconnect lines
+        for optimization purposes.
         The default is ``2.54 mm``.
 
         Returns

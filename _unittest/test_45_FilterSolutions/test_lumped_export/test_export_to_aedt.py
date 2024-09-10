@@ -182,7 +182,6 @@ class TestClass:
     def test_modelithics_resistor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.LUMPED
         assert lumpdesign.export_to_aedt.modelithics_resistor_list_count == 39
 
     def test_modelithics_resistor_list(self):
