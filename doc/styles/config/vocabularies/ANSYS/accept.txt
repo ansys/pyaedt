@@ -8,6 +8,7 @@ airgap
 (?i)Ansys
 API
 autosave
+brd
 busbar
 busbars
 Bz
@@ -44,6 +45,7 @@ matplotlib
 Maxwell 2D
 Maxwell 3D
 Maxwell Circuit
+mcm
 [Mm]echanical
 multiphysics
 multiplot
