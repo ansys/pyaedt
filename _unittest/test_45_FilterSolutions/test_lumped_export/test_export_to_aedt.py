@@ -25,185 +25,225 @@
 from _unittest.conftest import config
 import ansys.aedt.core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
-
-# from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.general_methods import is_linux
-
-# from ..filtersolutions_resources import resource_path
 import pytest
+
+from ..resources import read_resource_file
+from ..resources import resource_path
+
+first_modelithics_inductor = "AVX -> IND_AVX_0201_101 Accu-L"
+second_modelithics_inductor = "AVX -> IND_AVX_0402_101 AccuL"
+third_modelithics_inductor = "Wurth -> IND_WTH_0603_003 WE-KI"
+first_modelithics_capacitor = "Amotech -> CAP_AMH_0201_001 A60Z"
+second_modelithics_capacitor = "Murata -> CAP_MUR_0805_004 GRM219"
+first_modelithics_resistor = "AVX -> RES_AVX_0402_001 UBR0402"
+second_modelithics_resistor = "Vishay -> RES_VIS_0603_001 D11"
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-
     def test_modelithics_inductor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_inductor_list_count == 116
 
     def test_modelithics_inductor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_selection = "AVX -> IND_AVX_0201_101 Accu-L"
-        assert lumpdesign.export_to_aedt.modelithics_inductor_list(0) == "AVX -> IND_AVX_0201_101 Accu-L"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_list(-1)
+        assert info.value.args[0] == "The Modelithics inductor at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
+        assert lumpdesign.export_to_aedt.modelithics_inductor_list(0) == first_modelithics_inductor
 
     def test_modelithics_inductor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_selection = "AVX -> IND_AVX_0201_101 Accu-L"
-        assert lumpdesign.export_to_aedt.modelithics_inductor_selection == "AVX -> IND_AVX_0201_101 Accu-L"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_selection
+        assert info.value.args[0] == "No Modelithics inductor is selected"
+        lumpdesign.export_to_aedt.modelithics_inductor_selection = first_modelithics_inductor
+        assert lumpdesign.export_to_aedt.modelithics_inductor_selection == first_modelithics_inductor
 
     def test_modelithics_inductor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("AVX -> IND_AVX_0402_101 AccuL")
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("Wurth -> IND_WTH_0603_003 WE-KI")
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 0
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 1
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
         assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 2
 
     def test_modelithics_inductor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("AVX -> IND_AVX_0402_101 AccuL")
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("Wurth -> IND_WTH_0603_003 WE-KI")
-        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(0) == "AVX -> IND_AVX_0402_101 AccuL"
-        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(1) == "Wurth -> IND_WTH_0603_003 WE-KI"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
+        assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
     def test_modelithics_inductor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("AVX -> IND_AVX_0402_101 AccuL")
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("Wurth -> IND_WTH_0603_003 WE-KI")
-        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(0) == "AVX -> IND_AVX_0402_101 AccuL"
-        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(1) == "Wurth -> IND_WTH_0603_003 WE-KI"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
+        assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(0) == second_modelithics_inductor
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list(1) == third_modelithics_inductor
 
     def test_modelithics_inductor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("AVX -> IND_AVX_0402_101 AccuL")
-        lumpdesign.export_to_aedt.modelithics_inductor_add_family("Wurth -> IND_WTH_0603_003 WE-KI")
-        lumpdesign.export_to_aedt.modelithics_inductor_remove_family("Wurth -> IND_WTH_0603_003 WE-KI")
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_inductor_family_list(0)
+        assert info.value.args[0] == "The Modelithics inductor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(second_modelithics_inductor)
+        lumpdesign.export_to_aedt.modelithics_inductor_add_family(third_modelithics_inductor)
+        assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 2
+        lumpdesign.export_to_aedt.modelithics_inductor_remove_family(third_modelithics_inductor)
         assert lumpdesign.export_to_aedt.modelithics_inductor_family_list_count == 1
 
     def test_modelithics_capacitor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
         assert lumpdesign.export_to_aedt.modelithics_capacitor_list_count == 140
 
     def test_modelithics_capacitor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_selection = "Amotech -> CAP_AMH_0201_001 A60Z"
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_list(0) == "Amotech -> CAP_AMH_0201_001 A60Z"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_list(-1)
+        assert info.value.args[0] == "The Modelithics capacitor at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_list(0) == first_modelithics_capacitor
 
     def test_modelithics_capacitor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_selection = "Amotech -> CAP_AMH_0201_001 A60Z"
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_selection == "Amotech -> CAP_AMH_0201_001 A60Z"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_selection
+        assert info.value.args[0] == "No Modelithics capacitor is selected"
+        lumpdesign.export_to_aedt.modelithics_capacitor_selection = first_modelithics_capacitor
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_selection == first_modelithics_capacitor
 
     def test_modelithics_capacitor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Amotech -> CAP_AMH_0201_001 A60Z")
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Murata -> CAP_MUR_0805_004 GRM219")
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 0
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 1
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
         assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 2
 
     def test_modelithics_capacitor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Amotech -> CAP_AMH_0201_001 A60Z")
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Murata -> CAP_MUR_0805_004 GRM219")
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0) == "Amotech -> CAP_AMH_0201_001 A60Z"
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(1) == "Murata -> CAP_MUR_0805_004 GRM219"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
+        assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
     def test_modelithics_capacitor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Amotech -> CAP_AMH_0201_001 A60Z")
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Murata -> CAP_MUR_0805_004 GRM219")
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0) == "Amotech -> CAP_AMH_0201_001 A60Z"
-        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(1) == "Murata -> CAP_MUR_0805_004 GRM219"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
+        assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0) == first_modelithics_capacitor
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list(1) == second_modelithics_capacitor
 
     def test_modelithics_capacitor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Amotech -> CAP_AMH_0201_001 A60Z")
-        lumpdesign.export_to_aedt.modelithics_capacitor_add_family("Murata -> CAP_MUR_0805_004 GRM219")
-        lumpdesign.export_to_aedt.modelithics_capacitor_remove_family("Murata -> CAP_MUR_0805_004 GRM219")
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_capacitor_family_list(0)
+        assert info.value.args[0] == "The Modelithics capacitor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(first_modelithics_capacitor)
+        lumpdesign.export_to_aedt.modelithics_capacitor_add_family(second_modelithics_capacitor)
+        assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 2
+        lumpdesign.export_to_aedt.modelithics_capacitor_remove_family(second_modelithics_capacitor)
         assert lumpdesign.export_to_aedt.modelithics_capacitor_family_list_count == 1
 
     def test_modelithics_resistor_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.LUMPED
         assert lumpdesign.export_to_aedt.modelithics_resistor_list_count == 39
 
     def test_modelithics_resistor_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_selection = "AVX -> RES_AVX_0402_001 UBR0402"
-        assert lumpdesign.export_to_aedt.modelithics_resistor_list(0) == "AVX -> RES_AVX_0402_001 UBR0402"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_list(-1)
+        assert info.value.args[0] == "The Modelithics resistor at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
+        assert lumpdesign.export_to_aedt.modelithics_resistor_list(0) == first_modelithics_resistor
 
     def test_modelithics_resistor_selection(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_selection = "AVX -> RES_AVX_0402_001 UBR0402"
-        assert lumpdesign.export_to_aedt.modelithics_resistor_selection == "AVX -> RES_AVX_0402_001 UBR0402"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_selection
+        assert info.value.args[0] == "No Modelithics resistor is selected"
+        lumpdesign.export_to_aedt.modelithics_resistor_selection = first_modelithics_resistor
+        assert lumpdesign.export_to_aedt.modelithics_resistor_selection == first_modelithics_resistor
 
     def test_modelithics_resistor_family_list_count(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("AVX -> RES_AVX_0402_001 UBR0402")
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("Vishay -> RES_VIS_0603_001 D11")
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 0
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 1
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
         assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 2
 
     def test_modelithics_resistor_family_list(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("AVX -> RES_AVX_0402_001 UBR0402")
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("Vishay -> RES_VIS_0603_001 D11")
-        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(0) == "AVX -> RES_AVX_0402_001 UBR0402"
-        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(1) == "Vishay -> RES_VIS_0603_001 D11"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
+        assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
     def test_modelithics_resistor_family_list_add_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("AVX -> RES_AVX_0402_001 UBR0402")
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("Vishay -> RES_VIS_0603_001 D11")
-        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(0) == "AVX -> RES_AVX_0402_001 UBR0402"
-        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(1) == "Vishay -> RES_VIS_0603_001 D11"
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
+        assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(0) == first_modelithics_resistor
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list(1) == second_modelithics_resistor
 
     def test_modelithics_resistor_family_list_remove_family(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         lumpdesign.export_to_aedt._open_aedt_export()
-        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("AVX -> RES_AVX_0402_001 UBR0402")
-        lumpdesign.export_to_aedt.modelithics_resistor_add_family("Vishay -> RES_VIS_0603_001 D11")
-        lumpdesign.export_to_aedt.modelithics_resistor_remove_family("Vishay -> RES_VIS_0603_001 D11")
+        with pytest.raises(RuntimeError) as info:
+            lumpdesign.export_to_aedt.modelithics_resistor_family_list(0)
+        assert info.value.args[0] == "The Modelithics resistor family at the given index is not available"
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(first_modelithics_resistor)
+        lumpdesign.export_to_aedt.modelithics_resistor_add_family(second_modelithics_resistor)
+        assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 2
+        lumpdesign.export_to_aedt.modelithics_resistor_remove_family(second_modelithics_resistor)
         assert lumpdesign.export_to_aedt.modelithics_resistor_family_list_count == 1
 
     def test_schematic_name(self):
@@ -324,40 +364,44 @@ class TestClass:
         lumpdesign.export_to_aedt.optimize_after_export_enabled = True
         assert lumpdesign.export_to_aedt.optimize_after_export_enabled == True
 
-    # def test_load_library_parts_config(self):
-    #     lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-    #     lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
-    #     assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
-    #     assert lumpdesign.export_to_aedt.substrate_er == "4.5"
-    #     assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
-    #     assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
-    #     assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
-    #     assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
+    def test_load_library_parts_config(self):
+        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign.export_to_aedt._open_aedt_export()
+        lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
+        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        assert lumpdesign.export_to_aedt.substrate_er == "4.5"
+        assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
+        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
+        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
+        assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
 
-    # def test_save_library_parts_config(self):
-    #     lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-    #     lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
-    #     lumpdesign.export_to_aedt.substrate_er = "4.5"
-    #     lumpdesign.export_to_aedt.substrate_resistivity = "5.8E+07 "
-    #     lumpdesign.export_to_aedt.substrate_conductor_thickness = "500 nm"
-    #     lumpdesign.export_to_aedt.substrate_dielectric_height = "2 mm"
-    #     lumpdesign.export_to_aedt.substrate_loss_tangent = "0.035 "
-    #     lumpdesign.export_to_aedt.save_library_parts_config(resource_path("library_parts_test.cfg"))
-    #     lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts_test.cfg"))
-    #     assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
-    #     assert lumpdesign.export_to_aedt.substrate_er == "4.5"
-    #     assert lumpdesign.export_to_aedt.substrate_resistivity == "5.8E+07 "
-    #     assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "500 nm"
-    #     assert lumpdesign.export_to_aedt.substrate_dielectric_height == "2 mm"
-    #     assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.035 "
+    def test_save_library_parts_config(self):
+        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign.export_to_aedt._open_aedt_export()
+        lumpdesign.export_to_aedt.part_libraries = PartLibraries.MODELITHICS
+        lumpdesign.export_to_aedt.substrate_er = "2.25"
+        lumpdesign.export_to_aedt.substrate_resistivity = "4.2E+07 "
+        lumpdesign.export_to_aedt.substrate_conductor_thickness = "350 nm"
+        lumpdesign.export_to_aedt.substrate_dielectric_height = "3 mm"
+        lumpdesign.export_to_aedt.substrate_loss_tangent = "0.065 "
+        lumpdesign.export_to_aedt.save_library_parts_config(resource_path("library_parts_test.cfg"))
+        lumpdesign.export_to_aedt.load_library_parts_config(resource_path("library_parts_test.cfg"))
+        assert lumpdesign.export_to_aedt.part_libraries == PartLibraries.MODELITHICS
+        assert lumpdesign.export_to_aedt.substrate_er == "2.25"
+        assert lumpdesign.export_to_aedt.substrate_resistivity == "4.2E+07 "
+        assert lumpdesign.export_to_aedt.substrate_conductor_thickness == "350 nm"
+        assert lumpdesign.export_to_aedt.substrate_dielectric_height == "3 mm"
+        assert lumpdesign.export_to_aedt.substrate_loss_tangent == "0.065 "
 
-    # def test_import_tuned_variables(self):
-    #     lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-    #     lumpdesign.export_to_aedt.simulate_after_export_enabled = True
-    #     lumpdesign.export_to_aedt.optimize_after_export_enabled = True
-    #     lumpdesign.export_to_aedt.overwrite_design_to_aedt(ExportFormat.DIRECT)
-    #     assert lumpdesign.export_to_aedt.import_tuned_variables().splitlines() ==
-    #     read_resource_file("import_tuned_variables.ckt")
+    def test_import_tuned_variables(self):
+        lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        lumpdesign.export_to_aedt._open_aedt_export()
+        lumpdesign.export_to_aedt.simulate_after_export_enabled = True
+        lumpdesign.export_to_aedt.optimize_after_export_enabled = True
+        lumpdesign.export_to_aedt.export_design()
+        assert lumpdesign.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
+            "imported_netlist.ckt"
+        )
 
     def test_part_libraries(self):
         lumpdesign = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)

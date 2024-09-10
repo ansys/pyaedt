@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ctypes
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_bool
@@ -82,7 +81,7 @@ class SubstrateType(Enum):
 
     **Attributes:**
 
-    - RGLS = Represents a RGLC substrate type.
+    - RGLC = Represents a RGLC substrate type.
     - STRIPLINE = Represents a stripline substrate type.
     - MICROSTRIP = Represents a microstrip substrate type.
     - SUSPEND = Represents a suspended substrate type.
@@ -97,8 +96,8 @@ class SubstrateType(Enum):
 
 
 class SubstrateEr(Enum):
-    """Provides an enum of substrate ``Er`` types for various materials..
-    The enum values represent common materials used in substrates and their associated ``Er`` index.
+    """Provides an enum of substrate relative permitivity (``Er``) for various materials..
+    The enum values represent common materials used in substrates and their associated ``Er`` value.
 
     **Attributes:**
 
@@ -146,17 +145,17 @@ class SubstrateResistivity(Enum):
 
     **Attributes:**
 
-    - IDEAL: Represents an ideal, perfect conductor with ``0`` ohm-meter resistivity.
-    - SILVER: Represents Silver, the material with ``0.95`` ohm-meter resistivity.
-    - COPPER: Represents Copper, the material with ``1.00`` ohm-meter resistivity.
-    - GOLD: Represents Gold, the material with ``1.43`` ohm-meter resistivity.
-    - ALUMINUM: Represents Aluminum, the material with ``1.67`` ohm-meter resistivity.
-    - MAGNESIUM: Represents Magnesium, the material with ``2.67`` ohm-meter resistivity.
-    - TUNGSTEN: Represents Tungsten, the material with ``3.23`` ohm-meter resistivity.
-    - ZINC: Represents Zinc, the material with ``3.56`` ohm-meter resistivity.
-    - NICKEL: Represents Nickel, the material with ``4.00`` ohm-meter resistivity.
-    - IRON: Represents Iron, the material with ``5.80`` ohm-meter resistivity.
-    - PLATINUM: Represents Platinum, the material with ``6.34`` ohm-meter resistivity.
+    - IDEAL: Represents an ideal, perfect conductor, ``0`` with respect to copper resistivity.
+    - SILVER: Represents Silver resitivity, ``0.95`` with respect to copper resistivity.
+    - COPPER: Represents Copper, ``1.00`` as referernce resistivity.
+    - GOLD: Represents Gold, ``1.43`` with respect to copper resistivity.
+    - ALUMINUM: Represents Aluminum, ``1.67`` with respect to copper resistivity.
+    - MAGNESIUM: Represents Magnesium, ``2.67`` with respect to copper resistivity.
+    - TUNGSTEN: Represents Tungsten, ``3.23`` with respect to copper resistivity.
+    - ZINC: Represents Zinc, ``3.56`` with respect to copper resistivity.
+    - NICKEL: Represents Nickel, ``4.00`` with respect to copper resistivity.
+    - IRON: Represents Iron, ``5.80`` with respect to copper resistivity.
+    - PLATINUM: Represents Platinum, ``6.34`` with respect to copper resistivity.
     """
 
     IDEAL = 0
@@ -271,6 +270,12 @@ class ExportToAedt:
         self._dll.setOptimizeAfterExport.restype = c_int
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
+
+        self._dll.loadLibraryPartsConf.argtype = c_char_p
+        self._dll.loadLibraryPartsConf.restype = c_int
+
+        self._dll.saveLibraryPartsConf.argtype = c_char_p
+        self._dll.saveLibraryPartsConf.restype = c_int
 
         self._dll.importTunedVariablesSize.argtype = POINTER(c_int)
         self._dll.importTunedVariablesSize.restype = c_int
@@ -807,7 +812,7 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
-    def export_design(self, export_format: ExportFormat.DIRECT_TO_AEDT, export_creation_mode=None, export_path=None):
+    def export_design(self, export_format=None, export_creation_mode=None, export_path=None):
         """Export the design directly to ``AEDT` or generate a ``Python`` script for exporting.
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
@@ -816,7 +821,7 @@ class ExportToAedt:
         ----------
         export_format : `ExportFormat`
             The export format type.
-            The default is ``DIRECT_TO_AEDT``.
+            The default is ``None``.
         design_creation_mode : `ExportCreationMode`
             The design creation mode.
             The default is ``None``.
@@ -824,6 +829,8 @@ class ExportToAedt:
             The export path for Python script.
             The default is ``None``.
         """
+        if export_format is None:
+            export_format = ExportFormat.DIRECT_TO_AEDT
         if export_creation_mode is None:
             export_creation_mode = ExportCreationMode.OVERWRITE
         if export_path is None:
@@ -836,17 +843,24 @@ class ExportToAedt:
         status = self._dll.exportDesign(export_format.value, export_creation_mode.value, export_path_bytes)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
+    def load_library_parts_config(self, load_library_parts_config_string):
+        self._dll_interface.set_string(self._dll.loadLibraryPartsConf, load_library_parts_config_string)
+
+    def save_library_parts_config(self, save_library_parts_config_string):
+        self._dll_interface.set_string(self._dll.saveLibraryPartsConf, save_library_parts_config_string)
+
     def import_tuned_variables(self):
         """Imported ``AEDT`` tuned parameter variables back into the ``FilterSolutions`` project."""
         size = c_int()
+        status = self._dll.importTunedVariablesSize(byref(size))
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         circuit_response_string = self._dll_interface.get_string(self._dll.importTunedVariables, max_size=size.value)
         return circuit_response_string
 
     @property
     def part_libraries(self) -> PartLibraries:
-        """Part libraries definition. The default is ``LUMPED``.
-        The ``PartLibraries`` enum provides a list of all classes.
+        """Part libraries selection. The default is ``LUMPED``.
+        The ``PartLibraries`` enum provides a list of all options.
 
         Returns
         -------
@@ -861,13 +875,17 @@ class ExportToAedt:
         return part_libraries
 
     @part_libraries.setter
-    def part_libraries(self, column: PartLibraries):
-        status = self._dll.setPartLibraries(column.value)
+    def part_libraries(self, library_type: PartLibraries):
+        status = self._dll.setPartLibraries(library_type.value)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def interconnect_length_to_width_ratio(self) -> str:
         """Length to width ratio of interconnect line.
+        The length to width ratio is a measure of the proportion between the length and width of the interconnect line.
+        This ratio is important for determining the electrical characteristics of the interconnect, such as impedance
+        and
+        signal integrity.
         The default is ``2``.
 
         Returns
@@ -884,6 +902,9 @@ class ExportToAedt:
     @property
     def interconnect_minimum_length_to_width_ratio(self) -> str:
         """Minimum length to width ratio of interconnect line.
+        The minimum length to width ratio is a measure of the smallest proportion between the length and width
+        of the interconnect line that is allowed. This ratio is crucial for ensuring that the interconnect line
+        maintains its structural integrity and performs optimally under various conditions.
         The default is ``0.5``.
 
         Returns
@@ -904,6 +925,10 @@ class ExportToAedt:
     @property
     def interconnect_maximum_length_to_width_ratio(self) -> str:
         """Maximum length to width ratio of interconnect line.
+        The maximum length to width ratio is a measure of the largest proportion between the length and width
+        of the interconnect line that is allowed. This ratio is important for ensuring that the interconnect line
+        does not become too long relative to its width, which could lead to issues such as increased inductance,
+        signal delay, and potential mechanical instability.
         The default is ``2``.
 
         Returns
@@ -924,6 +949,10 @@ class ExportToAedt:
     @property
     def interconnect_line_to_termination_width_ratio(self) -> str:
         """Line width to termination width ratio of interconnect line.
+        The line width to termination width ratio is a measure of the proportion between the width of the
+        interconnect line and the width of its termination. This ratio is crucial for ensuring proper
+        impedance matching and signal integrity at the points where the interconnect line connects to
+        other components or circuits.
         The default is ``1``.
 
         Returns
@@ -944,6 +973,10 @@ class ExportToAedt:
     @property
     def interconnect_minimum_line_to_termination_width_ratio(self) -> str:
         """Minimum line width to termination width ratio of interconnect line.
+        The minimum line width to termination width ratio is a measure of the smallest proportion between the
+        width of the interconnect line and the width of its termination that is allowed. This ratio is important
+        for ensuring proper impedance matching and signal integrity at the points where the interconnect line
+        connects to other components or circuits.
         The default is ``0.5``.
 
         Returns
@@ -966,6 +999,10 @@ class ExportToAedt:
     @property
     def interconnect_maximum_line_to_termination_width_ratio(self) -> str:
         """Maximum line width to termination width ratio of interconnect line.
+        The maximum line width to termination width ratio is a measure of the largest proportion between the
+        width of the interconnect line and the width of its termination that is allowed. This ratio is important
+        for ensuring proper impedance matching and signal integrity at the points where the interconnect line
+        connects to other components or circuits.
         The default is ``2``.
 
         Returns
@@ -988,6 +1025,10 @@ class ExportToAedt:
     @property
     def interconnect_length_value(self) -> str:
         """Interconnect physical length value.
+        The interconnect physical length value represents the actual length of the interconnect line in the design.
+        This value is crucial for determining the electrical characteristics of the interconnect, such as signal delay,
+        impedance, and potential signal loss. Accurate length measurements are essential for ensuring that the
+        interconnect performsas expected in high-frequency and high-speed applications.
         The default is ``2.54 mm``.
 
         Returns
@@ -1004,6 +1045,9 @@ class ExportToAedt:
     @property
     def interconnect_minimum_length_value(self) -> str:
         """Minimum value of interconnect physical length.
+        The minimum value of the interconnect physical length represents the smallest length that the interconnect
+        line can have in the design. This value is important for ensuring that the interconnect line maintains its
+        structural integrity and performs optimally under various conditions.
         The default is ``1.27 mm``.
 
         Returns
@@ -1024,6 +1068,10 @@ class ExportToAedt:
     @property
     def interconnect_maximum_length_value(self) -> str:
         """Maximum value of interconnect physical length.
+        The maximum value of the interconnect physical length represents the largest length that the interconnect
+        line can have in the design. This value is important for ensuring that the interconnect line does not become
+        too long relative to its width, which could lead to issues such as increased inductance, signal delay, and
+        potential mechanical instability.
         The default is ``5.08 mm``.
 
         Returns
@@ -1044,6 +1092,10 @@ class ExportToAedt:
     @property
     def interconnect_line_width_value(self) -> str:
         """Interconnect conductor width value.
+        The interconnect conductor width value represents the actual width of the interconnect line in the design.
+        This value is crucial for determining the electrical characteristics of the interconnect, such as impedance,
+        signal integrity, and potential signal loss. Accurate width measurements are essential for ensuring that the
+        interconnect performs as expected in high-frequency and high-speed applications.
         The default is ``1.27 mm``.
 
         Returns
@@ -1064,6 +1116,9 @@ class ExportToAedt:
     @property
     def interconnect_minimum_width_value(self) -> str:
         """Minimum value of interconnect conductor width.
+        The minimum value of the interconnect conductor width represents the smallest width that the interconnect
+        line can have in the design. This value is important for ensuring that the interconnect line maintains its
+        structural integrity and performs optimally under various conditions.
         The default is ``635 um``.
 
         Returns
@@ -1084,6 +1139,10 @@ class ExportToAedt:
     @property
     def interconnect_maximum_width_value(self) -> str:
         """Maximum value of interconnect conductor width.
+        The maximum value of the interconnect conductor width represents the largest width that the interconnect
+        line can have in the design. This value is important for ensuring that the interconnect line does not become
+        too wide relative to its length, which could lead to issues such as increased capacitance, signal delay, and
+        potential mechanical instability.
         The default is ``2.54 mm``.
 
         Returns
@@ -1199,7 +1258,7 @@ class ExportToAedt:
 
         """
         substrate_er_index = c_int()
-        substrate_er_value_str = ctypes.create_string_buffer(100)
+        substrate_er_value_str = create_string_buffer(100)
         status = self._dll.getEr(substrate_er_value_str, byref(substrate_er_index), 100)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_er_index.value in [e.value for e in SubstrateEr]:
@@ -1233,7 +1292,7 @@ class ExportToAedt:
         Union[SubstrateResistivity, str]
         """
         substrate_resistivity_index = c_int()
-        substrate_resistivity_value_str = ctypes.create_string_buffer(100)
+        substrate_resistivity_value_str = create_string_buffer(100)
         status = self._dll.getResistivity(substrate_resistivity_value_str, byref(substrate_resistivity_index), 100)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_resistivity_index.value in [e.value for e in SubstrateResistivity]:
@@ -1266,7 +1325,7 @@ class ExportToAedt:
         Union[SubstrateEr, str]
         """
         substrate_loss_tangent_index = c_int()
-        substrate_loss_tangent_value_str = ctypes.create_string_buffer(100)
+        substrate_loss_tangent_value_str = create_string_buffer(100)
         status = self._dll.getLossTangent(substrate_loss_tangent_value_str, byref(substrate_loss_tangent_index), 100)
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
         if substrate_loss_tangent_index.value in [e.value for e in SubstrateEr]:
@@ -1411,13 +1470,13 @@ class ExportToAedt:
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     def load_modelithics_models(self):
-        """Load ``Modelithics`` modesl from ``AEDT``."""
+        """Load ``Modelithics`` models from ``AEDT``."""
         status = self._dll.loadModelitichsModels()
         ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
 
     @property
     def modelithics_include_interconnect_enabled(self) -> bool:
-        """Flag indicating if the ``Modelithics`` interconnect inclusion is enabled.
+        """Flag indicating if the inclusion of interconnects is enabled for``Modelithics`` export.
 
         Returns
         -------
@@ -1435,7 +1494,7 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_list_count(self) -> int:
-        """Number of loaded ``Modelithics`` inductors.
+        """Total count of ``Modelithics`` inductor families that have been loaded into the current design.
 
         Returns
         -------
@@ -1447,7 +1506,8 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_inductor_list(self, row_index) -> str:
-        """Get the ``Modelithics`` inductor from the loaded list at the given index."""
+        """Get the name of the ``Modelithics` inductor family model from the loaded list based
+        on the specified index."""
 
         modelithics_inductor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
@@ -1457,7 +1517,9 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_selection(self) -> str:
-        """Selected ``Modelithics`` inductor from the loaded list.
+        """Selected ``Modelithics`` inductor family from the loaded list.
+        The Modelithics inductor family selection allows you to choose a specific inductor model from the
+        Modelithics library.
 
         Returns
         -------
@@ -1472,7 +1534,7 @@ class ExportToAedt:
 
     @property
     def modelithics_inductor_family_list_count(self) -> int:
-        """Number of ``Modelithics`` family inductors added to the inductor family list.
+        """Total count of ``Modelithics`` family inductors added to the inductor family list.
 
         Returns
         -------
@@ -1484,7 +1546,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_inductor_family_list(self, index) -> str:
-        """Get the ``Modelithics`` inductor family from the inductor family list at give index.
+        """Get the name of ``Modelithics`` inductor family from the inductor family list based on the specified index.
 
         Parameters
         ----------
@@ -1502,7 +1564,7 @@ class ExportToAedt:
         return modelithics_inductor_family
 
     def modelithics_inductor_add_family(self, modelithics_inductor) -> str:
-        """Add ``Modelithics`` inductor family to the inductor family list.
+        """Add a specified ``Modelithics`` inductor family to the inductor family list.
 
         Parameters
         ----------
@@ -1512,7 +1574,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsInductorsFamily, modelithics_inductor)
 
     def modelithics_inductor_remove_family(self, modelithics_inductor) -> str:
-        """Remove ``Modelithics`` inductor family from the inductor family list.
+        """Remove a specified ``Modelithics`` inductor family from the inductor family list.
 
         Parameters
         ----------
@@ -1523,7 +1585,7 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_list_count(self) -> int:
-        """Number of loaded ``Modelithics`` capacitors.
+        """Total count of ``Modelithics`` capacitor families that have been loaded into the current design.
 
         Returns
         -------
@@ -1535,7 +1597,8 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_capacitor_list(self, row_index) -> str:
-        """Get the ``Modelithics`` capacitor from the loaded list at the given index."""
+        """Get the name of the ``Modelithics`` capacitor family model from the loaded list based on
+        the specified index."""
 
         modelithics_capacitor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
@@ -1545,7 +1608,9 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_selection(self) -> str:
-        """Selected ``Modelithics`` capacitor from the loaded list.
+        """Selected ``Modelithics`` capacitor family from the loaded list.
+        The Modelithics capacitor family selection allows you to choose a specific capacitor model from the
+        Modelithics library.
 
         Returns
         -------
@@ -1560,7 +1625,7 @@ class ExportToAedt:
 
     @property
     def modelithics_capacitor_family_list_count(self) -> int:
-        """Number of ``Modelithics`` family capacitors added to the capacitor family list.
+        """Total count of ``Modelithics`` family capacitors added to the capacitor family list.
 
         Returns
         -------
@@ -1572,7 +1637,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_capacitor_family_list(self, index) -> str:
-        """Get the ``Modelithics`` capacitor family from the capacitor family list at give index.
+        """Get the name of ``Modelithics`` capacitor family from the capacitor family list based on the specified index.
 
         Parameters
         ----------
@@ -1590,7 +1655,7 @@ class ExportToAedt:
         return modelithics_capacitor_family
 
     def modelithics_capacitor_add_family(self, modelithics_capacitor) -> str:
-        """Add ``Modelithics`` capacitor family to the capacitor family list.
+        """Add a specified``Modelithics`` capacitor family to the capacitor family list.
 
         Parameters
         ----------
@@ -1600,8 +1665,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsCapacitorsFamily, modelithics_capacitor)
 
     def modelithics_capacitor_remove_family(self, modelithics_capacitor) -> str:
-        """Remove ``Modelithics`` capacitor family from the capacitor family list.
-
+        """Remove a specified ``Modelithics`` capacitor family from the capacitor family list.
         Parameters
         ----------
         modelithics_capacitor : str
@@ -1611,7 +1675,7 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_list_count(self) -> int:
-        """Number of loaded ``Modelithics`` resistors.
+        """Total count of ``Modelithics`` resistor families that have been loaded into the current design.
 
         Returns
         -------
@@ -1623,7 +1687,8 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_resistor_list(self, row_index) -> str:
-        """Get the ``Modelithics`` resistor from the loaded list at the given index."""
+        """Get the name of the ``Modelithics`` resistor family model from the loaded list based on the
+        specified index."""
 
         modelithics_resistor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)
@@ -1633,8 +1698,9 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_selection(self) -> str:
-        """Selected ``Modelithics`` resistor from the loaded list.
-
+        """Selected ``Modelithics`` resistor family from the loaded list.
+        The Modelithics resistor family selection allows you to choose a specific resistor model from the
+        Modelithics library.
         Returns
         -------
         str
@@ -1648,7 +1714,7 @@ class ExportToAedt:
 
     @property
     def modelithics_resistor_family_list_count(self) -> int:
-        """Number of ``Modelithics`` family resistors added to the resistor family list.
+        """Total count of ``Modelithics`` family resistors added to the resistor family list.
 
         Returns
         -------
@@ -1660,7 +1726,8 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_resistor_family_list(self, index) -> str:
-        """Get the ``Modelithics`` resistor family from the resistor family list at give index.
+        """Get the name of ``Modelithics`` resistor family from the resistor family list based on
+        the specified index.
 
         Parameters
         ----------
@@ -1678,7 +1745,7 @@ class ExportToAedt:
         return modelithics_resistor_family
 
     def modelithics_resistor_add_family(self, modelithics_resistor) -> str:
-        """Add ``Modelithics`` resistor family to the resistor family list.
+        """Add a specified ``Modelithics`` resistor family to the resistor family list.
 
         Parameters
         ----------
@@ -1688,7 +1755,7 @@ class ExportToAedt:
         self._dll_interface.set_string(self._dll.addModelithicsResistorsFamily, modelithics_resistor)
 
     def modelithics_resistor_remove_family(self, modelithics_resistor) -> str:
-        """Remove ``Modelithics`` resistor family from the resistor family list.
+        """Remove a specified ``Modelithics`` resistor family from the resistor family list.
 
         Parameters
         ----------
