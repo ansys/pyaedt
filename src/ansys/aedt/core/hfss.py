@@ -1154,120 +1154,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 )
         return False
 
-    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
-    def create_sbr_linked_antenna(
-        self,
-        assignment,
-        target_cs="Global",
-        setup=None,
-        field_type="nearfield",
-        use_composite_ports=False,
-        use_global_current=True,
-        current_conformance=False,
-        thin_sources=True,
-        power_fraction="0.95",
-        visible=True,
-        name=None,
-    ):
-        """Create a linked antennas.
-
-        Parameters
-        ----------
-        assignment : ansys.aedt.core.Hfss
-            Source object.
-        target_cs : str, optional
-            Target coordinate system. The default is ``"Global"``.
-        setup : optional
-            Name of the setup. The default is ``None``, in which
-            case a name is automatically assigned.
-        field_type : str, optional
-            Field type. The options are ``"nearfield"`` and ``"farfield"``.
-            The default is ``"nearfield"``.
-        use_composite_ports : bool, optional
-            Whether to use composite ports. The default is ``False``.
-        use_global_current : bool, optional
-            Whether to use the global current. The default is ``True``.
-        current_conformance : bool, optional
-            Whether to enable current conformance. The default is ``False``.
-        thin_sources : bool, optional
-             Whether to enable thin sources. The default is ``True``.
-        power_fraction : str, optional
-             The default is ``"0.95"``.
-        visible : bool, optional.
-            Whether to make source objects in the target design visible. The default is ``True``.
-        name : str, optional
-            Name of the source.
-            The default is ``None`` in which case a name is automatically assigned.
-
-        References
-        ----------
-
-        >>> oEditor.InsertNativeComponent
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> target_project = "my/path/to/targetProject.aedt"
-        >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
-
-        """
-        if self.solution_type != "SBR+":
-            self.logger.error("Native components only apply to the SBR+ solution.")
-            return False
-
-        if name is None:
-            uniquename = generate_unique_name(assignment.design_name)
-        else:
-            uniquename = generate_unique_name(name)
-
-        if assignment.project_name == self.project_name:
-            project_name = "This Project*"
-        else:
-            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
-        design_name = assignment.design_name
-        if not setup:
-            setup = assignment.nominal_adaptive
-        params = {}
-        pars = assignment.available_variations.nominal_w_values_dict
-        for el in pars:
-            params[el] = pars[el]
-        native_props = dict(
-            {
-                "Type": "Linked Antenna",
-                "Unit": self.modeler.model_units,
-                "Is Parametric Array": False,
-                "Project": project_name,
-                "Product": "HFSS",
-                "Design": design_name,
-                "Soln": setup,
-                "Params": params,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-                "FieldType": field_type,
-                "UseCompositePort": use_composite_ports,
-                "SourceBlockageStructure": dict({"NonModelObject": []}),
-            }
-        )
-        if field_type == "nearfield":
-            native_props["UseGlobalCurrentSrcOption"] = use_global_current
-            if current_conformance:
-                native_props["Current Source Conformance"] = "Enable"
-            else:
-                native_props["Current Source Conformance"] = "Disable"
-            native_props["Thin Sources"] = thin_sources
-            native_props["Power Fraction"] = power_fraction
-        if visible:
-            native_props["VisualizationObjects"] = assignment.modeler.solid_names
-        return self._create_native_component(
-            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
-        )
-
     @pyaedt_function_handler()
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
@@ -1647,6 +1533,257 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             name = generate_unique_name(os.path.basename(far_field_data).split(".")[0])
 
         return self._create_native_component("File Based Antenna", target_cs, units, par_dicts, name)
+
+    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
+    def create_sbr_linked_antenna(
+        self,
+        assignment,
+        target_cs="Global",
+        setup=None,
+        field_type="nearfield",
+        use_composite_ports=False,
+        use_global_current=True,
+        current_conformance=False,
+        thin_sources=True,
+        power_fraction="0.95",
+        visible=True,
+        name=None,
+    ):
+        """Create a linked antennas.
+
+        Parameters
+        ----------
+        assignment : ansys.aedt.core.Hfss
+            Source object.
+        target_cs : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
+        field_type : str, optional
+            Field type. The options are ``"nearfield"`` and ``"farfield"``.
+            The default is ``"nearfield"``.
+        use_composite_ports : bool, optional
+            Whether to use composite ports. The default is ``False``.
+        use_global_current : bool, optional
+            Whether to use the global current. The default is ``True``.
+        current_conformance : bool, optional
+            Whether to enable current conformance. The default is ``False``.
+        thin_sources : bool, optional
+             Whether to enable thin sources. The default is ``True``.
+        power_fraction : str, optional
+             The default is ``"0.95"``.
+        visible : bool, optional.
+            Whether to make source objects in the target design visible. The default is ``True``.
+        name : str, optional
+            Name of the source.
+            The default is ``None`` in which case a name is automatically assigned.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> target_project = "my/path/to/targetProject.aedt"
+        >>> source_project = "my/path/to/sourceProject.aedt"
+        >>> target = Hfss(project=target_project, solution_type="SBR+",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> source = Hfss(project=source_project, design="feeder",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
+
+        """
+        if self.solution_type != "SBR+":
+            self.logger.error("Native components only apply to the SBR+ solution.")
+            return False
+
+        if name is None:
+            uniquename = generate_unique_name(assignment.design_name)
+        else:
+            uniquename = generate_unique_name(name)
+
+        if assignment.project_name == self.project_name:
+            project_name = "This Project*"
+        else:
+            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
+        design_name = assignment.design_name
+        if not setup:
+            setup = assignment.nominal_adaptive
+        params = {}
+        pars = assignment.available_variations.nominal_w_values_dict
+        for el in pars:
+            params[el] = pars[el]
+        native_props = dict(
+            {
+                "Type": "Linked Antenna",
+                "Unit": self.modeler.model_units,
+                "Is Parametric Array": False,
+                "Project": project_name,
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": setup,
+                "Params": params,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+                "FieldType": field_type,
+                "UseCompositePort": use_composite_ports,
+                "SourceBlockageStructure": dict({"NonModelObject": []}),
+            }
+        )
+        if field_type == "nearfield":
+            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            if current_conformance:
+                native_props["Current Source Conformance"] = "Enable"
+            else:
+                native_props["Current Source Conformance"] = "Disable"
+            native_props["Thin Sources"] = thin_sources
+            native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = assignment.modeler.solid_names
+        return self._create_native_component(
+            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
+        )
+
+    @pyaedt_function_handler()
+    def create_sbr_custom_array(
+        self,
+        output_file=None,
+        frequencies=None,
+        element_number=1,
+        state_number=1,
+        position=None,
+        x_axis=None,
+        y_axis=None,
+        weight=None,
+    ):
+        """Create custom array file with sarr format.
+
+        Parameters
+        ----------
+        output_file : str, optional
+            Full path and name for the file.
+            The default is ``None``, in which case the file is exported to the working directory.
+        frequencies : list, optional
+            List of frequencies in GHz. The default is ``[1.0]``.
+        element_number : int, optional
+            Number of elements in the array. The default is ``1``.
+        state_number : int, optional
+            Number of states. The default is ``1``.
+        position : list of list
+            List of the ``[x, y, z]`` coordinates for each element. The default is ``[1, 0, 0]``.
+        x_axis : list of list
+            List of X, Y, Z components of X-axis unit vector.
+        y_axis : list of list
+            List of X, Y, Z components of Y-axis unit vector. The default is ``[0, 1, 0]``.
+        weight : list of list
+            Weight of each element. The default is ``None`` in which case all elements have uniform weight.
+            The second dimension contains the weights for each element, organized as follows:
+            The first `frequencies` entries correspond to the weights for that element at each
+            of the `frequencies`, for the first state.
+            If there are multiple states, the next `frequencies` entries represent the weights for the second state,
+            and so on.
+            For example, for 3 frequencies (`f1`, `f2`, `f3`) and 2 states (`s1`, `s2`), the weight for a single element
+            would be represented as:
+
+            ```
+            [
+                w_s1_f1, w_s1_f2, w_s1_f3,  # Weights for state 1 at frequencies f1, f2, f3
+                w_s2_f1, w_s2_f2, w_s2_f3   # Weights for state 2 at frequencies f1, f2, f3
+            ]
+            ```
+
+        Returns
+        -------
+        str
+            File name when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_sbr_custom_array()
+        >>> hfss.release_desktop()
+        """
+        if output_file is None:
+            output_file = os.path.join(self.working_directory, "custom_array.sarr")
+
+        if frequencies is None:
+            frequencies = [1.0]
+
+        if position is None:
+            position = [[0.0, 0.0, 0.0]] * element_number
+
+        if x_axis is None:
+            x_axis = [[1.0, 0.0, 0.0]] * element_number
+
+        if y_axis is None:
+            y_axis = [[0.0, 1.0, 0.0]] * element_number
+
+        try:
+            with open(output_file, "w") as fid:
+                fid.write("# Array Element List (.sarr) file\n")
+                fid.write("# Blank lines and lines beginning with pound sign ('#') are ignored\n")
+
+                # Write whether weight exists
+                has_weight = weight is not None
+                fid.write("\n")
+                fid.write("# has_weights flags whether array file includes element weight data.\n")
+                fid.write("# If not, then array file only specifies element positions and orientations.\n")
+                fid.write(f"has_weights {'true' if has_weight else 'false'}\n")
+
+                # Write frequency domain
+                nf = len(frequencies)
+                if len(frequencies) == 1 or all(
+                    abs(frequencies[i + 1] - frequencies[i] - (frequencies[1] - frequencies[0])) < 1e-9
+                    for i in range(len(frequencies) - 1)
+                ):
+                    fid.write("\n")
+                    fid.write("# freq <start_ghz> <stop_ghz> # nstep = nfreq - 1\n")
+                    fid.write(f"freq {frequencies[0]} {frequencies[-1]} {nf - 1}\n")
+                else:
+                    fid.write("\n")
+                    fid.write("# freq_list\n")
+                    fid.write(f"freq_list {nf}\n")
+                    for freq in frequencies:
+                        fid.write(f"{freq}\n")
+
+                # Handle states
+                ns = state_number
+                nfns = nf * ns
+                if has_weight:
+                    fid.write("\n")
+                    fid.write("# num_states\n")
+                    fid.write(f"num_states {ns}\n")
+                    # Flatten weights
+                    weight_reshaped = [[weight[i][j] for i in range(nfns)] for j in range(element_number)]
+
+                # Number of elements
+                fid.write("\n")
+                fid.write("# num_elements\n")
+                fid.write(f"num_elements {element_number}\n")
+
+                # Element data block
+                fid.write("\n")
+                fid.write("# Element List Data Block\n")
+                for ielem in range(element_number):
+                    fid.write(f"\n# Element {ielem + 1}\n")
+                    fid.write(f"{position[ielem][0]:13.7e} {position[ielem][1]:13.7e} {position[ielem][2]:13.7e}\n")
+                    fid.write(f"{x_axis[ielem][0]:13.7e} {x_axis[ielem][1]:13.7e} {x_axis[ielem][2]:13.7e}\n")
+                    fid.write(f"{y_axis[ielem][0]:13.7e} {y_axis[ielem][1]:13.7e} {y_axis[ielem][2]:13.7e}\n")
+
+                    if has_weight:
+                        for ifs in range(nfns):
+                            weight0 = weight_reshaped[ielem][ifs]
+                            fid.write(f"{weight0.real:13.7e} {weight0.imag:13.7e}\n")
+        except Exception as e:  # pragma: no cover
+            self.logger.error(f"Error: {e}")
+            return False
+
+        return output_file
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
