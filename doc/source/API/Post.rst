@@ -93,7 +93,7 @@ Methods and properties are accessible through the ``monitor`` property of the ``
    PointMonitor
    Monitor
 
-Advanced Fields Calculator
+Advanced fields calculator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 The ``fields_calculator`` module includes the ``FieldsCalculator`` class.
 It provides methods to interact with AEDT Fields Calculator by adding, loading and deleting custom expressions.
