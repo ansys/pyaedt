@@ -397,9 +397,6 @@ class Primitives3D(GeometryModeler):
         ...                                           name="mybox",material="copper")
 
         """
-        if bottom_radius == top_radius:
-            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
-            return False
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
             self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
             return False
