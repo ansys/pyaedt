@@ -726,7 +726,6 @@ class QExtractor(FieldAnalysis3D, object):
                     length,
                     matrix_type,
                     0,
-                    export_ac_dc_res,
                     precision,
                     field_width,
                     use_sci_notation,
