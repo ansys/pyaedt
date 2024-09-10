@@ -1,7 +1,8 @@
-Postprocessing
-==============
+Post-processing
+===============
 This section lists modules for creating and editing
-plots in AEDT. They are accessible through the ``post`` property.
+plots in AEDT and shows how to interact with AEDT fields calculator.
+They are accessible through the ``post`` property.
 
 .. note::
    Some capabilities of the ``advanced_post_processing`` module require Python 3 and
@@ -13,6 +14,8 @@ plots in AEDT. They are accessible through the ``post`` property.
    Some functionalities are available only when AEDT is running 
    in graphical mode.
 
+Advanced post-processing
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: ansys.aedt.core.modules
 
@@ -73,9 +76,11 @@ PyAEDT has classes for manipulating any report property.
    report_templates.Emission
    report_templates.Spectral
 
-
 Icepak monitors
 ~~~~~~~~~~~~~~~
+The ``monitor_icepak`` module includes the classes listed below to add, modify, and manage monitors during simulations.
+Retrieve monitor values for post-processing and analysis to gain insights into key simulation metrics.
+Methods and properties are accessible through the ``monitor`` property of the ``Icepak`` class.
 
 .. currentmodule:: ansys.aedt.core.modules.monitor_icepak
 
@@ -87,3 +92,17 @@ Icepak monitors
    FaceMonitor
    PointMonitor
    Monitor
+
+Advanced Fields Calculator
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``fields_calculator`` module includes the ``FieldsCalculator`` class.
+It provides methods to interact with AEDT Fields Calculator by adding, loading and deleting custom expressions.
+
+.. currentmodule:: ansys.aedt.core.modules.fields_calculator
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   FieldsCalculator
