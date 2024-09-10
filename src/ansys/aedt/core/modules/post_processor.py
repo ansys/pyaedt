@@ -3265,6 +3265,9 @@ class PostProcessor(PostProcessorCommon, object):
     ):
         """Change Field Plot Scale.
 
+        .. deprecated:: 0.10.1
+           Use :class:`FieldPlot.folder_settings` methods instead.
+
         Parameters
         ----------
         plot_name : str
