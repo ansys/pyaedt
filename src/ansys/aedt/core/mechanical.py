@@ -675,6 +675,53 @@ class Mechanical(FieldAnalysis3D, object):
             return bound
         return False
 
+    @pyaedt_function_handler()
+    def assign_2way_coupling(self, setup=None, number_of_iterations=2):
+        """Assign two-way coupling to a setup.
+
+        Parameters
+        ----------
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the active setup is used.
+        number_of_iterations : int, optional
+            Number of iterations. The default is ``2``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.AddTwoWayCoupling
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Mechanical
+        >>> mech = Mechanical()
+        >>> setup = mech.create_setup()
+        >>> mech.assign_2way_coupling(setup.name, 1)
+        >>> mech.release_desktop()
+
+        """
+        if not setup:
+            if self.setups:
+                setup = self.setups[0].name
+            else:
+                self.logger.error("Setup is not defined.")
+                return False
+
+        self.oanalysis.AddTwoWayCoupling(
+            setup,
+            [
+                "NAME:Options",
+                "NumCouplingIters:=",
+                number_of_iterations,
+            ],
+        )
+        return True
+
     @pyaedt_function_handler(setupname="name", setuptype="setup_type")
     def create_setup(self, name="MySetupAuto", setup_type=None, **kwargs):
         """Create an analysis setup for Mechanical.
