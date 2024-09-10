@@ -49,6 +49,7 @@ from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.misc.misc import installed_versions
+import toml
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 is_linux = os.name == "posix"
@@ -523,14 +524,8 @@ def read_toml(file_path):  # pragma: no cover
     dict
         Parsed TOML file as a dictionary.
     """
-    current_version = sys.version_info[:2]
-    if current_version < (3, 12):
-        import tomli as tomllib
-    else:
-        import tomllib
-
     with open_file(file_path, "rb") as fb:
-        return tomllib.load(fb)
+        return toml.load(fb)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -1323,12 +1318,6 @@ def number_aware_string_key(s):
 
 @pyaedt_function_handler()
 def _create_toml_file(input_dict, full_toml_path):
-    current_version = sys.version_info[:2]
-    if current_version < (3, 12):
-        import tomli as tomllib
-    else:
-        import tomllib
-
     if not os.path.exists(os.path.dirname(full_toml_path)):
         os.makedirs(os.path.dirname(full_toml_path))
 
@@ -1348,7 +1337,7 @@ def _create_toml_file(input_dict, full_toml_path):
 
     new_dict = _dict_toml(input_dict)
     with open_file(full_toml_path, "w") as fp:
-        tomllib.dump(new_dict, fp)
+        toml.dump(new_dict, fp)
     return True
 
 
