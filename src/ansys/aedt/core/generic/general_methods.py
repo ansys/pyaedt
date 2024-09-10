@@ -525,7 +525,7 @@ def read_toml(file_path):  # pragma: no cover
     """
     current_version = sys.version_info[:2]
     if current_version < (3, 12):
-        import pytomlpp as tomllib
+        import toml as tomllib
     else:
         import tomllib
 
@@ -1326,7 +1326,7 @@ def number_aware_string_key(s):
 def _create_toml_file(input_dict, full_toml_path):
     current_version = sys.version_info[:2]
     if current_version < (3, 12):
-        import pytomlpp as tomllib
+        import toml as tomllib
     else:
         import tomllib
 
