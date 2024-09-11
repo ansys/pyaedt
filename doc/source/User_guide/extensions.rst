@@ -74,6 +74,21 @@ HFSS 3D Layout extensions
 
             Generate arbitrary wave ports in HFSS
 
+Icepak extensions
+-------------------------
+   .. grid-item-card:: Create Power Map
+            :link: pyaedt_extensions_doc/icepak/create_power_map
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import power map from a csv file
+
+   .. grid-item-card:: ECAD advaced import
+            :link: pyaedt_extensions_doc/icepak/ecad_advanced_import
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Import an ECAD with a CSV containing component information.
 
 Open source toolkits
 ~~~~~~~~~~~~~~~~~~~~
