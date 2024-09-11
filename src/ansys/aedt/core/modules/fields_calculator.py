@@ -44,7 +44,7 @@ class FieldsCalculator:
 
     Parameters
     ----------
-    app:
+    app :
         Inherited parent object.
 
     Examples
