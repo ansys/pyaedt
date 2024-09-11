@@ -356,6 +356,6 @@ class Emit(Design, object):
         if self.__emit_api_enabled:
             self._emit_api.save_project()
 
-        result = Design.save_project(file_name, overwrite, refresh_ids)
+        result = Design.save_project(self, file_name, overwrite, refresh_ids)
 
         return result
