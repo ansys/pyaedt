@@ -1682,18 +1682,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         weight : list of list
             Weight of each element. The default is ``None`` in which case all elements have uniform weight.
             The second dimension contains the weights for each element, organized as follows:
-            The first `frequencies` entries correspond to the weights for that element at each
-            of the `frequencies`, for the first state.
-            If there are multiple states, the next `frequencies` entries represent the weights for the second state,
+            The first ``frequencies`` entries correspond to the weights for that element at each
+            of the ``frequencies``, for the first state.
+            If there are multiple states, the next ``frequencies`` entries represent the weights for the second state,
             and so on.
-            For example, for 3 frequencies (`f1`, `f2`, `f3`) and 2 states (`s1`, `s2`), the weight for a single element
-            would be represented as:
-
-            ```
-            [
-                w_s1_f1, w_s1_f2, w_s1_f3,  # Weights for state 1 at frequencies f1, f2, f3
-                w_s2_f1, w_s2_f2, w_s2_f3   # Weights for state 2 at frequencies f1, f2, f3
-            ]
+            For example, for 3 frequencies ``(f1, f2, f3)``, 2 elements ``(e1, e2)``, and 2 states ``(s1, s2)``,
+            the weight would be represented as: ``[[w_f1_e1_s1, w_f1_e2_s1], [w_f2_e1_s1, w_f2_e2_s1],
+            [w_f3_e1_s1, w_f3_e2_s1], [w_f1_e1_s2, w_f1_e2_s2], [w_f2_e1_s2, w_f2_e2_s2], [w_f3_e1_s2, w_f3_e2_s2]]``.
             ```
 
         Returns
@@ -1724,16 +1719,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             y_axis = [[0.0, 1.0, 0.0]] * element_number
 
         try:
-            with open(output_file, "w") as fid:
-                fid.write("# Array Element List (.sarr) file\n")
-                fid.write("# Blank lines and lines beginning with pound sign ('#') are ignored\n")
+            with open(output_file, "w") as sarr_file:
+                sarr_file.write("# Array Element List (.sarr) file\n")
+                sarr_file.write("# Blank lines and lines beginning with pound sign ('#') are ignored\n")
 
                 # Write whether weight exists
                 has_weight = weight is not None
-                fid.write("\n")
-                fid.write("# has_weights flags whether array file includes element weight data.\n")
-                fid.write("# If not, then array file only specifies element positions and orientations.\n")
-                fid.write(f"has_weights {'true' if has_weight else 'false'}\n")
+                sarr_file.write("\n")
+                sarr_file.write("# has_weights flags whether array file includes element weight data.\n")
+                sarr_file.write("# If not, then array file only specifies element positions and orientations.\n")
+                sarr_file.write(f"has_weights {'true' if has_weight else 'false'}\n")
 
                 # Write frequency domain
                 nf = len(frequencies)
@@ -1741,44 +1736,44 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                     abs(frequencies[i + 1] - frequencies[i] - (frequencies[1] - frequencies[0])) < 1e-9
                     for i in range(len(frequencies) - 1)
                 ):
-                    fid.write("\n")
-                    fid.write("# freq <start_ghz> <stop_ghz> # nstep = nfreq - 1\n")
-                    fid.write(f"freq {frequencies[0]} {frequencies[-1]} {nf - 1}\n")
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq <start_ghz> <stop_ghz> # nstep = nfreq - 1\n")
+                    sarr_file.write(f"freq {frequencies[0]} {frequencies[-1]} {nf - 1}\n")
                 else:
-                    fid.write("\n")
-                    fid.write("# freq_list\n")
-                    fid.write(f"freq_list {nf}\n")
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq_list\n")
+                    sarr_file.write(f"freq_list {nf}\n")
                     for freq in frequencies:
-                        fid.write(f"{freq}\n")
+                        sarr_file.write(f"{freq}\n")
 
                 # Handle states
                 ns = state_number
                 nfns = nf * ns
                 if has_weight:
-                    fid.write("\n")
-                    fid.write("# num_states\n")
-                    fid.write(f"num_states {ns}\n")
+                    sarr_file.write("\n")
+                    sarr_file.write("# num_states\n")
+                    sarr_file.write(f"num_states {ns}\n")
                     # Flatten weights
                     weight_reshaped = [[weight[i][j] for i in range(nfns)] for j in range(element_number)]
 
                 # Number of elements
-                fid.write("\n")
-                fid.write("# num_elements\n")
-                fid.write(f"num_elements {element_number}\n")
+                sarr_file.write("\n")
+                sarr_file.write("# num_elements\n")
+                sarr_file.write(f"num_elements {element_number}\n")
 
                 # Element data block
-                fid.write("\n")
-                fid.write("# Element List Data Block\n")
-                for ielem in range(element_number):
-                    fid.write(f"\n# Element {ielem + 1}\n")
-                    fid.write(f"{position[ielem][0]:13.7e} {position[ielem][1]:13.7e} {position[ielem][2]:13.7e}\n")
-                    fid.write(f"{x_axis[ielem][0]:13.7e} {x_axis[ielem][1]:13.7e} {x_axis[ielem][2]:13.7e}\n")
-                    fid.write(f"{y_axis[ielem][0]:13.7e} {y_axis[ielem][1]:13.7e} {y_axis[ielem][2]:13.7e}\n")
+                sarr_file.write("\n")
+                sarr_file.write("# Element List Data Block\n")
+                for elem in range(element_number):
+                    sarr_file.write(f"\n# Element {elem + 1}\n")
+                    sarr_file.write(f"{position[elem][0]:13.7e} {position[elem][1]:13.7e} {position[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{x_axis[elem][0]:13.7e} {x_axis[elem][1]:13.7e} {x_axis[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{y_axis[elem][0]:13.7e} {y_axis[elem][1]:13.7e} {y_axis[elem][2]:13.7e}\n")
 
                     if has_weight:
                         for ifs in range(nfns):
-                            weight0 = weight_reshaped[ielem][ifs]
-                            fid.write(f"{weight0.real:13.7e} {weight0.imag:13.7e}\n")
+                            weight0 = weight_reshaped[elem][ifs]
+                            sarr_file.write(f"{weight0.real:13.7e} {weight0.imag:13.7e}\n")
         except Exception as e:  # pragma: no cover
             self.logger.error(f"Error: {e}")
             return False
