@@ -23,11 +23,10 @@
 # SOFTWARE.
 
 from _unittest.conftest import config
+import ansys.aedt.core
+from ansys.aedt.core.filtersolutions_core.attributes import FilterImplementation
+from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
-
-import pyaedt
-from pyaedt.filtersolutions_core.attributes import FilterImplementation
-from pyaedt.generic.general_methods import is_linux
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
@@ -38,12 +37,12 @@ class TestClass:
     input_value_blank_msg = "The input value is blank"
 
     def test_row_count(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         assert design.transmission_zeros_bandwidth.row_count == 0
         assert design.transmission_zeros_ratio.row_count == 0
 
     def test_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.row(0)
         assert info.value.args[0] == self.no_transmission_zero_msg
@@ -52,7 +51,7 @@ class TestClass:
         assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_update_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.update_row(0, zero="1.3G", position="2")
         assert info.value.args[0] == self.no_transmission_zero_update_msg
@@ -61,7 +60,7 @@ class TestClass:
         assert info.value.args[0] == self.no_transmission_zero_update_msg
 
     def test_append_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.append_row(zero="", position="")
         assert info.value.args[0] == self.input_value_blank_msg
@@ -81,7 +80,7 @@ class TestClass:
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
     def test_insert_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.insert_row(6, zero="1.3G", position="2")
         assert info.value.args[0] == "The given index 6 is larger than zeros order"
@@ -105,7 +104,7 @@ class TestClass:
         assert design.transmission_zeros_ratio.row(0) == ("1.6", "2")
 
     def test_remove_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         with pytest.raises(RuntimeError) as info:
             design.transmission_zeros_bandwidth.remove_row(2)
         assert info.value.args[0] == "The given index 2 is larger than zeros order"
@@ -116,7 +115,7 @@ class TestClass:
         assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_clear_row(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "2")
         design.transmission_zeros_bandwidth.clear_row()
@@ -131,7 +130,7 @@ class TestClass:
         assert info.value.args[0] == self.no_transmission_zero_msg
 
     def test_restore_default_positions(self):
-        design = pyaedt.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
+        design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
         design.transmission_zeros_bandwidth.insert_row(0, zero="1600M", position="2")
         design.transmission_zeros_bandwidth.restore_default_positions()
         assert design.transmission_zeros_bandwidth.row(0) == ("1600M", "3")

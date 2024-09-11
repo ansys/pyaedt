@@ -1,0 +1,36 @@
+# One commit hash per line, and all commits in the file will be ignored by git blame.
+
+# Apply flake8 policy for unused imports (#449)
+f2ebb7a80978e1ea82328e9b6afd3f9484362552
+# Organize module imports (#448)
+98bb0a1bfd27f8174ef86a131b3f6eed09f562ad
+# Format line length (#445)
+b82041bb75d71b8e11b54f9dcfdfc696a1bcf68c
+# Format modeler files (#441)
+0174ae92359f49fb8215f16d715f3afe8598745f
+# Format example files (#444)
+41eb277bc05b6736c674af33d5b601c3bc9a33d3
+# Format ipy unittests (#443)
+522b13c6ed123be60eb6220bfe6fed35ba059ab8
+# Format unittests (#442)
+11d60aa7e31f3494d8a73c0223c924ff17eec985
+# Format modules files (#436)
+0798f3f4c2252c1c3c486b8400540939c5b42dc6
+# Format application files (#434)
+19b758272a6d9551a8837b5f2d3a6283974d3367
+# Format pyaedt files with black (#433)
+3c3f0c6e01336eae66199bb9e461319d18a435d7
+# Formatting - fix line length part 2 (#415)
+58bbdc280545f7345b7999db0f17c3ff666e0be2
+# Formatting - fix line length part 1 (#414)
+af6af2e6b5db5e1485bfddd2b9d0e363614ecfce
+# Formatting - blank lines (#412)
+babf97db629f2901f40ae080ac3a7e24084a1e87
+#  Formatting - whitespace on blank lines (#409)
+08e4ae515f7d5fd4a37e7baab7b321c907e66324
+# Formatting - indentations (#407)
+9ddfe050d95feaa022cc30cc64acabee16029c07
+# Remove trailing whitespace (#404)
+a4b5fe60c7d0a7db624d7ab160a0ce5e1f378759
+# Run autopep8 W291, remove trailing whitespace (#401)
+159bb43d42ad502c2440531d71cf7df6c780a8c9

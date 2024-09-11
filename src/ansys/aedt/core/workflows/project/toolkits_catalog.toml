@@ -1,0 +1,27 @@
+[GenerateReport]
+name = "Generate report"
+script = "create_report.py"
+icon = "images/large/pdf.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[ImportNastran]
+name = "Import Nastran/STL"
+script = "import_nastran.py"
+icon = "images/large/cad3d.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[ConfigureEdb]
+name = "Configure layout"
+script = "configure_edb.py"
+icon = "images/large/aedb.png"
+template = "run_pyedb_toolkit_script"
+pip = ""
+
+[FieldsCalculator]
+name = "Advanced Fields Calculator"
+script = "advanced_fields_calculator.py"
+icon = "images/large/fields.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

@@ -1,0 +1,6 @@
+[ConverttoCircuit]
+name = "Export to Circuit"
+script = "convert_to_circuit.py"
+icon = "images/large/export_to_circuit.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""

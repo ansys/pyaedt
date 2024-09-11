@@ -7,7 +7,7 @@ This code creates the JSON file:
 
 .. code:: python
 
-    from pyaedt import Icepak
+    from ansys.aedt.core import Icepak
     ipk = Icepak()
     filename = "test"
     ipk.export_3d_model(file_name=filename,

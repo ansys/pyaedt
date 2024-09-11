@@ -16,15 +16,15 @@ X-Band waveguide filter using inductive irises.
 
 import os
 import tempfile
-import pyaedt
-from pyaedt import general_methods
+import ansys.aedt.core
+from ansys.aedt.core import general_methods
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Launch Ansys Electronics Desktop (AEDT)
@@ -61,7 +61,7 @@ if not os.path.exists(project_folder):
 project_name = os.path.join(project_folder, general_methods.generate_unique_name("wgf", n=2))
 
 # Instantiate the HFSS application
-hfss = pyaedt.Hfss(project=project_name + '.aedt',
+hfss = ansys.aedt.core.Hfss(project=project_name + '.aedt',
                    version=aedt_version,
                    design="filter",
                    non_graphical=non_graphical,
@@ -140,7 +140,7 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 # Draw full waveguide with ports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use ``hfss.variable_manager`` which acts like a dict() to return an instance of
-# the ``pyaedt.application.Variables.VariableManager`` class for any variable.
+# the ``ansys.aedt.core.application.variables.VariableManager`` class for any variable.
 # The ``VariableManager`` instance takes the HFSS variable name as a key.
 # ``VariableManager`` properties enable access to update, modify and
 # evaluate variables.

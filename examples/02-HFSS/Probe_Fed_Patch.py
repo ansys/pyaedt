@@ -14,16 +14,16 @@ laminate structures such as the patch antenna.
 
 import os
 
-import pyaedt
+import ansys.aedt.core
 import tempfile
-from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -60,7 +60,7 @@ proj_name = os.path.join(project_folder, "antenna")
 # -----------
 #
 
-hfss = pyaedt.Hfss(project=proj_name,
+hfss = ansys.aedt.core.Hfss(project=proj_name,
                    solution_type="Terminal",
                    design="patch",
                    non_graphical=non_graphical,

@@ -6,10 +6,10 @@ You can initiate AEDT in non-graphical mode from Python using this code:
 .. code:: python
 
     # Launch AEDT 2023 R2 in non-graphical mode
-    import pyaedt
-    with pyaedt.Desktop(specified_version="2023.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+    import ansys.aedt.core
+    with ansys.aedt.core.Desktop(specified_version="2023.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
-        circuit = pyaedt.Circuit()
+        circuit = ansys.aedt.core.Circuit()
         ...
         # Any error here is caught by AEDT.
         ...
@@ -26,8 +26,8 @@ This code creates a project and saves it with PyAEDT:
 .. code:: python
 
     # Launch the latest installed version of AEDT in graphical mode.
-    import pyaedt
-    cir =  pyaedt.Circuit(non_graphical=False)
+    import ansys.aedt.core
+    cir =  ansys.aedt.core.Circuit(non_graphical=False)
     cir.save_project(my_path)
     ...
     cir.release_desktop(save_project=True, close_desktop=True)
@@ -38,8 +38,8 @@ This code uses PyAEDT to access the Ansys EDB proprietary layout format:
 .. code:: python
 
     # Launch the latest installed version of EDB.
-    import pyaedt
-    edb = pyaedt.Edb("mylayout.aedb")
+    import ansys.aedt.core
+    edb = ansys.aedt.core.Edb("mylayout.aedb")
 
     # User can launch EDB directly from the PyEDB class.
 

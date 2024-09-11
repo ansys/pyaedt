@@ -28,13 +28,12 @@ import time
 
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.pdf import AnsysReport
 import pytest
-
-from pyaedt import Hfss3dLayout
-from pyaedt import Maxwell3d
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.pdf import AnsysReport
 
 test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
@@ -370,6 +369,39 @@ class TestClass:
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17
         assert setup2.update()
+        assert setup2.use_matrix_convergence(
+            entry_selection=0,
+            ignore_phase_when_mag_is_less_than=0.015,
+            all_diagonal_entries=True,
+            max_delta=0.03,
+            max_delta_phase=8,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+            all_offdiagonal_entries=False,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=2,
+            ignore_phase_when_mag_is_less_than=0.01,
+            all_diagonal_entries=True,
+            max_delta=0.01,
+            max_delta_phase=8,
+            custom_entries=[["1", "2", 0.03, 4]],
+        )
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"
@@ -527,19 +559,29 @@ class TestClass:
         self.aedtapp.save_project()
         filename = "export_to_hfss_test"
         filename2 = "export_to_hfss_test2"
+        filename3 = "export_to_hfss_test_non_unite"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         file_fullname2 = os.path.join(self.local_scratch.path, filename2)
+        file_fullname3 = os.path.join(self.local_scratch.path, filename3)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_hfss(output_file=file_fullname)
         if not is_linux:
             # TODO: EDB failing in Linux
             assert setup.export_to_hfss(output_file=file_fullname2, keep_net_name=True)
 
+            assert setup.export_to_hfss(output_file=file_fullname3, keep_net_name=True, unite=False)
+
     def test_19e_export_to_q3d(self):
         filename = "export_to_q3d_test"
         file_fullname = os.path.join(self.local_scratch.path, filename)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_q3d(file_fullname)
+
+    def test_19f_export_to_q3d(self):
+        filename = "export_to_q3d_non_unite_test"
+        file_fullname = os.path.join(self.local_scratch.path, filename)
+        setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+        assert setup.export_to_q3d(file_fullname, keep_net_name=True, unite=False)
 
     def test_21_variables(self):
         assert isinstance(self.aedtapp.available_variations.nominal_w_values_dict, dict)

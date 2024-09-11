@@ -6,7 +6,7 @@ This code creates primitive shapes from the JSON file:
 
 .. code:: python
 
-    from pyaedt import Icepak
+    from ansys.aedt.core import Icepak
     ipk = Icepak()
     ipk.modeler.import_primitives_from_file("primitive_example.json")
     ipk.release_desktop()

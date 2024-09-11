@@ -24,20 +24,21 @@
 
 import os
 import sys
+import tempfile
 
 from _unittest.conftest import config
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.generic.plot import _parse_aedtplt
+from ansys.aedt.core.generic.plot import _parse_streamline
+from ansys.aedt.core.generic.settings import settings
+import pandas as pd
 import pytest
-
-from pyaedt import Circuit
-from pyaedt import Icepak
-from pyaedt import Maxwell2d
-from pyaedt import Q2d
-from pyaedt import Q3d
-from pyaedt.generic.general_methods import is_linux
-from pyaedt.generic.pdf import AnsysReport
-from pyaedt.generic.plot import _parse_aedtplt
-from pyaedt.generic.plot import _parse_streamline
-from pyaedt.generic.settings import settings
 
 if config["desktopVersion"] > "2022.2":
     test_field_name = "Potter_Horn_231"
@@ -45,6 +46,7 @@ if config["desktopVersion"] > "2022.2":
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
     m2d_file = "m2d_field_lines_test_231"
+    ipk_markers_proj = "ipk_markers"
 
 else:
     test_field_name = "Potter_Horn"
@@ -193,6 +195,18 @@ class TestClass:
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
+        local_path = os.path.dirname(os.path.realpath(__file__))
+        template = os.path.join(local_path, "example_models", test_subfolder, "template.rpt")
+        if not config["NonGraphical"]:
+            assert new_report4.apply_report_template(template)
+            template2 = os.path.join(local_path, "example_models", test_subfolder, "template_invented.rpt")
+            assert not new_report4.apply_report_template(template2)
+            template3 = os.path.join(local_path, "example_models", test_subfolder, "template.csv")
+            assert not new_report4.apply_report_template(template3)
+            assert not new_report4.apply_report_template(template3, property_type="Dummy")
+
+        assert field_test.post.create_report_from_configuration(template)
+
     def test_09_manipulate_report_C(self, field_test):
         variations = field_test.available_variations.nominal_w_values_dict
         variations["Theta"] = ["All"]
@@ -208,7 +222,7 @@ class TestClass:
             context="3D",
         )
         assert data.plot(snapshot_path=os.path.join(self.local_scratch.path, "reportC.jpg"), show=False)
-        assert data.plot_3d(snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D.jpg"), show=False)
+        assert data.plot_3d(show=False)
         assert field_test.post.create_3d_plot(
             data,
             snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D_2.jpg"),
@@ -756,7 +770,7 @@ class TestClass:
         assert field_test.cleanup_solution(vars, entire_solution=False)
         assert field_test.cleanup_solution(vars, entire_solution=True)
 
-    def test_76_ipk_get_scalar_field_value(self, icepak_post):
+    def test_100_ipk_get_scalar_field_value(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -829,3 +843,45 @@ class TestClass:
             object_type="point",
             adjacent_side=False,
         )
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
+    def test_101_markers(self, add_app):
+        ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
+
+        f1 = ipk.modeler["Region"].top_face_z
+        p1 = ipk.post.create_fieldplot_surface(f1.id, "Uz")
+        f1_c = f1.center
+        f1_p1 = [f1_c[0] + 0.01, f1_c[1] + 0.01, f1_c[2]]
+        f1_p2 = [f1_c[0] - 0.01, f1_c[1] - 0.01, f1_c[2]]
+        d1 = p1.get_points_value([f1_c, f1_p1, f1_p2])
+        assert isinstance(d1, pd.DataFrame)
+        assert d1.index.name == "Name"
+        assert all(d1.index.values == ["m1", "m2", "m3"])
+        assert len(d1["X [mm]"].values) == 3
+        assert len(d1.columns) == 4
+
+        f2 = ipk.modeler["Box1"].top_face_z
+        p2 = ipk.post.create_fieldplot_surface(f2.id, "Pressure")
+        d2 = p2.get_points_value({"Center Point": f2.center})
+        assert isinstance(d2, pd.DataFrame)
+        assert d2.index.name == "Name"
+        assert all(d2.index.values == ["Center Point"])
+        assert len(d2.columns) == 4
+        assert len(d2["X [mm]"].values) == 1
+
+        f3 = ipk.modeler["Box1"].bottom_face_y
+        p3 = ipk.post.create_fieldplot_surface(f3.id, "Temperature")
+        d3 = p3.get_points_value(f3.center)
+        assert isinstance(d3, pd.DataFrame)
+        assert d3.index.name == "Name"
+        assert all(d3.index.values == ["m1"])
+        assert len(d3.columns) == 4
+        assert len(d3["X [mm]"].values) == 1
+
+        f4 = ipk.modeler["Box1"].top_face_x
+        p4 = ipk.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
+        temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
+        temp_file.close()
+        d4 = p4.get_points_value(f4.center, filename=temp_file.name)
+        assert isinstance(d4, pd.DataFrame)
+        os.path.exists(temp_file.name)

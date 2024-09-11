@@ -13,7 +13,7 @@ https://www.ee.iitb.ac.in/~fclab/FEM/FEM1.pdf
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 
 import tempfile
-from pyaedt import Maxwell2d
+from ansys.aedt.core import Maxwell2d
 
 temp_dir = tempfile.TemporaryDirectory(suffix=".ansys")
 
@@ -28,7 +28,7 @@ non_graphical = False
 project_name = "Transformer_leakage_inductance"
 design_name = "1 Magnetostatic"
 solver = "MagnetostaticXY"
-desktop_version = "2024.1"
+desktop_version = "2024.2"
 
 m2d = Maxwell2d(version=desktop_version,
                 new_desktop=False,

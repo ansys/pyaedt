@@ -11,16 +11,16 @@ HFSS antenna and run a simulation.
 # directory.
 
 import os
-import pyaedt
+import ansys.aedt.core
 
-project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
+project_full_name = ansys.aedt.core.downloads.download_sbr(ansys.aedt.core.generate_unique_project_name(project_name="sbr_freq"))
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###############################################################################
 # Set non-graphical mode
@@ -36,7 +36,7 @@ non_graphical = False
 # Define two designs, one source and one target, with each design connected to
 # a different object.
 
-target = pyaedt.Hfss(
+target = ansys.aedt.core.Hfss(
     project=project_full_name,
     design="Cassegrain_",
     solution_type="SBR+",
@@ -45,7 +45,7 @@ target = pyaedt.Hfss(
     non_graphical=non_graphical
 )
 
-source = pyaedt.Hfss(project=target.project_name,
+source = ansys.aedt.core.Hfss(project=target.project_name,
                      design="feeder",
                      version=aedt_version,
                      )

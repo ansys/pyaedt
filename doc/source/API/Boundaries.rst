@@ -5,7 +5,7 @@ boundaries in the 3D tools. These objects are returned by
 app methods and can be used to edit or delete a boundary condition.
 
 
-.. currentmodule:: pyaedt.modules.Boundary
+.. currentmodule:: ansys.aedt.core.modules.boundary
 
 .. autosummary::
    :toctree: _autosummary
@@ -36,7 +36,7 @@ When native components object are created, the ``NativeComponentObject`` class i
 
 .. code:: python
 
-    from pyaedt import Icepak
+    from ansys.aedt.core import Icepak
     ipk = Icepak()
     component_name = "RadioBoard1"
     pcb_comp = self.aedtapp.create_ipk_3dcomponent_pcb(

@@ -12,7 +12,7 @@ They are accessible through the ``modeler`` module and ``modeler.objects`` prope
 .. code:: python
 
 
-    from pyaedt import TwinBuilder
+    from ansys.aedt.core import TwinBuilder
     app = TwinBuilder(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -34,7 +34,7 @@ modeler, including all primitives methods and properties:
 * ``ModelerEmit`` for EMIT
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: ansys.aedt.core.modeler
 
 .. autosummary::
    :toctree: _autosummary
@@ -51,7 +51,7 @@ Schematic in Circuit
 The following classes define the object properties for Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesNexxim
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_nexxim
 
 .. autosummary::
    :toctree: _autosummary
@@ -61,7 +61,7 @@ They contain all getters and setters to simplify object manipulation.
 
 .. code:: python
 
-    from pyaedt import Circuit
+    from ansys.aedt.core import Circuit
     app = Circuit(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -78,19 +78,19 @@ Objects in Circuit
 The following classes define the object properties for Circuit.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits
+.. currentmodule:: ansys.aedt.core.modeler.circuits
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   object3dcircuit.CircuitComponent
-   object3dcircuit.CircuitPins
-   object3dcircuit.Wire
+   object_3d_circuit.CircuitComponent
+   object_3d_circuit.CircuitPins
+   object_3d_circuit.Wire
 
 .. code:: python
 
-    from pyaedt import Circuit
+    from ansys.aedt.core import Circuit
     app = Circuit(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -115,7 +115,7 @@ Schematic in EMIT
 The following classes define the object properties for EMIT components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesEmit
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_emit
 
 .. autosummary::
    :toctree: _autosummary
@@ -129,7 +129,7 @@ Schematic in Twin Builder
 The following classes define the object properties for Twin Builder components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesTwinBuilder
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_twin_builder
 
 .. autosummary::
    :toctree: _autosummary
@@ -139,7 +139,7 @@ They contain all getters and setters to simplify object manipulation.
 
 .. code:: python
 
-    from pyaedt import TwinBuilder
+    from ansys.aedt.core import TwinBuilder
     app = TwinBuilder(specified_version="2023.1",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
@@ -165,7 +165,7 @@ Schematic in Maxwell Circuit
 The following classes define the object properties for Maxwell Circuit components.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits.PrimitivesMaxwellCircuit
+.. currentmodule:: ansys.aedt.core.modeler.circuits.primitives_maxwell_circuit
 
 .. autosummary::
    :toctree: _autosummary

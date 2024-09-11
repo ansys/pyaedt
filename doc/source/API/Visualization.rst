@@ -10,7 +10,7 @@ packages like `numpy <https://numpy.org/doc/stable/>`_,
 and `pyvista <https://docs.pyvista.org/>`_.
 
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -26,7 +26,7 @@ ModelPlotter is a class that benefits of `pyvista <https://docs.pyvista.org/>`_ 
 models and 3D plots.
 
 
-.. currentmodule:: pyaedt.generic.plot
+.. currentmodule:: ansys.aedt.core.generic.plot
 
 .. autosummary::
    :toctree: _autosummary
@@ -42,7 +42,7 @@ touchstone post-processing.
 The following methods allows to read and check touchstone files.
 
 
-.. currentmodule:: pyaedt.generic.touchstone_parser
+.. currentmodule:: ansys.aedt.core.generic.touchstone_parser
 
 .. autosummary::
    :toctree: _autosummary
@@ -57,7 +57,7 @@ The class TouchstoneData  is based on `scikit-rf <https://scikit-rf.readthedocs.
 Additional methods are added to provide easy access to touchstone curves.
 
 
-.. currentmodule:: pyaedt.generic.touchstone_parser
+.. currentmodule:: ansys.aedt.core.generic.touchstone_parser
 
 .. autosummary::
    :toctree: _autosummary
@@ -82,7 +82,7 @@ Here an example on how to use TouchstoneData class.
 
 .. code:: python
 
-    from pyaedt.generic.touchstone_parser import TouchstoneData
+    from ansys.aedt.core.generic.touchstone_parser import TouchstoneData
 
     ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
     assert ts1.get_mixed_mode_touchstone_data()
@@ -104,7 +104,7 @@ There are two complementary classes: ``FfdSolutionDataExporter`` and ``FfdSoluti
 - FfdSolutionData: Focuses on the direct access and processing of farfield solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
 
 
-.. currentmodule:: pyaedt.generic.farfield_visualization
+.. currentmodule:: ansys.aedt.core.generic.farfield_visualization
 
 .. autosummary::
    :toctree: _autosummary
@@ -117,9 +117,9 @@ This code shows how you can get the farfield data and perform some post-processi
 
 .. code:: python
 
-    import pyaedt
-    from pyaedt.generic.farfield_visualization import FfdSolutionDataExporter
-    app = pyaedt.Hfss()
+    import ansys.aedt.core
+    from ansys.aedt.core.generic.farfield_visualization import FfdSolutionDataExporter
+    app = ansys.aedt.core.Hfss()
     ffdata = app.get_antenna_data(frequencies=None,
                                   setup="Setup1 : Sweep",
                                   sphere="3D",
@@ -137,7 +137,7 @@ If you exported the farfield data previously,you can directly get the farfield d
 
 .. code:: python
 
-    from pyaedt.generic.farfield_visualization import FfdSolutionData
+    from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
     input_file = r"path_to_ffd\pyaedt_antenna_metadata.json"
     ffdata = FfdSolutionData(input_file)
     incident_power = ffdata.incident_power
@@ -165,7 +165,7 @@ Heterogeneous data message
 Heterogeneous data message (HDM) is the file exported from SBR+ solver containing rays information.
 The following methods allows to read and plot rays information.
 
-.. currentmodule:: pyaedt.sbrplus
+.. currentmodule:: ansys.aedt.core.sbrplus
 
 .. autosummary::
    :toctree: _autosummary

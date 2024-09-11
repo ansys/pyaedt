@@ -11,14 +11,14 @@ plot field line traces, relevant for an electrostatic analysis.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import pyaedt
+import ansys.aedt.core
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 #################################################################################
 # Initialize Maxwell 2D
@@ -29,7 +29,7 @@ aedt_version = "2024.1"
 setup_name = 'MySetupAuto'
 solver = 'Electrostatic'
 design_name = 'Design1'
-project_name = pyaedt.generate_unique_project_name()
+project_name = ansys.aedt.core.generate_unique_project_name()
 non_graphical = False
 
 #################################################################################
@@ -37,7 +37,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~
 # Set local temporary folder to export the .xlsx file to.
 
-file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.xlsx")
+file_name_xlsx = ansys.aedt.core.downloads.download_file("field_line_traces", "my_copper.xlsx")
 
 #################################################################################
 # Initialize dictionaries
@@ -66,7 +66,7 @@ geom_params_rectangle = {
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(project=project_name,
+M2D = ansys.aedt.core.Maxwell2d(project=project_name,
                        version=aedt_version,
                        design=design_name,
                        solution_type=solver,

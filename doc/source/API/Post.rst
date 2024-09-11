@@ -4,7 +4,7 @@ This section lists modules for creating and editing
 plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
-   Some capabilities of the ``AdvancedPostProcessing`` module require Python 3 and
+   Some capabilities of the ``advanced_post_processing`` module require Python 3 and
    installations of the `numpy <https://numpy.org/doc/stable/>`_,
    `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_ 
    packages.
@@ -14,18 +14,18 @@ plots in AEDT. They are accessible through the ``post`` property.
    in graphical mode.
 
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   AdvancedPostProcessing.PostProcessor
+   advanced_post_processing.PostProcessor
 
 
 .. code:: python
 
-    from pyaedt import Hfss
+    from ansys.aedt.core import Hfss
     app = Hfss(specified_version="2023.1",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
@@ -57,7 +57,7 @@ PyAEDT has classes for manipulating any report property.
    in graphical mode.
 
 
-.. currentmodule:: pyaedt.modules
+.. currentmodule:: ansys.aedt.core.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -77,7 +77,7 @@ PyAEDT has classes for manipulating any report property.
 Icepak monitors
 ~~~~~~~~~~~~~~~
 
-.. currentmodule:: pyaedt.modules.monitor_icepak
+.. currentmodule:: ansys.aedt.core.modules.monitor_icepak
 
 .. autosummary::
    :toctree: _autosummary

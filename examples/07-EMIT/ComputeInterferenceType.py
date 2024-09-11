@@ -10,11 +10,11 @@ worst-case interference.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 import sys
-from pyaedt.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
-from pyaedt import Emit
-import pyaedt
+from ansys.aedt.core.emit_core.emit_constants import InterfererType, ResultType, TxRxMode
+from ansys.aedt.core import Emit
+import ansys.aedt.core
 import os
-import pyaedt.generic.constants as consts
+import ansys.aedt.core.generic.constants as consts
 import subprocess
 
 ##########################################################
@@ -22,7 +22,7 @@ import subprocess
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -60,9 +60,9 @@ if aedt_version <= "2023.1":
 
 non_graphical = False
 new_thread = True
-desktop = pyaedt.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=new_thread)
+desktop = ansys.aedt.core.launch_desktop(aedt_version, non_graphical=non_graphical, new_desktop=new_thread)
 
-path_to_desktop_project = pyaedt.downloads.download_file("emit", "interference.aedtz")
+path_to_desktop_project = ansys.aedt.core.downloads.download_file("emit", "interference.aedtz")
 emitapp = Emit(non_graphical=False, new_desktop=False, project=path_to_desktop_project)
 
 # Get all the radios in the project
@@ -93,7 +93,7 @@ all_colors, power_matrix = rev.interference_type_classification(domain, use_filt
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # After the simulation completes, you can close AEDT or release it using the
-# :func:`pyaedt.Desktop.force_close_desktop` method.
+# :func:`ansys.aedt.core.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
 emitapp.save_project()

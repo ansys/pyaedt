@@ -14,15 +14,15 @@ import numpy as np
 import os
 import tempfile
 
-from pyaedt import Maxwell3d
-from pyaedt.generic.general_methods import write_csv
+from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.general_methods import write_csv
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ###########################################################################################
 # Create temporary directory

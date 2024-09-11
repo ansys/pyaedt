@@ -11,16 +11,15 @@ PyVista without opening the HFSS user interface. This examples runs only on Wind
 # Perform required imports.
 
 import os
-import pyaedt
-from pyaedt.generic.farfield_visualization import FfdSolutionData
-import matplotlib.pyplot as plt
+import ansys.aedt.core
+from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
 
 ##########################################################
 # Set AEDT version
 # ~~~~~~~~~~~~~~~~
 # Set AEDT version.
 
-aedt_version = "2024.1"
+aedt_version = "2024.2"
 
 ##########################################################
 # Set non-graphical mode
@@ -34,14 +33,14 @@ non_graphical = False
 # Download 3D component
 # ~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component that is needed to run the example.
-example_path = pyaedt.downloads.download_3dcomponent()
+example_path = ansys.aedt.core.downloads.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch HFSS and save the project.
-project_name = pyaedt.generate_unique_project_name(project_name="array")
-hfss = pyaedt.Hfss(project=project_name,
+project_name = ansys.aedt.core.generate_unique_project_name(project_name="array")
+hfss = ansys.aedt.core.Hfss(project=project_name,
                    version=aedt_version,
                    design="Array_Simple",
                    non_graphical=non_graphical,
@@ -60,7 +59,7 @@ print("Project name " + project_name)
 # into the dictionary from the path that you specify. The following
 # code edits the dictionary to point to the location of the A3DCOMP file.
 
-dict_in = pyaedt.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
+dict_in = ansys.aedt.core.general_methods.read_json(os.path.join(example_path, "array_simple.json"))
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 array = hfss.add_3d_component_array_from_json(dict_in)
@@ -143,15 +142,10 @@ ffdata.plot_cut(quantity='RealizedGain', primary_sweep="phi", secondary_sweep_va
                 quantity_format="dB10")
 
 ##########################################################
-# Generate 3D polar plots in Matplotlib
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate 3D polar plots in Matplotlib. You can define
-# the Theta scan and Phi scan.
+# Generate 3D plots
+# ~~~~~~~~~~~~~~~~~
+# Generate 3D plots. You can define the Theta scan and Phi scan.
 
-ffdata.plot_3d(quantity='RealizedGain')
-
-##########################################################
-# Close all matplotlib figures
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-plt.close('all')
+# ffdata.plot_3d(quantity='RealizedGain',
+#                output_file=os.path.join(working_directory, "Image.jpg"),
+#                show=False)

@@ -5,7 +5,7 @@ Unit Test Configuration Module
 Description
 ===========
 
-This module contains the configuration and fixture for the pytest-based unit tests for pyaedt.
+This module contains the configuration and fixture for the pytest-based unit tests for PyAEDT.
 
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
@@ -26,7 +26,7 @@ import random
 import string
 import pytest
 
-from pyaedt.generic.settings import settings
+from ansys.aedt.core.generic.settings import settings
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -36,22 +36,23 @@ settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
+settings.wait_for_license = True
 
-from pyaedt.aedt_logger import pyaedt_logger
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import inside_desktop
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.general_methods import inside_desktop
 
-from pyaedt import Desktop
-from pyaedt import Edb
-from pyaedt import Hfss
-from pyaedt.generic.filesystem import Scratch
-from pyaedt.misc.misc import list_installed_ansysem
+from ansys.aedt.core import Desktop
+from ansys.aedt.core import Edb
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.generic.filesystem import Scratch
+from ansys.aedt.core.misc.misc import list_installed_ansysem
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2024.1"
+default_version = "2024.2"
 if "ANSYSEM_ROOT{}".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
     default_version = list_installed_ansysem()[0][12:].replace(".", "")
     default_version = "20{}.{}".format(default_version[:2], default_version[-1])

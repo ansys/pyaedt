@@ -51,8 +51,8 @@ Finally, this code shows how you can use the Advanced Field Calculator:
 
 .. code:: python
 
-    import pyaedt
-    hfss = pyaedt.Hfss()
+    import ansys.aedt.core
+    hfss = ansys.aedt.core.Hfss()
 
     # Specify the AEDT session to connect
     os.environ["PYAEDT_SCRIPT_PORT"] = str(hfss.desktop_class.port)
