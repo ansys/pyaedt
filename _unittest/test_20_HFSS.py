@@ -1708,4 +1708,4 @@ class TestClass:
         aedtapp = add_app(project_name="test_70")
         assert aedtapp.export_touchstone_on_completion()
         assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
-        pass
+        assert aedtapp.set_export_touchstone()

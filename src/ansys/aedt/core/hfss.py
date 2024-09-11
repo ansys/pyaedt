@@ -6792,3 +6792,129 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             output_dir = ""
         props = {"Export After Simulation": export, "Export Dir": output_dir}
         return self.change_design_settings(props)
+
+    @pyaedt_function_handler()
+    def set_export_touchstone(
+        self,
+        file_format="TouchStone1.0",
+        enforce_passivity=True,
+        enforce_causality=False,
+        use_common_ground=True,
+        show_gamma_comments=True,
+        renormalize=False,
+        impedance=50.0,
+        fitting_error=0.5,
+        maximum_poles=1000,
+        passivity_type="PassivityByPerturbation",
+        column_fitting_type="Matrix",
+        state_space_fitting="IterativeRational",
+        relative_error_tolerance=True,
+        ensure_accurate_fit=False,
+        touchstone_output="MA",
+        units="GHz",
+        precision=11,
+    ):
+        """Set or disable the automatic export of the touchstone file after completing frequency sweep.
+
+        Parameters
+        ----------
+        file_format : str, optional
+            Touchstone format. Available options are: ``"TouchStone1.0"``, and ``"TouchStone2.0"``.
+            The default is ``"TouchStone1.0"``.
+        enforce_passivity : bool, optional
+            Enforce passivity. The default is ``True``.
+        enforce_causality : bool, optional
+            Enforce causality. The default is ``False``.
+        use_common_ground : bool, optional
+            Use common ground. The default is ``True``.
+        show_gamma_comments : bool, optional
+            Show gamma comments. The default is ``True``.
+        renormalize : bool, optional
+            Renormalize. The default is ``False``.
+        impedance : float, optional
+            Impedance in ohms. The default is ``50.0``.
+        fitting_error : float, optional
+            Fitting error. The default is ``0.5``.
+        maximum_poles : int, optional
+            Maximum number of poles. The default is ``10000``.
+        passivity_type : str, optional
+            Passivity type. Available options are: ``"PassivityByPerturbation"``, ``"IteratedFittingOfPV"``,
+            ``"IteratedFittingOfPVLF"``, and ``"ConvexOptimization"``.
+        column_fitting_type : str, optional
+            Column fitting type. Available options are: ``"Matrix"``, `"Column"``, and `"Entry"``.
+        state_space_fitting : str, optional
+            State space fitting algorithm. Available options are: ``"IterativeRational"``, `"TWA"``, and `"FastFit"``.
+        relative_error_tolerance : bool, optional
+            Relative error tolerance. The default is ``True``.
+        ensure_accurate_fit : bool, optional
+            Ensure accurate impedance fit. The default is ``False``.
+        touchstone_output : str, optional
+            Touchstone output format. Available options are: ``"MA"`` for magnitude and phase in ``deg``,
+            ``"RI"`` for real and imaginary part, and ``"DB"`` for magnitude in ``dB`` and phase in ``deg``.
+        units : str, optional
+            Frequency units. The default is ``"GHz"``.
+        precision : int, optional
+            Touchstone precision. The default is ``11``.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_touchstone_on_completion()
+        >>> hfss.set_export_touchstone()
+
+        References
+        ----------
+        >>> oTool.SetExportTouchstoneOptions
+        """
+        preferences = "Hfss\\Preferences"
+        design_name = self.design_name
+
+        props = [
+            "NAME:SpiceData",
+            "SpiceType:=",
+            file_format,
+            "EnforcePassivity:=",
+            enforce_passivity,
+            "EnforceCausality:=",
+            enforce_causality,
+            "UseCommonGround:=",
+            use_common_ground,
+            "ShowGammaComments:=",
+            show_gamma_comments,
+            "Renormalize:=",
+            renormalize,
+            "RenormImpedance:=",
+            impedance,
+            "FittingError:=",
+            fitting_error,
+            "MaxPoles:=",
+            maximum_poles,
+            "PassivityType:=",
+            passivity_type,
+            "ColumnFittingType:=",
+            column_fitting_type,
+            "SSFittingType:=",
+            state_space_fitting,
+            "RelativeErrorToleranc:=",
+            relative_error_tolerance,
+            "EnsureAccurateZfit:=",
+            ensure_accurate_fit,
+            "TouchstoneFormat:=",
+            touchstone_output,
+            "TouchstoneUnits:=",
+            units,
+            "TouchStonePrecision:=",
+            precision,
+            "SubcircuitName:=",
+            "",
+        ]
+
+        self.onetwork_data_explorer.SetExportTouchstoneOptions(preferences, design_name, props)
+        return True
