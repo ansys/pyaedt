@@ -421,7 +421,7 @@ def _walk_through_structure(keyword, save_dict, design_name=None):
             _count += 1
             continue
         # end_key is found
-        if end_key == line:
+        if end_key == line and design_found:
             break
         # between begin_key and end_key
         if found:
