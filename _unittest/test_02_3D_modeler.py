@@ -248,7 +248,10 @@ class TestClass:
         o1 = self.aedtapp.modeler["box_to_split"]
         assert abs(o1.volume - 4000.0) / 4000.0 < small_number
         assert o1.top_edge_x.chamfer(1)
-        assert abs(o1.volume - 3990.0) / 3990.0 < small_number  # Volume decreased
+        if config["desktopVersion"] == "2022.2":
+            assert abs(o1.volume - 3995.0) / 3995.0 < small_number  # Volume decreased
+        else:
+            assert abs(o1.volume - 3990.0) / 3990.0 < small_number  # Volume decreased
 
     def test_19_clone(self):
         self.restore_model()
@@ -521,7 +524,10 @@ class TestClass:
         assert cs
         assert cs.name == "obj_cs"
         assert cs.entity_id == box.id
-        assert cs.ref_cs == "Global"
+        if config["desktopVersion"] == "2022.2":
+            assert not cs.ref_cs
+        else:
+            assert cs.ref_cs == "Global"
         cs.props["MoveToEnd"] = False
         assert not cs.props["MoveToEnd"]
         cs.props["yAxis"]["xDirection"] = 1
@@ -535,7 +541,10 @@ class TestClass:
         assert cs
         assert cs.name == "obj_cs"
         assert cs.entity_id == box.id
-        assert cs.ref_cs == "Global"
+        if config["desktopVersion"] == "2022.2":
+            assert not cs.ref_cs
+        else:
+            assert cs.ref_cs == "Global"
         cs.props["MoveToEnd"] = False
         assert not cs.props["MoveToEnd"]
         cs.props["xAxis"]["xDirection"] = 1
