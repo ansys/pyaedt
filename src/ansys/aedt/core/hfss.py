@@ -230,6 +230,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
+        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
@@ -6760,3 +6761,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         except Exception:  # pragma: no cover
             self.logger.error("Failed to export antenna metadata.")
             return False
+
+    @pyaedt_function_handler()
+    def export_touchstone_on_completion(self, export=True, output_dir=None):
+        """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
+
+        Parameters
+        ----------
+        export : bool, optional
+            Whether to enable the export.
+            The default is ``True``.
+        output_dir : str, optional
+            Path to the directory of exported file. The default is the project path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
+        """
+        if export:
+            self.logger.info("Enabling Export On Completion")
+        else:
+            self.logger.info("Disabling Export On Completion")
+        if not output_dir:
+            output_dir = ""
+        props = {"Export After Simulation": export, "Export Dir": output_dir}
+        return self.change_design_settings(props)

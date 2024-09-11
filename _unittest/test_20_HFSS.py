@@ -1703,3 +1703,9 @@ class TestClass:
         assert new_plane_wave.name in aedtapp.excitations
 
         aedtapp.close_project(save=False)
+
+    def test_70_export_on_completion(self, add_app, local_scratch):
+        aedtapp = add_app(project_name="test_70")
+        assert aedtapp.export_touchstone_on_completion()
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
+        pass
