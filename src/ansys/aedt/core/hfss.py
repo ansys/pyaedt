@@ -6856,11 +6856,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         precision : int, optional
             Touchstone precision. The default is ``11``.
 
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oTool.SetExportTouchstoneOptions
 
         Examples
         --------
@@ -6869,9 +6872,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> hfss.export_touchstone_on_completion()
         >>> hfss.set_export_touchstone()
 
-        References
-        ----------
-        >>> oTool.SetExportTouchstoneOptions
+
         """
         preferences = "Hfss\\Preferences"
         design_name = self.design_name
