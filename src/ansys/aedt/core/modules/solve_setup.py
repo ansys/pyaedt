@@ -32,7 +32,6 @@ It is based on templates to allow for easy creation and modification of setup pr
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os.path
 from random import randrange
 import re
@@ -181,18 +180,18 @@ class CommonSetup(PropsManager, object):
                             app.pop("MoveBackForward", None)
                             app.pop("MoveBackwards", None)
                             for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
+                                if isinstance(app[el], dict):
                                     self.sweeps.append(SweepHFSS(self, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
-                                if isinstance(app[el], (OrderedDict, dict)):
+                                if isinstance(app[el], dict):
                                     self.sweeps.append(SweepMatrix(self, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
-                    self.props = SetupProps(self, OrderedDict(setup_data))
+                    self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
 
     @property
     def is_solved(self):
@@ -880,7 +879,7 @@ class Setup(CommonSetup):
             else:
                 raise ValueError("Setup does not exist in current design.")
             # parameters
-            meshlinks["Params"] = OrderedDict({})
+            meshlinks["Params"] = {}
             if parameters is None:
                 parameters = self.p_app.available_variations.nominal_w_values_dict
                 for el in parameters:
@@ -905,7 +904,7 @@ class Setup(CommonSetup):
 
     def _parse_link_parameters(self, map_variables_by_name, parameters):
         # parameters
-        params = OrderedDict({})
+        params = {}
         if map_variables_by_name:
             parameters = self.p_app.available_variations.nominal_w_values_dict
             for k, v in parameters.items():
@@ -923,7 +922,7 @@ class Setup(CommonSetup):
         return params
 
     def _parse_link_solution(self, project, design, solution):
-        prev_solution = OrderedDict({})
+        prev_solution = {}
 
         # project name
         if project != "This Project*":
@@ -1062,7 +1061,7 @@ class SetupCircuit(CommonSetup):
             setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
-            self.props = SetupProps(self, OrderedDict())
+            self.props = SetupProps(self, {})
             try:
                 setups_data = self.p_app.design_properties["SimSetups"]["SimSetup"]
                 if not isinstance(setups_data, list):
@@ -1073,7 +1072,7 @@ class SetupCircuit(CommonSetup):
                         setup_data.pop("Sweeps", None)
                         self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
         self.props["Name"] = self.name
 
     @property
@@ -1350,9 +1349,9 @@ class SetupCircuit(CommonSetup):
             else:
                 self.props["SweepDefinition"]["Data"] += " " + equation
             return self.update()
-        if isinstance(self.props["SweepDefinition"], (OrderedDict, dict)):
+        if isinstance(self.props["SweepDefinition"], dict):
             self.props["SweepDefinition"] = [self.props["SweepDefinition"]]
-        prop = OrderedDict({"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0})
+        prop = {"Variable": sweep_variable, "Data": equation, "OffsetF1": False, "Synchronize": 0}
         self.props["SweepDefinition"].append(prop)
         return self.update()
 
@@ -1758,12 +1757,12 @@ class Setup3DLayout(CommonSetup):
                     if "Data" in setup_data:  # 0 and 7 represent setup HFSSDrivenAuto
                         app = setup_data["Data"]
                         for el in app:
-                            if isinstance(app[el], (OrderedDict, dict)):
+                            if isinstance(app[el], dict):
                                 self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
-                    self.props = SetupProps(self, OrderedDict(setup_data))
+                    self.props = SetupProps(self, setup_data)
             except Exception:
-                self.props = SetupProps(self, OrderedDict())
+                self.props = SetupProps(self, {})
                 settings.logger.error("Unable to set props.")
 
     @property
@@ -2319,6 +2318,88 @@ class Setup3DLayout(CommonSetup):
                 settings.logger.error("File {} already exists. Configure file is not exported".format(file_path))
                 return False
         return self.props._export_properties_to_json(file_path, overwrite=overwrite)
+
+    @pyaedt_function_handler()
+    def use_matrix_convergence(
+        self,
+        entry_selection=0,
+        ignore_phase_when_mag_is_less_than=0.01,
+        all_diagonal_entries=True,
+        max_delta=0.02,
+        max_delta_phase=5,
+        all_offdiagonal_entries=True,
+        off_diagonal_mag=0.02,
+        off_diagonal_phase=5,
+        custom_entries=None,
+    ):
+        """Enable Matrix Convergence criteria.
+
+        Parameters
+        ----------
+        entry_selection : int
+            Entry Selection. ``0`` for All, ``1`` for Diagonal Entries, ``2`` for custom entries.
+        ignore_phase_when_mag_is_less_than : float
+            Value of magnitude when phase is ignored.
+        all_diagonal_entries : bool
+            Whether diagonal entries has to be included in convergence or not. Default is ``True``.
+        max_delta : float
+            Maximum Delta S.
+        max_delta_phase : float, str
+            Maximum delta phase in degree.
+        all_offdiagonal_entries : bool
+            Whether off-diagonal entries has to be included in convergence or not. Default is ``True``.
+        off_diagonal_mag : float
+            Maximum offdiagonal Delta S.
+        off_diagonal_phase : float, str
+            Maximum off-diagonal delta phase in degree.
+        custom_entries : list, optional
+            Custom entry mapping list.
+            Every item of the listshall be a list with 4 elements:
+            ``[port 1 name, port 2 name, max_delta_s, max_delta_angle]``.
+
+        Returns
+        -------
+        bool
+        """
+        legacy_update = self.auto_update
+        self.auto_update = False
+        self.props["UseConvergenceMatrix"] = True
+        self.props["AllEntries"] = True if entry_selection == 0 else False
+        self.props["AllDiagEntries"] = True if entry_selection == 1 and all_diagonal_entries else False
+        self.props["AllOffDiagEntries"] = True if entry_selection == 1 and all_offdiagonal_entries else False
+        self.props["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
+        aa = self._app.excitations
+        if entry_selection < 2:
+            val = []
+            if entry_selection == 0 or (entry_selection == 1 and all_diagonal_entries):
+                entry = {
+                    "Port1": aa[0],
+                    "Port2": aa[0],
+                    "MagLimit": str(max_delta),
+                    "PhaseLimit": self._app.value_with_units(max_delta_phase, "deg"),
+                }
+                val.append(SetupProps(self, entry))
+            if entry_selection == 1 and all_offdiagonal_entries and len(aa) > 1:
+                entry = {
+                    "Port1": aa[0],
+                    "Port2": aa[1],
+                    "MagLimit": str(off_diagonal_mag),
+                    "PhaseLimit": self._app.value_with_units(off_diagonal_phase, "deg"),
+                }
+                val.append(SetupProps(self, entry))
+            self.props["MatrixConvEntry"] = val
+        else:
+            self.props["MatrixConvEntry"] = []
+            for entry_custom in custom_entries:
+                entry = {
+                    "Port1": entry_custom[0],
+                    "Port2": entry_custom[1],
+                    "MagLimit": str(entry_custom[2]),
+                    "PhaseLimit": self._app.value_with_units(entry_custom[3], "deg"),
+                }
+                self.props["MatrixConvEntry"].append(SetupProps(self, entry))
+        self.auto_update = legacy_update
+        return self.update()
 
 
 class SetupHFSS(Setup, object):
@@ -2949,6 +3030,94 @@ class SetupHFSS(Setup, object):
         self.auto_update = True
         return self.update()
 
+    @pyaedt_function_handler()
+    def use_matrix_convergence(
+        self,
+        entry_selection=0,
+        ignore_phase_when_mag_is_less_than=0.01,
+        all_diagonal_entries=True,
+        max_delta=0.02,
+        max_delta_phase=5,
+        all_offdiagonal_entries=True,
+        off_diagonal_mag=0.02,
+        off_diagonal_phase=5,
+        custom_entries=None,
+    ):
+        """Enable Matrix Convergence criteria.
+
+        Parameters
+        ----------
+        entry_selection : int
+            Entry Selection. ``0`` for All, ``1`` for Diagonal Entries, ``2`` for custom entries.
+        ignore_phase_when_mag_is_less_than : float
+            Value of magnitude when phase is ignored.
+        all_diagonal_entries : bool
+            Whether diagonal entries has to be included in convergence or not. Default is ``True``.
+        max_delta : float
+            Maximum Delta S.
+        max_delta_phase : float, str
+            Maximum delta phase in degree.
+        all_offdiagonal_entries : bool
+            Whether off-diagonal entries has to be included in convergence or not. Default is ``True``.
+        off_diagonal_mag : float
+            Maximum offdiagonal Delta S.
+        off_diagonal_phase : float, str
+            Maximum off-diagonal delta phase in degree.
+        custom_entries : list, optional
+            Custom entry mapping list.
+            Every item of the lists hall be a list with 4 elements:
+            ``[port 1 name, port 2 name, max_delta_s, max_delta_angle]``.
+
+        Returns
+        -------
+        bool
+        """
+        legacy_update = self.auto_update
+        self.auto_update = False
+        conv_data = {}
+        if entry_selection == 0:
+            conv_data = {
+                "AllEntries": True,
+                "MagLimit": str(max_delta),
+                "PhaseLimit": self._app.value_with_units(max_delta_phase, "deg"),
+                "MagMinThreshold": ignore_phase_when_mag_is_less_than,
+            }
+        elif entry_selection == 1:
+            conv_data = {}
+            if all_diagonal_entries:
+                conv_data["AllDiagEntries"] = True
+                conv_data["DiagonalMag"] = str(max_delta)
+                conv_data["DiagonalPhase"] = self._app.value_with_units(max_delta_phase, "deg")
+                conv_data["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
+            if all_offdiagonal_entries and len(self._app.excitations) > 1:
+                conv_data["AllOffDiagEntries"] = True
+                conv_data["OffDiagonalMag"] = str(off_diagonal_mag)
+                conv_data["OffDiagonalPhase"] = self._app.value_with_units(off_diagonal_phase, "deg")
+                conv_data["MagMinThreshold"] = ignore_phase_when_mag_is_less_than
+        elif entry_selection == 2 and custom_entries:
+            if len(custom_entries) > 1:
+                conv_data = {"Entries": []}
+            else:
+                conv_data = {"Entries": {}}
+            for entry_custom in custom_entries:
+                entry = {
+                    "Port1": entry_custom[0],
+                    "Port2": entry_custom[1],
+                    "MagLimit": entry_custom[2],
+                    "PhaseLimit": self._app.value_with_units(entry_custom[3], "deg"),
+                }
+                if isinstance(conv_data["Entries"], list):
+                    conv_data["Entries"].append(SetupProps(self, {"Entry": entry}))
+                else:
+                    conv_data["Entries"] = SetupProps(self, {"Entry": entry})
+        if conv_data:
+            props = SetupProps(self, conv_data)
+            self.props["Matrix Convergence"] = props
+            self.props["UseMatrixConv"] = True
+            self.auto_update = legacy_update
+            return self.update()
+        return False
+
 
 class SetupHFSSAuto(Setup, object):
     """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
@@ -3352,7 +3521,7 @@ class SetupMaxwell(Setup, object):
             return False
         legacy_update = self.auto_update
         self.auto_update = False
-        props = OrderedDict()
+        props = {}
         props["RangeType"] = range_type
         props["RangeStart"] = "{}{}".format(start, units)
         if range_type == "LinearStep":

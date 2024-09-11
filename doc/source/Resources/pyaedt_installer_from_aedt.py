@@ -84,10 +84,16 @@ def run_pyinstaller_from_c_python(oDesktop):
         # enable in debug mode
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
-        f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
-        f.write(
-            'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
-                oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
+        if version <= "231":
+            f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+            f.write(
+                'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
+        else:
+            f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+            f.write(
+                'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
+                    oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
@@ -198,7 +204,7 @@ def install_pyaedt():
             # run_command(
             # '"{}" --default-timeout=1000 install git+https://github.com/ansys/pyaedt.git@main'.format(pip_exe))
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))
@@ -222,14 +228,14 @@ def install_pyaedt():
                 # Extract all contents to a directory. (You can specify a different extraction path if needed.)
                 zip_ref.extractall(unzipped_path)
             if args.version <= "231":
-                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.3"'.format(pip_exe,
+                run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[all]=="0.9.0"'.format(pip_exe,
                                                                                                                unzipped_path))
             else:
                 run_command('"{}" install --no-cache-dir --no-index --find-links={} pyaedt[installer]'.format(pip_exe,
                                                                                                               unzipped_path))
         else:
             if args.version <= "231":
-                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.3"'.format(pip_exe))
+                run_command('"{}" --default-timeout=1000 install pyaedt[all]=="0.9.0"'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install jupyterlab'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipython -U'.format(pip_exe))
                 run_command('"{}" --default-timeout=1000 install ipyvtklink'.format(pip_exe))

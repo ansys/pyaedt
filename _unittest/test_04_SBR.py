@@ -251,6 +251,28 @@ class TestClass:
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
+    def test_13_create_custom_array(self, aedtapp, local_scratch):
+        output_file1 = aedtapp.create_sbr_custom_array()
+        assert os.path.isfile(output_file1)
+
+        output_file2 = aedtapp.create_sbr_custom_array(
+            frequencies=[1.0, 2.0, 5.0],
+            element_number=4,
+            state_number=2,
+            position=[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 1.0, 1.0]],
+            x_axis=[[1.0, 0.0, 0.0]] * 4,
+            y_axis=[[0.0, 1.0, 0.0]] * 4,
+            weight=[
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.1, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 1.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+                [complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0), complex(1.0, 0.0)],
+            ],
+        )
+        assert os.path.isfile(output_file2)
+
     @pytest.mark.skipif(is_linux, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")

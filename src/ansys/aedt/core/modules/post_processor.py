@@ -32,7 +32,6 @@ This module provides all functionalities for creating and editing plots in the 3
 from __future__ import absolute_import  # noreorder
 
 import ast
-from collections import OrderedDict
 from collections import defaultdict
 import csv
 import os
@@ -1667,7 +1666,7 @@ class PostProcessorCommon(object):
         elif setup_sweep_name not in self._app.existing_analysis_sweeps:
             self.logger.error("Sweep not Available.")
             return False
-        families_input = OrderedDict({})
+        families_input = {}
         did = 3
         if domain == "Sweep" and not primary_sweep_variable:
             primary_sweep_variable = "Freq"
@@ -2473,7 +2472,7 @@ class PostProcessor(PostProcessorCommon, object):
             if isinstance(sim_data["SimSetup"], list):  # pragma: no cover
                 for solution in sim_data["SimSetup"]:
                     base_name = solution["Name"]
-                    if isinstance(solution["Solution"], (dict, OrderedDict)):
+                    if isinstance(solution["Solution"], dict):
                         sols = [solution["Solution"]]
                     else:
                         sols = solution["Solution"]
@@ -2538,7 +2537,7 @@ class PostProcessor(PostProcessorCommon, object):
             cs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if isinstance(cs[ds], (OrderedDict, dict)):
+                    if isinstance(cs[ds], dict):
                         name = cs[ds]["Attributes"]["Name"]
                         cs_id = cs[ds]["XYPlaneID"]
                         name2refid[cs_id] = name + ":XY"
@@ -2568,7 +2567,7 @@ class PostProcessor(PostProcessorCommon, object):
             setups_data = self._app.design_properties["FieldsReporter"]["FieldsPlotManagerID"]
             for setup in setups_data:
                 try:
-                    if isinstance(setups_data[setup], (OrderedDict, dict)) and "PlotDefinition" in setup:
+                    if isinstance(setups_data[setup], dict) and "PlotDefinition" in setup:
                         plot_name = setups_data[setup]["PlotName"]
                         plots[plot_name] = FieldPlot(self)
                         plots[plot_name].solution = self._get_base_name(setup)
@@ -3265,6 +3264,9 @@ class PostProcessor(PostProcessorCommon, object):
         self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False, scale_levels=None
     ):
         """Change Field Plot Scale.
+
+        .. deprecated:: 0.10.1
+           Use :class:`FieldPlot.folder_settings` methods instead.
 
         Parameters
         ----------

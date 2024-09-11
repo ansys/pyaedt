@@ -46,7 +46,6 @@ from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import Material
-from ansys.aedt.core.modules.material import OrderedDict
 from ansys.aedt.core.modules.material import SurfaceMaterial
 
 
@@ -722,7 +721,7 @@ class Materials(object):
 
         def find_datasets(d, out_list):
             for k, v in d.items():
-                if isinstance(v, (dict, OrderedDict)):
+                if isinstance(v, dict):
                     find_datasets(v, out_list)
                 else:
                     a = copy.deepcopy(v)
@@ -744,32 +743,24 @@ class Materials(object):
             output_dict[el] = copy.deepcopy(val._props)
         out_list = []
         find_datasets(output_dict, out_list)
-        datasets = OrderedDict()
+        datasets = {}
         for ds in out_list:
             if ds in list(self._app.project_datasets.keys()):
                 d = self._app.project_datasets[ds]
                 if d.z:
-                    datasets[ds] = OrderedDict(
-                        {
-                            "Coordinates": OrderedDict(
-                                {
-                                    "DimUnits": [d.xunit, d.yunit, d.zunit],
-                                    "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
-                                }
-                            )
+                    datasets[ds] = {
+                        "Coordinates": {
+                            "DimUnits": [d.xunit, d.yunit, d.zunit],
+                            "Points": [val for tup in zip(d.x, d.y, d.z) for val in tup],
                         }
-                    )
+                    }
                 else:
-                    datasets[ds] = OrderedDict(
-                        {
-                            "Coordinates": OrderedDict(
-                                {
-                                    "DimUnits": [d.xunit, d.yunit],
-                                    "Points": [val for tup in zip(d.x, d.y) for val in tup],
-                                }
-                            )
+                    datasets[ds] = {
+                        "Coordinates": {
+                            "DimUnits": [d.xunit, d.yunit],
+                            "Points": [val for tup in zip(d.x, d.y) for val in tup],
                         }
-                    )
+                    }
         json_dict = {}
         json_dict["materials"] = output_dict
         if datasets:

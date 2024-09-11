@@ -28,7 +28,6 @@ This module contains these Primitives classes: `Polyline` and `Primitives`.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import copy
 import math
 import os
@@ -37,6 +36,7 @@ import string
 import time
 import warnings
 
+import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -863,7 +863,7 @@ class GeometryModeler(Modeler):
             return 0
 
         for el in dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"]["GeometryPart"]:
-            if isinstance(el, (OrderedDict, dict)):
+            if isinstance(el, dict):
                 attribs = el["Attributes"]
                 operations = el.get("Operations", None)
             else:
@@ -876,7 +876,7 @@ class GeometryModeler(Modeler):
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
-                if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
+                if operations and isinstance(operations.get("Operation", None), dict):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
                     except Exception as e:  # pragma: no cover
@@ -1165,7 +1165,7 @@ class GeometryModeler(Modeler):
             cs = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["CoordinateSystems"]
             for ds in cs:
                 try:
-                    if isinstance(cs[ds], (OrderedDict, dict)):
+                    if isinstance(cs[ds], dict):
                         if cs[ds]["OperationType"] == "CreateRelativeCoordinateSystem":
                             props = cs[ds]["RelativeCSParameters"]
                             name = cs[ds]["Attributes"]["Name"]
@@ -1187,9 +1187,9 @@ class GeometryModeler(Modeler):
                             geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
                                 "GeometryPart"
                             ]
-                            if isinstance(geometry_part, (OrderedDict, dict)):
+                            if isinstance(geometry_part, dict):
                                 op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                if isinstance(op, (OrderedDict, dict)):
+                                if isinstance(op, dict):
                                     if op["ID"] == op_id:
                                         props = op["FaceCSParameters"]
                                         coord.append(FaceCoordinateSystem(self, props, name))
@@ -1202,7 +1202,7 @@ class GeometryModeler(Modeler):
                             elif isinstance(geometry_part, list):
                                 for gp in geometry_part:
                                     op = gp["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             coord.append(FaceCoordinateSystem(self, props, name))
@@ -1235,9 +1235,9 @@ class GeometryModeler(Modeler):
                                 geometry_part = dp["ModelSetup"]["GeometryCore"]["GeometryOperations"]["ToplevelParts"][
                                     "GeometryPart"
                                 ]
-                                if isinstance(geometry_part, (OrderedDict, dict)):
+                                if isinstance(geometry_part, dict):
                                     op = geometry_part["Operations"]["FaceCSHolderOperation"]
-                                    if isinstance(op, (OrderedDict, dict)):
+                                    if isinstance(op, dict):
                                         if op["ID"] == op_id:
                                             props = op["FaceCSParameters"]
                                             coord.append(FaceCoordinateSystem(self, props, name))
@@ -1253,7 +1253,7 @@ class GeometryModeler(Modeler):
                                             op = gp["Operations"]["FaceCSHolderOperation"]
                                         except KeyError:
                                             continue
-                                        if isinstance(op, (OrderedDict, dict)):
+                                        if isinstance(op, dict):
                                             if op["ID"] == op_id:
                                                 props = op["FaceCSParameters"]
                                                 coord.append(FaceCoordinateSystem(self, props, name))
@@ -1291,7 +1291,7 @@ class GeometryModeler(Modeler):
                 entity_list = dp["ModelSetup"]["GeometryCore"][key1][key2]
                 if entity_list:
                     geom_entry = copy.deepcopy(entity_list[key3])
-                    if isinstance(geom_entry, (dict, OrderedDict)):
+                    if isinstance(geom_entry, dict):
                         geom_entry = [geom_entry]
                     for data in geom_entry:
                         props = {}
@@ -6569,7 +6569,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.CreateObjectFromFaces
         """
         edge_ids = self.convert_to_selections(assignment, True)
-        objs = OrderedDict()
+        objs = {}
         for edge_id in edge_ids:
             obj_name = self._find_object_from_edge_id(edge_id)
             if obj_name not in objs:
@@ -6619,7 +6619,7 @@ class GeometryModeler(Modeler):
         >>> oEditor.CreateObjectFromFaces
         """
         face_ids = self.convert_to_selections(assignment, True)
-        objs = OrderedDict()
+        objs = {}
         for face_id in face_ids:
             obj_name = self._find_object_from_face_id(face_id)
             if obj_name not in objs:
@@ -8412,8 +8412,8 @@ class GeometryModeler(Modeler):
                 list_objs.append(obj.name)
         return list_objs
 
-    @pyaedt_function_handler()
-    def _check_material(self, matname, defaultmatname, threshold=100000):
+    @pyaedt_function_handler(matname="material", defaultmatname="default_material")
+    def _check_material(self, material, default_material, threshold=100000):
         """Check for a material name.
 
         If a material name exists, it is assigned. Otherwise, the material
@@ -8421,10 +8421,10 @@ class GeometryModeler(Modeler):
 
         Parameters
         ----------
-        matname : str
+        material : str
             Name of the material.
-        defaultmatname : str
-            Name of the default material to assign if ``metname`` does not exist.
+        default_material : str
+            Name of the default material to assign if ``material`` does not exist.
         threshold : float
             Threshold conductivity in S/m to distinguish dielectric from conductor.
             The default value is ``100000``.
@@ -8438,23 +8438,42 @@ class GeometryModeler(Modeler):
 
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
-        if isinstance(matname, Material):
+        if isinstance(material, Material):
             if self._app._design_type == "HFSS":
-                return matname.name, matname.is_dielectric(threshold)
+                return material.name, material.is_dielectric(threshold)
             else:
-                return matname.name, True
-        if matname:
-            if self._app.materials[matname]:
-                if self._app._design_type == "HFSS":
-                    return self._app.materials[matname].name, self._app.materials[matname].is_dielectric(threshold)
+                return material.name, True
+        if material:
+            if "[" in material:
+                array = material.split("[")
+                if array[0] in self._app.variable_manager.design_variables.keys():
+                    if "(" not in array[1]:
+                        index = int(array[1].strip("]"))
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[index]
+                    else:
+                        condition = array[1].strip("]")
+                        condition_name = ansys.aedt.core.generate_unique_name("condition")
+                        self._app.variable_manager.set_variable(
+                            name=condition_name, expression=condition, is_post_processing=True
+                        )
+                        condition_value = int(
+                            self._app.variable_manager.post_processing_variables[condition_name].numeric_value
+                        )
+                        material = self._app.variable_manager.design_variables[array[0]].numeric_value[condition_value]
+                        self._app.variable_manager.delete_variable(name=condition_name)
                 else:
-                    return self._app.materials[matname].name, True
+                    self.logger.debug(f"Design variable {array[0]} does not exist.")
+            if self._app.materials[material]:
+                if self._app._design_type == "HFSS":
+                    return self._app.materials[material].name, self._app.materials[material].is_dielectric(threshold)
+                else:
+                    return self._app.materials[material].name, True
             else:
-                self.logger.warning("Material %s doesn not exists. Assigning default material", matname)
+                self.logger.warning("Material %s does not exists. Assigning default material", material)
         if self._app._design_type == "HFSS":
-            return defaultmatname, self._app.materials.material_keys[defaultmatname].is_dielectric(threshold)
+            return default_material, self._app.materials.material_keys[default_material].is_dielectric(threshold)
         else:
-            return defaultmatname, True
+            return default_material, True
 
     @pyaedt_function_handler()
     def _refresh_solids(self):
@@ -8596,12 +8615,12 @@ class GeometryModeler(Modeler):
                     self.logger.debug("'" + str(k) + "' is not a valid property of the primitive.")
         return o
 
-    @pyaedt_function_handler()
-    def _default_object_attributes(self, name=None, matname=None, flags=""):
-        if not matname:
-            matname = self.defaultmaterial
+    @pyaedt_function_handler(matname="material")
+    def _default_object_attributes(self, name=None, material=None, flags=""):
+        if not material:
+            material = self.defaultmaterial
 
-        material, is_dielectric = self._check_material(matname, self.defaultmaterial)
+        material, is_dielectric = self._check_material(material, self.defaultmaterial)
 
         solve_inside = True if is_dielectric else False
 
@@ -8788,7 +8807,7 @@ class GeometryModeler(Modeler):
                     "NativeComponentDefinition"
                 ]
                 if native_comp_entry:
-                    if isinstance(native_comp_entry, (dict, OrderedDict)):
+                    if isinstance(native_comp_entry, dict):
                         native_comp_entry = [native_comp_entry]
                     for data in native_comp_entry:
                         native_comp_name = data["SubmodelDefinitionName"]

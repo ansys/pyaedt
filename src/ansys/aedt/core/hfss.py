@@ -27,7 +27,6 @@
 from __future__ import absolute_import  # noreorder
 
 import ast
-from collections import OrderedDict
 import math
 import os
 import tempfile
@@ -354,12 +353,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             if self.design_properties["RadField"].get("FarFieldSetups"):
                 for val in self.design_properties["RadField"]["FarFieldSetups"]:
                     p = self.design_properties["RadField"]["FarFieldSetups"][val]
-                    if isinstance(p, (dict, OrderedDict)) and p.get("Type") == "Infinite Sphere":
+                    if isinstance(p, dict) and p.get("Type") == "Infinite Sphere":
                         fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
             if self.design_properties["RadField"].get("NearFieldSetups"):
                 for val in self.design_properties["RadField"]["NearFieldSetups"]:
                     p = self.design_properties["RadField"]["NearFieldSetups"][val]
-                    if isinstance(p, (dict, OrderedDict)):
+                    if isinstance(p, dict):
                         if p["Type"] == "Near Rectangle":
                             fields.append(NearFieldSetup(self, val, p, "NearFieldRectangle"))
                         elif p["Type"] == "Near Line":
@@ -405,7 +404,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         assignment = self.modeler.convert_to_selections(assignment, True)
         start = [str(i) + self.modeler.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.model_units for i in int_line_stop]
-        props = OrderedDict({})
+        props = {}
         if isinstance(assignment[0], str):
             props["Objects"] = assignment
         else:
@@ -413,34 +412,27 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         props["DoDeembed"] = deemb
         props["RenormalizeAllTerminals"] = renorm
         if renorm:
-            props["Modes"] = OrderedDict(
-                {
-                    "Mode1": OrderedDict(
-                        {
-                            "ModeNum": 1,
-                            "UseIntLine": True,
-                            "IntLine": OrderedDict({"Start": start, "End": stop}),
-                            "AlignmentGroup": 0,
-                            "CharImp": "Zpi",
-                            "RenormImp": str(impedance) + "ohm",
-                        }
-                    )
+            props["Modes"] = {
+                "Mode1": {
+                    "ModeNum": 1,
+                    "UseIntLine": True,
+                    "IntLine": {"Start": start, "End": stop},
+                    "AlignmentGroup": 0,
+                    "CharImp": "Zpi",
+                    "RenormImp": str(impedance) + "ohm",
                 }
-            )
+            }
         else:
-            props["Modes"] = OrderedDict(
-                {
-                    "Mode1": OrderedDict(
-                        {
-                            "ModeNum": 1,
-                            "UseIntLine": True,
-                            "IntLine": OrderedDict({"Start": start, "End": stop}),
-                            "AlignmentGroup": 0,
-                            "CharImp": "Zpi",
-                        }
-                    )
+            props["Modes"] = {
+                "Mode1": {
+                    "ModeNum": 1,
+                    "UseIntLine": True,
+                    "IntLine": {"Start": start, "End": stop},
+                    "AlignmentGroup": 0,
+                    "CharImp": "Zpi",
                 }
-            )
+            }
+
         props["ShowReporterFilter"] = False
         props["ReporterFilter"] = [True]
         props["Impedance"] = str(impedance) + "ohm"
@@ -459,7 +451,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         terminals_rename=True,
     ):
         ref_conductors = self.modeler.convert_to_selections(int_line_stop, True)
-        props = OrderedDict()
+        props = {}
         props["Faces"] = int(assignment)
         props["IsWavePort"] = iswaveport
         props["ReferenceConductors"] = ref_conductors
@@ -470,7 +462,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             new_ports = list(self.oboundary.GetExcitationsOfType("Terminal"))
             terminals = [i for i in new_ports if i not in ports]
             for count, terminal in enumerate(terminals, start=1):
-                props_terminal = OrderedDict()
+                props_terminal = {}
                 props_terminal["TerminalResistance"] = "50ohm"
                 props_terminal["ParentBndID"] = boundary.name
                 terminal_name = terminal
@@ -555,7 +547,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @pyaedt_function_handler(edgelist="assignment")
     def _create_circuit_port(self, assignment, impedance, name, renorm, deemb, renorm_impedance=""):
         edgelist = self.modeler.convert_to_selections(assignment, True)
-        props = OrderedDict(
+        props = dict(
             {
                 "Edges": edgelist,
                 "Impedance": str(impedance) + "ohm",
@@ -598,7 +590,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             useintline = False
 
-        props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
+        props = {}  # Used to create the argument to pass to native api: oModule.AssignWavePort()
         if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [assignment]
         elif isinstance(assignment, list):  # Assume [x, y, z] point is passed in objectname
@@ -614,23 +606,23 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             props["DoDeembed"] = False
         props["RenormalizeAllTerminals"] = renorm
-        modes = OrderedDict({})
+        modes = {}
         i = 1
         report_filter = []
         while i <= nummodes:
             if i == 1:
-                mode = OrderedDict({})
+                mode = {}
                 mode["ModeNum"] = i
                 mode["UseIntLine"] = useintline
                 if useintline:
-                    mode["IntLine"] = OrderedDict({"Start": start, "End": stop})
+                    mode["IntLine"] = dict({"Start": start, "End": stop})
                 mode["AlignmentGroup"] = 0
                 mode["CharImp"] = "Zpi"
                 if renorm:
                     mode["RenormImp"] = str(impedance) + "ohm"
                 modes["Mode1"] = mode
             else:
-                mode = OrderedDict({})
+                mode = {}
 
                 mode["ModeNum"] = i
                 mode["UseIntLine"] = False
@@ -1162,120 +1154,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 )
         return False
 
-    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
-    def create_sbr_linked_antenna(
-        self,
-        assignment,
-        target_cs="Global",
-        setup=None,
-        field_type="nearfield",
-        use_composite_ports=False,
-        use_global_current=True,
-        current_conformance=False,
-        thin_sources=True,
-        power_fraction="0.95",
-        visible=True,
-        name=None,
-    ):
-        """Create a linked antennas.
-
-        Parameters
-        ----------
-        assignment : ansys.aedt.core.Hfss
-            Source object.
-        target_cs : str, optional
-            Target coordinate system. The default is ``"Global"``.
-        setup : optional
-            Name of the setup. The default is ``None``, in which
-            case a name is automatically assigned.
-        field_type : str, optional
-            Field type. The options are ``"nearfield"`` and ``"farfield"``.
-            The default is ``"nearfield"``.
-        use_composite_ports : bool, optional
-            Whether to use composite ports. The default is ``False``.
-        use_global_current : bool, optional
-            Whether to use the global current. The default is ``True``.
-        current_conformance : bool, optional
-            Whether to enable current conformance. The default is ``False``.
-        thin_sources : bool, optional
-             Whether to enable thin sources. The default is ``True``.
-        power_fraction : str, optional
-             The default is ``"0.95"``.
-        visible : bool, optional.
-            Whether to make source objects in the target design visible. The default is ``True``.
-        name : str, optional
-            Name of the source.
-            The default is ``None`` in which case a name is automatically assigned.
-
-        References
-        ----------
-
-        >>> oEditor.InsertNativeComponent
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> target_project = "my/path/to/targetProject.aedt"
-        >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
-
-        """
-        if self.solution_type != "SBR+":
-            self.logger.error("Native components only apply to the SBR+ solution.")
-            return False
-
-        if name is None:
-            uniquename = generate_unique_name(assignment.design_name)
-        else:
-            uniquename = generate_unique_name(name)
-
-        if assignment.project_name == self.project_name:
-            project_name = "This Project*"
-        else:
-            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
-        design_name = assignment.design_name
-        if not setup:
-            setup = assignment.nominal_adaptive
-        params = OrderedDict({})
-        pars = assignment.available_variations.nominal_w_values_dict
-        for el in pars:
-            params[el] = pars[el]
-        native_props = OrderedDict(
-            {
-                "Type": "Linked Antenna",
-                "Unit": self.modeler.model_units,
-                "Is Parametric Array": False,
-                "Project": project_name,
-                "Product": "HFSS",
-                "Design": design_name,
-                "Soln": setup,
-                "Params": params,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-                "FieldType": field_type,
-                "UseCompositePort": use_composite_ports,
-                "SourceBlockageStructure": OrderedDict({"NonModelObject": []}),
-            }
-        )
-        if field_type == "nearfield":
-            native_props["UseGlobalCurrentSrcOption"] = use_global_current
-            if current_conformance:
-                native_props["Current Source Conformance"] = "Enable"
-            else:
-                native_props["Current Source Conformance"] = "Disable"
-            native_props["Thin Sources"] = thin_sources
-            native_props["Power Fraction"] = power_fraction
-        if visible:
-            native_props["VisualizationObjects"] = assignment.modeler.solid_names
-        return self._create_native_component(
-            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
-        )
-
     @pyaedt_function_handler()
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
@@ -1287,9 +1165,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not model_units:
             model_units = self.modeler.model_units
 
-        native_props = OrderedDict(
-            {"NativeComponentDefinitionProvider": OrderedDict({"Type": antenna_type, "Unit": model_units})}
-        )
+        native_props = dict({"NativeComponentDefinitionProvider": dict({"Type": antenna_type, "Unit": model_units})})
         if isinstance(target_cs, CoordinateSystem):
             target_cs = target_cs.name
         native_props["TargetCS"] = target_cs
@@ -1345,7 +1221,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         )
 
     class SBRAntennaDefaults:
-        _conical = OrderedDict(
+        _conical = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1355,7 +1231,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Flare Half Angle": "20deg",
             }
         )
-        _cross = OrderedDict(
+        _cross = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1368,7 +1244,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Mode": 0,
             }
         )
-        _horizontal = OrderedDict(
+        _horizontal = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1382,7 +1258,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Use Default Height": True,
             }
         )
-        _parametricbeam = OrderedDict(
+        _parametricbeam = dict(
             {
                 "Is Parametric Array": False,
                 "Size": "0.1meter",
@@ -1393,7 +1269,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Horizontal BeamWidth": "60deg",
             }
         )
-        _slot = OrderedDict(
+        _slot = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1402,7 +1278,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Slot Length": "499.654096666667mm",
             }
         )
-        _horn = OrderedDict(
+        _horn = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1414,7 +1290,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Height Flare Half Angle": "35deg",
             }
         )
-        _dipole = OrderedDict(
+        _dipole = dict(
             {
                 "Is Parametric Array": False,
                 "Size": "1mm",
@@ -1422,7 +1298,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Representation": "Far Field",
             }
         )
-        _smallloop = OrderedDict(
+        _smallloop = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1437,7 +1313,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Flare Half Angle": "20deg",
             }
         )
-        _wiredipole = OrderedDict(
+        _wiredipole = dict(
             {
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
@@ -1645,7 +1521,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
-        par_dicts = OrderedDict(
+        par_dicts = dict(
             {
                 "Size": antenna_size,
                 "MatchedPortImpedance": antenna_impedance,
@@ -1657,6 +1533,252 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             name = generate_unique_name(os.path.basename(far_field_data).split(".")[0])
 
         return self._create_native_component("File Based Antenna", target_cs, units, par_dicts, name)
+
+    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
+    def create_sbr_linked_antenna(
+        self,
+        assignment,
+        target_cs="Global",
+        setup=None,
+        field_type="nearfield",
+        use_composite_ports=False,
+        use_global_current=True,
+        current_conformance=False,
+        thin_sources=True,
+        power_fraction="0.95",
+        visible=True,
+        name=None,
+    ):
+        """Create a linked antennas.
+
+        Parameters
+        ----------
+        assignment : ansys.aedt.core.Hfss
+            Source object.
+        target_cs : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
+        field_type : str, optional
+            Field type. The options are ``"nearfield"`` and ``"farfield"``.
+            The default is ``"nearfield"``.
+        use_composite_ports : bool, optional
+            Whether to use composite ports. The default is ``False``.
+        use_global_current : bool, optional
+            Whether to use the global current. The default is ``True``.
+        current_conformance : bool, optional
+            Whether to enable current conformance. The default is ``False``.
+        thin_sources : bool, optional
+             Whether to enable thin sources. The default is ``True``.
+        power_fraction : str, optional
+             The default is ``"0.95"``.
+        visible : bool, optional.
+            Whether to make source objects in the target design visible. The default is ``True``.
+        name : str, optional
+            Name of the source.
+            The default is ``None`` in which case a name is automatically assigned.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> target_project = "my/path/to/targetProject.aedt"
+        >>> source_project = "my/path/to/sourceProject.aedt"
+        >>> target = Hfss(project=target_project, solution_type="SBR+",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> source = Hfss(project=source_project, design="feeder",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
+
+        """
+        if self.solution_type != "SBR+":
+            self.logger.error("Native components only apply to the SBR+ solution.")
+            return False
+
+        if name is None:
+            uniquename = generate_unique_name(assignment.design_name)
+        else:
+            uniquename = generate_unique_name(name)
+
+        if assignment.project_name == self.project_name:
+            project_name = "This Project*"
+        else:
+            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
+        design_name = assignment.design_name
+        if not setup:
+            setup = assignment.nominal_adaptive
+        params = {}
+        pars = assignment.available_variations.nominal_w_values_dict
+        for el in pars:
+            params[el] = pars[el]
+        native_props = dict(
+            {
+                "Type": "Linked Antenna",
+                "Unit": self.modeler.model_units,
+                "Is Parametric Array": False,
+                "Project": project_name,
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": setup,
+                "Params": params,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+                "FieldType": field_type,
+                "UseCompositePort": use_composite_ports,
+                "SourceBlockageStructure": dict({"NonModelObject": []}),
+            }
+        )
+        if field_type == "nearfield":
+            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            if current_conformance:
+                native_props["Current Source Conformance"] = "Enable"
+            else:
+                native_props["Current Source Conformance"] = "Disable"
+            native_props["Thin Sources"] = thin_sources
+            native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = assignment.modeler.solid_names
+        return self._create_native_component(
+            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
+        )
+
+    @pyaedt_function_handler()
+    def create_sbr_custom_array(
+        self,
+        output_file=None,
+        frequencies=None,
+        element_number=1,
+        state_number=1,
+        position=None,
+        x_axis=None,
+        y_axis=None,
+        weight=None,
+    ):
+        """Create custom array file with sarr format.
+
+        Parameters
+        ----------
+        output_file : str, optional
+            Full path and name for the file.
+            The default is ``None``, in which case the file is exported to the working directory.
+        frequencies : list, optional
+            List of frequencies in GHz. The default is ``[1.0]``.
+        element_number : int, optional
+            Number of elements in the array. The default is ``1``.
+        state_number : int, optional
+            Number of states. The default is ``1``.
+        position : list of list
+            List of the ``[x, y, z]`` coordinates for each element. The default is ``[1, 0, 0]``.
+        x_axis : list of list
+            List of X, Y, Z components of X-axis unit vector.
+        y_axis : list of list
+            List of X, Y, Z components of Y-axis unit vector. The default is ``[0, 1, 0]``.
+        weight : list of list
+            Weight of each element. The default is ``None`` in which case all elements have uniform weight.
+            The second dimension contains the weights for each element, organized as follows:
+            The first ``frequencies`` entries correspond to the weights for that element at each
+            of the ``frequencies``, for the first state.
+            If there are multiple states, the next ``frequencies`` entries represent the weights for the second state,
+            and so on.
+            For example, for 3 frequencies ``(f1, f2, f3)``, 2 elements ``(e1, e2)``, and 2 states ``(s1, s2)``,
+            the weight would be represented as: ``[[w_f1_e1_s1, w_f1_e2_s1], [w_f2_e1_s1, w_f2_e2_s1],
+            [w_f3_e1_s1, w_f3_e2_s1], [w_f1_e1_s2, w_f1_e2_s2], [w_f2_e1_s2, w_f2_e2_s2], [w_f3_e1_s2, w_f3_e2_s2]]``.
+            ```
+
+        Returns
+        -------
+        str
+            File name when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_sbr_custom_array()
+        >>> hfss.release_desktop()
+        """
+        if output_file is None:
+            output_file = os.path.join(self.working_directory, "custom_array.sarr")
+
+        if frequencies is None:
+            frequencies = [1.0]
+
+        if position is None:
+            position = [[0.0, 0.0, 0.0]] * element_number
+
+        if x_axis is None:
+            x_axis = [[1.0, 0.0, 0.0]] * element_number
+
+        if y_axis is None:
+            y_axis = [[0.0, 1.0, 0.0]] * element_number
+
+        try:
+            with open(output_file, "w") as sarr_file:
+                sarr_file.write("# Array Element List (.sarr) file\n")
+                sarr_file.write("# Blank lines and lines beginning with pound sign ('#') are ignored\n")
+
+                # Write whether weight exists
+                has_weight = weight is not None
+                sarr_file.write("\n")
+                sarr_file.write("# has_weights flags whether array file includes element weight data.\n")
+                sarr_file.write("# If not, then array file only specifies element positions and orientations.\n")
+                sarr_file.write(f"has_weights {'true' if has_weight else 'false'}\n")
+
+                # Write frequency domain
+                nf = len(frequencies)
+                if len(frequencies) == 1 or all(
+                    abs(frequencies[i + 1] - frequencies[i] - (frequencies[1] - frequencies[0])) < 1e-9
+                    for i in range(len(frequencies) - 1)
+                ):
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq <start_ghz> <stop_ghz> # nstep = nfreq - 1\n")
+                    sarr_file.write(f"freq {frequencies[0]} {frequencies[-1]} {nf - 1}\n")
+                else:
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq_list\n")
+                    sarr_file.write(f"freq_list {nf}\n")
+                    for freq in frequencies:
+                        sarr_file.write(f"{freq}\n")
+
+                # Handle states
+                ns = state_number
+                nfns = nf * ns
+                if has_weight:
+                    sarr_file.write("\n")
+                    sarr_file.write("# num_states\n")
+                    sarr_file.write(f"num_states {ns}\n")
+                    # Flatten weights
+                    weight_reshaped = [[weight[i][j] for i in range(nfns)] for j in range(element_number)]
+
+                # Number of elements
+                sarr_file.write("\n")
+                sarr_file.write("# num_elements\n")
+                sarr_file.write(f"num_elements {element_number}\n")
+
+                # Element data block
+                sarr_file.write("\n")
+                sarr_file.write("# Element List Data Block\n")
+                for elem in range(element_number):
+                    sarr_file.write(f"\n# Element {elem + 1}\n")
+                    sarr_file.write(f"{position[elem][0]:13.7e} {position[elem][1]:13.7e} {position[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{x_axis[elem][0]:13.7e} {x_axis[elem][1]:13.7e} {x_axis[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{y_axis[elem][0]:13.7e} {y_axis[elem][1]:13.7e} {y_axis[elem][2]:13.7e}\n")
+
+                    if has_weight:
+                        for ifs in range(nfns):
+                            weight0 = weight_reshaped[elem][ifs]
+                            sarr_file.write(f"{weight0.real:13.7e} {weight0.imag:13.7e}\n")
+        except Exception as e:  # pragma: no cover
+            self.logger.error(f"Error: {e}")
+            return False
+
+        return output_file
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
@@ -1681,9 +1803,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             self.logger.error("This boundary only applies to a SBR+ solution.")
             return False
         id_ = 0
-        props = OrderedDict({})
+        props = {}
         for el, val in txrx_settings.items():
-            props["Tx/Rx List " + str(id_)] = OrderedDict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
+            props["Tx/Rx List " + str(id_)] = dict({"Tx Antenna": el, "Rx Antennas": txrx_settings[el]})
             id_ += 1
         return self._create_boundary("SBRTxRxSettings", props, "SBRTxRxSettings")
 
@@ -2009,7 +2131,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oModule.AssignCurrent
         """
 
-        props = OrderedDict({"Objects": [assignment], "Direction": OrderedDict({"Start": point1, "End": point2})})
+        props = dict({"Objects": [assignment], "Direction": dict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
 
     @pyaedt_function_handler(
@@ -2071,7 +2193,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> oModule.AssignFloquetPort
         """
         face_id = self.modeler.convert_to_selections(assignment, True)
-        props = OrderedDict({})
+        props = {}
         if isinstance(face_id[0], int):
             props["Faces"] = face_id
         else:
@@ -2085,9 +2207,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             props["DoDeembed"] = False
             props["DeembedDist"] = "0mm"
         props["RenormalizeAllTerminals"] = renormalize
-        props["Modes"] = OrderedDict({})
+        props["Modes"] = {}
         for i in range(1, 1 + modes):
-            props["Modes"]["Mode{}".format(i)] = OrderedDict({})
+            props["Modes"]["Mode{}".format(i)] = {}
             props["Modes"]["Mode{}".format(i)]["ModeNum"] = i
             props["Modes"]["Mode{}".format(i)]["UseIntLine"] = False
             props["Modes"]["Mode{}".format(i)]["CharImp"] = "Zpi"
@@ -2101,11 +2223,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             lattice_origin = output[0]
             lattice_a_end = output[1]
             lattice_b_end = output[2]
-        props["LatticeAVector"] = OrderedDict({})
+        props["LatticeAVector"] = {}
         props["LatticeAVector"]["Coordinate System"] = lattice_cs
         props["LatticeAVector"]["Start"] = lattice_origin
         props["LatticeAVector"]["End"] = lattice_a_end
-        props["LatticeBVector"] = OrderedDict({})
+        props["LatticeBVector"] = {}
         props["LatticeBVector"]["Coordinate System"] = lattice_cs
         props["LatticeBVector"]["Start"] = lattice_origin
         props["LatticeBVector"]["End"] = lattice_b_end
@@ -2164,7 +2286,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> oModule.AssignLatticePair
         """
-        props = OrderedDict({})
+        props = {}
         face_id = self.modeler.convert_to_selections(assignment, True)
         props["Faces"] = face_id
         props["ReverseV"] = reverse_v
@@ -2278,7 +2400,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> oModule.AssignSecondary
         """
-        props = OrderedDict({})
+        props = {}
         face_id = self.modeler.convert_to_selections(assignment, True)
         if isinstance(face_id[0], str):
             props["Objects"] = face_id
@@ -2286,7 +2408,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             props["Faces"] = face_id
 
-        props["CoordSysVector"] = OrderedDict({})
+        props["CoordSysVector"] = {}
         props["CoordSysVector"]["Coordinate System"] = coordinate_system
         props["CoordSysVector"]["Origin"] = u_start
         props["CoordSysVector"]["UPos"] = u_end
@@ -2337,7 +2459,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
         >>> oModule.AssignPrimary
         """
-        props = OrderedDict({})
+        props = {}
         face_id = self.modeler.convert_to_selections(assignment, True)
         if isinstance(face_id[0], str):
             props["Objects"] = face_id
@@ -2345,7 +2467,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         else:
             props["Faces"] = face_id
         props["ReverseV"] = reverse_v
-        props["CoordSysVector"] = OrderedDict({})
+        props["CoordSysVector"] = {}
         props["CoordSysVector"]["Coordinate System"] = coordinate_system
         props["CoordSysVector"]["Origin"] = u_start
         props["CoordSysVector"]["UPos"] = u_end
@@ -2718,9 +2840,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             start = [str(i) + self.modeler.model_units for i in point0]
             stop = [str(i) + self.modeler.model_units for i in point1]
 
-            props = OrderedDict()
+            props = {}
             props["Objects"] = [sheet_name]
-            props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
+            props["CurrentLine"] = dict({"Start": start, "End": stop})
             props["RLC Type"] = rlc_type
             if resistance:
                 props["UseResist"] = True
@@ -2814,7 +2936,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 source_name = generate_unique_name("Imped")
             elif source_name in self.modeler.get_boundaries_name():
                 source_name = generate_unique_name(source_name)
-            props = OrderedDict(
+            props = dict(
                 {
                     "Objects": [sheet_name],
                     "Resistance": str(resistance),
@@ -3213,9 +3335,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 name = generate_unique_name(name)
             start = [str(i) + self.modeler.model_units for i in point0]
             stop = [str(i) + self.modeler.model_units for i in point1]
-            props = OrderedDict()
+            props = {}
             props["Objects"] = [assignment]
-            props["CurrentLine"] = OrderedDict({"Start": start, "End": stop})
+            props["CurrentLine"] = dict({"Start": start, "End": stop})
             props["RLC Type"] = rlc_type
             if resistance:
                 props["UseResist"] = True
@@ -3280,13 +3402,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
             objects = self.modeler.convert_to_selections(assignment, True)
 
-            props = OrderedDict(
+            props = dict(
                 {
                     "Faces": objects,
                 }
             )
             if isinstance(objects[0], str):
-                props = OrderedDict(
+                props = dict(
                     {
                         "Objects": objects,
                     }
@@ -3372,13 +3494,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
             objects = self.modeler.convert_to_selections(assignment, True)
 
-            props = OrderedDict(
+            props = dict(
                 {
                     "Faces": objects,
                 }
             )
             if isinstance(objects[0], str):
-                props = OrderedDict(
+                props = dict(
                     {
                         "Objects": objects,
                     }
@@ -4895,7 +5017,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not name:
             name = generate_unique_name("Infinite")
 
-        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -4987,7 +5109,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not name:
             name = generate_unique_name("Sphere")
 
-        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -5064,7 +5186,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not name:
             name = generate_unique_name("Box")
 
-        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -5133,7 +5255,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not name:
             name = generate_unique_name("Rectangle")
 
-        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -5188,7 +5310,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if not name:
             name = generate_unique_name("Line")
 
-        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -5303,7 +5425,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if self.solution_type not in ["Transient Network", "Terminal"]:  # pragma: no cover
             raise AttributeError("Differential pairs can be defined only in Terminal and Transient solution types.")
 
-        props = OrderedDict()
+        props = {}
         props["PosBoundary"] = assignment
         props["NegBoundary"] = reference
         if not common_mode:
@@ -5766,7 +5888,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
             assignment = self.modeler.convert_to_selections(assignment, True)
 
-            props = OrderedDict({"Name": name, "Faces": assignment, "IsPerfectE": is_perfect_e})
+            props = dict({"Name": name, "Faces": assignment, "IsPerfectE": is_perfect_e})
             return self._create_boundary(name, props, "Symmetry")
         except Exception:
             return False

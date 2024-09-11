@@ -498,7 +498,6 @@ class TestClass:
         assert o.object_type == "Solid"
         assert o.is3d is True
         assert not self.aedtapp.modeler.create_cone(axis, [1, 1], 20, 10, 5, name="MyCone", material="Copper")
-        assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, 5, name="MyCone", material="Copper")
         assert not self.aedtapp.modeler.create_cone(axis, udp, -20, 20, 5, name="MyCone", material="Copper")
         assert not self.aedtapp.modeler.create_cone(axis, udp, 20, -20, 5, name="MyCone", material="Copper")
         assert not self.aedtapp.modeler.create_cone(axis, udp, 20, 20, -5, name="MyCone", material="Copper")

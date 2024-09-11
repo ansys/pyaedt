@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from abc import abstractmethod
-from collections import OrderedDict
 import os.path
 import warnings
 
@@ -1095,7 +1094,7 @@ class IcepakMesh(object):
         try:
             if settings.aedt_version > "2023.2":
                 for ds in dp["MeshRegion"]["MeshSetup"]:
-                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], dict):
                         if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "OpT":
                             meshops.append(
                                 MeshOperation(
@@ -1109,7 +1108,7 @@ class IcepakMesh(object):
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshOperations"]:
                     if isinstance(
                         dp["MeshRegion"]["MeshSetup"]["MeshOperations"][ds],
-                        (OrderedDict, dict),
+                        dict,
                     ):
                         meshops.append(
                             MeshOperation(
@@ -1137,7 +1136,7 @@ class IcepakMesh(object):
         try:
             if settings.aedt_version > "2023.2":
                 for ds in dp["MeshRegion"]["MeshSetup"]:
-                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], (OrderedDict, dict)):
+                    if isinstance(dp["MeshRegion"]["MeshSetup"][ds], dict):
                         if dp["MeshRegion"]["MeshSetup"][ds]["DType"] == "RegionT":
                             dict_prop = dp["MeshRegion"]["MeshSetup"][ds]
                             if ds == "Global":
@@ -1151,7 +1150,7 @@ class IcepakMesh(object):
                             meshops.append(meshop)
             else:  # pragma: no cover
                 for ds in dp["MeshRegion"]["MeshSetup"]["MeshRegions"]:
-                    if isinstance(dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)):
+                    if isinstance(dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], dict):
                         dict_prop = dp["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                         if ds == "Global":
                             meshop = GlobalMeshRegion(self._app)
@@ -1204,7 +1203,7 @@ class IcepakMesh(object):
                 name = generate_unique_name(name, "L_" + str(level))
             else:
                 name = generate_unique_name("Icepak", "L_" + str(level))
-            props = OrderedDict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
+            props = dict({"Enable": True, "Level": str(level), "Objects": level_order[level]})
             mop = MeshOperation(self, name, props, "Icepak")
             mop.create()
             self.meshoperations.append(mop)
@@ -1239,7 +1238,7 @@ class IcepakMesh(object):
             name = generate_unique_name("MeshFile")
         else:
             name = generate_unique_name("MeshFile")
-        props = OrderedDict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
+        props = dict({"Enable": True, "MaxLevel": str(0), "MinLevel": str(0), "Objects": objs})
         props["Local Mesh Parameters Enabled"] = False
         props["Mesh Reuse Enabled"] = True
         props["Mesh Reuse File"] = file_name
@@ -1653,7 +1652,7 @@ class IcepakMesh(object):
                     break
         else:
             name = generate_unique_name("MeshLevel")
-        props = OrderedDict(
+        props = dict(
             {
                 "Enable": True,
                 "Level": mesh_level,
@@ -1701,9 +1700,7 @@ class IcepakMesh(object):
             name = generate_unique_name("MeshReuse")
         if not isinstance(assignment, list):
             assignment = [assignment]
-        props = OrderedDict(
-            {"Enable": True, "Mesh Reuse Enabled": True, "Mesh Reuse File": mesh_file, "Objects": assignment}
-        )
+        props = dict({"Enable": True, "Mesh Reuse Enabled": True, "Mesh Reuse File": mesh_file, "Objects": assignment})
         mop = MeshOperation(self, name, props, "Icepak")
         mop.create()
         self.meshoperations.append(mop)

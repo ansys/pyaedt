@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
+
 import copy
 import os
 import re
@@ -356,11 +356,11 @@ class CommonReport(object):
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self._post = app
-        self.props = OrderedDict()
+        self.props = {}
         self.props["report_category"] = report_category
         self.setup = setup_name
         self.props["report_type"] = "Rectangular Plot"
-        self.props["context"] = OrderedDict()
+        self.props["context"] = {}
         self.props["context"]["domain"] = "Sweep"
         self.props["context"]["primary_sweep"] = "Freq"
         self.props["context"]["primary_sweep_range"] = ["All"]

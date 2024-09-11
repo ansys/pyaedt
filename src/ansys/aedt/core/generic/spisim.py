@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 # coding=utf-8
-from collections import OrderedDict
 import os
 from pathlib import Path
 import re
@@ -533,7 +532,7 @@ class SpiSimRawRead(object):
         else:  # pragma: no cover
             raise RuntimeError("Unrecognized encoding")
         settings.logger.info(f"Reading the file with encoding: '{self.encoding}' ")
-        self.raw_params = OrderedDict(Filename=raw_filename)
+        self.raw_params = {"Filename": raw_filename}
         self.backannotations = []
         header = []
         binary_start = 6
