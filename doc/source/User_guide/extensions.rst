@@ -24,24 +24,28 @@ They are small automated workflow with a simple UI.
    .. grid-item-card:: Import Nastran
             :link: pyaedt_extensions_doc/project/import_nastran
             :link-type: doc
+            :margin: 2 2 0 0
 
             Import a Nastran or STL file in any 3D modeler application.
 
    .. grid-item-card:: Configure Layout
             :link: pyaedt_extensions_doc/project/configure_edb
             :link-type: doc
+            :margin: 2 2 0 0
 
             Configure layout for PCB & package analysis.
 
    .. grid-item-card:: Advanced Fields Calculator
             :link: pyaedt_extensions_doc/project/advanced_fields_calculator
             :link-type: doc
+            :margin: 2 2 0 0
 
             Lear how to use the Advanced Fields Calculator.
 
    .. grid-item-card:: Kernel converter
             :link: pyaedt_extensions_doc/project/kernel_convert
             :link-type: doc
+            :margin: 2 2 0 0
 
             Lear how to convert projects from 2022R2 to newer versions.
 
@@ -59,12 +63,14 @@ HFSS 3D Layout extensions
    .. grid-item-card:: Parametrize Layout
             :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
             :link-type: doc
+            :margin: 2 2 0 0
 
             Learn how to parametrize a full aedb.
 
    .. grid-item-card:: Generate arbitrary wave ports
             :link: pyaedt_extensions_doc/project/arbitrary_wave_port
             :link-type: doc
+            :margin: 2 2 0 0
 
             Generate arbitrary wave ports in HFSS
 
