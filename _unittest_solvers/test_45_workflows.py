@@ -11,6 +11,7 @@ push_project = "push_excitation"
 export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
+ipc_file = "ipc2581_PCB-A 1.xml"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 
@@ -434,9 +435,28 @@ class TestClass:
         temp_dir.cleanup()
 
     def test_17_import_ecad(self, add_app, local_scratch):
-        from pyaedt.workflows.icepak.ecad_importer import main
+        from ansys.aedt.core.workflows.icepak.ecad_importer import main
         # ASK ERIC
-        app = add_app(os.path.join(local_scratch.path, "test_import_ecad.aedt"), application=pyaedt.Icepak, subfolder=test_subfolder)
-        local_scratch.copyfile(new_component, new_component_dest)
-        assert main({"is_test": True, "ipc_path":new_component_dest, "cad_format":, "csv_file":, "cs_name":, "color_networks",})
-        app.close_project()
+        app = add_app(os.path.join(local_scratch.path, "test_import_ecad.aedt"), application=ansys.aedt.core.Icepak,
+                      subfolder=test_subfolder)
+        cs_name = "NewCS"
+        app.modeler.create_coordinate_system(
+            origin=[3, 4, 5],
+            reference_cs="Global",
+            name=cs_name,
+            mode="zxz",
+            psi=4,
+            theta=2,
+            phi=3,
+        )
+        new_component_dest = os.path.join(local_scratch.path, ipc_file)
+        local_scratch.copyfile(os.path.join(solver_local_path, "example_models", "T45", ipc_file),
+                               os.path.join(local_scratch.path, ipc_file))
+        assert main(**{"ipc_path": new_component_dest,
+                       "cad_format": "IPC2581",
+                       "csv_file": os.path.join(solver_local_path,
+                                                "example_models",
+                                                "T45",
+                                                "DevicePropertiesReduced.csv"),
+                       "cs_name": cs_name, "color_networks": True, })
+        #app.close_project()
