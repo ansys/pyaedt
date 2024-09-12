@@ -202,21 +202,20 @@ class NativeComponentObject(BoundaryCommon, object):
     def __init__(self, app, component_type, component_name, props):
         self.auto_update = False
         self._app = app
-        self.name = "InsertNativeComponentData"
-        self.component_name = component_name
+        self._name = component_name
 
         self.props = BoundaryProps(
             self,
             {
                 "TargetCS": "Global",
-                "SubmodelDefinitionName": self.component_name,
+                "SubmodelDefinitionName": self.name,
                 "ComponentPriorityLists": {},
                 "NextUniqueID": 0,
                 "MoveBackwards": False,
                 "DatasetType": "ComponentDatasetType",
                 "DatasetDefinitions": {},
                 "BasicComponentInfo": {
-                    "ComponentName": self.component_name,
+                    "ComponentName": self.name,
                     "Company": "",
                     "Company URL": "",
                     "Model Number": "",
@@ -246,6 +245,29 @@ class NativeComponentObject(BoundaryCommon, object):
         self.auto_update = True
 
     @property
+    def name(self):
+        """Name of the object.
+
+        Returns
+        -------
+        str
+           Name of the object.
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, component_name):
+        if component_name not in self._app.native_component_names:
+            if component_name != self._name:
+                self.object_properties.props["Name"] = component_name
+                self._app.native_components.update({component_name: self})
+                del self._app.native_components[self._name]
+                self._name = component_name
+        else:  # pragma: no cover
+            self._app._logger.warning("Name %s already assigned in the design", component_name)
+
+    @property
     def targetcs(self):
         """Native Component Coordinate System.
 
@@ -263,6 +285,23 @@ class NativeComponentObject(BoundaryCommon, object):
     def targetcs(self, cs):
         self.props["TargetCS"] = cs
 
+    @property
+    def object_properties(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        child_object = self._app.get_oo_object(self._app.oeditor, self.name)
+        if child_object:
+            return BinaryTreeNode(self.name, child_object, False)
+        return False
+
     def _update_props(self, d, u):
         for k, v in u.items():
             if isinstance(v, dict):
@@ -277,7 +316,7 @@ class NativeComponentObject(BoundaryCommon, object):
     def _get_args(self, props=None):
         if props is None:
             props = self.props
-        arg = ["NAME:" + self.name]
+        arg = ["NAME:InsertNativeComponentData"]
         _dict2arg(props, arg)
         return arg
 
@@ -295,7 +334,7 @@ class NativeComponentObject(BoundaryCommon, object):
             names = [i for i in self._app.excitations]
         except Exception:  # pragma: no cover
             names = []
-        self.name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
+        self._name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]

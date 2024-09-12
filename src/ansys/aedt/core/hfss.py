@@ -1179,6 +1179,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                         el
                     ]
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
+
+        _ = self.native_components
+
         if native.create():
             user_defined_component = UserDefinedComponent(
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
@@ -1223,6 +1226,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     class SBRAntennaDefaults:
         _conical = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Polarization": "Vertical",
@@ -1410,7 +1415,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             return False
         if target_cs is None:
             target_cs = self.modeler.get_working_coordinate_system()
+
         parameters_defaults = self.SBRAntennaDefaults.parameters[antenna_type].copy()
+
+        if not units:
+            units = self.modeler.model_units
+
+        if "Unit" in parameters_defaults:
+            parameters_defaults["Unit"] = units
+
         if use_current_source_representation and antenna_type in [
             "Conical Horn",
             "Horizontal Dipole",
@@ -1427,38 +1440,53 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             parameters_defaults["Power Fraction"] = "0.95"
         if is_array:
             parameters_defaults["Is Parametric Array"] = True
-            parameters_defaults["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            parameters_defaults["Array Element Angle Phi"] = ("0deg",)
-            parameters_defaults["Array Element Angle Theta"] = ("0deg",)
-            parameters_defaults["Array Element Offset X"] = "0meter"
-            parameters_defaults["Array Element Offset Y"] = "0meter"
-            parameters_defaults["Array Element Offset Z"] = "0meter"
-            parameters_defaults["Array Element Conformance Type"] = 0
-            parameters_defaults["Array Element Conformance Type"] = 0
-            parameters_defaults["Array Element Conformance Type"] = 0
-            parameters_defaults["Array Element Conform Orientation"] = False
-            parameters_defaults["Array Design Frequency"] = "1GHz"
-            parameters_defaults["Array Layout Type"] = 1
-            parameters_defaults["Array Specify Design In Wavelength"] = True
-            parameters_defaults["Array Element Num"] = 5
-            parameters_defaults["Array Length"] = "1meter"
-            parameters_defaults["Array Width"] = "1meter"
-            parameters_defaults["Array Length Spacing"] = "0.1meter"
-            parameters_defaults["Array Width Spacing"] = "0.1meter"
-            parameters_defaults["Array Length In Wavelength"] = "3"
-            parameters_defaults["Array Width In Wavelength"] = "4"
-            parameters_defaults["Array Length Spacing In Wavelength"] = "0.5"
-            parameters_defaults["Array Stagger Type"] = 0
-            parameters_defaults["Array Stagger Angle"] = "0deg"
-            parameters_defaults["Array Symmetry Type"] = 0
-            parameters_defaults["Array Weight Type"] = 3
-            parameters_defaults["Array Beam Angle Theta"] = "0deg"
-            parameters_defaults["Array Weight Edge TaperX"] = -200
-            parameters_defaults["Array Weight Edge TaperY"] = -200
-            parameters_defaults["Array Weight Cosine Exp"] = 1
-            parameters_defaults["Array Differential Pattern Type"] = 0
-            if is_array:
-                name = generate_unique_name("pAntArray")
+            parameters_defaults["Sheet"] = -1
+
+            element_parameters = parameters_defaults.copy()
+
+            array_parameters = {}
+            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+            array_parameters["Array Element Angle Phi"] = ("0deg",)
+            array_parameters["Array Element Angle Theta"] = ("0deg",)
+            array_parameters["Array Element Offset X"] = "0meter"
+            array_parameters["Array Element Offset Y"] = "0meter"
+            array_parameters["Array Element Offset Z"] = "0meter"
+            array_parameters["Array Element Conformance Type"] = 0
+            array_parameters["Array Element Conformance Type"] = 0
+            array_parameters["Array Element Conformance Type"] = 0
+            array_parameters["Array Element Conform Orientation"] = False
+            array_parameters["Array Design Frequency"] = "1GHz"
+            array_parameters["Array Layout Type"] = 1
+            array_parameters["Array Specify Design In Wavelength"] = True
+            array_parameters["Array Element Num"] = 5
+            array_parameters["Array Length"] = "1meter"
+            array_parameters["Array Width"] = "1meter"
+            array_parameters["Array Length Spacing"] = "0.1meter"
+            array_parameters["Array Width Spacing"] = "0.1meter"
+            array_parameters["Array Length In Wavelength"] = "3"
+            array_parameters["Array Width In Wavelength"] = "4"
+            array_parameters["Array Length Spacing In Wavelength"] = "0.5"
+            array_parameters["Array Stagger Type"] = 0
+            array_parameters["Array Stagger Angle"] = "0deg"
+            array_parameters["Array Symmetry Type"] = 0
+            array_parameters["Array Weight Type"] = 3
+            array_parameters["Array Beam Angle Theta"] = "0deg"
+            array_parameters["Array Weight Edge TaperX"] = -200
+            array_parameters["Array Weight Edge TaperY"] = -200
+            array_parameters["Array Weight Cosine Exp"] = 1
+            array_parameters["Array Differential Pattern Type"] = 0
+
+            parameters_defaults = {
+                "Type": "Parametric Array",
+                "Unit": element_parameters["Unit"],
+                "Version": element_parameters["Version"],
+                "Is Parametric Array": element_parameters["Is Parametric Array"],
+                "Antenna Array Parameters": array_parameters,
+                "Array Element Parameters": element_parameters,
+            }
+
+            # name = generate_unique_name("pAntArray")
+
         if parameters:
             for el, value in parameters.items():
                 parameters_defaults[el] = value

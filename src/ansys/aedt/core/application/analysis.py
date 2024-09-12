@@ -189,7 +189,17 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.component_name: nc for nc in self._native_components}
+        return {nc.name: nc for nc in self._native_components}
+
+    @property
+    def native_component_names(self):
+        """Native component names.
+
+        Returns
+        -------
+        list
+        """
+        return self.modeler.user_defined_component_names
 
     @property
     def output_variables(self):
