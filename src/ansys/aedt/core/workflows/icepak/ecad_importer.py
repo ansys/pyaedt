@@ -49,7 +49,7 @@ cad_format_mapping = {
 }
 
 
-def main(ipc_path, cad_format, csv_file, cs_name, color_networks, ipk=None):
+def main(ipc_path, cad_format, csv_file, cs_name, color_networks, ipk=None, is_test=False):
     if ipk is None:
         ipk = aedt.Icepak(version=version)
 
@@ -122,8 +122,8 @@ def main(ipc_path, cad_format, csv_file, cs_name, color_networks, ipk=None):
                 )
 
     ipk.modeler.user_defined_components[pcb.name].target_coordinate_system = cs_name
-
-    ipk.release_desktop(False, False)
+    if not is_test:
+        ipk.release_desktop(False, False)
     return True
 
 

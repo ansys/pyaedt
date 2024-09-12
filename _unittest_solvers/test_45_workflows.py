@@ -458,5 +458,5 @@ class TestClass:
                                                 "example_models",
                                                 "T45",
                                                 "DevicePropertiesReduced.csv"),
-                       "cs_name": cs_name, "color_networks": True, })
-        #app.close_project()
+                       "cs_name": cs_name, "color_networks": True, "is_test": True})
+        app.close_project()
