@@ -1,4 +1,4 @@
-ECAD Importer
+ECAD importer
 ================
 
 You can import an ECAD in a specific coordinate system and with components properties specified in a CSV files.
