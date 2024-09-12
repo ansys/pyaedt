@@ -37,26 +37,31 @@ import atexit
 import os
 import sys
 
+aedt_process_id = int(sys.argv[1])
+version = sys.argv[2]
+print("Loading the PyAEDT Console.")
+
 try:
-    import ansys.aedt.core
+    if version <= "2023.1":
+        import pyaedt
+    else:
+        import ansys.aedt.core as pyaedt
 except ImportError:
     # Debug only purpose. If the tool is added to the ribbon from a GitHub clone, then a link
     # to PyAEDT is created in the personal library.
     console_setup_dir = os.path.dirname(__file__)
     if "PersonalLib" in console_setup_dir:
         sys.path.append(os.path.join(console_setup_dir, "../..", "..", ".."))
-    import ansys.aedt.core
-
+    if version <= "2023.1":
+        import pyaedt
+    else:
+        import ansys.aedt.core as pyaedt
 
 # ansys.aedt.core.settings.use_grpc_api = False
-settings = ansys.aedt.core.settings
-from ansys.aedt.core import Desktop
-from ansys.aedt.core.generic.general_methods import active_sessions
-from ansys.aedt.core.generic.general_methods import is_windows
-
-aedt_process_id = int(sys.argv[1])
-version = sys.argv[2]
-print("Loading the PyAEDT Console.")
+settings = pyaedt.settings
+from pyaedt import Desktop
+from pyaedt.generic.general_methods import active_sessions
+from pyaedt.generic.general_methods import is_windows
 
 
 def release(d):
