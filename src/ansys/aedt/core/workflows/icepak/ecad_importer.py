@@ -122,12 +122,12 @@ def main(ipc_path, cad_format, csv_file, cs_name, color_networks, ipk=None, is_t
                 )
 
     ipk.modeler.user_defined_components[pcb.name].target_coordinate_system = cs_name
-    if not is_test:
+    if not is_test:  # pragma: no cover
         ipk.release_desktop(False, False)
     return True
 
 
-def frontend(available_coordinate_systems):
+def frontend(available_coordinate_systems):  # pragma: no cover
     import tkinter as tk
     import tkinter.filedialog as filedialog
     import tkinter.ttk as ttk
