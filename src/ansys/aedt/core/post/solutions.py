@@ -47,12 +47,12 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
-from ansys.aedt.core.generic.plot import plot_2d_chart
-from ansys.aedt.core.generic.plot import plot_3d_chart
-from ansys.aedt.core.generic.plot import plot_polar_chart
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.post.plot import plot_2d_chart
+from ansys.aedt.core.post.plot import plot_3d_chart
+from ansys.aedt.core.post.plot import plot_polar_chart
 
 np = None
 pd = None

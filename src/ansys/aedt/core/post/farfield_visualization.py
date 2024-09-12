@@ -39,15 +39,15 @@ from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.plot import ModelPlotter
-from ansys.aedt.core.generic.plot import get_structured_mesh
-from ansys.aedt.core.generic.plot import is_notebook
-from ansys.aedt.core.generic.plot import plot_2d_chart
-from ansys.aedt.core.generic.plot import plot_3d_chart
-from ansys.aedt.core.generic.plot import plot_contour
-from ansys.aedt.core.generic.plot import plot_polar_chart
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.generic.touchstone_parser import read_touchstone
+from ansys.aedt.core.post.plot import ModelPlotter
+from ansys.aedt.core.post.plot import get_structured_mesh
+from ansys.aedt.core.post.plot import is_notebook
+from ansys.aedt.core.post.plot import plot_2d_chart
+from ansys.aedt.core.post.plot import plot_3d_chart
+from ansys.aedt.core.post.plot import plot_contour
+from ansys.aedt.core.post.plot import plot_polar_chart
+from ansys.aedt.core.post.touchstone_parser import read_touchstone
 
 np = None
 pv = None
@@ -1902,7 +1902,7 @@ class FfdSolutionDataExporter:
         str
             Metadata JSON file.
         """
-        from ansys.aedt.core.generic.touchstone_parser import find_touchstone_files
+        from ansys.aedt.core.post.touchstone_parser import find_touchstone_files
 
         if not variation:
             variation = "Nominal"

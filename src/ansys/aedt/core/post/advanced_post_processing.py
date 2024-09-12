@@ -39,12 +39,12 @@ from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.plot import ModelPlotter
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.fields_calculator import FieldsCalculator
-from ansys.aedt.core.modules.post_processor import FieldSummary
-from ansys.aedt.core.modules.post_processor import PostProcessor as Post
-from ansys.aedt.core.modules.post_processor import TOTAL_QUANTITIES
+from ansys.aedt.core.post.plot import ModelPlotter
+from ansys.aedt.core.post.post_processor import FieldSummary
+from ansys.aedt.core.post.post_processor import PostProcessor as Post
+from ansys.aedt.core.post.post_processor import TOTAL_QUANTITIES
 
 if not is_ironpython:
     try:

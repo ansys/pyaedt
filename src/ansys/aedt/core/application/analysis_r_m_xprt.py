@@ -91,7 +91,7 @@ class FieldAnalysisRMxprt(Analysis):
         """
         if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
-            from ansys.aedt.core.modules.post_processor import CircuitPostProcessor
+            from ansys.aedt.core.post.post_processor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")

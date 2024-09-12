@@ -33,9 +33,9 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import read_csv
 from ansys.aedt.core.generic.general_methods import write_csv
-from ansys.aedt.core.generic.pdf import AnsysReport
-from ansys.aedt.core.generic.spisim import SpiSim
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+from ansys.aedt.core.post.pdf import AnsysReport
+from ansys.aedt.core.post.spisim import SpiSim
 
 default_keys = [
     "file",
@@ -809,7 +809,7 @@ class VirtualCompliance:
             if not mag_data:
                 result_value = "FAILED. No BER obtained"
             for point in mag_data:
-                if GeometryOperators.point_in_polygon(point, points_to_check) >= 0:
+                if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
                     result_value = "FAILED. Mask Violation"
                     break
             font_table.append([None, [255, 0, 0]] if "FAIL" in result_value else ["", None])

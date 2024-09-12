@@ -15,7 +15,7 @@ from ansys.aedt.core import Icepak, Rmxprt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Circuit, Maxwell3d
 from _unittest.conftest import config
-from ansys.aedt.core.generic.spisim import SpiSim
+from ansys.aedt.core.post.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"

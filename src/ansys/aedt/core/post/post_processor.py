@@ -51,10 +51,10 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-import ansys.aedt.core.modules.report_templates as rt
-from ansys.aedt.core.modules.solutions import FieldPlot
-from ansys.aedt.core.modules.solutions import SolutionData
-from ansys.aedt.core.modules.solutions import VRTFieldPlot
+import ansys.aedt.core.post.report_templates as rt
+from ansys.aedt.core.post.solutions import FieldPlot
+from ansys.aedt.core.post.solutions import SolutionData
+from ansys.aedt.core.post.solutions import VRTFieldPlot
 
 if not is_ironpython:
     try:
@@ -110,6 +110,7 @@ TEMPLATES_BY_DESIGN = {
 }
 TEMPLATES_BY_NAME = {
     "Standard": rt.Standard,
+    "EddyCurrent": rt.Standard,
     "Modal Solution Data": rt.Standard,
     "Terminal Solution Data": rt.Standard,
     "Fields": rt.Fields,
@@ -1023,6 +1024,7 @@ class PostProcessorCommon(object):
         quantities_category=None,
         context=None,
         is_siwave_dc=False,
+        differential_pairs=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
 
@@ -1048,6 +1050,8 @@ class PostProcessorCommon(object):
             where the key is the matrix name and value the reduced matrix.
         is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
+        differential_pairs : bool, optional
+            Whether if return differential pairs traces or not. Default is ``False``.
 
         Returns
         -------
@@ -1100,6 +1104,63 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
+        elif differential_pairs:
+            if self.post_solution_type in ["HFSS3DLayout"]:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        3,
+                        True,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            elif self.post_solution_type in ["NexximLNA", "NexximTransient"]:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        3,
+                        True,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "USE_DIFF_PAIRS",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            else:
+                context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
         elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent":
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1112,9 +1173,11 @@ class PostProcessorCommon(object):
             context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
-            quantities_category = ""
-            if categories:
-                quantities_category = "All" if "All" in categories else categories[0]
+            if categories and display_type and report_category and solution:
+                for el in categories:
+                    res = list(self.oreportsetup.GetAllQuantities(report_category, display_type, solution, context, el))
+                    if res:
+                        return res
         if quantities_category and display_type and report_category and solution:
             return list(
                 self.oreportsetup.GetAllQuantities(
@@ -1208,7 +1271,7 @@ class PostProcessorCommon(object):
                 else:
                     report = rt.Standard
                 plots.append(report(self, report_type, None))
-                plots[-1].props["plot_name"] = name
+                plots[-1]._props["plot_name"] = name
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
@@ -2275,7 +2338,7 @@ class PostProcessorCommon(object):
         return solution_data
 
     @pyaedt_function_handler(input_dict="report_settings")
-    def create_report_from_configuration(self, input_file=None, report_settings=None, solution_name=None):
+    def create_report_from_configuration(self, input_file=None, report_settings=None, solution_name=None, name=None):
         """Create a report based on a JSON file, TOML file, RPT file, or dictionary of properties.
 
         Parameters
@@ -2316,6 +2379,7 @@ class PostProcessorCommon(object):
         if not report_settings and not input_file:  # pragma: no cover
             self.logger.error("Either a file or a dictionary must be passed as input.")
             return False
+        props = {}
         if input_file:
             _, file_extension = os.path.splitext(input_file)
             if file_extension == ".rpt":
@@ -2333,6 +2397,21 @@ class PostProcessorCommon(object):
                     return report
             else:
                 props = read_configuration_file(input_file)
+            if report_settings:
+
+                def apply_settings(p, set):
+                    for k, v in set.items():
+                        if k in p:
+                            if isinstance(v, dict):
+                                p[k] = apply_settings(p[k], v)
+                            else:
+                                p[k] = v
+                        else:
+                            p[k] = v
+                    return p
+
+                props = apply_settings(props, report_settings)
+
         else:
             props = report_settings
 
@@ -2348,7 +2427,9 @@ class PostProcessorCommon(object):
         if not solution_name:
             solution_name = self._app.nominal_sweep
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
-            if (
+            if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
+                report_temp = TEMPLATES_BY_NAME["Spectrum"]
+            elif (
                 "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
                 and props["report_category"] == "Standard"
             ):
@@ -2359,18 +2440,22 @@ class PostProcessorCommon(object):
                 report_temp = TEMPLATES_BY_NAME[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
             for k, v in props.items():
-                report.props[k] = v
+                report._props[k] = v
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
                 if (
-                    report.props.get("context", None)
-                    and report.props["context"].get("variations", None)
-                    and el not in report.props["context"]["variations"]
+                    report._props.get("context", None)
+                    and report._props["context"].get("variations", None)
+                    and el not in report._props["context"]["variations"]
                 ):
-                    report.props["context"]["variations"][el] = k
+                    report._props["context"]["variations"][el] = k
             report.expressions
-            report.create()
-            report._update_traces()
+            report.create(name)
+            if report.report_type != "Data Table":
+                report._update_traces()
+                self.oreportsetup.UpdateReports(report.plot_name)
+            self.logger.info(f"Report {report.plot_name} created successfully.")
             return report
+        self.logger.error(f"Failed to create report {report.plot_name}.")
         return False  # pragma: no cover
 
 

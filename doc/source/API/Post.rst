@@ -14,7 +14,7 @@ plots in AEDT. They are accessible through the ``post`` property.
    in graphical mode.
 
 
-.. currentmodule:: ansys.aedt.core.modules
+.. currentmodule:: ansys.aedt.core.post
 
 .. autosummary::
    :toctree: _autosummary
@@ -57,7 +57,7 @@ PyAEDT has classes for manipulating any report property.
    in graphical mode.
 
 
-.. currentmodule:: ansys.aedt.core.modules
+.. currentmodule:: ansys.aedt.core.post
 
 .. autosummary::
    :toctree: _autosummary
@@ -77,7 +77,7 @@ PyAEDT has classes for manipulating any report property.
 Icepak monitors
 ~~~~~~~~~~~~~~~
 
-.. currentmodule:: ansys.aedt.core.modules.monitor_icepak
+.. currentmodule:: ansys.aedt.core.post.monitor_icepak
 
 .. autosummary::
    :toctree: _autosummary

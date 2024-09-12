@@ -10,7 +10,7 @@ packages like `numpy <https://numpy.org/doc/stable/>`_,
 and `pyvista <https://docs.pyvista.org/>`_.
 
 
-.. currentmodule:: ansys.aedt.core.modules
+.. currentmodule:: ansys.aedt.core.post
 
 .. autosummary::
    :toctree: _autosummary
@@ -26,7 +26,7 @@ ModelPlotter is a class that benefits of `pyvista <https://docs.pyvista.org/>`_ 
 models and 3D plots.
 
 
-.. currentmodule:: ansys.aedt.core.generic.plot
+.. currentmodule:: ansys.aedt.core.post.plot
 
 .. autosummary::
    :toctree: _autosummary
@@ -42,7 +42,7 @@ touchstone post-processing.
 The following methods allows to read and check touchstone files.
 
 
-.. currentmodule:: ansys.aedt.core.generic.touchstone_parser
+.. currentmodule:: ansys.aedt.core.post.touchstone_parser
 
 .. autosummary::
    :toctree: _autosummary
@@ -57,7 +57,7 @@ The class TouchstoneData  is based on `scikit-rf <https://scikit-rf.readthedocs.
 Additional methods are added to provide easy access to touchstone curves.
 
 
-.. currentmodule:: ansys.aedt.core.generic.touchstone_parser
+.. currentmodule:: ansys.aedt.core.post.touchstone_parser
 
 .. autosummary::
    :toctree: _autosummary
@@ -104,7 +104,7 @@ There are two complementary classes: ``FfdSolutionDataExporter`` and ``FfdSoluti
 - FfdSolutionData: Focuses on the direct access and processing of farfield solution data. It supports a comprehensive set of postprocessing operations, from visualizing radiation patterns to computing key performance metrics.
 
 
-.. currentmodule:: ansys.aedt.core.generic.farfield_visualization
+.. currentmodule:: ansys.aedt.core.post.farfield_visualization
 
 .. autosummary::
    :toctree: _autosummary

@@ -5624,8 +5624,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
         """
-        from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
-        from ansys.aedt.core.generic.farfield_visualization import FfdSolutionDataExporter
+        from ansys.aedt.core.post.farfield_visualization import FfdSolutionData
+        from ansys.aedt.core.post.farfield_visualization import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent

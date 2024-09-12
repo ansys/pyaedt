@@ -426,24 +426,66 @@ class Polyline(Object3d):
                 s_type = c.props["Segment Type"]
                 if i == 0:  # append the first point only for the first segment
                     if s_type != "Center Point Arc":
-                        points.append(_convert_points(list(c.props["Point1"])[1::2], self._primitives.model_units))
+                        p = [
+                            c.props["Point1/X"],
+                            c.props["Point1/Y"],
+                            c.props["Point1/Z"],
+                        ]
+                        points.append(_convert_points(p, self._primitives.model_units))
                     else:
-                        points.append(_convert_points(list(c.props["Start Point"])[1::2], self._primitives.model_units))
+                        p = [
+                            c.props["Start Point/X"],
+                            c.props["Start Point/Y"],
+                            c.props["Start Point/Z"],
+                        ]
+                        points.append(_convert_points(p, self._primitives.model_units))
                 if s_type == "Line":
                     segments.append(PolylineSegment("Line"))
-                    points.append(_convert_points(list(c.props["Point2"])[1::2], self._primitives.model_units))
+                    p = [
+                        c.props["Point2/X"],
+                        c.props["Point2/Y"],
+                        c.props["Point2/Z"],
+                    ]
+                    points.append(_convert_points(p, self._primitives.model_units))
                 elif s_type == "3 Point Arc":
                     segments.append(PolylineSegment("Arc"))
-                    points.append(_convert_points(list(c.props["Point2"])[1::2], self._primitives.model_units))
-                    points.append(_convert_points(list(c.props["Point3"])[1::2], self._primitives.model_units))
+                    p2 = [
+                        c.props["Point2/X"],
+                        c.props["Point2/Y"],
+                        c.props["Point2/Z"],
+                    ]
+                    p3 = [
+                        c.props["Point3/X"],
+                        c.props["Point3/Y"],
+                        c.props["Point3/Z"],
+                    ]
+
+                    points.append(_convert_points(p2, self._primitives.model_units))
+                    points.append(_convert_points(p3, self._primitives.model_units))
                 elif s_type == "Spline":
                     segments.append(PolylineSegment("Spline", num_points=n_points))
                     for p in range(2, n_points + 1):
-                        point_attr = c.props["Point" + str(p)]
-                        points.append(_convert_points(list(point_attr)[1::2], self._primitives.model_units))
+                        point_attr = "Point" + str(p)
+                        p2 = [
+                            c.props[f"{point_attr}/X"],
+                            c.props[f"{point_attr}/Y"],
+                            c.props[f"{point_attr}/Z"],
+                        ]
+
+                        points.append(_convert_points(p2, self._primitives.model_units))
                 elif s_type == "Center Point Arc":
-                    start = _convert_points(list(c.props["Start Point"])[1::2], self._primitives.model_units)
-                    center = _convert_points(list(c.props["Center Point"])[1::2], self._primitives.model_units)
+                    p2 = [
+                        c.props["Start Point/X"],
+                        c.props["Start Point/Y"],
+                        c.props["Start Point/Z"],
+                    ]
+                    p3 = [
+                        c.props["Center Point/X"],
+                        c.props["Center Point/Y"],
+                        c.props["Center Point/Z"],
+                    ]
+                    start = _convert_points(p2, self._primitives.model_units)
+                    center = _convert_points(p3, self._primitives.model_units)
                     plane = c.props["Plane"]
                     angle = c.props["Angle"]
                     arc_seg = PolylineSegment("AngularArc", arc_angle=angle, arc_center=center, arc_plane=plane)

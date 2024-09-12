@@ -29,9 +29,9 @@ import uuid
 from _unittest.conftest import config
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.plot import _parse_aedtplt
-from ansys.aedt.core.generic.plot import _parse_streamline
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.post.plot import _parse_aedtplt
+from ansys.aedt.core.post.plot import _parse_streamline
 import pytest
 
 if config["desktopVersion"] > "2022.2":
@@ -297,7 +297,12 @@ class TestClass:
         assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
 
     def test_09_manipulate_report(self):
-        assert self.aedtapp.post.create_report("dB(S(1,1))")
+        plot = self.aedtapp.post.create_report("dB(S(1,1))")
+        assert plot
+        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert self.aedtapp.post.create_report_from_configuration(
+            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name=self.aedtapp.nominal_sweep
+        )
         assert self.aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},

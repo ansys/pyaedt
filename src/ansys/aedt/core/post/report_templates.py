@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.constants import SymbolStyle
 from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.general_methods import write_configuration_file
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -42,10 +43,29 @@ def _props_with_default(dict_in, key, default_value=None):
 class LimitLine(object):
     """Line Limit Management Class."""
 
-    def __init__(self, report_setup, trace_name):
+    def __init__(self, report_setup, trace_name, oo=None):
+        self._oo = oo
         self._oreport_setup = report_setup
         self.line_name = trace_name
         self.LINESTYLE = LineStyle()
+
+    @property
+    def properties(self):
+        """Line properties.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        try:
+            parent = BinaryTreeNode(self.line_name, self._oo, False)
+            return parent.props
+        except Exception:
+            return []
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -101,9 +121,28 @@ class LimitLine(object):
 class Note(object):
     """Note Management Class."""
 
-    def __init__(self, report_setup, plot_note_name):
+    def __init__(self, report_setup, plot_note_name, oo=None):
+        self._oo = oo
         self._oreport_setup = report_setup
         self.plot_note_name = plot_note_name
+
+    @property
+    def properties(self):
+        """Note properties.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        try:
+            parent = BinaryTreeNode(self.plot_note_name, self._oo, False)
+            return parent.props
+        except Exception:
+            return []
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -226,13 +265,68 @@ class Note(object):
 class Trace(object):
     """Provides trace management."""
 
-    def __init__(self, report_setup, aedt_name):
+    def __init__(
+        self,
+        report_setup,
+        aedt_name,
+        trace_name,
+        oo=None,
+    ):
+        self._oo = oo
         self._oreport_setup = report_setup
         self.aedt_name = aedt_name
-        self._name = None
+        self._name = trace_name
         self.LINESTYLE = LineStyle()
         self.TRACETYPE = TraceType()
         self.SYMBOLSTYLE = SymbolStyle()
+        self._trace_style = None
+        self._trace_width = None
+        self._trace_color = None
+        self._symbol_style = None
+        self._show_arrows = None
+        self._fill_symbol = None
+        self._symbol_color = None
+        self._show_symbol = False
+        self._available_props = []
+
+    @property
+    def __all_props(self):
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        try:
+            parent = BinaryTreeNode(self.aedt_name, self._oo, False)
+            return parent
+        except Exception:
+            return []
+
+    @property
+    def properties(self):
+        """All available properties.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            return self.__all_props.props
+        except Exception:
+            return {}
+
+    @property
+    def curve_properties(self):
+        """All curve graphical properties. It includes colors, trace and symbol settings.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        if self.aedt_name.split(":")[-1] in self.__all_props.children:
+            return self.__all_props.children[self.aedt_name.split(":")[-1]].props
+        return {}
 
     @property
     def name(self):
@@ -243,11 +337,6 @@ class Trace(object):
         str
             Trace name.
         """
-        report_name = self.aedt_name.split(":")[0]
-        traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
-        for trace in traces_in_report:
-            if trace + ":" in self.aedt_name:
-                self._name = trace
         return self._name
 
     @name.setter
@@ -271,8 +360,8 @@ class Trace(object):
                 ["NAME:Trace", ["NAME:PropServers", prop_name], ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]]],
             ]
         )
-        self.aedt_name.replace(self.name, value)
-        self._name = value
+        self.aedt_name = self.aedt_name.replace(self.name, value)
+        self.trace_name = value
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
@@ -356,25 +445,61 @@ class CommonReport(object):
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self._post = app
-        self.props = {}
-        self.props["report_category"] = report_category
+        self._props = {}
+        self._props["report_category"] = report_category
         self.setup = setup_name
-        self.props["report_type"] = "Rectangular Plot"
-        self.props["context"] = {}
-        self.props["context"]["domain"] = "Sweep"
-        self.props["context"]["primary_sweep"] = "Freq"
-        self.props["context"]["primary_sweep_range"] = ["All"]
-        self.props["context"]["secondary_sweep_range"] = ["All"]
-        self.props["context"]["variations"] = {"Freq": ["All"]}
+        self._props["report_type"] = "Rectangular Plot"
+        self._props["context"] = {}
+        self._props["context"]["domain"] = "Sweep"
+        self._props["context"]["primary_sweep"] = "Freq"
+        self._props["context"]["primary_sweep_range"] = ["All"]
+        self._props["context"]["secondary_sweep_range"] = ["All"]
+        self._props["context"]["variations"] = {"Freq": ["All"]}
         if hasattr(self._post._app, "available_variations") and self._post._app.available_variations:
             for el, k in self._post._app.available_variations.nominal_w_values_dict.items():
-                self.props["context"]["variations"][el] = k
-        self.props["expressions"] = None
-        self.props["plot_name"] = None
+                self._props["context"]["variations"][el] = k
+        self._props["expressions"] = None
+        self._props["plot_name"] = None
         if expressions:
             self.expressions = expressions
         self._is_created = False
         self.siwave_dc_category = 0
+        self._traces = []
+        self._child_object = None
+
+    @property
+    def _all_props(self):
+        if self._child_object:
+            return self._child_object
+        from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
+
+        try:
+            oo = self._post.oreportsetup.GetChildObject(self._props["plot_name"])
+            self._child_object = BinaryTreeNode(self.plot_name, oo, False)
+            for var in [i.split(" ,")[-1] for i in list(self._child_object.props.values())[4:]]:
+                if var in self._child_object.children:
+                    del self._child_object.children[var]
+            els = [i for i in self._child_object.children.keys() if i.startswith("LimitLine") or i.startswith("Note")]
+            for var in els:
+                del self._child_object.children[var]
+            return self._child_object
+        except Exception:
+            return {}
+
+    @property
+    def properties(self):
+        """Report properties.
+
+        Returns
+        -------
+            :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            return self._all_props
+        except Exception:
+            return {}
 
     @pyaedt_function_handler()
     def delete(self):
@@ -395,11 +520,11 @@ class CommonReport(object):
         bool
             ``True`` when differential pairs is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("differential_pairs", False)
+        return self._props["context"].get("differential_pairs", False)
 
     @differential_pairs.setter
     def differential_pairs(self, value):
-        self.props["context"]["differential_pairs"] = value
+        self._props["context"]["differential_pairs"] = value
 
     @property
     def matrix(self):
@@ -410,11 +535,25 @@ class CommonReport(object):
         str
             Matrix name.
         """
-        return self.props["context"].get("matrix", None)
+        if self._is_created and (
+            self._post._app.design_type in ["Q3D Extractor", "2D Extractor"]
+            or (
+                self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+                and self._post._app.solution_type == "EddyCurrent"
+            )
+        ):
+            try:
+                if "Parameter" in self.traces[0].properties:
+                    self._props["context"]["matrix"] = self.traces[0].properties["Parameter"]
+                elif "Matrix" in self.traces[0].properties:
+                    self._props["context"]["matrix"] = self.traces[0].properties["Matrix"]
+            except Exception:
+                pass
+        return self._props["context"].get("matrix", None)
 
     @matrix.setter
     def matrix(self, value):
-        self.props["context"]["matrix"] = value
+        self._props["context"]["matrix"] = value
 
     @property
     def reduced_matrix(self):
@@ -425,11 +564,11 @@ class CommonReport(object):
         str
             Reduced matrix name.
         """
-        return self.props["context"].get("reduced_matrix", None)
+        return self._props["context"].get("reduced_matrix", None)
 
     @reduced_matrix.setter
     def reduced_matrix(self, value):
-        self.props["context"]["reduced_matrix"] = value
+        self._props["context"]["reduced_matrix"] = value
 
     @property
     def polyline(self):
@@ -440,11 +579,16 @@ class CommonReport(object):
         str
             Polyline name.
         """
-        return self.props["context"].get("polyline", None)
+        if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
+            try:
+                self._props["context"]["polyline"] = self.traces[0].properties["Geometry"]
+            except Exception:
+                pass
+        return self._props["context"].get("polyline", None)
 
     @polyline.setter
     def polyline(self, value):
-        self.props["context"]["polyline"] = value
+        self._props["context"]["polyline"] = value
 
     @property
     def expressions(self):
@@ -452,29 +596,31 @@ class CommonReport(object):
 
         Returns
         -------
-        str
+        list
             Expressions.
         """
-        if self.props.get("expressions", None) is None:
+        if self._is_created:
+            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
+        if self._props.get("expressions", None) is None:
             return []
-        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
+        return [k.get("name", None) for k in self._props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
         if isinstance(value, dict):
-            self.props["expressions"].append(value)
+            self._props["expressions"].append(value)
         elif isinstance(value, list):
-            self.props["expressions"] = []
+            self._props["expressions"] = []
             for el in value:
                 if isinstance(el, dict):
-                    self.props["expressions"].append(el)
+                    self._props["expressions"].append(el)
                 else:
-                    self.props["expressions"].append({"name": el})
+                    self._props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self.props["expressions"], list):
-                self.props["expressions"].append({"name": value})
+            if isinstance(self._props["expressions"], list):
+                self._props["expressions"].append({"name": value})
             else:
-                self.props["expressions"] = [{"name": value}]
+                self._props["expressions"] = [{"name": value}]
 
     @property
     def report_category(self):
@@ -485,11 +631,17 @@ class CommonReport(object):
         str
             Report category.
         """
-        return self.props["report_category"]
+        if self._is_created:
+            try:
+                return self.properties.props["Report Type"]
+            except Exception:
+                return self._props["report_type"]
+        return self._props["report_category"]
 
     @report_category.setter
     def report_category(self, value):
-        self.props["report_category"] = value
+        if not self._is_created:
+            self._props["report_category"] = value
 
     @property
     def report_type(self):
@@ -502,21 +654,27 @@ class CommonReport(object):
         str
             Report type.
         """
-        return self.props["report_type"]
+        if self._is_created:
+            try:
+                return self.properties.props["Display Type"]
+            except Exception:
+                return self._props["report_type"]
+        return self._props["report_type"]
 
     @report_type.setter
     def report_type(self, report):
-        self.props["report_type"] = report
-        if not self.primary_sweep:
-            if self.props["report_type"] in ["3D Polar Plot", "3D Spherical Plot"]:
-                self.primary_sweep = "Phi"
-                self.secondary_sweep = "Theta"
-            elif self.props["report_type"] == "Radiation Pattern":
-                self.primary_sweep = "Phi"
-            elif self.domain == "Sweep":
-                self.primary_sweep = "Freq"
-            elif self.domain == "Time":
-                self.primary_sweep = "Time"
+        if not self._is_created:
+            self._props["report_type"] = report
+            if not self.primary_sweep:
+                if self._props["report_type"] in ["3D Polar Plot", "3D Spherical Plot"]:
+                    self.primary_sweep = "Phi"
+                    self.secondary_sweep = "Theta"
+                elif self._props["report_type"] == "Radiation Pattern":
+                    self.primary_sweep = "Phi"
+                elif self.domain == "Sweep":
+                    self.primary_sweep = "Freq"
+                elif self.domain == "Time":
+                    self.primary_sweep = "Time"
 
     @property
     def traces(self):
@@ -530,6 +688,7 @@ class CommonReport(object):
         -------
         List of :class:`ansys.aedt.core.modules.report_templates.Trace`
         """
+        expressions = self.expressions[::]
         _traces = []
         try:
             oo = self._post.oreportsetup.GetChildObject(self.plot_name)
@@ -537,13 +696,18 @@ class CommonReport(object):
         except Exception:
             return _traces
         for el in oo_names:
-            if el in ["Legend", "Grid", "AxisX", "AxisY1", "Header", "General", "CartesianDisplayTypeProperty"]:
+            if "Families" not in oo.GetChildObject(el).GetPropNames():
                 continue
             try:
-                oo1 = oo.GetChildObject(el).GetChildNames()
-
-                for i in oo1:
-                    _traces.append(Trace(self._post.oreportsetup, "{}:{}:{}".format(self.plot_name, el, i)))
+                oo1 = oo.GetChildObject(el)
+                oo1_name = oo1.GetChildNames()
+                if not oo1_name:
+                    aedt_name = "{}:{}".format(self.plot_name, el)
+                    _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
+                else:
+                    for i in oo1_name:
+                        aedt_name = "{}:{}:{}".format(self.plot_name, el, i)
+                        _traces.append(Trace(self._post.oreportsetup, aedt_name, el, oo1))
             except Exception:
                 self._post._app.logger.debug("Something went wrong while processing element {}.".format(el))
         return _traces
@@ -551,86 +715,112 @@ class CommonReport(object):
     @pyaedt_function_handler()
     def _update_traces(self):
         for trace in self.traces[::]:
-            trace_name = trace.aedt_name.split(":")[1]
-            if "expressions" in self.props and trace_name in self.props["expressions"]:
-                trace_val = self.props["expressions"][trace_name]
-                trace_style = _props_with_default(trace_val, "trace_style")
-                trace_width = _props_with_default(trace_val, "width")
-                trace_type = _props_with_default(trace_val, "trace_type")
-                trace_color = _props_with_default(trace_val, "color")
-                symbol_show = _props_with_default(trace_val, "show_symbols", False)
-                symbol_style = _props_with_default(trace_val, "symbol_style", None)
-                symbol_arrows = _props_with_default(trace_val, "show_arrows", None)
-                symbol_fill = _props_with_default(trace_val, "symbol_fill", False)
-                symbol_color = _props_with_default(trace_val, "symbol_color", None)
-                trace.set_trace_properties(
-                    style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
-                )
-                if self.report_category in ["Eye Diagram", "Spectrum"]:
-                    continue
-                trace.set_symbol_properties(
-                    show=symbol_show,
-                    style=symbol_style,
-                    show_arrows=symbol_arrows,
-                    fill=symbol_fill,
-                    color=symbol_color,
-                )
+            trace_name = trace.name
+            for trace_val in self._props["expressions"]:
+                if trace_val["name"] == trace_name:
+                    trace_style = _props_with_default(trace_val, "trace_style")
+                    trace_width = _props_with_default(trace_val, "width")
+                    trace_type = _props_with_default(trace_val, "trace_type")
+                    trace_color = _props_with_default(trace_val, "color")
+
+                    if trace_style or trace_width or trace_type or trace_color:
+                        trace.set_trace_properties(
+                            style=trace_style, width=trace_width, trace_type=trace_type, color=trace_color
+                        )
+        for trace in self.traces[::]:
+            trace_name = trace.name
+            for trace_val in self._props["expressions"]:
+                if trace_val["name"] == trace_name:
+                    if self.report_category in ["Eye Diagram", "Spectrum"]:
+                        continue
+                    symbol_show = _props_with_default(trace_val, "show_symbols", False)
+                    symbol_style = _props_with_default(trace_val, "symbol_style", None)
+                    symbol_arrows = _props_with_default(trace_val, "show_arrows", None)
+                    symbol_fill = _props_with_default(trace_val, "symbol_fill", False)
+                    symbol_color = _props_with_default(trace_val, "symbol_color", None)
+                    if symbol_style or symbol_color or symbol_fill or symbol_arrows:
+                        trace.set_symbol_properties(
+                            show=symbol_show,
+                            style=symbol_style,
+                            show_arrows=symbol_arrows,
+                            fill=symbol_fill,
+                            color=symbol_color,
+                        )
+        for trace in self.traces[::]:
+            trace_name = trace.name
+            for trace_val in self._props["expressions"]:
+                if trace_val["name"] == trace_name:
+                    y_axis = _props_with_default(trace_val, "y_axis", "Y1")
+                    if y_axis != "Y1":
+                        self._change_property(
+                            "Trace",
+                            trace_name,
+                            [
+                                "NAME:ChangedProps",
+                                [
+                                    "NAME:Y Axis",
+                                    "Value:=",
+                                    y_axis,
+                                ],
+                            ],
+                        )
+
         if (
-            "eye_mask" in self.props
+            "eye_mask" in self._props
             and self.report_category in ["Eye Diagram", "Statistical Eye"]
-            or ("quantity_type" in self.props and self.report_type == "Rectangular Contour Plot")
+            or ("quantity_type" in self._props and self.report_type == "Rectangular Contour Plot")
         ):
-            eye_xunits = _props_with_default(self.props["eye_mask"], "xunits", "ns")
-            eye_yunits = _props_with_default(self.props["eye_mask"], "yunits", "mV")
-            eye_points = _props_with_default(self.props["eye_mask"], "points")
-            eye_enable = _props_with_default(self.props["eye_mask"], "enable_limits", False)
-            eye_upper = _props_with_default(self.props["eye_mask"], "upper_limit", 500)
-            eye_lower = _props_with_default(self.props["eye_mask"], "lower_limit", 0.3)
-            eye_transparency = _props_with_default(self.props["eye_mask"], "transparency", 0.3)
-            eye_color = _props_with_default(self.props["eye_mask"], "color", (0, 128, 0))
-            eye_xoffset = _props_with_default(self.props["eye_mask"], "X Offset", "0ns")
-            eye_yoffset = _props_with_default(self.props["eye_mask"], "Y Offset", "0V")
-            if "quantity_type" in self.props and self.report_type == "Rectangular Contour Plot":
-                if "contours_number" in self.props.get("general", {}):
+            eye_xunits = _props_with_default(self._props["eye_mask"], "xunits", "ns")
+            eye_yunits = _props_with_default(self._props["eye_mask"], "yunits", "mV")
+            eye_points = _props_with_default(self._props["eye_mask"], "points")
+            eye_enable = _props_with_default(self._props["eye_mask"], "enable_limits", False)
+            eye_upper = _props_with_default(self._props["eye_mask"], "upper_limit", 500)
+            eye_lower = _props_with_default(self._props["eye_mask"], "lower_limit", 0.3)
+            eye_transparency = _props_with_default(self._props["eye_mask"], "transparency", 0.3)
+            eye_color = _props_with_default(self._props["eye_mask"], "color", (0, 128, 0))
+            eye_xoffset = _props_with_default(self._props["eye_mask"], "X Offset", "0ns")
+            eye_yoffset = _props_with_default(self._props["eye_mask"], "Y Offset", "0V")
+            if "quantity_type" in self._props and self.report_type == "Rectangular Contour Plot":
+                if "contours_number" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
                         " Plot {}".format(self.traces[0].name),
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Num. Contours", "Value:=", str(self.props["general"]["contours_number"])],
+                            ["NAME:Num. Contours", "Value:=", str(self._props["general"]["contours_number"])],
                         ],
                     )
-                if "contours_scale" in self.props.get("general", {}):
+                if "contours_scale" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
                         " Plot {}".format(self.traces[0].name),
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Axis Scale", "Value:=", str(self.props["general"]["contours_scale"])],
+                            ["NAME:Axis Scale", "Value:=", str(self._props["general"]["contours_scale"])],
                         ],
                     )
-                if "enable_contours_auto_limit" in self.props.get("general", {}):
+                if "enable_contours_auto_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
                         " Plot {}".format(self.traces[0].name),
                         ["NAME:ChangedProps", ["NAME:Scale Type", "Value:=", "Auto Limits"]],
                     )
-                elif "contours_min_limit" in self.props.get("general", {}):
+                elif "contours_min_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
                         " Plot {}".format(self.traces[0].name),
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Min", "Value:=", str(self.props["general"]["contours_min_limit"])],
+                            ["NAME:Min", "Value:=", str(self._props["general"]["contours_min_limit"])],
                         ],
                     )
-                elif "contours_max_limit" in self.props.get("general", {}):
+                elif "contours_max_limit" in self._props.get("general", {}):
                     self._change_property(
                         "Contour",
                         " Plot {}".format(self.traces[0].name),
                         [
                             "NAME:ChangedProps",
-                            ["NAME:Max", "Value:=", str(self.props["general"]["contours_max_limit"])],
+                            ["NAME:Max", "Value:=", str(self._props["general"]["contours_max_limit"])],
                         ],
                     )
             self.eye_mask(
@@ -645,8 +835,8 @@ class CommonReport(object):
                 x_offset=eye_xoffset,
                 y_offset=eye_yoffset,
             )
-        if "limitLines" in self.props and self.report_category not in ["Eye Diagram", "Statistical Eye"]:
-            for line in self.props["limitLines"].values():
+        if "limitLines" in self._props and self.report_category not in ["Eye Diagram", "Statistical Eye"]:
+            for line in self._props["limitLines"].values():
                 if "equation" in line:
                     line_start = _props_with_default(line, "start")
                     line_stop = _props_with_default(line, "stop")
@@ -682,8 +872,8 @@ class CommonReport(object):
                     hatch_pixels=line_hatchpix,
                     color=line_color,
                 )
-        if "notes" in self.props:
-            for note in self.props["notes"].values():
+        if "notes" in self._props:
+            for note in self._props["notes"].values():
                 note_text = _props_with_default(note, "text")
                 note_position = _props_with_default(note, "position", [0, 0])
                 self.add_note(note_text, note_position[0], note_position[1])
@@ -710,12 +900,12 @@ class CommonReport(object):
                     bold=note_bold,
                     color=note_color,
                 )
-        if "general" in self.props:
-            if "show_rectangular_plot" in self.props["general"] and self.report_category in ["Eye Diagram"]:
-                eye_rectangular = _props_with_default(self.props["general"], "show_rectangular_plot", True)
+        if "general" in self._props:
+            if "show_rectangular_plot" in self._props["general"] and self.report_category in ["Eye Diagram"]:
+                eye_rectangular = _props_with_default(self._props["general"], "show_rectangular_plot", True)
                 self.rectangular_plot(eye_rectangular)
-            if "legend" in self.props["general"] and self.report_type != "Rectangular Contour Plot":
-                legend = self.props["general"]["legend"]
+            if "legend" in self._props["general"] and self.report_type != "Rectangular Contour Plot":
+                legend = self._props["general"]["legend"]
                 legend_sol_name = _props_with_default(legend, "show_solution_name", True)
                 legend_var_keys = _props_with_default(legend, "show_variation_key", True)
                 leend_trace_names = _props_with_default(legend, "show_trace_name", True)
@@ -728,8 +918,8 @@ class CommonReport(object):
                     back_color=legend_color,
                     font_color=legend_font_color,
                 )
-            if "grid" in self.props["general"]:
-                grid = self.props["general"]["grid"]
+            if "grid" in self._props["general"]:
+                grid = self._props["general"]["grid"]
                 grid_major_color = _props_with_default(grid, "major_color", (200, 200, 200))
                 grid_minor_color = _props_with_default(grid, "minor_color", (230, 230, 230))
                 grid_enable_major_x = _props_with_default(grid, "major_x", True)
@@ -748,11 +938,13 @@ class CommonReport(object):
                     style_minor=grid_style_minor,
                     style_major=grid_style_major,
                 )
-            if "appearance" in self.props["general"]:
-                general = self.props["general"]["appearance"]
+            if "appearance" in self._props["general"]:
+                general = self._props["general"]["appearance"]
                 general_back_color = _props_with_default(general, "background_color", (255, 255, 255))
                 general_plot_color = _props_with_default(general, "plot_color", (255, 255, 255))
                 enable_y_stripes = _props_with_default(general, "enable_y_stripes", True)
+                if self._props["report_type"] == "Radiation Pattern":
+                    enable_y_stripes = None
                 general_field_width = _props_with_default(general, "field_width", 4)
                 general_precision = _props_with_default(general, "precision", 4)
                 general_use_scientific_notation = _props_with_default(general, "use_scientific_notation", True)
@@ -764,8 +956,8 @@ class CommonReport(object):
                     precision=general_precision,
                     use_scientific_notation=general_use_scientific_notation,
                 )
-            if "header" in self.props["general"]:
-                header = self.props["general"]["header"]
+            if "header" in self._props["general"]:
+                header = self._props["general"]["header"]
                 company_name = _props_with_default(header, "company_name", "")
                 show_design_name = _props_with_default(header, "show_design_name", True)
                 header_font = _props_with_default(header, "font", "Arial")
@@ -785,9 +977,9 @@ class CommonReport(object):
                     color=header_color,
                 )
 
-            for i in list(self.props["general"].keys()):
+            for i in list(self._props["general"].keys()):
                 if "axis" in i:
-                    axis = self.props["general"][i]
+                    axis = self._props["general"][i]
                     axis_font = _props_with_default(axis, "font", "Arial")
                     axis_size = _props_with_default(axis, "font_size", 12)
                     axis_italic = _props_with_default(axis, "italic", False)
@@ -860,7 +1052,13 @@ class CommonReport(object):
         oo_names = self._post._app.get_oo_name(self._post.oreportsetup, self.plot_name)
         for el in oo_names:
             if "LimitLine" in el:
-                _traces.append(LimitLine(self._post.oreportsetup, "{}:{}".format(self.plot_name, el)))
+                _traces.append(
+                    LimitLine(
+                        self._post.oreportsetup,
+                        "{}:{}".format(self.plot_name, el),
+                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                    )
+                )
 
         return _traces
 
@@ -883,7 +1081,13 @@ class CommonReport(object):
             return _notes
         for el in oo_names:
             if "Note" in el:
-                _notes.append(Note(self._post.oreportsetup, "{}:{}".format(self.plot_name, el)))
+                _notes.append(
+                    Note(
+                        self._post.oreportsetup,
+                        "{}:{}".format(self.plot_name, el),
+                        self._post.oreportsetup.GetChildObject(self.plot_name).GetChildObject(el),
+                    )
+                )
 
         return _notes
 
@@ -896,14 +1100,14 @@ class CommonReport(object):
         str
             Plot name.
         """
-        return self.props["plot_name"]
+        return self._props["plot_name"]
 
     @plot_name.setter
     def plot_name(self, name):
         if self._is_created:
             if name not in self._post.oreportsetup.GetAllReportNames():
-                self._post.oreportsetup.RenameReport(self.props["plot_name"], name)
-        self.props["plot_name"] = name
+                self._post.oreportsetup.RenameReport(self._props["plot_name"], name)
+        self._props["plot_name"] = name
 
     @property
     def variations(self):
@@ -914,11 +1118,33 @@ class CommonReport(object):
         str
             Variations.
         """
-        return self.props["context"]["variations"]
+        if self._is_created:
+            try:
+                variations = {}
+                for tr in self.traces:
+                    for fam in tr.properties["Families"]:
+                        k = 0
+                        while k < len(fam):
+                            key = fam[k][:-2]
+                            v = fam[k + 1]
+                            if key in variations:
+                                variations[key].extend(v)
+                                variations[key] = list(set(variations[key]))
+                            else:
+                                variations[key] = v
+                            k += 2
+                    variations[tr.properties["Primary Sweep"]] = ["All"]
+                    if tr.properties.get("Secondary Sweep", None):
+                        variations[tr.properties["Secondary Sweep"]] = ["All"]
+                self._props["context"]["variations"] = variations
+            except Exception:
+                pass
+        return self._props["context"]["variations"]
 
     @variations.setter
     def variations(self, value):
-        self.props["context"]["variations"] = value
+
+        self._props["context"]["variations"] = value
 
     @property
     def primary_sweep(self):
@@ -929,13 +1155,15 @@ class CommonReport(object):
         str
             Primary sweep.
         """
-        return self.props["context"]["primary_sweep"]
+        if self._is_created:
+            return list(self.properties.props.values())[4].split(" ,")[0]
+        return self._props["context"]["primary_sweep"]
 
     @primary_sweep.setter
     def primary_sweep(self, value):
-        if value == self.props["context"].get("secondary_sweep", None):
-            self.props["context"]["secondary_sweep"] = self.props["context"]["primary_sweep"]
-        self.props["context"]["primary_sweep"] = value
+        if value == self._props["context"].get("secondary_sweep", None):
+            self._props["context"]["secondary_sweep"] = self._props["context"]["primary_sweep"]
+        self._props["context"]["primary_sweep"] = value
         if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -952,13 +1180,17 @@ class CommonReport(object):
         str
             Secondary sweep.
         """
-        return self.props["context"].get("secondary_sweep", None)
+        if self._is_created:
+            els = list(self.properties.props.values())[4].split(" ,")
+
+            return els[1] if len(els) == 3 else None
+        return self._props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
     def secondary_sweep(self, value):
-        if value == self.props["context"]["primary_sweep"]:
-            self.props["context"]["primary_sweep"] = self.props["context"]["secondary_sweep"]
-        self.props["context"]["secondary_sweep"] = value
+        if value == self._props["context"]["primary_sweep"]:
+            self._props["context"]["primary_sweep"] = self._props["context"]["secondary_sweep"]
+        self._props["context"]["secondary_sweep"] = value
         if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
@@ -975,11 +1207,11 @@ class CommonReport(object):
         str
             Primary sweep range.
         """
-        return self.props["context"]["primary_sweep_range"]
+        return self._props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
     def primary_sweep_range(self, value):
-        self.props["context"]["primary_sweep_range"] = value
+        self._props["context"]["primary_sweep_range"] = value
 
     @property
     def secondary_sweep_range(self):
@@ -990,11 +1222,11 @@ class CommonReport(object):
         str
             Secondary sweep range.
         """
-        return self.props["context"]["secondary_sweep_range"]
+        return self._props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
     def secondary_sweep_range(self, value):
-        self.props["context"]["secondary_sweep_range"] = value
+        self._props["context"]["secondary_sweep_range"] = value
 
     @property
     def _context(self):
@@ -1061,11 +1293,16 @@ class CommonReport(object):
         str
             Plot domain.
         """
-        return self.props["context"]["domain"]
+        if self._is_created:
+            try:
+                return self.traces[0].properties["Domain"]
+            except Exception:
+                pass
+        return self._props["context"]["domain"]
 
     @domain.setter
     def domain(self, domain):
-        self.props["context"]["domain"] = domain
+        self._props["context"]["domain"] = domain
         if self._post._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
             return
         if self.primary_sweep == "Freq" and domain == "Time":
@@ -1086,11 +1323,11 @@ class CommonReport(object):
         bool
             ``True`` when option is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("use_pulse_in_tdr", False)
+        return self._props["context"].get("use_pulse_in_tdr", False)
 
     @use_pulse_in_tdr.setter
     def use_pulse_in_tdr(self, val):
-        self.props["context"]["use_pulse_in_tdr"] = val
+        self._props["context"]["use_pulse_in_tdr"] = val
 
     @pyaedt_function_handler()
     def _convert_dict_to_report_sel(self, sweeps):
@@ -1106,7 +1343,7 @@ class CommonReport(object):
         if self.secondary_sweep:
             sweep_list.append(self.secondary_sweep + ":=")
             if self.secondary_sweep_range == ["All"] and self.secondary_sweep in self.variations:
-                sweep_list.append(self.variations[self.primary_sweep])
+                sweep_list.append(self.variations[self.secondary_sweep])
             else:
                 sweep_list.append(self.secondary_sweep_range)
         for el in sweeps:
@@ -1159,6 +1396,292 @@ class CommonReport(object):
         return True
 
     @pyaedt_function_handler()
+    def _export_context(self, output_dict):
+        output_dict["context"] = {
+            "domain": self.domain,
+            "primary_sweep": self.primary_sweep,
+            "primary_sweep_range": self.primary_sweep_range if self.primary_sweep_range else ["All"],
+        }
+        if isinstance(self, (FarField, AntennaParameters)):
+            output_dict["context"]["far_field_sphere"] = self.far_field_sphere
+        elif isinstance(self, Fields) and self.polyline:
+            output_dict["context"]["polyline"] = self.polyline
+            output_dict["context"]["point_number"] = self.point_number
+        elif self._post._app.design_type in ["Q3D Extractor", "2D Extractor"] or (
+            self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._post._app.solution_type == "EddyCurrent"
+        ):
+            output_dict["context"]["matrix"] = self.matrix
+        elif self.traces and any(
+            [i for i in self._post.available_report_quantities(differential_pairs=True) if i in self.traces[0].name]
+        ):
+            output_dict["context"]["differential_pairs"] = True
+        if self.secondary_sweep:
+            output_dict["context"]["secondary_sweep"] = self.secondary_sweep
+            output_dict["context"]["secondary_sweep_range"] = (
+                self.secondary_sweep_range if self.secondary_sweep_range else ["All"]
+            )
+        output_dict["context"]["variations"] = self.variations
+
+        if isinstance(self, (AMIEyeDiagram, EyeDiagram)):
+            output_dict["context"]["unit_interval"] = (self.unit_interval,)
+            output_dict["context"]["offset"] = (self.offset,)
+            output_dict["context"]["auto_delay"] = (self.auto_delay,)
+            output_dict["context"]["manual_delay"] = (self.manual_delay,)
+            output_dict["context"]["auto_cross_amplitude"] = (self.auto_cross_amplitude,)
+            output_dict["context"]["cross_amplitude"] = (self.cross_amplitude,)
+            output_dict["context"]["auto_compute_eye_meas"] = (self.auto_compute_eye_meas,)
+            output_dict["context"]["eye_measurement_point"] = self.eye_measurement_point
+            try:
+                trace_name = self.traces[0].name
+                if "Initial" in trace_name:
+                    output_dict["quantity_type"] = 0
+                elif "AfterSource" in trace_name:
+                    output_dict["quantity_type"] = 1
+                elif "AfterChannel" in trace_name:
+                    output_dict["quantity_type"] = 2
+                elif "AfterProbe" in trace_name:
+                    output_dict["quantity_type"] = 3
+                else:
+                    output_dict["quantity_type"] = 0
+            except Exception:
+                output_dict["quantity_type"] = 0
+            if isinstance(self, EyeDiagram):
+                output_dict["context"]["time_start"] = self.time_start
+                output_dict["context"]["time_stop"] = self.time_stop
+                output_dict["context"]["thinning"] = self.thinning
+                output_dict["context"]["dy_dx_tolerance"] = self.dy_dx_tolerance
+                output_dict["context"]["thinning_points"] = self.thinning_points
+
+    @pyaedt_function_handler()
+    def _export_expressions(self, output_dict):
+        output_dict["expressions"] = {}
+        for expr in self.traces:
+            name = self.properties.props[expr.name].split(" ,")[-1]
+            pr = expr.curve_properties
+            output_dict["expressions"][name] = {}
+            if "Trace Type" in pr:
+                output_dict["expressions"][name] = {
+                    "color": [pr["Color/Red"], pr["Color/Green"], pr["Color/Blue"]],
+                    "trace_style": pr["Line Style"],
+                    "width": pr["Line Width"],
+                }
+            if "Y Axis" in expr.properties:
+                output_dict["expressions"][name]["y_axis"] = expr.properties["Y Axis"]
+            if "Show Symbol" in pr:
+                symbol_dict = {
+                    "symbol_color": [pr["Symbol Color/Red"], pr["Symbol Color/Green"], pr["Symbol Color/Blue"]],
+                    "show_symbols": pr["Show Symbol"],
+                    "symbol_style": pr["Symbol Style"],
+                    "symbol_fill": pr["Fill Symbol"],
+                    "show_arrows": pr["Show Arrows"],
+                    "symbol_frequency": pr["Symbol Frequency"],
+                }
+                output_dict["expressions"][name].update(symbol_dict)
+
+    @pyaedt_function_handler()
+    def _export_graphical_objects(self, output_dict):
+
+        if isinstance(self, (AMIEyeDiagram, EyeDiagram)) and "EyeDisplayTypeProperty" in self.properties.children:
+            pr = self.properties.children["EyeDisplayTypeProperty"].props
+            if pr.get("Mask/MaskPoints", None) and len(pr["Mask/MaskPoints"]) > 1:
+                pts_x = pr["Mask/MaskPoints"][1::2]
+                pts_y = pr["Mask/MaskPoints"][2::2]
+
+                output_dict["eye_mask"] = {
+                    "xunits": pr["Mask/XUnits"],
+                    "yunits": pr["Mask/YUnits"],
+                    "points": [[i, j] for i, j in zip(pts_x, pts_y)],
+                    "enable_limits": pr["Mask/ShowLimits"],
+                    "upper_limit": pr["Mask/UpperLimit"],
+                    "lower_limit": pr["Mask/LowerLimit"],
+                    "color": [pr["Mask Fill Color/Red"], pr["Mask Fill Color/Green"], pr["Mask Fill Color/Blue"]],
+                    "transparency": pr["Mask Trans/Transparency"],
+                }
+
+        output_dict["limitLines"] = {}
+        for expr in self.limit_lines:
+            pr = expr.properties
+            name = expr.line_name
+            output_dict["limitLines"][name] = {
+                "color": [pr["Color/Red"], pr["Color/Green"], pr["Color/Blue"]],
+                "trace_style": pr["Line Style"],
+                "width": pr["Line Width"],
+                "hatch_above": pr["Hatch Above"],
+                "violation_emphasis": pr["Violation Emphasis"],
+                "hatch_pixels": pr["Hatch Pixels"],
+                "y_axis": pr["Y Axis"],
+            }
+            if "Point Data" in pr:  # supported only point data
+                pdata = pr["Point Data"]
+                output_dict["limitLines"][name]["xunits"] = ""
+                output_dict["limitLines"][name]["yunits"] = ""
+                output_dict["limitLines"][name]["xpoints"] = pdata[3][1::2]
+                output_dict["limitLines"][name]["ypoints"] = pdata[3][2::2]
+            else:
+                output_dict["limitLines"][name]["start"] = pr["Start"]
+                output_dict["limitLines"][name]["stop"] = pr["Stop"]
+                output_dict["limitLines"][name]["step"] = pr["Step"]
+                output_dict["limitLines"][name]["equation"] = pr["Equation"]
+                output_dict["limitLines"][name]["y_axis"] = pr["Y Axis"]
+
+        output_dict["notes"] = {}
+        position = [1000, 1000]  # no way to retrieve position of notes
+        for expr in self.notes:
+            pr = expr.properties
+            name = expr.plot_note_name
+            output_dict["notes"][name] = {
+                "text": pr["Note Text"][1],
+                "color": [pr["Note Font/R"], pr["Note Font/G"], pr["Note Font/B"]],
+                "font": pr["Note Font/FaceName"],
+                "font_size": pr["Note Font/Height"],
+                "italic": True if pr["Note Font/Italic"] else False,
+                "background_color": [pr["Back Color/Red"], pr["Back Color/Green"], pr["Back Color/Blue"]],
+                "background_visibility": pr["Background Visibility"],
+                "border_color": [pr["Border Color/Red"], pr["Border Color/Green"], pr["Border Color/Blue"]],
+                "border_visibiliy": pr["Border Visibility"],
+                "border_width": pr["Border Width"],
+                "position": position,
+            }
+
+    @pyaedt_function_handler()
+    def _export_general_appearance(self, output_dict):
+        output_dict["general"] = {}
+        if "AxisX" in self.properties.children:
+            axis = self.properties.children["AxisX"].props
+            output_dict["general"]["axisx"] = {
+                "label": axis["Name"],
+                "font": axis["Text Font/FaceName"],
+                "font_size": axis["Text Font/Height"],
+                "italic": True if axis["Text Font/Italic"] else False,
+                "color": [axis["Text Font/R"], axis["Text Font/G"], axis["Text Font/B"]],
+                "specify_spacing": axis.get("Specify Spacing", False),
+                "spacing": axis.get("Spacing", "1GHz"),
+                "minor_tick_divs": axis.get("Minor Tick Divs", None),
+                "auto_units": axis["Auto Units"],
+                "units": axis["Units"],
+            }
+            if not isinstance(self, (AMIEyeDiagram, EyeDiagram)):
+                output_dict["general"]["axisx"]["linear_scaling"] = True if axis["Axis Scaling"] == "Linear" else False
+            y_axis_available = [i for i in self.properties.children.keys() if i.startswith("AxisY")]
+            for yaxis in y_axis_available:
+                axis = self.properties.children[yaxis].props
+                output_dict["general"][yaxis.lower()] = {
+                    "label": axis["Name"],
+                    "font": axis["Text Font/FaceName"],
+                    "font_size": axis["Text Font/Height"],
+                    "italic": True if axis["Text Font/Italic"] else False,
+                    "color": [axis["Text Font/R"], axis["Text Font/G"], axis["Text Font/B"]],
+                    "specify_spacing": axis.get("Specify Spacing", False),
+                    "minor_tick_divs": axis.get("Minor Tick Divs", None),
+                    "auto_units": axis["Auto Units"],
+                    "units": axis["Units"],
+                }
+                if not isinstance(self, (AMIEyeDiagram, EyeDiagram)):
+                    output_dict["general"][yaxis.lower()]["linear_scaling"] = (
+                        True if axis["Axis Scaling"] == "Linear" else False
+                    )
+        if "General" in self.properties.children:
+            props = self.properties.children["General"].props
+            output_dict["general"]["appearance"] = {
+                "background_color": [
+                    props["Back Color/Red"],
+                    props["Back Color/Green"],
+                    props["Back Color/Blue"],
+                ],
+                "plot_color": [
+                    props["Plot Area Color/Red"],
+                    props["Plot Area Color/Green"],
+                    props["Plot Area Color/Blue"],
+                ],
+                "enable_y_stripes": props.get("Enable Y Axis Stripes", None),
+                "Auto Scale Fonts": props["Auto Scale Fonts"],
+                "field_width": props["Field Width"],
+                "precision": props["Precision"],
+                "use_scientific_notation": props["Use Scientific Notation"],
+            }
+
+        if "Grid" in self.properties.children:
+            props = self.properties.children["Grid"].props
+            output_dict["general"]["grid"] = {
+                "major_color": [
+                    props["Major grid line color/Red"],
+                    props["Major grid line color/Green"],
+                    props["Major grid line color/Blue"],
+                ],
+                "minor_color": [
+                    props["Minor grid line color/Red"],
+                    props["Minor grid line color/Green"],
+                    props["Minor grid line color/Blue"],
+                ],
+                "major_x": props["Show major X grid"],
+                "major_y": props["Show major Y grid"],
+                "minor_x": props["Show minor X grid"],
+                "minor_y": props["Show minor Y grid"],
+                "style_major": props["Major grid line style"],
+                "style_minor": props["Minor grid line style"],
+            }
+        if "Legend" in self.properties.children:
+            props = self.properties.children["Legend"].props
+            output_dict["general"]["legend"] = {
+                "back_color": [
+                    props["Back Color/Red"],
+                    props["Back Color/Green"],
+                    props["Back Color/Blue"],
+                ],
+                "font_color": [
+                    props["Font/R"],
+                    props["Font/G"],
+                    props["Font/B"],
+                ],
+                "show_solution_name": props["Show Solution Name"],
+                "show_variation_key": props["Show Variation Key"],
+                "show_trace_name": props["Show Trace Name"],
+            }
+        if "Header" in self.properties.children:
+            props = self.properties.children["Header"].props
+            output_dict["general"]["header"] = {
+                "font": props["Title Font/FaceName"],
+                "title_size": props["Title Font/Height"],
+                "color": [
+                    props["Title Font/R"],
+                    props["Title Font/G"],
+                    props["Title Font/B"],
+                ],
+                "italic": True if props["Title Font/Italic"] else False,
+                "subtitle_size": props["Sub Title Font/Height"],
+                "company_name": props["Company Name"],
+                "show_design_name": props["Show Design Name"],
+            }
+
+    @pyaedt_function_handler()
+    def export_config(self, output_file):
+        """Generate a configuration file from active report.
+
+        Parameters
+        ----------
+        output_file : str
+            Full path to json file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        output_dict = {}
+        output_dict["Help"] = "Report Generated automatically by PyAEDT"
+        output_dict["report_category"] = self.report_category
+        output_dict["report_type"] = self.report_type
+        output_dict["plot_name"] = self.plot_name
+
+        self._export_context(output_dict)
+        self._export_expressions(output_dict)
+        self._export_graphical_objects(output_dict)
+        self._export_general_appearance(output_dict)
+
+        return write_configuration_file(output_dict, output_file)
+
+    @pyaedt_function_handler()
     def get_solution_data(self):
         """Get the report solution data.
 
@@ -1167,10 +1690,18 @@ class CommonReport(object):
         :class:`ansys.aedt.core.modules.solutions.SolutionData`
             Solution data object.
         """
-        if not self.expressions:
+        if self._is_created:
+            expr = [i.name for i in self.traces]
+        elif not self.expressions:
             self.update_expressions_with_defaults()
+            expr = [i for i in self.expressions]
+        else:
+            expr = [i for i in self.expressions]
+        if not expr:
+            self._post._app.logger.warning("No Expressions Available. Check inputs")
+            return False
         solution_data = self._post.get_solution_data_per_variation(
-            self.report_category, self.setup, self._context, self.variations, self.expressions
+            self.report_category, self.setup, self._context, self.variations, expr
         )
         if not solution_data:
             self._post._app.logger.warning("No Data Available. Check inputs")
@@ -1778,15 +2309,25 @@ class CommonReport(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        props = [
-            "NAME:ChangedProps",
-            ["NAME:Back Color", "R:=", background_color[0], "G:=", background_color[1], "B:=", background_color[2]],
-            ["NAME:Plot Area Color", "R:=", plot_color[0], "G:=", plot_color[1], "B:=", plot_color[2]],
-            ["NAME:Enable Y Axis Stripes", "Value:=", enable_y_stripes],
-            ["NAME:Field Width", "Value:=", str(field_width)],
-            ["NAME:Precision", "Value:=", str(precision)],
-            ["NAME:Use Scientific Notation", "Value:=", use_scientific_notation],
-        ]
+        if enable_y_stripes is None:
+            props = [
+                "NAME:ChangedProps",
+                ["NAME:Back Color", "R:=", background_color[0], "G:=", background_color[1], "B:=", background_color[2]],
+                ["NAME:Plot Area Color", "R:=", plot_color[0], "G:=", plot_color[1], "B:=", plot_color[2]],
+                ["NAME:Field Width", "Value:=", str(field_width)],
+                ["NAME:Precision", "Value:=", str(precision)],
+                ["NAME:Use Scientific Notation", "Value:=", use_scientific_notation],
+            ]
+        else:
+            props = [
+                "NAME:ChangedProps",
+                ["NAME:Back Color", "R:=", background_color[0], "G:=", background_color[1], "B:=", background_color[2]],
+                ["NAME:Plot Area Color", "R:=", plot_color[0], "G:=", plot_color[1], "B:=", plot_color[2]],
+                ["NAME:Enable Y Axis Stripes", "Value:=", enable_y_stripes],
+                ["NAME:Field Width", "Value:=", str(field_width)],
+                ["NAME:Precision", "Value:=", str(precision)],
+                ["NAME:Use Scientific Notation", "Value:=", use_scientific_notation],
+            ]
         return self._change_property("general", "general", props)
 
     @pyaedt_function_handler()
@@ -2124,11 +2665,11 @@ class Standard(CommonReport):
         int
             Number of the sub design ID.
         """
-        return self.props["context"].get("Sub Design ID", None)
+        return self._props["context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
     def sub_design_id(self, value):
-        self.props["context"]["Sub Design ID"] = value
+        self._props["context"]["Sub Design ID"] = value
 
     @property
     def time_start(self):
@@ -2139,11 +2680,11 @@ class Standard(CommonReport):
         str
             Time start value.
         """
-        return self.props["context"].get("time_start", None)
+        return self._props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["context"]["time_start"] = value
+        self._props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -2154,11 +2695,11 @@ class Standard(CommonReport):
         str
             Time stop value.
         """
-        return self.props["context"].get("time_stop", None)
+        return self._props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["context"]["time_stop"] = value
+        self._props["context"]["time_stop"] = value
 
     @property
     def _did(self):
@@ -2166,6 +2707,12 @@ class Standard(CommonReport):
             return 3
         elif self.domain == "Clock Times":
             return 55827
+        elif self.domain in [
+            "UI",
+        ]:
+            return 55819
+        elif self.domain in ["Initial Response"]:
+            return 55824
         else:
             return 1
 
@@ -2178,11 +2725,11 @@ class Standard(CommonReport):
         float
             Pulse rise time.
         """
-        return self.props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+        return self._props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
 
     @pulse_rise_time.setter
     def pulse_rise_time(self, val):
-        self.props["context"]["pulse_rise_time"] = val
+        self._props["context"]["pulse_rise_time"] = val
 
     @property
     def time_windowing(self):
@@ -2202,7 +2749,7 @@ class Standard(CommonReport):
         int
             Time windowing.
         """
-        _time_windowing = self.props["context"].get("time_windowing", 0)
+        _time_windowing = self._props["context"].get("time_windowing", 0)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
@@ -2219,9 +2766,9 @@ class Standard(CommonReport):
             "lanzcos": 8,
         }
         if isinstance(val, int):
-            self.props["context"]["time_windowing"] = val
+            self._props["context"]["time_windowing"] = val
         elif isinstance(val, str) and val.lower in available_values:
-            self.props["context"]["time_windowing"] = available_values[val.lower()]
+            self._props["context"]["time_windowing"] = available_values[val.lower()]
 
     @property
     def _context(self):
@@ -2355,6 +2902,67 @@ class Standard(CommonReport):
                 ctxt_temp = ["USE_DIFF_PAIRS", False, "1"]
                 for el in ctxt_temp:
                     ctxt[2].append(el)
+
+            elif self.domain == "UI":
+                if self.report_type == "Rectangular Contour Plot":
+                    ctxt[2].extend(
+                        [
+                            "MLO",
+                            False,
+                            "0",
+                            "NF",
+                            False,
+                            "1e-16",
+                            "NUMLEVELS",
+                            False,
+                            "1",
+                            "PCID",
+                            False,
+                            "-1",
+                            "PID",
+                            False,
+                            "0",
+                            "PRIDIST",
+                            False,
+                            "-1",
+                            "USE_PRI_DIST",
+                            False,
+                            "0",
+                        ]
+                    )
+                else:
+                    ctxt[2].extend(
+                        [
+                            "AMPUI",
+                            False,
+                            "1",
+                            "AMPUIVAL",
+                            False,
+                            "0",
+                            "MLO",
+                            False,
+                            "0",
+                            "NF",
+                            False,
+                            "1e-16",
+                            "NUMLEVELS",
+                            False,
+                            "1",
+                            "PCID",
+                            False,
+                            "-1",
+                            "PID",
+                            False,
+                            "0",
+                            "PRIDIST",
+                            False,
+                            "-1",
+                            "USE_PRI_DIST",
+                            False,
+                        ]
+                    )
+            elif self.domain == "Initial Response":
+                ctxt[2].extend(["IRID", False, "0", "NUMLEVELS", False, "1", "SCID", False, "-1", "SID", False, "0"])
             if self.domain == "Time":
                 if self.time_start:
                     ctxt[2].extend(["WS", False, self.time_start])
@@ -2437,11 +3045,16 @@ class AntennaParameters(Standard):
         str
             Name of the far field sphere.
         """
-        return self.props["context"].get("far_field_sphere", None)
+        if self._is_created:
+            try:
+                self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
+            except Exception:
+                pass
+        return self._props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self.props["context"]["far_field_sphere"] = value
+        self._props["context"]["far_field_sphere"] = value
 
     @property
     def _context(self):
@@ -2455,8 +3068,6 @@ class Fields(CommonReport):
     def __init__(self, app, report_category, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Sweep"
-        self.polyline = None
-        self.point_number = 1001
         self.primary_sweep = "Distance"
 
     @property
@@ -2468,11 +3079,11 @@ class Fields(CommonReport):
         str
             Point number.
         """
-        return self.props["context"].get("point_number", None)
+        return self._props["context"].get("point_number", 1001)
 
     @point_number.setter
     def point_number(self, value):
-        self.props["context"]["point_number"] = value
+        self._props["context"]["point_number"] = value
 
     @property
     def _context(self):
@@ -2502,11 +3113,11 @@ class NearField(CommonReport):
         str
             Field name.
         """
-        return self.props["context"].get("near_field", None)
+        return self._props["context"].get("near_field", None)
 
     @near_field.setter
     def near_field(self, value):
-        self.props["context"]["near_field"] = value
+        self._props["context"]["near_field"] = value
 
 
 class FarField(CommonReport):
@@ -2535,11 +3146,16 @@ class FarField(CommonReport):
         str
             Field name.
         """
-        return self.props.get("far_field_sphere", None)
+        if self._is_created:
+            try:
+                self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
+            except Exception:
+                pass
+        return self._props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self.props["far_field_sphere"] = value
+        self._props["context"]["far_field_sphere"] = value
 
     @property
     def _context(self):
@@ -2556,11 +3172,11 @@ class AMIConturEyeDiagram(CommonReport):
     def __init__(self, app, report_category, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
-        self.props["report_type"] = "Rectangular Contour Plot"
+        self._props["report_type"] = "Rectangular Contour Plot"
         self.variations.pop("Time", None)
-        self.props["context"]["variations"]["__UnitInterval"] = "All"
-        self.props["context"]["variations"]["__Amplitude"] = "All"
-        self.props["context"]["variations"]["__EyeOpening"] = "0"
+        self._props["context"]["variations"]["__UnitInterval"] = "All"
+        self._props["context"]["variations"]["__Amplitude"] = "All"
+        self._props["context"]["variations"]["__EyeOpening"] = "0"
         self.quantity_type = 0
         self.min_latch_overlay = "0"
         self.noise_floor = "1e-16"
@@ -2578,13 +3194,14 @@ class AMIConturEyeDiagram(CommonReport):
 
         Returns
         -------
-        str
+        list
+            Expressions.
         """
-        if self.props.get("expressions", None) is None:
+        if self._props.get("expressions", None) is None:
             return []
         expr_head = "Eye"
         new_exprs = []
-        for expr_dict in self.props["expressions"]:
+        for expr_dict in self._props["expressions"]:
             expr = expr_dict["name"]
             if not ".int_ami" in expr:
                 qtype = int(self.quantity_type)
@@ -2596,24 +3213,26 @@ class AMIConturEyeDiagram(CommonReport):
                     new_exprs.append("{}AfterChannel(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
                 elif qtype == 3:
                     new_exprs.append("{}AfterProbe(".format(expr_head) + expr + ".int_ami_rx)<Bit Error Rate>")
+            else:
+                new_exprs.append(expr)
         return new_exprs
 
     @expressions.setter
     def expressions(self, value):
         if isinstance(value, dict):
-            self.props["expressions"].append = value
+            self._props["expressions"].append = value
         elif isinstance(value, list):
-            self.props["expressions"] = []
+            self._props["expressions"] = []
             for el in value:
                 if isinstance(el, dict):
-                    self.props["expressions"].append(el)
+                    self._props["expressions"].append(el)
                 else:
-                    self.props["expressions"].append({"name": el})
+                    self._props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self.props["expressions"], list):
-                self.props["expressions"].append({"name": value})
+            if isinstance(self._props["expressions"], list):
+                self._props["expressions"].append({"name": value})
             else:
-                self.props["expressions"] = [{"name": value}]
+                self._props["expressions"] = [{"name": value}]
 
     @property
     def quantity_type(self):
@@ -2624,11 +3243,11 @@ class AMIConturEyeDiagram(CommonReport):
         int
             Quantity type.
         """
-        return self.props.get("quantity_type", 0)
+        return self._props.get("quantity_type", 0)
 
     @quantity_type.setter
     def quantity_type(self, value):
-        self.props["quantity_type"] = value
+        self._props["quantity_type"] = value
 
     @property
     def report_category(self):
@@ -2639,12 +3258,16 @@ class AMIConturEyeDiagram(CommonReport):
         str
             Report category.
         """
-        return self.props["report_category"]
+        return self._props["report_category"]
 
     @property
     def _context(self):
+        if self.primary_sweep == "__InitialTime":
+            cid = 55824
+        else:
+            cid = 55819
         sim_context = [
-            55819,
+            cid,
             0,
             2,
             0,
@@ -2787,7 +3410,10 @@ class AMIConturEyeDiagram(CommonReport):
     @property
     def _trace_info(self):
         new_exprs = self.expressions if isinstance(self.expressions, list) else [self.expressions]
-        return ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Z Component:=", new_exprs]
+        if self.secondary_sweep:
+            return ["X Component:=", self.primary_sweep, "Y Component:=", "__Amplitude", "Z Component:=", new_exprs]
+        else:
+            return ["X Component:=", self.primary_sweep, "Y Component:=", new_exprs]
 
     @pyaedt_function_handler()
     def create(self, name=None):
@@ -3011,7 +3637,7 @@ class AMIEyeDiagram(CommonReport):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Time"
         if report_category == "Statistical Eye":
-            self.props["report_type"] = "Statistical Eye Plot"
+            self._props["report_type"] = "Statistical Eye Plot"
             self.variations.pop("Time", None)
             self.variations["__UnitInterval"] = "All"
             self.variations["__Amplitude"] = "All"
@@ -3031,15 +3657,18 @@ class AMIEyeDiagram(CommonReport):
 
         Returns
         -------
-        str
+        list
+            Expressions.
         """
-        if self.props.get("expressions", None) is None:
+        if self._is_created:
+            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
+        if self._props.get("expressions", None) is None:
             return []
         expr_head = "Wave"
         if self.report_category == "Statistical Eye":
             expr_head = "Eye"
         new_exprs = []
-        for expr_dict in self.props["expressions"]:
+        for expr_dict in self._props["expressions"]:
             expr = expr_dict["name"]
             if not ".int_ami" in expr:
                 qtype = int(self.quantity_type)
@@ -3053,23 +3682,6 @@ class AMIEyeDiagram(CommonReport):
                     new_exprs.append("{}AfterProbe<".format(expr_head) + expr + ".int_ami_rx>")
         return new_exprs
 
-    @expressions.setter
-    def expressions(self, value):
-        if isinstance(value, dict):
-            self.props["expressions"].append = value
-        elif isinstance(value, list):
-            self.props["expressions"] = []
-            for el in value:
-                if isinstance(el, dict):
-                    self.props["expressions"].append(el)
-                else:
-                    self.props["expressions"].append({"name": el})
-        elif isinstance(value, str):
-            if isinstance(self.props["expressions"], list):
-                self.props["expressions"].append({"name": value})
-            else:
-                self.props["expressions"] = [{"name": value}]
-
     @property
     def quantity_type(self):
         """Quantity type used in the AMI analysis plot.
@@ -3079,11 +3691,11 @@ class AMIEyeDiagram(CommonReport):
         int
             Quantity type.
         """
-        return self.props.get("quantity_type", 0)
+        return self._props.get("quantity_type", 0)
 
     @quantity_type.setter
     def quantity_type(self, value):
-        self.props["quantity_type"] = value
+        self._props["quantity_type"] = value
 
     @property
     def report_category(self):
@@ -3094,18 +3706,18 @@ class AMIEyeDiagram(CommonReport):
         str
             Report category.
         """
-        return self.props["report_category"]
+        return self._props["report_category"]
 
     @report_category.setter
     def report_category(self, value):
-        self.props["report_category"] = value
-        if self.props["report_category"] == "Statistical Eye" and self.report_type == "Rectangular Plot":
-            self.props["report_type"] = "Statistical Eye Plot"
+        self._props["report_category"] = value
+        if self._props["report_category"] == "Statistical Eye" and self.report_type == "Rectangular Plot":
+            self._props["report_type"] = "Statistical Eye Plot"
             self.variations.pop("Time", None)
             self.variations["__UnitInterval"] = "All"
             self.variations["__Amplitude"] = "All"
-        elif self.props["report_category"] == "Eye Diagram" and self.report_type == "Statistical Eye Plot":
-            self.props["report_type"] = "Rectangular Plot"
+        elif self._props["report_category"] == "Eye Diagram" and self.report_type == "Statistical Eye Plot":
+            self._props["report_type"] = "Rectangular Plot"
             self.variations.pop("__UnitInterval", None)
             self.variations.pop("__Amplitude", None)
             self.variations["Time"] = "All"
@@ -3119,11 +3731,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Unit interval.
         """
-        return self.props["context"].get("unit_interval", None)
+        return self._props["context"].get("unit_interval", None)
 
     @unit_interval.setter
     def unit_interval(self, value):
-        self.props["context"]["unit_interval"] = value
+        self._props["context"]["unit_interval"] = value
 
     @property
     def offset(self):
@@ -3134,11 +3746,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Offset value.
         """
-        return self.props["context"].get("offset", None)
+        return self._props["context"].get("offset", None)
 
     @offset.setter
     def offset(self, value):
-        self.props["context"]["offset"] = value
+        self._props["context"]["offset"] = value
 
     @property
     def auto_delay(self):
@@ -3149,11 +3761,11 @@ class AMIEyeDiagram(CommonReport):
         bool
             ``True`` if auto-delay is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("auto_delay", None)
+        return self._props["context"].get("auto_delay", None)
 
     @auto_delay.setter
     def auto_delay(self, value):
-        self.props["context"]["auto_delay"] = value
+        self._props["context"]["auto_delay"] = value
 
     @property
     def manual_delay(self):
@@ -3164,11 +3776,11 @@ class AMIEyeDiagram(CommonReport):
         str
             ``True`` if manual-delay is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("manual_delay", None)
+        return self._props["context"].get("manual_delay", None)
 
     @manual_delay.setter
     def manual_delay(self, value):
-        self.props["context"]["manual_delay"] = value
+        self._props["context"]["manual_delay"] = value
 
     @property
     def auto_cross_amplitude(self):
@@ -3179,11 +3791,11 @@ class AMIEyeDiagram(CommonReport):
         bool
             ``True`` if auto-cross amplitude is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("auto_cross_amplitude", None)
+        return self._props["context"].get("auto_cross_amplitude", None)
 
     @auto_cross_amplitude.setter
     def auto_cross_amplitude(self, value):
-        self.props["context"]["auto_cross_amplitude"] = value
+        self._props["context"]["auto_cross_amplitude"] = value
 
     @property
     def cross_amplitude(self):
@@ -3194,11 +3806,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Cross-amplitude.
         """
-        return self.props["context"].get("cross_amplitude", None)
+        return self._props["context"].get("cross_amplitude", None)
 
     @cross_amplitude.setter
     def cross_amplitude(self, value):
-        self.props["context"]["cross_amplitude"] = value
+        self._props["context"]["cross_amplitude"] = value
 
     @property
     def auto_compute_eye_meas(self):
@@ -3209,11 +3821,11 @@ class AMIEyeDiagram(CommonReport):
         bool
             ``True`` to compute eye measurements, ``False`` otherwise.
         """
-        return self.props["context"].get("auto_compute_eye_meas", None)
+        return self._props["context"].get("auto_compute_eye_meas", None)
 
     @auto_compute_eye_meas.setter
     def auto_compute_eye_meas(self, value):
-        self.props["context"]["auto_compute_eye_meas"] = value
+        self._props["context"]["auto_compute_eye_meas"] = value
 
     @property
     def eye_measurement_point(self):
@@ -3224,11 +3836,11 @@ class AMIEyeDiagram(CommonReport):
         str
             Eye measurement point.
         """
-        return self.props["context"].get("eye_measurement_point", None)
+        return self._props["context"].get("eye_measurement_point", None)
 
     @eye_measurement_point.setter
     def eye_measurement_point(self, value):
-        self.props["context"]["eye_measurement_point"] = value
+        self._props["context"]["eye_measurement_point"] = value
 
     @property
     def _context(self):
@@ -3611,29 +4223,29 @@ class EyeDiagram(AMIEyeDiagram):
 
         Returns
         -------
-        str
+        list
             Expressions.
         """
-        if self.props.get("expressions", None) is None:
+        if self._props.get("expressions", None) is None:
             return []
-        return [k.get("name", None) for k in self.props["expressions"] if k.get("name", None) is not None]
+        return [k.get("name", None) for k in self._props["expressions"] if k.get("name", None) is not None]
 
     @expressions.setter
     def expressions(self, value):
         if isinstance(value, dict):
-            self.props["expressions"].append = value
+            self._props["expressions"].append = value
         elif isinstance(value, list):
-            self.props["expressions"] = []
+            self._props["expressions"] = []
             for el in value:
                 if isinstance(el, dict):
-                    self.props["expressions"].append(el)
+                    self._props["expressions"].append(el)
                 else:
-                    self.props["expressions"].append({"name": el})
+                    self._props["expressions"].append({"name": el})
         elif isinstance(value, str):
-            if isinstance(self.props["expressions"], list):
-                self.props["expressions"].append({"name": value})
+            if isinstance(self._props["expressions"], list):
+                self._props["expressions"].append({"name": value})
             else:
-                self.props["expressions"] = [{"name": value}]
+                self._props["expressions"] = [{"name": value}]
 
     @property
     def time_start(self):
@@ -3644,11 +4256,11 @@ class EyeDiagram(AMIEyeDiagram):
         str
             Time start.
         """
-        return self.props["context"].get("time_start", None)
+        return self._props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["context"]["time_start"] = value
+        self._props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -3659,11 +4271,11 @@ class EyeDiagram(AMIEyeDiagram):
         str
             Time stop.
         """
-        return self.props["context"].get("time_stop", None)
+        return self._props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["context"]["time_stop"] = value
+        self._props["context"]["time_stop"] = value
 
     @property
     def thinning(self):
@@ -3674,11 +4286,11 @@ class EyeDiagram(AMIEyeDiagram):
         bool
             ``True`` if thinning is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("thinning", None)
+        return self._props["context"].get("thinning", None)
 
     @thinning.setter
     def thinning(self, value):
-        self.props["context"]["thinning"] = value
+        self._props["context"]["thinning"] = value
 
     @property
     def dy_dx_tolerance(self):
@@ -3689,11 +4301,11 @@ class EyeDiagram(AMIEyeDiagram):
         float
             DY DX tolerance.
         """
-        return self.props["context"].get("dy_dx_tolerance", None)
+        return self._props["context"].get("dy_dx_tolerance", None)
 
     @dy_dx_tolerance.setter
     def dy_dx_tolerance(self, value):
-        self.props["context"]["dy_dx_tolerance"] = value
+        self._props["context"]["dy_dx_tolerance"] = value
 
     @property
     def thinning_points(self):
@@ -3704,11 +4316,11 @@ class EyeDiagram(AMIEyeDiagram):
         int
             Number of thinning points.
         """
-        return self.props["context"].get("thinning_points", None)
+        return self._props["context"].get("thinning_points", None)
 
     @thinning_points.setter
     def thinning_points(self, value):
-        self.props["context"]["thinning_points"] = value
+        self._props["context"]["thinning_points"] = value
 
     @property
     def _context(self):
@@ -3803,11 +4415,11 @@ class Spectral(CommonReport):
         str
             Time start.
         """
-        return self.props["context"].get("time_start", None)
+        return self._props["context"].get("time_start", "0s")
 
     @time_start.setter
     def time_start(self, value):
-        self.props["context"]["time_start"] = value
+        self._props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -3818,11 +4430,11 @@ class Spectral(CommonReport):
         str
             Time stop.
         """
-        return self.props["context"].get("time_stop", None)
+        return self._props["context"].get("time_stop", "100ns")
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["context"]["time_stop"] = value
+        self._props["context"]["time_stop"] = value
 
     @property
     def window(self):
@@ -3833,11 +4445,11 @@ class Spectral(CommonReport):
         str
             Window.
         """
-        return self.props["context"].get("window", None)
+        return self._props["context"].get("window", "Rectangular")
 
     @window.setter
     def window(self, value):
-        self.props["context"]["window"] = value
+        self._props["context"]["window"] = value
 
     @property
     def kaiser_coeff(self):
@@ -3848,11 +4460,11 @@ class Spectral(CommonReport):
         str
             Kaiser coefficient.
         """
-        return self.props["context"].get("kaiser_coeff", None)
+        return self._props["context"].get("kaiser_coeff", 0)
 
     @kaiser_coeff.setter
     def kaiser_coeff(self, value):
-        self.props["context"]["kaiser_coeff"] = value
+        self._props["context"]["kaiser_coeff"] = value
 
     @property
     def adjust_coherent_gain(self):
@@ -3863,11 +4475,11 @@ class Spectral(CommonReport):
         bool
             ``True`` if coherent gain is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("adjust_coherent_gain", None)
+        return self._props["context"].get("adjust_coherent_gain", False)
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value):
-        self.props["context"]["adjust_coherent_gain"] = value
+        self._props["context"]["adjust_coherent_gain"] = value
 
     @property
     def plot_continous_spectrum(self):
@@ -3878,11 +4490,11 @@ class Spectral(CommonReport):
         bool
             ``True`` if continuous spectrum is enabled, ``False`` otherwise.
         """
-        return self.props["context"].get("plot_continous_spectrum", None)
+        return self._props["context"].get("plot_continous_spectrum", False)
 
     @plot_continous_spectrum.setter
     def plot_continous_spectrum(self, value):
-        self.props["context"]["plot_continous_spectrum"] = value
+        self._props["context"]["plot_continous_spectrum"] = value
 
     @property
     def max_frequency(self):
@@ -3893,11 +4505,11 @@ class Spectral(CommonReport):
         str
             Maximum spectrum frequency.
         """
-        return self.props["context"].get("max_frequency", None)
+        return self._props["context"].get("max_frequency", "10GHz")
 
     @max_frequency.setter
     def max_frequency(self, value):
-        self.props["context"]["max_frequency"] = value
+        self._props["context"]["max_frequency"] = value
 
     @property
     def _context(self):
@@ -4064,11 +4676,11 @@ class EMIReceiver(CommonReport):
         str
             Band name.
         """
-        return self.props["context"].get("band", None)
+        return self._props["context"].get("band", None)
 
     @band.setter
     def band(self, value):
-        self.props["context"]["band"] = value
+        self._props["context"]["band"] = value
 
     @property
     def emission(self):
@@ -4087,10 +4699,10 @@ class EMIReceiver(CommonReport):
     def emission(self, value):
         if value == "CE":
             self._emission = value
-            self.props["context"]["emission"] = "0"
+            self._props["context"]["emission"] = "0"
         elif value == "RE":
             self._emission = value
-            self.props["context"]["emission"] = "1"
+            self._props["context"]["emission"] = "1"
         else:
             self.logger.error("Emission must be 'CE' or 'RE', value '{}' is not valid.".format(value))
 
@@ -4103,11 +4715,11 @@ class EMIReceiver(CommonReport):
         str
             Time start.
         """
-        return self.props["context"].get("time_start", None)
+        return self._props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self.props["context"]["time_start"] = value
+        self._props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -4118,11 +4730,11 @@ class EMIReceiver(CommonReport):
         str
             Time stop.
         """
-        return self.props["context"].get("time_stop", None)
+        return self._props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self.props["context"]["time_stop"] = value
+        self._props["context"]["time_stop"] = value
 
     @property
     def _context(self):

@@ -114,7 +114,7 @@ class AnalysisCircuitNetlist(Analysis, object):
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
+            from ansys.aedt.core.post.advanced_post_processing import PostProcessor
 
             self._post = PostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")
