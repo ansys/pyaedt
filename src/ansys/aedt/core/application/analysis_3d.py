@@ -1262,7 +1262,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         layer_names = []
-        with open_file(file_path) as f:
+        with open_file(file_path, encoding="utf8") as f:
             lines = f.readlines()
             indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
             for idx in indices:
@@ -1355,10 +1355,11 @@ class FieldAnalysis3D(Analysis, object):
 
         vArg1 = ["NAME:options"]
         vArg1.append("FileName:="), vArg1.append(file_path.replace(os.sep, "/"))
+        # vArg1.append("FileName:="), vArg1.append(os.path.abspath(file_path))
         vArg1.append("Scale:="), vArg1.append(scale)
         vArg1.append("AutoDetectClosed:="), vArg1.append(auto_detect_close)
         vArg1.append("SelfStitch:="), vArg1.append(self_stitch)
-        vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
+        # vArg1.append("SelfStitchTolerance:="), vArg1.append(self_stitch_tolerance)
         vArg1.append("DefeatureGeometry:="), vArg1.append(defeature_geometry)
         vArg1.append("DefeatureDistance:="), vArg1.append(defeature_distance)
         vArg1.append("RoundCoordinates:="), vArg1.append(round_coordinates)

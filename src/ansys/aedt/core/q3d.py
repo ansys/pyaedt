@@ -1316,6 +1316,7 @@ class Q3d(QExtractor, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
+        self.is3d = True
         QExtractor.__init__(
             self,
             "Q3D Extractor",
@@ -2319,6 +2320,7 @@ class Q2d(QExtractor, object):
         aedt_process_id=None,
         remove_lock=False,
     ):
+        self.is3d = False
         QExtractor.__init__(
             self,
             "2D Extractor",
