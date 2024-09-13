@@ -1424,7 +1424,7 @@ class BinaryTreeNode:
             del self.children[name]
         else:
             self.props = {}
-            if settings.aedt_version >= "2025.2":
+            if settings.aedt_version >= "2024.2":
                 try:
                     props = self._get_data_model()
                     for p in self.child_object.GetPropNames():

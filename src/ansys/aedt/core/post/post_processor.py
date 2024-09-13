@@ -2425,7 +2425,10 @@ class PostProcessorCommon(object):
             props["expressions"] = {props["expressions"]: {}}
         _dict_items_to_list_items(props, "expressions")
         if not solution_name:
-            solution_name = self._app.nominal_sweep
+            if "Fields" in props.get("report_category", ""):
+                solution_name = self._app.nominal_sweep
+            else:
+                solution_name = self._app.nominal_adaptive
         if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
                 report_temp = TEMPLATES_BY_NAME["Spectrum"]
@@ -2455,7 +2458,7 @@ class PostProcessorCommon(object):
                 self.oreportsetup.UpdateReports(report.plot_name)
             self.logger.info(f"Report {report.plot_name} created successfully.")
             return report
-        self.logger.error(f"Failed to create report {report.plot_name}.")
+        self.logger.error(f"Failed to create report.")
         return False  # pragma: no cover
 
 

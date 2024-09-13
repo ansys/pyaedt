@@ -1516,8 +1516,8 @@ class CommonReport(object):
                 pdata = pr["Point Data"]
                 output_dict["limitLines"][name]["xunits"] = ""
                 output_dict["limitLines"][name]["yunits"] = ""
-                output_dict["limitLines"][name]["xpoints"] = pdata[3][1::2]
-                output_dict["limitLines"][name]["ypoints"] = pdata[3][2::2]
+                output_dict["limitLines"][name]["xpoints"] = pdata[-1][1::2]
+                output_dict["limitLines"][name]["ypoints"] = pdata[-1][2::2]
             else:
                 output_dict["limitLines"][name]["start"] = pr["Start"]
                 output_dict["limitLines"][name]["stop"] = pr["Stop"]
