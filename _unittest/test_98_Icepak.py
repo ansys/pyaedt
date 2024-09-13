@@ -277,7 +277,7 @@ class TestClass:
         pcb_mesh_region.MinGapZ = 1
         assert pcb_mesh_region.update()
         if settings.aedt_version > "2023.2":
-            assert pcb_mesh_region.assignment.padding_values == ["0"] * 6
+            assert [str(i) for i in pcb_mesh_region.assignment.padding_values] == ["0"] * 6
             assert pcb_mesh_region.assignment.padding_types == ["Percentage Offset"] * 6
             pcb_mesh_region.assignment.negative_x_padding = 1
             pcb_mesh_region.assignment.positive_x_padding = 1
@@ -1845,7 +1845,14 @@ class TestClass:
         g_m_r = self.aedtapp.mesh.global_mesh_region
         assert g_m_r
         assert g_m_r.global_region.object.name == "Region"
-        assert g_m_r.global_region.padding_values == ["50", "50", "50", "50", "50", "50"]
+        assert g_m_r.global_region.padding_values == [
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+            "50",
+        ] or g_m_r.global_region.padding_values == [50, 50, 50, 50, 50, 50]
         assert g_m_r.global_region.padding_types == [
             "Percentage Offset",
             "Percentage Offset",
