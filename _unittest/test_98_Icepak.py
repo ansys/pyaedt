@@ -296,7 +296,7 @@ class TestClass:
             assert pcb_mesh_region.assignment.negative_y_padding == "1"
             assert pcb_mesh_region.assignment.positive_y_padding == "1mm"
             assert pcb_mesh_region.assignment.negative_z_padding == "1mm"
-            assert pcb_mesh_region.assignment.positive_z_padding == "1"
+            assert str(pcb_mesh_region.assignment.positive_z_padding) == "1"
             assert pcb_mesh_region.assignment.negative_x_padding_type == "Absolute Offset"
             assert pcb_mesh_region.assignment.positive_x_padding_type == "Absolute Position"
             assert pcb_mesh_region.assignment.negative_y_padding_type == "Transverse Percentage Offset"
