@@ -45,24 +45,28 @@ They are small automated workflow with a simple UI.
 
             Lear how to convert projects from 2022R2 to newer versions.
 
-   .. grid-item-card:: Parametrize Layout
-            :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
-            :link-type: doc
-
-            Learn how to parametrize a full aedb.
 
 .. toctree::
    :hidden:
    :maxdepth: 2
 
    pyaedt_extensions_doc/project
-
-HFSS extensions
----------------
-
+   pyaedt_extensions_doc/hfss3dlayout
 
 HFSS 3D Layout extensions
 -------------------------
+
+   .. grid-item-card:: Parametrize Layout
+            :link: pyaedt_extensions_doc/hfss3dlayout/parametrize_edb
+            :link-type: doc
+
+            Learn how to parametrize a full aedb.
+
+   .. grid-item-card:: Generate arbitrary wave ports
+            :link: pyaedt_extensions_doc/project/arbitrary_wave_port
+            :link-type: doc
+
+            Generate arbitrary wave ports in HFSS
 
 
 Open source toolkits
@@ -75,6 +79,7 @@ They are also fully documented and tested.
 Here are some links to existing toolkits:
 - Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
 - Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+
 
 Custom extensions
 ~~~~~~~~~~~~~~~~~

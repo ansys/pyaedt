@@ -14,14 +14,14 @@ import ansys.aedt.core
 import ansys.aedt.core.filtersolutions_core.attributes
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType, FilterClass, FilterImplementation
 from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
+from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries, ExportFormat
 import matplotlib.pyplot as plt
 
 ###############################################################################
 # Create the lumped design
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a lumped element filter design and assign the class, type, frequency, and order.
-design = ansys.aedt.core.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED)   
-
+design = ansys.aedt.core.FilterSolutions(version="2025.1", implementation_type= FilterImplementation.LUMPED) 
 design.attributes.filter_class = FilterClass.BAND_PASS
 design.attributes.filter_type = FilterType.BUTTERWORTH
 design.attributes.pass_band_center_frequency = "1G"

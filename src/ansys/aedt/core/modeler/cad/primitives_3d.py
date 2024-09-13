@@ -392,14 +392,11 @@ class Primitives3D(GeometryModeler):
 
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
-        >>> cone_object = aedtapp.modeler.create_cone(orientation='Z',origin=[0, 0, 0],
-        ...                                           bottom_radius=2,top_radius=3,height=4,
-        ...                                           name="mybox",material="copper")
+        >>> cone_object = aedtapp.modeler.create_cone(orientation='Z', origin=[0, 0, 0],
+        ...                                           bottom_radius=2, top_radius=3, height=4,
+        ...                                           name="mybox", material="copper")
 
         """
-        if bottom_radius == top_radius:
-            self.logger.error("the ``bottom_radius`` and ``top_radius`` arguments must have different values.")
-            return False
         if isinstance(bottom_radius, (int, float)) and bottom_radius < 0:
             self.logger.error("The ``bottom_radius`` argument must be greater than 0.")
             return False

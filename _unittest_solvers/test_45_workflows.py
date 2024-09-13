@@ -409,3 +409,26 @@ class TestClass:
         from ansys.aedt.core.workflows.circuit.import_schematic import main
         assert main({"is_test": True, "asc_file": file_path})
         aedtapp.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
+    def test_16_arbitrary_waveport(self, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.generate_arbitrary_wave_ports import main
+        import tempfile
+
+        file_path = os.path.join(local_scratch.path, "waveport.aedb")
+
+        temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
+
+        local_scratch.copyfolder(os.path.join(solver_local_path, "example_models",
+                                              "T45",
+                                              "waveport.aedb"), file_path)
+
+        assert main({"is_test": True,
+                     "working_path": temp_dir.name,
+                     "source_path": file_path,
+                     "mounting_side": "top"
+                     })
+
+        assert os.path.isfile(os.path.join(temp_dir.name, "wave_port.a3dcomp"))
+
+        temp_dir.cleanup()

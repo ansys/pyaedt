@@ -1870,7 +1870,9 @@ class TestClass:
         assert g_m_r.global_region.object.material_name == "Carbon Monoxide"
 
     def test_81_transient_fs(self, add_app):
-        app = add_app(application=Icepak, project_name=transient_fs, subfolder=test_subfolder)
+        app = add_app(
+            application=Icepak, project_name=transient_fs, subfolder=test_subfolder, design_name="IcepakDesign1"
+        )
         fs = app.post.create_field_summary()
         for t in ["0s", "1s", "2s", "3s", "4s", "5s"]:
             fs.add_calculation("Object", "Surface", "Box1", "Temperature", time=t)
@@ -1879,7 +1881,9 @@ class TestClass:
         app.close_project()
 
     def test_82_folder_settings(self, add_app):
-        app = add_app(application=Icepak, project_name=transient_fs, subfolder=test_subfolder)
+        app = add_app(
+            application=Icepak, project_name=transient_fs, subfolder=test_subfolder, design_name="IcepakDesign2"
+        )
         plot_object = app.post.create_fieldplot_surface(
             assignment=app.modeler["Box1"].faces[0].id, quantity="Temperature"
         )
