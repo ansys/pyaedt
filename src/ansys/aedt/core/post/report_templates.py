@@ -1424,13 +1424,13 @@ class CommonReport(object):
         output_dict["context"]["variations"] = self.variations
 
         if isinstance(self, (AMIEyeDiagram, EyeDiagram)):
-            output_dict["context"]["unit_interval"] = (self.unit_interval,)
-            output_dict["context"]["offset"] = (self.offset,)
-            output_dict["context"]["auto_delay"] = (self.auto_delay,)
-            output_dict["context"]["manual_delay"] = (self.manual_delay,)
-            output_dict["context"]["auto_cross_amplitude"] = (self.auto_cross_amplitude,)
-            output_dict["context"]["cross_amplitude"] = (self.cross_amplitude,)
-            output_dict["context"]["auto_compute_eye_meas"] = (self.auto_compute_eye_meas,)
+            output_dict["context"]["unit_interval"] = self.unit_interval
+            output_dict["context"]["offset"] = self.offset
+            output_dict["context"]["auto_delay"] = self.auto_delay
+            output_dict["context"]["manual_delay"] = self.manual_delay
+            output_dict["context"]["auto_cross_amplitude"] = self.auto_cross_amplitude
+            output_dict["context"]["cross_amplitude"] = self.cross_amplitude
+            output_dict["context"]["auto_compute_eye_meas"] = self.auto_compute_eye_meas
             output_dict["context"]["eye_measurement_point"] = self.eye_measurement_point
             try:
                 trace_name = self.traces[0].name

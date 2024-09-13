@@ -1447,7 +1447,7 @@ class BinaryTreeNode:
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 
-    def _get_data_model(self):
+    def _get_data_model(self):  # nosec
         false = False
         true = True
         props_list = eval(self.child_object.GetDataModel(-1, 1, 1))
