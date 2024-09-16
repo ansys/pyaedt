@@ -219,6 +219,8 @@ class TestClass:
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
         sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        assert hfss_app.export_touchstone_on_completion(export=False)
+        assert hfss_app.export_touchstone_on_completion(export=True)
         assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
@@ -349,6 +351,8 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     def test_04b_3dl_analyze_setup(self):
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
