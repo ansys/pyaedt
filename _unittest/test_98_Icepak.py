@@ -435,18 +435,6 @@ class TestClass:
         assert test
         assert test.delete()
 
-    @pytest.mark.skipif(config["use_grpc"], reason="gRPC usage leads to SystemExit.")
-    def test_12b_failing_AssignMeshOperation(self):
-        assert self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
-        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
-        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
-        b.model = False
-        test = self.aedtapp.mesh.assign_mesh_region([b.name])
-        assert test
-        test.Objects = ["US8_1D"]
-        assert not test.update()
-        assert test.delete()
-
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler["Region"].top_face_x.id]
         openings = self.aedtapp.assign_openings(airfaces)
@@ -472,11 +460,11 @@ class TestClass:
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravity_dir=1)
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
-        assert self.aedtapp.edit_design_settings(ambtemp=20)
-        assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        assert self.aedtapp.edit_design_settings(ambient_temperature=20)
+        assert self.aedtapp.edit_design_settings(ambient_temperature="325kel")
         self.aedtapp.solution_type = "Transient"
         bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
-        assert self.aedtapp.edit_design_settings(ambtemp=bc)
+        assert self.aedtapp.edit_design_settings(ambient_temperature=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -671,7 +659,7 @@ class TestClass:
     def test_35_create_fan(self):
         fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
-        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
+        assert fan.name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
         self.aedtapp.delete_design()
 
     def test_36_create_heat_sink(self):

@@ -764,6 +764,7 @@ class MeshRegion(MeshRegionCommon):
                 objects = [objects]
             if (
                 objects[0] not in self._app.modeler.user_defined_components
+                and self._app.modeler[objects[0]]
                 and self._app.modeler[objects[0]].history().command == "CreateSubRegion"
             ):
                 self._assignment = objects[0]
