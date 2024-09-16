@@ -414,17 +414,22 @@ class MatProperty(object):
                 i += 1
             if self._material._material_update:
                 self._material._update_props(self.name, val)
-
+            else:
+                self._material._update_props(self.name, val, update_aedt=False)
         elif isinstance(val, list) and self.type == "vector":
             if len(val) == 4:
                 self._property_value[0].value = val
                 if self._material._material_update:
                     self._material._update_props(self.name, val)
+                else:
+                    self._material._update_props(self.name, val, update_aedt=False)
         else:
             self.type = "simple"
             self._property_value[0].value = val
             if self._material._material_update:
                 self._material._update_props(self.name, val)
+            else:
+                self._material._update_props(self.name, val, update_aedt=False)
 
     @property
     def unit(self):
@@ -1230,7 +1235,7 @@ class CommonMaterial(object):
         self._coordinate_system = ""
         self.is_sweep_material = False
         if props:
-            self._props = props.copy()
+            self._props = copy.deepcopy(props)
         else:
             self._props = OrderedDict()
         if "CoordinateSystemType" in self._props:

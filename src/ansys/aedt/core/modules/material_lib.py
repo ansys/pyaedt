@@ -332,7 +332,6 @@ class Materials(object):
         >>> oMaterialManager.GetData
 
         """
-        name = name
         self.logger.info("Adding new material to the Project Library: " + name)
         if name.lower() in self.material_keys:
             self.logger.warning("Warning. The material is already in the database. Change or edit the name.")
@@ -340,10 +339,12 @@ class Materials(object):
         elif self._get_aedt_case_name(name):
             return self._aedmattolibrary(self._get_aedt_case_name(name))
         else:
-            material = Material(self, name, properties, material_update=True)
+            material = Material(self, name, properties, material_update=False)
             material._update_material()
+            material.update()
+            material._material_update = True
             if material:
-                self.logger.info("Material has been added. Edit it to update in Desktop.")
+                self.logger.info("Material has been added in Desktop.")
                 self.material_keys[name.lower()] = material
                 self._mats.append(name)
                 return self.material_keys[name.lower()]
