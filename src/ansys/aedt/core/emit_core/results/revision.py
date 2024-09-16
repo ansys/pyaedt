@@ -189,8 +189,8 @@ class Revision:
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
         interaction = engine.run(domain)
-        # save the revision
-        self.emit_project._emit_api.save_project()
+        # save the project and revision
+        self.emit_project.save_project()
         return interaction
 
     @pyaedt_function_handler()
@@ -396,7 +396,7 @@ class Revision:
     @notes.setter
     def notes(self, notes):
         self.emit_project.odesign.SetResultNotes(self.name, notes)
-        self.emit_project._emit_api.save_project()
+        self.emit_project.save_project()
 
     @property
     def n_to_1_limit(self):
