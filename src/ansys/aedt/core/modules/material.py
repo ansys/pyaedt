@@ -412,24 +412,15 @@ class MatProperty(object):
 
                 self._property_value[i].value = el
                 i += 1
-            if self._material._material_update:
-                self._material._update_props(self.name, val)
-            else:
-                self._material._update_props(self.name, val, update_aedt=False)
+            self._material._update_props(self.name, val, update_aedt=self._material._material_update)
         elif isinstance(val, list) and self.type == "vector":
             if len(val) == 4:
                 self._property_value[0].value = val
-                if self._material._material_update:
-                    self._material._update_props(self.name, val)
-                else:
-                    self._material._update_props(self.name, val, update_aedt=False)
+                self._material._update_props(self.name, val, update_aedt=self._material._material_update)
         else:
             self.type = "simple"
             self._property_value[0].value = val
-            if self._material._material_update:
-                self._material._update_props(self.name, val)
-            else:
-                self._material._update_props(self.name, val, update_aedt=False)
+            self._material._update_props(self.name, val, update_aedt=self._material._material_update)
 
     @property
     def unit(self):
