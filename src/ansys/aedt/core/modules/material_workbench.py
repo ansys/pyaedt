@@ -22,6 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""
+This module contains the ``MaterialWorkbench`` class.
+
+It includes a method to import materials from a Workbench Engineering Data XML file.
+"""
+
 from collections import defaultdict
 import copy
 import re
