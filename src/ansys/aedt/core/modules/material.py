@@ -73,6 +73,7 @@ class MatProperties(object):
         "molecular_mass",
         "viscosity",
     ]
+
     defaultvalue = [
         1.0,
         1.0,
@@ -101,6 +102,7 @@ class MatProperties(object):
         0,
         0,
     ]
+
     defaultunit = [
         None,
         None,
@@ -122,8 +124,32 @@ class MatProperties(object):
         None,
         None,
     ]
+
     diel_order = [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
+
     cond_order = [2, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 3]
+
+    workbench_name = [
+        "Relative Permittivity",
+        "Relative Permeability",
+        "Electrical Conductivity",
+        "Electric Loss Tangent",
+        "Magnetic Loss Tangent",
+        "Magnetic Coercivity",
+        "Thermal Conductivity",
+        "Density",
+        "Specific Heat",
+        "Coefficient of Thermal Expansion",
+        "Young's Modulus",
+        "Poisson's Ratio",
+        None,  # diffusivity
+        None,  # molecular_mass
+        None,  # viscosity
+    ]
+
+    @classmethod
+    def wb_to_aedt_name(cls, wb_name):
+        return cls.aedtname[cls.workbench_name.index(wb_name)]
 
     @classmethod
     def get_defaultunit(cls, aedtname=None):
