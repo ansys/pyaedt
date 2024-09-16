@@ -64,6 +64,19 @@ class MaterialWorkbench:
 
 
     def import_materials_from_WB(self, filename, hfss):
+        """Import materials from Workbench Engineerig Data XML file.
+
+        Parameters
+        ----------
+        filename : str
+            filename
+
+        Returns
+        -------
+        list
+            List of imported materials.
+
+        """
 
         # filename = r"D:\temp\EngineeringData_aniso.xml"
         xml_dict = self._parse_xml(filename)
