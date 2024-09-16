@@ -127,11 +127,11 @@ class TestClass:
         )
         args = {
             "mat": "aluminum",
-            "usethickness": True,
+            "use_thickness": True,
             "thickness": "0.5mm",
-            "istwoside": True,
-            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
-            "usehuray": True,
+            "is_two_side": True,
+            "is_shell_element": True,  # TODO: Is "sheelElement" a typo in native API?
+            "use_huray": True,
             "radius": "0.75um",
             "ratio": "3",
         }

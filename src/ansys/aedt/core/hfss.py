@@ -252,7 +252,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
     @property
     def component_array_names(self):
         """List of 3D component array names."""
-        return list(self.get_oo_name(self.odesign, "Model"))
+        return list(self.omodelsetup.GetArrayNames())
 
     @property
     def field_setups(self):
