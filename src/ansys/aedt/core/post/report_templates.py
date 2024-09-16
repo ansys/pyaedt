@@ -3197,6 +3197,8 @@ class AMIConturEyeDiagram(CommonReport):
         list
             Expressions.
         """
+        if self._is_created:
+            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
         if self._props.get("expressions", None) is None:
             return []
         expr_head = "Eye"
@@ -4226,6 +4228,8 @@ class EyeDiagram(AMIEyeDiagram):
         list
             Expressions.
         """
+        if self._is_created:
+            return [i.split(" ,")[-1] for i in list(self.properties.props.values())[4:]]
         if self._props.get("expressions", None) is None:
             return []
         return [k.get("name", None) for k in self._props["expressions"] if k.get("name", None) is not None]
