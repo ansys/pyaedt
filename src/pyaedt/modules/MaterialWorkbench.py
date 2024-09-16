@@ -220,4 +220,4 @@ class MaterialWorkbench:
             if material_name in colors:
                 mat.material_appearance = colors[material_name]
 
-        res = 1
+        
