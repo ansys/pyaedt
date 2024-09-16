@@ -30,7 +30,6 @@ def aedtapp(add_app):
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
-@pytest.mark.skipif(is_linux, reason="Emit API fails on linux.")
 @pytest.mark.skipif(sys.version_info < (3,8) or sys.version_info >=(3, 12), reason="Emit API is only available for Python 3.8+.")
 class TestClass:
 

@@ -369,6 +369,39 @@ class TestClass:
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17
         assert setup2.update()
+        assert setup2.use_matrix_convergence(
+            entry_selection=0,
+            ignore_phase_when_mag_is_less_than=0.015,
+            all_diagonal_entries=True,
+            max_delta=0.03,
+            max_delta_phase=8,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+            all_offdiagonal_entries=False,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=1,
+            ignore_phase_when_mag_is_less_than=0.025,
+            all_diagonal_entries=True,
+            max_delta=0.023,
+            max_delta_phase=18,
+            custom_entries=None,
+        )
+        assert setup2.use_matrix_convergence(
+            entry_selection=2,
+            ignore_phase_when_mag_is_less_than=0.01,
+            all_diagonal_entries=True,
+            max_delta=0.01,
+            max_delta_phase=8,
+            custom_entries=[["1", "2", 0.03, 4]],
+        )
 
     def test_16_disable_enable_setup(self):
         setup_name = "RFBoardSetup3"

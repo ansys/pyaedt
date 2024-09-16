@@ -31,7 +31,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import os
 import re
 import shutil
@@ -1037,12 +1036,12 @@ class Analysis(Design, object):
             data_vals = self.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                 "SubModelDefinitions"
             ]["NativeComponentDefinition"]
-            if not isinstance(data_vals, list) and isinstance(data_vals, (OrderedDict, dict)):
+            if not isinstance(data_vals, list) and isinstance(data_vals, dict):
                 data_vals = [data_vals]
             for ds in data_vals:
                 try:
                     component_name = "undefined"
-                    if isinstance(ds, (OrderedDict, dict)):
+                    if isinstance(ds, dict):
                         component_type = ds["NativeComponentDefinitionProvider"]["Type"]
                         component_name = ds["BasicComponentInfo"]["ComponentName"]
                         if component_type == "PCB":
@@ -1388,7 +1387,7 @@ class Analysis(Design, object):
             # Handle the situation when ports have not been defined.
 
             if not self.excitations and "MaxDeltaS" in setup.props:
-                new_dict = OrderedDict()
+                new_dict = {}
                 setup.auto_update = False
                 for k, v in setup.props.items():
                     if k == "MaxDeltaS":

@@ -37,7 +37,7 @@ This module contains these data classes for creating a material library:
 
 """
 
-from collections import OrderedDict
+
 import copy
 import warnings
 
@@ -79,7 +79,7 @@ class MatProperties(object):
         0,
         0,
         0,
-        OrderedDict(
+        dict(
             {
                 "Magnitude": 0,
                 "DirComp1": 1,
@@ -316,7 +316,7 @@ class MatProperty(object):
                         self.value = pair_list
                 elif e == "Temperatures":
                     self.temperatures = v
-        elif val is not None and isinstance(val, OrderedDict) and "Magnitude" in val.keys():
+        elif val is not None and isinstance(val, dict) and "Magnitude" in val.keys():
             self.type = "vector"
             magnitude = val["Magnitude"]
             units = None
@@ -503,7 +503,7 @@ class MatProperty(object):
                 and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
             )
         ):
-            tm = OrderedDict(
+            tm = dict(
                 {
                     "Property:": self.name,
                     "Index:": index,
@@ -516,24 +516,24 @@ class MatProperty(object):
                 "ModifierData" in self._material._props
                 and "SpatialModifierData" in self._material._props["ModifierData"]
             ):
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
                         "SpatialModifierData": self._material._props["ModifierData"]["SpatialModifierData"],
-                        "ThermalModifierData": OrderedDict(
+                        "ThermalModifierData": dict(
                             {
                                 "modifier_data": "thermal_modifier_data",
-                                "all_thermal_modifiers": OrderedDict({"one_spatial_modifier": tm}),
+                                "all_thermal_modifiers": dict({"one_spatial_modifier": tm}),
                             }
                         ),
                     }
                 )
             else:
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
-                        "ThermalModifierData": OrderedDict(
+                        "ThermalModifierData": dict(
                             {
                                 "modifier_data": "thermal_modifier_data",
-                                "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm}),
+                                "all_thermal_modifiers": dict({"one_thermal_modifier": tm}),
                             }
                         )
                     }
@@ -558,7 +558,7 @@ class MatProperty(object):
                             tm.pop("TL", None)
                             tm.pop("TU", None)
                     if not found:
-                        tm = OrderedDict(
+                        tm = dict(
                             {
                                 "Property:": self.name,
                                 "Index:": index,
@@ -606,7 +606,7 @@ class MatProperty(object):
                     self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname] = [
                         self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"][tmname]
                     ]
-                    tm = OrderedDict(
+                    tm = dict(
                         {
                             "Property:": self.name,
                             "Index:": index,
@@ -786,7 +786,7 @@ class MatProperty(object):
             self._property_value[index].thermalmodifier.TML = tml
             self._property_value[index].thermalmodifier.TMU = tmu
         if auto_calc:
-            tm_new = OrderedDict(
+            tm_new = dict(
                 {
                     "Property:": self.name,
                     "Index:": index,
@@ -801,7 +801,7 @@ class MatProperty(object):
                 }
             )
         else:
-            tm_new = OrderedDict(
+            tm_new = dict(
                 {
                     "Property:": self.name,
                     "Index:": index,
@@ -829,24 +829,24 @@ class MatProperty(object):
                 "ModifierData" in self._material._props
                 and "SpatialModifierData" in self._material._props["ModifierData"]
             ):
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
                         "SpatialModifierData": self._material._props["ModifierData"]["SpatialModifierData"],
-                        "ThermalModifierData": OrderedDict(
+                        "ThermalModifierData": dict(
                             {
                                 "modifier_data": "thermal_modifier_data",
-                                "all_thermal_modifiers": OrderedDict({"one_spatial_modifier": tm_new}),
+                                "all_thermal_modifiers": dict({"one_spatial_modifier": tm_new}),
                             }
                         ),
                     }
                 )
             else:
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
-                        "ThermalModifierData": OrderedDict(
+                        "ThermalModifierData": dict(
                             {
                                 "modifier_data": "thermal_modifier_data",
-                                "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_new}),
+                                "all_thermal_modifiers": dict({"one_thermal_modifier": tm_new}),
                             }
                         )
                     }
@@ -895,12 +895,12 @@ class MatProperty(object):
                 else:
                     tm_definition = [tm_definition]
                     tm_definition.append(tm_new)
-            self._material._props["ModifierData"] = OrderedDict(
+            self._material._props["ModifierData"] = dict(
                 {
-                    "ThermalModifierData": OrderedDict(
+                    "ThermalModifierData": dict(
                         {
                             "modifier_data": "thermal_modifier_data",
-                            "all_thermal_modifiers": OrderedDict({"one_thermal_modifier": tm_definition}),
+                            "all_thermal_modifiers": dict({"one_thermal_modifier": tm_definition}),
                         }
                     )
                 }
@@ -950,7 +950,7 @@ class MatProperty(object):
             self.hunit = y_unit
             self.is_temperature_dependent = False
             self.btype_for_single_curve = "normal"
-            self.temperatures = OrderedDict({})
+            self.temperatures = {}
         elif self.name == "permittivity":
             if not x_unit:
                 x_unit = "V_per_meter"
@@ -1023,7 +1023,7 @@ class MatProperty(object):
                 and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
             )
         ):
-            sm = OrderedDict(
+            sm = dict(
                 {
                     "Property:": self.name,
                     "Index:": index,
@@ -1035,24 +1035,24 @@ class MatProperty(object):
                 "ModifierData" in self._material._props
                 and "ThermalModifierData" in self._material._props["ModifierData"]
             ):
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
                         "ThermalModifierData": self._material._props["ModifierData"]["ThermalModifierData"],
-                        "SpatialModifierData": OrderedDict(
+                        "SpatialModifierData": dict(
                             {
                                 "modifier_data": "spatial_modifier_data",
-                                "all_spatial_modifiers": OrderedDict({"one_spatial_modifier": sm}),
+                                "all_spatial_modifiers": dict({"one_spatial_modifier": sm}),
                             }
                         ),
                     }
                 )
             else:
-                self._material._props["ModifierData"] = OrderedDict(
+                self._material._props["ModifierData"] = dict(
                     {
-                        "SpatialModifierData": OrderedDict(
+                        "SpatialModifierData": dict(
                             {
                                 "modifier_data": "spatial_modifier_data",
-                                "all_spatial_modifiers": OrderedDict({"one_spatial_modifier": sm}),
+                                "all_spatial_modifiers": dict({"one_spatial_modifier": sm}),
                             }
                         )
                     }
@@ -1071,7 +1071,7 @@ class MatProperty(object):
                             sm["free_form_value"] = formula
 
                     if not found:
-                        sm = OrderedDict(
+                        sm = dict(
                             {
                                 "Property:": self.name,
                                 "Index:": index,
@@ -1100,7 +1100,7 @@ class MatProperty(object):
                     self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname] = [
                         self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname]
                     ]
-                    sm = OrderedDict(
+                    sm = dict(
                         {
                             "Property:": self.name,
                             "Index:": index,
@@ -1237,7 +1237,7 @@ class CommonMaterial(object):
         if props:
             self._props = copy.deepcopy(props)
         else:
-            self._props = OrderedDict()
+            self._props = {}
         if "CoordinateSystemType" in self._props:
             self._coordinate_system = self._props["CoordinateSystemType"]
         else:
@@ -1315,10 +1315,10 @@ class CommonMaterial(object):
             for val in propvalue:
                 if not self._props.get(propname, None) or not isinstance(self._props[propname], dict):
                     if material_props_type == "tensor":
-                        self._props[propname] = OrderedDict({"property_type": "TensorProperty"})
+                        self._props[propname] = dict({"property_type": "TensorProperty"})
                         self._props[propname]["Symmetric"] = False
                     else:
-                        self._props[propname] = OrderedDict({"property_type": "AnisoProperty"})
+                        self._props[propname] = dict({"property_type": "AnisoProperty"})
                     self._props[propname]["unit"] = ""
                 self._props[propname]["component" + str(i)] = str(val)
                 i += 1
@@ -1328,19 +1328,19 @@ class CommonMaterial(object):
             self._props[propname] = str(propvalue)
             if update_aedt:
                 return self.update()
-        elif isinstance(propvalue, OrderedDict):
+        elif isinstance(propvalue, dict):
             self._props[propname] = propvalue
             if update_aedt:
                 return self.update()
         elif isinstance(propvalue, list) and material_props_type and material_props_type == "nonlinear":
             if propname == "permeability":
-                bh = OrderedDict({"DimUnits": ["", ""]})
+                bh = dict({"DimUnits": ["", ""]})
                 for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
                     else:
                         bh["Point"] = [point]
-                self._props[propname] = OrderedDict({"property_type": "nonlinear"})
+                self._props[propname] = dict({"property_type": "nonlinear"})
                 self._props[propname]["BTypeForSingleCurve"] = self.__dict__["_" + propname].btype_for_single_curve
                 self._props[propname]["HUnit"] = self.__dict__["_" + propname].hunit
                 self._props[propname]["BUnit"] = self.__dict__["_" + propname].bunit
@@ -1349,9 +1349,9 @@ class CommonMaterial(object):
                 try:
                     self._props[propname]["BHCoordinates"]["Temperatures"] = self.__dict__["_" + propname].temperatures
                 except Exception:
-                    self._props[propname]["BHCoordinates"]["Temperatures"] = OrderedDict({})
+                    self._props[propname]["BHCoordinates"]["Temperatures"] = {}
             else:
-                bh = OrderedDict({"DimUnits": [self.__dict__["_" + propname]._unit]})
+                bh = dict({"DimUnits": [self.__dict__["_" + propname]._unit]})
                 for point in propvalue:
                     if "Point" in bh:
                         bh["Point"].append(point)
@@ -1361,7 +1361,7 @@ class CommonMaterial(object):
                     pr_name = "JECoordinates"
                 else:
                     pr_name = "DECoordinates"
-                self._props[propname] = OrderedDict({"property_type": "nonlinear", pr_name: bh})
+                self._props[propname] = dict({"property_type": "nonlinear", pr_name: bh})
             if update_aedt:
                 return self.update()
         elif isinstance(propvalue, list) and material_props_type and material_props_type == "vector":
@@ -1412,7 +1412,7 @@ class Material(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-            self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
+            self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         if "AttachedData" in self._props and "MatAppearanceData" in self._props["AttachedData"]:
             self._material_appearance = []
             self._material_appearance.append(self._props["AttachedData"]["MatAppearanceData"]["Red"])
@@ -1427,9 +1427,9 @@ class Material(CommonMaterial, object):
             self._material_appearance = list(int(h[i : i + 2], 16) for i in (0, 2, 4))
             materiallib._color_id += 1
             self._material_appearance.append(0)
-            self._props["AttachedData"] = OrderedDict(
+            self._props["AttachedData"] = dict(
                 {
-                    "MatAppearanceData": OrderedDict(
+                    "MatAppearanceData": dict(
                         {
                             "property_data": "appearance_data",
                             "Red": self._material_appearance[0],
@@ -1532,9 +1532,9 @@ class Material(CommonMaterial, object):
                     raise ValueError("Transparency value must be between 0 and 1.")
                 value.append(transparency)
         self._material_appearance = value
-        self._props["AttachedData"] = OrderedDict(
+        self._props["AttachedData"] = dict(
             {
-                "MatAppearanceData": OrderedDict(
+                "MatAppearanceData": dict(
                     {
                         "property_data": "appearance_data",
                         "Red": value[0],
@@ -1660,7 +1660,7 @@ class Material(CommonMaterial, object):
 
     @thermal_conductivity.setter
     def thermal_conductivity(self, value):
-        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
+        self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
         self._thermal_conductivity.value = value
 
@@ -1743,7 +1743,7 @@ class Material(CommonMaterial, object):
     @youngs_modulus.setter
     def youngs_modulus(self, value):
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
+        self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._youngs_modulus.value = value
 
     @property
@@ -1765,7 +1765,7 @@ class Material(CommonMaterial, object):
     @poissons_ratio.setter
     def poissons_ratio(self, value):
         self.physics_type = ["Electromagnetic", "Thermal", "Structural"]
-        self._props["PhysicsTypes"] = OrderedDict({"set": ["Electromagnetic", "Thermal", "Structural"]})
+        self._props["PhysicsTypes"] = dict({"set": ["Electromagnetic", "Thermal", "Structural"]})
         self._poissons_ratio.value = value
 
     @property
@@ -1875,7 +1875,7 @@ class Material(CommonMaterial, object):
         if self._material_update:
             self._update_props(
                 "stacking_type",
-                OrderedDict(
+                dict(
                     {
                         "property_type": "ChoiceProperty",
                         "Choice": value,
@@ -1906,7 +1906,7 @@ class Material(CommonMaterial, object):
 
         self._wire_type = value
         if self._material_update:
-            self._update_props("wire_type", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+            self._update_props("wire_type", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def wire_thickness_direction(self):
@@ -1931,9 +1931,7 @@ class Material(CommonMaterial, object):
 
         self._wire_thickness_direction = value
         if self._material_update:
-            self._update_props(
-                "wire_thickness_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-            )
+            self._update_props("wire_thickness_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def wire_width_direction(self):
@@ -1958,9 +1956,7 @@ class Material(CommonMaterial, object):
 
         self._wire_width_direction = value
         if self._material_update:
-            self._update_props(
-                "wire_width_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
-            )
+            self._update_props("wire_width_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @property
     def strand_number(self):
@@ -2095,7 +2091,7 @@ class Material(CommonMaterial, object):
 
         self._stacking_direction = value
         if self._material_update:
-            self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+            self._update_props("stacking_direction", dict({"property_type": "ChoiceProperty", "Choice": value}))
 
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):  # pragma: no cover
@@ -2132,7 +2128,7 @@ class Material(CommonMaterial, object):
         -------
         bool
         """
-        self._props["magnetic_coercivity"] = OrderedDict(
+        self._props["magnetic_coercivity"] = dict(
             {
                 "property_type": "VectorProperty",
                 "Magnitude": "{}A_per_meter".format(value),
@@ -2207,7 +2203,7 @@ class Material(CommonMaterial, object):
                 raise TypeError("Thickness must be provided as a string with value and unit.")
         if len(points_at_frequency) <= 1 and core_loss_model_type == "Power Ferrite":
             raise ValueError("At least 2 frequencies must be included.")
-        props = OrderedDict({})
+        props = {}
         freq_keys = list(points_at_frequency.keys())
         for i in range(0, len(freq_keys)):
             if isinstance(freq_keys[i], str):
@@ -2218,7 +2214,7 @@ class Material(CommonMaterial, object):
                 del points_at_frequency[freq_keys[i]]
 
         if len(points_at_frequency) == 1:
-            props["CoefficientSetupData"] = OrderedDict({})
+            props["CoefficientSetupData"] = {}
             props["CoefficientSetupData"]["property_data"] = "coreloss_data"
             props["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
             frequency = list(points_at_frequency.keys())[0]
@@ -2226,20 +2222,20 @@ class Material(CommonMaterial, object):
             props["CoefficientSetupData"]["Thickness"] = thickness
             props["CoefficientSetupData"]["Conductivity"] = str(conductivity)
             points = [i for p in points_at_frequency[frequency] for i in p]
-            props["CoefficientSetupData"]["Coordinates"] = OrderedDict({"DimUnits": ["", ""], "Points": points})
+            props["CoefficientSetupData"]["Coordinates"] = dict({"DimUnits": ["", ""], "Points": points})
         elif len(points_at_frequency) > 1:
-            props["CoreLossMultiCurveData"] = OrderedDict({})
+            props["CoreLossMultiCurveData"] = {}
             props["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             props["CoreLossMultiCurveData"]["coreloss_unit"] = coefficient_setup
 
-            props["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
+            props["CoreLossMultiCurveData"]["AllCurves"] = {}
             props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
             for freq in points_at_frequency.keys():
                 points = [i for p in points_at_frequency[freq] for i in p]
-                one_curve = OrderedDict(
+                one_curve = dict(
                     {
                         "Frequency": "{}Hz".format(freq),
-                        "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points}),
+                        "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )
                 props["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
@@ -2353,7 +2349,7 @@ class Material(CommonMaterial, object):
                 del points_at_frequency[freq_keys[i]]
         if "core_loss_type" not in self._props:
             choice = "Electrical Steel" if core_loss_model_type == "Electrical Steel" else "Power Ferrite"
-            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": choice})
+            self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": choice})
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
@@ -2364,7 +2360,7 @@ class Material(CommonMaterial, object):
             self._props.pop("core_loss_curves", None)
             self._props["core_loss_type"]["Choice"] = core_loss_model_type
         if len(points_at_frequency) == 1:
-            self._props["AttachedData"]["CoefficientSetupData"] = OrderedDict({})
+            self._props["AttachedData"]["CoefficientSetupData"] = {}
             self._props["AttachedData"]["CoefficientSetupData"]["property_data"] = "coreloss_data"
             self._props["AttachedData"]["CoefficientSetupData"]["coefficient_setup"] = coefficient_setup
             frequency = list(points_at_frequency.keys())[0]
@@ -2372,22 +2368,22 @@ class Material(CommonMaterial, object):
             self._props["AttachedData"]["CoefficientSetupData"]["Thickness"] = thickness
             self._props["AttachedData"]["CoefficientSetupData"]["Conductivity"] = str(conductivity)
             points = [i for p in points_at_frequency[frequency] for i in p]
-            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = OrderedDict(
+            self._props["AttachedData"]["CoefficientSetupData"]["Coordinates"] = dict(
                 {"DimUnits": ["", ""], "Points": points}
             )
         elif len(points_at_frequency) > 1:
-            self._props["AttachedData"]["CoreLossMultiCurveData"] = OrderedDict({})
+            self._props["AttachedData"]["CoreLossMultiCurveData"] = {}
             self._props["AttachedData"]["CoreLossMultiCurveData"]["property_data"] = "coreloss_multi_curve_data"
             self._props["AttachedData"]["CoreLossMultiCurveData"]["coreloss_unit"] = coefficient_setup
 
-            self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"] = OrderedDict({})
+            self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"] = {}
             self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"] = []
             for freq in points_at_frequency.keys():
                 points = [i for p in points_at_frequency[freq] for i in p]
-                one_curve = OrderedDict(
+                one_curve = dict(
                     {
                         "Frequency": "{}Hz".format(freq),
-                        "Coordinates": OrderedDict({"DimUnits": ["", ""], "Points": points}),
+                        "Coordinates": dict({"DimUnits": ["", ""], "Points": points}),
                     }
                 )
                 self._props["AttachedData"]["CoreLossMultiCurveData"]["AllCurves"]["OneCurve"].append(one_curve)
@@ -2434,9 +2430,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "Electrical Steel"}
-            )
+            self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Electrical Steel"})
         else:
             self._props.pop("core_loss_cm", None)
             self._props.pop("core_loss_x", None)
@@ -2470,9 +2464,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict(
-                {"property_type": "ChoiceProperty", "Choice": "Hysteresis Model"}
-            )
+            self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Hysteresis Model"})
         else:
             self._props.pop("core_loss_kh", None)
             self._props.pop("core_loss_kc", None)
@@ -2509,7 +2501,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "Power Ferrite"})
+            self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "Power Ferrite"})
         else:
             self._props.pop("core_loss_kh", None)
             self._props.pop("core_loss_kc", None)
@@ -2554,7 +2546,7 @@ class Material(CommonMaterial, object):
         bool
         """
         if "core_loss_type" not in self._props:
-            self._props["core_loss_type"] = OrderedDict({"property_type": "ChoiceProperty", "Choice": "B-P Curve"})
+            self._props["core_loss_type"] = dict({"property_type": "ChoiceProperty", "Choice": "B-P Curve"})
         else:
             self._props.pop("core_loss_kh", None)
             self._props.pop("core_loss_kc", None)
@@ -2569,7 +2561,7 @@ class Material(CommonMaterial, object):
             self._props["core_loss_type"]["Choice"] = "B-P Curve"
         self._props["core_loss_kdc"] = str(kdc)
         self._props["core_loss_equiv_cut_depth"] = "{}meter".format(cut_depth)
-        self._props["core_loss_curves"] = OrderedDict({})
+        self._props["core_loss_curves"] = {}
         self._props["core_loss_curves"]["property_type"] = "nonlinear"
         self._props["core_loss_curves"]["PUnit"] = units
         self._props["core_loss_curves"]["BUnit"] = bunit
@@ -2577,7 +2569,7 @@ class Material(CommonMaterial, object):
         self._props["core_loss_curves"]["Thickness"] = thickness
         self._props["core_loss_curves"]["IsTemperatureDependent"] = False
 
-        self._props["core_loss_curves"]["BPCoordinates"] = OrderedDict({})
+        self._props["core_loss_curves"]["BPCoordinates"] = {}
         self._props["core_loss_curves"]["BPCoordinates"]["Point"] = []
         for points in points:
             self._props["core_loss_curves"]["BPCoordinates"]["Point"].append(points)
@@ -2816,7 +2808,7 @@ class SurfaceMaterial(CommonMaterial, object):
             self.physics_type = self._props["PhysicsTypes"]["set"]
         else:
             self.physics_type = ["Thermal"]
-            self._props["PhysicsTypes"] = OrderedDict({"set": ["Thermal"]})
+            self._props["PhysicsTypes"] = dict({"set": ["Thermal"]})
         for property in SurfMatProperties.aedtname:
             if property in self._props:
                 mods = None

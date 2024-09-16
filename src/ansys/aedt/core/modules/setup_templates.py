@@ -24,7 +24,6 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
 import copy
 
 
@@ -43,19 +42,19 @@ def HFSS3DLayout_AdaptiveFrequencyData(freq):
         List of frequency data.
 
     """
-    value = OrderedDict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
+    value = dict({"AdaptiveFrequency": freq, "MaxDelta": "0.02", "MaxPasses": 10, "Expressions": []})
     return value
 
 
-meshlink = OrderedDict({"ImportMesh": False})
-autosweep = OrderedDict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
-autosweeps = OrderedDict({"Sweep": autosweep})
-multifreq = OrderedDict({"1GHz": [0.02], "2GHz": [0.02], "5GHz": [0.02]})
-sweepsbr = OrderedDict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
-sweepssbr = OrderedDict({"Sweep": sweepsbr})
-muoption = OrderedDict({"MuNonLinearBH": True})
-transientelectrostatic = OrderedDict({"SaveField": True, "Stop": "100s", "InitialStep": "0.01s", "MaxStep": "5s"})
-transienthfss = OrderedDict(
+meshlink = dict({"ImportMesh": False})
+autosweep = dict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
+autosweeps = dict({"Sweep": autosweep})
+multifreq = dict({"1GHz": [0.02], "2GHz": [0.02], "5GHz": [0.02]})
+sweepsbr = dict({"RangeType": "LinearStep", "RangeStart": "1GHz", "RangeEnd": "10GHz", "RangeStep": "1GHz"})
+sweepssbr = dict({"Sweep": sweepsbr})
+muoption = dict({"MuNonLinearBH": True})
+transientelectrostatic = dict({"SaveField": True, "Stop": "100s", "InitialStep": "0.01s", "MaxStep": "5s"})
+transienthfss = dict(
     {
         "TimeProfile": "Broadband Pulse",
         "HfssFrequency": "5GHz",
@@ -70,7 +69,7 @@ transienthfss = OrderedDict(
         "TerminateOnMaximum": 0,
     }
 )
-HFSSDrivenAuto = OrderedDict(
+HFSSDrivenAuto = dict(
     {
         "IsEnabled": True,
         "MeshLink": meshlink,
@@ -83,7 +82,7 @@ HFSSDrivenAuto = OrderedDict(
 )
 """HFSS automatic setup properties and default values."""
 
-HFSSDrivenDefault = OrderedDict(
+HFSSDrivenDefault = dict(
     {
         "SolveType": "Single",
         "MultipleAdaptiveFreqsSetup": multifreq,
@@ -118,7 +117,7 @@ HFSSDrivenDefault = OrderedDict(
 )
 """HFSS driven properties and default values."""
 
-HFSSEigen = OrderedDict(
+HFSSEigen = dict(
     {
         "MinimumFrequency": "2GHz",
         "NumModes": 1,
@@ -140,7 +139,7 @@ HFSSEigen = OrderedDict(
 )
 """HFSS Eigenmode properties and default values."""
 
-HFSSTransient = OrderedDict(
+HFSSTransient = dict(
     {
         "Frequency": "5GHz",
         "MaxDeltaS": 0.02,
@@ -154,7 +153,7 @@ HFSSTransient = OrderedDict(
 )
 """HFSS transient setup properties and default values."""
 
-HFSSSBR = OrderedDict(
+HFSSSBR = dict(
     {
         "IsEnabled": True,
         "MeshLink": meshlink,
@@ -169,7 +168,7 @@ HFSSSBR = OrderedDict(
 )
 """HFSS SBR+ setup properties and default values."""
 
-MaxwellTransient = OrderedDict(
+MaxwellTransient = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -196,7 +195,7 @@ MaxwellTransient = OrderedDict(
 )
 """Maxwell transient setup properties and default values."""
 
-Magnetostatic = OrderedDict(
+Magnetostatic = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -216,7 +215,7 @@ Magnetostatic = OrderedDict(
 )
 """Maxwell magnetostatic setup properties and default values."""
 
-DCConduction = OrderedDict(
+DCConduction = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -235,7 +234,7 @@ DCConduction = OrderedDict(
 )
 """Maxwell DCConduction setup properties and default values."""
 
-ElectroDCConduction = OrderedDict(
+ElectroDCConduction = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -254,7 +253,7 @@ ElectroDCConduction = OrderedDict(
 )
 """Maxwell ElectroDCConduction setup properties and default values."""
 
-ACConduction = OrderedDict(
+ACConduction = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -273,7 +272,7 @@ ACConduction = OrderedDict(
 )
 """Maxwell ACConduction setup properties and default values."""
 
-Electrostatic = OrderedDict(
+Electrostatic = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -291,7 +290,7 @@ Electrostatic = OrderedDict(
 )
 """Maxwell electrostatic setup properties and default values."""
 
-subrange = OrderedDict(
+subrange = dict(
     {
         "SweepSetupType": "LinearStep",
         "StartValue": "1e-08GHz",
@@ -299,9 +298,9 @@ subrange = OrderedDict(
         "StepSize": "1e-08GHz",
     }
 )
-subranges = OrderedDict({"Subrange": subrange})
+subranges = dict({"Subrange": subrange})
 
-EddyCurrent = OrderedDict(
+EddyCurrent = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -325,7 +324,7 @@ EddyCurrent = OrderedDict(
 )
 """Maxwell eddy current setup properties and default values."""
 
-ElectricTransient = OrderedDict(
+ElectricTransient = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -337,7 +336,7 @@ ElectricTransient = OrderedDict(
 )
 """Maxwell electric transient setup properties and default values."""
 
-SteadyTemperatureAndFlow = OrderedDict(
+SteadyTemperatureAndFlow = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -401,7 +400,7 @@ SteadyTemperatureAndFlow = OrderedDict(
 )
 """Icepak steady temperature and steady flow setup properties and default values."""
 
-SteadyTemperatureOnly = OrderedDict(
+SteadyTemperatureOnly = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -463,7 +462,7 @@ SteadyTemperatureOnly = OrderedDict(
 )
 """Icepak steady temperature setup properties and default values."""
 
-SteadyFlowOnly = OrderedDict(
+SteadyFlowOnly = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -526,10 +525,10 @@ SteadyFlowOnly = OrderedDict(
 )
 """Icepak steady flow setup properties and default values."""
 
-Q3DCond = OrderedDict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-Q3DMult = OrderedDict({"MaxPass": 1, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-Q3DDC = OrderedDict({"SolveResOnly": False, "Cond": Q3DCond, "Mult": Q3DMult})
-Q3DCap = OrderedDict(
+Q3DCond = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+Q3DMult = dict({"MaxPass": 1, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+Q3DDC = dict({"SolveResOnly": False, "Cond": Q3DCond, "Mult": Q3DMult})
+Q3DCap = dict(
     {
         "MaxPass": 10,
         "MinPass": 1,
@@ -541,8 +540,8 @@ Q3DCap = OrderedDict(
         "Solver Type": "Iterative",
     }
 )
-Q3DAC = OrderedDict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
-Matrix = OrderedDict(
+Q3DAC = dict({"MaxPass": 10, "MinPass": 1, "MinConvPass": 1, "PerError": 1, "PerRefine": 30})
+Matrix = dict(
     {
         "AdaptiveFreq": "1GHz",
         "SaveFields": False,
@@ -554,10 +553,10 @@ Matrix = OrderedDict(
 )
 """Q3D Extractor setup properties and default values."""
 
-OutputQuantities = OrderedDict({})
-NoiseOutputQuantities = OrderedDict({})
-SweepDefinition = OrderedDict({"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0})
-NexximLNA = OrderedDict(
+OutputQuantities = {}
+NoiseOutputQuantities = {}
+SweepDefinition = dict({"Variable": "Freq", "Data": "LINC 1GHz 5GHz 501", "OffsetF1": False, "Synchronize": 0})
+NexximLNA = dict(
     {
         "DataBlockID": 16,
         "OptionName": "Default Options",
@@ -574,7 +573,7 @@ NexximLNA = OrderedDict(
 )
 """Nexxim linear network setup properties and default values."""
 
-NexximDC = OrderedDict(
+NexximDC = dict(
     {
         "DataBlockID": 15,
         "OptionName": "Default Options",
@@ -589,7 +588,7 @@ NexximDC = OrderedDict(
 )
 """Nexxim DC setup properties and default values."""
 
-NexximTransient = OrderedDict(
+NexximTransient = dict(
     {
         "DataBlockID": 10,
         "OptionName": "Default Options",
@@ -607,7 +606,7 @@ NexximTransient = OrderedDict(
 )
 """Nexxim transient setup properties and default values."""
 
-NexximQuickEye = OrderedDict(
+NexximQuickEye = dict(
     {
         "DataBlockID": 28,
         "OptionName": "Default Options",
@@ -621,7 +620,7 @@ NexximQuickEye = OrderedDict(
         "QuickEyeAnalysis": [False, "1e-9", False, "0", "", True],
     }
 )
-NexximVerifEye = OrderedDict(
+NexximVerifEye = dict(
     {
         "DataBlockID": 27,
         "OptionName": "Default Options",
@@ -635,7 +634,7 @@ NexximVerifEye = OrderedDict(
         "VerifEyeAnalysis": [False, "1e-9", False, "0", "", True],
     }
 )
-NexximAMI = OrderedDict(
+NexximAMI = dict(
     {
         "DataBlockID": 29,
         "OptionName": "Default Options",
@@ -651,12 +650,12 @@ NexximAMI = OrderedDict(
         "AMIAnalysis": [32, False, False],
     }
 )
-NexximOscillatorRSF = OrderedDict({})
-NexximOscillator1T = OrderedDict({})
-NexximOscillatorNT = OrderedDict({})
-NexximHarmonicBalance1T = OrderedDict({})
-NexximHarmonicBalanceNT = OrderedDict({})
-NexximSystem = OrderedDict(
+NexximOscillatorRSF = {}
+NexximOscillator1T = {}
+NexximOscillatorNT = {}
+NexximHarmonicBalance1T = {}
+NexximHarmonicBalanceNT = {}
+NexximSystem = dict(
     {
         "DataBlockID": 32,
         "OptionName": "Default Options",
@@ -671,8 +670,8 @@ NexximSystem = OrderedDict(
         "HSPICETransientOtherData": [3],
     }
 )
-NexximTVNoise = OrderedDict({})
-HSPICE = OrderedDict(
+NexximTVNoise = {}
+HSPICE = dict(
     {
         "DataBlockID": 30,
         "OptionName": "Default Options",
@@ -687,8 +686,8 @@ HSPICE = OrderedDict(
     }
 )
 
-HFSS3DLayout_Properties = OrderedDict({"Enable": "true"})
-HFSS3DLayout_AdvancedSettings = OrderedDict(
+HFSS3DLayout_Properties = dict({"Enable": "true"})
+HFSS3DLayout_AdvancedSettings = dict(
     {
         "AccuracyLevel": 2,
         "GapPortCalibration": True,
@@ -738,7 +737,7 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "PhiMesherDeltaZRatio": 100000,  # 2023.1
     }
 )
-HFSS3DLayout_CurveApproximation = OrderedDict(
+HFSS3DLayout_CurveApproximation = dict(
     {
         "ArcAngle": "30deg",
         "StartAzimuth": "0deg",
@@ -749,7 +748,7 @@ HFSS3DLayout_CurveApproximation = OrderedDict(
         "Replace3DTriangles": True,
     }
 )
-HFSS3DLayout_Q3D_DCSettings = OrderedDict(
+HFSS3DLayout_Q3D_DCSettings = dict(
     {
         "SolveResOnly": True,
         "Cond": Q3DCond,
@@ -758,7 +757,7 @@ HFSS3DLayout_Q3D_DCSettings = OrderedDict(
     }
 )
 
-CGDataBlock = OrderedDict(
+CGDataBlock = dict(
     {
         "MaxPass": 10,
         "MinPass": 1,
@@ -773,7 +772,7 @@ CGDataBlock = OrderedDict(
         "UseLossConv": True,
     }
 )
-RLDataBlock = OrderedDict(
+RLDataBlock = dict(
     {
         "MaxPass": 10,
         "MinPass": 1,
@@ -788,7 +787,7 @@ RLDataBlock = OrderedDict(
         "UseLossConv": True,
     }
 )
-Open = OrderedDict(
+Open = dict(
     {
         "AdaptiveFreq": "1GHz",
         "SaveFields": True,
@@ -802,7 +801,7 @@ Open = OrderedDict(
 )
 """Q2D open setup properties and default values."""
 
-Close = OrderedDict(
+Close = dict(
     {
         "AdaptiveFreq": "1GHz",
         "SaveFields": True,
@@ -816,7 +815,7 @@ Close = OrderedDict(
 )
 """Q2D close setup properties and default values."""
 
-TransientTemperatureAndFlow = OrderedDict(
+TransientTemperatureAndFlow = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -907,7 +906,7 @@ TransientTemperatureAndFlow = OrderedDict(
 )
 """Icepak Transient Temperature and Flow setup properties and default values."""
 
-TransientTemperatureOnly = OrderedDict(
+TransientTemperatureOnly = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -998,7 +997,7 @@ TransientTemperatureOnly = OrderedDict(
 )
 """Icepak Transient Temperature only setup properties and default values."""
 
-TransientFlowOnly = OrderedDict(
+TransientFlowOnly = dict(
     {
         "Enabled": True,
         "Flow Regime": "Laminar",
@@ -1089,10 +1088,8 @@ TransientFlowOnly = OrderedDict(
 )
 """Icepak Transient Flow only setup properties and default values."""
 
-HFSS3DLayout_SingleFrequencyDataList = OrderedDict(
-    {"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")}
-)
-HFSS3DLayout_BroadbandFrequencyDataList = OrderedDict(
+HFSS3DLayout_SingleFrequencyDataList = dict({"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")})
+HFSS3DLayout_BroadbandFrequencyDataList = dict(
     {
         "AdaptiveFrequencyData": [
             HFSS3DLayout_AdaptiveFrequencyData("5GHz"),
@@ -1100,7 +1097,7 @@ HFSS3DLayout_BroadbandFrequencyDataList = OrderedDict(
         ]
     }
 )
-HFSS3DLayout_MultiFrequencyDataList = OrderedDict(
+HFSS3DLayout_MultiFrequencyDataList = dict(
     {
         "AdaptiveFrequencyData": [
             HFSS3DLayout_AdaptiveFrequencyData("2.5GHz"),
@@ -1109,7 +1106,7 @@ HFSS3DLayout_MultiFrequencyDataList = OrderedDict(
         ]
     }
 )
-HFSS3DLayout_AdaptiveSettings = OrderedDict(
+HFSS3DLayout_AdaptiveSettings = dict(
     {
         "DoAdaptive": True,
         "SaveFields": False,
@@ -1124,7 +1121,7 @@ HFSS3DLayout_AdaptiveSettings = OrderedDict(
         "MultiFrequencyDataList": HFSS3DLayout_MultiFrequencyDataList,
     }
 )
-HFSS3DLayout = OrderedDict(
+HFSS3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
@@ -1178,7 +1175,7 @@ HFSS3DLayout = OrderedDict(
         "SmallVoidArea": -2e-09,
         "HealingOption": 1,
         "InclBBoxOption": 1,
-        "AuxBlock": OrderedDict({}),
+        "AuxBlock": {},
         "DoAdaptive": True,
         "Color": ["R", 0, "G", 0, "B", 0],  # TODO: create something smart for color arrays: like a class
         "AdvancedSettings": HFSS3DLayout_AdvancedSettings,
@@ -1188,7 +1185,7 @@ HFSS3DLayout = OrderedDict(
     }
 )
 
-HFSS3DLayout_v231 = OrderedDict(
+HFSS3DLayout_v231 = dict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
@@ -1253,21 +1250,21 @@ HFSS3DLayout_v231 = OrderedDict(
         "ModelType": 0,
         "ICModeAuto": 1,
         "ICModeLength": "50nm",
-        "AuxBlock": OrderedDict({}),
+        "AuxBlock": {},
         "DoAdaptive": True,
         "Color": ["R", 0, "G", 0, "B", 0],  # TODO: create something smart for color arrays: like a class
         "AdvancedSettings": HFSS3DLayout_AdvancedSettings,
         "CurveApproximation": HFSS3DLayout_CurveApproximation,
         "Q3D_DCSettings": HFSS3DLayout_Q3D_DCSettings,
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
-        "Data": OrderedDict({}),
-        "MeshOps": OrderedDict({}),
+        "Data": {},
+        "MeshOps": {},
     }
 )
 """HFSS 3D Layout setup properties and default values."""
 
-HFSS3DLayout_SweepDataList = OrderedDict({})
-HFSS3DLayout_SIWAdvancedSettings = OrderedDict(
+HFSS3DLayout_SweepDataList = {}
+HFSS3DLayout_SIWAdvancedSettings = dict(
     {
         "IncludeCoPlaneCoupling": True,
         "IncludeInterPlaneCoupling": False,
@@ -1290,7 +1287,7 @@ HFSS3DLayout_SIWAdvancedSettings = OrderedDict(
         "IgnoreNonFunctionalPads": True,
     }
 )
-HFSS3DLayout_SIWDCSettings = OrderedDict(
+HFSS3DLayout_SIWDCSettings = dict(
     {
         "UseDCCustomSettings": False,
         "PlotJV": True,
@@ -1299,7 +1296,7 @@ HFSS3DLayout_SIWDCSettings = OrderedDict(
         "DCSliderPos": 1,
     }
 )
-HFSS3DLayout_SIWDCAdvancedSettings = OrderedDict(
+HFSS3DLayout_SIWDCAdvancedSettings = dict(
     {
         "DcMinPlaneAreaToMesh": "0.25mm2",
         "DcMinVoidAreaToMesh": "0.01mm2",
@@ -1317,10 +1314,10 @@ HFSS3DLayout_SIWDCAdvancedSettings = OrderedDict(
         "NumViaSides": 8,
     }
 )
-HFSS3DLayout_SIWDCIRSettings = OrderedDict(
+HFSS3DLayout_SIWDCIRSettings = dict(
     {
         "IcepakTempFile": "D:/Program Files/AnsysEM/AnsysEM21.2/Win64/",
-        "SourceTermsToGround": OrderedDict({}),
+        "SourceTermsToGround": {},
         "ExportDCThermalData": False,
         "ImportThermalData": False,
         "FullDCReportPath": "",
@@ -1333,7 +1330,7 @@ HFSS3DLayout_SIWDCIRSettings = OrderedDict(
     }
 )
 
-HFSS3DLayout_SimulationSettings = OrderedDict(
+HFSS3DLayout_SimulationSettings = dict(
     {
         "Enabled": True,
         "UseSISettings": True,
@@ -1347,7 +1344,7 @@ HFSS3DLayout_SimulationSettings = OrderedDict(
     }
 )
 
-HFSS3DLayout_ACSimulationSettings = OrderedDict(
+HFSS3DLayout_ACSimulationSettings = dict(
     {
         "Enabled": True,
         "UseSISettings": True,
@@ -1359,7 +1356,7 @@ HFSS3DLayout_ACSimulationSettings = OrderedDict(
         "SIWDCAdvancedSettings": HFSS3DLayout_SIWDCAdvancedSettings,
     }
 )
-SiwaveAC3DLayout = OrderedDict(
+SiwaveAC3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
@@ -1372,7 +1369,7 @@ SiwaveAC3DLayout = OrderedDict(
     }
 )
 
-SiwaveDC3DLayout = OrderedDict(
+SiwaveDC3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
@@ -1384,7 +1381,7 @@ SiwaveDC3DLayout = OrderedDict(
     }
 )
 
-HFSS3DLayout_LNASimulationSettings = OrderedDict(
+HFSS3DLayout_LNASimulationSettings = dict(
     {
         "Enabled": True,
         "GroupDelay": False,
@@ -1396,7 +1393,7 @@ HFSS3DLayout_LNASimulationSettings = OrderedDict(
         "FilterText": "",
     }
 )
-LNA_Sweep = OrderedDict(
+LNA_Sweep = dict(
     {
         "DataId": "Sweep0",
         "Properties": HFSS3DLayout_Properties,
@@ -1404,8 +1401,8 @@ LNA_Sweep = OrderedDict(
         "SolutionID": -1,
     }
 )
-HFSS3DLayout_LNAData = OrderedDict({"LNA Sweep 1": LNA_Sweep})
-LNA3DLayout = OrderedDict(
+HFSS3DLayout_LNAData = dict({"LNA Sweep 1": LNA_Sweep})
+LNA3DLayout = dict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
@@ -1417,7 +1414,7 @@ LNA3DLayout = OrderedDict(
         "Data": HFSS3DLayout_LNAData,
     }
 )
-MechTerm = OrderedDict(
+MechTerm = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -1427,7 +1424,7 @@ MechTerm = OrderedDict(
 )
 """Mechanical thermal setup properties and default values."""
 
-MechTransientThermal = OrderedDict(
+MechTransientThermal = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -1448,7 +1445,7 @@ MechTransientThermal = OrderedDict(
     }
 )
 
-MechModal = OrderedDict(
+MechModal = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -1461,7 +1458,7 @@ MechModal = OrderedDict(
 )
 """Mechanical modal setup properties and default values."""
 
-MechStructural = OrderedDict(
+MechStructural = dict(
     {
         "Enabled": True,
         "MeshLink": meshlink,
@@ -1473,7 +1470,7 @@ MechStructural = OrderedDict(
 
 # TODO complete the list of templates for other Solvers
 
-RmxprtDefault = OrderedDict(
+RmxprtDefault = dict(
     {
         "Enabled": True,
         "OperationType": "Motor",
@@ -1493,7 +1490,7 @@ GRM["RatedPowerFactor"] = "0.8"
 GRM["Frequency"] = "60Hz"
 GRM["CapacitivePowerFactor"] = False
 
-DFIG = OrderedDict(
+DFIG = dict(
     {
         "Enabled": True,
         "RatedOutputPower": "1kW",
@@ -1519,7 +1516,7 @@ SPIM["Frequency"] = "60Hz"
 
 """RMxprt SPIM Single-Phase Induction Machine setup properties."""
 
-TPSM = OrderedDict(
+TPSM = dict(
     {
         "Enabled": True,
         "RatedOutputPower": "100",
@@ -1555,7 +1552,7 @@ UNIM["Frequency"] = "60Hz"
 
 """RMxprt UNIM Universal Machine setup properties."""
 
-DCM = OrderedDict(
+DCM = dict(
     {
         "Enabled": True,
         "RatedOutputPower": "1kW",
@@ -1572,7 +1569,7 @@ DCM = OrderedDict(
 )
 """RMxprt DCM DC Machine/Generator setup properties."""
 
-CPSM = OrderedDict(
+CPSM = dict(
     {
         "Enabled": True,
         "RatedOutputPower": "100",
@@ -1588,9 +1585,9 @@ CPSM = OrderedDict(
 )
 """RMxprt CPSM Claw-pole synchronous machine/generator setup properties."""
 
-TR = OrderedDict({})
+TR = {}
 
-SweepHfss3D = OrderedDict(
+SweepHfss3D = dict(
     {
         "Type": "Interpolating",
         "IsEnabled": True,
@@ -1623,9 +1620,9 @@ SweepHfss3D = OrderedDict(
     }
 )
 
-enabled = OrderedDict({"Enable": "true"})
+enabled = dict({"Enable": "true"})
 
-Sweep3DLayout = OrderedDict(
+Sweep3DLayout = dict(
     {
         "Properties": enabled,
         "Sweeps": SweepDefinition,
@@ -1657,7 +1654,7 @@ Sweep3DLayout = OrderedDict(
     }
 )
 
-SweepSiwave = OrderedDict(
+SweepSiwave = dict(
     {
         "Properties": enabled,
         "Sweeps": SweepDefinition,
@@ -1691,8 +1688,8 @@ SweepSiwave = OrderedDict(
         "EnforceDCAndCausality": False,
         "AdvDCExtrapolation": False,
         "MinSolvedFreq": "0.01GHz",
-        "MatrixConvEntryList": OrderedDict({}),
-        "HFSSRegionsParallelSimConfig": OrderedDict({}),
+        "MatrixConvEntryList": {},
+        "HFSSRegionsParallelSimConfig": {},
     }
 )
 

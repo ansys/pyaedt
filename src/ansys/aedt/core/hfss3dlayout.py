@@ -26,7 +26,6 @@
 
 from __future__ import absolute_import  # noreorder
 
-from collections import OrderedDict
 import fnmatch
 import io
 import os
@@ -1992,7 +1991,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     @pyaedt_function_handler()
     def _update_port_info(self, port):
         propnames = self.oeditor.GetProperties("EM Design", "Excitations:{}".format(port))
-        props = OrderedDict()
+        props = {}
         for prop in propnames:
             props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
         return BoundaryObject3dLayout(self, port, props, "Port")

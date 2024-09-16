@@ -24,7 +24,6 @@
 
 from __future__ import absolute_import
 
-from collections import OrderedDict
 import math
 import time
 
@@ -396,7 +395,7 @@ class ModelParameters(object):
         bool
         """
         try:
-            a = OrderedDict({})
+            a = {}
             a[self.name] = self.props
             arg = ["NAME:" + self.name]
             _dict2arg(self.props, arg)
@@ -514,7 +513,7 @@ class CircuitComponent(object):
         if self._model_data:
             return self._model_data
         if self.model_name:
-            _parameters = OrderedDict({})
+            _parameters = {}
             _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
             self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
         return self._model_data
@@ -938,7 +937,7 @@ class CircuitComponent(object):
         >>> oModelManager.EditWithComps
         """
         props = self.model_data.props
-        passive = OrderedDict(
+        passive = dict(
             [
                 ("DCOption", -1),
                 ("InterpOption", 1),

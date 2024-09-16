@@ -166,8 +166,9 @@ def desktop():
     d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
     d.odesktop.SetTempDirectory(tempfile.gettempdir())
     d.disable_autosave()
-    d.odesktop.SetDesktopConfiguration("All")
-    d.odesktop.SetSchematicEnvironment(0)
+    if desktop_version > "2022.2":
+        d.odesktop.SetDesktopConfiguration("All")
+        d.odesktop.SetSchematicEnvironment(0)
     yield d
     d.release_desktop(True, True)
     time.sleep(1)

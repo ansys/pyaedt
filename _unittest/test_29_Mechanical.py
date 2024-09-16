@@ -79,9 +79,13 @@ class TestClass:
         assert self.aedtapp.assign_em_losses(hfss.design_name, hfss.setups[0].name, "LastAdaptive", freq)
 
     def test_06a_create_setup(self):
+        assert not self.aedtapp.assign_2way_coupling()
         mysetup = self.aedtapp.create_setup()
         mysetup.props["Solver"] = "Direct"
         assert mysetup.update()
+
+    def test_06b_two_way(self):
+        assert self.aedtapp.assign_2way_coupling()
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self, add_app):

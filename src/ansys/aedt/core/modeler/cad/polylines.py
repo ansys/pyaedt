@@ -347,7 +347,7 @@ class Polyline(Object3d):
                 flag = "NonModel#"
             else:
                 flag = ""
-            varg2 = self._primitives._default_object_attributes(name=name, matname=matname, flags=flag)
+            varg2 = self._primitives._default_object_attributes(name=name, material=matname, flags=flag)
 
             new_object_name = self._oeditor.CreatePolyline(varg1, varg2)
             Object3d.__init__(self, primitives, name=new_object_name)

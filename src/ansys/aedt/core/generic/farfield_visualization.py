@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import json
 import math
 import os
@@ -586,7 +585,7 @@ class FfdSolutionData(object):
         rEtheta_fields_sum = np.reshape(rETheta_fields_sum, (n_theta, n_phi))
         rEphi_fields_sum = np.reshape(rEphi_fields_sum, (n_theta, n_phi))
 
-        farfield_data = OrderedDict()
+        farfield_data = {}
         farfield_data["rEPhi"] = rEphi_fields_sum
         farfield_data["rETheta"] = rEtheta_fields_sum
         farfield_data["rETotal"] = np.sqrt(

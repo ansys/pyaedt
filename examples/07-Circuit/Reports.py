@@ -32,7 +32,7 @@ aedt_version = "2024.2"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = True
+non_graphical = False
 NewThread = True
 
 ###############################################################################

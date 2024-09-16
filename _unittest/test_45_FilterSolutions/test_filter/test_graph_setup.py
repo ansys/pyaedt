@@ -53,6 +53,6 @@ class TestClass:
 
     def test_maximum_time(self):
         design = ansys.aedt.core.FilterSolutions(implementation_type=FilterImplementation.LUMPED)
-        assert design.graph_setup.maximum_time == "10n"
+        assert design.graph_setup.maximum_time == "10 ns"
         design.graph_setup.maximum_time = "8 ns"
         assert design.graph_setup.maximum_time == "8 ns"

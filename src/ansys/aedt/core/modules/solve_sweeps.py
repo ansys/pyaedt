@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import OrderedDict
 import copy
 from difflib import SequenceMatcher
 import json
@@ -823,31 +822,31 @@ class SweepMatrix(object):
         return arg
 
 
-class SetupProps(OrderedDict):
+class SetupProps(dict):
     """Provides internal parameters for the AEDT boundary component."""
 
     def __setitem__(self, key, value):
-        if isinstance(value, (dict, OrderedDict)):
-            OrderedDict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
+        if isinstance(value, dict):
+            dict.__setitem__(self, key, SetupProps(self._pyaedt_setup, value))
         else:
-            OrderedDict.__setitem__(self, key, value)
+            dict.__setitem__(self, key, value)
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:
                 self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
     def __init__(self, setup, props):
-        OrderedDict.__init__(self)
+        dict.__init__(self)
         if props:
             for key, value in props.items():
-                if isinstance(value, (dict, OrderedDict)):
-                    OrderedDict.__setitem__(self, key, SetupProps(setup, value))
+                if isinstance(value, dict):
+                    dict.__setitem__(self, key, SetupProps(setup, value))
                 else:
-                    OrderedDict.__setitem__(self, key, value)
+                    dict.__setitem__(self, key, value)
         self._pyaedt_setup = setup
 
     def _setitem_without_update(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
+        dict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path, overwrite=False):
         """Export all setup properties to a JSON file.
@@ -900,4 +899,4 @@ class SetupProps(OrderedDict):
     def delete_all(self):
         for item in list(self.keys()):
             if item != "_pyaedt_setup":
-                OrderedDict.__delitem__(self, item)
+                dict.__delitem__(self, item)

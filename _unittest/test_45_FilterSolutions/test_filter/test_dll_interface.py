@@ -35,7 +35,7 @@ import pytest
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     def test_version(self):
-        assert ansys.aedt.core.filtersolutions_core.api_version() == "FilterSolutions API Version 2025 R1"
+        assert ansys.aedt.core.filtersolutions_core.api_version() == "FilterSolutions API Version 2025 R1 (Beta)"
 
     def test_string_to_enum(self):
         assert (
