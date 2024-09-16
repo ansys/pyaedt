@@ -1478,9 +1478,9 @@ class Layers(object):
                 zones.append("Zone{}".format(i + 1))
             args = ["NAME:layers", "Mode:=", "Multizone", zones, ["NAME:pps"]]
         elif mode.lower() == "overlap":
-            args = args = ["NAME:layers", "Mode:=", "Overlap", ["NAME:pps"]]
+            args = ["NAME:layers", "Mode:=", "Overlap", ["NAME:pps"]]
         elif mode.lower() == "laminate":
-            args = args = ["NAME:layers", "Mode:=", "Laminate", ["NAME:pps"]]
+            args = ["NAME:layers", "Mode:=", "Laminate", ["NAME:pps"]]
         else:
             self.logger.error("Stackup mode has to be Multizone, Overlap or Laminate.")
             return False
