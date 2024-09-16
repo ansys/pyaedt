@@ -245,12 +245,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         List of :class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
         """
         component_array = {}
-        for component_array in self.component_array_names:
-            component_array[component_array] = ComponentArray(self, component_array)
+        for component_array_name in self.component_array_names:
+            component_array[component_array_name] = ComponentArray(self, component_array_name)
         return component_array
 
     @property
     def component_array_names(self):
+        """List of 3D component array names."""
         return list(self.get_oo_name(self.odesign, "Model"))
 
     @property
