@@ -1437,7 +1437,7 @@ class Material(CommonMaterial, object):
         if "wire_type" in self._props:
             self.wire_type = self._props["wire_type"]["Choice"]
 
-    def _update_material(self):
+        # Update the material properties
         for property in MatProperties.aedtname:
             tmods = None
             smods = None

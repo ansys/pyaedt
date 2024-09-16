@@ -339,7 +339,6 @@ class Materials(object):
             return self._aedmattolibrary(self._get_aedt_case_name(name))
         else:
             material = Material(self, name, properties, material_update=False)
-            material._update_material()
             material.update()
             material._material_update = True
             if material:
@@ -455,7 +454,6 @@ class Materials(object):
         mat_dict = self._create_mat_project_vars(matsweep)
 
         newmat = Material(self, name, material_update=False)
-        newmat._update_material()
         index = "$ID" + name
         newmat.is_sweep_material = True
         self._app[index] = 0
@@ -535,7 +533,6 @@ class Materials(object):
         if not name:
             name = material + "_clone"
         new_material = Material(self, name, material._props, material_update=False)
-        new_material._update_material()
 
         # Parameterize material properties if these were passed.
         if properties:
@@ -699,7 +696,6 @@ class Materials(object):
         value_iterator = iter(values_view)
         first_value = next(value_iterator)
         newmat = Material(self, matname, first_value, material_update=False)
-        newmat._update_material()
         newmat._material_update = True
         self.material_keys[matname.lower()] = newmat
         return self.material_keys[matname.lower()]
@@ -853,9 +849,9 @@ class Materials(object):
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self, newname, val, material_update=True)
-                newmat._update_material()
-                # newmat.update()
+                newmat = Material(self, newname, val, material_update=False)
+                newmat.update()
+                newmat._material_update = True
                 self.material_keys[newname] = newmat
                 materials_added.append(newmat)
         else:
@@ -870,8 +866,6 @@ class Materials(object):
                     newname = mat_name
 
                 newmat = self.add_material(newname, properties=data[mat_name])
-                newmat._props = data[mat_name]
-                newmat._update_material()
                 materials_added.append(newmat)
         return materials_added
 
@@ -922,9 +916,9 @@ class Materials(object):
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
                     props[prop] = float(val[keys.index(prop)])
-            new_material = Material(self, newname, props, material_update=True)
-            new_material._update_material()
-            # new_material.update()
+            new_material = Material(self, newname, props, material_update=False)
+            new_material.update()
+            new_material._material_update = True
             self.material_keys[newname] = new_material
             materials_added.append(new_material)
 
