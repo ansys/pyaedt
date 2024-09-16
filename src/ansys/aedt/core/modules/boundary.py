@@ -227,6 +227,7 @@ class NativeComponentObject(BoundaryCommon, object):
                 "GeometryDefinitionParameters": {"VariableOrders": {}},
                 "DesignDefinitionParameters": {"VariableOrders": {}},
                 "MaterialDefinitionParameters": {"VariableOrders": {}},
+                "DefReferenceCSID": 1,
                 "MapInstanceParameters": "DesignVariable",
                 "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
                 + random_string(12, char_set="abcdef0123456789"),
@@ -263,9 +264,25 @@ class NativeComponentObject(BoundaryCommon, object):
                 self.object_properties.props["Name"] = component_name
                 self._app.native_components.update({component_name: self})
                 del self._app.native_components[self._name]
+                del self._app.modeler.user_defined_components[self._name]
                 self._name = component_name
         else:  # pragma: no cover
             self._app._logger.warning("Name %s already assigned in the design", component_name)
+
+    @property
+    def definition_name(self):
+        """Definition name of the native component.
+
+        Returns
+        -------
+        str
+           Name of the native component.
+
+        """
+        definition_name = None
+        if self.props and "SubmodelDefinitionName" in self.props:
+            definition_name = self.props["SubmodelDefinitionName"]
+        return definition_name
 
     @property
     def targetcs(self):
@@ -386,7 +403,7 @@ class NativeComponentObject(BoundaryCommon, object):
         """
         self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         for el in self._app._native_components:
-            if el.component_name == self.component_name:
+            if el.name == self.name:
                 self._app._native_components.remove(el)
                 del self._app.modeler.user_defined_components[self.name]
                 self._app.modeler.cleanup_objects()

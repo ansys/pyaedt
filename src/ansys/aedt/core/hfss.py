@@ -1236,8 +1236,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Flare Half Angle": "20deg",
             }
         )
+
         _cross = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Polarization": "RHCP",
@@ -1249,8 +1252,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Mode": 0,
             }
         )
+
+        _dipole = dict(
+            {
+                "Unit": "mm",
+                "Version": 0,
+                "Is Parametric Array": False,
+                "Size": "1mm",
+                "MatchedPortImpedance": "50ohm",
+                "Representation": "Far Field",
+            }
+        )
+
         _horizontal = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Polarization": "Vertical",
@@ -1263,8 +1280,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Use Default Height": True,
             }
         )
+
         _parametricbeam = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "Size": "0.1meter",
                 "MatchedPortImpedance": "50ohm",
@@ -1274,8 +1294,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Horizontal BeamWidth": "60deg",
             }
         )
+
         _slot = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Representation": "Far Field",
@@ -1283,8 +1306,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Slot Length": "499.654096666667mm",
             }
         )
+
         _horn = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Representation": "Far Field",
@@ -1295,16 +1321,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Height Flare Half Angle": "35deg",
             }
         )
-        _dipole = dict(
-            {
-                "Is Parametric Array": False,
-                "Size": "1mm",
-                "MatchedPortImpedance": "50ohm",
-                "Representation": "Far Field",
-            }
-        )
+
         _smallloop = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Polarization": "Vertical",
@@ -1318,8 +1339,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Flare Half Angle": "20deg",
             }
         )
+
         _wiredipole = dict(
             {
+                "Unit": "mm",
+                "Version": 0,
                 "Is Parametric Array": False,
                 "MatchedPortImpedance": "50ohm",
                 "Representation": "Far Field",
@@ -1342,19 +1366,52 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             "Wire Monopole": _wiredipole,
         }
         default_type_id = {
-            "Conical Horn": 11,
-            "Cross Dipole": 12,
-            "Half-Wave Dipole": 3,
-            "Horizontal Dipole": 13,
-            "Parametric Beam": 0,
-            "Parametric Slot": 7,
-            "Pyramidal Horn": _horn,
-            "Quarter-Wave Monopole": 4,
-            "Short Dipole": 1,
-            "Small Loop": 2,
-            "Wire Dipole": 5,
-            "Wire Monopole": 6,
-            "File Based Antenna": 8,
+            "Conical Horn": 12,
+            "Cross Dipole": 13,
+            "Half-Wave Dipole": 4,
+            "Horizontal Dipole": 14,
+            "Parametric Beam": 1,
+            "Parametric Slot": 8,
+            "Pyramidal Horn": 11,
+            "Quarter-Wave Monopole": 5,
+            "Short Dipole": 2,
+            "Small Loop": 3,
+            "Wire Dipole": 6,
+            "Wire Monopole": 7,
+            "File Based Antenna": 9,
+            "Linked Antenna": 10,
+        }
+        array_parameters = {
+            "Array Element Type": 1,
+            "Array Element Angle Phi": "0deg",
+            "Array Element Angle Theta": "0deg",
+            "Array Element Offset X": "0meter",
+            "Array Element Offset Y": "0meter",
+            "Array Element Offset Z": "0meter",
+            "Array Element Conformance Type": 0,
+            "Array Element Conform Orientation": False,
+            "Array Design Frequency": "1GHz",
+            "Array Layout Type": 0,
+            "Array Specify Design In Wavelength": True,
+            "Array Element Num": 5,
+            "Array Length": "1meter",
+            "Array Width": "1meter",
+            "Array Length Spacing": "0.1meter",
+            "Array Width Spacing": "0.1meter",
+            "Array Length In Wavelength": "3",
+            "Array Width In Wavelength": "4",
+            "Array Length Spacing In Wavelength": "0.5",
+            "Array Stagger Type": 0,
+            "Array Stagger Angle": "0deg",
+            "Array Symmetry Type": 0,
+            "Array Weight Type": 3,
+            "Array Beam Angle Theta": "0deg",
+            "Array Weight Edge TaperX": -200,
+            "Array Weight Edge TaperY": -200,
+            "Array Weight Cosine Exp": 1,
+            "Array Differential Pattern Type": 0,
+            "Custom Array Filename": "",
+            "Custom Array State": "1",
         }
 
     @pyaedt_function_handler(model_units="units", parameters_dict="parameters", antenna_name="name")
@@ -1366,6 +1423,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         parameters=None,
         use_current_source_representation=False,
         is_array=False,
+        custom_array=None,
         name=None,
     ):
         """Create a parametric beam antennas in SBR+.
@@ -1386,7 +1444,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         use_current_source_representation : bool, optional
             Whether to use the current source representation. The default is ``False``.
         is_array : bool, optional
-            Whether to define an array. The default is ``False``.
+            Whether to define a parametric array. The default is ``False``.
+        custom_array : str, optional
+            Custom array file. The extensions supported are ``".sarr"``. The default is ``None``, in which case
+            parametric array is created.
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
             name is auto-generated based on the antenna type.
@@ -1404,10 +1465,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
-        PyAEDT INFO: Added design 'HFSS_IPO' of type HFSS.
-        >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
-        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,parameters=parm,name="TX1")
+        >>> hfss = Hfss(solution_type="SBR+")
+        >>> parm = {"Polarization": "Vertical"}
+        >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, parameters=parm, name="TX1")
+        >>> custom_array = "my_file.sarr"
+        >>> antenna_array = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, custom_array=custom_array)
+        >>> antenna_array_parametric = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole, is_array=True)
 
         """
         if self.solution_type != "SBR+":
@@ -1417,6 +1480,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             target_cs = self.modeler.get_working_coordinate_system()
 
         parameters_defaults = self.SBRAntennaDefaults.parameters[antenna_type].copy()
+
+        if custom_array:
+            is_array = True
+        else:
+            custom_array = ""
 
         if not units:
             units = self.modeler.model_units
@@ -1444,37 +1512,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
 
             element_parameters = parameters_defaults.copy()
 
-            array_parameters = {}
+            array_parameters = self.SBRAntennaDefaults.array_parameters
             array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
-            array_parameters["Array Element Angle Phi"] = ("0deg",)
-            array_parameters["Array Element Angle Theta"] = ("0deg",)
-            array_parameters["Array Element Offset X"] = "0meter"
-            array_parameters["Array Element Offset Y"] = "0meter"
-            array_parameters["Array Element Offset Z"] = "0meter"
-            array_parameters["Array Element Conformance Type"] = 0
-            array_parameters["Array Element Conformance Type"] = 0
-            array_parameters["Array Element Conformance Type"] = 0
-            array_parameters["Array Element Conform Orientation"] = False
-            array_parameters["Array Design Frequency"] = "1GHz"
-            array_parameters["Array Layout Type"] = 1
-            array_parameters["Array Specify Design In Wavelength"] = True
-            array_parameters["Array Element Num"] = 5
-            array_parameters["Array Length"] = "1meter"
-            array_parameters["Array Width"] = "1meter"
-            array_parameters["Array Length Spacing"] = "0.1meter"
-            array_parameters["Array Width Spacing"] = "0.1meter"
-            array_parameters["Array Length In Wavelength"] = "3"
-            array_parameters["Array Width In Wavelength"] = "4"
-            array_parameters["Array Length Spacing In Wavelength"] = "0.5"
-            array_parameters["Array Stagger Type"] = 0
-            array_parameters["Array Stagger Angle"] = "0deg"
-            array_parameters["Array Symmetry Type"] = 0
-            array_parameters["Array Weight Type"] = 3
-            array_parameters["Array Beam Angle Theta"] = "0deg"
-            array_parameters["Array Weight Edge TaperX"] = -200
-            array_parameters["Array Weight Edge TaperY"] = -200
-            array_parameters["Array Weight Cosine Exp"] = 1
-            array_parameters["Array Differential Pattern Type"] = 0
+            if custom_array:
+                array_parameters["Array Layout Type"] = 0
+            else:
+                array_parameters["Array Layout Type"] = 1
+            array_parameters["Custom Array Filename"] = custom_array
 
             parameters_defaults = {
                 "Type": "Parametric Array",
@@ -1485,11 +1529,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 "Array Element Parameters": element_parameters,
             }
 
-            # name = generate_unique_name("pAntArray")
+            antenna_type = "Parametric Array"
 
         if parameters:
             for el, value in parameters.items():
                 parameters_defaults[el] = value
+
         return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
 
     @pyaedt_function_handler(ffd_full_path="far_field_data", model_units="units", antenna_name="name")
@@ -1501,6 +1546,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         representation_type="Far Field",
         target_cs=None,
         units=None,
+        is_array=False,
+        custom_array=None,
         name=None,
     ):
         """Create a linked antenna.
@@ -1522,6 +1569,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         units : str, optional
             Model units to apply to the object. The default is
             ``None``, in which case the active modeler units are applied.
+        is_array : bool, optional
+            Whether to define a parametric array. The default is ``False``.
+        custom_array : str, optional
+            Custom array file. The extensions supported are ``".sarr"``. The default is ``None``, in which case
+            parametric array is created.
         name : str, optional
             Name of the 3D component. The default is ``None``, in which case
             the name is auto-generated based on the antenna type.
@@ -1549,18 +1601,53 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         if target_cs is None:
             target_cs = self.modeler.oeditor.GetActiveCoordinateSystem()
 
-        par_dicts = dict(
+        if custom_array:
+            is_array = True
+        else:
+            custom_array = ""
+
+        if not units:
+            units = self.modeler.model_units
+
+        parameters_defaults = dict(
             {
                 "Size": antenna_size,
                 "MatchedPortImpedance": antenna_impedance,
                 "Representation": representation_type,
                 "ExternalFile": far_field_data,
+                "Version": 0,
+                "Unit": units,
             }
         )
-        if not name:
-            name = generate_unique_name(os.path.basename(far_field_data).split(".")[0])
 
-        return self._create_native_component("File Based Antenna", target_cs, units, par_dicts, name)
+        antenna_type = "File Based Antenna"
+
+        if is_array:
+            parameters_defaults["Is Parametric Array"] = True
+            parameters_defaults["Sheet"] = -1
+
+            element_parameters = parameters_defaults.copy()
+
+            array_parameters = self.SBRAntennaDefaults.array_parameters
+            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+            if custom_array:
+                array_parameters["Array Layout Type"] = 0
+            else:
+                array_parameters["Array Layout Type"] = 1
+            array_parameters["Custom Array Filename"] = custom_array
+
+            parameters_defaults = {
+                "Type": "Parametric Array",
+                "Unit": element_parameters["Unit"],
+                "Version": element_parameters["Version"],
+                "Is Parametric Array": element_parameters["Is Parametric Array"],
+                "Antenna Array Parameters": array_parameters,
+                "Array Element Parameters": element_parameters,
+            }
+
+            antenna_type = "Parametric Array"
+
+        return self._create_native_component(antenna_type, target_cs, units, parameters_defaults, name)
 
     @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
     def create_sbr_linked_antenna(
@@ -1575,6 +1662,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         thin_sources=True,
         power_fraction="0.95",
         visible=True,
+        is_array=False,
+        custom_array=None,
         name=None,
     ):
         """Create a linked antennas.
@@ -1603,6 +1692,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
              The default is ``"0.95"``.
         visible : bool, optional.
             Whether to make source objects in the target design visible. The default is ``True``.
+        is_array : bool, optional
+            Whether to define a parametric array. The default is ``False``.
+        custom_array : str, optional
+            Custom array file. The extensions supported are ``".sarr"``. The default is ``None``, in which case
+            parametric array is created.
         name : str, optional
             Name of the source.
             The default is ``None`` in which case a name is automatically assigned.
@@ -1618,9 +1712,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
         >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        ...               version="2024.2", new_desktop=False)
         >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        ...               version="2024.2", new_desktop=False)
         >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
 
         """
@@ -1648,6 +1742,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             {
                 "Type": "Linked Antenna",
                 "Unit": self.modeler.model_units,
+                "Version": 0,
                 "Is Parametric Array": False,
                 "Project": project_name,
                 "Product": "HFSS",
@@ -1672,12 +1767,45 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             native_props["Power Fraction"] = power_fraction
         if visible:
             native_props["VisualizationObjects"] = assignment.modeler.solid_names
+
+        if custom_array:
+            is_array = True
+        else:
+            custom_array = ""
+
+        antenna_type = "Linked Antenna"
+
+        if is_array:
+            native_props["Is Parametric Array"] = True
+            native_props["Sheet"] = -1
+
+            element_parameters = native_props.copy()
+
+            array_parameters = self.SBRAntennaDefaults.array_parameters
+            array_parameters["Array Element Type"] = self.SBRAntennaDefaults.default_type_id[antenna_type]
+            if custom_array:
+                array_parameters["Array Layout Type"] = 0
+            else:
+                array_parameters["Array Layout Type"] = 1
+            array_parameters["Custom Array Filename"] = custom_array
+
+            native_props = {
+                "Type": "Parametric Array",
+                "Unit": element_parameters["Unit"],
+                "Version": element_parameters["Version"],
+                "Is Parametric Array": element_parameters["Is Parametric Array"],
+                "Antenna Array Parameters": array_parameters,
+                "Array Element Parameters": element_parameters,
+            }
+
+            antenna_type = "Parametric Array"
+
         return self._create_native_component(
-            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
+            antenna_type, target_cs, self.modeler.model_units, native_props, uniquename
         )
 
     @pyaedt_function_handler()
-    def create_sbr_custom_array(
+    def create_sbr_custom_array_file(
         self,
         output_file=None,
         frequencies=None,
@@ -1728,7 +1856,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         --------
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_sbr_custom_array()
+        >>> hfss.create_sbr_custom_array_file()
         >>> hfss.release_desktop()
         """
         if output_file is None:
