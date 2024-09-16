@@ -118,6 +118,7 @@ class TestClass:
         ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
+
         ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
                                       theta=20,
                                       title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
@@ -126,9 +127,11 @@ class TestClass:
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
-                                      rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      output_file=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
+        farfield_plot = ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
+                                                      output_file=os.path.join(self.local_scratch.path,
+                                                                               "3d2_array.jpg"),
+                                                      show=False)
+        farfield_plot.close()
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
@@ -197,11 +200,11 @@ class TestClass:
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz"})
+                                               intrinsics={"frequency": "1GHz"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+                                               intrinsics={"frequency": "1GHz", "phase": "30deg"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",

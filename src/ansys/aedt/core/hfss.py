@@ -232,13 +232,26 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
-        self.component_array = {}
-        self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
-        for component_array in self.component_array_names:
-            self.component_array[component_array] = ComponentArray(self, component_array)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
+
+    @property
+    def component_array(self):
+        """List of 3D component arrays.
+
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
+        """
+        component_array = {}
+        for component_array in self.component_array_names:
+            component_array[component_array] = ComponentArray(self, component_array)
+        return component_array
+
+    @property
+    def component_array_names(self):
+        return list(self.get_oo_name(self.odesign, "Model"))
 
     @property
     def field_setups(self):
@@ -6732,9 +6745,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 command.append("ElementPatterns:=")
                 command.append(quantity[len("Gamma(") : -1])
         else:  # pragma: no cover
-            for excitation in self.get_all_sources():
+            sources = self.get_all_sources()
+            modes = self.get_all_source_modes()
+            for source_cont, excitation in enumerate(sources):
                 command.append("ElementPatterns:=")
-                command.append(excitation)
+                if self.solution_type == "SBR+":
+                    command.append(excitation + ":" + modes[source_cont])
+                else:
+                    command.append(excitation)
 
         if export_power:
             command.append("ElementPowers:=")
