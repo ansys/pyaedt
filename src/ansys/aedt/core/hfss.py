@@ -5648,7 +5648,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             # Save project, because coordinate system information can not be obtained from AEDT API
             self.save_project()
             self.component_array[name] = ComponentArray(self, name)
-        self.component_array_names = [name]
+
         return self.component_array[name]
 
     @pyaedt_function_handler()
