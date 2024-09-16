@@ -85,8 +85,8 @@ class MaterialWorkbench:
     def _aedt_material_name(wb_material_name):
         return f"{wb_material_name}_wb"
 
-    def import_materials_from_WB(self, filename, hfss):
-        """Import materials from Workbench Engineerig Data XML file.
+    def import_materials_from_workbench(self, filename, hfss):
+        """Import materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------
