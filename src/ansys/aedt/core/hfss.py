@@ -232,27 +232,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         ScatteringMethods.__init__(self, self)
         self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
+        self.component_array = {}
+        self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
+        for component_array in self.component_array_names:
+            self.component_array[component_array] = ComponentArray(self, component_array)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
-
-    @property
-    def component_array(self):
-        """List of 3D component arrays.
-
-        Returns
-        -------
-        List of :class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
-        """
-        component_array = {}
-        for component_array_name in self.component_array_names:
-            component_array[component_array_name] = ComponentArray(self, component_array_name)
-        return component_array
-
-    @property
-    def component_array_names(self):
-        """List of 3D component array names."""
-        return list(self.omodelsetup.GetArrayNames())
 
     @property
     def field_setups(self):
@@ -5648,7 +5634,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             # Save project, because coordinate system information can not be obtained from AEDT API
             self.save_project()
             self.component_array[name] = ComponentArray(self, name)
-
+        self.component_array_names = [name]
         return self.component_array[name]
 
     @pyaedt_function_handler()

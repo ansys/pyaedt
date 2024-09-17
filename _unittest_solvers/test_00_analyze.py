@@ -248,6 +248,7 @@ class TestClass:
             monitor_name="test_monitor2",
         )
         self.icepak_app.analyze("SetupIPK", cores=4)
+        time.sleep(3)
         self.icepak_app.save_project()
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
