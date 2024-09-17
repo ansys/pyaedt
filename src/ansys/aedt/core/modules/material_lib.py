@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import Material
 from ansys.aedt.core.modules.material import SurfaceMaterial
+from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
 
 class Materials(object):
@@ -939,3 +940,33 @@ class Materials(object):
         >>> oDefinitionManager.GetInUseProjectMaterialNames
         """
         return self.odefinition_manager.GetInUseProjectMaterialNames()
+
+    @pyaedt_function_handler
+    def import_materials_from_workbench(self, input_file, name_suffix=None):
+        """Import and create materials from Workbench Engineering Data XML file.
+
+        Parameters
+        ----------
+        input_file : str
+            Full path and name for the XML file.
+
+        name_suffix : str, None, optional
+            String containing the suffix to be applied to the imported material names.
+            The default is ``None``, in which case "_wb" is used.
+            Set it to ``""`` to maintain in AEDT the same name as in Workbench.
+
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modules.material.Material`
+
+        """
+        # create an instance of the class
+        mat_wb = MaterialWorkbench(self._app)
+        # set the name suffix if any
+        if name_suffix:
+            mat_wb.mat_name_suffix = name_suffix
+        # check if the xml file exists
+        if not os.path.isfile(input_file):
+            self.logger.error(f"The file specified does not exist: {input_file}")
+        # import the materials in the xml
+        return mat_wb.import_materials_from_workbench(input_file)
