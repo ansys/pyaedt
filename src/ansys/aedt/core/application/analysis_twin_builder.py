@@ -135,13 +135,13 @@ class AnalysisTwinBuilder(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.post_processor.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.post_processor.PostProcessorCircuit`
         """
         if self._post is None and self._odesign:  # pragma: no cover
             self.logger.reset_timer()
-            from ansys.aedt.core.post.post_processor import CircuitPostProcessor
+            from ansys.aedt.core.post.circuit_post import PostProcessorCircuit
 
-            self._post = CircuitPostProcessor(self)
+            self._post = PostProcessorCircuit(self)
             self.logger.info_timer("Post class has been initialized!")
 
         return self._post

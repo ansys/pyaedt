@@ -1,1 +1,1 @@
-from ansys.aedt.core.post.advanced_post_processing import *
+from ansys.aedt.core.post.icepak_post import *

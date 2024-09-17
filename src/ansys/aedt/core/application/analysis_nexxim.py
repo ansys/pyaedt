@@ -177,14 +177,14 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.advanced_post_processing.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessorCircuit`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.post.post_processor import CircuitPostProcessor
+            from ansys.aedt.core.post.circuit_post import PostProcessorCircuit
 
-            self._post = CircuitPostProcessor(self)
+            self._post = PostProcessorCircuit(self)
             self.logger.info_timer("Post class has been initialized!")
 
         return self._post

@@ -14,8 +14,6 @@ They are accessible through the ``post`` property.
    Some functionalities are available only when AEDT is running 
    in graphical mode.
 
-Advanced post-processing
-~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: ansys.aedt.core.post
 
@@ -23,7 +21,9 @@ Advanced post-processing
    :toctree: _autosummary
    :nosignatures:
 
-   advanced_post_processing.PostProcessor
+   standard_post.PostProcessor3D
+   icepak_post.PostProcessorIcepak
+   circuit_post.PostProcessorCircuit
 
 
 .. code:: python
@@ -68,13 +68,15 @@ PyAEDT has classes for manipulating any report property.
 
    report_templates.Trace
    report_templates.LimitLine
-   report_templates.Standard
-   report_templates.Fields
-   report_templates.NearField
-   report_templates.FarField
-   report_templates.EyeDiagram
-   report_templates.Emission
-   report_templates.Spectral
+   standard_report.Standard
+   field_report.Fields
+   field_report.NearField
+   field_report.FarField
+   eye_report.EyeDiagram
+   eye_report.AMIEyeDiagram
+   eye_report.AMIConturEyeDiagram
+   field_report.Emission
+   standard_report.Spectral
 
 Icepak monitors
 ~~~~~~~~~~~~~~~

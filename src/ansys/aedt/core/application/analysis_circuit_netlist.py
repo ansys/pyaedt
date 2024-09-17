@@ -109,14 +109,14 @@ class AnalysisCircuitNetlist(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.advanced_post_processing.CircuitPostProcessor`
+        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessorCircuit`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.post.advanced_post_processing import PostProcessor
+            from ansys.aedt.core.post.standard_post import PostProcessor3D
 
-            self._post = PostProcessor(self)
+            self._post = PostProcessor3D(self)
             self.logger.info_timer("Post class has been initialized!")
         return self._post
 

@@ -189,12 +189,10 @@ class FieldAnalysis3D(Analysis, object):
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.post.post_processor import PostProcessor
-            elif self.design_type == "Icepak":
-                from ansys.aedt.core.post.advanced_post_processing import IcepakPostProcessor as PostProcessor
+            if self.design_type == "Icepak":
+                from ansys.aedt.core.post.icepak_post import IcepakPostProcessor as PostProcessor
             else:
-                from ansys.aedt.core.post.advanced_post_processing import PostProcessor
+                from ansys.aedt.core.post.standard_post import PostProcessor3D as PostProcessor
             self._post = PostProcessor(self)
             self.logger.info_timer("Post class has been initialized!")
 
