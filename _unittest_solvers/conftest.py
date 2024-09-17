@@ -18,6 +18,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import json
+import numpy as np
 import os
 import shutil
 import sys
@@ -40,7 +41,10 @@ settings.wait_for_license = True
 
 # FIXME: This is added due to an error triggered when using numpy>=2.
 # Further investigation needs to be performed to fix that issue.
-import ansys.aedt.core.generic.clr_module
+# See https://github.com/ansys/pyaedt/pull/5116
+_NUMPY_MAJOR_VERSION = int(np.__version__[0])
+if _NUMPY_MAJOR_VERSION >= 2:
+    import ansys.aedt.core.generic.clr_module
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import generate_unique_name
