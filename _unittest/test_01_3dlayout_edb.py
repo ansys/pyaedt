@@ -415,5 +415,6 @@ class TestClass:
         assert self.aedtapp.create_ports_on_component_by_nets(comp.name, nets)
         assert self.aedtapp.create_pec_on_component_by_nets(comp.name, "GND")
 
+    @pytest.mark.skipif(config["desktopVersion"] <= "2024.1", reason="Introduced in 2024R1")
     def test_24_open_ic_mode_design(self):
         assert self.ic_mode_design.ic_mode

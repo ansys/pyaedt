@@ -230,6 +230,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             remove_lock=remove_lock,
         )
         ScatteringMethods.__init__(self, self)
+        self.onetwork_data_explorer = self.odesktop.GetTool("NdExplorer")
         self._field_setups = []
         self.component_array = {}
         self.component_array_names = list(self.get_oo_name(self.odesign, "Model"))
@@ -1154,120 +1155,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 )
         return False
 
-    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
-    def create_sbr_linked_antenna(
-        self,
-        assignment,
-        target_cs="Global",
-        setup=None,
-        field_type="nearfield",
-        use_composite_ports=False,
-        use_global_current=True,
-        current_conformance=False,
-        thin_sources=True,
-        power_fraction="0.95",
-        visible=True,
-        name=None,
-    ):
-        """Create a linked antennas.
-
-        Parameters
-        ----------
-        assignment : ansys.aedt.core.Hfss
-            Source object.
-        target_cs : str, optional
-            Target coordinate system. The default is ``"Global"``.
-        setup : optional
-            Name of the setup. The default is ``None``, in which
-            case a name is automatically assigned.
-        field_type : str, optional
-            Field type. The options are ``"nearfield"`` and ``"farfield"``.
-            The default is ``"nearfield"``.
-        use_composite_ports : bool, optional
-            Whether to use composite ports. The default is ``False``.
-        use_global_current : bool, optional
-            Whether to use the global current. The default is ``True``.
-        current_conformance : bool, optional
-            Whether to enable current conformance. The default is ``False``.
-        thin_sources : bool, optional
-             Whether to enable thin sources. The default is ``True``.
-        power_fraction : str, optional
-             The default is ``"0.95"``.
-        visible : bool, optional.
-            Whether to make source objects in the target design visible. The default is ``True``.
-        name : str, optional
-            Name of the source.
-            The default is ``None`` in which case a name is automatically assigned.
-
-        References
-        ----------
-
-        >>> oEditor.InsertNativeComponent
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> target_project = "my/path/to/targetProject.aedt"
-        >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
-        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
-
-        """
-        if self.solution_type != "SBR+":
-            self.logger.error("Native components only apply to the SBR+ solution.")
-            return False
-
-        if name is None:
-            uniquename = generate_unique_name(assignment.design_name)
-        else:
-            uniquename = generate_unique_name(name)
-
-        if assignment.project_name == self.project_name:
-            project_name = "This Project*"
-        else:
-            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
-        design_name = assignment.design_name
-        if not setup:
-            setup = assignment.nominal_adaptive
-        params = {}
-        pars = assignment.available_variations.nominal_w_values_dict
-        for el in pars:
-            params[el] = pars[el]
-        native_props = dict(
-            {
-                "Type": "Linked Antenna",
-                "Unit": self.modeler.model_units,
-                "Is Parametric Array": False,
-                "Project": project_name,
-                "Product": "HFSS",
-                "Design": design_name,
-                "Soln": setup,
-                "Params": params,
-                "ForceSourceToSolve": True,
-                "PreservePartnerSoln": True,
-                "PathRelativeTo": "TargetProject",
-                "FieldType": field_type,
-                "UseCompositePort": use_composite_ports,
-                "SourceBlockageStructure": dict({"NonModelObject": []}),
-            }
-        )
-        if field_type == "nearfield":
-            native_props["UseGlobalCurrentSrcOption"] = use_global_current
-            if current_conformance:
-                native_props["Current Source Conformance"] = "Enable"
-            else:
-                native_props["Current Source Conformance"] = "Disable"
-            native_props["Thin Sources"] = thin_sources
-            native_props["Power Fraction"] = power_fraction
-        if visible:
-            native_props["VisualizationObjects"] = assignment.modeler.solid_names
-        return self._create_native_component(
-            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
-        )
-
     @pyaedt_function_handler()
     def _create_native_component(
         self, antenna_type, target_cs=None, model_units=None, parameters_dict=None, antenna_name=None
@@ -1647,6 +1534,252 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             name = generate_unique_name(os.path.basename(far_field_data).split(".")[0])
 
         return self._create_native_component("File Based Antenna", target_cs, units, par_dicts, name)
+
+    @pyaedt_function_handler(source_object="assignment", solution="setup", fieldtype="field_type", source_name="name")
+    def create_sbr_linked_antenna(
+        self,
+        assignment,
+        target_cs="Global",
+        setup=None,
+        field_type="nearfield",
+        use_composite_ports=False,
+        use_global_current=True,
+        current_conformance=False,
+        thin_sources=True,
+        power_fraction="0.95",
+        visible=True,
+        name=None,
+    ):
+        """Create a linked antennas.
+
+        Parameters
+        ----------
+        assignment : ansys.aedt.core.Hfss
+            Source object.
+        target_cs : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        setup : optional
+            Name of the setup. The default is ``None``, in which
+            case a name is automatically assigned.
+        field_type : str, optional
+            Field type. The options are ``"nearfield"`` and ``"farfield"``.
+            The default is ``"nearfield"``.
+        use_composite_ports : bool, optional
+            Whether to use composite ports. The default is ``False``.
+        use_global_current : bool, optional
+            Whether to use the global current. The default is ``True``.
+        current_conformance : bool, optional
+            Whether to enable current conformance. The default is ``False``.
+        thin_sources : bool, optional
+             Whether to enable thin sources. The default is ``True``.
+        power_fraction : str, optional
+             The default is ``"0.95"``.
+        visible : bool, optional.
+            Whether to make source objects in the target design visible. The default is ``True``.
+        name : str, optional
+            Name of the source.
+            The default is ``None`` in which case a name is automatically assigned.
+
+        References
+        ----------
+
+        >>> oEditor.InsertNativeComponent
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> target_project = "my/path/to/targetProject.aedt"
+        >>> source_project = "my/path/to/sourceProject.aedt"
+        >>> target = Hfss(project=target_project, solution_type="SBR+",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> source = Hfss(project=source_project, design="feeder",
+        ...               version="2021.2", new_desktop=False)  # doctest: +SKIP
+        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
+
+        """
+        if self.solution_type != "SBR+":
+            self.logger.error("Native components only apply to the SBR+ solution.")
+            return False
+
+        if name is None:
+            uniquename = generate_unique_name(assignment.design_name)
+        else:
+            uniquename = generate_unique_name(name)
+
+        if assignment.project_name == self.project_name:
+            project_name = "This Project*"
+        else:
+            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
+        design_name = assignment.design_name
+        if not setup:
+            setup = assignment.nominal_adaptive
+        params = {}
+        pars = assignment.available_variations.nominal_w_values_dict
+        for el in pars:
+            params[el] = pars[el]
+        native_props = dict(
+            {
+                "Type": "Linked Antenna",
+                "Unit": self.modeler.model_units,
+                "Is Parametric Array": False,
+                "Project": project_name,
+                "Product": "HFSS",
+                "Design": design_name,
+                "Soln": setup,
+                "Params": params,
+                "ForceSourceToSolve": True,
+                "PreservePartnerSoln": True,
+                "PathRelativeTo": "TargetProject",
+                "FieldType": field_type,
+                "UseCompositePort": use_composite_ports,
+                "SourceBlockageStructure": dict({"NonModelObject": []}),
+            }
+        )
+        if field_type == "nearfield":
+            native_props["UseGlobalCurrentSrcOption"] = use_global_current
+            if current_conformance:
+                native_props["Current Source Conformance"] = "Enable"
+            else:
+                native_props["Current Source Conformance"] = "Disable"
+            native_props["Thin Sources"] = thin_sources
+            native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = assignment.modeler.solid_names
+        return self._create_native_component(
+            "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
+        )
+
+    @pyaedt_function_handler()
+    def create_sbr_custom_array(
+        self,
+        output_file=None,
+        frequencies=None,
+        element_number=1,
+        state_number=1,
+        position=None,
+        x_axis=None,
+        y_axis=None,
+        weight=None,
+    ):
+        """Create custom array file with sarr format.
+
+        Parameters
+        ----------
+        output_file : str, optional
+            Full path and name for the file.
+            The default is ``None``, in which case the file is exported to the working directory.
+        frequencies : list, optional
+            List of frequencies in GHz. The default is ``[1.0]``.
+        element_number : int, optional
+            Number of elements in the array. The default is ``1``.
+        state_number : int, optional
+            Number of states. The default is ``1``.
+        position : list of list
+            List of the ``[x, y, z]`` coordinates for each element. The default is ``[1, 0, 0]``.
+        x_axis : list of list
+            List of X, Y, Z components of X-axis unit vector.
+        y_axis : list of list
+            List of X, Y, Z components of Y-axis unit vector. The default is ``[0, 1, 0]``.
+        weight : list of list
+            Weight of each element. The default is ``None`` in which case all elements have uniform weight.
+            The second dimension contains the weights for each element, organized as follows:
+            The first ``frequencies`` entries correspond to the weights for that element at each
+            of the ``frequencies``, for the first state.
+            If there are multiple states, the next ``frequencies`` entries represent the weights for the second state,
+            and so on.
+            For example, for 3 frequencies ``(f1, f2, f3)``, 2 elements ``(e1, e2)``, and 2 states ``(s1, s2)``,
+            the weight would be represented as: ``[[w_f1_e1_s1, w_f1_e2_s1], [w_f2_e1_s1, w_f2_e2_s1],
+            [w_f3_e1_s1, w_f3_e2_s1], [w_f1_e1_s2, w_f1_e2_s2], [w_f2_e1_s2, w_f2_e2_s2], [w_f3_e1_s2, w_f3_e2_s2]]``.
+            ```
+
+        Returns
+        -------
+        str
+            File name when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_sbr_custom_array()
+        >>> hfss.release_desktop()
+        """
+        if output_file is None:
+            output_file = os.path.join(self.working_directory, "custom_array.sarr")
+
+        if frequencies is None:
+            frequencies = [1.0]
+
+        if position is None:
+            position = [[0.0, 0.0, 0.0]] * element_number
+
+        if x_axis is None:
+            x_axis = [[1.0, 0.0, 0.0]] * element_number
+
+        if y_axis is None:
+            y_axis = [[0.0, 1.0, 0.0]] * element_number
+
+        try:
+            with open(output_file, "w") as sarr_file:
+                sarr_file.write("# Array Element List (.sarr) file\n")
+                sarr_file.write("# Blank lines and lines beginning with pound sign ('#') are ignored\n")
+
+                # Write whether weight exists
+                has_weight = weight is not None
+                sarr_file.write("\n")
+                sarr_file.write("# has_weights flags whether array file includes element weight data.\n")
+                sarr_file.write("# If not, then array file only specifies element positions and orientations.\n")
+                sarr_file.write(f"has_weights {'true' if has_weight else 'false'}\n")
+
+                # Write frequency domain
+                nf = len(frequencies)
+                if len(frequencies) == 1 or all(
+                    abs(frequencies[i + 1] - frequencies[i] - (frequencies[1] - frequencies[0])) < 1e-9
+                    for i in range(len(frequencies) - 1)
+                ):
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq <start_ghz> <stop_ghz> # nstep = nfreq - 1\n")
+                    sarr_file.write(f"freq {frequencies[0]} {frequencies[-1]} {nf - 1}\n")
+                else:
+                    sarr_file.write("\n")
+                    sarr_file.write("# freq_list\n")
+                    sarr_file.write(f"freq_list {nf}\n")
+                    for freq in frequencies:
+                        sarr_file.write(f"{freq}\n")
+
+                # Handle states
+                ns = state_number
+                nfns = nf * ns
+                if has_weight:
+                    sarr_file.write("\n")
+                    sarr_file.write("# num_states\n")
+                    sarr_file.write(f"num_states {ns}\n")
+                    # Flatten weights
+                    weight_reshaped = [[weight[i][j] for i in range(nfns)] for j in range(element_number)]
+
+                # Number of elements
+                sarr_file.write("\n")
+                sarr_file.write("# num_elements\n")
+                sarr_file.write(f"num_elements {element_number}\n")
+
+                # Element data block
+                sarr_file.write("\n")
+                sarr_file.write("# Element List Data Block\n")
+                for elem in range(element_number):
+                    sarr_file.write(f"\n# Element {elem + 1}\n")
+                    sarr_file.write(f"{position[elem][0]:13.7e} {position[elem][1]:13.7e} {position[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{x_axis[elem][0]:13.7e} {x_axis[elem][1]:13.7e} {x_axis[elem][2]:13.7e}\n")
+                    sarr_file.write(f"{y_axis[elem][0]:13.7e} {y_axis[elem][1]:13.7e} {y_axis[elem][2]:13.7e}\n")
+
+                    if has_weight:
+                        for ifs in range(nfns):
+                            weight0 = weight_reshaped[elem][ifs]
+                            sarr_file.write(f"{weight0.real:13.7e} {weight0.imag:13.7e}\n")
+        except Exception as e:  # pragma: no cover
+            self.logger.error(f"Error: {e}")
+            return False
+
+        return output_file
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
@@ -6731,9 +6864,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
                 command.append("ElementPatterns:=")
                 command.append(quantity[len("Gamma(") : -1])
         else:  # pragma: no cover
-            for excitation in self.get_all_sources():
+            sources = self.get_all_sources()
+            modes = self.get_all_source_modes()
+            for source_cont, excitation in enumerate(sources):
                 command.append("ElementPatterns:=")
-                command.append(excitation)
+                if self.solution_type == "SBR+":
+                    command.append(excitation + ":" + modes[source_cont])
+                else:
+                    command.append(excitation)
 
         if export_power:
             command.append("ElementPowers:=")
@@ -6760,3 +6898,161 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         except Exception:  # pragma: no cover
             self.logger.error("Failed to export antenna metadata.")
             return False
+
+    @pyaedt_function_handler()
+    def export_touchstone_on_completion(self, export=True, output_dir=None):
+        """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
+
+        Parameters
+        ----------
+        export : bool, optional
+            Whether to enable the export.
+            The default is ``True``.
+        output_dir : str, optional
+            Path to the directory of exported file. The default is the project path.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.SetDesignSettings
+        """
+        if export:
+            self.logger.info("Enabling Export On Completion")
+        else:
+            self.logger.info("Disabling Export On Completion")
+        if not output_dir:
+            output_dir = ""
+        props = {"Export After Simulation": export, "Export Dir": output_dir}
+        return self.change_design_settings(props)
+
+    @pyaedt_function_handler()
+    def set_export_touchstone(
+        self,
+        file_format="TouchStone1.0",
+        enforce_passivity=True,
+        enforce_causality=False,
+        use_common_ground=True,
+        show_gamma_comments=True,
+        renormalize=False,
+        impedance=50.0,
+        fitting_error=0.5,
+        maximum_poles=1000,
+        passivity_type="PassivityByPerturbation",
+        column_fitting_type="Matrix",
+        state_space_fitting="IterativeRational",
+        relative_error_tolerance=True,
+        ensure_accurate_fit=False,
+        touchstone_output="MA",
+        units="GHz",
+        precision=11,
+    ):
+        """Set or disable the automatic export of the touchstone file after completing frequency sweep.
+
+        Parameters
+        ----------
+        file_format : str, optional
+            Touchstone format. Available options are: ``"TouchStone1.0"``, and ``"TouchStone2.0"``.
+            The default is ``"TouchStone1.0"``.
+        enforce_passivity : bool, optional
+            Enforce passivity. The default is ``True``.
+        enforce_causality : bool, optional
+            Enforce causality. The default is ``False``.
+        use_common_ground : bool, optional
+            Use common ground. The default is ``True``.
+        show_gamma_comments : bool, optional
+            Show gamma comments. The default is ``True``.
+        renormalize : bool, optional
+            Renormalize. The default is ``False``.
+        impedance : float, optional
+            Impedance in ohms. The default is ``50.0``.
+        fitting_error : float, optional
+            Fitting error. The default is ``0.5``.
+        maximum_poles : int, optional
+            Maximum number of poles. The default is ``10000``.
+        passivity_type : str, optional
+            Passivity type. Available options are: ``"PassivityByPerturbation"``, ``"IteratedFittingOfPV"``,
+            ``"IteratedFittingOfPVLF"``, and ``"ConvexOptimization"``.
+        column_fitting_type : str, optional
+            Column fitting type. Available options are: ``"Matrix"``, `"Column"``, and `"Entry"``.
+        state_space_fitting : str, optional
+            State space fitting algorithm. Available options are: ``"IterativeRational"``, `"TWA"``, and `"FastFit"``.
+        relative_error_tolerance : bool, optional
+            Relative error tolerance. The default is ``True``.
+        ensure_accurate_fit : bool, optional
+            Ensure accurate impedance fit. The default is ``False``.
+        touchstone_output : str, optional
+            Touchstone output format. Available options are: ``"MA"`` for magnitude and phase in ``deg``,
+            ``"RI"`` for real and imaginary part, and ``"DB"`` for magnitude in ``dB`` and phase in ``deg``.
+        units : str, optional
+            Frequency units. The default is ``"GHz"``.
+        precision : int, optional
+            Touchstone precision. The default is ``11``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oTool.SetExportTouchstoneOptions
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.export_touchstone_on_completion()
+        >>> hfss.set_export_touchstone()
+
+
+        """
+        preferences = "Hfss\\Preferences"
+        design_name = self.design_name
+
+        props = [
+            "NAME:SpiceData",
+            "SpiceType:=",
+            file_format,
+            "EnforcePassivity:=",
+            enforce_passivity,
+            "EnforceCausality:=",
+            enforce_causality,
+            "UseCommonGround:=",
+            use_common_ground,
+            "ShowGammaComments:=",
+            show_gamma_comments,
+            "Renormalize:=",
+            renormalize,
+            "RenormImpedance:=",
+            impedance,
+            "FittingError:=",
+            fitting_error,
+            "MaxPoles:=",
+            maximum_poles,
+            "PassivityType:=",
+            passivity_type,
+            "ColumnFittingType:=",
+            column_fitting_type,
+            "SSFittingType:=",
+            state_space_fitting,
+            "RelativeErrorToleranc:=",
+            relative_error_tolerance,
+            "EnsureAccurateZfit:=",
+            ensure_accurate_fit,
+            "TouchstoneFormat:=",
+            touchstone_output,
+            "TouchstoneUnits:=",
+            units,
+            "TouchStonePrecision:=",
+            precision,
+            "SubcircuitName:=",
+            "",
+        ]
+
+        self.onetwork_data_explorer.SetExportTouchstoneOptions(preferences, design_name, props)
+        return True
