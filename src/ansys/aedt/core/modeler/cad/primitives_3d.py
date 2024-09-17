@@ -1464,6 +1464,73 @@ class Primitives3D(GeometryModeler):
             app.oproject.Close()
             return assignment.target_coordinate_system
 
+    @staticmethod
+    def create_temp_file(app):
+        temp_proj_name = generate_unique_project_name()
+        ipkapp_temp = Icepak(project=os.path.join(app.toolkit_directory, temp_proj_name))
+        ipkapp_temp.delete_design(ipkapp_temp.design_name)
+        app.oproject.CopyDesign(app.design_name)
+        ipkapp_temp.oproject.Paste()
+        temp_proj = ipkapp_temp.project_file
+        ipkapp_temp.close_project()
+        return temp_proj
+
+    @staticmethod
+    def get_all_mapping(temp_proj):
+        read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
+        geometry_part_list = read_dict["ToplevelParts"]["GeometryPart"]
+        if isinstance(geometry_part_list, dict):
+            geometry_part_list = [geometry_part_list]
+        return {g['Attributes']["Name"]: g for g in geometry_part_list}
+
+    # @staticmethod
+    # def get_cs(part, temp_proj):
+    #     cs_id = part["Operations"]["Operation"][
+    #         "ReferenceCoordSystemID"
+    #     ]
+    #     if cs_id != 1:
+    #         read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
+    #         if isinstance(read_dict["CoordinateSystems"]["Operation"], list):
+    #             cs_dict = {
+    #                 cs["ID"]: cs["Attributes"]["Name"] for cs in read_dict["CoordinateSystems"]["Operation"]
+    #             }
+    #         else:
+    #             cs_dict = {
+    #                 read_dict["CoordinateSystems"]["Operation"]["ID"]: read_dict["CoordinateSystems"][
+    #                     "Operation"
+    #                 ]["Attributes"]["Name"]
+    #             }
+    #         return cs_dict[cs_id]
+    #     return "Global"
+
+    @staticmethod
+    def parse_mapping(part):
+        part_mapping = {}
+        for i in ["FaceKeyIDMap", "EdgeKeyIDMap", "VertexKeyIDMap", "BodyKeyIDMap"]:
+            dict_str = ""
+            try:
+                if part["Operations"]["Operation"]["OperationIdentity"][i] is not None:
+                    dict_str = (
+                            "{"
+                            + ",".join(part["Operations"]["Operation"]["OperationIdentity"][i])
+                            .replace("'", '"')
+                            .replace("=", ":")
+                            + "}"
+                    )
+            except KeyError:  # TODO: fix reading AEDT
+                for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
+                    if i in key:
+                        keyarr = key.split("(")
+                        dict_str = (
+                                "{"
+                                + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                + "}"
+                        )
+                        break
+            if dict_str:
+                part_mapping[i] = json.loads(dict_str)
+        return part_mapping
+
     @pyaedt_function_handler(comp_file="input_file", geo_params="geometry_parameters",
                              sz_mat_params="material_parameters",
                              sz_design_params="design_parameters",
@@ -1632,68 +1699,8 @@ class Primitives3D(GeometryModeler):
                     if cs.ref_cs == "Global":
                         cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
-                temp_proj_name = generate_unique_project_name()
-                ipkapp_temp = Icepak(project=os.path.join(self._app.toolkit_directory, temp_proj_name))
-                ipkapp_temp.delete_design(ipkapp_temp.design_name)
-                self._app.oproject.CopyDesign(self._app.design_name)
-                ipkapp_temp.oproject.Paste()
-                temp_proj = ipkapp_temp.project_file
-                ipkapp_temp.close_project()
-                read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
-                read_cs = False
-                parts_name = self._app.odesign.GetChildObject("3D Modeler").GetChildObject(udm_obj.name).GetChildNames()
-                mapping_dict = {
-                    "ReferenceCoordSystemID": 0,
-                    "FaceKeyIDMap": {},
-                    "EdgeKeyIDMap": {},
-                    "VertexKeyIDMap": {},
-                    "BodyKeyIDMap": {},
-                }
-                geometry_part_list = read_dict["ToplevelParts"]["GeometryPart"]
-                if isinstance(geometry_part_list, dict):
-                    geometry_part_list = [geometry_part_list]
-                for part in geometry_part_list:
-                    if part["Attributes"]["Name"] in parts_name:
-                        mapping_dict["ReferenceCoordSystemID"] = part["Operations"]["Operation"][
-                            "ReferenceCoordSystemID"
-                        ]
-                        for i in ["FaceKeyIDMap", "EdgeKeyIDMap", "VertexKeyIDMap", "BodyKeyIDMap"]:
-                            try:
-                                dict_str = (
-                                        "{"
-                                        + ",".join(part["Operations"]["Operation"]["OperationIdentity"][i])
-                                        .replace("'", '"')
-                                        .replace("=", ":")
-                                        + "}"
-                                )
-                            except KeyError:  # TODO: fix reading AEDT
-                                for key, mon in part["Operations"]["Operation"]["OperationIdentity"].items():
-                                    if i in key:
-                                        keyarr = key.split("(")
-                                        dict_str = (
-                                                "{"
-                                                + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
-                                                + "}"
-                                        )
-                                        break
-                            mapping_dict[i].update(json.loads(dict_str))
-                if mapping_dict["ReferenceCoordSystemID"] != 1:
-                    read_cs = True
-                if read_cs:
-                    read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
-                    if isinstance(read_dict["CoordinateSystems"]["Operation"], list):
-                        cs_dict = {
-                            cs["ID"]: cs["Attributes"]["Name"] for cs in read_dict["CoordinateSystems"]["Operation"]
-                        }
-                    else:
-                        cs_dict = {
-                            read_dict["CoordinateSystems"]["Operation"]["ID"]: read_dict["CoordinateSystems"][
-                                "Operation"
-                            ]["Attributes"]["Name"]
-                        }
-                    mapping_dict["ReferenceCoordSystemName"] = cs_dict[mapping_dict["ReferenceCoordSystemID"]]
-                else:
-                    mapping_dict["ReferenceCoordSystemName"] = "Global"
+                temp_proj = self.create_temp_file(self._app)
+                parts = self.get_all_mapping(temp_proj)
                 for mon in aux_dict["monitors"]:
                     key = udm_obj.name + "_" + mon["Name"]
                     m_case = mon["Type"]
@@ -1704,30 +1711,32 @@ class Primitives3D(GeometryModeler):
                             mon["Location"], monitor_quantity=mon["Quantity"], monitor_name=key
                         )
                         self._app.modeler.set_working_coordinate_system(cs_old)
-                    elif m_case == "Face":
-                        self._app.monitor.assign_face_monitor(
-                            mapping_dict["FaceKeyIDMap"][str(mon["ID"])],
-                            monitor_quantity=mon["Quantity"],
-                            monitor_name=key,
-                        )
-                    elif m_case == "Vertex":
-                        self._app.monitor.assign_point_monitor_to_vertex(
-                            mapping_dict["VertexKeyIDMap"][str(mon["ID"])],
-                            monitor_quantity=mon["Quantity"],
-                            monitor_name=key,
-                        )
-                    elif m_case == "Surface":
-                        self._app.monitor.assign_surface_monitor(
-                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(mon["ID"])]].name,
-                            monitor_quantity=mon["Quantity"],
-                            monitor_name=key,
-                        )
-                    elif m_case == "Object":
-                        self._app.monitor.assign_point_monitor_in_object(
-                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(mon["ID"])]].name,
-                            monitor_quantity=mon["Quantity"],
-                            monitor_name=key,
-                        )
+                    else:
+                        part = self.parse_mapping(parts[mon["Geometry Assignment"]])
+                        if m_case == "Face":
+                            self._app.monitor.assign_face_monitor(
+                                part["FaceKeyIDMap"][str(mon["ID"])],
+                                monitor_quantity=mon["Quantity"],
+                                monitor_name=key,
+                            )
+                        elif m_case == "Vertex":
+                            self._app.monitor.assign_point_monitor_to_vertex(
+                                part["VertexKeyIDMap"][str(mon["ID"])],
+                                monitor_quantity=mon["Quantity"],
+                                monitor_name=key,
+                            )
+                        elif m_case == "Surface":
+                            self._app.monitor.assign_surface_monitor(
+                                self._app.modeler.objects[part["BodyKeyIDMap"][str(mon["ID"])]].name,
+                                monitor_quantity=mon["Quantity"],
+                                monitor_name=key,
+                            )
+                        elif m_case == "Object":
+                            self._app.monitor.assign_point_monitor_in_object(
+                                self._app.modeler.objects[part["BodyKeyIDMap"][str(mon["ID"])]].name,
+                                monitor_quantity=mon["Quantity"],
+                                monitor_name=key,
+                            )
             if name:
                 udm_obj.name = name
             os.remove(temp_proj)

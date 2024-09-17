@@ -34,6 +34,7 @@ from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
+from ansys.aedt.core.generic.general_methods import GrpcApiError
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import filter_tuple
@@ -349,13 +350,13 @@ class NativeComponentObject(BoundaryCommon, object):
         """
         try:
             names = [i for i in self._app.excitations]
-        except Exception:  # pragma: no cover
+        except GrpcApiError:  # pragma: no cover
             names = []
         self._name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
-        except Exception:
+        except (GrpcApiError, IndexError):
             self.excitation_name = self.name
         return True
 

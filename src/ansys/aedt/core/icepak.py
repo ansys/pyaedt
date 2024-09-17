@@ -2339,6 +2339,7 @@ class Icepak(FieldAnalysis3D):
         }
 
         component3d_names = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
+        udc = set(self.modeler.user_defined_components)
 
         native = NativeComponentObject(self, "Fan", name, native_props)
         if native.create():
@@ -2346,9 +2347,7 @@ class Icepak(FieldAnalysis3D):
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "Fan"
             )
             self.modeler.user_defined_components[native.name] = user_defined_component
-            new_name = [
-                i for i in list(self.modeler.oeditor.Get3DComponentInstanceNames(name)) if i not in component3d_names
-            ][0]
+            new_name = list(set(self.modeler.user_defined_components) - udc)[0]
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
             self._native_components.append(native)
