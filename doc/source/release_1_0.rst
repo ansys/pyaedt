@@ -11,7 +11,7 @@ Python version deprecation
 --------------------------
 
 Please be advised that, with the release of version 1.0 of PyAEDT, support for Python versions
-3.8 and 3.9 will no longer be provided. This decision has been made in order to align with the
+3.8 and 3.9 is no longer be provided. This decision has been made in order to align with the
 Python Scientific Community's best practices. It is important to note that many packages within
 the Scientific Python Community have dropped support for these Python versions a while ago.
 Therefore, dropping support for these versions is also a step towards maintaining compatibility
