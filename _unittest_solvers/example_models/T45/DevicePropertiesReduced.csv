@@ -1,3 +1,3 @@
-Package,Part,Power(W),ThetaJb(Kel_per_w),ThetaJb(Kel_per_w),Height(m),Footprint(mm2)
+Package,Part,Power(W),ThetaJb(Kel_per_w),ThetaJc(Kel_per_w),Height(m),Footprint(mm2)
 REC14RMI2X_011_R,91785034,1,2,3,4.009652,154.72 
 REC14RMI2X_018_R,91846251,2,0,0,0.0070612,113.06 
