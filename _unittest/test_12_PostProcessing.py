@@ -56,10 +56,17 @@ else:
     m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-test_emi_name = "EMI_RCV_241"
+if config["desktopVersion"] > "2024.2":
+    test_emi_name = "EMI_RCV_251"
+else:
+    test_emi_name = "EMI_RCV_241"
+
 eye_diagram = "SimpleChannel"
 ami = "ami"
-ipk_post_proj = "for_icepak_post"
+if config["desktopVersion"] > "2024.2":
+    ipk_post_proj = "for_icepak_post_parasolid"
+else:
+    ipk_post_proj = "for_icepak_post"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
