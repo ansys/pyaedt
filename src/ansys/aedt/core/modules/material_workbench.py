@@ -33,11 +33,32 @@ import copy
 import re
 import xml.etree.ElementTree as ET
 
-# from ansys.aedt.core import Hfss
 from ansys.aedt.core.modules.material import MatProperties
 
 
 class MaterialWorkbench:
+    """Manages the import of materials from a Workbench Engineering Data XML file.
+
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core`
+        Inherited parent object.
+
+
+    """
+
+    def __init__(self, app):
+        self._app = app
+        self._mat_name_suffix = "_wb"
+
+    @property
+    def mat_name_suffix(self):
+        return self._mat_name_suffix
+
+    @mat_name_suffix.setter
+    def mat_name_suffix(self, suffix):
+        self._mat_name_suffix = str(suffix)
 
     @staticmethod
     def _etree_to_dict(t):
@@ -87,17 +108,16 @@ class MaterialWorkbench:
     def _dataset_name(material_name, property_name):
         return f"{material_name}_WB_{property_name}_TM".replace(" ", "_")
 
-    @staticmethod
-    def _aedt_material_name(wb_material_name):
-        return f"{wb_material_name}_wb"
+    def _aedt_material_name(self, wb_material_name):
+        return f"{wb_material_name}{self.mat_name_suffix}"
 
-    def import_materials_from_workbench(self, filename, hfss):
+    def import_materials_from_workbench(self, filename):
         """Import materials from Workbench Engineering Data XML file.
 
         Parameters
         ----------
         filename : str
-            filename
+            Full path of the XML file. It must be in the format of the Workbench Engineering Data.
 
         Returns
         -------
@@ -277,14 +297,17 @@ class MaterialWorkbench:
                     }
 
         # Creating the material in Hfss
-        # hfss = Hfss(version=242)
-
+        imported_materials = []
         for material_name, props in mat_props.items():
-            mat = hfss.materials.add_material(self._aedt_material_name(material_name), props)
+            mat = self._app.materials.add_material(self._aedt_material_name(material_name), props)
+            if not mat:
+                continue  # if the material is not created continues with the next one
+            imported_materials.append(mat)
             if thermal_modifiers[material_name]:
                 for prop, data in thermal_modifiers[material_name].items():
-                    hfss.create_dataset(name=data["dataset_name"], x=data["dataset"][0], y=data["dataset"][1])
+                    self._app.create_dataset(name=data["dataset_name"], x=data["dataset"][0], y=data["dataset"][1])
                     x = getattr(mat, prop)
                     x.add_thermal_modifier_dataset(f"${data['dataset_name']}")
             if material_name in colors:
                 mat.material_appearance = colors[material_name]
+        return imported_materials
