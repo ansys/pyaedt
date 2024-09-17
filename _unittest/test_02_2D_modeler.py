@@ -28,6 +28,7 @@ import math
 import os
 import sys
 
+from _unittest.conftest import config
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import isclose
 from ansys.aedt.core.maxwell import Maxwell2d
@@ -103,13 +104,14 @@ class TestClass:
         rect2 = self.aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[6, 12], name="rect2", material="test[0]")
         assert rect2.material_name == "vacuum"
         self.aedtapp["disp"] = 0
-        rect3 = self.aedtapp.modeler.create_rectangle(
-            origin=[0, 0, 0],
-            sizes=[6, 12],
-            name="rect3",
-            material="Materials[if(disp<={} && {}<=disp+{}-1,0,1)]".format(2, 2, 10),
-        )
-        assert rect3.material_name == materials[0]
+        if config["desktopVersion"] != "2025.1":
+            rect3 = self.aedtapp.modeler.create_rectangle(
+                origin=[0, 0, 0],
+                sizes=[6, 12],
+                name="rect3",
+                material="Materials[if(disp<={} && {}<=disp+{}-1,0,1)]".format(2, 2, 10),
+            )
+            assert rect3.material_name == materials[0]
 
     def test_05_create_rectangle_rz(self):
         self.aedtapp.solution_type = "MagnetostaticZ"

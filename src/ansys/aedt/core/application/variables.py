@@ -1773,7 +1773,14 @@ class Variable(object):
             return list(ast.literal_eval(self._value))
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            evaluated_value = var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            if (
+                isinstance(evaluated_value, str)
+                and evaluated_value.strip().startswith("[")
+                and evaluated_value.strip().endswith("]")
+            ):
+                evaluated_value = ast.literal_eval(evaluated_value)
+            val, _ = decompose_variable_value(evaluated_value)
             return val
         except (TypeError, AttributeError):
             if is_number(self._value):
