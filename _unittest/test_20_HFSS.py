@@ -676,8 +676,14 @@ class TestClass:
         self.aedtapp.insert_design("test_12")
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
-        pe = self.aedtapp.create_perfecth_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZPos)
-        ph = self.aedtapp.create_perfecte_from_objects("perfect1", "perfect2", self.aedtapp.AxisDir.ZNeg)
+
+        ph = self.aedtapp.create_perfecth_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
+
+        pe = self.aedtapp.create_perfecte_from_objects(
+            box1.name, box2.name, self.aedtapp.AxisDir.ZNeg, is_boundary_on_plane=False
+        )
         assert pe.name in self.aedtapp.modeler.get_boundaries_name()
         assert pe.update()
         assert ph.name in self.aedtapp.modeler.get_boundaries_name()
