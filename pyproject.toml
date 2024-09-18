@@ -38,9 +38,10 @@ dependencies = [
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
     "pyedb>=0.24.0; python_version > '3.7'",
-    "toml",
-    "rpyc>=6.0.0,<6.1",
+    "pyedb!=0.28.0; python_version > '3.7'",
     "pyyaml",
+    "rpyc>=6.0.0,<6.1",
+    "toml",
 ]
 
 [project.optional-dependencies]
