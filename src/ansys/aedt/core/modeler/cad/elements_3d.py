@@ -1450,9 +1450,7 @@ class BinaryTreeNode:
     def _get_data_model(self):
         import ast
 
-        input_str = self.child_object.GetDataModel(-1, 1, 1)
-        input_str = input_str.replace("false", "False")
-        input_str = input_str.replace("true", "True")
+        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
         props_list = ast.literal_eval(input_str)
         props = {}
         for prop in props_list["properties"]:
