@@ -28,8 +28,8 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
+from ansys.aedt.core.post.report_standard import Standard
 from ansys.aedt.core.post.report_templates import CommonReport
-from ansys.aedt.core.post.standard_report import Standard
 
 
 class AntennaParameters(Standard):

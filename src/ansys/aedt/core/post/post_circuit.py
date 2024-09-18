@@ -33,8 +33,8 @@ from __future__ import absolute_import
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.post.post_processor import PostProcessorCommon
-from ansys.aedt.core.post.post_processor import pd as pd
+from ansys.aedt.core.post.post_general import PostProcessorCommon
+from ansys.aedt.core.post.post_general import pd as pd
 
 
 class PostProcessorCircuit(PostProcessorCommon, object):

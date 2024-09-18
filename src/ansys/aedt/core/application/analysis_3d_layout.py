@@ -154,9 +154,9 @@ class FieldAnalysis3DLayout(Analysis):
         if self._post is None and self._odesign:
             self.logger.reset_timer()
             if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.post.standard_post import PostProcessor3D
+                from ansys.aedt.core.post.post_standard import PostProcessor3D
             else:
-                from ansys.aedt.core.post.standard_post import PostProcessor3D
+                from ansys.aedt.core.post.post_standard import PostProcessor3D
             self._post = PostProcessor3D(self)
             self.logger.info_timer("Post class has been initialized!")
 

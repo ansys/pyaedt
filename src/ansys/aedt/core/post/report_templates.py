@@ -1396,11 +1396,11 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def _export_context(self, output_dict):
-        from ansys.aedt.core.post.eye_report import AMIEyeDiagram
-        from ansys.aedt.core.post.eye_report import EyeDiagram
         from ansys.aedt.core.post.field_report import AntennaParameters
         from ansys.aedt.core.post.field_report import FarField
         from ansys.aedt.core.post.field_report import Fields
+        from ansys.aedt.core.post.report_eye import AMIEyeDiagram
+        from ansys.aedt.core.post.report_eye import EyeDiagram
 
         output_dict["context"] = {
             "domain": self.domain,
@@ -1486,8 +1486,8 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def _export_graphical_objects(self, output_dict):
-        from ansys.aedt.core.post.eye_report import AMIEyeDiagram
-        from ansys.aedt.core.post.eye_report import EyeDiagram
+        from ansys.aedt.core.post.report_eye import AMIEyeDiagram
+        from ansys.aedt.core.post.report_eye import EyeDiagram
 
         if isinstance(self, (AMIEyeDiagram, EyeDiagram)) and "EyeDisplayTypeProperty" in self.properties.children:
             pr = self.properties.children["EyeDisplayTypeProperty"].props
@@ -1553,8 +1553,8 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def _export_general_appearance(self, output_dict):
-        from ansys.aedt.core.post.eye_report import AMIEyeDiagram
-        from ansys.aedt.core.post.eye_report import EyeDiagram
+        from ansys.aedt.core.post.report_eye import AMIEyeDiagram
+        from ansys.aedt.core.post.report_eye import EyeDiagram
 
         output_dict["general"] = {}
         if "AxisX" in self.properties.children:

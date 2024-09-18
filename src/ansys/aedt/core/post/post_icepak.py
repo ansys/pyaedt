@@ -40,7 +40,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.post.field_summary import FieldSummary
 from ansys.aedt.core.post.field_summary import TOTAL_QUANTITIES
-from ansys.aedt.core.post.standard_post import PostProcessor3D
+from ansys.aedt.core.post.post_standard import PostProcessor3D
 
 
 class IcepakPostProcessor(PostProcessor3D, object):

@@ -46,11 +46,11 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modules.fields_calculator import FieldsCalculator
 from ansys.aedt.core.post.plot import ModelPlotter
-from ansys.aedt.core.post.post_processor import Image
-from ansys.aedt.core.post.post_processor import PostProcessorCommon
-from ansys.aedt.core.post.post_processor import ipython_available
-from ansys.aedt.core.post.post_processor import np as np
-from ansys.aedt.core.post.post_processor import orientation_to_view
+from ansys.aedt.core.post.post_general import Image
+from ansys.aedt.core.post.post_general import PostProcessorCommon
+from ansys.aedt.core.post.post_general import ipython_available
+from ansys.aedt.core.post.post_general import np as np
+from ansys.aedt.core.post.post_general import orientation_to_view
 from ansys.aedt.core.post.solutions import FieldPlot
 from ansys.aedt.core.post.solutions import VRTFieldPlot
 
@@ -134,7 +134,7 @@ class PostProcessor3D(PostProcessorCommon, object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.ofieldsreporter`
+        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.ofieldsreporter`
 
         References
         ----------

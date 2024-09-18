@@ -37,7 +37,7 @@ import tempfile
 
 from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import open_file
-from ansys.aedt.core.post.post_processor import pd as pd
+from ansys.aedt.core.post.post_general import pd as pd
 
 TOTAL_QUANTITIES = [
     "HeatFlowRate",

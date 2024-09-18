@@ -1922,9 +1922,9 @@ class Scale3DSettings(BaseFolderPlot):
     ----------
     scale_type : str, optional
         Scale type. Default is `"Auto"`.
-    scale_settings : :class:`ansys.aedt.core.modules.post_processor.AutoScale`,
-                     :class:`ansys.aedt.core.modules.post_processor.MinMaxScale` or
-                     :class:`ansys.aedt.core.modules.post_processor.SpecifiedScale`, optional
+    scale_settings : :class:`ansys.aedt.core.modules.post_general.AutoScale`,
+                     :class:`ansys.aedt.core.modules.post_general.MinMaxScale` or
+                     :class:`ansys.aedt.core.modules.post_general.SpecifiedScale`, optional
         Scale settings. Default is `AutoScale()`.
     log : bool, optional
         Whether to use a log scale. Default is `False`.
@@ -1932,7 +1932,7 @@ class Scale3DSettings(BaseFolderPlot):
         Whether to use dB scale. Default is `False`.
     unit : int, optional
         Unit to use in the scale. Default is `None`.
-    number_format : :class:`ansys.aedt.core.modules.post_processor.NumberFormat`, optional
+    number_format : :class:`ansys.aedt.core.modules.post_general.NumberFormat`, optional
         Number format settings. Default is `NumberFormat()`.
     """
 
@@ -2293,7 +2293,7 @@ class FolderPlotSettings(BaseFolderPlot):
 
     Parameters
     ----------
-    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.post_general.PostProcessor`
     folder_name : str
         Name of the plot field folder.
     arrow_settings : :class:`ansys.aedt.core.modules.solution.ArrowSettings`, optional
@@ -2376,7 +2376,7 @@ class FieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.post_general.PostProcessor`
     objects : list
         List of objects.
     solution : str
@@ -3260,7 +3260,7 @@ class VRTFieldPlot:
 
     Parameters
     ----------
-    postprocessor : :class:`ansys.aedt.core.modules.post_processor.PostProcessor`
+    postprocessor : :class:`ansys.aedt.core.modules.post_general.PostProcessor`
     is_creeping_wave : bool
         Whether it is a creeping wave model or not.
     quantity : str, optional

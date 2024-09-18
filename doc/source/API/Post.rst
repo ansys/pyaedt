@@ -21,9 +21,9 @@ They are accessible through the ``post`` property.
    :toctree: _autosummary
    :nosignatures:
 
-   standard_post.PostProcessor3D
-   icepak_post.PostProcessorIcepak
-   circuit_post.PostProcessorCircuit
+   post_standard.PostProcessor3D
+   post_icepak.PostProcessorIcepak
+   post_circuit.PostProcessorCircuit
 
 
 .. code:: python
@@ -44,8 +44,8 @@ They are accessible through the ``post`` property.
 
     # This call returns a new standard report object and creates one or multiple reports from it.
     standard_report = post.reports_by_category.standard("db(S(1,1))")
-    standard_report.create()
-    sols = standard_report.get_solution_data()
+    report_standard.create()
+    sols = report_standard.get_solution_data()
     ...
 
 
@@ -68,15 +68,15 @@ PyAEDT has classes for manipulating any report property.
 
    report_templates.Trace
    report_templates.LimitLine
-   standard_report.Standard
-   field_report.Fields
-   field_report.NearField
-   field_report.FarField
-   eye_report.EyeDiagram
-   eye_report.AMIEyeDiagram
-   eye_report.AMIConturEyeDiagram
-   field_report.Emission
-   standard_report.Spectral
+   report_standard.Standard
+   report_field.Fields
+   report_field.NearField
+   report_field.FarField
+   report_eye.EyeDiagram
+   report_eye.AMIEyeDiagram
+   report_eye.AMIConturEyeDiagram
+   report_field.Emission
+   report_standard.Spectral
 
 Icepak monitors
 ~~~~~~~~~~~~~~~

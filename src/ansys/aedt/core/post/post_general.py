@@ -40,11 +40,11 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
-import ansys.aedt.core.post.emi_report
-import ansys.aedt.core.post.eye_report
 import ansys.aedt.core.post.field_report
+import ansys.aedt.core.post.report_emi
+import ansys.aedt.core.post.report_eye
+import ansys.aedt.core.post.report_standard
 from ansys.aedt.core.post.solutions import SolutionData
-import ansys.aedt.core.post.standard_report
 
 try:
     from enum import Enum
@@ -113,24 +113,24 @@ TEMPLATES_BY_DESIGN = {
     "Twin Builder": ["Standard", "Spectrum"],
 }
 TEMPLATES_BY_NAME = {
-    "Standard": ansys.aedt.core.post.standard_report.Standard,
-    "EddyCurrent": ansys.aedt.core.post.standard_report.Standard,
-    "Modal Solution Data": ansys.aedt.core.post.standard_report.Standard,
-    "Terminal Solution Data": ansys.aedt.core.post.standard_report.Standard,
-    "Fields": ansys.aedt.core.post.field_report.Fields,
-    "CG Fields": ansys.aedt.core.post.field_report.Fields,
-    "DC R/L Fields": ansys.aedt.core.post.field_report.Fields,
-    "AC R/L Fields": ansys.aedt.core.post.field_report.Fields,
-    "Matrix": ansys.aedt.core.post.standard_report.Standard,
-    "Monitor": ansys.aedt.core.post.standard_report.Standard,
-    "Far Fields": ansys.aedt.core.post.field_report.FarField,
-    "Near Fields": ansys.aedt.core.post.field_report.NearField,
-    "Eye Diagram": ansys.aedt.core.post.eye_report.EyeDiagram,
-    "Statistical Eye": ansys.aedt.core.post.eye_report.AMIEyeDiagram,
-    "AMI Contour": ansys.aedt.core.post.eye_report.AMIConturEyeDiagram,
-    "Eigenmode Parameters": ansys.aedt.core.post.standard_report.Standard,
-    "Spectrum": ansys.aedt.core.post.standard_report.Spectral,
-    "EMIReceiver": ansys.aedt.core.post.emi_report.EMIReceiver,
+    "Standard": ansys.aedt.core.post.report_standard.Standard,
+    "EddyCurrent": ansys.aedt.core.post.report_standard.Standard,
+    "Modal Solution Data": ansys.aedt.core.post.report_standard.Standard,
+    "Terminal Solution Data": ansys.aedt.core.post.report_standard.Standard,
+    "Fields": ansys.aedt.core.post.report_field.Fields,
+    "CG Fields": ansys.aedt.core.post.report_field.Fields,
+    "DC R/L Fields": ansys.aedt.core.post.report_field.Fields,
+    "AC R/L Fields": ansys.aedt.core.post.report_field.Fields,
+    "Matrix": ansys.aedt.core.post.report_standard.Standard,
+    "Monitor": ansys.aedt.core.post.report_standard.Standard,
+    "Far Fields": ansys.aedt.core.post.report_field.FarField,
+    "Near Fields": ansys.aedt.core.post.report_field.NearField,
+    "Eye Diagram": ansys.aedt.core.post.report_eye.EyeDiagram,
+    "Statistical Eye": ansys.aedt.core.post.report_eye.AMIEyeDiagram,
+    "AMI Contour": ansys.aedt.core.post.report_eye.AMIConturEyeDiagram,
+    "Eigenmode Parameters": ansys.aedt.core.post.report_standard.Standard,
+    "Spectrum": ansys.aedt.core.post.report_standard.Spectral,
+    "EMIReceiver": ansys.aedt.core.post.report_emi.EMIReceiver,
 }
 
 
@@ -191,10 +191,10 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Standard" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Standard(self._post_app, "Standard", setup)
+            rep = ansys.aedt.core.post.report_standard.Standard(self._post_app, "Standard", setup)
 
         elif self._post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.post.standard_report.Standard(
+            rep = ansys.aedt.core.post.report_standard.Standard(
                 self._post_app, self._post_app._app.design_solutions.report_type, setup
             )
         rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
@@ -231,7 +231,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Monitor" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Standard(self._post_app, "Monitor", setup)
+            rep = ansys.aedt.core.post.report_standard.Standard(self._post_app, "Monitor", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -271,7 +271,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Fields" in self._templates:
-            rep = ansys.aedt.core.post.field_report.Fields(self._post_app, "Fields", setup)
+            rep = ansys.aedt.core.post.report_field.Fields(self._post_app, "Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -312,7 +312,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "CG Fields" in self._templates:
-            rep = ansys.aedt.core.post.field_report.Fields(self._post_app, "CG Fields", setup)
+            rep = ansys.aedt.core.post.report_field.Fields(self._post_app, "CG Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -353,7 +353,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "DC R/L Fields" in self._templates:
-            rep = ansys.aedt.core.post.field_report.Fields(self._post_app, "DC R/L Fields", setup)
+            rep = ansys.aedt.core.post.report_field.Fields(self._post_app, "DC R/L Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -395,9 +395,9 @@ class Reports(object):
         rep = None
         if "AC R/L Fields" in self._templates or "RL Fields" in self._templates:
             if self._post_app._app.design_type == "Q3D Extractor":
-                rep = ansys.aedt.core.post.field_report.Fields(self._post_app, "AC R/L Fields", setup)
+                rep = ansys.aedt.core.post.report_field.Fields(self._post_app, "AC R/L Fields", setup)
             else:
-                rep = ansys.aedt.core.post.field_report.Fields(self._post_app, "RL Fields", setup)
+                rep = ansys.aedt.core.post.report_field.Fields(self._post_app, "RL Fields", setup)
             rep.polyline = polyline
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -439,7 +439,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Far Fields" in self._templates:
-            rep = ansys.aedt.core.post.field_report.FarField(self._post_app, "Far Fields", setup)
+            rep = ansys.aedt.core.post.report_field.FarField(self._post_app, "Far Fields", setup)
             rep.far_field_sphere = sphere_name
             rep.source_context = source_context
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
@@ -479,7 +479,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Antenna Parameters" in self._templates:
-            rep = ansys.aedt.core.post.field_report.AntennaParameters(
+            rep = ansys.aedt.core.post.report_field.AntennaParameters(
                 self._post_app, "Antenna Parameters", setup, infinite_sphere
             )
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
@@ -518,7 +518,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Near Fields" in self._templates:
-            rep = ansys.aedt.core.post.field_report.NearField(self._post_app, "Near Fields", setup)
+            rep = ansys.aedt.core.post.report_field.NearField(self._post_app, "Near Fields", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -554,7 +554,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Modal Solution Data" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Standard(self._post_app, "Modal Solution Data", setup)
+            rep = ansys.aedt.core.post.report_standard.Standard(self._post_app, "Modal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -590,7 +590,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Terminal Solution Data" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Standard(self._post_app, "Terminal Solution Data", setup)
+            rep = ansys.aedt.core.post.report_standard.Standard(self._post_app, "Terminal Solution Data", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -626,7 +626,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Eigenmode Parameters" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Standard(self._post_app, "Eigenmode Parameters", setup)
+            rep = ansys.aedt.core.post.report_standard.Standard(self._post_app, "Eigenmode Parameters", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -678,7 +678,7 @@ class Reports(object):
             if isinstance(expressions, list):
                 expressions = expressions[0]
             report_cat = "Standard"
-            rep = ansys.aedt.core.post.eye_report.AMIConturEyeDiagram(self._post_app, report_cat, setup)
+            rep = ansys.aedt.core.post.report_eye.AMIConturEyeDiagram(self._post_app, report_cat, setup)
             rep.quantity_type = quantity_type
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
 
@@ -733,7 +733,7 @@ class Reports(object):
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
-                rep = ansys.aedt.core.post.eye_report.AMIEyeDiagram(self._post_app, report_cat, setup)
+                rep = ansys.aedt.core.post.report_eye.AMIEyeDiagram(self._post_app, report_cat, setup)
                 rep.quantity_type = quantity_type
                 expressions = self._retrieve_default_expressions(expressions, rep, setup)
                 if isinstance(expressions, list):
@@ -741,7 +741,7 @@ class Reports(object):
                 return rep
 
             else:
-                rep = ansys.aedt.core.post.eye_report.EyeDiagram(self._post_app, "Eye Diagram", setup)
+                rep = ansys.aedt.core.post.report_eye.EyeDiagram(self._post_app, "Eye Diagram", setup)
             rep.unit_interval = unit_interval
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
             return rep
@@ -780,7 +780,7 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         rep = None
         if "Spectrum" in self._templates:
-            rep = ansys.aedt.core.post.standard_report.Spectral(self._post_app, "Spectrum", setup)
+            rep = ansys.aedt.core.post.report_standard.Spectral(self._post_app, "Spectrum", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -816,7 +816,7 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         rep = None
         if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
-            rep = ansys.aedt.core.post.emi_report.EMIReceiver(self._post_app, setup_name)
+            rep = ansys.aedt.core.post.report_emi.EMIReceiver(self._post_app, setup_name)
             if not expressions:
                 expressions = "Average[{}]".format(rep.net)
             else:
@@ -1277,7 +1277,7 @@ class PostProcessorCommon(object):
                 if report_type in TEMPLATES_BY_NAME:
                     report = TEMPLATES_BY_NAME[report_type]
                 else:
-                    report = ansys.aedt.core.post.standard_report.Standard
+                    report = ansys.aedt.core.post.report_standard.Standard
                 plots.append(report(self, report_type, None))
                 plots[-1]._props["plot_name"] = name
                 plots[-1]._is_created = True
@@ -1290,7 +1290,7 @@ class PostProcessorCommon(object):
 
         Returns
         -------
-        :attr:`ansys.aedt.core.modules.post_processor.PostProcessor.oreportsetup`
+        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.oreportsetup`
 
         References
         ----------
