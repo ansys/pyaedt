@@ -150,13 +150,13 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
             file_path = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select File",
-                filetypes=(("Electronics Desktop", "*.aedt"),),
+                filetypes=(("Electronics Desktop", "*.aedt"), ("Electronics Database", "*.def")),
             )
         elif self.selected_app_option.get() == "SIwave":
             file_path = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select File",
-                filetypes=(("SIwave project", "*.siw"),),
+                filetypes=(("SIwave project", "*.siw"), ("Electronics Database", "*.def")),
             )
         else:
             file_path = None
@@ -164,6 +164,8 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         if not file_path:
             return
         else:
+            if file_path.endswith(".def"):
+                file_path = Path(file_path).parent
             self.selected_project_file_path = file_path
             self.selected_project_file.set(Path(file_path).parts[-1])
 
@@ -313,9 +315,12 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         }
 
     def execute_load(self):
-        desktop = self.desktop
-        self.execute()
-        desktop.release_desktop(False, False)
+        if self.selected_app_option.get() == "Active Design":
+            desktop = self.desktop
+            self.execute()
+            desktop.release_desktop(False, False)
+        else:
+            self.execute()
         messagebox.showinfo("Information", "Done!")
 
     def execute_export(self, file_path):
@@ -363,8 +368,16 @@ class ConfigureEdbBackend:
         fdir = Path(file_save_path).parent
         fname = Path(file_save_path).stem
         siw = Siwave(specified_version=version)
-        siw.open_project(str(project_file))
-        siw.load_configuration(file_cfg_path)
+        if str(project_file).endswith(".aedb"):
+            edbapp = Edb(str(project_file), edbversion=version)
+            edbapp.configuration.load(file_cfg_path)
+            edbapp.configuration.run()
+            edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
+            edbapp.close()
+            siw.import_edb(Path(file_save_path).with_suffix(".aedb"))
+        else:
+            siw.open_project(str(project_file))
+            siw.load_configuration(file_cfg_path)
         siw.save_project(fdir, fname)
         siw.quit_application()
 
