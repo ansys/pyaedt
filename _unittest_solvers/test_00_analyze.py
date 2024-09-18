@@ -118,6 +118,7 @@ class TestClass:
         ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
+
         ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
                                       theta=20,
                                       title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
@@ -126,9 +127,11 @@ class TestClass:
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
-                                      rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
-                                      output_file=os.path.join(self.local_scratch.path, "3d2_array.jpg"), show=False)
+        farfield_plot = ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
+                                                      output_file=os.path.join(self.local_scratch.path,
+                                                                               "3d2_array.jpg"),
+                                                      show=False)
+        farfield_plot.close()
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
@@ -197,11 +200,11 @@ class TestClass:
         assert os.path.exists(fld_file1)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz"})
+                                               intrinsics={"frequency": "1GHz"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
-                                               intrinsics={"frequency":"1GHz", "phase":"30deg"})
+                                               intrinsics={"frequency": "1GHz", "phase": "30deg"})
         assert os.path.exists(fld_file2)
         fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
         assert hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
@@ -219,6 +222,8 @@ class TestClass:
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
         sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        assert hfss_app.export_touchstone_on_completion(export=False)
+        assert hfss_app.export_touchstone_on_completion(export=True)
         assert hfss_app.analyze_setup(name=sweep.name, cores=4)
 
     def test_03a_icepak_analyze_and_export_summary(self):
@@ -243,6 +248,7 @@ class TestClass:
             monitor_name="test_monitor2",
         )
         self.icepak_app.analyze("SetupIPK", cores=4)
+        time.sleep(3)
         self.icepak_app.save_project()
         assert self.icepak_app.export_summary(
             self.icepak_app.working_directory, geometryType="Surface", variationlist=[], filename="A"
@@ -349,6 +355,8 @@ class TestClass:
 
     @pytest.mark.skipif(desktop_version < "2023.2", reason="Working only from 2023 R2")
     def test_04b_3dl_analyze_setup(self):
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=False)
+        assert self.hfss3dl_solve.export_touchstone_on_completion(export=True)
         assert self.hfss3dl_solve.analyze_setup("Setup1", cores=4, blocking=False)
         assert self.hfss3dl_solve.are_there_simulations_running
         assert self.hfss3dl_solve.stop_simulations()
