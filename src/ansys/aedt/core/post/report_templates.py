@@ -1396,11 +1396,11 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def _export_context(self, output_dict):
-        from ansys.aedt.core.post.field_report import AntennaParameters
-        from ansys.aedt.core.post.field_report import FarField
-        from ansys.aedt.core.post.field_report import Fields
         from ansys.aedt.core.post.report_eye import AMIEyeDiagram
         from ansys.aedt.core.post.report_eye import EyeDiagram
+        from ansys.aedt.core.post.report_field import AntennaParameters
+        from ansys.aedt.core.post.report_field import FarField
+        from ansys.aedt.core.post.report_field import Fields
 
         output_dict["context"] = {
             "domain": self.domain,

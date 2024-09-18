@@ -1448,9 +1448,12 @@ class BinaryTreeNode:
         self.command = self.props.get("Command", "")
 
     def _get_data_model(self):
-        false = False  # nosec
-        true = True  # nosec
-        props_list = eval(self.child_object.GetDataModel(-1, 1, 1))
+        import ast
+
+        input_str = self.child_object.GetDataModel(-1, 1, 1)
+        input_str = input_str.replace("false", "False")
+        input_str = input_str.replace("true", "True")
+        props_list = ast.literal_eval(input_str)
         props = {}
         for prop in props_list["properties"]:
             if "value" in prop:

@@ -40,9 +40,9 @@ from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
-import ansys.aedt.core.post.field_report
 import ansys.aedt.core.post.report_emi
 import ansys.aedt.core.post.report_eye
+import ansys.aedt.core.post.report_field
 import ansys.aedt.core.post.report_standard
 from ansys.aedt.core.post.solutions import SolutionData
 
