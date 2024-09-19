@@ -29,10 +29,25 @@ import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.post.plot import CommonPlotter
-from ansys.aedt.core.post.plot import ObjClass
-import numpy as np
-import pyvista as pv
+from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
+from ansys.aedt.core.visualization.plot.pyvista import ObjClass
+
+try:
+    import numpy as np
+except ImportError:
+    warnings.warn(
+        "The NumPy module is required to run some functionalities of PostProcess.\n"
+        "Install with \n\npip install numpy"
+    )
+try:
+    import pyvista as pv
+
+    pyvista_available = True
+except ImportError:
+    warnings.warn(
+        "The PyVista module is required to run some functionalities of PostProcess.\n"
+        "Install with \n\npip install pyvista\n\nRequires CPython."
+    )
 
 
 class HDMPlotter(CommonPlotter):
@@ -77,7 +92,7 @@ class HDMPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def add_hdm_bundle_from_file(self, filename, units=None):
         """Add hdm bundle from file."""
-        from ansys.aedt.core.sbrplus.hdm_parser import Parser
+        from ansys.aedt.core.sbrplus import Parser
 
         if os.path.exists(filename):
             self._bundle = Parser(filename=filename).parse_message()
