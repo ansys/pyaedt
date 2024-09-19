@@ -143,8 +143,8 @@ class MatProperties(object):
         "Young's Modulus",
         "Poisson's Ratio",
         None,  # diffusivity
-        None,  # molecular_mass
-        None,  # viscosity
+        "Molecular Weight",  # molecular_mass
+        "Viscosity",  # viscosity
     ]
 
     @classmethod

@@ -33,6 +33,7 @@ import copy
 import re
 import xml.etree.ElementTree as ET
 
+from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
 
 
@@ -106,10 +107,11 @@ class MaterialWorkbench:
 
     @staticmethod
     def _dataset_name(material_name, property_name):
-        return f"{material_name}_WB_{property_name}_TM".replace(" ", "_")
+        name = f"TM_{normalize_string_format(material_name)}_WB_{MatProperties.wb_to_aedt_name(property_name)}"
+        return name
 
     def _aedt_material_name(self, wb_material_name):
-        return f"{wb_material_name}{self.mat_name_suffix}"
+        return f"{normalize_string_format(wb_material_name)}{self.mat_name_suffix}"
 
     def import_materials_from_workbench(self, filename):
         """Import materials from Workbench Engineering Data XML file.
@@ -126,7 +128,7 @@ class MaterialWorkbench:
 
         """
 
-        # filename = r"D:\temp\EngineeringData_aniso.xml"
+        # Parse the XML
         xml_dict = self._parse_xml(filename)
 
         # creating the materials dict holding all info in a more readable way
@@ -160,6 +162,15 @@ class MaterialWorkbench:
                         "data": self._to_float(p["ParameterValue"]["Data"]),
                     }
 
+        # If data is not a number, but a string, check if it is tabular data. If not, it will be removed.
+        for mat_name in materials:
+            for prop_name, prop_data in materials[mat_name].items():
+                if isinstance(prop_data, list):
+                    for i, p in enumerate(prop_data[:]):
+                        if isinstance(p["data"], str) and not self._is_tabular_data(p["data"]):
+                            # remove the entry
+                            del prop_data[i]
+
         # Check for thermal modifiers and rewrite them in a more usable format.
         # Also check for anisotropic material and rewrite them in a more usable format.
         for mat_name in materials:
@@ -179,7 +190,7 @@ class MaterialWorkbench:
                         for p in prop_data:
                             if p["parameter"] == "Temperature":
                                 temp_array = [float(i) for i in p["data"].split(",")]
-                            else:
+                            elif p["parameter"] != "Temperature":
                                 data_array = [float(i) for i in p["data"].split(",")]
                                 parameter_name = p["parameter"]
                         materials[mat_name][prop_name] = {
@@ -206,31 +217,46 @@ class MaterialWorkbench:
                             "anisotropic": anisotropic_data,
                         }
 
-        # If data is not a number, but a string, check if it is tabular data. If not, it will be removed.
-        for mat_name in materials:
-            for prop_name, prop_data in materials[mat_name].items():
-                if isinstance(prop_data, list):
-                    for i, p in enumerate(prop_data[:]):
-                        if isinstance(p["data"], str) and not self._is_tabular_data(p["data"]):
-                            # remove the entry
-                            del prop_data[i]
-
+        # Expand the Elasticity property into the individual properties
         materials2 = copy.deepcopy(materials)
         for mat_name in materials2:
             for prop_name, prop_data in materials2[mat_name].items():
                 if isinstance(prop_data, list):
-                    # Expand the Elasticity property into the individual properties
                     if prop_name == "Elasticity":
-                        for p in prop_data:
-                            materials[mat_name][p["parameter"]] = {"parameter": p["parameter"], "data": p["data"]}
+                        if (
+                            all([isinstance(i["data"], str) for i in prop_data])
+                            and any([i["parameter"] == "Temperature" for i in prop_data])
+                            and all([self._is_tabular_data(i["data"]) for i in prop_data])
+                        ):
+                            for p in prop_data:
+                                if p["parameter"] == "Temperature":
+                                    temp_array = [float(i) for i in p["data"].split(",")]
+                            for p in prop_data:
+                                if p["parameter"] != "Temperature":
+                                    data_array = [float(i) for i in p["data"].split(",")]
+                                    parameter_name = p["parameter"]
+                                    materials[mat_name][parameter_name] = {
+                                        "parameter": parameter_name,
+                                        "data": data_array[0],
+                                        "dataset": [data_array, temp_array],
+                                    }
+                        else:
+                            for p in prop_data:
+                                materials[mat_name][p["parameter"]] = {"parameter": p["parameter"], "data": p["data"]}
                         del materials[mat_name]["Elasticity"]
+
+        # Performs other simplifications to the properties
+        materials2 = copy.deepcopy(materials)
+        for mat_name in materials2:
+            for prop_name, prop_data in materials2[mat_name].items():
+                if isinstance(prop_data, list):
                     # Properties with a single element list are saved without the list
                     if len(prop_data) == 1:
                         materials[mat_name][prop_name] = {
                             "parameter": prop_data[0]["parameter"],
                             "data": prop_data[0]["data"],
                         }
-                    # Properties with a table specified, but with a single raw (a single entry) are converted
+                    # Properties with a table specified but with a single raw (a single temperature entry) are converted
                     if (
                         len(prop_data) == 2
                         and any([i["parameter"] == "Temperature" for i in prop_data])
@@ -250,7 +276,7 @@ class MaterialWorkbench:
                         else:
                             del materials[mat_name]["Color"]
 
-        # material props creation and also other auxiliary dictionaries (thermal_modifier and colors)
+        # material props creation in AEDT format and also other auxiliary dictionaries (thermal_modifier and colors)
         mat_props = {}
         thermal_modifiers = {}
         colors = {}
