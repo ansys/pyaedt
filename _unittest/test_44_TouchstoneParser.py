@@ -56,7 +56,7 @@ class TestClass:
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self):
-        from ansys.aedt.core.post.touchstone_parser import TouchstoneData
+        from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
         ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
         assert ts1.get_mixed_mode_touchstone_data()

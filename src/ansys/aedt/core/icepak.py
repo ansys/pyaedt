@@ -61,7 +61,7 @@ from ansys.aedt.core.modules.boundary import SinusoidalDictionary
 from ansys.aedt.core.modules.boundary import SquareWaveDictionary
 from ansys.aedt.core.modules.boundary import _create_boundary
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.post.monitor_icepak import Monitor
+from ansys.aedt.core.visualization.post.monitor_icepak import Monitor
 
 
 class Icepak(FieldAnalysis3D):

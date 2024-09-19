@@ -313,7 +313,7 @@ class ScatteringMethods(object):
 
         >>> oModule.GetSolutionDataPerVariation
         """
-        from ansys.aedt.core.post.touchstone_parser import TouchstoneData
+        from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
         if not setup:
             setup = self._app.setups[0].name

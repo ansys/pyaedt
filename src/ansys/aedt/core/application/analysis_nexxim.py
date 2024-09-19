@@ -182,7 +182,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            from ansys.aedt.core.post.post_circuit import PostProcessorCircuit
+            from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit
 
             self._post = PostProcessorCircuit(self)
             self.logger.info_timer("Post class has been initialized!")

@@ -34,8 +34,8 @@ from ansys.aedt.core.modules.boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.post.solutions import FolderPlotSettings
-from ansys.aedt.core.post.solutions import SpecifiedScale
+from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
+from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
 import pytest
 
 test_subfolder = "T98"

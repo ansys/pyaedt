@@ -33,7 +33,7 @@ import pytest
 
 small_number = 1e-10  # Used for checking equivalence.
 
-from ansys.aedt.core.post.near_field_import import convert_nearfield_data
+from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 

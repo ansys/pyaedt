@@ -26,7 +26,6 @@ import os
 
 from ansys.aedt.core.application.analysis import Analysis
 from ansys.aedt.core.generic.configurations import Configurations3DLayout
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.setup_templates import SetupKeys
@@ -153,10 +152,8 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if self._post is None and self._odesign:
             self.logger.reset_timer()
-            if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.post.post_standard import PostProcessor3D
-            else:
-                from ansys.aedt.core.post.post_standard import PostProcessor3D
+            from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
+
             self._post = PostProcessor3D(self)
             self.logger.info_timer("Post class has been initialized!")
 

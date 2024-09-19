@@ -6008,7 +6008,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hdm_parser.Parser`
         """
 
-        from ansys.aedt.core.sbrplus.hdm_parser import Parser
+        from ansys.aedt.core.sbrplus import Parser
 
         if os.path.exists(file_name):
             return Parser(file_name).parse_message()
@@ -6028,7 +6028,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.sbrplus.plot.HDMPlotter`
 
         """
-        from ansys.aedt.core.sbrplus.plot import HDMPlotter
+        from ansys.aedt.core.sbrplus import HDMPlotter
 
         hdm = HDMPlotter()
         files = self.post.export_model_obj(export_as_single_objects=True, air_objects=False)
