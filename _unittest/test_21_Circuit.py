@@ -216,7 +216,7 @@ class TestClass:
         )
 
     def test_16_read_touchstone(self):
-        from ansys.aedt.core.post.touchstone_parser import read_touchstone
+        from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 
         data = read_touchstone(self.touchstone_file)
         assert len(data.port_names) > 0

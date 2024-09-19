@@ -67,7 +67,7 @@ class TestClass:
         assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
 
     def test_03_check_touchstone_file(self):
-        from ansys.aedt.core.post.touchstone_parser import check_touchstone_files
+        from ansys.aedt.core.visualization.advanced.touchstone_parser import check_touchstone_files
 
         check = check_touchstone_files(input_dir=test_T44_dir)
         assert check

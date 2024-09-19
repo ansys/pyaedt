@@ -113,7 +113,7 @@ class FfdSolutionData(object):
             if not touchstone_file:
                 touchstone_file = ""
 
-            input_file = FfdSolutionDataExporter.export_pyaedt_antenna_metadata(
+            input_file = export_pyaedt_antenna_metadata(
                 input_file=input_file,
                 output_dir=self.output_dir,
                 variation=variation,
@@ -1615,3 +1615,175 @@ class UpdateBeamForm:
         """Update the Theta value."""
         self.__theta = theta
         self.__update_both()
+
+
+@pyaedt_function_handler()
+def export_pyaedt_antenna_metadata(
+    input_file, output_dir, variation=None, model_info=None, power=None, touchstone_file=None
+):
+    """Obtain PyAEDT metadata JSON file from AEDT metadata XML file or embedded element pattern TXT file.
+
+    Parameters
+    ----------
+    input_file : str
+        Full path to the XML or TXT file.
+    output_dir : str
+        Full path to save the file to.
+    variation : str, optional
+        Label to identify corresponding variation.
+    model_info : dict, optional
+    power : dict, optional
+        Dictionary with information of the incident power for each frequency.
+        The default is ``None``, in which case an empty dictionary is applied.
+        From AEDT 2024.1, this information is available from the XML input file.
+        For example, the dictionary format for a two element farfield
+        data = power[1000000000.0]["IncidentPower"]
+        data = [1, 0.99]
+    touchstone_file : str, optional
+        Touchstone file name. The default is ``None``.
+
+    Returns
+    -------
+    str
+        Metadata JSON file.
+    """
+    from ansys.aedt.core.post.touchstone_parser import find_touchstone_files
+
+    if not variation:
+        variation = "Nominal"
+
+    if not power:
+        power = {}
+
+    if not touchstone_file:
+        touchstone_file = ""
+
+    pyaedt_metadata_file = os.path.join(output_dir, "pyaedt_antenna_metadata.json")
+    items = {"variation": variation, "element_pattern": {}, "touchstone_file": touchstone_file}
+
+    if os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "xml":
+        # Metadata available from 2024.1
+        antenna_metadata = FfdSolutionDataExporter.antenna_metadata(input_file)
+
+        # Find all ffd files and move them to main directory
+        for dir_path, _, filenames in os.walk(output_dir):
+            ffd_files = [file for file in filenames if file.endswith(".ffd")]
+            sNp_files = find_touchstone_files(dir_path)
+            if ffd_files:
+                # Move ffd files to main directory
+                for ffd_file in ffd_files:
+                    output_file = os.path.join(output_dir, ffd_file)
+                    pattern_file = os.path.join(dir_path, ffd_file)
+                    shutil.move(pattern_file, output_file)
+            if sNp_files and not touchstone_file:
+                # Only one Touchstone allowed
+                sNp_name, sNp_path = next(iter(sNp_files.items()))
+                output_file = os.path.join(output_dir, sNp_name)
+                exported_touchstone_file = os.path.join(sNp_path)
+                shutil.move(exported_touchstone_file, output_file)
+                items["touchstone_file"] = sNp_name
+
+        for metadata in antenna_metadata:
+
+            incident_power = {}
+            for i_freq, i_power_value in metadata["incident_power"].items():
+                frequency = i_freq
+                if isinstance(i_freq, str):
+                    frequency, units = decompose_variable_value(i_freq)
+                    if units:
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                incident_power[frequency] = float(i_power_value)
+
+            radiated_power = {}
+            for i_freq, i_power_value in metadata["radiated_power"].items():
+                frequency = i_freq
+                if isinstance(i_freq, str):
+                    frequency, units = decompose_variable_value(i_freq)
+                    if units:
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                radiated_power[frequency] = float(i_power_value)
+
+            accepted_power = {}
+            for i_freq, i_power_value in metadata["accepted_power"].items():
+                frequency = i_freq
+                if isinstance(i_freq, str):
+                    frequency, units = decompose_variable_value(i_freq)
+                    if units:
+                        frequency = unit_converter(frequency, "Freq", units, "Hz")
+                accepted_power[frequency] = float(i_power_value)
+
+            pattern = {
+                "file_name": metadata["file_name"],
+                "location": metadata["location"],
+                "incident_power": incident_power,
+                "radiated_power": radiated_power,
+                "accepted_power": accepted_power,
+            }
+
+            items["element_pattern"][metadata["name"]] = pattern
+            pattern_file = os.path.join(output_dir, metadata["file_name"])
+            if not os.path.isfile(pattern_file):  # pragma: no cover
+                return False
+
+    elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
+
+        # Find all ffd files and move them to main directory
+        for dir_path, _, _ in os.walk(output_dir):
+            sNp_files = find_touchstone_files(dir_path)
+            if sNp_files and not touchstone_file:
+                # Only one Touchstone allowed
+                sNp_name, sNp_path = next(iter(sNp_files.items()))
+                output_file = os.path.join(output_dir, sNp_name)
+                exported_touchstone_file = os.path.join(sNp_path)
+                shutil.move(exported_touchstone_file, output_file)
+                items["touchstone_file"] = sNp_name
+                break
+
+        with open_file(input_file, "r") as file:
+            # Skip the first line
+            file.readline()
+            # Read and process the remaining lines
+            for line in file:
+                antenna_metadata = line.strip().split()
+                if len(antenna_metadata) == 5:
+                    element_name = antenna_metadata[0]
+                    file_name = antenna_metadata[1]
+                    if ".ffd" not in file_name:
+                        file_name = file_name + ".ffd"
+                    incident_power = None
+                    radiated_power = None
+                    accepted_power = None
+                    if power:
+                        incident_power = power[element_name]["IncidentPower"]
+                        radiated_power = power[element_name]["RadiatedPower"]
+                        accepted_power = power[element_name]["AcceptedPower"]
+
+                    pattern = {
+                        "file_name": file_name,
+                        "location": [
+                            float(antenna_metadata[2]),
+                            float(antenna_metadata[3]),
+                            float(antenna_metadata[4]),
+                        ],
+                        "incident_power": incident_power,
+                        "radiated_power": radiated_power,
+                        "accepted_power": accepted_power,
+                    }
+                    items["element_pattern"][antenna_metadata[0]] = pattern
+
+    items["model_info"] = []
+    if model_info:
+        if "object_list" in model_info:
+            items["model_info"] = model_info["object_list"]
+
+        required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
+
+        if all(key in model_info for key in required_array_keys):
+            items["component_objects"] = model_info["component_objects"]
+            items["cell_position"] = model_info["cell_position"]
+            items["array_dimension"] = model_info["array_dimension"]
+            items["lattice_vector"] = model_info["lattice_vector"]
+
+    with open_file(pyaedt_metadata_file, "w") as f:
+        json.dump(items, f, indent=2)
+    return pyaedt_metadata_file

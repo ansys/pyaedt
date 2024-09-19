@@ -22,8 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
+
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
+from ansys.aedt.core.generic.filesystem import search_files
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
 
