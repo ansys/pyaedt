@@ -41,10 +41,17 @@ def aedtapp(add_app):
     return app
 
 
+@pytest.fixture(scope="class")
+def aedtapp2(add_app):
+    app = add_app(project_name="Test03", design_name="import_from_wb")
+    return app
+
+
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, aedtapp2, local_scratch):
         self.aedtapp = aedtapp
+        self.testapp2 = aedtapp2
         self.local_scratch = local_scratch
 
     def test_01_vaacum(self):
@@ -446,3 +453,77 @@ class TestClass:
 
         self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
         self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
+
+    def test_import_materials_from_workbench(self):
+
+        assert self.testapp2.materials.import_materials_from_workbench("not_existing.xml") is False
+
+        imported_mats = self.testapp2.materials.import_materials_from_workbench(
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData1.XML")
+        )
+        for m in imported_mats:
+            assert m in self.testapp2.materials.material_keys.values()
+        assert self.testapp2.materials.material_keys["new_wb_material_aniso_wb"].permittivity.value == [1, 2, 3]
+        assert self.testapp2.materials.material_keys["new_wb_material_aniso_wb"].conductivity.value == [
+            0.012987012987012988,
+            0.011363636363636364,
+            0.010101010101010102,
+        ]
+        assert self.testapp2.materials.material_keys["structural_steel_wb"].permeability.value == 10000
+        assert self.testapp2.materials.material_keys["wb_material_simple_thermal_wb"].conductivity.value == 18
+        assert (
+            self.testapp2.materials.material_keys["wb_material_simple_thermal_wb"].permittivity.thermalmodifier
+            == "pwl($TM_WB_MATERIAL_SIMPLE_thermal_wb_permittivity, Temp)"
+        )
+        assert self.testapp2.materials.material_keys["wb_material_simple_wb"].conductivity.value == 3
+        assert self.testapp2.materials.material_keys["wb_material_simple_wb"].thermal_expansion_coefficient.value == 23
+
+        imported_mats = self.testapp2.materials.import_materials_from_workbench(
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData2.XML")
+        )
+        for m in imported_mats:
+            assert m in self.testapp2.materials.material_keys.values()
+        assert self.testapp2.materials.material_keys["aluminum_alloy_wb"].conductivity.value == 41152263.3744856
+        assert (
+            self.testapp2.materials.material_keys["aluminum_alloy_wb"].thermal_conductivity.thermalmodifier
+            == "pwl($TM_Aluminum_Alloy_wb_thermal_conductivity, Temp)"
+        )
+        assert self.testapp2.materials.material_keys["concrete_wb"].thermal_conductivity.value == 0.72
+        assert self.testapp2.materials.material_keys["fr_4_wb"].thermal_conductivity.value == [0.38, 0.38, 0.3]
+        assert self.testapp2.materials.material_keys["silicon_anisotropic_wb"].mass_density.value == 2330
+        assert (
+            self.testapp2.materials.material_keys[
+                "silicon_anisotropic_wb"
+            ].thermal_expansion_coefficient.thermalmodifier
+            == "pwl($TM_Silicon_Anisotropic_wb_thermal_expansion_coefficient, Temp)"
+        )
+
+        imported_mats = self.testapp2.materials.import_materials_from_workbench(
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData3.XML"), name_suffix="_imp"
+        )
+        for m in imported_mats:
+            assert m in self.testapp2.materials.material_keys.values()
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].thermal_conductivity.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_thermal_conductivity, Temp)"
+        )
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].mass_density.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_mass_density, Temp)"
+        )
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].specific_heat.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_specific_heat, Temp)"
+        )
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].youngs_modulus.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_youngs_modulus, Temp)"
+        )
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].poissons_ratio.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_poissons_ratio, Temp)"
+        )
+        assert (
+            self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].thermal_expansion_coefficient.thermalmodifier
+            == "pwl($TM_84Zn_12Ag_4Au_imp_thermal_expansion_coefficient, Temp)"
+        )

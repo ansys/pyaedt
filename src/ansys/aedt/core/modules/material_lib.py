@@ -968,5 +968,6 @@ class Materials(object):
         # check if the xml file exists
         if not os.path.isfile(input_file):
             self.logger.error(f"The file specified does not exist: {input_file}")
+            return False
         # import the materials in the xml
         return mat_wb.import_materials_from_workbench(input_file)

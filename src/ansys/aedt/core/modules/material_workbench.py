@@ -105,9 +105,8 @@ class MaterialWorkbench:
         else:
             return False
 
-    @staticmethod
-    def _dataset_name(material_name, property_name):
-        name = f"TM_{normalize_string_format(material_name)}_WB_{MatProperties.wb_to_aedt_name(property_name)}"
+    def _dataset_name(self, material_name, property_name):
+        name = f"TM_{self._aedt_material_name(material_name)}_{MatProperties.wb_to_aedt_name(property_name)}"
         return name
 
     def _aedt_material_name(self, wb_material_name):
@@ -129,7 +128,7 @@ class MaterialWorkbench:
         """
 
         # Parse the XML
-        xml_dict = self._parse_xml(filename)
+        xml_dict = MaterialWorkbench._parse_xml(filename)
 
         # creating the materials dict holding all info in a more readable way
         parameters = {}
@@ -154,12 +153,12 @@ class MaterialWorkbench:
                     material[prop] = []
                     for v in p["ParameterValue"]:
                         material[prop].append(
-                            {"parameter": parameters[v["@parameter"]], "data": self._to_float(v["Data"])}
+                            {"parameter": parameters[v["@parameter"]], "data": MaterialWorkbench._to_float(v["Data"])}
                         )
                 elif "ParameterValue" in p:
                     material[prop] = {
                         "parameter": parameters[p["ParameterValue"]["@parameter"]],
-                        "data": self._to_float(p["ParameterValue"]["Data"]),
+                        "data": MaterialWorkbench._to_float(p["ParameterValue"]["Data"]),
                     }
 
         # If data is not a number, but a string, check if it is tabular data. If not, it will be removed.
@@ -167,7 +166,7 @@ class MaterialWorkbench:
             for prop_name, prop_data in materials[mat_name].items():
                 if isinstance(prop_data, list):
                     for i, p in enumerate(prop_data[:]):
-                        if isinstance(p["data"], str) and not self._is_tabular_data(p["data"]):
+                        if isinstance(p["data"], str) and not MaterialWorkbench._is_tabular_data(p["data"]):
                             # remove the entry
                             del prop_data[i]
 
@@ -181,7 +180,7 @@ class MaterialWorkbench:
                         len(prop_data) == 2
                         and all([isinstance(i["data"], str) for i in prop_data])
                         and any([i["parameter"] == "Temperature" for i in prop_data])
-                        and all([self._is_tabular_data(i["data"]) for i in prop_data])
+                        and all([MaterialWorkbench._is_tabular_data(i["data"]) for i in prop_data])
                     ):
                         # thermal modifier is found, reconstruct the property
                         parameter_name = None
@@ -226,7 +225,7 @@ class MaterialWorkbench:
                         if (
                             all([isinstance(i["data"], str) for i in prop_data])
                             and any([i["parameter"] == "Temperature" for i in prop_data])
-                            and all([self._is_tabular_data(i["data"]) for i in prop_data])
+                            and all([MaterialWorkbench._is_tabular_data(i["data"]) for i in prop_data])
                         ):
                             for p in prop_data:
                                 if p["parameter"] == "Temperature":
