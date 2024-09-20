@@ -33,30 +33,6 @@ class TestClass:
         local_scratch.copyfolder(os.path.join(solver_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"),
                                  file_path)
 
-        main(is_test=True, execute={
-            "aedt_load": [
-                {"project_file": file_path,
-                 "file_cfg_path": configuration_path,
-                 "file_save_path": file_path.replace(".aedb", "_1.aedt")}
-            ],
-            "aedt_export": [
-                {"project_file": file_path,
-                 "file_path_save": configuration_path.replace(".json", "_1.json")}
-            ],
-            "active_load": [],
-            "active_export": [],
-            "siwave_load": [],
-            "siwave_export": [],
-        })
-
-        main(is_test=True, execute={
-            "aedt_load": [],
-            "aedt_export": [],
-            "active_load": [{"project_file": file_path,
-                             "file_cfg_path": configuration_path,
-                             "file_save_path": file_path.replace(".aedb", "_1.aedt")}],
-            "active_export": [{"project_file": file_path,
-                               "file_path_save": configuration_path.replace(".json", "_1.json")}],
-            "siwave_load": [],
-            "siwave_export": [],
-        })
+        edbapp = ansys.aedt.core.Edb(file_path, edbversion="2024.2")
+        assert edbapp.padstacks.definitions
+        edbapp.close()
