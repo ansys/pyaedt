@@ -15,6 +15,7 @@ and run a Twin Builder time-domain simulation.
 
 import os
 import shutil
+import matplotlib.pyplot as plt
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core import generate_unique_project_name
 from ansys.aedt.core import downloads
@@ -109,7 +110,7 @@ rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
 # Define the grid distance for ease in calculations
 G = 0.00254
 
-# Place a dynamic ROM component
+# Place the ROM component
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 25 * G])
 
 # Place two excitation sources
@@ -142,31 +143,27 @@ tb.set_hmax("1s")
 ###############################################################################
 # Solve transient setup
 # ~~~~~~~~~~~~~~~~~~~~~
-# Solve the transient setup. Skipping in case of documentation build.
+# Solve the transient setup.
 
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
-    tb.analyze_setup("TR")
+tb.analyze_setup("TR")
 
 ###############################################################################
 # Get report data and plot using Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get report data and plot it using Matplotlib. The following code gets and plots
-# the values for the voltage on the pulse voltage source and the values for the
-# output of the dynamic ROM.
-if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
-    e_value = "ROM1.outfield_mode_1"
-    x = tb.post.get_solution_data(e_value, "TR", "Time")
-    x.plot()
-    e_value = "ROM1.outfield_mode_2"
-    x = tb.post.get_solution_data(e_value, "TR", "Time")
-    x.plot()
-    e_value = "SINE1.VAL"
-    x = tb.post.get_solution_data(e_value, "TR", "Time")
-    x.plot()
-    e_value = "SINE2.VAL"
-    x = tb.post.get_solution_data(e_value, "TR", "Time")
-    x.plot()
+# the values for the inputs and outputs of the static ROM.
 
+e_value = "ROM1.outfield_mode_1"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
+e_value = "ROM1.outfield_mode_2"
+x = tb.post.get_solution_data(e_value, "TR", "Time")
+plt.plot(x.intrinsics["Time"], x.data_real(e_value))
+
+plt.grid()
+plt.xlabel("Time")
+plt.ylabel("ROM outputs variation")
+plt.show()
 
 ###############################################################################
 # Close Twin Builder

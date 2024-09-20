@@ -111,7 +111,7 @@ rom_manager.CreateROMComponent(dynamic_rom_path.replace('\\', '/'), 'dynarom')
 
 G = 0.00254
 
-# Place a dynamic ROM component
+# Place the ROM component
 
 rom1 = tb.modeler.schematic.create_component("ROM1", "", "dynarom", [36 * G, 28 * G])
 
