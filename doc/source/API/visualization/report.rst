@@ -25,4 +25,3 @@ PyAEDT has classes for manipulating any report property.
    eye.AMIConturEyeDiagram
    eye.AMIEyeDiagram
    emi.EMIReceiver
-   report_templates.Spectral

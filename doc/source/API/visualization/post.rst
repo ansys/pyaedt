@@ -73,7 +73,7 @@ User can get the names of the default reports using the following class
 
 If you need to get the data of any report, you can use this class:
 
-.. currentmodule:: ansys.aedt.core.visualization.post.solution_data.py
+.. currentmodule:: ansys.aedt.core.visualization.post.solution_data
 
 .. autosummary::
    :toctree: _autosummary
