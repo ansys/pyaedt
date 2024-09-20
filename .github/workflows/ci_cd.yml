@@ -320,7 +320,7 @@ jobs:
       - name: Uninstall PyEDB
         run: |
           source .venv/bin/activate
-          pip uninstall pyedb
+          pip uninstall --yes pyedb
 
       - name: Clone PyEDB on main branch
         uses: actions/checkout@v4
@@ -331,7 +331,7 @@ jobs:
 
       - name: Install PyEDB main branch version
         run: |
-          . .venv\Scripts\Activate.ps1
+          source .venv/bin/activate
           pip install --no-cache-dir external/pyedb
 
       - name: Run tests on _unittest_solvers
