@@ -1052,7 +1052,7 @@ class TestClass:
         rectangle = self.aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
         self.aedtapp.monitor.assign_surface_monitor(rectangle.name)
         self.aedtapp.monitor.assign_face_monitor(box.faces[0].id)
-        fan_obj_3d = self.aedtapp.create_fan(is_2d=False)
+        self.aedtapp.create_fan(is_2d=False)
         self.aedtapp.monitor.assign_point_monitor_in_object(box.name)
         self.aedtapp.create_dataset(
             "test_ignore",
