@@ -88,7 +88,6 @@ Example with ``Desktop`` class implicit initialization:
    Boundaries
    Mesh
    Setup
-   Post
    Visualization
    DesktopMessenger
    Optimetrics
