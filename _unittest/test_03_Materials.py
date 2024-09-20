@@ -454,12 +454,12 @@ class TestClass:
         self.aedtapp.materials["vacuum"].conductivity.thermalmodifier = None
         self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
 
-    def test_import_materials_from_workbench(self):
+    def test_16_import_materials_from_workbench(self):
 
         assert self.testapp2.materials.import_materials_from_workbench("not_existing.xml") is False
 
         imported_mats = self.testapp2.materials.import_materials_from_workbench(
-            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData1.XML")
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData1.xml")
         )
         for m in imported_mats:
             assert m in self.testapp2.materials.material_keys.values()
@@ -479,7 +479,7 @@ class TestClass:
         assert self.testapp2.materials.material_keys["wb_material_simple_wb"].thermal_expansion_coefficient.value == 23
 
         imported_mats = self.testapp2.materials.import_materials_from_workbench(
-            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData2.XML")
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData2.xml")
         )
         for m in imported_mats:
             assert m in self.testapp2.materials.material_keys.values()
@@ -499,7 +499,7 @@ class TestClass:
         )
 
         imported_mats = self.testapp2.materials.import_materials_from_workbench(
-            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData3.XML"), name_suffix="_imp"
+            os.path.join(local_path, "example_models", test_subfolder, "EngineeringData3.xml"), name_suffix="_imp"
         )
         for m in imported_mats:
             assert m in self.testapp2.materials.material_keys.values()
