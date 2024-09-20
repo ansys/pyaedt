@@ -149,6 +149,21 @@ class MatProperties(object):
 
     @classmethod
     def wb_to_aedt_name(cls, wb_name):
+        """Retrieve the corresponding AEDT property name for the specified Workbench property name.
+        The workbench names are specified in ``MatProperties.workbench_name``.
+        The AEDT names are specified in ``MatProperties.aedtname``.
+
+        Parameters
+        ----------
+        wb_name : str
+            Workbench name of the property.
+
+        Returns
+        -------
+        str
+            AEDT name of the property.
+
+        """
         return cls.aedtname[cls.workbench_name.index(wb_name)]
 
     @classmethod
