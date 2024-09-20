@@ -317,6 +317,23 @@ jobs:
           pip install .[tests]
           pip install pytest-azurepipelines
 
+      - name: Uninstall PyEDB
+        run: |
+          source .venv/bin/activate
+          pip uninstall pyedb
+
+      - name: Clone PyEDB on main branch
+        uses: actions/checkout@v4
+        with:
+          repository: ansys/pyedb
+          path: "external/pyedb"
+          ref: "main"
+
+      - name: Install PyEDB main branch version
+        run: |
+          . .venv\Scripts\Activate.ps1
+          pip install --no-cache-dir external/pyedb
+
       - name: Run tests on _unittest_solvers
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
