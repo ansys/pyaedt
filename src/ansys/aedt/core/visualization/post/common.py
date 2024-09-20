@@ -1669,7 +1669,7 @@ class PostProcessorCommon(object):
                     and el not in report._props["context"]["variations"]
                 ):
                     report._props["context"]["variations"][el] = k
-            report.expressions
+            _ = report.expressions
             report.create(name)
             if report.report_type != "Data Table":
                 report._update_traces()

@@ -34,7 +34,7 @@ from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.generic.general_methods import read_csv
 from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.visualization.advanced.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
 
 default_keys = [

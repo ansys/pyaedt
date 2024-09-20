@@ -36,16 +36,11 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSol
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
 
 np = None
-pv = None
 
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
     np = None
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    pv = None
 
 
 class FfdSolutionDataExporter:
@@ -343,62 +338,6 @@ class FfdSolutionDataExporter:
         self.__metadata_file = pyaedt_metadata_file
         self.__farfield_data = FfdSolutionData(pyaedt_metadata_file)
         return pyaedt_metadata_file
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def antenna_metadata(input_file):
-        """Obtain metadata information from metadata XML file.
-
-        Parameters
-        ----------
-        input_file : str
-            Full path to the XML file.
-
-        Returns
-        -------
-        dict
-            Metadata information.
-
-        """
-        import xml.etree.ElementTree as ET  # nosec
-
-        # Load the XML file
-        tree = ET.parse(input_file)  # nosec
-        root = tree.getroot()
-
-        element_patterns = root.find("ElementPatterns")
-
-        sources = []
-        if element_patterns is None:  # pragma: no cover
-            print("Element Patterns section not found in XML.")
-        else:
-            cont = 0
-            # Iterate over each Source element
-            for source in element_patterns.findall("Source"):
-                source_info = {
-                    "name": source.get("name"),
-                    "file_name": source.find("Filename").text.strip(),
-                    "location": source.find("ReferenceLocation").text.strip().split(","),
-                }
-
-                # Iterate over Power elements
-                power_info = source.find("PowerInfo")
-                if power_info is not None:
-                    source_info["incident_power"] = {}
-                    source_info["accepted_power"] = {}
-                    source_info["radiated_power"] = {}
-                    for power in power_info.findall("Power"):
-                        freq = power.get("Freq")
-                        source_info["incident_power"][freq] = {}
-                        source_info["incident_power"][freq] = power.find("IncidentPower").text.strip()
-                        source_info["accepted_power"][freq] = {}
-                        source_info["accepted_power"][freq] = power.find("AcceptedPower").text.strip()
-                        source_info["radiated_power"][freq] = {}
-                        source_info["radiated_power"][freq] = power.find("RadiatedPower").text.strip()
-
-                sources.append(source_info)
-                cont += 1
-        return sources
 
     @pyaedt_function_handler()
     def __create_geometries(self, export_path):

@@ -25,6 +25,7 @@
 import json
 import math
 import os
+import shutil
 import sys
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -1647,7 +1648,7 @@ def export_pyaedt_antenna_metadata(
     str
         Metadata JSON file.
     """
-    from ansys.aedt.core.post.touchstone_parser import find_touchstone_files
+    from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 
     if not variation:
         variation = "Nominal"
@@ -1663,7 +1664,7 @@ def export_pyaedt_antenna_metadata(
 
     if os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "xml":
         # Metadata available from 2024.1
-        antenna_metadata = FfdSolutionDataExporter.antenna_metadata(input_file)
+        antenna_metadata = antenna_metadata_from_xml(input_file)
 
         # Find all ffd files and move them to main directory
         for dir_path, _, filenames in os.walk(output_dir):
@@ -1787,3 +1788,59 @@ def export_pyaedt_antenna_metadata(
     with open_file(pyaedt_metadata_file, "w") as f:
         json.dump(items, f, indent=2)
     return pyaedt_metadata_file
+
+
+@pyaedt_function_handler()
+def antenna_metadata_from_xml(input_file):
+    """Obtain metadata information from metadata XML file.
+
+    Parameters
+    ----------
+    input_file : str
+        Full path to the XML file.
+
+    Returns
+    -------
+    dict
+        Metadata information.
+
+    """
+    import xml.etree.ElementTree as ET  # nosec
+
+    # Load the XML file
+    tree = ET.parse(input_file)  # nosec
+    root = tree.getroot()
+
+    element_patterns = root.find("ElementPatterns")
+
+    sources = []
+    if element_patterns is None:  # pragma: no cover
+        print("Element Patterns section not found in XML.")
+    else:
+        cont = 0
+        # Iterate over each Source element
+        for source in element_patterns.findall("Source"):
+            source_info = {
+                "name": source.get("name"),
+                "file_name": source.find("Filename").text.strip(),
+                "location": source.find("ReferenceLocation").text.strip().split(","),
+            }
+
+            # Iterate over Power elements
+            power_info = source.find("PowerInfo")
+            if power_info is not None:
+                source_info["incident_power"] = {}
+                source_info["accepted_power"] = {}
+                source_info["radiated_power"] = {}
+                for power in power_info.findall("Power"):
+                    freq = power.get("Freq")
+                    source_info["incident_power"][freq] = {}
+                    source_info["incident_power"][freq] = power.find("IncidentPower").text.strip()
+                    source_info["accepted_power"][freq] = {}
+                    source_info["accepted_power"][freq] = power.find("AcceptedPower").text.strip()
+                    source_info["radiated_power"][freq] = {}
+                    source_info["radiated_power"][freq] = power.find("RadiatedPower").text.strip()
+
+            sources.append(source_info)
+            cont += 1
+    return sources

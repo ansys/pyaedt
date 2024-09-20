@@ -683,7 +683,7 @@ class CommonReport(object):
         -------
         List of :class:`ansys.aedt.core.modules.report_templates.Trace`
         """
-        expressions = self.expressions[::]
+        _ = self.expressions[::]
         _traces = []
         try:
             oo = self._post.oreportsetup.GetChildObject(self.plot_name)

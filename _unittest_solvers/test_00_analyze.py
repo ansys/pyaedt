@@ -15,7 +15,7 @@ from ansys.aedt.core import Icepak, Rmxprt
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Circuit, Maxwell3d
 from _unittest.conftest import config
-from ansys.aedt.core.post.spisim import SpiSim
+from ansys.aedt.core.visualization.post.spisim import SpiSim
 
 sbr_platform_name = "satellite_231"
 array_name = "array_231"
@@ -553,7 +553,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-        from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files import COMParametersVer3p4
+        from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
         com_param.load(os.path.join(spisim.working_directory, "custom.json"), )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))

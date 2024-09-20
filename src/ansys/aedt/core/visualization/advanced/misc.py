@@ -23,12 +23,21 @@
 # SOFTWARE.
 
 import logging
+import os
+import re
 
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.filesystem import search_files
+from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+
+try:
+    import pyvista as pv
+except ImportError:  # pragma: no cover
+    pv = None
 
 """Miscellaneous advanced post processing methods."""
 

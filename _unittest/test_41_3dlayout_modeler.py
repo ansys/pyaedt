@@ -32,7 +32,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.visualization.advanced.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 import pytest
 
 test_subfolder = "T41"
