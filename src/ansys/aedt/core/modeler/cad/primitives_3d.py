@@ -1465,7 +1465,8 @@ class Primitives3D(GeometryModeler):
             return assignment.target_coordinate_system
 
     @staticmethod
-    def create_temp_file(app):
+    def __create_temp_project(app):
+        """Create temporary project with a duplicated design."""
         temp_proj_name = generate_unique_project_name()
         ipkapp_temp = Icepak(project=os.path.join(app.toolkit_directory, temp_proj_name))
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
@@ -1476,35 +1477,17 @@ class Primitives3D(GeometryModeler):
         return temp_proj
 
     @staticmethod
-    def get_all_mapping(temp_proj):
+    def __get_all_mapping(temp_proj):
+        """Get top level parts."""
         read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
         geometry_part_list = read_dict["ToplevelParts"]["GeometryPart"]
         if isinstance(geometry_part_list, dict):
             geometry_part_list = [geometry_part_list]
         return {g['Attributes']["Name"]: g for g in geometry_part_list}
 
-    # @staticmethod
-    # def get_cs(part, temp_proj):
-    #     cs_id = part["Operations"]["Operation"][
-    #         "ReferenceCoordSystemID"
-    #     ]
-    #     if cs_id != 1:
-    #         read_dict = load_aedt_file.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
-    #         if isinstance(read_dict["CoordinateSystems"]["Operation"], list):
-    #             cs_dict = {
-    #                 cs["ID"]: cs["Attributes"]["Name"] for cs in read_dict["CoordinateSystems"]["Operation"]
-    #             }
-    #         else:
-    #             cs_dict = {
-    #                 read_dict["CoordinateSystems"]["Operation"]["ID"]: read_dict["CoordinateSystems"][
-    #                     "Operation"
-    #                 ]["Attributes"]["Name"]
-    #             }
-    #         return cs_dict[cs_id]
-    #     return "Global"
-
     @staticmethod
-    def parse_mapping(part):
+    def __parse_mapping(part):
+        """Mapping key IDs."""
         part_mapping = {}
         for i in ["FaceKeyIDMap", "EdgeKeyIDMap", "VertexKeyIDMap", "BodyKeyIDMap"]:
             dict_str = ""
@@ -1699,8 +1682,8 @@ class Primitives3D(GeometryModeler):
                     if cs.ref_cs == "Global":
                         cs.ref_cs = coordinate_system
             if aux_dict.get("monitors", None):
-                temp_proj = self.create_temp_file(self._app)
-                parts = self.get_all_mapping(temp_proj)
+                temp_proj = self.__create_temp_project(self._app)
+                parts = self.__get_all_mapping(temp_proj)
                 for mon in aux_dict["monitors"]:
                     key = udm_obj.name + "_" + mon["Name"]
                     m_case = mon["Type"]
@@ -1712,7 +1695,7 @@ class Primitives3D(GeometryModeler):
                         )
                         self._app.modeler.set_working_coordinate_system(cs_old)
                     else:
-                        part = self.parse_mapping(parts[mon["Geometry Assignment"]])
+                        part = self.__parse_mapping(parts[mon["Geometry Assignment"]])
                         if m_case == "Face":
                             self._app.monitor.assign_face_monitor(
                                 part["FaceKeyIDMap"][str(mon["ID"])],
