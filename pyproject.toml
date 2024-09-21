@@ -136,6 +136,7 @@ installer = [
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
     "pyvista[io]>=0.38.0,<0.45",
+    "pyedb>=0.27.0; python_version > '3.7'",
     # Never directly imported but required when loading ML related file see #4713
     "scikit-learn>=1.0.0,<1.6",
     "scikit-rf>=0.30.0,<1.4",
