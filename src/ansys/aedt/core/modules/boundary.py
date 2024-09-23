@@ -260,8 +260,8 @@ class NativeComponentObject(BoundaryCommon, object):
 
     @name.setter
     def name(self, component_name):
-        if component_name not in self._app.native_component_names:
-            if component_name != self._name:
+        if component_name != self._name:
+            if component_name not in self._app.native_component_names:
                 self.object_properties.props["Name"] = component_name
                 self._app.native_components.update({component_name: self})
                 del self._app.native_components[self._name]
