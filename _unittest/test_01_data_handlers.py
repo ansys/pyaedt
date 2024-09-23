@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.general_methods import number_aware_string_key
+from ansys.aedt.core.generic import data_handlers as dh
 import pytest
 
 
@@ -32,15 +32,18 @@ def desktop():
     return
 
 
-class TestClass(object):
-    def test_00_number_aware_string_key(self):
-        assert number_aware_string_key("C1") == ("C", 1)
-        assert number_aware_string_key("1234asdf") == (1234, "asdf")
-        assert number_aware_string_key("U100") == ("U", 100)
-        assert number_aware_string_key("U100X0") == ("U", 100, "X", 0)
+class TestClass:
 
-    def test_01_number_aware_string_key(self):
-        component_names = ["U10", "U2", "C1", "Y1000", "Y200"]
-        expected_sort_order = ["C1", "U2", "U10", "Y200", "Y1000"]
-        assert sorted(component_names, key=number_aware_string_key) == expected_sort_order
-        assert sorted(component_names + [""], key=number_aware_string_key) == [""] + expected_sort_order
+    def test_str_to_bool(self):
+        test_list_1 = ["one", "two", "five"]
+        bool_values = list(map(dh.str_to_bool, test_list_1))
+        assert all(isinstance(b, str) for b in bool_values)  # All strings
+        test_list_1.append("True")
+        assert True in list(map(dh.str_to_bool, test_list_1))
+        test_list_2 = ["Stop", "go", "run", "crawl", "False"]
+        assert False in list(map(dh.str_to_bool, test_list_2))
+
+    def test_normalize_string_format(self):
+        dirty = "-Hello Wòrld - Test---Strïng  -  With -  Múltiple    Spaces ç & Unsupport€d Ch@rachter$ £ike * "  # codespell:ignore  # noqa: E501
+        clean = "Hello_World_Test_String_With_Multiple_Spaces_c_and_UnsupportEd_ChatrachterS_Like"  # codespell:ignore  # noqa: E501
+        assert dh.normalize_string_format(dirty) == clean
