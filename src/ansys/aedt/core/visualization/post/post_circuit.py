@@ -530,6 +530,7 @@ class PostProcessorCircuit(PostProcessorCommon, object):
         waveform_sweep = []
         waveform_unit = []
         waveform_sweep_unit = []
+        waveform_data = None
         for exp in plot_expression:
             waveform_data = self.get_solution_data(
                 expressions=exp, setup_sweep_name=setup, domain="Time", variations=variation_list_w_value
@@ -565,14 +566,17 @@ class PostProcessorCircuit(PostProcessorCommon, object):
             tics = clock_tic.data_real()
 
         outputdata = [[] for i in range(len(waveform))]
-        for w in range(0, len(waveform)):
+        is_pandas_enabled = False
+        if waveform_data:
+            is_pandas_enabled = waveform_data.enable_pandas_output
+        for waveform_cont, waveform_real in enumerate(waveform):
             outputdata[w] = self.sample_waveform(
-                waveform_data=waveform[w],
-                waveform_sweep=waveform_sweep[w],
-                waveform_unit=waveform_unit[w],
-                waveform_sweep_unit=waveform_sweep_unit[w],
+                waveform_data=waveform_real,
+                waveform_sweep=waveform_sweep[waveform_cont],
+                waveform_unit=waveform_unit[waveform_cont],
+                waveform_sweep_unit=waveform_sweep_unit[waveform_cont],
                 unit_interval=unit_interval,
                 clock_tics=tics,
-                pandas_enabled=waveform_data.enable_pandas_output,
+                pandas_enabled=is_pandas_enabled,
             )
         return outputdata

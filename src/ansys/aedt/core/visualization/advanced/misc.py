@@ -41,8 +41,6 @@ try:
 except ImportError:  # pragma: no cover
     pv = None
 
-"""Miscellaneous advanced post processing methods."""
-
 
 class BoxFacePointsAndFields(object):
     """Data model class containing field component and coordinates."""
@@ -226,7 +224,7 @@ def parse_rdat_file(file_path):
     report_data = data["ReportsData"]["RepMgrRepsData"]
     for report_name in report_data:
         report_dict[report_name] = {}
-        for trace, trace_data in report_data[report_name]["Traces"].items():
+        for _, trace_data in report_data[report_name]["Traces"].items():
             all_data = trace_data["TraceComponents"]["TraceDataComps"]["0"]
             if all_data["TraceDataCol"]["ParameterType"] == "ComplexParam":
                 all_data_values = all_data["TraceDataCol"]["ColumnValues"]
@@ -241,7 +239,7 @@ def parse_rdat_file(file_path):
                     "y_unit": si_unit_y,
                     "curves": {},
                 }
-                for curve, curve_data in trace_data["CurvesInfo"].items():
+                for _, curve_data in trace_data["CurvesInfo"].items():
                     report_dict[report_name][trace_data["TraceName"]]["curves"][curve_data[1] + "real"] = {
                         "x_data": all_x_values[0 : curve_data[0]],
                         "y_data": all_re_values[0 : curve_data[0]],
@@ -266,7 +264,7 @@ def parse_rdat_file(file_path):
                     "y_unit": si_unit_y,
                     "curves": {},
                 }
-                for curve, curve_data in trace_data["CurvesInfo"].items():
+                for _, curve_data in trace_data["CurvesInfo"].items():
                     report_dict[report_name][trace_data["TraceName"]]["curves"][curve_data[1]] = {
                         "x_data": all_x_values[0 : curve_data[0]],
                         "y_data": all_y_values[0 : curve_data[0]],

@@ -35,13 +35,6 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
 
-np = None
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    np = None
-
 
 class FfdSolutionDataExporter:
     """Class to enable export of embedded element pattern data from HFSS.

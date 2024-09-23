@@ -543,7 +543,7 @@ class CommonReport(object):
                 elif "Matrix" in self.traces[0].properties:
                     self._props["context"]["matrix"] = self.traces[0].properties["Matrix"]
             except Exception:
-                pass
+                self._post._app.logger.warning("Property `matrix` not found.")
         return self._props["context"].get("matrix", None)
 
     @matrix.setter

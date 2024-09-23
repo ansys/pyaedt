@@ -52,7 +52,8 @@ class AntennaParameters(Standard):
             try:
                 self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
             except Exception:
-                pass
+                self._post._app.logger.warning("Property `far_field_sphere` not found.")
+
         return self._props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
@@ -153,7 +154,7 @@ class FarField(CommonReport):
             try:
                 self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
             except Exception:
-                pass
+                self._post._app.logger.warning("Property `far_field_sphere` not found.")
         return self._props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter

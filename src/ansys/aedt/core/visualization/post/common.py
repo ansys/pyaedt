@@ -306,9 +306,9 @@ class PostProcessorCommon(object):
         if not solution and hasattr(self._app, "nominal_adaptive"):
             solution = self._app.nominal_adaptive
         if is_siwave_dc:
-            id = "0"
+            context_id = "0"
             if context:
-                id = str(
+                context_id = str(
                     [
                         "RL",
                         "Sources",
@@ -320,7 +320,28 @@ class PostProcessorCommon(object):
             context = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+                [
+                    37010,
+                    0,
+                    2,
+                    0,
+                    False,
+                    False,
+                    -1,
+                    1,
+                    0,
+                    1,
+                    1,
+                    "",
+                    0,
+                    0,
+                    "DCIRID",
+                    False,
+                    context_id,
+                    "IDIID",
+                    False,
+                    "1",
+                ],
             ]
         elif differential_pairs:
             if self.post_solution_type in ["HFSS3DLayout"]:
@@ -1616,19 +1637,7 @@ class PostProcessorCommon(object):
             else:
                 props = read_configuration_file(input_file)
             if report_settings:
-
-                def apply_settings(p, set):
-                    for k, v in set.items():
-                        if k in p:
-                            if isinstance(v, dict):
-                                p[k] = apply_settings(p[k], v)
-                            else:
-                                p[k] = v
-                        else:
-                            p[k] = v
-                    return p
-
-                props = apply_settings(props, report_settings)
+                props = self.__apply_settings(props, report_settings)
 
         else:
             props = report_settings
@@ -1676,7 +1685,7 @@ class PostProcessorCommon(object):
                 self.oreportsetup.UpdateReports(report.plot_name)
             self.logger.info(f"Report {report.plot_name} created successfully.")
             return report
-        self.logger.error(f"Failed to create report.")
+        self.logger.error("Failed to create report.")
         return False  # pragma: no cover
 
     @staticmethod
@@ -1692,6 +1701,19 @@ class PostProcessorCommon(object):
             else:
                 sweep_list.append([sweeps[el]])
         return sweep_list
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def __apply_settings(props, report_settings):
+        for k, v in report_settings.items():
+            if k in props:
+                if isinstance(v, dict):
+                    props[k] = apply_settings(props[k], v)
+                else:
+                    props[k] = v
+            else:
+                props[k] = v
+        return props
 
 
 class Reports(object):
