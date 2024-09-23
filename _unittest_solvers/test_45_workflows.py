@@ -235,6 +235,12 @@ class TestClass:
         assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
         name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == "Voltage_Line"
+        file_path = os.path.join(aedtapp.working_directory, "my_expr.fld")
+        assert aedtapp.post.fields_calculator.calculator_write("voltage_line", file_path, aedtapp.nominal_adaptive)
+        assert not aedtapp.post.fields_calculator.calculator_write("voltage_line", file_path, "invalid_setup")
+        assert not aedtapp.post.fields_calculator.calculator_write("invalid", file_path, aedtapp.nominal_adaptive)
+        invalid_file_path = os.path.join(aedtapp.working_directory, "my_expr.invalid")
+        assert not aedtapp.post.fields_calculator.calculator_write("voltage_line", invalid_file_path, aedtapp.nominal_adaptive)
         name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
         assert name == name2
         assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])

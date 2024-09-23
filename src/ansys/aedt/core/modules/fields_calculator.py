@@ -516,7 +516,7 @@ class FieldsCalculator:
             The expression must exist already in the named expressions list in AEDT Fields Calculator.
         output_file : str
             File path to save the stack entry to.
-            The available formats are: ``.fld`` or ``.reg``.
+            File extension must be either ``.fld`` or ``.reg``.
         setup : str
             Solution name.
             If not provided the nominal adaptive solution is taken.
@@ -545,15 +545,20 @@ class FieldsCalculator:
         >>> hfss.post.fields_calculator.calculator_write("voltage_line", file_path, hfss.nominal_adaptive)
         >>> hfss.release_desktop(False, False)
         """
-        # check expression exists in the stack
-        # check output_file format
+        if not self.is_expression_defined(expression):
+            self.__app.logger.error("Expression does not exist in current stack.")
+            return False
+        if os.path.splitext(output_file)[1] not in [".fld", ".reg"]:
+            self.__app.logger.error("Invalid file extension. Accepted extensions are '.fld' and '.reg'.")
+            return False
         self.ofieldsreporter.CalcStack("clear")
         self.ofieldsreporter.CopyNamedExprToStack(expression)
         if not setup:
             setup = self.__app.nominal_adaptive
-        setup_name = self.__app.nominal_adaptive.split(":")[0].strip(" ")
+        setup_name = setup.split(":")[0].strip(" ")
         if setup_name not in self.__app.existing_analysis_setups:
             self.__app.logger.error("Invalid setup name.")
+            return False
         args = []
         for k, v in self.__app.variable_manager.design_variables.items():
             args.append("{}:=".format(k))
@@ -564,6 +569,7 @@ class FieldsCalculator:
             args.append("{}:=".format(k))
             args.append(v)
         self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
+        self.ofieldsreporter.CalcStack("clear")
         return True
 
     @staticmethod
