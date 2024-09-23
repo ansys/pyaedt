@@ -127,11 +127,11 @@ class TestClass:
         )
         args = {
             "mat": "aluminum",
-            "usethickness": True,
+            "use_thickness": True,
             "thickness": "0.5mm",
-            "istwoside": True,
-            "issheelElement": True,  # TODO: Is "sheelElement" a typo in native API?
-            "usehuray": True,
+            "is_two_side": True,
+            "is_shell_element": True,  # TODO: Is "sheelElement" a typo in native API?
+            "use_huray": True,
             "radius": "0.75um",
             "ratio": "3",
         }
@@ -1703,3 +1703,9 @@ class TestClass:
         assert new_plane_wave.name in aedtapp.excitations
 
         aedtapp.close_project(save=False)
+
+    def test_70_export_on_completion(self, add_app, local_scratch):
+        aedtapp = add_app(project_name="test_70")
+        assert aedtapp.export_touchstone_on_completion()
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
+        assert aedtapp.set_export_touchstone()
