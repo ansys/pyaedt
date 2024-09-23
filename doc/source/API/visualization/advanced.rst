@@ -10,7 +10,21 @@ You can use PyAEDT for postprocessing of AEDT results to display graphics object
    :toctree: _autosummary
    :nosignatures:
 
-   TouchstoneData
+   TouchstoneData.get_insertion_loss_index
+   TouchstoneData.plot_insertion_losses
+   TouchstoneData.plot
+   TouchstoneData.plot_return_losses
+   TouchstoneData.get_mixed_mode_touchstone_data
+   TouchstoneData.get_return_loss_index
+   TouchstoneData.get_insertion_loss_index_from_prefix
+   TouchstoneData.get_next_xtalk_index
+   TouchstoneData.get_fext_xtalk_index_from_prefix
+   TouchstoneData.plot_next_xtalk_losses
+   TouchstoneData.plot_fext_xtalk_losses
+   TouchstoneData.get_worst_curve
+   read_touchstone
+   check_touchstone_files
+   find_touchstone_files
 
 
 .. currentmodule:: ansys.aedt.core.visualization.advanced.farfield_visualization
@@ -41,11 +55,11 @@ You can use PyAEDT for postprocessing of AEDT results to display graphics object
    simplify_stl
 
 
-.. currentmodule:: ansys.aedt.core.visualization.advanced.spsim_com_configuration_files.com_parameters
+.. currentmodule:: ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
    COMParameters
-   COMStandards
+   COMParametersVer3p4

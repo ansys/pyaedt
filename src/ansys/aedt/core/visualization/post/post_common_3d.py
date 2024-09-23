@@ -44,9 +44,9 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import check_and_download_file
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-from ansys.aedt.core.modules.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
+from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 
 try:
     import numpy as np

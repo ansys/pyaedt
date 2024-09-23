@@ -15,7 +15,7 @@ There have three main categories:
 * **3D Plot**
 * **Post-processing**
 * **PDF**
-* **Advanced Visualization**
+
 
 3D Plot
 ~~~~~~~

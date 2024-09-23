@@ -155,6 +155,16 @@ enabling precise adjustments to visualization parameters:
    ArrowSettings
    FolderPlotSettings
 
+You can add new expressions using the fields calculator:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.fields_calculator
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FieldsCalculator
+
 
 HFSS
 ~~~~
