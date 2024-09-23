@@ -27,6 +27,7 @@ import math
 import random
 import re
 import string
+import unicodedata
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_json
@@ -654,3 +655,42 @@ def float_units(val_str, units=""):
 
     val = val / unit_val[units]
     return val
+
+
+@pyaedt_function_handler()
+def normalize_string_format(text):
+
+    equivalence_table = {
+        "$": "S",
+        "€": "E",
+        "£": "L",
+        "@": "at",
+        "&": "and",
+    }
+
+    def _remove_accents(input_str):
+        # Normalize the input string to decompose accents and diacritics
+        nfkd_form = unicodedata.normalize("NFKD", input_str)
+        # Filter out diacritical marks (combining characters)
+        return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+
+    # Step 1: Remove accents and diacritics
+    text = _remove_accents(text)
+
+    # Step 2: Replace specific characters like " ", "-", " -", "- ", " - ", and multiple spaces with "_"
+    text = re.sub(r"[\s\-]+", "_", text)
+
+    # Step 3: Replace using the equivalence table
+    for a, b in equivalence_table.items():
+        text = text.replace(a, b)
+
+    # Step 4: Remove unsupported characters, keeping only letters, numbers, and underscores
+    text = re.sub(r"[^a-zA-Z0-9_]", "", text)
+
+    # Step 5: Replace multiple underscores with a single underscore
+    text = re.sub(r"_+", "_", text)
+
+    # Finally, remove leading or trailing underscores
+    text = text.strip("_")
+
+    return text

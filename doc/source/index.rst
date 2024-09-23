@@ -14,7 +14,6 @@ PyAEDT is a Python client library that interacts directly with the Ansys Electro
 enabling straightforward and efficient automation in your workflow.
 
 .. note:: Expected breaking changes with version `1.0`
-
    If you want to know more about the breaking changes expected
    in the incoming version `1.0`, see the :ref:`release_1_0`.
 

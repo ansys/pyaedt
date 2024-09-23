@@ -73,6 +73,7 @@ class MatProperties(object):
         "molecular_mass",
         "viscosity",
     ]
+
     defaultvalue = [
         1.0,
         1.0,
@@ -101,6 +102,7 @@ class MatProperties(object):
         0,
         0,
     ]
+
     defaultunit = [
         None,
         None,
@@ -122,8 +124,47 @@ class MatProperties(object):
         None,
         None,
     ]
+
     diel_order = [3, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 1]
+
     cond_order = [2, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, 3]
+
+    workbench_name = [
+        "Relative Permittivity",
+        "Relative Permeability",
+        "Electrical Conductivity",
+        "Electric Loss Tangent",
+        "Magnetic Loss Tangent",
+        "Magnetic Coercivity",
+        "Thermal Conductivity",
+        "Density",
+        "Specific Heat",
+        "Coefficient of Thermal Expansion",
+        "Young's Modulus",
+        "Poisson's Ratio",
+        None,  # diffusivity
+        "Molecular Weight",
+        "Viscosity",
+    ]
+
+    @classmethod
+    def wb_to_aedt_name(cls, wb_name):
+        """Retrieve the corresponding AEDT property name for the specified Workbench property name.
+        The workbench names are specified in ``MatProperties.workbench_name``.
+        The AEDT names are specified in ``MatProperties.aedtname``.
+
+        Parameters
+        ----------
+        wb_name : str
+            Workbench name of the property.
+
+        Returns
+        -------
+        str
+            AEDT name of the property.
+
+        """
+        return cls.aedtname[cls.workbench_name.index(wb_name)]
 
     @classmethod
     def get_defaultunit(cls, aedtname=None):
@@ -412,19 +453,15 @@ class MatProperty(object):
 
                 self._property_value[i].value = el
                 i += 1
-            if self._material._material_update:
-                self._material._update_props(self.name, val)
-
+            self._material._update_props(self.name, val, update_aedt=self._material._material_update)
         elif isinstance(val, list) and self.type == "vector":
             if len(val) == 4:
                 self._property_value[0].value = val
-                if self._material._material_update:
-                    self._material._update_props(self.name, val)
+                self._material._update_props(self.name, val, update_aedt=self._material._material_update)
         else:
             self.type = "simple"
             self._property_value[0].value = val
-            if self._material._material_update:
-                self._material._update_props(self.name, val)
+            self._material._update_props(self.name, val, update_aedt=self._material._material_update)
 
     @property
     def unit(self):
@@ -1230,7 +1267,7 @@ class CommonMaterial(object):
         self._coordinate_system = ""
         self.is_sweep_material = False
         if props:
-            self._props = props.copy()
+            self._props = copy.deepcopy(props)
         else:
             self._props = {}
         if "CoordinateSystemType" in self._props:
@@ -1441,7 +1478,7 @@ class Material(CommonMaterial, object):
         if "wire_type" in self._props:
             self.wire_type = self._props["wire_type"]["Choice"]
 
-    def _update_material(self):
+        # Update the material properties
         for property in MatProperties.aedtname:
             tmods = None
             smods = None
