@@ -48,7 +48,7 @@ except ImportError:
 
 
 class PostProcessorCircuit(PostProcessorCommon, object):
-    """Manages the main AEDT Nexxim postprocessing functions.
+    """Manages the main schematic postprocessing functions.
 
 
     .. note::

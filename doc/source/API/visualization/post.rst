@@ -1,19 +1,26 @@
 AEDT post-processing
 ====================
 
-AEDT has some powerful post-processing tools. PyAEDT has classes for manipulating any of these tools.
+AEDT offers a wide range of powerful post-processing tools for advanced data analysis and visualization.
+PyAEDT provides dedicated classes that allow you to seamlessly interact with and modify these tools, expanding the scope of your data insights
 
-There are different classes to support all AEDT post-processing solutions. With the following three classes, you can
-acces the main AEDT post-processing capabilities:
-
-* ``PostProcessor3D``. Class used by all 3D applications, HFSS, HFSS 3D Layout, Maxwell 3D and 2D, Q3D,
-2D Extractor and Mechanical AEDT.
-* ``PostProcessorIcepak``. Class used by Icepak, it expands ``PostProcessor3D`` class with additional features.
-* ``PostProcessorCircuit``. Schematic post-processing tools, used by Circuit and Twin Builder.
 
 .. note::
    Some functionalities are available only when AEDT is running
    in graphical mode.
+
+
+Core post-processing
+~~~~~~~~~~~~~~~~~~~~
+
+The following classes grant access to the core post-processing functionalities of AEDT:
+
+* **PostProcessor3D**: This class is utilized across all 3D applications, including HFSS, HFSS 3D Layout, Maxwell 3D and 2D, Q3D Extractor, and Mechanical AEDT.
+
+* **PostProcessorIcepak**: A specialized class for Icepak, which extends the ``PostProcessor3D`` class by adding features tailored to thermal analysis.
+
+* **PostProcessorCircuit**: This class handles schematic post-processing, supporting Circuit and Twin Builder applications.
+
 
 .. currentmodule:: ansys.aedt.core.visualization.post.post_common_3d
 
@@ -39,6 +46,9 @@ acces the main AEDT post-processing capabilities:
 
    PostProcessorCircuit
 
+
+You can access these classes directly from the design object:
+
 .. code:: python
 
     from ansys.aedt.core import Hfss
@@ -59,9 +69,9 @@ acces the main AEDT post-processing capabilities:
     standard_report = post.reports_by_category.standard("db(S(1,1))")
     report_standard.create()
     sols = report_standard.get_solution_data()
-    ...
 
-User can get the names of the default reports using the following class
+
+User can get the properties of the default reports using the following class:
 
 .. currentmodule:: ansys.aedt.core.visualization.post.common
 
@@ -71,7 +81,20 @@ User can get the names of the default reports using the following class
 
    Reports
 
-If you need to get the data of any report, you can use this class:
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.visualization.post.common import Reports
+    app = Hfss(specified_version="2024.2",
+                 non_graphical=False, new_desktop_session=True,
+                 close_on_exit=True, student_version=False)
+    reports = Reports(app.post, app.design_type)
+    app.release_desktop(False, False)
+
+
+AEDT data is returned in a structured format, providing organized and detailed results.
+For a comprehensive overview of the data structure and its capabilities, refer to the class definition below:
+
 
 .. currentmodule:: ansys.aedt.core.visualization.post.solution_data
 
@@ -80,3 +103,138 @@ If you need to get the data of any report, you can use this class:
    :nosignatures:
 
    SolutionData
+
+
+Field post-processing
+~~~~~~~~~~~~~~~~~~~~~
+
+AEDT offers additional specialized post-processing features for enhanced 3D field visualization and control.
+
+
+The following classes manage all aspects of AEDT 3D post-processing and are utilized by the ``PostProcessor3D`` class:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_data
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FieldPlot
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss(specified_version="2024.2",
+               non_graphical=False,
+               new_desktop_session=False
+               )
+    test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
+                   ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+    p1 = app.modeler.create_polyline(test_points)
+    setup = app.create_setup()
+
+    report = app.post.create_fieldplot_line(quantity="Mag_E", assignment=p1.name)
+    report.create()
+    app.release_desktop(False, False)
+
+
+Additionally, the following classes control field overlay settings,
+enabling precise adjustments to visualization parameters:
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   ColorMapSettings
+   AutoScale
+   MinMaxScale
+   Scale3DSettings
+   NumberFormat
+   MarkerSettings
+   ArrowSettings
+   FolderPlotSettings
+
+
+HFSS post-processing
+~~~~~~~~~~~~~~~~~~~~
+
+For HFSS solutions, there are two additionally features: virtual ray tracing and farfield exporter.
+
+To define and control virtual ray tracing (VRT) you can use:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.vrt_data
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   VRTFieldPlot
+
+
+If you need to export HFSS far field data, then you can use the following feature to obtain the antenna metadata:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.farfield_exporter
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FfdSolutionDataExporter
+
+.. code:: python
+
+    from ansys.aedt.core import Hfss
+
+    app = Hfss()
+
+    antenna_data = app.post.get_antenna_data()
+    app.release_desktop(False, False)
+
+
+Icepak post-processing
+~~~~~~~~~~~~~~~~~~~~~~
+
+For Icepak solutions, there are two additional post-processing features:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.monitor_icepak
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   Monitor
+
+
+.. currentmodule:: ansys.aedt.core.visualization.post.field_summary
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FieldSummary
+
+
+Additional post-processing tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Finally, users can use additional AEDT postprocessing tools like SPiSim:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.spisim
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   SpiSim
+
+
+If you are looking for Virtual Compliance post processing, you should use this set of features:
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   VirtualCompliance

@@ -44,6 +44,19 @@ from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
 class PostProcessorIcepak(PostProcessor3D, object):
+    """Manages the specific Icepak postprocessing functions.
+
+    .. note::
+       Some functionalities are available only when AEDT is running in the graphical mode.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
+        Inherited parent object. The parent object must provide the members
+        `_modeler`, `_desktop`, `_odesign`, and `logger`.
+
+    """
+
     def __init__(self, app):
         PostProcessor3D.__init__(self, app)
 
