@@ -32,6 +32,7 @@ import pytest
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
+    """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
 
 
