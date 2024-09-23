@@ -99,6 +99,8 @@ AVAILABLE_QUANTITIES = [
 
 
 class FieldSummary:
+    """Provides Icepak field summary methods."""
+
     def __init__(self, app):
         self._app = app
         self.calculations = []

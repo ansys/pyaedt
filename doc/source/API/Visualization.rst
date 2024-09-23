@@ -21,7 +21,7 @@ PyAEDT includes dedicated classes to manipulate all report properties, offering 
 
    visualization/report
 
-.. image:: ../Resources/params.jpg
+.. image:: ../Resources/sparams.jpg
   :width: 800
   :alt: S-Parameters
 
@@ -48,8 +48,26 @@ Graphics
 
 Specialized plotting options.
 
+.. toctree::
+   :maxdepth: 1
+
+   visualization/plot
+
+.. image:: ../Resources/pyvista_plot.jpg
+  :width: 800
+  :alt: S-Parameters Matplotlib
+
 
 Advanced Visualization
 ~~~~~~~~~~~~~~~~~~~~~~
 
 High-level visualization tools.
+
+.. toctree::
+   :maxdepth: 1
+
+   visualization/advanced
+
+.. image:: ../Resources/farfield.png
+  :width: 800
+  :alt: Farfield pyvista

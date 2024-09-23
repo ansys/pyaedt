@@ -10,8 +10,8 @@ PyAEDT provides dedicated classes that allow you to seamlessly interact with and
    in graphical mode.
 
 
-Core post-processing
-~~~~~~~~~~~~~~~~~~~~
+Core
+~~~~
 
 The following classes grant access to the core post-processing functionalities of AEDT:
 
@@ -105,8 +105,8 @@ For a comprehensive overview of the data structure and its capabilities, refer t
    SolutionData
 
 
-Field post-processing
-~~~~~~~~~~~~~~~~~~~~~
+Field
+~~~~~
 
 AEDT offers additional specialized post-processing features for enhanced 3D field visualization and control.
 
@@ -156,8 +156,8 @@ enabling precise adjustments to visualization parameters:
    FolderPlotSettings
 
 
-HFSS post-processing
-~~~~~~~~~~~~~~~~~~~~
+HFSS
+~~~~
 
 For HFSS solutions, there are two additionally features: virtual ray tracing and farfield exporter.
 
@@ -192,8 +192,8 @@ If you need to export HFSS far field data, then you can use the following featur
     app.release_desktop(False, False)
 
 
-Icepak post-processing
-~~~~~~~~~~~~~~~~~~~~~~
+Icepak
+~~~~~~
 
 For Icepak solutions, there are two additional post-processing features:
 
@@ -215,8 +215,8 @@ For Icepak solutions, there are two additional post-processing features:
    FieldSummary
 
 
-Additional post-processing tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Additional tools
+~~~~~~~~~~~~~~~~
 
 Finally, users can use additional AEDT postprocessing tools like SPiSim:
 
