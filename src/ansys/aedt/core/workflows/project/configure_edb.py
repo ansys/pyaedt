@@ -112,10 +112,10 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         col_width = [50, 20, 30]
 
         # Section 1
-        self.label_version = ttk.Label(self, text=f"AEDT {version}")
-        self.label_version.grid(row=0, column=0)
-        label = ttk.Label(self, textvariable=self.status)
-        label.grid(row=0, column=1)
+        #self.label_version = ttk.Label(self, text=f"AEDT {version}")
+        #self.label_version.grid(row=0, column=0)
+        #label = ttk.Label(self, textvariable=self.status)
+        #label.grid(row=0, column=1)
 
         # Section 2
         s2_start_row = 1
