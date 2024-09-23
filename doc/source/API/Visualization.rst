@@ -1,16 +1,17 @@
 Visualization
 =============
 
-This section lists modules for creating and editing data inside and outside AEDT.
-PyAEDT has four main visualization levels:
+his section outlines the available modules for creating and editing data within and outside AEDT.
 
-* ``Report``. AEDT provides great flexibility in reports. PyAEDT has classes for manipulating any report property.
-* ``Post-procesing``. AEDT has some powerful post-processing tools. PyAEDT has classes for manipulating any of these tools.
-* ``Plot`` for Circuit and Twin Builder
-* ``Advanced`` for Circuit and Twin Builder
+PyAEDT offers four primary levels of visualization:
+
+* **Reports**: AEDT provides extensive flexibility for generating reports. PyAEDT includes dedicated classes to manipulate all report properties, offering full control over report customization.
+* **Post-processing**: AEDT features robust post-processing tools. PyAEDT provides classes to interact with and modify any of these tools, enhancing data analysis and visualization capabilities.
+* **Graphics**: Specialized plotting options.
+* **Advanced Visualization**: High-level visualization tools.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    visualization/report
    visualization/post

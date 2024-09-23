@@ -1,8 +1,11 @@
-AEDT report management
-======================
+Report management
+=================
 
-AEDT provides great flexibility in reports.
-PyAEDT has classes for manipulating any report property.
+AEDT provides extensive flexibility for generating reports.
+
+
+PyAEDT includes dedicated classes to manipulate all report properties,
+offering full control over report customization.
 
 .. note::
    Some functionalities are available only when AEDT is running
@@ -25,3 +28,27 @@ PyAEDT has classes for manipulating any report property.
    eye.AMIConturEyeDiagram
    eye.AMIEyeDiagram
    emi.EMIReceiver
+
+.. code:: python
+    # Create `Mag_E` report in a polyline
+    from ansys.aedt.core import Hfss
+    from ansys.aedt.core.visualization.report.field import Fields
+
+    app = Hfss(specified_version="2024.2",
+               non_graphical=False,
+               new_desktop_session=False
+               )
+    test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
+                   ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+    p1 = app.modeler.create_polyline(test_points)
+    setup = app.create_setup()
+
+    report = Fields(app=app, report_category="Fields",
+                    setup_name=setup.name + " : LastAdaptive",
+                    expressions="Mag_E")
+    report.polyline = p1.name
+    report.create()
+
+    app.release_desktop(False, False)
+
+    ...
