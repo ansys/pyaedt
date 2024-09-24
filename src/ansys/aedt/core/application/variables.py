@@ -1773,7 +1773,10 @@ class Variable(object):
             return list(ast.literal_eval(self._value))
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            evaluated_value = var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            if self._app._aedt_version >= "2025.1":
+                evaluated_value = var_obj.GetPropEvaluatedValue()
+            else:
+                evaluated_value = var_obj.GetPropEvaluatedValue("EvaluatedValue")
             if (
                 isinstance(evaluated_value, str)
                 and evaluated_value.strip().startswith("[")
