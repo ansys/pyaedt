@@ -1262,7 +1262,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         layer_names = []
-        with open_file(file_path) as f:
+        with open_file(file_path, encoding="utf8") as f:
             lines = f.readlines()
             indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
             for idx in indices:
