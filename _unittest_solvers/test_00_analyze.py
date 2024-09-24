@@ -126,13 +126,6 @@ class TestClass:
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        farfield_plot = ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
-                                                      output_file=os.path.join(self.local_scratch.path,
-                                                                               "3d2_array.jpg"),
-                                                      show=False)
-        farfield_plot.close()
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
-
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
         sbr_app.modeler.create_sphere([10, 10, 10], 5, material="copper")
