@@ -283,6 +283,7 @@ class VirtualCompliance:
 
     @property
     def add_project_info(self):
+        """Add project information."""
         return self._add_project_info
 
     @add_project_info.setter
@@ -291,6 +292,7 @@ class VirtualCompliance:
 
     @property
     def add_specs_info(self):
+        """Add specification information."""
         return self._add_specs_info
 
     @add_specs_info.setter
@@ -299,6 +301,7 @@ class VirtualCompliance:
 
     @property
     def specs_folder(self):
+        """Add specification folder."""
         return self._specs_folder
 
     @specs_folder.setter
@@ -309,6 +312,7 @@ class VirtualCompliance:
 
     @property
     def template_name(self):
+        """Template name."""
         return self._template_name
 
     @template_name.setter
@@ -317,6 +321,7 @@ class VirtualCompliance:
 
     @property
     def project_file(self):
+        """Project file."""
         return self._project_file
 
     @project_file.setter
@@ -325,10 +330,12 @@ class VirtualCompliance:
 
     @property
     def project_name(self):
+        """Project name."""
         return Path(self.project_file).stem
 
     @property
     def use_portrait(self):
+        """Use portrait."""
         return self._use_portrait
 
     @use_portrait.setter
