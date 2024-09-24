@@ -1093,12 +1093,10 @@ class FieldAnalysis3D(Analysis, object):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
+        native_comp_names = [nc for nc in self.native_components.keys()]
         if not components:
             components = [
-                key
-                for key, val in self.modeler.user_defined_components.items()
-                if val.definition_name not in native_comp_names
+                key for key, val in self.modeler.user_defined_components.items() if val.name not in native_comp_names
             ]
         else:
             if isinstance(components, str):
@@ -1262,7 +1260,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         layer_names = []
-        with open_file(file_path) as f:
+        with open_file(file_path, encoding="utf8") as f:
             lines = f.readlines()
             indices = self._find_indices(lines, "AcDbLayerTableRecord\n")
             for idx in indices:

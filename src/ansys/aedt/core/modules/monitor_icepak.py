@@ -110,10 +110,17 @@ class Monitor:
         return self._app.omonitor
 
     @pyaedt_function_handler
-    def _find_point(self, position):
+    def _find_point(self, position):  # pragma: no cover
         for point in self._app.oeditor.GetPoints():
             point_pos = self._app.oeditor.GetChildObject(point).GetPropValue("Position")
-            if all(point_pos[2 * i + 1] == position[i] for i in range(3)):
+            coord_pos = []
+            for coord in range(3):
+                if isinstance(point_pos[2 * coord + 1], list):
+                    coord_pos.append(point_pos[2 * coord + 1][0])
+                else:
+                    coord_pos.append(point_pos[2 * coord + 1])
+
+            if all(coord_pos[coord_point] == position[coord_point] for coord_point in range(3)):
                 return point
         return None
 
