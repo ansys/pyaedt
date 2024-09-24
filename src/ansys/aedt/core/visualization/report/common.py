@@ -2491,7 +2491,7 @@ class CommonReport(object):
 
         supported_ext = [".csv", ".tab", ".dat", ".rdat"]
         if extension not in supported_ext:
-            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            msg = f"Extension {extension} is not supported. Use one of {', '.join(supported_ext)}"
             raise ValueError(msg)
 
         try:

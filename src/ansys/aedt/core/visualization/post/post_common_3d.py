@@ -62,7 +62,7 @@ from ansys.aedt.core.visualization.post.vrt_data import VRTFieldPlot
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
 
 
-class PostProcessor3D(PostProcessorCommon, object):
+class PostProcessor3D(PostProcessorCommon):
     """Manages the main AEDT postprocessing functions.
 
     The inherited ``AEDTConfig`` class contains all ``_desktop``

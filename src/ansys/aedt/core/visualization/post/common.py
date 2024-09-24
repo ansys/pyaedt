@@ -36,7 +36,6 @@ import re
 
 from ansys.aedt.core.generic.data_handlers import _dict_items_to_list_items
 from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import is_ironpython
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import read_configuration_file
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
@@ -122,7 +121,7 @@ class PostProcessorCommon(object):
         return (
             True
             if self._app.odesktop.GetRegistryInt(
-                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type)
+                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits"
             )
             == 1
             else False
@@ -132,11 +131,11 @@ class PostProcessorCommon(object):
     def update_report_dynamically(self, value):
         if value:
             self._app.odesktop.SetRegistryInt(
-                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 1
+                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1
             )
         else:  # pragma: no cover
             self._app.odesktop.SetRegistryInt(
-                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 0
+                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 0
             )
 
     @pyaedt_function_handler()
@@ -505,10 +504,8 @@ class PostProcessorCommon(object):
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
 
-                if report_type in TEMPLATES_BY_NAME:
-                    report = TEMPLATES_BY_NAME[report_type]
-                else:
-                    report = ansys.aedt.core.visualization.report.standard.Standard
+                report = TEMPLATES_BY_NAME.get(report_type, TEMPLATES_BY_NAME["Standard"])
+
                 plots.append(report(self, report_type, None))
                 plots[-1]._props["plot_name"] = name
                 plots[-1]._is_created = True
@@ -651,10 +648,7 @@ class PostProcessorCommon(object):
                         self.plots.remove(plot)
             else:
                 self.oreportsetup.DeleteAllReports()
-                if is_ironpython:  # pragma: no cover
-                    del self.plots[:]
-                else:
-                    self.plots.clear()
+                self.plots.clear()
             return True
         except Exception:  # pragma: no cover
             return False
@@ -839,7 +833,7 @@ class PostProcessorCommon(object):
 
         supported_ext = [".csv", ".tab", ".txt", ".exy", ".dat", ".rdat"]
         if extension not in supported_ext:  # pragma: no cover
-            msg = "Extension {} is not supported. Use one of {}".format(extension, ", ".join(supported_ext))
+            msg = f"Extension {extension} is not supported. Use one of {', '.join(supported_ext)}"
             raise ValueError(msg)
 
         file_path = os.path.join(npath, plot_name + extension)
@@ -1497,7 +1491,7 @@ class PostProcessorCommon(object):
                 i for i in self.available_report_quantities(report_category=report_category, context=context)
             ]
         if math_formula:
-            expressions = ["{}({})".format(math_formula, i) for i in expressions]
+            expressions = [f"{math_formula}({i})" for i in expressions]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
@@ -1551,7 +1545,7 @@ class PostProcessorCommon(object):
                 if hasattr(report, attribute):
                     report.__setattr__(attribute, context[attribute])
                 else:
-                    self.logger.warning("Parameter " + attribute + " is not available, check syntax.")
+                    self.logger.warning(f"Parameter {attribute} is not available, check syntax.")
         elif context:
             if (
                 hasattr(self.modeler, "line_names")
@@ -2402,7 +2396,7 @@ class Reports(object):
         if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
             rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, setup_name)
             if not expressions:
-                expressions = "Average[{}]".format(rep.net)
+                expressions = f"Average[{rep.net}]"
             else:
                 if not isinstance(expressions, list):
                     expressions = [expressions]

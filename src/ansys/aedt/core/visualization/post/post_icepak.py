@@ -43,7 +43,7 @@ from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
-class PostProcessorIcepak(PostProcessor3D, object):
+class PostProcessorIcepak(PostProcessor3D):
     """Manages the specific Icepak postprocessing functions.
 
     .. note::
