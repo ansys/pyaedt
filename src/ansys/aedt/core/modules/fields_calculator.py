@@ -551,14 +551,14 @@ class FieldsCalculator:
         if os.path.splitext(output_file)[1] not in [".fld", ".reg"]:
             self.__app.logger.error("Invalid file extension. Accepted extensions are '.fld' and '.reg'.")
             return False
-        self.ofieldsreporter.CalcStack("clear")
-        self.ofieldsreporter.CopyNamedExprToStack(expression)
         if not setup:
             setup = self.__app.nominal_adaptive
         setup_name = setup.split(":")[0].strip(" ")
         if setup_name not in self.__app.existing_analysis_setups:
             self.__app.logger.error("Invalid setup name.")
             return False
+        self.ofieldsreporter.CalcStack("clear")
+        self.ofieldsreporter.CopyNamedExprToStack(expression)
         args = []
         for k, v in self.__app.variable_manager.design_variables.items():
             args.append("{}:=".format(k))
