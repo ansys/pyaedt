@@ -1096,8 +1096,8 @@ class Object3d(object):
 
     @name.setter
     def name(self, obj_name):
-        if obj_name not in self._primitives.object_names:
-            if obj_name != self._m_name:
+        if obj_name != self._m_name:
+            if obj_name not in self._primitives.object_names:
                 vName = []
                 vName.append("NAME:Name")
                 vName.append("Value:=")
