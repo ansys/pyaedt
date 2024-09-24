@@ -21,6 +21,8 @@
 
 [![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
+## Testing Hacktoberfest
+
 ## What is PyAEDT?
 
 PyAEDT is a Python library that interacts directly with the API for
