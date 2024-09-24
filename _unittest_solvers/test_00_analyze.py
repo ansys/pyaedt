@@ -118,7 +118,6 @@ class TestClass:
         ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
-
         ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
                                       theta=20,
                                       title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
