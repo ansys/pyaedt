@@ -220,7 +220,7 @@ class AnsysReport(FPDF):
 
         Parameters
         ----------
-        add_cover_page :bool, optional
+        add_cover_page : bool, optional
             Whether to add cover page or not. Default is ``True``.
         add_new_section_after : bool, optional
             Whether if add a new section after the cover page or not.
