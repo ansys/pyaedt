@@ -1653,9 +1653,9 @@ class PostProcessor3D(PostProcessorCommon):
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
                 If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
-                    - ``"Freq"`` or ``"Frequency"``.
-                    - ``"Time"``.
-                    - ``"Phase"``.
+                - ``"Freq"`` or ``"Frequency"``.
+                - ``"Time"``.
+                - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -2140,10 +2140,10 @@ class PostProcessor3D(PostProcessorCommon):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
-                    - ``"Freq"`` or ``"Frequency"``.
-                    - ``"Time"``.
-                    - ``"Phase"``.
+            If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+            - ``"Freq"`` or ``"Frequency"``.
+            - ``"Time"``.
+            - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         export_air_objects : bool, optional

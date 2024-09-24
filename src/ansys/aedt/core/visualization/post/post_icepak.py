@@ -62,6 +62,14 @@ class PostProcessorIcepak(PostProcessor3D):
 
     @pyaedt_function_handler()
     def create_field_summary(self):
+        """
+        Create field summary object.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.post.field_summary.FieldSummary`
+
+        """
         return FieldSummary(self._app)
 
     @pyaedt_function_handler(timestep="time_step", design_variation="variation")
@@ -247,7 +255,7 @@ class PostProcessorIcepak(PostProcessor3D):
             The default is ``None``, in which case the active setup and active sweep are used.
         variations : dict, optional
             Dictionary of parameters defined for the specific setup with values. The default is ``{}``.
-        ref_temperature: str, optional
+        ref_temperature : str, optional
             Reference temperature to use for heat transfer coefficient computation. The default is ``""``.
         time : str, optional
             Timestep to get the data from. Default is ``"0s"``.

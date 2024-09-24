@@ -63,4 +63,20 @@ PDF
    :toctree: _autosummary
    :nosignatures:
 
-   AnsysReport
+   AnsysReport.read_template
+   AnsysReport.header
+   AnsysReport.footer
+   AnsysReport.create
+   AnsysReport.add_project_info
+   AnsysReport.add_section
+   AnsysReport.add_chapter
+   AnsysReport.add_sub_chapter
+   AnsysReport.add_image
+   AnsysReport.add_caption
+   AnsysReport.add_empty_line
+   AnsysReport.add_page_break
+   AnsysReport.add_table
+   AnsysReport.add_text
+   AnsysReport.add_toc
+   AnsysReport.save_pdf
+   AnsysReport.add_chart

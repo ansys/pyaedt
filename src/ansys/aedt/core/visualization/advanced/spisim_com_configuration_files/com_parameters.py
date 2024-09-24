@@ -232,7 +232,7 @@ class COMParameters:
 
         Parameters
         ----------
-        file_path: str
+        file_path : str
             Path of the configuration file.
 
         Returns
