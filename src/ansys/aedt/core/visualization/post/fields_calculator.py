@@ -498,6 +498,73 @@ class FieldsCalculator:
             self.__app.logger.warning("Validation error:" + e.message)
             return False
 
+    @pyaedt_function_handler()
+    def calculator_write(self, expression, output_file, setup=None, intrinsics=None):
+        """Save the content of the stack register for future reuse in a later Field Calculator session.
+
+        Parameters
+        ----------
+        expression : str
+            Expression name.
+            The expression must exist already in the named expressions list in AEDT Fields Calculator.
+        output_file : str
+            File path to save the stack entry to.
+            File extension must be either ``.fld`` or ``.reg``.
+        setup : str
+            Solution name.
+            If not provided the nominal adaptive solution is taken.
+        intrinsics : dict
+            Intrinsics variables provided as a dictionary.
+            Key is the variable name and value is the variable value.
+            These are typically: frequency, time and phase.
+            If it is a dictionary, keys depend on the solution type and can be expressed as:
+                - ``"Freq"``
+                - ``"Time"``
+                - ``"Phase"``
+            The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> hfss = Hfss()
+        >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
+        >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
+        >>> file_path = os.path.join(hfss.working_directory, "my_expr.fld")
+        >>> hfss.post.fields_calculator.calculator_write("voltage_line", file_path, hfss.nominal_adaptive)
+        >>> hfss.release_desktop(False, False)
+        """
+        if not self.is_expression_defined(expression):
+            self.__app.logger.error("Expression does not exist in current stack.")
+            return False
+        if os.path.splitext(output_file)[1] not in [".fld", ".reg"]:
+            self.__app.logger.error("Invalid file extension. Accepted extensions are '.fld' and '.reg'.")
+            return False
+        if not setup:
+            setup = self.__app.nominal_adaptive
+        setup_name = setup.split(":")[0].strip(" ")
+        if setup_name not in self.__app.existing_analysis_setups:
+            self.__app.logger.error("Invalid setup name.")
+            return False
+        self.ofieldsreporter.CalcStack("clear")
+        self.ofieldsreporter.CopyNamedExprToStack(expression)
+        args = []
+        for k, v in self.__app.variable_manager.design_variables.items():
+            args.append("{}:=".format(k))
+            args.append(v.expression)
+        if not intrinsics:
+            intrinsics = self.__app.get_setup(setup_name).default_intrinsics
+        for k, v in intrinsics.items():
+            args.append("{}:=".format(k))
+            args.append(v)
+        self.ofieldsreporter.CalculatorWrite(output_file, ["Solution:=", setup], args)
+        self.ofieldsreporter.CalcStack("clear")
+        return True
+
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
         """Check if a list has integers."""
