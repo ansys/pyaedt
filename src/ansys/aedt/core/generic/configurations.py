@@ -1171,14 +1171,6 @@ class Configurations(object):
             for name, props in dict_in["coordinatesystems"].items():
                 if not self._update_coordinate_systems(name, props):  # pragma: no cover
                     self.results.import_coordinate_systems = False
-
-        # if self.options.import_face_coordinate_systems and dict_in.get("facecoordinatesystems", None):
-        #     self.results.import_face_coordinate_systems = True
-        #     for name, props in dict_in["facecoordinatesystems"].items():
-        #         self._convert_objects(dict_in["facecoordinatesystems"][name], dict_in["general"]["object_mapping"])
-        #         if not self._update_face_coordinate_systems(name, props):
-        #             self.results.import_face_coordinate_systems = False
-
         # Only set global CS in the appropriate context.
         if self._app.design_type not in [
             "HFSS 3D Layout Design",
