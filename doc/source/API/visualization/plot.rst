@@ -15,7 +15,7 @@ There have three main categories:
 
 * **Three-dimensional visualization**
 * **Graph visualization**
-* **Pdf**
+* **PDF**
 
 
 Three-dimensional visualization
@@ -54,7 +54,7 @@ HERE MATPLOTLIB INFO
    update_plot_settings
 
 
-Pdf
+PDF
 ~~~
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.pdf

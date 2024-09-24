@@ -59,6 +59,7 @@ numpydoc
 padstack
 padstacks
 parametrics
+PDF
 PMs
 [Pp]olyline
 polylines
