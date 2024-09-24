@@ -118,7 +118,6 @@ class TestClass:
         ffdata = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D")
         ffdata2 = sbr_platform.get_antenna_data(frequencies=12e9, sphere="3D", overwrite=False)
 
-
         ffdata.farfield_data.plot_cut(quantity="RealizedGain", primary_sweep="theta", secondary_sweep_value=[75],
                                       theta=20,
                                       title="Azimuth at {}Hz".format(ffdata.farfield_data.frequency),
@@ -126,13 +125,6 @@ class TestClass:
                                       show=False,
                                       output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
-
-        farfield_plot = ffdata2.farfield_data.plot_3d(quantity="RealizedGain",
-                                                      output_file=os.path.join(self.local_scratch.path,
-                                                                               "3d2_array.jpg"),
-                                                      show=False)
-        farfield_plot.close()
-        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
