@@ -47,9 +47,8 @@ except ImportError:
     )
 
 
-class PostProcessorCircuit(PostProcessorCommon, object):
+class PostProcessorCircuit(PostProcessorCommon):
     """Manages the main schematic postprocessing functions.
-
 
     .. note::
        Some functionalities are available only when AEDT is running in the graphical mode.
