@@ -84,7 +84,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
     def __init__(self):
         super().__init__()
 
-        self.geometry("600x300")
+        self.geometry("310x300")
         self.title("EDB Configuration 2.0")
 
         self.status = tk.StringVar(value="")
@@ -112,10 +112,10 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
         col_width = [50, 20, 30]
 
         # Section 1
-        self.label_version = ttk.Label(self, text=f"AEDT {version}")
-        self.label_version.grid(row=0, column=0)
-        label = ttk.Label(self, textvariable=self.status)
-        label.grid(row=0, column=1)
+        # self.label_version = ttk.Label(self, text=f"AEDT {version}")
+        # self.label_version.grid(row=0, column=0)
+        # label = ttk.Label(self, textvariable=self.status)
+        # label.grid(row=0, column=1)
 
         # Section 2
         s2_start_row = 1
@@ -133,13 +133,13 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
 
         # Siwave
         label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
-        label_project_file.grid(row=s3_start_row, column=2)
+        label_project_file.grid(row=s3_start_row + 1, column=0)
 
         # Apply cfg
         button = ttk.Button(
             self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
         )
-        button.grid(row=s3_start_row + 2, column=0)
+        button.grid(row=s3_start_row + 3, column=0)
 
         # Export cfg
         button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
