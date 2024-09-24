@@ -214,8 +214,10 @@ def parse_rdat_file(file_path):
     """
     Parse Ansys report .rdat file
 
-    Returns:
-        (dict) report data
+    Returns
+    -------
+    dict
+        Report data.
     """
     report_dict = {}
     # data = load_entire_aedt_file(file_path)

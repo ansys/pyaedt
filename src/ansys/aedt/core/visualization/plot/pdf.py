@@ -137,6 +137,7 @@ class AnsysReport(FPDF):
         )
 
     def header(self):
+        """Header."""
         from datetime import date
 
         def add_field(field_name, field_value):
@@ -205,6 +206,7 @@ class AnsysReport(FPDF):
 
     # Page footer
     def footer(self):
+        """Footer."""
         # Position at 1.5 cm from bottom
         self.set_y(-15)
         self.set_x(self.l_margin)
@@ -237,6 +239,7 @@ class AnsysReport(FPDF):
 
     def add_project_info(self, design):
         """
+        Add project information.
 
         Parameters
         ----------
@@ -491,11 +494,7 @@ class AnsysReport(FPDF):
         self.ln(num_lines * self.font_size)
 
     def add_page_break(self):
-        """Add a new page break line.
-
-        Parameters
-        ----------
-        """
+        """Add a new page break line."""
         self.add_page("P" if self.use_portrait else "L")
 
     def add_table(
