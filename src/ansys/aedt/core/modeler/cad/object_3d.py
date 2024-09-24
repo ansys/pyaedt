@@ -1098,13 +1098,9 @@ class Object3d(object):
     def name(self, obj_name):
         if obj_name != self._m_name:
             if obj_name not in self._primitives.object_names:
-                vName = []
-                vName.append("NAME:Name")
-                vName.append("Value:=")
-                vName.append(obj_name)
+                vName = ["NAME:Name", "Value:=", obj_name]
                 vChangedProps = ["NAME:ChangedProps", vName]
-                vPropServers = ["NAME:PropServers"]
-                vPropServers.append(self._m_name)
+                vPropServers = ["NAME:PropServers", self._m_name]
                 vGeo3d = ["NAME:Geometry3DAttributeTab", vPropServers, vChangedProps]
                 vOut = ["NAME:AllTabs", vGeo3d]
                 self._primitives.oeditor.ChangeProperty(vOut)
