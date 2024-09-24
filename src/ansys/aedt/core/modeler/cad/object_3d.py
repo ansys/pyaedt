@@ -1096,8 +1096,7 @@ class Object3d(object):
 
     @name.setter
     def name(self, obj_name):
-        if obj_name != self._m_name:
-            if obj_name not in self._primitives.object_names:
+        if obj_name != self._m_name and obj_name not in self._primitives.object_names:
                 vName = ["NAME:Name", "Value:=", obj_name]
                 vChangedProps = ["NAME:ChangedProps", vName]
                 vPropServers = ["NAME:PropServers", self._m_name]
