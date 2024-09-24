@@ -1801,7 +1801,7 @@ class Analysis(Design, object):
         start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
-        if acf_file:
+        if acf_file:  # pragma: no cover
             self._desktop.SetRegistryFromFile(acf_file)
             acf_name = ""
             with open_file(acf_file, "r") as f:
