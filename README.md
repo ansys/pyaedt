@@ -22,6 +22,7 @@
 [![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
 
 ## Testing Hacktoberfest
+By default the tests are failing as expected. Let us see with a commit from a maintainer.
 
 ## What is PyAEDT?
 
