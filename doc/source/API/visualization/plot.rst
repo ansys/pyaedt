@@ -4,12 +4,10 @@ Graphics operations
 PyAEDT enables powerful post-processing of AEDT results,
 allowing you to visualize graphics objects and plot data with ease.
 
+PyAEDT supports external report capabilities available with installed third-party
+packages like `pyvista <https://docs.pyvista.org/>`_, `matplotlib <https://matplotlib.org/>`_,
+`pandas <https://pandas.pydata.org/>`_, and `numpy <https://numpy.org/doc/stable/>`_.
 
-.. note::
-   Some capabilities of the ``plot`` module require Python 3 and
-   installations of the `numpy <https://numpy.org/doc/stable/>`_,
-   `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_
-   packages.
 
 There have three main categories:
 
@@ -21,7 +19,8 @@ There have three main categories:
 Three-dimensional visualization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-HERE PYVISTA INFO
+PyAEDT benefits of `pyvista <https://docs.pyvista.org/>`_ package and allows to generate
+models and 3D plots.
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.pyvista
 
@@ -37,7 +36,7 @@ HERE PYVISTA INFO
 Graph visualization
 ~~~~~~~~~~~~~~~~~~~
 
-HERE MATPLOTLIB INFO
+PyAEDT benefits of `matplotlib <https://matplotlib.org/>`_ package and allows to generate 2D plots.
 
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.matplotlib
@@ -56,6 +55,8 @@ HERE MATPLOTLIB INFO
 
 PDF
 ~~~
+
+PyAEDT benefits of `fpdf2 <https://py-pdf.github.io/fpdf2/index.html/>`_ package and allows to generate PDF files.
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.pdf
 

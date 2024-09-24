@@ -155,7 +155,8 @@ enabling precise adjustments to visualization parameters:
    ArrowSettings
    FolderPlotSettings
 
-You can add new expressions using the fields calculator:
+The ``fields_calculator`` module includes the ``FieldsCalculator`` class.
+It provides methods to interact with AEDT Fields Calculator by adding, loading and deleting custom expressions.
 
 .. currentmodule:: ansys.aedt.core.visualization.post.fields_calculator
 
@@ -205,7 +206,9 @@ If you need to export HFSS far field data, then you can use the following featur
 Icepak
 ~~~~~~
 
-For Icepak solutions, there are two additional post-processing features:
+The ``monitor_icepak`` module includes the classes listed below to add, modify, and manage monitors during simulations.
+Retrieve monitor values for post-processing and analysis to gain insights into key simulation metrics.
+Methods and properties are accessible through the ``monitor`` property of the ``Icepak`` class.
 
 .. currentmodule:: ansys.aedt.core.visualization.post.monitor_icepak
 
@@ -215,6 +218,8 @@ For Icepak solutions, there are two additional post-processing features:
 
    Monitor
 
+
+The ``field_summary`` module includes the classes listed below to the ``Icepak`` field summary.
 
 .. currentmodule:: ansys.aedt.core.visualization.post.field_summary
 
