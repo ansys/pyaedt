@@ -1,7 +1,8 @@
 Graphics operations
 ===================
 
-You can use PyAEDT for postprocessing of AEDT results to display graphics object and plot data.
+PyAEDT enables powerful post-processing of AEDT results,
+allowing you to visualize graphics objects and plot data with ease.
 
 
 .. note::
@@ -12,13 +13,13 @@ You can use PyAEDT for postprocessing of AEDT results to display graphics object
 
 There have three main categories:
 
-* **3D Plot**
-* **Post-processing**
-* **PDF**
+* **Three-dimensional visualization**
+* **Graph visualization**
+* **Pdf**
 
 
-3D Plot
-~~~~~~~
+Three-dimensional visualization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 HERE PYVISTA INFO
 
@@ -33,8 +34,8 @@ HERE PYVISTA INFO
    ObjClass
 
 
-2D Plot
-~~~~~~~
+Graph visualization
+~~~~~~~~~~~~~~~~~~~
 
 HERE MATPLOTLIB INFO
 
@@ -53,7 +54,7 @@ HERE MATPLOTLIB INFO
    update_plot_settings
 
 
-PDF
+Pdf
 ~~~
 
 .. currentmodule:: ansys.aedt.core.visualization.plot.pdf

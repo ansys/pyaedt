@@ -570,7 +570,7 @@ class PostProcessorCircuit(PostProcessorCommon, object):
         if waveform_data:
             is_pandas_enabled = waveform_data.enable_pandas_output
         for waveform_cont, waveform_real in enumerate(waveform):
-            outputdata[w] = self.sample_waveform(
+            outputdata[waveform_cont] = self.sample_waveform(
                 waveform_data=waveform_real,
                 waveform_sweep=waveform_sweep[waveform_cont],
                 waveform_unit=waveform_unit[waveform_cont],

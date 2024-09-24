@@ -487,20 +487,16 @@ class FieldsCalculator:
             self.__app.logger.error("Incorrect data type.")
             return False
 
-        if is_ironpython:  # pragma: no cover
-            self.__app.logger.warning("Iron Python: Unable to validate json Schema.")
-        else:
-            try:
-                validate(instance=expression, schema=self.expression_schema)
-                for prop_name, sub_schema in self.expression_schema["properties"].items():
-                    if "default" in sub_schema and prop_name not in expression:
-                        expression[prop_name] = sub_schema["default"]
-                return expression
-            except exceptions.ValidationError as e:
-                self.__app.logger.warning("Configuration is invalid.")
-                self.__app.logger.warning("Validation error:" + e.message)
-                return False
-        return True
+        try:
+            validate(instance=expression, schema=self.expression_schema)
+            for prop_name, sub_schema in self.expression_schema["properties"].items():
+                if "default" in sub_schema and prop_name not in expression:
+                    expression[prop_name] = sub_schema["default"]
+            return expression
+        except exceptions.ValidationError as e:
+            self.__app.logger.warning("Configuration is invalid.")
+            self.__app.logger.warning("Validation error:" + e.message)
+            return False
 
     @staticmethod
     def __has_integer(lst):  # pragma: no cover
