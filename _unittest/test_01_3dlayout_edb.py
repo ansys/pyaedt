@@ -244,6 +244,7 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
+        assert nets["AVCC_1V3"].plot(show=False)
 
     def test_07a_nets_count(self):
         nets = self.aedtapp.modeler.nets
