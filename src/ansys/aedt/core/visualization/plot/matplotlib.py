@@ -59,6 +59,7 @@ except Exception:
 
 # Override default settings for matplotlib
 def update_plot_settings(func, *args, **kwargs):
+    """Update plot settings."""
     if callable(func):
 
         def wrapper(*args, **kwargs):
