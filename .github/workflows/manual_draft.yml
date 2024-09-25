@@ -1,0 +1,16 @@
+name: Manual draft workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  test-job-0:
+    if: github.event.pull_request.draft == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tests step
+        run: |
+          echo "This job runs!"
+          echo "github.event_name: ${{ github.event_name}}"
+          echo "${{ toJson(github.event) }}"
