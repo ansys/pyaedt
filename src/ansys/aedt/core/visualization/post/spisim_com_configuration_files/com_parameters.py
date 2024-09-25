@@ -28,7 +28,7 @@ from pathlib import Path
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_settings_mapping import (
+from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_settings_mapping import (
     spimsim_matlab_keywords_mapping,
 )
 

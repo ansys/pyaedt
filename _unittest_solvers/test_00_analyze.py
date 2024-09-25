@@ -545,7 +545,7 @@ class TestClass:
         )
         assert com_0 and com_1
 
-        from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+        from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
         com_param = COMParametersVer3p4()
         com_param.load(os.path.join(spisim.working_directory, "custom.json"), )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))

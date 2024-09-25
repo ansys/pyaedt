@@ -37,7 +37,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.misc import current_version
-from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
+from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 from numpy import float64
 from numpy import zeros
 

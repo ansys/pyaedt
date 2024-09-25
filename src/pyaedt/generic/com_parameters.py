@@ -1,1 +1,1 @@
-from ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters import *
+from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import *
