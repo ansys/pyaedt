@@ -50,6 +50,7 @@ class FieldsCalculator:
     Examples
     --------
     Custom expressions can be added as dictionary on-the-fly:
+
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
@@ -74,12 +75,15 @@ class FieldsCalculator:
     ...    }
     >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
     >>> hfss.release_desktop(False, False)
+
     or they can be added from the ``expression_catalog.toml``:
+
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     >>> expr_name = hfss.post.fields_calculator.add_expression("voltage_line", "Polyline1")
     >>> hfss.release_desktop(False, False)
+
     """
 
     def __init__(self, app):
