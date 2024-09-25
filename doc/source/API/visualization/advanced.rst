@@ -122,21 +122,14 @@ Heterogeneous data message
 Heterogeneous data message (HDM) is the file exported from SBR+ solver containing rays information.
 The following methods allows to read and plot rays information.
 
-.. currentmodule:: ansys.aedt.core.visualization.advanced.hdm_plot
+.. currentmodule:: ansys.aedt.core.visualization.advanced
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   HDMPlotter
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   Parser
+   hdm_plot.HDMPlotter
+   sbrplus.hdm_parser.Parser
 
 
 Miscellaneous

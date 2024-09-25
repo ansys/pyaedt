@@ -1,1 +1,1 @@
-from ansys.aedt.core.visualization.advanced.sprplus import *
+from ansys.aedt.core.visualization.advanced.sbrplus import *

@@ -1,1 +1,1 @@
-from ansys.aedt.core.visualization.advanced.sprplus.hdm_utils import *
+from ansys.aedt.core.visualization.advanced.sbrplus.hdm_utils import *
