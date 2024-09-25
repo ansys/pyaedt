@@ -244,7 +244,9 @@ class TestClass:
         assert nets["GND"].name == "GND"
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
-        assert nets["AVCC_1V3"].plot(show=False)
+        local_png1 = os.path.join(self.local_scratch.path, "test1.png")
+        nets["AVCC_1V3"].plot(save_plot=local_png1, show=False)
+        assert os.path.exists(local_png1)
 
     def test_07a_nets_count(self):
         nets = self.aedtapp.modeler.nets
