@@ -579,8 +579,10 @@ class AnsysReport(FPDF):
         )
 
     def add_toc(self):
+        """Add toc."""
+
         def p(section, **kwargs):
-            "Inserts a paragraph"
+            # Inserts a paragraph
             self.cell(w=self.epw, h=self.font_size, text=section, new_x="LMARGIN", new_y="NEXT", **kwargs)
 
         self.add_page("P" if self.use_portrait else "L")
