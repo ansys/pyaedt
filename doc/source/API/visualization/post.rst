@@ -244,6 +244,16 @@ Finally, users can use additional AEDT postprocessing tools like SPiSim:
    SpiSim
 
 
+.. currentmodule:: ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   COMParameters
+   COMParametersVer3p4
+
+
 If you are looking for Virtual Compliance post processing, you should use this set of features:
 
 .. currentmodule:: ansys.aedt.core.visualization.post.compliance
