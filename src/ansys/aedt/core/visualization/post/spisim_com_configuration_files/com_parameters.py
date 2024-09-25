@@ -48,7 +48,7 @@ class COMStandards(Enum):
 class COMParameters:
     """Base class to manage COM parameters."""
 
-    _CFG_DIR = Path(__file__).parent.parent / "spisim_com_configuration_files"
+    _CFG_DIR = Path(__file__) / "spisim_com_configuration_files"
     _STD_TABLE_MAPPING = {
         "COM_50GAUI_1_C2C": "com_120d_8.json",
         "COM_100GAUI_2_C2C": "com_120d_8.json",
