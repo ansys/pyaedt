@@ -147,12 +147,3 @@ Miscellaneous
    nastran_to_stl
    simplify_stl
 
-
-.. currentmodule:: ansys.aedt.core.visualization.advanced.spisim_com_configuration_files.com_parameters
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   COMParameters
-   COMParametersVer3p4
