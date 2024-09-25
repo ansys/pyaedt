@@ -212,7 +212,7 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
 @pyaedt_function_handler()
 def parse_rdat_file(file_path):
     """
-    Parse Ansys report .rdat file
+    Parse Ansys report '.rdat' file.
 
     Returns
     -------

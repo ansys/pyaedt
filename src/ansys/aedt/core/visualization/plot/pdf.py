@@ -93,7 +93,7 @@ class AnsysReport(FPDF):
         self.alias_nb_pages()
 
     def read_template(self, template_file):
-        """Reade pdf template
+        """Reade pdf template.
 
         template_file : str
             Path to the json template file.
