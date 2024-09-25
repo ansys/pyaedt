@@ -199,29 +199,31 @@ class TouchstoneData(rf.Network):
     def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
-        Example 1, an N-port single-ended network with port order 1234 is converted to mixed-mode
+        Examples
+        --------
+        Example 1: An N-port single-ended network with port order 1234 is converted to mixed-mode
         parameters.
 
-             A                                  B
-             +------------+                     +-----------+
-           0-|s0========s2|-2                 0-|d0=======d1|-1
-           1-|s1========s3|-3                 2-|d2=======d3|-3
-            ...          ...     =se2gmm=>     ...         ...
+            A                                  B
+            +------------+                     +-----------+
+          0-|s0========s2|-2                 0-|d0=======d1|-1
+          1-|s1========s3|-3                 2-|d2=======d3|-3
+           ...          ...     =se2gmm=>     ...         ...
         2N-4-|s2N-4==s2N-2|-2N-2           2N-4-|cN-4===cN-3|-2N-3
         2N-3-|s2N-3==s2N-1|-2N-1           2N-2-|cN-2===cN-1|-2N-1
-             +------------+                     +-----------+
+            +------------+                     +-----------+
 
-        Example 2, an N-port single-ended network with port order 1324 is converted to mixed-mode
+        Example 2: An N-port single-ended network with port order 1324 is converted to mixed-mode
         parameters.
 
-             A                                  B
-             +------------+                     +-----------+
-           0-|s0========s2|-1                 0-|d0=======d1|-1
-           2-|s1========s3|-3                 2-|d2=======d3|-3
-            ...          ...     =se2gmm=>     ...         ...
+            A                                  B
+            +------------+                     +-----------+
+          0-|s0========s2|-1                 0-|d0=======d1|-1
+          2-|s1========s3|-3                 2-|d2=======d3|-3
+           ...          ...     =se2gmm=>     ...         ...
         2N-4-|s2N-4==s2N-2|-2N-3           2N-4-|cN-4===cN-3|-2N-3
         2N-2-|s2N-3==s2N-1|-2N-1           2N-2-|cN-2===cN-1|-2N-1
-             +------------+                     +-----------+
+            +------------+                     +-----------+
 
         Parameters
         ----------

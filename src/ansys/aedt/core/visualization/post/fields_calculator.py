@@ -522,9 +522,9 @@ class FieldsCalculator:
             Key is the variable name and value is the variable value.
             These are typically: frequency, time and phase.
             If it is a dictionary, keys depend on the solution type and can be expressed as:
-                - ``"Freq"``
-                - ``"Time"``
-                - ``"Phase"``
+            - ``"Freq"``.
+            - ``"Time"``.
+            - ``"Phase"``.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
 
         Returns
