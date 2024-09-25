@@ -42,7 +42,7 @@ jobs:
 
   test-solvers-windows:
     name: Testing solvers and coverage (Windows)
-    if: github.event.pull_request.draft == true && github.event.inputs.test-solvers-windows == 'yes'
+    if: github.event.inputs.test-solvers-windows == 'yes'
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -103,7 +103,7 @@ jobs:
   # TODO: Si if we can use ansys/actions
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
-    if: github.event.pull_request.draft == true && github.event.inputs.test-solvers-linux == 'yes'
+    if: github.event.inputs.test-solvers-linux == 'yes'
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -160,7 +160,7 @@ jobs:
 
   test-windows:
     name: Testing and coverage (Windows)
-    if: github.event.pull_request.draft == true && github.event.inputs.test-windows == 'yes'
+    if: github.event.inputs.test-windows == 'yes'
     needs: [smoke-tests]
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -226,7 +226,7 @@ jobs:
   # TODO: Si if we can use ansys/actions
   test-linux:
     name: Testing and coverage (Linux)
-    if: github.event.pull_request.draft == true && github.event.inputs.test-linux == 'yes'
+    if: github.event.inputs.test-linux == 'yes'
     needs: [smoke-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
