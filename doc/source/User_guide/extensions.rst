@@ -68,7 +68,7 @@ HFSS 3D Layout extensions
 
 
    .. grid-item-card:: Generate arbitrary wave ports
-            :link: pyaedt_extensions_doc/project/arbitrary_wave_port
+            :link: pyaedt_extensions_doc/hfss3dlayout/arbitrary_wave_port
             :link-type: doc
             :margin: 2 2 0 0
 
