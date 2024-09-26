@@ -1,35 +1,33 @@
 name: Draft workflow
 
-# WARNING: Jobs are skipped when run in non draft PR to avoid using self-hosted runners
-
 on:
   workflow_dispatch:
     inputs:
       test-solvers-windows:
         description: "Testing solvers and coverage (Windows)"
-        required: true
-        defaut: 'no'
+        default: 'no'
+        type: choice
         options:
           - 'yes'
           - 'no'
       test-solvers-linux:
         description: "Testing solvers and coverage (Linux)"
-        required: true
-        defaut: 'no'
+        default: 'no'
+        type: choice
         options:
           - 'yes'
           - 'no'
       test-windows:
         description: "Testing solvers and coverage (Windows)"
-        required: true
-        defaut: 'no'
+        default: 'no'
+        type: choice
         options:
           - 'yes'
           - 'no'
       test-linux:
         description: "Testing solvers and coverage (Linux)"
-        required: true
-        defaut: 'no'
+        type: choice
+        default: 'no'
         options:
           - 'yes'
           - 'no'
