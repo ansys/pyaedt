@@ -60,6 +60,24 @@ You can also install PyAEDT from Conda-Forge with this command:
 ```
 PyAEDT remains compatible with IronPython and can be still used in the AEDT Framework.
 
+## PyAEDT compatibility requirements
+
+PyAEDT has different compatibility requirements based on its version. Below is an overview of the compatibility matrix between PyAEDT, Python versions, and AEDT releases:
+
+- PyAEDT Version ≤ 0.8.11:
+  - Python Compatibility:
+    - Compatible with IronPython (Python 2.7).
+    - Compatible with Python 3.7 and versions up to Python 3.11.
+  - AEDT Compatibility:
+    - All tests were conducted using AEDT 2024 R1.
+- PyAEDT Version ≥ 0.9.0:
+  - Python Compatibility:
+    - Dropped support for python 3.7 and below.
+    - Compatible with Python 3.8 and versions up to Python 3.12.
+  - AEDT Compatibility:
+    - Version 0.9.x has been tested using AEDT 2024 R1.
+    - Starting from version 0.10.0, all tests are performed with AEDT 2024 R2.
+
 ## About PyAnsys
 
 PyAEDT is part of the larger [PyAnsys](https://docs.pyansys.com "PyAnsys") effort to facilitate the use of Ansys technologies directly from Python.
