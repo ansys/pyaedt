@@ -105,7 +105,7 @@ def plot_polar_chart(
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        `[x points, y points, label]`.
+        ``[x points, y points, label]``.
     size : tuple, optional
         Image size in pixel (width, height).
     show_legend : bool
@@ -168,7 +168,7 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        `[x points, y points, z points, label]`.
+        ``[x points, y points, z points, label]``.
     size : tuple, optional
         Image size in pixel (width, height).
     xlabel : str, optional
@@ -413,9 +413,9 @@ def plot_contour(
     ----------
     plot_data : list of np.ndarray
         List of plot data. Each item of the list a numpy array. The list has the following format:
-        `[data, x points, y points]`.
+        ``[data, x points, y points]``.
     size : tuple, list, optional
-        Image size in pixel (width, height). The default is `(2000,1600)`.
+        Image size in pixel (width, height). The default is ``(2000,1600)``.
     xlabel : str, optional
         Plot X label. The default value is ``""``.
     ylabel : str, optional
@@ -438,7 +438,7 @@ def plot_contour(
         Full path to image file if a snapshot is needed.
         The default value is ``None``.
     show : bool, optional
-        Whether to show the plot or return the matplotlib object. Default is `True`.
+        Whether to show the plot or return the matplotlib object. Default is ``True``.
 
     Returns
     -------

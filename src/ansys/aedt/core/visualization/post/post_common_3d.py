@@ -1153,10 +1153,10 @@ class PostProcessor3D(PostProcessorCommon):
             Intrinsic variables required to compute the field before the export.
             These are typically: frequency, time and phase.
             It can be provided either as a dictionary or as a string.
-                If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
-                    - ``"Freq"`` or ``"Frequency"``.
-                    - ``"Time"``.
-                    - ``"Phase"``.
+            If it is a dictionary, keys depend on the solution type and can be expressed in lower or camel case as:
+            - ``"Freq"`` or ``"Frequency"``.
+            - ``"Time"``.
+            - ``"Phase"``.
             If it is a string, it can either be ``"Freq"`` or ``"Time"`` depending on the solution type.
             The default is ``None`` in which case the intrinsics value is automatically computed based on the setup.
         plot_name : str, optional
@@ -2776,7 +2776,7 @@ class PostProcessor3D(PostProcessorCommon):
         shoot_utd : bool, optional
             Whether if enable or UTD Rays shooting or not. Default is ``False``.
         custom_location : list, optional
-            List of x, y,z position of point source. Default is ``None`.
+            List of x, y,z position of point source. Default is ``None``.
         shoot_filter_type : str, optional
             Shooter Type. Default is ``"All Rays"``. Options are ``Rays by index``, ``Rays in box``.
         ray_index_start : int, optional
@@ -2791,6 +2791,7 @@ class PostProcessor3D(PostProcessorCommon):
         Returns
         -------
         :class:` from ansys.aedt.core.modules.solutions.VRTFieldPlot`
+
         """
         if custom_location is None:
             custom_location = [0, 0, 0]

@@ -330,7 +330,7 @@ class ObjClass(object):
 
     @property
     def color(self):
-        """Color"""
+        """Color."""
         return self._color
 
     @color.setter

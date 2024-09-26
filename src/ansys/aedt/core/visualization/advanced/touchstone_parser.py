@@ -199,10 +199,9 @@ class TouchstoneData(rf.Network):
     def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.
 
-        Examples
-        --------
-        Example 1: An N-port single-ended network with port order 1234 is converted to mixed-mode
-        parameters.
+        Example 1: An N-port single-ended network with port order 1234 is converted to mixed-mode parameters.
+
+        ::
 
             A                                  B
             +------------+                     +-----------+
@@ -213,8 +212,9 @@ class TouchstoneData(rf.Network):
         2N-3-|s2N-3==s2N-1|-2N-1           2N-2-|cN-2===cN-1|-2N-1
             +------------+                     +-----------+
 
-        Example 2: An N-port single-ended network with port order 1324 is converted to mixed-mode
-        parameters.
+        Example 2: An N-port single-ended network with port order 1324 is converted to mixed-mode parameters.
+
+        ::
 
             A                                  B
             +------------+                     +-----------+
