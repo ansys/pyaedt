@@ -146,7 +146,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2023 R2 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> hfss = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2023.2", project="myfile.aedt", student_version=True)
 
     """
 

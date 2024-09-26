@@ -2207,7 +2207,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         all_quantities = self.post.available_report_quantities(
             context=show, is_siwave_dc=True, quantities_category=category
         )
-
+        if not all_quantities:
+            self._logger.error("No expressions found.")
+            return False
         return self.post.get_solution_data(all_quantities, setup_sweep_name=setup, domain="DCIR", context=show)
 
     @pyaedt_function_handler(setup_name="setup")

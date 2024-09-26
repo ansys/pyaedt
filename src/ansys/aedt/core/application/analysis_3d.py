@@ -184,20 +184,14 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.advanced_post_processing.PostProcessor`
+        :class:`ansys.aedt.core.visualization.post.post_common_3d.PostProcessor3D` or
+        :class:`ansys.aedt.core.visualization.post.post_icepak.PostProcessorIcepak`
             PostProcessor object.
         """
         if self._post is None and self._odesign:
-            self.logger.reset_timer()
-            if is_ironpython:  # pragma: no cover
-                from ansys.aedt.core.modules.post_processor import PostProcessor
-            elif self.design_type == "Icepak":
-                from ansys.aedt.core.modules.advanced_post_processing import IcepakPostProcessor as PostProcessor
-            else:
-                from ansys.aedt.core.modules.advanced_post_processing import PostProcessor
-            self._post = PostProcessor(self)
-            self.logger.info_timer("Post class has been initialized!")
+            from ansys.aedt.core.visualization.post import post_processor
 
+            self._post = post_processor(self)
         return self._post
 
     @property

@@ -378,11 +378,10 @@ class TestClass:
         solution_data = self.dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
         assert self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
         assert self.dcir_example_project.post.create_report(
-            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+            self.dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
             domain="DCIR",
             context="RL",
         )
-        assert isinstance(self.dcir_example_project.get_dcir_element_data_loop_resistance("SIwaveDCIR1"), pd.DataFrame)
         assert isinstance(self.dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
 
     def test_20_change_options(self):

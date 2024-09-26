@@ -216,7 +216,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
                 odesktop = desktop.odesktop
                 break
     elif _desktop_sessions:
-        odesktop = list(_desktop_sessions.values())[-1]
+        odesktop = list(_desktop_sessions.values())[-1].odesktop
     elif "oDesktop" in dir(sys.modules["__main__"]):  # ironpython
         odesktop = sys.modules["__main__"].oDesktop  # ironpython
     else:
