@@ -135,6 +135,7 @@ The following methods allows to read and plot rays information.
 Miscellaneous
 ~~~~~~~~~~~~~
 
+PyAEDT has additional advanced post-processing features:
 
 .. currentmodule:: ansys.aedt.core.visualization.advanced.misc
 
