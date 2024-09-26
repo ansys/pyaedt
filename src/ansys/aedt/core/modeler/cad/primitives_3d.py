@@ -1510,6 +1510,27 @@ class Primitives3D(GeometryModeler):
                                 + "}"
                         )
                         break
+            except TypeError:
+                for id in part["Operations"]["Operation"]:
+                    op_id = id.get("OperationIdentity", {})
+                    try:
+                        dict_str = (
+                                "{"
+                                + ",".join(op_id[i])
+                                .replace("'", '"')
+                                .replace("=", ":")
+                                + "}"
+                        )
+                    except KeyError:
+                        for key, mon in op_id.items():
+                            if i in key:
+                                keyarr = key.split("(")
+                                dict_str = (
+                                        "{"
+                                        + "{}: {}".format(keyarr[1], mon.replace(")", "")).replace("'", '"')
+                                        + "}"
+                                )
+                                break
             if dict_str:
                 part_mapping[i] = json.loads(dict_str)
         return part_mapping
