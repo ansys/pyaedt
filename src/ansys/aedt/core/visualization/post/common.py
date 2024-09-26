@@ -1142,7 +1142,7 @@ class PostProcessorCommon(object):
         context : str, dict, optional
             The default is ``None``.
             - For HFSS 3D Layout, options are ``"Bondwires"``, ``"Differential Pairs"``,
-              ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
+            ``None``, ``"Probes"``, ``"RL"``, ``"Sources"``, and ``"Vias"``.
             - For Q2D or Q3D, specify the name of a reduced matrix.
             - For a far fields plot, specify the name of an infinite sphere.
             - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
