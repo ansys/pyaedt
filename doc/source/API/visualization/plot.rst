@@ -50,7 +50,6 @@ PyAEDT benefits of `matplotlib <https://matplotlib.org/>`_ package and allows to
    plot_2d_chart
    plot_contour
    is_notebook
-   update_plot_settings
 
 
 PDF

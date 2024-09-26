@@ -48,6 +48,10 @@ try:
         "ytick.labelsize": 18,
     }
 
+    plt.ioff()
+    default_rc_params = plt.rcParams.copy()
+    plt.rcParams.update(rc_params)
+
 except ImportError:
     warnings.warn(
         "The Matplotlib module is required to run some functionalities of PostProcess.\n"
@@ -55,26 +59,6 @@ except ImportError:
     )
 except Exception:
     warnings.warn("Unknown error occurred while attempting to import Matplotlib.")
-
-
-# Override default settings for matplotlib
-def update_plot_settings(func, *args, **kwargs):
-    """Update plot settings."""
-    if callable(func):
-
-        def wrapper(*args, **kwargs):
-            # Turn off interactive mode
-            plt.ioff()
-            default_rc_params = plt.rcParams.copy()
-            plt.rcParams.update(rc_params)  # Apply new settings.
-            out = func(*args, **kwargs)
-            plt.rcParams.update(default_rc_params)
-            return out
-
-    else:
-        wrapper = None
-        raise TypeError("First argument must be callable.")
-    return wrapper
 
 
 def is_notebook():
@@ -95,7 +79,6 @@ def is_notebook():
 
 
 @pyaedt_function_handler()
-@update_plot_settings
 def plot_polar_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
@@ -156,11 +139,11 @@ def plot_polar_chart(
         fig.savefig(snapshot_path)
     if show:  # pragma: no cover
         fig.show()
+    plt.rcParams.update(default_rc_params)
     return fig
 
 
 @pyaedt_function_handler()
-@update_plot_settings
 def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", snapshot_path=None, show=True):
     """Create a Matplotlib 3D plot based on a list of data.
 
@@ -213,11 +196,11 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
         fig.savefig(snapshot_path)
     if show:  # pragma: no cover
         fig.show()
+    plt.rcParams.update(default_rc_params)
     return fig
 
 
 @pyaedt_function_handler()
-@update_plot_settings
 def plot_2d_chart(
     plot_data, size=(2000, 1000), show_legend=True, xlabel="", ylabel="", title="", snapshot_path=None, show=True
 ):
@@ -274,11 +257,11 @@ def plot_2d_chart(
         fig.savefig(snapshot_path)
     elif show and not is_notebook():  # pragma: no cover
         fig.show()
+    plt.rcParams.update(default_rc_params)
     return fig
 
 
 @pyaedt_function_handler()
-@update_plot_settings
 def plot_matplotlib(
     plot_data,
     size=(2000, 1000),
@@ -389,11 +372,11 @@ def plot_matplotlib(
         plt.savefig(snapshot_path)
     if show:  # pragma: no cover
         plt.show()
+    plt.rcParams.update(default_rc_params)
     return fig
 
 
 @pyaedt_function_handler()
-@update_plot_settings
 def plot_contour(
     plot_data,
     size=(2000, 1600),
@@ -484,4 +467,5 @@ def plot_contour(
         fig.savefig(snapshot_path)
     if show:  # pragma: no cover
         fig.show()
+    plt.rcParams.update(default_rc_params)
     return fig
