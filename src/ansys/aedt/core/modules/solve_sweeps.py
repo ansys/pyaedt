@@ -176,6 +176,7 @@ class SweepHFSS(object):
                 if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
                     try:
                         new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
+
                         new_list.sort()
                         new_list = unit_converter(
                             values=new_list,

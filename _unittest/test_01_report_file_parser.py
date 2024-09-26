@@ -24,7 +24,7 @@
 
 import os
 
-from ansys.aedt.core.generic.report_file_parser import parse_rdat_file
+from ansys.aedt.core.visualization.advanced.misc import parse_rdat_file
 import pytest
 
 local_path = os.path.dirname(os.path.realpath(__file__))

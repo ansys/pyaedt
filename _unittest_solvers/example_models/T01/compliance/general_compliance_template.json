@@ -39,13 +39,13 @@
      "traces": ["dB(S(X1_TX0,X1_RX0))", "dB(S(X1_TX1,X1_RX1))","dB(S(X1_TX2,X1_RX2))", "dB(S(X1_TX3,X1_RX3))"],
      "pass_fail": false,
 	 "group_plots":true
-	 
+
      },
     {"name": "eye1",
     "design_name":"32GTps_circuit",
 	"type": "statistical eye",
 	"config": "StatisticalEyeDiagram_Custom.json",
-	"quantity_type": 3, 
+	"quantity_type": 3,
      "traces": ["b_input_67", "b_input_119"],
      "pass_fail": true
      },
@@ -53,7 +53,7 @@
     "design_name":"32GTps_circuit",
 	"type": "contour eye diagram",
 	"config": "ContourEyeDiagram_Custom.json",
-	"quantity_type": 3, 
+	"quantity_type": 3,
      "traces": ["b_input_67", "b_input_119"],
      "pass_fail": true
      },

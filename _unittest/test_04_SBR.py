@@ -26,7 +26,7 @@ import builtins
 import os
 from unittest.mock import mock_open
 
-from ansys.aedt.core.sbrplus.hdm_parser import Parser
+from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 from mock import patch
 import pytest
 

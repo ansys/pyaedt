@@ -1424,13 +1424,43 @@ class BinaryTreeNode:
             del self.children[name]
         else:
             self.props = {}
-            for p in self.child_object.GetPropNames():
+            if settings.aedt_version >= "2024.2":
                 try:
-                    self.props[p] = self.child_object.GetPropValue(p)
+                    props = self._get_data_model()
+                    for p in self.child_object.GetPropNames():
+                        if p in props:
+                            self.props[p] = props[p]
+                        else:
+                            self.props[p] = None
                 except Exception:
-                    self.props[p] = None
+                    for p in self.child_object.GetPropNames():
+                        try:
+                            self.props[p] = self.child_object.GetPropValue(p)
+                        except Exception:
+                            self.props[p] = None
+            else:
+                for p in self.child_object.GetPropNames():
+                    try:
+                        self.props[p] = self.child_object.GetPropValue(p)
+                    except Exception:
+                        self.props[p] = None
             self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
+
+    def _get_data_model(self):
+        import ast
+
+        input_str = self.child_object.GetDataModel(-1, 1, 1).replace("false", "False").replace("true", "True")
+        props_list = ast.literal_eval(input_str)
+        props = {}
+        for prop in props_list["properties"]:
+            if "value" in prop:
+                props[prop["name"]] = prop["value"]
+            elif "values" in prop:
+                props[prop["name"]] = prop["values"]
+            else:
+                props[prop["name"]] = None
+        return props
 
     def update_property(self, prop_name, prop_value):
         """Update the property of the binary tree node.

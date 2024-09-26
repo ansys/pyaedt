@@ -12,7 +12,7 @@ the ``VirtualCompliance`` class.
 
 import os.path
 import ansys.aedt.core
-from ansys.aedt.core.generic.compliance import VirtualCompliance
+from ansys.aedt.core.post.compliance import VirtualCompliance
 
 ##########################################################
 # Set AEDT version

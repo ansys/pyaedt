@@ -37,7 +37,7 @@ from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.solutions import nastran_to_stl
+from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
 
 
 class Modeler3D(Primitives3D):
