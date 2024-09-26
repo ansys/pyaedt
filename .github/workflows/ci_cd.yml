@@ -81,6 +81,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
 
       - name: Update pip
         run: |
@@ -88,7 +89,7 @@ jobs:
 
       - name: Install pyaedt and documentation dependencies
         run: |
-          pip install .[doc-no-examples]
+          pip install .[doc-no-examples] --no-cache
 
       - name: Retrieve PyAEDT version
         id: version
@@ -160,7 +161,7 @@ jobs:
       - name: Install pyaedt and documentation dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[doc]
+          pip install .[doc] --no-cache
 
       - name: Retrieve PyAEDT version
         id: version
@@ -237,6 +238,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
 
       - name: Create virtual environment
         run: |
@@ -249,7 +251,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -300,10 +302,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -312,15 +314,14 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Run tests on _unittest_solvers
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
 
       - uses: codecov/codecov-action@v4
@@ -353,6 +354,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
 
       - name: Create virtual environment
         run: |
@@ -365,7 +367,7 @@ jobs:
       - name: Install pyaedt and tests dependencies
         run: |
           .venv\Scripts\Activate.ps1
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -421,10 +423,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          use-python-cache: false
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -433,9 +435,8 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pip install .[tests]
+          pip install .[tests] --no-cache
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
@@ -452,8 +453,8 @@ jobs:
           retry_on: error
           timeout_minutes: 50
           command: |
-            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
             source .venv/bin/activate
+            export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             pytest -n 2 --dist loadfile --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v4

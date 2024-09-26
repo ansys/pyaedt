@@ -39,9 +39,9 @@ dependencies = [
     "pyedb>=0.4.0; python_version == '3.7'",
     "pyedb>=0.24.0; python_version > '3.7'",
     "pyedb!=0.28.0; python_version > '3.7'",
-    "pytomlpp; python_version < '3.12'",
-    "rpyc>=6.0.0,<6.1",
     "pyyaml",
+    "rpyc>=6.0.0,<6.1",
+    "toml",
 ]
 
 [project.optional-dependencies]
@@ -50,7 +50,7 @@ tests = [
     "joblib>=1.0.0,<1.5",
     "matplotlib>=3.5.0,<3.10",
     "mock>=5.1.0,<5.2",
-    "numpy>=1.20.0,<2",
+    "numpy>=1.20.0,<2.2",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
@@ -119,7 +119,7 @@ doc-no-examples = [
 ]
 all = [
     "matplotlib>=3.5.0,<3.10",
-    "numpy>=1.20.0,<2",
+    "numpy>=1.20.0,<2.2",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
@@ -133,7 +133,7 @@ all = [
 ]
 installer = [
     "matplotlib>=3.5.0,<3.10",
-    "numpy>=1.20.0,<2",
+    "numpy>=1.20.0,<2.2",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<1.10",
     "pandas>=1.1.0,<2.3",
