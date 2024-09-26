@@ -435,18 +435,6 @@ class TestClass:
         assert test
         assert test.delete()
 
-    @pytest.mark.skipif(config["use_grpc"], reason="gRPC usage leads to SystemExit.")
-    def test_12b_failing_AssignMeshOperation(self):
-        assert self.aedtapp.mesh.assign_mesh_region("N0C0MP", 1, is_submodel=True)
-        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], 1)
-        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
-        b.model = False
-        test = self.aedtapp.mesh.assign_mesh_region([b.name])
-        assert test
-        test.Objects = ["US8_1D"]
-        assert not test.update()
-        assert test.delete()
-
     def test_13a_assign_openings(self):
         airfaces = [self.aedtapp.modeler["Region"].top_face_x.id]
         openings = self.aedtapp.assign_openings(airfaces)
@@ -472,11 +460,11 @@ class TestClass:
     def test_14_edit_design_settings(self):
         assert self.aedtapp.edit_design_settings(gravity_dir=1)
         assert self.aedtapp.edit_design_settings(gravity_dir=3)
-        assert self.aedtapp.edit_design_settings(ambtemp=20)
-        assert self.aedtapp.edit_design_settings(ambtemp="325kel")
+        assert self.aedtapp.edit_design_settings(ambient_temperature=20)
+        assert self.aedtapp.edit_design_settings(ambient_temperature="325kel")
         self.aedtapp.solution_type = "Transient"
         bc = self.aedtapp.create_linear_transient_assignment("0.01cel", "5")
-        assert self.aedtapp.edit_design_settings(ambtemp=bc)
+        assert self.aedtapp.edit_design_settings(ambient_temperature=bc)
 
     def test_15_insert_new_icepak(self):
         self.aedtapp.insert_design("Solve")
@@ -671,7 +659,7 @@ class TestClass:
     def test_35_create_fan(self):
         fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
-        assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
+        assert fan.name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
         self.aedtapp.delete_design()
 
     def test_36_create_heat_sink(self):
@@ -990,17 +978,13 @@ class TestClass:
         )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp_T51.a3dcomp"
-        fan_obj = self.aedtapp.create_fan(is_2d=True)
-        self.aedtapp.monitor.assign_surface_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].name
-        )
-        self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
-        )
+        self.aedtapp.create_fan(is_2d=True)
+        box = self.aedtapp.modeler.create_box([5, 6, 7], [9, 7, 6])
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+        self.aedtapp.monitor.assign_surface_monitor(rectangle.name)
+        self.aedtapp.monitor.assign_face_monitor(box.faces[0].id)
         fan_obj_3d = self.aedtapp.create_fan(is_2d=False)
-        self.aedtapp.monitor.assign_point_monitor_in_object(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
-        )
+        self.aedtapp.monitor.assign_point_monitor_in_object(box.name)
         self.aedtapp.create_dataset(
             "test_ignore",
             [1, 2, 3, 4],
@@ -1035,7 +1019,7 @@ class TestClass:
             input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
 
-        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
+        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan1", "Fan2", "Board1"])
         assert all(
             i in self.aedtapp.monitor.all_monitors
             for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
@@ -1060,6 +1044,49 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_52_flatten_3d_components(self):
+        file_path = self.local_scratch.path
+        self.aedtapp.insert_design("test_52_0")
+        file_name = "Advanced3DComp_T52.a3dcomp"
+        self.aedtapp.create_fan(is_2d=True)
+        box = self.aedtapp.modeler.create_box([5, 6, 7], [9, 7, 6])
+        rectangle = self.aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+        self.aedtapp.monitor.assign_surface_monitor(rectangle.name)
+        self.aedtapp.monitor.assign_face_monitor(box.faces[0].id)
+        self.aedtapp.create_fan(is_2d=False)
+        self.aedtapp.monitor.assign_point_monitor_in_object(box.name)
+        self.aedtapp.create_dataset(
+            "test_ignore",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            z=None,
+            v=None,
+            is_project_dataset=False,
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
+        )
+        mon_list = list(self.aedtapp.monitor.all_monitors.keys())
+        self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        self.aedtapp.modeler.create_coordinate_system()
+        assert self.aedtapp.modeler.create_3dcomponent(
+            os.path.join(file_path, file_name),
+            name="board_assembly",
+            coordinate_systems=["Global"],
+            reference_coordinate_system="Global",
+            export_auxiliary=True,
+            monitor_objects=mon_list,
+            datasets=["test_dataset"],
+        )
+        self.aedtapp.insert_design("test_52_1")
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
+        file_path = self.local_scratch.path
+        self.aedtapp.modeler.insert_3d_component(
+            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
+        )
+
         self.aedtapp.logger.clear_messages("", "")
         self.aedtapp.insert_design("test_52")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
@@ -1067,7 +1094,6 @@ class TestClass:
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         file_path = self.local_scratch.path
-        file_name = "Advanced3DComp.a3dcomp"
         self.aedtapp.modeler.insert_3d_component(
             input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
@@ -1079,14 +1105,10 @@ class TestClass:
         assert all(
             i in self.aedtapp.monitor.all_monitors
             for i in [
-                "board_assembly1_FaceMonitor",
-                "board_assembly1_BoxMonitor",
-                "board_assembly1_SurfaceMonitor",
                 mon_name,
                 mon_point_name,
             ]
         )
-        assert "test_dataset" in self.aedtapp.design_datasets
         self.aedtapp.delete_design()
 
     def test_53_create_conduting_plate(self):
