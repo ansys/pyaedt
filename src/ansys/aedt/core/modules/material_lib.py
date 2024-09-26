@@ -770,7 +770,7 @@ class Materials(object):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler(full_path="input_file")
-    def import_materials_from_file(self, input_file=None, **kwargs):
+    def import_materials_from_file(self, input_file=None, stop_on_error: bool = True, **kwargs):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
@@ -854,11 +854,15 @@ class Materials(object):
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self, newname, val, material_update=False)
-                newmat.update()
-                newmat._material_update = True
-                self.material_keys[newname] = newmat
-                materials_added.append(newmat)
+                try:
+                    newmat = Material(self, newname, val, material_update=False)
+                    newmat.update()
+                    newmat._material_update = True
+                    self.material_keys[newname] = newmat
+                    materials_added.append(newmat)
+                except KeyError as e:
+                    self.logger.error(f"Failed to import material {el!r} from {input_file!r}: key error on {e}")
+                    return False
         else:
             for mat_name in data:
                 invalid_names = ["$base_index$", "$index$"]

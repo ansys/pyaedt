@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 import os
 
 from _unittest.conftest import config
@@ -527,3 +528,13 @@ class TestClass:
             self.testapp2.materials.material_keys["84zn_12ag_4au_imp"].thermal_expansion_coefficient.thermalmodifier
             == "pwl($TM_84Zn_12Ag_4Au_imp_thermal_expansion_coefficient, Temp)"
         )
+
+    def test_17_json_missing_rgb(self, caplog: pytest.LogCaptureFixture):
+        input_path = os.path.join(local_path, "example_models", test_subfolder, "mats_missing_rgb.json")
+        assert not self.aedtapp.materials.import_materials_from_file(input_path)
+        assert [
+            record
+            for record in caplog.records
+            if record.levelno == logging.ERROR
+            and record.message == f"Failed to import material 'copper_5540' from {input_path!r}: key error on 'Red'"
+        ]
