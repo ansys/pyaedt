@@ -1685,7 +1685,6 @@ class Desktop(object):
 
         """
         if self.__closed is True:  # pragma: no cover
-            self.logger.debug("Connection is already closed. Ignoring request.")
             return
 
         return self.release_desktop(close_projects=True, close_on_exit=True)
