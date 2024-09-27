@@ -1089,7 +1089,7 @@ class FieldAnalysis3D(Analysis, object):
         """
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
-        native_comp_names = [nc for nc in self.native_components.keys()]
+        native_comp_names = [nc.definition_name for nc in self.native_components.values()]
         if not components:
             components = [
                 key
