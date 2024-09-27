@@ -770,7 +770,7 @@ class Materials(object):
         return write_configuration_file(json_dict, output_file)
 
     @pyaedt_function_handler(full_path="input_file")
-    def import_materials_from_file(self, input_file=None, stop_on_error: bool = True, **kwargs):
+    def import_materials_from_file(self, input_file=None, **kwargs):
         """Import and create materials from a JSON or AMAT file.
 
         Parameters
