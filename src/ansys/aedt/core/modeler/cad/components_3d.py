@@ -890,11 +890,10 @@ class UserDefinedComponent(object):
         """
         # TODO: Edit documentation to include all supported returned classes.
 
-        from ansys.aedt.core.generic.design_types import get_pyaedt_app
-
         # from ansys.aedt.core.generic.general_methods import is_linux
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
+
         project_list = [i for i in self._primitives._app.project_list]
 
         self._primitives.oeditor.Edit3DComponentDefinition(
@@ -907,6 +906,8 @@ class UserDefinedComponent(object):
         new_project = [i for i in self._primitives._app.project_list if i not in project_list]
 
         if new_project:
+            from ansys.aedt.core.generic.design_types import get_pyaedt_app
+
             project = self._primitives._app.desktop_class.active_project(new_project[0])
             # project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()

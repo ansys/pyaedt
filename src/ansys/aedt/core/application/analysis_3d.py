@@ -1090,7 +1090,9 @@ class FieldAnalysis3D(Analysis, object):
         native_comp_names = [nc for nc in self.native_components.keys()]
         if not components:
             components = [
-                key for key, val in self.modeler.user_defined_components.items() if val.name not in native_comp_names
+                key
+                for key, val in self.modeler.user_defined_components.items()
+                if val.definition_name not in native_comp_names
             ]
         else:
             if isinstance(components, str):
@@ -1101,6 +1103,7 @@ class FieldAnalysis3D(Analysis, object):
 
         for cmp in components:
             comp = self.modeler.user_defined_components[cmp]
+            # TODO: Call edit_definition only once
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
