@@ -531,7 +531,8 @@ class TestClass:
 
     def test_17_json_missing_rgb(self, caplog: pytest.LogCaptureFixture):
         input_path = os.path.join(local_path, "example_models", test_subfolder, "mats_missing_rgb.json")
-        assert not self.aedtapp.materials.import_materials_from_file(input_path)
+        with pytest.raises(KeyError):
+            self.aedtapp.materials.import_materials_from_file(input_path)
         assert [
             record
             for record in caplog.records
