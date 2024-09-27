@@ -1667,7 +1667,9 @@ class PostProcessorCommon(object):
             def _update_props(prop_in, props_out):
                 for k, v in prop_in.items():
                     if isinstance(v, dict):
-                        _update_props(v, props_out.get(k, {}))
+                        if k not in props_out:
+                            props_out[k] = {}
+                        _update_props(v, props_out[k])
                     else:
                         props_out[k] = v
 
