@@ -1113,7 +1113,8 @@ class FieldAnalysis3D(Analysis, object):
             monitor_cache = {}
             if self.design_type == "Icepak":
                 objs_monitors = [part.name for _, part in comp.parts.items()]
-                for mon_name, mon_obj in self.monitor.all_monitors.items():
+                all_monitors = self.monitor.all_monitors.items()
+                for mon_name, mon_obj in all_monitors:
                     obj_name = mon_obj.properties["Geometry Assignment"]
                     if obj_name in objs_monitors:
                         monitor_cache.update({mon_obj.name: mon_obj.properties})
@@ -1150,7 +1151,7 @@ class FieldAnalysis3D(Analysis, object):
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover
                             return False
-            app.oproject.Close()
+            app.close_project()
 
         if not self.design_type == "Icepak":
             self.mesh._refresh_mesh_operations()
