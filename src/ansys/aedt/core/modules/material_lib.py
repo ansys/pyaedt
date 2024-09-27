@@ -862,7 +862,7 @@ class Materials(object):
                     materials_added.append(newmat)
                 except KeyError as e:
                     self.logger.error(f"Failed to import material {el!r} from {input_file!r}: key error on {e}")
-                    return False
+                    raise e
         else:
             for mat_name in data:
                 invalid_names = ["$base_index$", "$index$"]
