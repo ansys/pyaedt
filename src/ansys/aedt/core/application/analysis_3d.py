@@ -491,9 +491,11 @@ class FieldAnalysis3D(Analysis, object):
                     or original_design_type == dest_design_type
                 ):
                     new_udc_list.append(udc)
-                for part_id in design.modeler.user_defined_components[udc].parts:
-                    if design.modeler.user_defined_components[udc].parts[part_id].name in body_list:
-                        body_list.remove(design.modeler.user_defined_components[udc].parts[part_id].name)
+                parts = design.modeler.user_defined_components[udc].parts
+                for part_id in parts:
+                    part_name = parts[part_id].name
+                    if part_name in body_list:
+                        body_list.remove(part_name)
 
         selection_list = []
         udc_selection = []
