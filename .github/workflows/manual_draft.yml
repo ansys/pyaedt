@@ -98,7 +98,6 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  # TODO: Si if we can use ansys/actions
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
     if: github.event.inputs.test-solvers-linux == 'yes'
@@ -221,7 +220,6 @@ jobs:
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
-  # TODO: Si if we can use ansys/actions
   test-linux:
     name: Testing and coverage (Linux)
     if: github.event.inputs.test-linux == 'yes'
