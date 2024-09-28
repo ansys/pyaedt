@@ -2059,7 +2059,7 @@ class ConfigurationsIcepak(Configurations):
                     vector_list = [decompose_variable_value(operation_dict["Props"]["Vector"][i])[0] for i in range(3)]
                 new_objs = obj.duplicate_along_line(
                     vector_list,
-                    nclones=operation_dict["Props"]["Total Number"],
+                    clones=operation_dict["Props"]["Total Number"],
                     attach_object=operation_dict["Props"]["Attach To Original Object"],
                 )
             elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":

@@ -1540,8 +1540,9 @@ class ModelPlotter(CommonPlotter):
                     break
                 i = 0
                 first_loop = False
-            scalars = self.frames[i]._cached_polydata.point_data[self.frames[i].scalar_name]
-            self.pv.update_scalars(scalars, render=False)
+            mesh_i = self.frames[i]._cached_polydata
+            scalars = mesh_i.point_data[self.frames[i].scalar_name]
+            mesh_i.point_data[self.frames[i].scalar_name] = scalars
             if not hasattr(self.pv, "ren_win"):
                 break
             time.sleep(max(0, (1 / self.frame_per_seconds) - (time.time() - start)))
