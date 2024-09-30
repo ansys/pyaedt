@@ -18,6 +18,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import json
+import numpy
 import os
 import shutil
 import sys
