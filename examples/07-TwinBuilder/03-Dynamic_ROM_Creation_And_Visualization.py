@@ -79,13 +79,13 @@ tb = TwinBuilder(project=generate_unique_project_name(),
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Dynamic ROM feature is only available with a twin builder license.
 # This and the restoring section at the end are not needed if the desktop is already configured as "Twin Builder".
-current_desktop_config = tb._odesktop.GetDesktopConfiguration()
-current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
-tb._odesktop.SetDesktopConfiguration("Twin Builder")
-tb._odesktop.SetSchematicEnvironment(1)
+current_desktop_config = tb.odesktop.GetDesktopConfiguration()
+current_schematic_environment = tb.odesktop.GetSchematicEnvironment()
+tb.odesktop.SetDesktopConfiguration("Twin Builder")
+tb.odesktop.SetSchematicEnvironment(1)
 
 # Get the dynamic ROM builder object
-rom_manager = tb._odesign.GetROMManager()
+rom_manager = tb.odesign.GetROMManager()
 dynamic_rom_builder = rom_manager.GetDynamicROMBuilder()
 
 # Build the dynamic ROM with specified configuration file
@@ -95,9 +95,9 @@ dynamic_rom_builder.Build(conf_file_path.replace('\\', '/'))
 # Test if ROM was created successfully
 dynamic_rom_path = os.path.join(data_folder, 'DynamicRom.dyn')
 if os.path.exists(dynamic_rom_path):
-    tb._odesign.AddMessage("Info", "path exists: {}".format(dynamic_rom_path.replace('\\', '/')), "")
+    tb.odesign.AddMessage("Info", "path exists: {}".format(dynamic_rom_path.replace('\\', '/')), "")
 else:
-    tb._odesign.AddMessage("Info", "path does not exist: {}".format(dynamic_rom_path), "")
+    tb.odesign.AddMessage("Info", "path does not exist: {}".format(dynamic_rom_path), "")
 
 # Create the ROM component definition in Twin Builder
 rom_manager.CreateROMComponent(dynamic_rom_path.replace('\\', '/'), 'dynarom')
