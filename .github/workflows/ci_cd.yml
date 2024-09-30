@@ -29,8 +29,8 @@ jobs:
 # # =================================================================================================
 
   # TODO: Si if we can use ansys/actions
-  test-specific-linux:
-    name: Testing solvers and coverage (Linux)
+  test-tk-linux:
+    name: Toolkit VM
     runs-on: [ self-hosted, Linux, pyaedt, toolkits]
     env:
       ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
@@ -64,24 +64,31 @@ jobs:
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+      - name: Print setup
+        run: |
+          source .venv/bin/activate
+          python --version
+          echo ""
+          pip freeze
+          echo ""
 
       - name: Run tests on _unittest_solvers
         run: |
           source .venv/bin/activate
           pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
 
+
 # # =================================================================================================
 # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 # # =================================================================================================
 
   # TODO: Si if we can use ansys/actions
-  test-solvers-linux:
-    name: Testing solvers and coverage (Linux)
-    if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Linux, pyaedt, toolkits]
-    needs: [test-specific-linux]
+  test-ci-linux:
+    name: CI VM
+    runs-on: [ self-hosted, Linux, pyaedt]
     env:
-      ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -94,7 +101,6 @@ jobs:
 
       - name: Create virtual environment
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -103,7 +109,6 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
@@ -115,23 +120,81 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
+      - name: Print setup
+        run: |
+          source .venv/bin/activate
+          python --version
+          echo ""
+          pip freeze
+          echo ""
+
       - name: Run tests on _unittest_solvers
         run: |
-          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
 
-      - uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          name: codecov-system-solver-tests
-          file: ./coverage.xml
-          flags: system,solver
+# # # =================================================================================================
+# # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # # =================================================================================================
 
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-solver-results
-          path: junit/test-results.xml
-        if: ${{ always() }}
+#   # TODO: Si if we can use ansys/actions
+#   test-solvers-linux:
+#     name: Testing solvers and coverage (Linux)
+#     if: github.event.pull_request.draft == false
+#     runs-on: [ self-hosted, Linux, pyaedt, toolkits]
+#     needs: [test-specific-linux]
+#     env:
+#       ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
+#       ANS_NODEPCHECK: '1'
+#     steps:
+#       - name: Install Git and checkout project
+#         uses: actions/checkout@v4
+
+#       - name: Setup Python
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+#       - name: Create virtual environment
+#         run: |
+#           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+#           python -m venv .venv
+#           source .venv/bin/activate
+#           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+#           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+#           python -c "import sys; print(sys.executable)"
+
+#       - name: Install pyaedt and tests dependencies
+#         run: |
+#           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+#           source .venv/bin/activate
+#           pip install .[tests]
+#           pip install pytest-azurepipelines
+
+#       - name: Install CI dependencies (e.g. vtk-osmesa)
+#         run: |
+#           source .venv/bin/activate
+#           # Uninstall conflicting dependencies
+#           pip uninstall --yes vtk
+#           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+#       - name: Run tests on _unittest_solvers
+#         run: |
+#           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+#           source .venv/bin/activate
+#           pytest --durations=50 -v --cov=ansys.aedt.core --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest_solvers
+
+#       - uses: codecov/codecov-action@v4
+#         with:
+#           token: ${{ secrets.CODECOV_TOKEN }}
+#           name: codecov-system-solver-tests
+#           file: ./coverage.xml
+#           flags: system,solver
+
+#       - name: Upload pytest test results
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: pytest-solver-results
+#           path: junit/test-results.xml
+#         if: ${{ always() }}
 
