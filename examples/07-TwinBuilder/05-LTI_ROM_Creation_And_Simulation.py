@@ -285,8 +285,6 @@ for pin in pins:
     source2.pins.append(CircuitPins(source2, pin, 1))
 
 # Connect components with wires
-#tb.modeler.schematic.create_wire(points=[[22 * G, 29 * G], rom1.pins[0].location])
-#tb.modeler.schematic.create_wire(points=[[22 * G, 25 * G], rom1.pins[1].location])
 tb.modeler.schematic.create_wire(points=[source1.pins[0].location, rom1.pins[0].location])
 tb.modeler.schematic.create_wire(points=[source2.pins[0].location, rom1.pins[1].location])
 
@@ -314,6 +312,7 @@ tb.analyze_setup("TR")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the inputs and outputs of the LTI ROM.
+# Units used are based on AEDT default units.
 
 variables_postprocessing = []
 rom_pins = My_s.lower().split(",")
@@ -323,7 +322,7 @@ fig.subplots_adjust(hspace=0.5)
 for i in range(0,2):
     variable = 'ROM1.' + rom_pins[i]
     x = tb.post.get_solution_data(variable, "TR", "Time")
-    ax[0].plot([el / 1000000000.0 for el in x.intrinsics["Time"]], x.data_real(variable), label=variable) #TODO how to change default time units nanosec to sec ?
+    ax[0].plot([el for el in x.intrinsics["Time"]], x.data_real(variable), label=variable)
 
 ax[0].set_title("ROM inputs")
 ax[0].legend(loc="upper left")
@@ -331,7 +330,7 @@ ax[0].legend(loc="upper left")
 for i in range(2, 4):
     variable = 'ROM1.' + rom_pins[i]
     x = tb.post.get_solution_data(variable, "TR", "Time")
-    ax[1].plot([el / 1000000000.0 for el in x.intrinsics["Time"]], x.data_real(variable), label=variable)
+    ax[1].plot([el for el in x.intrinsics["Time"]], x.data_real(variable), label=variable)
 
 ax[1].set_title("ROM outputs")
 ax[1].legend(loc="upper left")
