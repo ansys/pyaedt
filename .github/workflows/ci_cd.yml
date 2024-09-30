@@ -1,6 +1,9 @@
 name: GitHub CI CD
 on:
   pull_request:
+    # Github default types + ready_for_review to trigger the workflow on PRs no longer in draft mode.
+    # See https://github.com/ansys/pyaedt/issues/5223 for more information
+    types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
   push:
     tags:
