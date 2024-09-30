@@ -21,6 +21,7 @@ from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
 from ansys.aedt.core import downloads
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitPins
 
 ##########################################################
 # Set AEDT version
@@ -275,9 +276,19 @@ editor.ChangeProperty(
 		]
 	])
 
+# Add Datapairs component pin so that its location can directly be retrieved #TODO - how to fix this as part of CircuitComponent/pins class
+pins = list(source1._oeditor.GetComponentPins(source1.composed_name))
+for pin in pins:
+    source1.pins.append(CircuitPins(source1, pin, 1))
+pins = list(source2._oeditor.GetComponentPins(source2.composed_name))
+for pin in pins:
+    source2.pins.append(CircuitPins(source2, pin, 1))
+
 # Connect components with wires
-tb.modeler.schematic.create_wire(points=[[22 * G, 29 * G], rom1.pins[0].location]) #TODO why cannot we get datapairs.pins.location ?
-tb.modeler.schematic.create_wire(points=[[22 * G, 25 * G], rom1.pins[1].location])
+#tb.modeler.schematic.create_wire(points=[[22 * G, 29 * G], rom1.pins[0].location])
+#tb.modeler.schematic.create_wire(points=[[22 * G, 25 * G], rom1.pins[1].location])
+tb.modeler.schematic.create_wire(points=[source1.pins[0].location, rom1.pins[0].location])
+tb.modeler.schematic.create_wire(points=[source2.pins[0].location, rom1.pins[1].location])
 
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
@@ -312,7 +323,7 @@ fig.subplots_adjust(hspace=0.5)
 for i in range(0,2):
     variable = 'ROM1.' + rom_pins[i]
     x = tb.post.get_solution_data(variable, "TR", "Time")
-    ax[0].plot([el / 1000000000.0 for el in x.intrinsics["Time"]], x.data_real(variable), label=variable) #TODO why time is reported in nanoseconds
+    ax[0].plot([el / 1000000000.0 for el in x.intrinsics["Time"]], x.data_real(variable), label=variable) #TODO how to change default time units nanosec to sec ?
 
 ax[0].set_title("ROM inputs")
 ax[0].legend(loc="upper left")
