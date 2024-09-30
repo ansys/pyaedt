@@ -319,6 +319,13 @@ jobs:
           pip install .[tests]
           pip install pytest-azurepipelines
 
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
       - name: Run tests on _unittest_solvers
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
