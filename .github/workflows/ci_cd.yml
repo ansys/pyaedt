@@ -29,12 +29,62 @@ jobs:
 # # =================================================================================================
 
   # TODO: Si if we can use ansys/actions
+  test-specific-linux:
+    name: Testing solvers and coverage (Linux)
+    runs-on: [ self-hosted, Linux, pyaedt]
+    env:
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
+      ANS_NODEPCHECK: '1'
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pip install .[tests]
+          pip install pytest-azurepipelines
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          source .venv/bin/activate
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+      - name: Run tests on _unittest_solvers
+        run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:${{ env.ANSYSEM_ROOT242 }}/Delcross:$LD_LIBRARY_PATH
+          source .venv/bin/activate
+          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
+
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  # TODO: Si if we can use ansys/actions
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Linux, pyaedt , toolkits]
+    runs-on: [ self-hosted, Linux, pyaedt]
+    needs: [test-specific-linux]
     env:
-      ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
