@@ -26,6 +26,8 @@ import random
 import string
 import pytest
 
+import ansys.aedt.core.generic.clr_module
+
 from ansys.aedt.core.generic.settings import settings
 
 settings.enable_local_log_file = False
