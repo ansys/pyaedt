@@ -31,9 +31,9 @@ jobs:
   # TODO: Si if we can use ansys/actions
   test-specific-linux:
     name: Testing solvers and coverage (Linux)
-    runs-on: [ self-hosted, Linux, pyaedt]
+    runs-on: [ self-hosted, Linux, pyaedt, toolkits]
     env:
-      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
@@ -78,10 +78,10 @@ jobs:
   test-solvers-linux:
     name: Testing solvers and coverage (Linux)
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, Linux, pyaedt]
+    runs-on: [ self-hosted, Linux, pyaedt, toolkits]
     needs: [test-specific-linux]
     env:
-      ANSYSEM_ROOT242: '/opt/AnsysEM/v242/Linux64'
+      ANSYSEM_ROOT242: '/ansys_inc/AnsysEM/v242/Linux64'
       ANS_NODEPCHECK: '1'
     steps:
       - name: Install Git and checkout project
