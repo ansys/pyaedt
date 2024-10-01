@@ -18,7 +18,6 @@ directory as this module. An example of the contents of local_config.json
 
 """
 import json
-import numpy
 import os
 import shutil
 import sys
@@ -26,8 +25,6 @@ import tempfile
 import random
 import string
 import pytest
-
-import ansys.aedt.core.generic.clr_module
 
 from ansys.aedt.core.generic.settings import settings
 
