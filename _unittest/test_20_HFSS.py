@@ -1573,12 +1573,15 @@ class TestClass:
         array.cells[0][1].component = array.component_names[3]
         assert array.cells[0][1].component == array.component_names[3]
 
-        hfss_array.component_array["A1"].name = "Array_new"
-        assert hfss_array.component_array_names[0] == "Array_new"
-        hfss_array.component_array["Array_new"].name = "A1"
+        name = "Array_new"
+        hfss_array.component_array["A1"].name = name
+        assert hfss_array.component_array_names[0] == name
 
+        if config["desktopVersion"] < "2025.1":
+            name = "A1"
+            hfss_array.component_array["Array_new"].name = name
         omodel = hfss_array.get_oo_object(hfss_array.odesign, "Model")
-        oarray = hfss_array.get_oo_object(omodel, "A1")
+        oarray = hfss_array.get_oo_object(omodel, name)
 
         assert array.visible
         array.visible = False

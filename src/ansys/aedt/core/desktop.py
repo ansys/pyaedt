@@ -1718,7 +1718,7 @@ class Desktop(object):
         """
         self.odesktop.EnableAutoSave(False)
 
-    def change_license_type(self, license_type="Pool"):
+    def change_license_type(self, license_type="Pool"):  # pragma: no cover
         """Change the license type.
 
         Parameters
@@ -1739,6 +1739,34 @@ class Desktop(object):
         try:
             self.odesktop.SetRegistryString("Desktop/Settings/ProjectOptions/HPCLicenseType", license_type)
             return True
+        except Exception:
+            return False
+
+    def enable_optimetrics(self):  # pragma: no cover
+        """Enable optimetrics.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 1)
+        except Exception:
+            return False
+
+    def disable_optimetrics(self):  # pragma: no cover
+        """Disable optimetrics.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            return self.change_registry_key("Desktop/Settings/ProjectOptions/EnableLegacyOptimetricsTools", 0)
         except Exception:
             return False
 

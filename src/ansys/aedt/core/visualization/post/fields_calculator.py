@@ -207,7 +207,7 @@ class FieldsCalculator:
             constants = expression_info["constants"]
             if constants:
                 for k, v in constants.items():
-                    self.__app.variable_manager.set_variable(k, v, postprocessing=True)
+                    self.__app.variable_manager.set_variable(k, v, is_post_processing=True)
 
         # Check for dependent expressions
         if expression_info["dependent_expressions"]:
