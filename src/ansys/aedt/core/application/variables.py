@@ -1378,7 +1378,6 @@ class VariableManager(object):
         ]:
             # To retrieve local variables
             try:
-                # v = list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
                 v = self._app.odesign.GetVariables()
             except AttributeError:
                 v = []
