@@ -46,6 +46,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -54,27 +55,29 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Print setup
+      - name: Install pyedb WIP version
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          python --version
-          echo ""
-          pip freeze
-          echo ""
+          pip uninstall --yes pyedb
+          pip install git+https://github.com/ansys/pyedb.git@fix/padstack-definition
 
       - name: Run tests on _unittest_solvers
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
@@ -102,6 +105,7 @@ jobs:
 
       - name: Create virtual environment
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           python -m venv .venv
           source .venv/bin/activate
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
@@ -110,29 +114,30 @@ jobs:
 
       - name: Install pyaedt and tests dependencies
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           pip install .[tests]
           pip install pytest-azurepipelines
 
       - name: Install CI dependencies (e.g. vtk-osmesa)
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Print setup
+      - name: Install pyedb WIP version
         run: |
+          export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          python --version
-          echo ""
-          pip freeze
-          echo ""
+          pip uninstall --yes pyedb
+          pip install git+https://github.com/ansys/pyedb.git@fix/padstack-definition
 
       - name: Run tests on _unittest_solvers
         run: |
-          source .venv/bin/activate
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
+          source .venv/bin/activate
           pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
 
 # # # =================================================================================================
