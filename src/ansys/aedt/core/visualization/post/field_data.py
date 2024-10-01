@@ -1521,6 +1521,8 @@ class FieldPlot:
                 self._postprocessor.ofieldsreporter.SetPlotsViewSolutionContext(
                     [self.name], self.solution, "Time:" + self.intrinsics["Time"]
                 )
+            if self.name not in self._postprocessor.field_plot_names:
+                return False
             self._postprocessor.field_plots[self.name] = self
             return True
         except Exception:
