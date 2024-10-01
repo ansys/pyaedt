@@ -25,7 +25,7 @@ import os.path
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
-from ansys.aedt.core.modules.solutions import nastran_to_stl
+from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -128,7 +128,7 @@ def frontend():  # pragma: no cover
         if master.file_path_ui.endswith(".nas"):
             nastran_to_stl(input_file=master.file_path_ui, decimation=master.decimate_ui, preview=True)
         else:
-            from ansys.aedt.core.modules.solutions import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
             simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
 
@@ -182,7 +182,7 @@ def main(extension_args):
                 file_path, import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
             )
         else:
-            from ansys.aedt.core.modules.solutions import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
             outfile = simplify_stl(file_path, decimation=decimate)
             aedtapp.modeler.import_3d_cad(

@@ -9,7 +9,7 @@ import os.path
 
 import ansys.aedt.core
 
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.post.pdf import AnsysReport
 
 ##########################################################
 # Set AEDT version

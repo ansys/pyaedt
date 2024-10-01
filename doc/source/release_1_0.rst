@@ -176,7 +176,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\OptimetricsTemplates.py                       | src\\ansys\\aedt\\core\\modules\\optimetrics_templates.py                |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\modules\\PostProcessor.py                              | src\\ansys\\aedt\\core\\modules\\post_processor.py                       |
+| pyaedt\\modules\\PostProcessor.py                              | src\\ansys\\aedt\\core\\modules\\post_general.py                         |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\SetupTemplates.py                             | src\\ansys\\aedt\\core\\modules\\setup_templates.py                      |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+

@@ -5913,8 +5913,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         >>> ffdata = hfss.get_antenna_data()
         >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
         """
-        from ansys.aedt.core.generic.farfield_visualization import FfdSolutionData
-        from ansys.aedt.core.generic.farfield_visualization import FfdSolutionDataExporter
+        from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+        from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
@@ -6164,7 +6164,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.modules.hdm_parser.Parser`
         """
 
-        from ansys.aedt.core.sbrplus.hdm_parser import Parser
+        from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
         if os.path.exists(file_name):
             return Parser(file_name).parse_message()
@@ -6184,7 +6184,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
         :class:`ansys.aedt.core.sbrplus.plot.HDMPlotter`
 
         """
-        from ansys.aedt.core.sbrplus.plot import HDMPlotter
+        from ansys.aedt.core.visualization.advanced.hdm_plot import HDMPlotter
 
         hdm = HDMPlotter()
         files = self.post.export_model_obj(export_as_single_objects=True, air_objects=False)

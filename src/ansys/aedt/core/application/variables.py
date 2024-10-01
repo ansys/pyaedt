@@ -1773,10 +1773,11 @@ class Variable(object):
             return list(ast.literal_eval(self._value))
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            if self._app._aedt_version >= "2025.1":
-                evaluated_value = var_obj.GetPropEvaluatedValue()
-            else:
-                evaluated_value = var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            evaluated_value = (
+                var_obj.GetPropEvaluatedValue()
+                if self._app._aedt_version > "2024.2"
+                else var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            )
             if (
                 isinstance(evaluated_value, str)
                 and evaluated_value.strip().startswith("[")
@@ -1810,11 +1811,13 @@ class Variable(object):
         """Units."""
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            if self._app._aedt_version >= "2025.1":
-                evaluated_value = var_obj.GetPropEvaluatedValue()
-            else:
-                evaluated_value = var_obj.GetPropEvaluatedValue("EvaluatedValue")
-            _, self._units = decompose_variable_value(evaluated_value)
+            v = (
+                var_obj.GetPropEvaluatedValue()
+                if self._app._aedt_version > "2024.2"
+                else var_obj.GetPropEvaluatedValue("EvaluatedValue")
+            )
+
+            _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue())
             return self._units
         except (TypeError, AttributeError, GrpcApiError):
             pass

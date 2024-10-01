@@ -27,7 +27,7 @@ import os
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port

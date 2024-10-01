@@ -32,7 +32,7 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.pdf import AnsysReport
+from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 import pytest
 
 test_subfolder = "T41"
@@ -588,8 +588,9 @@ class TestClass:
         assert isinstance(self.aedtapp.available_variations.nominal_w_values, list)
 
     def test_26_duplicate(self):
-        assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
-        assert self.aedtapp.modeler.duplicate_across_layers("mycircle2", "Bottom")
+        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle_d")
+        assert self.aedtapp.modeler.duplicate("myrectangle_d", 2, [1, 1])
+        assert self.aedtapp.modeler.duplicate_across_layers("myrectangle_d", "Bottom")
 
     def test_27_create_pin_port(self):
         port = self.aedtapp.create_pin_port("PinPort1")
