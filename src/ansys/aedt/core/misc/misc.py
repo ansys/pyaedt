@@ -27,6 +27,8 @@
 import os
 import warnings
 
+# import src.ansys.aedt.core.generic.constants
+
 
 def list_installed_ansysem():
     """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``."""
@@ -52,15 +54,17 @@ def installed_versions():
     as the value."""
 
     return_dict = {}
+    # version_list is ordered: first normal versions, then student versions, finally client versions
     version_list = list_installed_ansysem()
-    client = False
     for version_env_var in version_list:
-        if "ANSYSEMSV_ROOT" in version_env_var:
-            current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
-            student = True
-        elif "ANSYSEM_ROOT" in version_env_var:
+        if "ANSYSEM_ROOT" in version_env_var:
             current_version_id = version_env_var.replace("ANSYSEM_ROOT", "")
             student = False
+            client = False
+        elif "ANSYSEMSV_ROOT" in version_env_var:
+            current_version_id = version_env_var.replace("ANSYSEMSV_ROOT", "")
+            student = True
+            client = False
         else:
             current_version_id = version_env_var.replace("ANSYSEM_PY_CLIENT_ROOT", "")
             student = False
@@ -86,8 +90,9 @@ def installed_versions():
 
 
 def current_version():
-    """Get the current AEDT version."""
+    """Get the current stable AEDT version."""
     try:
+        stable_versions = [v for v in installed_versions() if v]
         return list(installed_versions().keys())[0]
     except (NameError, IndexError):
         return ""
