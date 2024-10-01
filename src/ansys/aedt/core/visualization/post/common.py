@@ -1663,8 +1663,17 @@ class PostProcessorCommon(object):
             else:
                 report_temp = TEMPLATES_BY_NAME[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
-            for k, v in props.items():
-                report._props[k] = v
+
+            def _update_props(prop_in, props_out):
+                for k, v in prop_in.items():
+                    if isinstance(v, dict):
+                        if k not in props_out:
+                            props_out[k] = {}
+                        _update_props(v, props_out[k])
+                    else:
+                        props_out[k] = v
+
+            _update_props(props, report._props)
             for el, k in self._app.available_variations.nominal_w_values_dict.items():
                 if (
                     report._props.get("context", None)

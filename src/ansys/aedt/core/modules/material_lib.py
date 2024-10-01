@@ -170,10 +170,14 @@ class Materials(object):
         def get_mat_list(file_name):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open_file(file_name, "r") as aedt_fh:
+            with open_file(file_name, "rb") as aedt_fh:
                 raw_lines = aedt_fh.read().splitlines()
                 for line in raw_lines:
-                    b = _begin_search.search(line)
+                    try:
+                        ascii_line = line.decode("utf-8")
+                    except UnicodeDecodeError:
+                        continue
+                    b = _begin_search.search(ascii_line)
                     if b:  # walk down a level
                         mats.append(b.group(1))
             return mats
@@ -850,11 +854,15 @@ class Materials(object):
                     self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
                 else:
                     newname = el
-                newmat = Material(self, newname, val, material_update=False)
-                newmat.update()
-                newmat._material_update = True
-                self.material_keys[newname] = newmat
-                materials_added.append(newmat)
+                try:
+                    newmat = Material(self, newname, val, material_update=False)
+                    newmat.update()
+                    newmat._material_update = True
+                    self.material_keys[newname] = newmat
+                    materials_added.append(newmat)
+                except KeyError as e:
+                    self.logger.error(f"Failed to import material {el!r} from {input_file!r}: key error on {e}")
+                    raise e
         else:
             for mat_name in data:
                 invalid_names = ["$base_index$", "$index$"]

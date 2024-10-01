@@ -1461,7 +1461,7 @@ class Primitives3D(GeometryModeler):
                 )
             return cs_name
         else:
-            app.oproject.Close()
+            app.close_project()
             return assignment.target_coordinate_system
 
     @staticmethod
