@@ -80,7 +80,7 @@ jobs:
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
-          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
+          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d -vvv
 
 
 # # =================================================================================================
@@ -138,7 +138,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT242 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
           source .venv/bin/activate
-          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d 
+          pytest _unittest_solvers/test_45_workflows.py::TestClass::test_08_configure_a3d -vvv
 
 # # # =================================================================================================
 # # # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
