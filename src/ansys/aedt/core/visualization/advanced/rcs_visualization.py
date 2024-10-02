@@ -31,12 +31,12 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.visualization.plot.matplotlib import plot_2d_chart
+from ansys.aedt.core.visualization.plot.matplotlib import plot_polar_chart
 import pandas as pd
-from pyaedt.generic.general_methods import conversion_function
-from pyaedt.generic.plot import plot_2d_chart
-from pyaedt.generic.plot import plot_polar_chart
 
 np = None
 pv = None

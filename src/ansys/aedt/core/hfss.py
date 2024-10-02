@@ -6036,7 +6036,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             setup = self.nominal_adaptive
 
         if setup in self.existing_analysis_sweeps and not frequencies:
-            rcs_data = self.__app.post.get_solution_data(
+            rcs_data = self.post.get_solution_data(
                 expressions=expression,
                 variations=variations,
                 setup_sweep_name=setup,
@@ -6059,6 +6059,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods):
             variations=variations,
             overwrite=overwrite,
         )
+
+        if variation_name:
+            rcs.variation_name = variation_name
 
         metadata = rcs.export_rcs()
 
